@@ -17,4 +17,18 @@ class Studies extends Controller
     }
 
     //
+    public function findStudies()
+    {
+        return ['studies'=>[]];
+    }
+
+    public function deleteStudyById($id)
+    {
+
+    }
+
+    public function getStudyById($id)
+    {
+
+    }
 }

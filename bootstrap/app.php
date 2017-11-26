@@ -27,6 +27,11 @@ $app->withFacades();
 
 $app->withEloquent();
 
+// $app->withAliases([
+//     'Tymon\JWTAuth\Facades\JWTAuth' => 'JWTAuth',
+//     'Tymon\JWTAuth\Facades\JWTFactory' => 'JWTFactory'
+// ]);
+
 /*
 |--------------------------------------------------------------------------
 | Register Container Bindings
@@ -84,7 +89,9 @@ $app->routeMiddleware([
 // $app->register(App\Providers\AppServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
-$app->register('Nord\Lumen\Cors\CorsServiceProvider');
+$app->register(Sofa\Eloquence\BaseServiceProvider::class);
+$app->register(Nord\Lumen\Cors\CorsServiceProvider::class);
+$app->register(Tymon\JWTAuth\Providers\LumenServiceProvider::class);
 
 
 if ($app->environment('local')) {
@@ -104,10 +111,19 @@ if ($app->environment('local')) {
 |
 */
 
+
+
 $app->router->group([
     'namespace' => 'App\Http\Controllers',
 ], function ($router) {
-    require __DIR__.'/../routes/web.php';
+    require __DIR__.'/../routes/auth.php';
+});
+
+$app->router->group([
+    'middleware' => 'auth',
+    'namespace' => 'App\Http\Controllers',
+], function ($router) {
+    require __DIR__.'/../routes/api.php';
 });
 
 return $app;

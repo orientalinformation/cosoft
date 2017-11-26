@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api1;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class Index extends Controller
 {
@@ -21,5 +22,6 @@ class Index extends Controller
 
     public function hello() {
         return [ 'message' => 'Hello '.$this->input['name'] . ' !'];
+        // return Hash::make('admin');
     }
 }

@@ -2,7 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Auth\Authenticatable;
+use Laravel\Lumen\Auth\Authorizable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
+use Tymon\JWTAuth\Contracts\JWTSubject;
+
+use Sofa\Eloquence\Eloquence; // base trait
+use Sofa\Eloquence\Mappable; // extension trait
 
 /**
  * @property int $ID_USER
@@ -33,8 +41,12 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read TempRecordPtsDef[] $tempRecordPtsDefs
  * @property-read Unit[] $units
  */
-class User extends Model
+class User extends Model implements JWTSubject, AuthenticatableContract, AuthorizableContract
 {
+
+    use Authenticatable, Authorizable,
+        Eloquence, Mappable;
+
     /**
      * The table associated with the model.
      * 
@@ -45,7 +57,26 @@ class User extends Model
     /**
      * @var array
      */
-    protected $fillable = ['ID_USER', 'ID_MONETARY_CURRENCY', 'CODE_LANGUE', 'ID_CALC_PARAMSDEF', 'ID_TEMP_RECORD_PTS_DEF', 'USERNAM', 'USERPASS', 'USERPRIO', 'TRACE_LEVEL', 'USER_ENERGY', 'USER_CONSTRUCTOR', 'USER_FAMILY', 'USER_ORIGINE', 'USER_PROCESS', 'USER_MODEL', 'USERMAIL'];
+    protected $fillable = ['ID_USER', 'ID_MONETARY_CURRENCY', 'CODE_LANGUE', 'ID_CALC_PARAMSDEF', 
+        'ID_TEMP_RECORD_PTS_DEF', 'USERNAM', 'USERPRIO', 'TRACE_LEVEL', 'USER_ENERGY', 'USER_CONSTRUCTOR', 
+        'USER_FAMILY', 'USER_ORIGINE', 'USER_PROCESS', 'USER_MODEL', 'USERMAIL'];
+
+   
+    /**
+     * @var array
+     */
+    protected $hidden = [
+        'USERPASS',
+    ];
+
+    /**
+     * @var array
+     */
+    protected $maps = [
+      'username' => 'USERNAM',
+      'password' => 'USERPASS',
+      'email' => 'USERMAIL',
+    ];
 
     /**
      * @var string
@@ -145,5 +176,15 @@ class User extends Model
     public function units()
     {
         return $this->belongsToMany('App\\Models\\Unit', 'user_unit', 'ID_USER', 'ID_UNIT');
+    }
+
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return [];
     }
 }
