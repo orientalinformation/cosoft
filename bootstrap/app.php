@@ -61,17 +61,14 @@ $app->configure('cors');
 |
 */
 
-// $app->middleware([
-//    App\Http\Middleware\ExampleMiddleware::class
-// ]);
-
-// $app->routeMiddleware([
-//     'auth' => App\Http\Middleware\Authenticate::class,
-// ]);
-
 $app->middleware([
-	'Nord\Lumen\Cors\CorsMiddleware',
+    'Nord\Lumen\Cors\CorsMiddleware',
 ]);
+
+$app->routeMiddleware([
+    'auth' => App\Http\Middleware\Authenticate::class,
+]);
+
 
 /*
 |--------------------------------------------------------------------------
@@ -85,13 +82,15 @@ $app->middleware([
 */
 
 // $app->register(App\Providers\AppServiceProvider::class);
-// $app->register(App\Providers\AuthServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
+$app->register(App\Providers\AuthServiceProvider::class);
 $app->register('Nord\Lumen\Cors\CorsServiceProvider');
 
 
 if ($app->environment('local')) {
     $app->register(Krlove\EloquentModelGenerator\Provider\GeneratorServiceProvider::class);
+    $app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
+
 }
 
 /*
