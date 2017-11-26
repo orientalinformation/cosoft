@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $ID_COLOR
  * @property int $LAYER_ORDER
  * @property-read ColorPalette $colorPalette
- * @property-read Ln2user $ln2user
+ * @property-read User $user
  */
 class ProdcharColorsDef extends Model
 {
@@ -43,7 +43,7 @@ class ProdcharColorsDef extends Model
      */
     public function colorPalette()
     {
-        return $this->belongsTo('ColorPalette', 'ID_COLOR', 'ID_COLOR');
+        return $this->belongsTo('App\\Models\\ColorPalette', 'ID_COLOR', 'ID_COLOR');
     }
 
     /**
@@ -51,6 +51,6 @@ class ProdcharColorsDef extends Model
      */
     public function user()
     {
-        return $this->belongsTo('User', 'ID_USER', 'ID_USER');
+        return $this->belongsTo('App\\Models\\User', 'ID_USER', 'ID_USER');
     }
 }

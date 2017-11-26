@@ -85,7 +85,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property boolean $REP_CONS_PIE
  * @property mixed $CONTOUR2D_TEMP_MIN
  * @property mixed $CONTOUR2D_TEMP_MAX
- * @property-read Studies $studies
+ * @property-read Study $studies
  */
 class Report extends Model
 {
@@ -118,6 +118,6 @@ class Report extends Model
      */
     public function studies()
     {
-        return $this->belongsTo('Studies', 'ID_STUDY', 'ID_STUDY');
+        return $this->belongsTo('App\\Models\\Study', 'ID_STUDY', 'ID_STUDY');
     }
 }

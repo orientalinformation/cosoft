@@ -32,7 +32,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $PARENT_STUD_EQP_ID
  * @property boolean $HAS_CHILD
  * @property boolean $OPEN_BY_OWNER
- * @property-read Ln2user $ln2user
+ * @property-read User $user
  * @property-read HaverageResult[] $haverageResults
  * @property-read Packing[] $packings
  * @property-read PrecalcLdgRate[] $precalcLdgRates
@@ -69,7 +69,7 @@ class Study extends Model
      */
     public function user()
     {
-        return $this->belongsTo('User', 'ID_USER', 'ID_USER');
+        return $this->belongsTo('App\\Models\\User', 'ID_USER', 'ID_USER');
     }
 
     /**
@@ -77,7 +77,7 @@ class Study extends Model
      */
     public function haverageResults()
     {
-        return $this->hasMany('HaverageResults', 'ID_STUDY', 'ID_STUDY');
+        return $this->hasMany('App\\Models\\HaverageResults', 'ID_STUDY', 'ID_STUDY');
     }
 
     /**
@@ -85,7 +85,7 @@ class Study extends Model
      */
     public function packings()
     {
-        return $this->hasMany('Packing', 'ID_STUDY', 'ID_STUDY');
+        return $this->hasMany('App\\Models\\Packing', 'ID_STUDY', 'ID_STUDY');
     }
 
     /**
@@ -93,7 +93,7 @@ class Study extends Model
      */
     public function precalcLdgRates()
     {
-        return $this->hasMany('PrecalcLdgRate', 'ID_STUDY', 'ID_STUDY');
+        return $this->hasMany('App\\Models\\PrecalcLdgRate', 'ID_STUDY', 'ID_STUDY');
     }
 
     /**
@@ -101,7 +101,7 @@ class Study extends Model
      */
     public function precalcLdgRatePrms()
     {
-        return $this->hasMany('PrecalcLdgRatePrm', 'ID_STUDY', 'ID_STUDY');
+        return $this->hasMany('App\\Models\\PrecalcLdgRatePrm', 'ID_STUDY', 'ID_STUDY');
     }
 
     /**
@@ -109,7 +109,7 @@ class Study extends Model
      */
     public function prices()
     {
-        return $this->hasMany('Prices', 'ID_STUDY', 'ID_STUDY');
+        return $this->hasMany('App\\Models\\Prices', 'ID_STUDY', 'ID_STUDY');
     }
 
     /**
@@ -117,7 +117,7 @@ class Study extends Model
      */
     public function products()
     {
-        return $this->hasMany('Product', 'ID_STUDY', 'ID_STUDY');
+        return $this->hasMany('App\\Models\\Product', 'ID_STUDY', 'ID_STUDY');
     }
 
     /**
@@ -125,7 +125,7 @@ class Study extends Model
      */
     public function productions()
     {
-        return $this->hasMany('Production', 'ID_STUDY', 'ID_STUDY');
+        return $this->hasMany('App\\Models\\Production', 'ID_STUDY', 'ID_STUDY');
     }
 
     /**
@@ -133,7 +133,7 @@ class Study extends Model
      */
     public function reports()
     {
-        return $this->hasMany('Report', 'ID_STUDY', 'ID_STUDY');
+        return $this->hasMany('App\\Models\\Report', 'ID_STUDY', 'ID_STUDY');
     }
 
     /**
@@ -141,7 +141,7 @@ class Study extends Model
      */
     public function studyEquipments()
     {
-        return $this->hasMany('StudyEquipments', 'ID_STUDY', 'ID_STUDY');
+        return $this->hasMany('App\\Models\\StudyEquipments', 'ID_STUDY', 'ID_STUDY');
     }
 
     /**
@@ -149,7 +149,7 @@ class Study extends Model
      */
     public function studyResults()
     {
-        return $this->hasMany('StudyResults', 'ID_STUDY', 'ID_STUDY');
+        return $this->hasMany('App\\Models\\StudyResults', 'ID_STUDY', 'ID_STUDY');
     }
 
     /**
@@ -157,6 +157,6 @@ class Study extends Model
      */
     public function tempRecordPts()
     {
-        return $this->hasMany('TempRecordPts', 'ID_STUDY', 'ID_STUDY');
+        return $this->hasMany('App\\Models\\TempRecordPts', 'ID_STUDY', 'ID_STUDY');
     }
 }

@@ -45,7 +45,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property boolean $OPEN_BY_OWNER
  * @property-read CoolingFamily $coolingFamily
  * @property-read Equipseries $equipseries
- * @property-read Ln2user $ln2user
+ * @property-read User $user
  * @property-read Consumptions[] $consumptions
  * @property-read EquipGeneration[] $equipGenerations
  * @property-read EquipZone[] $equipZones
@@ -84,7 +84,7 @@ class Equipment extends Model
      */
     public function coolingFamily()
     {
-        return $this->belongsTo('CoolingFamily', 'ID_COOLING_FAMILY', 'ID_COOLING_FAMILY');
+        return $this->belongsTo('App\\Models\\CoolingFamily', 'ID_COOLING_FAMILY', 'ID_COOLING_FAMILY');
     }
 
     /**
@@ -92,7 +92,7 @@ class Equipment extends Model
      */
     public function equipseries()
     {
-        return $this->belongsTo('Equipseries', 'ID_EQUIPSERIES', 'ID_EQUIPSERIES');
+        return $this->belongsTo('App\\Models\\Equipseries', 'ID_EQUIPSERIES', 'ID_EQUIPSERIES');
     }
 
     /**
@@ -100,7 +100,7 @@ class Equipment extends Model
      */
     public function user()
     {
-        return $this->belongsTo('User', 'ID_USER', 'ID_USER');
+        return $this->belongsTo('App\\Models\\User', 'ID_USER', 'ID_USER');
     }
 
     /**
@@ -108,7 +108,7 @@ class Equipment extends Model
      */
     public function consumptions()
     {
-        return $this->hasMany('Consumptions', 'ID_EQUIP', 'ID_EQUIP');
+        return $this->hasMany('App\\Models\\Consumptions', 'ID_EQUIP', 'ID_EQUIP');
     }
 
     /**
@@ -116,7 +116,7 @@ class Equipment extends Model
      */
     public function equipGenerations()
     {
-        return $this->hasMany('EquipGeneration', 'ID_EQUIP', 'ID_EQUIP');
+        return $this->hasMany('App\\Models\\EquipGeneration', 'ID_EQUIP', 'ID_EQUIP');
     }
 
     /**
@@ -124,7 +124,7 @@ class Equipment extends Model
      */
     public function equipZones()
     {
-        return $this->hasMany('EquipZone', 'ID_EQUIP', 'ID_EQUIP');
+        return $this->hasMany('App\\Models\\EquipZone', 'ID_EQUIP', 'ID_EQUIP');
     }
 
     /**
@@ -132,7 +132,7 @@ class Equipment extends Model
      */
     public function equipcharacts()
     {
-        return $this->hasMany('Equipcharact', 'ID_EQUIP', 'ID_EQUIP');
+        return $this->hasMany('App\\Models\\Equipcharact', 'ID_EQUIP', 'ID_EQUIP');
     }
 
     /**
@@ -140,7 +140,7 @@ class Equipment extends Model
      */
     public function precalcLdgRates()
     {
-        return $this->hasMany('PrecalcLdgRate', 'ID_EQUIP', 'ID_EQUIP');
+        return $this->hasMany('App\\Models\\PrecalcLdgRate', 'ID_EQUIP', 'ID_EQUIP');
     }
 
     /**
@@ -148,7 +148,7 @@ class Equipment extends Model
      */
     public function ramps()
     {
-        return $this->hasMany('Ramps', 'ID_EQUIP', 'ID_EQUIP');
+        return $this->hasMany('App\\Models\\Ramps', 'ID_EQUIP', 'ID_EQUIP');
     }
 
     /**
@@ -156,7 +156,7 @@ class Equipment extends Model
      */
     public function shelves()
     {
-        return $this->hasMany('Shelves', 'ID_EQUIP', 'ID_EQUIP');
+        return $this->hasMany('App\\Models\\Shelves', 'ID_EQUIP', 'ID_EQUIP');
     }
 
     /**
@@ -164,6 +164,6 @@ class Equipment extends Model
      */
     public function studyEquipments()
     {
-        return $this->hasMany('StudyEquipments', 'ID_EQUIP', 'ID_EQUIP');
+        return $this->hasMany('App\\Models\\StudyEquipments', 'ID_EQUIP', 'ID_EQUIP');
     }
 }

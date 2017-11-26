@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property mixed $MESH_2_SIZE
  * @property mixed $MESH_3_SIZE
  * @property mixed $MESH_RATIO
- * @property-read Ln2user $ln2user
+ * @property-read User $user
  */
 class MeshParamDef extends Model
 {
@@ -50,6 +50,6 @@ class MeshParamDef extends Model
      */
     public function user()
     {
-        return $this->belongsTo('User', 'ID_USER', 'ID_USER');
+        return $this->belongsTo('App\\Models\\User', 'ID_USER', 'ID_USER');
     }
 }

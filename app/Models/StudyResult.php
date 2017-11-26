@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $ID_STUDY
  * @property int $BEST_EQUIPMENT
  * @property mixed $TOTAL_DWELLINGTIME
- * @property-read Studies $studies
+ * @property-read Study $studies
  */
 class StudyResult extends Model
 {
@@ -35,6 +35,6 @@ class StudyResult extends Model
      */
     public function studies()
     {
-        return $this->belongsTo('Studies', 'ID_STUDY', 'ID_STUDY');
+        return $this->belongsTo('App\\Models\\Study', 'ID_STUDY', 'ID_STUDY');
     }
 }

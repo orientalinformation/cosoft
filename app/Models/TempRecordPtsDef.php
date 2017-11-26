@@ -28,7 +28,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property mixed $NB_STEPS_DEF
  * @property mixed $CONTOUR2D_TEMP_MIN_DEF
  * @property mixed $CONTOUR2D_TEMP_MAX_DEF
- * @property-read Ln2user $ln2user
+ * @property-read User $user
  */
 class TempRecordPtsDef extends Model
 {
@@ -61,6 +61,6 @@ class TempRecordPtsDef extends Model
      */
     public function user()
     {
-        return $this->belongsTo('User', 'ID_USER', 'ID_USER');
+        return $this->belongsTo('App\\Models\\User', 'ID_USER', 'ID_USER');
     }
 }

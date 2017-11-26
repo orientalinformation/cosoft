@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Carbon\Carbon $DATE_CONNECTION
  * @property \Carbon\Carbon $DATE_DISCONNECTION
  * @property mixed $TYPE_DISCONNECTION
- * @property-read Ln2user $ln2user
+ * @property-read User $user
  */
 class Connection extends Model
 {
@@ -56,6 +56,6 @@ class Connection extends Model
      */
     public function user()
     {
-        return $this->belongsTo('User', 'ID_USER', 'ID_USER');
+        return $this->belongsTo('App\\Models\\User', 'ID_USER', 'ID_USER');
     }
 }

@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property mixed $AVG_TEMP
  * @property mixed $ENTHALPY
  * @property mixed $CONDUCTIVITY
- * @property-read Studies $studies
+ * @property-read Study $studies
  */
 class HaverageResult extends Model
 {
@@ -36,6 +36,6 @@ class HaverageResult extends Model
      */
     public function studies()
     {
-        return $this->belongsTo('Studies', 'ID_STUDY', 'ID_STUDY');
+        return $this->belongsTo('App\\Models\\Study', 'ID_STUDY', 'ID_STUDY');
     }
 }

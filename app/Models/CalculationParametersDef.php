@@ -32,7 +32,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property boolean $STUDY_ALPHA_REAR_FIXED_DEF
  * @property mixed $STUDY_ALPHA_REAR_DEF
  * @property mixed $PRECISION_REQUEST_DEF
- * @property-read Ln2user $ln2user
+ * @property-read User $user
  */
 class CalculationParametersDef extends Model
 {
@@ -65,6 +65,6 @@ class CalculationParametersDef extends Model
      */
     public function user()
     {
-        return $this->belongsTo('User', 'ID_USER', 'ID_USER');
+        return $this->belongsTo('App\\Models\\User', 'ID_USER', 'ID_USER');
     }
 }

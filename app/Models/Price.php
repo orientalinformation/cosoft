@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property mixed $ECO_IN_CRYO4
  * @property mixed $ECO_IN_MINMP
  * @property mixed $ECO_IN_MAXMP
- * @property-read Studies $studies
+ * @property-read Study $studies
  */
 class Price extends Model
 {
@@ -43,6 +43,6 @@ class Price extends Model
      */
     public function studies()
     {
-        return $this->belongsTo('Studies', 'ID_STUDY', 'ID_STUDY');
+        return $this->belongsTo('App\\Models\\Study', 'ID_STUDY', 'ID_STUDY');
     }
 }

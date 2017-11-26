@@ -64,7 +64,7 @@ class User extends Model
      */
     public function calculationParametersDefs()
     {
-        return $this->hasMany('CalculationParametersDef', 'ID_USER', 'ID_USER');
+        return $this->hasMany('App\\Models\\CalculationParametersDef', 'ID_USER', 'ID_USER');
     }
 
     /**
@@ -72,7 +72,7 @@ class User extends Model
      */
     public function components()
     {
-        return $this->hasMany('Component', 'ID_USER', 'ID_USER');
+        return $this->hasMany('App\\Models\\Component', 'ID_USER', 'ID_USER');
     }
 
     /**
@@ -80,7 +80,7 @@ class User extends Model
      */
     public function connections()
     {
-        return $this->hasMany('Connection', 'ID_USER', 'ID_USER');
+        return $this->hasMany('App\\Models\\Connection', 'ID_USER', 'ID_USER');
     }
 
     /**
@@ -88,7 +88,7 @@ class User extends Model
      */
     public function equipment()
     {
-        return $this->hasMany('Equipment', 'ID_USER', 'ID_USER');
+        return $this->hasMany('App\\Models\\Equipment', 'ID_USER', 'ID_USER');
     }
 
     /**
@@ -96,7 +96,7 @@ class User extends Model
      */
     public function lineElmts()
     {
-        return $this->hasMany('LineElmt', 'ID_USER', 'ID_USER');
+        return $this->hasMany('App\\Models\\LineElmt', 'ID_USER', 'ID_USER');
     }
 
     /**
@@ -104,7 +104,7 @@ class User extends Model
      */
     public function meshParamDef()
     {
-        return $this->hasOne('MeshParamDef', 'ID_USER', 'ID_USER');
+        return $this->hasOne('App\\Models\\MeshParamDef', 'ID_USER', 'ID_USER');
     }
 
     /**
@@ -112,7 +112,7 @@ class User extends Model
      */
     public function packingElmts()
     {
-        return $this->hasMany('PackingElmt', 'ID_USER', 'ID_USER');
+        return $this->hasMany('App\\Models\\PackingElmt', 'ID_USER', 'ID_USER');
     }
 
     /**
@@ -120,7 +120,7 @@ class User extends Model
      */
     public function prodcharColorsDefs()
     {
-        return $this->hasMany('ProdcharColorsDef', 'ID_USER', 'ID_USER');
+        return $this->hasMany('App\\Models\\ProdcharColorsDef', 'ID_USER', 'ID_USER');
     }
 
     /**
@@ -128,7 +128,7 @@ class User extends Model
      */
     public function studies()
     {
-        return $this->hasMany('Study', 'ID_USER', 'ID_USER');
+        return $this->hasMany('App\\Models\\Study', 'ID_USER', 'ID_USER');
     }
 
     /**
@@ -136,7 +136,7 @@ class User extends Model
      */
     public function tempRecordPtsDefs()
     {
-        return $this->hasMany('TempRecordPtsDef', 'ID_USER', 'ID_USER');
+        return $this->hasMany('App\\Models\\TempRecordPtsDef', 'ID_USER', 'ID_USER');
     }
 
     /**
@@ -144,6 +144,6 @@ class User extends Model
      */
     public function units()
     {
-        return $this->belongsToMany('Unit', 'user_unit', 'ID_USER', 'ID_UNIT');
+        return $this->belongsToMany('App\\Models\\Unit', 'user_unit', 'ID_USER', 'ID_UNIT');
     }
 }

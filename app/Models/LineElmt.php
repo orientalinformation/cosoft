@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $ELT_IMP_ID_STUDY
  * @property boolean $OPEN_BY_OWNER
  * @property-read CoolingFamily $coolingFamily
- * @property-read Ln2user $ln2user
+ * @property-read User $user
  * @property-read LineDefinition[] $lineDefinitions
  */
 class LineElmt extends Model
@@ -61,7 +61,7 @@ class LineElmt extends Model
      */
     public function coolingFamily()
     {
-        return $this->belongsTo('CoolingFamily', 'ID_COOLING_FAMILY', 'ID_COOLING_FAMILY');
+        return $this->belongsTo('App\\Models\\CoolingFamily', 'ID_COOLING_FAMILY', 'ID_COOLING_FAMILY');
     }
 
     /**
@@ -69,7 +69,7 @@ class LineElmt extends Model
      */
     public function user()
     {
-        return $this->belongsTo('User', 'ID_USER', 'ID_USER');
+        return $this->belongsTo('App\\Models\\User', 'ID_USER', 'ID_USER');
     }
 
     /**
@@ -77,6 +77,6 @@ class LineElmt extends Model
      */
     public function lineDefinitions()
     {
-        return $this->hasMany('LineDefinition', 'ID_PIPELINE_ELMT', 'ID_PIPELINE_ELMT');
+        return $this->hasMany('App\\Models\\LineDefinition', 'ID_PIPELINE_ELMT', 'ID_PIPELINE_ELMT');
     }
 }

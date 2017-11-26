@@ -30,7 +30,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $COMP_GEN_STATUS
  * @property int $COMP_IMP_ID_STUDY
  * @property boolean $OPEN_BY_OWNER
- * @property-read Ln2user $ln2user
+ * @property-read User $user
  * @property-read Compenth[] $compenths
  * @property-read ProductElmt[] $productElmts
  */
@@ -70,7 +70,7 @@ class Component extends Model
      */
     public function user()
     {
-        return $this->belongsTo('User', 'ID_USER', 'ID_USER');
+        return $this->belongsTo('App\\Models\\User', 'ID_USER', 'ID_USER');
     }
 
     /**
@@ -78,7 +78,7 @@ class Component extends Model
      */
     public function compenths()
     {
-        return $this->hasMany('Compenth', 'ID_COMP', 'ID_COMP');
+        return $this->hasMany('App\\Models\\Compenth', 'ID_COMP', 'ID_COMP');
     }
 
     /**
@@ -86,6 +86,6 @@ class Component extends Model
      */
     public function productElmts()
     {
-        return $this->hasMany('ProductElmt', 'ID_COMP', 'ID_COMP');
+        return $this->hasMany('App\\Models\\ProductElmt', 'ID_COMP', 'ID_COMP');
     }
 }

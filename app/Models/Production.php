@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property mixed $AVG_T_DESIRED
  * @property mixed $AVG_T_INITIAL
  * @property mixed $APPROX_DWELLING_TIME
- * @property-read Studies $studies
+ * @property-read Study $studies
  * @property-read InitialTemperature[] $initialTemperatures
  */
 class Production extends Model
@@ -51,7 +51,7 @@ class Production extends Model
      */
     public function studies()
     {
-        return $this->belongsTo('Studies', 'ID_STUDY', 'ID_STUDY');
+        return $this->belongsTo('App\\Models\\Study', 'ID_STUDY', 'ID_STUDY');
     }
 
     /**
@@ -59,6 +59,6 @@ class Production extends Model
      */
     public function initialTemperatures()
     {
-        return $this->hasMany('InitialTemperature', 'ID_PRODUCTION', 'ID_PRODUCTION');
+        return $this->hasMany('App\\Models\\InitialTemperature', 'ID_PRODUCTION', 'ID_PRODUCTION');
     }
 }

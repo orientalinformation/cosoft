@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $ID_STUDY
  * @property string $NOMEMBMAT
  * @property-read Shape $shape
- * @property-read Studies $studies
+ * @property-read Study $studies
  * @property-read PackingLayer[] $packingLayers
  */
 class Packing extends Model
@@ -44,7 +44,7 @@ class Packing extends Model
      */
     public function shape()
     {
-        return $this->belongsTo('Shape', 'ID_SHAPE', 'ID_SHAPE');
+        return $this->belongsTo('App\\Models\\Shape', 'ID_SHAPE', 'ID_SHAPE');
     }
 
     /**
@@ -52,7 +52,7 @@ class Packing extends Model
      */
     public function studies()
     {
-        return $this->belongsTo('Studies', 'ID_STUDY', 'ID_STUDY');
+        return $this->belongsTo('App\\Models\\Study', 'ID_STUDY', 'ID_STUDY');
     }
 
     /**
@@ -60,6 +60,6 @@ class Packing extends Model
      */
     public function packingLayers()
     {
-        return $this->hasMany('PackingLayer', 'ID_PACKING', 'ID_PACKING');
+        return $this->hasMany('App\\Models\\PackingLayer', 'ID_PACKING', 'ID_PACKING');
     }
 }

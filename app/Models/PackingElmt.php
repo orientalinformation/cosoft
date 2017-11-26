@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property mixed $PACKINGCOND
  * @property int $PACK_IMP_ID_STUDY
  * @property boolean $OPEN_BY_OWNER
- * @property-read Ln2user $ln2user
+ * @property-read User $user
  * @property-read PackingLayer[] $packingLayers
  */
 class PackingElmt extends Model
@@ -53,7 +53,7 @@ class PackingElmt extends Model
      */
     public function user()
     {
-        return $this->belongsTo('User', 'ID_USER', 'ID_USER');
+        return $this->belongsTo('App\\Models\\User', 'ID_USER', 'ID_USER');
     }
 
     /**
@@ -61,6 +61,6 @@ class PackingElmt extends Model
      */
     public function packingLayers()
     {
-        return $this->hasMany('PackingLayer', 'ID_PACKING_ELMT', 'ID_PACKING_ELMT');
+        return $this->hasMany('App\\Models\\PackingLayer', 'ID_PACKING_ELMT', 'ID_PACKING_ELMT');
     }
 }

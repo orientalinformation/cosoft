@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $SYMBOL
  * @property mixed $COEFF_A
  * @property mixed $COEFF_B
- * @property-read Ln2user[] $ln2users
+ * @property-read User[] $users
  */
 class Unit extends Model
 {
@@ -41,8 +41,8 @@ class Unit extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function ln2users()
+    public function users()
     {
-        return $this->belongsToMany('Ln2user', 'user_unit', 'ID_UNIT', 'ID_USER');
+        return $this->belongsToMany('App\\Models\\User', 'user_unit', 'ID_UNIT', 'ID_USER');
     }
 }
