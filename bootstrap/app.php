@@ -48,6 +48,8 @@ $app->singleton(
     App\Console\Kernel::class
 );
 
+$app->configure('cors');
+
 /*
 |--------------------------------------------------------------------------
 | Register Middleware
@@ -67,6 +69,10 @@ $app->singleton(
 //     'auth' => App\Http\Middleware\Authenticate::class,
 // ]);
 
+$app->middleware([
+	'Nord\Lumen\Cors\CorsMiddleware',
+]);
+
 /*
 |--------------------------------------------------------------------------
 | Register Service Providers
@@ -81,6 +87,9 @@ $app->singleton(
 // $app->register(App\Providers\AppServiceProvider::class);
 // $app->register(App\Providers\AuthServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
+$app->register('Nord\Lumen\Cors\CorsServiceProvider');
+
+
 if ($app->environment('local')) {
     $app->register(Krlove\EloquentModelGenerator\Provider\GeneratorServiceProvider::class);
 }
