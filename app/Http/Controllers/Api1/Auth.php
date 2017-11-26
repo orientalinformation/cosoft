@@ -14,9 +14,15 @@ class Auth extends Controller
      */
     protected $jwt;
 
-    public function __construct(JWTAuth $jwt)
+    /**
+     * @var \Illuminate\Contracts\Auth\Factory
+     */
+    protected $auth;
+
+    public function __construct(JWTAuth $jwt, \Illuminate\Contracts\Auth\Factory $auth)
     {
         $this->jwt = $jwt;
+        $this->auth = $auth;
     }
 
     //
@@ -47,6 +53,8 @@ class Auth extends Controller
 
         }
 
-        return response()->json(compact('token'));
+        $user = $this->auth->user();
+
+        return response()->json(compact('token','user'));
     }
 }
