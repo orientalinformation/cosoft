@@ -26,7 +26,7 @@ class Auth extends Controller
     }
 
     //
-    public function loginPost(Request $request)
+    public function login(Request $request)
     {
         $this->validate($request, [
             'username'    => 'required|max:255',
@@ -56,5 +56,10 @@ class Auth extends Controller
         $user = $this->auth->user();
 
         return response()->json(compact('token','user'));
+    }
+
+    public function logout(Request $request)
+    {
+        
     }
 }
