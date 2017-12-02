@@ -35,7 +35,7 @@ class Studies extends Controller
     public function findStudies()
     {
         $studies = $this->auth->user()->studies;
-        return compact('studies');
+        return $studies;
     }
 
     public function deleteStudyById($id)
@@ -45,6 +45,7 @@ class Studies extends Controller
 
     public function getStudyById($id)
     {
-
+        $study = \App\Models\Study::find($id);
+        return $study;
     }
 }
