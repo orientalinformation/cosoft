@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "8d0e537bd1bc34a96f3d21eba1978d06",
+    "content-hash": "94c43b68b95c69bb0da3ae59640d0fbd",
     "packages": [
         {
             "name": "doctrine/inflector",
@@ -1679,6 +1679,42 @@
                 "sharing"
             ],
             "time": "2017-08-24T10:38:54+00:00"
+        },
+        {
+            "name": "phpsysinfo/phpsysinfo",
+            "version": "v3.2.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/phpsysinfo/phpsysinfo.git",
+                "reference": "878c924608e3324b7ae03cbc20bc479586a257d1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/phpsysinfo/phpsysinfo/zipball/878c924608e3324b7ae03cbc20bc479586a257d1",
+                "reference": "878c924608e3324b7ae03cbc20bc479586a257d1",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "ext-pcre": "*",
+                "ext-simplexml": "*",
+                "ext-xml": "*",
+                "php": ">=5.1.3"
+            },
+            "suggest": {
+                "ext-com_dotnet": "Required for Windows environments",
+                "ext-json": "Required for bootstrap mode",
+                "ext-mbstring": "Required for *nix non UTF-8 systems",
+                "ext-xsl": "Required for static mode"
+            },
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0+"
+            ],
+            "description": "phpSysInfo is a customizable PHP Script that parses /proc, and formats information nicely. It will display information about system facts like Uptime, CPU, Memory, PCI devices, SCSI devices, IDE devices, Network adapters, Disk usage, and more.",
+            "homepage": "http://phpsysinfo.github.io/phpsysinfo/",
+            "time": "2017-09-30T18:54:11+00:00"
         },
         {
             "name": "psr/container",
