@@ -18,10 +18,4 @@ class Index extends Controller
         $this->input = $request->all();
     }
 
-    //
-
-    public function hello() {
-        return [ 'message' => 'Hello '.$this->input['name'] . ' !'];
-        // return Hash::make('admin');
-    }
 }

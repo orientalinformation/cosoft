@@ -21,13 +21,6 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 /**
- * GET hello
- * Summary: 
- * Notes: Returns &#39;Hello&#39; to the caller
- * Output-Formats: [application/json]
- */
-$router->GET('/api/v1/hello', 'Api1\\Index@hello');
-/**
  * PUT createStudy
  * Summary: 
  * Notes: create a new study
