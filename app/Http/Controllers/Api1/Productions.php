@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\Auth\Factory as Auth;
 
-class Studies extends Controller
+class Productions extends Controller
 {
 
     /**
@@ -31,31 +31,8 @@ class Studies extends Controller
         $this->auth = $auth;
     }
 
-    //
-    public function findStudies()
-    {
-        $studies = $this->auth->user()->studies;
-        return $studies;
-    }
-
-    public function deleteStudyById($id)
-    {
-
-    }
-
-    public function getStudyById($id)
-    {
-        $study = \App\Models\Study::find($id);
-        return $study;
-    }
-
-    public function saveStudyAs($id)
-    {
-
-    }
-
-    public function openStudy($id)
-    {
-        
+    public function getProductionById($id) {
+        $production = \App\Models\Production::find($id);
+        return $production;
     }
 }

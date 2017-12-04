@@ -48,4 +48,25 @@ $router->DELETE('/api/v1/studies/{id}', 'Api1\\Studies@deleteStudyById');
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/studies/{id}', 'Api1\\Studies@getStudyById');
+/**
+ * PUT saveStudyAs
+ * Summary: 
+ * Notes: 
+ * Output-Formats: [application/json]
+ */
+$router->PUT('/api/v1/studies/{id}/clone', 'Api1\\Studies@saveStudyAs');
+/**
+ * GET openStudy
+ * Summary: 
+ * Notes: 
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/studies/{id}/open', 'Api1\\Studies@openStudy');
 
+/**
+ * GET getProductionById
+ * Summary: 
+ * Notes: get production by id
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/productions/{id}', 'Api1\\Productions@getProductionById');
