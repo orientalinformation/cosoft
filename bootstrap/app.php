@@ -86,9 +86,12 @@ $app->routeMiddleware([
 |
 */
 
-// $app->register(App\Providers\AppServiceProvider::class);
-// $app->register(App\Providers\EventServiceProvider::class);
+$app->register(App\Providers\AppServiceProvider::class);
+$app->register(App\Providers\EventServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
+
+$app->register(App\Providers\KernelServiceProvider::class);
+
 $app->register(Sofa\Eloquence\BaseServiceProvider::class);
 $app->register(Nord\Lumen\Cors\CorsServiceProvider::class);
 $app->register(Tymon\JWTAuth\Providers\LumenServiceProvider::class);

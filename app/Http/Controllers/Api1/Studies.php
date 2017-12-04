@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\Auth\Factory as Auth;
+use App\Kernel\KernelService;
 
 class Studies extends Controller
 {
@@ -18,6 +19,11 @@ class Studies extends Controller
      * @var Illuminate\Contracts\Auth\Factory
      */
     protected $auth;
+
+    /**
+     * @var App\Kernel\KernelService
+     */
+    protected $kernel;
     
 
     /**
@@ -25,10 +31,11 @@ class Studies extends Controller
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth)
+    public function __construct(Request $request, Auth $auth, KernelService $kernel)
     {
         $this->request = $request;
         $this->auth = $auth;
+        $this->kernel = $kernel;
     }
 
     //
@@ -56,6 +63,8 @@ class Studies extends Controller
 
     public function openStudy($id)
     {
-        
+        $conf = $this->kernel->getConfig($id, -1);
+
+        $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 10);
     }
 }
