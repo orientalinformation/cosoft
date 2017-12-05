@@ -61,10 +61,16 @@ class Studies extends Controller
 
     }
 
+    public function refreshMesh($id) {
+        $conf = $this->kernel->getConfig($id);
+        
+        return $this->kernel->getKernelObject('MeshBuilder')->MBMeshBuild($conf);
+    }
+
     public function openStudy($id)
     {
-        $conf = $this->kernel->getConfig($id, -1);
+        $conf = $this->kernel->getConfig(intval($id), -1);
 
-        $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 10);
+        return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 40);
     }
 }

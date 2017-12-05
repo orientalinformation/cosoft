@@ -56,6 +56,13 @@ $router->GET('/api/v1/studies/{id}', 'Api1\\Studies@getStudyById');
  */
 $router->PUT('/api/v1/studies/{id}/clone', 'Api1\\Studies@saveStudyAs');
 /**
+ * GET refreshMesh
+ * Summary: 
+ * Notes: 
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/studies/{id}/refreshMesh', 'Api1\\Studies@refreshMesh');
+/**
  * GET openStudy
  * Summary: 
  * Notes: 
@@ -70,3 +77,18 @@ $router->GET('/api/v1/studies/{id}/open', 'Api1\\Studies@openStudy');
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/productions/{id}', 'Api1\\Productions@getProductionById');
+
+/**
+ * GET getEquipments
+ * Summary: 
+ * Notes: get all available equipments
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/equipments', 'Api1\\Equipments@getEquipments');
+/**
+ * GET getEquipmentById
+ * Summary: 
+ * Notes: get equipment by id
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/equipments/{id}', 'Api1\\Equipments@getEquipmentById');

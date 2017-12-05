@@ -60,7 +60,22 @@ class Equipment extends Model
     /**
      * @var array
      */
-    protected $fillable = ['ID_EQUIP', 'ID_EQUIPSERIES', 'ID_COOLING_FAMILY', 'ID_USER', 'ID_EQUIPGENERATION', 'EQUIP_NAME', 'EQUIP_VERSION', 'EQUIP_RELEASE', 'EQUIP_DATE', 'EQUIP_COMMENT', 'EQUIPPICT', 'STD', 'EQP_LENGTH', 'EQP_WIDTH', 'EQP_HEIGHT', 'MODUL_LENGTH', 'NB_MAX_MODUL', 'NB_TR', 'NB_TS', 'NB_VC', 'BUYING_COST', 'RENTAL_COST', 'INSTALL_COST', 'MAX_FLOW_RATE', 'MAX_NOZZLES_BY_RAMP', 'MAX_RAMPS', 'NUMBER_OF_ZONES', 'TMP_REGUL_MIN', 'CAPABILITIES', 'ITEM_TR', 'ITEM_TS', 'ITEM_VC', 'ITEM_PRECIS', 'ITEM_TIMESTEP', 'DLL_IDX', 'FATHER_DLL_IDX', 'EQP_IMP_ID_STUDY', 'OPEN_BY_OWNER'];
+    protected $fillable = ['ID_EQUIP', 'ID_EQUIPSERIES', 'ID_COOLING_FAMILY', 'ID_USER', 
+        'ID_EQUIPGENERATION', 'EQUIP_NAME', 'EQUIP_VERSION', 'EQUIP_RELEASE', 'EQUIP_DATE', 
+        'EQUIP_COMMENT', 'EQUIPPICT', 'STD', 'EQP_LENGTH', 'EQP_WIDTH', 'EQP_HEIGHT', 
+        'MODUL_LENGTH', 'NB_MAX_MODUL', 'NB_TR', 'NB_TS', 'NB_VC', 'BUYING_COST', 
+        'RENTAL_COST', 'INSTALL_COST', 'MAX_FLOW_RATE', 'MAX_NOZZLES_BY_RAMP', 'MAX_RAMPS', 
+        'NUMBER_OF_ZONES', 'TMP_REGUL_MIN', 'CAPABILITIES', 'ITEM_TR', 'ITEM_TS', 'ITEM_VC',
+        'ITEM_PRECIS', 'ITEM_TIMESTEP', 'EQP_IMP_ID_STUDY', 'OPEN_BY_OWNER'
+        // ,'DLL_IDX', 'FATHER_DLL_IDX'
+        ];
+    
+    
+
+    /**
+     * @var array
+     */
+    protected $hidden = ['DLL_IDX', 'FATHER_DLL_IDX'];
 
     /**
      * @var array
@@ -71,6 +86,11 @@ class Equipment extends Model
      * @var string
      */
     protected $primaryKey = 'ID_EQUIP';
+
+    /**
+     * @var string
+     */
+    protected $dateFormat = 'Y-m-d H:i:s';
 
     /**
      * Indicates if the model should be timestamped.
