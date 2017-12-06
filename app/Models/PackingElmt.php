@@ -40,6 +40,10 @@ class PackingElmt extends Model
      * @var string
      */
     protected $primaryKey = 'ID_PACKING_ELMT';
+    /**
+     * @var string
+     */
+    protected $dateFormat = 'Y-m-d H:i:s';
 
     /**
      * Indicates if the model should be timestamped.
