@@ -62,14 +62,14 @@ class Studies extends Controller
     }
 
     public function refreshMesh($id) {
-        $conf = $this->kernel->getConfig($id);
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $id);
         
         return $this->kernel->getKernelObject('MeshBuilder')->MBMeshBuild($conf);
     }
 
     public function openStudy($id)
     {
-        $conf = $this->kernel->getConfig(intval($id), -1);
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id), -1);
 
         return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 40);
     }

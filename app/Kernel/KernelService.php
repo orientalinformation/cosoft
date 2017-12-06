@@ -28,14 +28,14 @@ class KernelService
         return $obj;
     }
 
-    public function getConfig($idStudy = 0, $idTmp = 0, $connectToDB = 0, $initTrace = 1)
+    public function getConfig($idUser, $idStudy = 0, $idTmp = 0, $connectToDB = 1, $initTrace = 1)
     {
         return new \Cryosoft\stSKConf(
             getenv('KERNEL_ODBC'), 
             getenv('KERNEL_USER'), 
             getenv('KERNEL_PASS'), 
-            getenv('KERNEL_LOG'), 
-            $idStudy, $idTmp, $connectToDB, $initTrace
+            getenv('KERNEL_LOG'),
+            $idUser, $idStudy, $idTmp, $connectToDB, $initTrace
         );
     }
 

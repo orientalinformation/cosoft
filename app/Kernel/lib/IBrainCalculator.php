@@ -53,5 +53,6 @@ namespace Cryosoft\BrainCalculator
     $Cryosoft_BrainCalculator__t_IBrainCalculatorPrx = IcePHP_defineProxy('::Cryosoft::BrainCalculator::IBrainCalculator', $Ice__t_ObjectPrx, null);
 
     IcePHP_defineOperation($Cryosoft_BrainCalculator__t_IBrainCalculatorPrx, 'BRTeachCalculation', 0, 0, 0, array(array($Cryosoft__t_stSKConf), array($Cryosoft__t_stSKBRParam), array($IcePHP__t_long)), null, array($IcePHP__t_long), null);
+    IcePHP_defineOperation($Cryosoft_BrainCalculator__t_IBrainCalculatorPrx, 'shutdown', 0, 0, 0, null, null, null, null);
 }
 ?>
