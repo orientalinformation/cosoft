@@ -92,3 +92,17 @@ $router->GET('/api/v1/equipments', 'Api1\\Equipments@getEquipments');
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/equipments/{id}', 'Api1\\Equipments@getEquipmentById');
+/**
+ * GET packingElementsGet
+ * Summary: 
+ * Notes: get available packing elements
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/packingElements', 'Api1\\PackingElements@findPackingElements');
+/**
+ * GET shapesGet
+ * Summary: 
+ * Notes: get available shapes
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/shapes', 'Api1\\Shapes@getShapes');
