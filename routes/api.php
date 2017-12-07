@@ -79,6 +79,22 @@ $router->GET('/api/v1/studies/{id}/open', 'Api1\\Studies@openStudy');
 $router->GET('/api/v1/productions/{id}', 'Api1\\Productions@getProductionById');
 
 /**
+ * GET getProductById
+ * Summary: 
+ * Notes: get product by id
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/products/{id}', 'Api1\\Products@getProductById');
+
+/**
+ * GET getElementsByProductId
+ * Summary: 
+ * Notes: get elements of a products
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/products/{id}/elements', 'Api1\\Products@getElementsByProductId');
+
+/**
  * GET getEquipments
  * Summary: 
  * Notes: get all available equipments
@@ -106,3 +122,11 @@ $router->GET('/api/v1/packingElements', 'Api1\\PackingElements@findPackingElemen
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/shapes', 'Api1\\Shapes@getShapes');
+
+/**
+ * GET findComponents
+ * Summary: 
+ * Notes: find available components by filter
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/components', 'Api1\\Components@findComponents');
