@@ -141,7 +141,7 @@ class Study extends Model
      */
     public function studyEquipments()
     {
-        return $this->hasMany('App\\Models\\StudyEquipments', 'ID_STUDY', 'ID_STUDY');
+        return $this->hasMany('App\\Models\\StudyEquipment', 'ID_STUDY', 'ID_STUDY');
     }
 
     /**

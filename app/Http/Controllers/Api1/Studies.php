@@ -73,4 +73,12 @@ class Studies extends Controller
 
         return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 40);
     }
+
+    /**
+    * 
+    **/
+    public function getStudyEquipments($id) {
+        $study = \App\Models\Study::find($id);
+        return $study->studyEquipments;
+    }
 }

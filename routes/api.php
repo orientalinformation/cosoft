@@ -85,6 +85,13 @@ $router->GET('/api/v1/productions/{id}', 'Api1\\Productions@getProductionById');
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/products/{id}', 'Api1\\Products@getProductById');
+/**
+ * PUT appendElementsToProduct
+ * Summary: 
+ * Notes: append elements to product
+ * Output-Formats: [application/json]
+ */
+$router->PUT('/api/v1/products/{id}/elements', 'Api1\\Products@appendElementsToProduct');
 
 /**
  * GET getElementsByProductId
@@ -130,3 +137,11 @@ $router->GET('/api/v1/shapes', 'Api1\\Shapes@getShapes');
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/components', 'Api1\\Components@findComponents');
+
+/**
+ * GET getStudyEquipments
+ * Summary: 
+ * Notes: 
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/studies/{id}/equipments', 'Api1\\Studies@getStudyEquipments');

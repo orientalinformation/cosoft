@@ -33,7 +33,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property boolean $BRAIN_SAVETODB
  * @property int $BRAIN_TYPE
  * @property-read Equipment $equipment
- * @property-read Study $studies
+ * @property-read Studies $studies
  * @property-read CalculationParameters[] $calculationParameters
  * @property-read DimaResults[] $dimaResults
  * @property-read EcoResEqp[] $ecoResEqps
@@ -72,7 +72,7 @@ class StudyEquipment extends Model
      */
     public function equipment()
     {
-        return $this->belongsTo('App\\Models\\Equipment', 'ID_EQUIP', 'ID_EQUIP');
+        return $this->belongsTo('Equipment', 'ID_EQUIP', 'ID_EQUIP');
     }
 
     /**
@@ -80,7 +80,7 @@ class StudyEquipment extends Model
      */
     public function studies()
     {
-        return $this->belongsTo('App\\Models\\Study', 'ID_STUDY', 'ID_STUDY');
+        return $this->belongsTo('Studies', 'ID_STUDY', 'ID_STUDY');
     }
 
     /**
@@ -88,7 +88,7 @@ class StudyEquipment extends Model
      */
     public function calculationParameters()
     {
-        return $this->hasMany('App\\Models\\CalculationParameters', 'ID_STUDY_EQUIPMENTS', 'ID_STUDY_EQUIPMENTS');
+        return $this->hasMany('CalculationParameters', 'ID_STUDY_EQUIPMENTS', 'ID_STUDY_EQUIPMENTS');
     }
 
     /**
@@ -96,7 +96,7 @@ class StudyEquipment extends Model
      */
     public function dimaResults()
     {
-        return $this->hasMany('App\\Models\\DimaResults', 'ID_STUDY_EQUIPMENTS', 'ID_STUDY_EQUIPMENTS');
+        return $this->hasMany('DimaResults', 'ID_STUDY_EQUIPMENTS', 'ID_STUDY_EQUIPMENTS');
     }
 
     /**
@@ -104,7 +104,7 @@ class StudyEquipment extends Model
      */
     public function ecoResEqps()
     {
-        return $this->hasMany('App\\Models\\EcoResEqp', 'ID_STUDY_EQUIPMENTS', 'ID_STUDY_EQUIPMENTS');
+        return $this->hasMany('EcoResEqp', 'ID_STUDY_EQUIPMENTS', 'ID_STUDY_EQUIPMENTS');
     }
 
     /**
@@ -112,7 +112,7 @@ class StudyEquipment extends Model
      */
     public function economicResults()
     {
-        return $this->hasMany('App\\Models\\EconomicResults', 'ID_STUDY_EQUIPMENTS', 'ID_STUDY_EQUIPMENTS');
+        return $this->hasMany('EconomicResults', 'ID_STUDY_EQUIPMENTS', 'ID_STUDY_EQUIPMENTS');
     }
 
     /**
@@ -120,7 +120,7 @@ class StudyEquipment extends Model
      */
     public function exhGens()
     {
-        return $this->hasMany('App\\Models\\ExhGen', 'ID_STUDY_EQUIPMENTS', 'ID_STUDY_EQUIPMENTS');
+        return $this->hasMany('ExhGen', 'ID_STUDY_EQUIPMENTS', 'ID_STUDY_EQUIPMENTS');
     }
 
     /**
@@ -128,7 +128,7 @@ class StudyEquipment extends Model
      */
     public function exhRes()
     {
-        return $this->hasMany('App\\Models\\ExhRes', 'ID_STUDY_EQUIPMENTS', 'ID_STUDY_EQUIPMENTS');
+        return $this->hasMany('ExhRes', 'ID_STUDY_EQUIPMENTS', 'ID_STUDY_EQUIPMENTS');
     }
 
     /**
@@ -136,7 +136,7 @@ class StudyEquipment extends Model
      */
     public function layoutGenerations()
     {
-        return $this->hasMany('App\\Models\\LayoutGeneration', 'ID_STUDY_EQUIPMENTS', 'ID_STUDY_EQUIPMENTS');
+        return $this->hasMany('LayoutGeneration', 'ID_STUDY_EQUIPMENTS', 'ID_STUDY_EQUIPMENTS');
     }
 
     /**
@@ -144,7 +144,7 @@ class StudyEquipment extends Model
      */
     public function layoutResults()
     {
-        return $this->hasMany('App\\Models\\LayoutResults', 'ID_STUDY_EQUIPMENTS', 'ID_STUDY_EQUIPMENTS');
+        return $this->hasMany('LayoutResults', 'ID_STUDY_EQUIPMENTS', 'ID_STUDY_EQUIPMENTS');
     }
 
     /**
@@ -152,7 +152,7 @@ class StudyEquipment extends Model
      */
     public function pipeGens()
     {
-        return $this->hasMany('App\\Models\\PipeGen', 'ID_STUDY_EQUIPMENTS', 'ID_STUDY_EQUIPMENTS');
+        return $this->hasMany('PipeGen', 'ID_STUDY_EQUIPMENTS', 'ID_STUDY_EQUIPMENTS');
     }
 
     /**
@@ -160,7 +160,7 @@ class StudyEquipment extends Model
      */
     public function pipeRes()
     {
-        return $this->hasMany('App\\Models\\PipeRes', 'ID_STUDY_EQUIPMENTS', 'ID_STUDY_EQUIPMENTS');
+        return $this->hasMany('PipeRes', 'ID_STUDY_EQUIPMENTS', 'ID_STUDY_EQUIPMENTS');
     }
 
     /**
@@ -168,7 +168,7 @@ class StudyEquipment extends Model
      */
     public function recordPositions()
     {
-        return $this->hasMany('App\\Models\\RecordPosition', 'ID_STUDY_EQUIPMENTS', 'ID_STUDY_EQUIPMENTS');
+        return $this->hasMany('RecordPosition', 'ID_STUDY_EQUIPMENTS', 'ID_STUDY_EQUIPMENTS');
     }
 
     /**
@@ -176,7 +176,7 @@ class StudyEquipment extends Model
      */
     public function studEqpPrms()
     {
-        return $this->hasMany('App\\Models\\StudEqpPrm', 'ID_STUDY_EQUIPMENTS', 'ID_STUDY_EQUIPMENTS');
+        return $this->hasMany('StudEqpPrm', 'ID_STUDY_EQUIPMENTS', 'ID_STUDY_EQUIPMENTS');
     }
 
     /**
@@ -184,6 +184,6 @@ class StudyEquipment extends Model
      */
     public function studEquipprofiles()
     {
-        return $this->hasMany('App\\Models\\StudEquipprofile', 'ID_STUDY_EQUIPMENTS', 'ID_STUDY_EQUIPMENTS');
+        return $this->hasMany('StudEquipprofile', 'ID_STUDY_EQUIPMENTS', 'ID_STUDY_EQUIPMENTS');
     }
 }
