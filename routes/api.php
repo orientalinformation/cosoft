@@ -145,3 +145,11 @@ $router->GET('/api/v1/components', 'Api1\\Components@findComponents');
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/studies/{id}/equipments', 'Api1\\Studies@getStudyEquipments');
+
+/**
+ * GET getProductViewModel
+ * Summary: 
+ * Notes: get product view model
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/products/{id}/view', 'Api1\\Products@getProductViewModel');

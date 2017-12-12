@@ -69,8 +69,14 @@ class Products extends Controller
         $conf->ldIdTmp = 0;
 
         $ok2 = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($conf, 3);
-        // $ok3 = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($conf, 4);
 
-        return compact('ok1','ok2','ok3', 'elmtId');
+        return compact('ok1', 'ok2', 'elmtId');
+    }
+
+    public function getProductViewModel($id) {
+        $product = \App\Models\Product::find($id);
+        $elements = $product->productElmts;
+
+        return compact('product', 'elements');
     }
 }
