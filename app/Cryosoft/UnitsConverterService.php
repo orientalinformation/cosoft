@@ -15,29 +15,29 @@ class UnitsConverterService
 
     public function productFlowSymbol() 
     {
-    	$unit = Unit::where("TYPE_UNIT", $this->value->PRODUCT_FOLLOW)->first();
+    	$unit = Unit::select("SYMBOL")->where("TYPE_UNIT", $this->value->PRODUCT_FOLLOW)->first();
     	return $unit->SYMBOL;
     }
 
     public function massSymbol() 
     {
-        $unit = Unit::where("TYPE_UNIT", $this->value->MASS)->first();
+        $unit = Unit::select("SYMBOL")->where("TYPE_UNIT", $this->value->MASS)->first();
     	return $unit->SYMBOL;
     }
 
     public function temperatureSymbol() {
-        $unit = Unit::where("TYPE_UNIT", $this->value->TEMPERATURE)->first();
+        $unit = Unit::select("SYMBOL")->where("TYPE_UNIT", $this->value->TEMPERATURE)->first();
     	return $unit->SYMBOL;
     }
 
     public function perUnitOfMassSymbol() 
 	{
-        $unit = Unit::where("TYPE_UNIT", $this->value->MASS_PER_UNIT)->first();
+        $unit = Unit::select("SYMBOL")->where("TYPE_UNIT", $this->value->MASS_PER_UNIT)->first();
     	return $unit->SYMBOL;
     }
     
     public function timeSymbol() {
-        $unit = Unit::where("TYPE_UNIT", $this->value->TIME)->first();
+        $unit = Unit::select("SYMBOL")->where("TYPE_UNIT", $this->value->TIME)->first();
     	return $unit->SYMBOL;
     }
 }
