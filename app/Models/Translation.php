@@ -30,7 +30,7 @@ class Translation extends Model
      * 
      * @var string
      */
-    protected $primaryKey = 'CODE_LANGUE';
+    protected $primaryKey = ['CODE_LANGUE', 'ID_TRANSLATION', 'TRANS_TYPE'];
 
     /**
      * Indicates if the IDs are auto-incrementing.
@@ -53,4 +53,5 @@ class Translation extends Model
     {
         return $this->belongsTo('App\\Models\\Language', 'CODE_LANGUE', 'CODE_LANGUE');
     }
+
 }

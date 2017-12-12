@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "94c43b68b95c69bb0da3ae59640d0fbd",
+    "content-hash": "aac460ea410bcdb79384307a2aa34040",
     "packages": [
         {
             "name": "doctrine/inflector",
@@ -1974,6 +1974,58 @@
                 "searchable"
             ],
             "time": "2017-10-13T15:18:12+00:00"
+        },
+        {
+            "name": "sofa/eloquence-mutable",
+            "version": "v5.5.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jarektkaczyk/eloquence-mutable.git",
+                "reference": "1a0536c296b8ad43c00a9b6cf50f077a628b1dff"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jarektkaczyk/eloquence-mutable/zipball/1a0536c296b8ad43c00a9b6cf50f077a628b1dff",
+                "reference": "1a0536c296b8ad43c00a9b6cf50f077a628b1dff",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.0.0",
+                "sofa/eloquence-base": "5.5.*"
+            },
+            "require-dev": {
+                "mockery/mockery": "0.9.4",
+                "phpunit/phpunit": "4.5.0",
+                "squizlabs/php_codesniffer": "2.3.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Sofa\\Eloquence\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jarek Tkaczyk",
+                    "email": "jarek@softonsofa.com",
+                    "homepage": "https://softonsofa.com/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Flexible Searchable, Mappable, Metable, Validation and more extensions for Laravel Eloquent ORM.",
+            "keywords": [
+                "eloquent",
+                "laravel",
+                "mappable",
+                "metable",
+                "mutable",
+                "searchable"
+            ],
+            "time": "2017-10-13T15:18:54+00:00"
         },
         {
             "name": "sofa/hookable",

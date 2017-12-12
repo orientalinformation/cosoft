@@ -119,14 +119,15 @@ if ($app->environment('local')) {
 $app->router->group([
     'namespace' => 'App\Http\Controllers',
 ], function ($router) {
-    require __DIR__.'/../routes/auth.php';
+    require dirname(__DIR__).'/routes/auth.php';
+    require dirname(__DIR__).'/routes/translations.php';
 });
 
 $app->router->group([
     'middleware' => 'auth',
     'namespace' => 'App\Http\Controllers',
 ], function ($router) {
-    require __DIR__.'/../routes/api.php';
+    require dirname(__DIR__).'/routes/api.php';
 });
 
 return $app;
