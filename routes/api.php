@@ -153,3 +153,11 @@ $router->GET('/api/v1/studies/{id}/equipments', 'Api1\\Studies@getStudyEquipment
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/products/{id}/view', 'Api1\\Products@getProductViewModel');
+
+/**
+ * GET headBalance
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/output/headbalance/study/{id}', 'Api1\\Output@getHeadBalanceResult');

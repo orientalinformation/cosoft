@@ -68,7 +68,7 @@ class Study extends Model
     protected $primaryKey = 'ID_STUDY';
 
     protected $hidden = [
-        'user',
+        'user'
     ];
 
     /**
