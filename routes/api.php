@@ -160,4 +160,4 @@ $router->GET('/api/v1/products/{id}/view', 'Api1\\Products@getProductViewModel')
  * Notes: get head balance result
  * Output-Formats: [application/json]
  */
-$router->GET('/api/v1/output/headbalance/study/{id}', 'Api1\\Output@getHeadBalanceResult');
+$router->GET('/api/v1/optimum/headbalance/{id}', 'Api1\\Output@getOptimumHeadBalance');

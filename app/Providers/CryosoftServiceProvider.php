@@ -20,6 +20,14 @@ class CryosoftServiceProvier extends ServiceProvider
         $this->app->singleton(\App\Cryosoft\UnitsConverterService::class, function ($app) {
             return new \App\Cryosoft\UnitsConverterService();
         });
+
+        $this->app->singleton(\App\Cryosoft\EquipmentsService::class, function ($app) {
+            return new \App\Cryosoft\EquipmentsService();
+        });
+
+        $this->app->singleton(\App\Cryosoft\DimaResultsService::class, function ($app) {
+            return new \App\Cryosoft\DimaResultsService();
+        });
     }
 
 }
