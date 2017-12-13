@@ -60,7 +60,7 @@ class ProductElmt extends Model
      */
     public function component()
     {
-        return $this->belongsTo('Component', 'ID_COMP', 'ID_COMP');
+        return $this->belongsTo('\\App\\Models\\Component', 'ID_COMP', 'ID_COMP');
     }
 
     /**
@@ -68,7 +68,7 @@ class ProductElmt extends Model
      */
     public function product()
     {
-        return $this->belongsTo('Product', 'ID_PROD', 'ID_PROD');
+        return $this->belongsTo('\\App\\Models\\Product', 'ID_PROD', 'ID_PROD');
     }
 
     /**
@@ -76,7 +76,7 @@ class ProductElmt extends Model
      */
     public function shape()
     {
-        return $this->belongsTo('Shape', 'ID_SHAPE', 'ID_SHAPE');
+        return $this->belongsTo('\\App\\Models\\Shape', 'ID_SHAPE', 'ID_SHAPE');
     }
 
     /**
@@ -84,6 +84,6 @@ class ProductElmt extends Model
      */
     public function meshPositions()
     {
-        return $this->hasMany('MeshPosition', 'ID_PRODUCT_ELMT', 'ID_PRODUCT_ELMT');
+        return $this->hasMany('\\App\\Models\\MeshPosition', 'ID_PRODUCT_ELMT', 'ID_PRODUCT_ELMT');
     }
 }

@@ -153,3 +153,27 @@ $router->GET('/api/v1/studies/{id}/equipments', 'Api1\\Studies@getStudyEquipment
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/products/{id}/view', 'Api1\\Products@getProductViewModel');
+
+/**
+ * DELETE removeProductElement
+ * Summary: 
+ * Notes: remove a product element
+ * Output-Formats: [application/json]
+ */
+$router->DELETE('/api/v1/products/{id}/elements', 'Api1\\Products@removeProductElement');
+
+/**
+ * GET productElementMoveDown
+ * Summary: 
+ * Notes: move a product element down
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/productElmts/{id}/movedown', 'Api1\\ProductElements@productElementMoveDown');
+
+/**
+ * GET productElementMoveUp
+ * Summary: 
+ * Notes: move a product element up
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/productElmts/{id}/moveup', 'Api1\\ProductElements@productElementMoveUp');

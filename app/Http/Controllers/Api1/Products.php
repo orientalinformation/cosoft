@@ -41,8 +41,8 @@ class Products extends Controller
     }
 
     public function getElementsByProductId($id) {
-    	$product = \App\Models\Product::find($id);
-    	return $product->productElmts;
+    	$elements = \App\Models\ProductElmt::where('ID_PROD', $id)->orderBy('SHAPE_POS2','DESC')->get();
+    	return $elements;
     }
 
     public function appendElementsToProduct($id) {
@@ -78,5 +78,26 @@ class Products extends Controller
         $elements = $product->productElmts;
 
         return compact('product', 'elements');
+    }
+
+    public function removeProductElement($id)
+    {
+        $input = $this->request->all();
+        if (!isset($input['elementId'])) {
+            throw new Exception("Error Processing Request", 500);
+        }
+        
+        $elementId = $input['elementId'];
+        \App\Models\ProductElmt::destroy($elementId);
+
+        $elements = \App\Models\ProductElmt::where('ID_PROD', $id)->orderBy('SHAPE_POS2')->get();
+
+        foreach ($elements as $index => $elmt) {
+            $elmt->SHAPE_POS2 = floatval($index) / 100;
+        }
+
+        // call kernel recalculate weight
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id));
+        return $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($conf, 4);
     }
 }
