@@ -59,6 +59,8 @@ class Products extends Controller
     	$elmt->SHAPE_PARAM2 = 0.01;
     	$elmt->PROD_ELMT_WEIGHT = 0.0;
     	$elmt->PROD_ELMT_REALWEIGHT = -1.0;
+    	$elmt->NODE_DECIM = 0; // @TODO: research more on nodeDecim
+    	$elmt->INSERT_LINE_ORDER = $product->ID_STUDY;
     	$elmt->save();
 
     	$elmtId = $elmt->ID_PRODUCT_ELMT;
@@ -69,6 +71,7 @@ class Products extends Controller
         $conf->ldIdTmp = 0;
 
         $ok2 = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($conf, 3);
+        $ok2 = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($conf, 4);
 
         return compact('ok1', 'ok2', 'elmtId');
     }
