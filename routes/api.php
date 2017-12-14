@@ -177,3 +177,19 @@ $router->GET('/api/v1/productElmts/{id}/movedown', 'Api1\\ProductElements@produc
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/productElmts/{id}/moveup', 'Api1\\ProductElements@productElementMoveUp');
+
+/**
+ * PUT newProduct
+ * Summary: 
+ * Notes: 
+ * Output-Formats: [application/json]
+ */
+$router->PUT('/api/v1/studies/{id}/product', 'Api1\\Studies@newProduct');
+
+/**
+ * POST updateProduct
+ * Summary: 
+ * Notes: update a product
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/studies/{id}/product', 'Api1\\Studies@updateProduct');

@@ -53,17 +53,28 @@ class Products extends Controller
 
     	$elmt = new ProductElmt();
     	$elmt->ID_PROD = $id;
-    	$elmt->ID_SHAPE = 1;
+    	$elmt->ID_SHAPE = $input['shapeId'];
     	$elmt->ID_COMP = $componentId;
     	$elmt->PROD_ELMT_ISO = $product->PROD_ISO;
-    	$elmt->SHAPE_PARAM2 = 0.01;
+        $elmt->SHAPE_PARAM2 = 0.01; //default 1cm
+        
+        if (isset($input['dim1']))
+            $elmt->SHAPE_PARAM1 = floatval($input['dim1']);
+            
+        if (isset($input['dim3']))
+            $elmt->SHAPE_PARAM3 = floatval($input['dim3']);
+            
     	$elmt->PROD_ELMT_WEIGHT = 0.0;
     	$elmt->PROD_ELMT_REALWEIGHT = -1.0;
     	$elmt->NODE_DECIM = 0; // @TODO: research more on nodeDecim
-    	$elmt->INSERT_LINE_ORDER = $product->ID_STUDY;
+        $elmt->INSERT_LINE_ORDER = $product->ID_STUDY;
+        
+        $nElements = \App\Models\ProductElmt::where('ID_PROD', $id)->count();
+        $elmt->SHAPE_POS2 = floatval($nElements) / 100.0;
+
     	$elmt->save();
 
-    	$elmtId = $elmt->ID_PRODUCT_ELMT;
+        $elmtId = $elmt->ID_PRODUCT_ELMT;
 
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id), $elmt->ID_PRODUCT_ELMT);
 
@@ -78,9 +89,14 @@ class Products extends Controller
 
     public function getProductViewModel($id) {
         $product = \App\Models\Product::find($id);
-        $elements = $product->productElmts;
+        $elements = \App\Models\ProductElmt::where('ID_PROD', $id)->orderBy('SHAPE_POS2', 'DESC')->get();
+        $specificDimension = 0.0;
 
-        return compact('product', 'elements');
+        foreach ($elements as $elmt) {
+            $specificDimension += $elmt->SHAPE_PARAM2;
+        }
+
+        return compact('product', 'elements', 'specificDimension');
     }
 
     public function removeProductElement($id)
@@ -97,10 +113,12 @@ class Products extends Controller
 
         foreach ($elements as $index => $elmt) {
             $elmt->SHAPE_POS2 = floatval($index) / 100;
+            $elmt->save();
         }
 
         // call kernel recalculate weight
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id));
+        $ok2 = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($conf, 3);
         return $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($conf, 4);
     }
 }

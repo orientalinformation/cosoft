@@ -81,4 +81,61 @@ class Studies extends Controller
         $study = \App\Models\Study::find($id);
         return $study->studyEquipments;
     }
+
+    public function newProduct($id) {
+        $input = $this->request->all();
+
+        if (!isset($input['name']) || empty($input['name']))
+            return 1;
+
+        $study = \App\Models\Study::find($id);
+        $product = $study->products;
+
+        if (count($product) == 0) {
+            $product = new \App\Models\Product();
+            $product->ID_STUDY = $study->ID_STUDY;
+        } else {
+            $product = $product[0];
+        }
+
+        $elements = $product->productElmts;
+        if ($elements->count() > 0) {
+            foreach ($elements as $elmt) {
+                $elmt->delete();
+            }
+        }
+
+        $product->PRODNAME = $input['name'];
+        $product->PROD_WEIGHT = 0.0;
+        $product->PROD_REALWEIGHT = 0.0;
+        $product->PROD_VOLUME = 0;
+        $product->PROD_ISO = 0;
+        $product->save();
+
+        return 0;
+    }
+
+    public function updateProduct($id) {
+        $study = \App\Models\Study::find($id);
+        $product = $study->product;
+        $input = $this->request->all();
+
+        if (isset($input['name']) && !empty($input['name'])) {
+            $product->PRODNAME = $input['name'];
+            $product->save();
+        }
+
+        if (isset($input['dim1']) || isset($input['dim2']) || isset($input['dim3'])) {
+            $elements = $product->productElmts;
+            if ($elements->count() > 0) {
+                foreach ($elements as $elmt) {
+                    if (isset($input['dim1'])) $elmt->SHAPE_PARAM1 = floatval($input['dim1']);
+                    if (isset($input['dim2'])) $elmt->SHAPE_PARAM2 = floatval($input['dim2']);
+                    if (isset($input['dim3'])) $elmt->SHAPE_PARAM3 = floatval($input['dim3']);
+                    $elmt->save();
+                }
+            }
+        }
+        return 0;
+    }
 }

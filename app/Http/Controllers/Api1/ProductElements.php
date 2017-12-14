@@ -38,8 +38,8 @@ class ProductElements extends Controller
     {
         $moveElement = \App\Models\ProductElmt::find($id);
         
-        $oldPosition = $moveElement->SHAPE_POS2;
-        $newPosition = round ( (round($moveElement->SHAPE_POS2 * 100) + 1)/100.0, 2);
+        $oldPosition = round($moveElement->SHAPE_POS2, 2);
+        $newPosition = round ( (round($oldPosition * 100) + 1)/100.0, 2);
         $elements = \App\Models\ProductElmt::where('ID_PROD', $moveElement->product->ID_PROD)->orderBy('SHAPE_POS2', 'DESC')->get();
         
         foreach ($elements as $index => $elmt) {
