@@ -6,6 +6,7 @@ use App\Cryosoft\ValueListService;
 use App\Cryosoft\UnitsConverterService;
 use App\Models\Unit;
 use App\Models\StudyEquipment;
+use App\Models\Study;
 
 
 class EquipmentsService
@@ -91,6 +92,19 @@ class EquipmentsService
         return $sEquipName;
     }
     
+    public function initEnergyDef($idStudy)
+    {
+        $energyDef = 0;
 
+        $studyEquipments = StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
+        foreach($studyEquipments as $row){
+            $ener =  $row->ID_COOLING_FAMILY;
+            if (($energyDef == 0) && (($ener == 3) || ($ener == 2))) {
+                $energyDef = $ener;
+            }
+        }
+        
+        return $energyDef;
+    }
     
 }

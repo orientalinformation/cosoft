@@ -155,9 +155,26 @@ $router->GET('/api/v1/studies/{id}/equipments', 'Api1\\Studies@getStudyEquipment
 $router->GET('/api/v1/products/{id}/view', 'Api1\\Products@getProductViewModel');
 
 /**
- * GET headBalance
+ * GET headBalanceOptimum
  * Summary: 
- * Notes: get head balance result
+ * Notes: get head balance optimum result
  * Output-Formats: [application/json]
  */
-$router->GET('/api/v1/optimum/headbalance/{id}', 'Api1\\Output@getOptimumHeadBalance');
+$router->GET('/api/v1/optimum/headBalance/{idStudy}', 'Api1\\Output@getOptimumHeadBalance');
+
+
+/**
+ * GET headBalanceMaxOptimum
+ * Summary: 
+ * Notes: get head balance optimum max result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/optimum/headBalanceMax/{idStudy}', 'Api1\\Output@getOptimumHeadBalanceMax');
+
+/**
+ * GET headBalanceEstimation
+ * Summary: 
+ * Notes: get head balance estimation result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/estimation/headBalance/{idStudy}', 'Api1\\Output@getEstimationHeadBalance');
