@@ -24,4 +24,7 @@ class ValueListService
     public $CONSUMPTION_UNIT_CO2 = 30;
     public $CONSUM_MAINTIEN_CO2 = 33;
     public $CONSUM_MEF_CO2 = 36;
+    public $MIN_MAX_EQUIPMENT_WIDTH = 1077;
+    public $MIN_MAX_EQUIPMENT_LENGTH = 1076;
+    public $PROFIL_EXPERT = 2;
 }

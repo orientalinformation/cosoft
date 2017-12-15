@@ -2,14 +2,23 @@
 
 namespace App\Cryosoft;
 
+use Illuminate\Contracts\Auth\Factory as Auth;
 use App\Cryosoft\ValueListService;
 use App\Models\Unit;
+use App\Models\MonetaryCurrency;
 
 
 class UnitsConverterService
 {
-    public function __construct(ValueListService $valueService)
+
+    /**
+    * @var Illuminate\Contracts\Auth\Factory
+    */
+    protected $auth;
+
+    public function __construct(Auth $auth, ValueListService $valueService)
     {
+        $this->auth = $auth;
         $this->value = $valueService;
     }
 
@@ -21,12 +30,14 @@ class UnitsConverterService
         $timeSymbol = $this->timeSymbol();
         $perUnitOfMassSymbol = $this->perUnitOfMassSymbol();
         $enthalpySymbol = $this->enthalpySymbol();
+        $monetarySymbol = $this->monetarySymbol();
+        $equipDimensionSymbol = $this->equipDimensionSymbol();
         $percentSymbol = "%";
-        $consumptionSymbol = "";
+        $consumSymbol = "";
         $consumMaintienSymbol = "";
         $mefSymbol = "";
 
-        return compact("productFlowSymbol", "massSymbol", "temperatureSymbol", "percentSymbol", "timeSymbol", "perUnitOfMassSymbol", "enthalpySymbol", "consumSymbol", "consumMaintienSymbol", "mefSymbol");
+        return compact("productFlowSymbol", "massSymbol", "temperatureSymbol", "percentSymbol", "timeSymbol", "perUnitOfMassSymbol", "enthalpySymbol", "monetarySymbol", "equipDimensionSymbol", "consumSymbol", "consumMaintienSymbol", "mefSymbol");
     }
 
     public function productFlowSymbol() 
@@ -61,6 +72,18 @@ class UnitsConverterService
     {
         $unit = Unit::select("SYMBOL")->where("TYPE_UNIT", $this->value->ENTHALPY)->first();
         return $unit->SYMBOL;
+    }
+
+    public function equipDimensionSymbol() 
+    {
+        $unit = Unit::select("SYMBOL")->where("TYPE_UNIT", $this->value->EQUIP_DIMENSION)->first();
+        return $unit->SYMBOL;
+    }
+
+    public function monetarySymbol() 
+    {
+        $uMoney = $this->uMoney();
+        return $uMoney["symbol"];
     }
 
     public function consumptionSymbol($energy, $type) 
@@ -154,6 +177,28 @@ class UnitsConverterService
         );
     }
 
+    public function uMoney()
+    {
+        $user = $this->auth->user();
+        $monetaryUnit = MonetaryCurrency::where("ID_MONETARY_CURRENCY", $user->ID_MONETARY_CURRENCY)->first();
+
+        $unit = Unit::where("TYPE_UNIT", 27)->where("SYMBOL", "like", "%" . $monetaryUnit->MONEY_TEXT . "%")->first();
+
+        $result = array();
+
+        if ($unit == null) {
+            $result = $this->uNone();
+        } else {
+            $result = [
+                "coeffA" => $unit->COEFF_A,
+                "coeffB" => $unit->COEFF_B,
+                "symbol" => $unit->SYMBOL
+            ];
+        }
+
+        return $result;
+    }
+
     public function mass($value) 
     {
         $unit = Unit::select("COEFF_A", "COEFF_B")->where("TYPE_UNIT", $this->value->MASS)->first();
@@ -185,6 +230,12 @@ class UnitsConverterService
         return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 1);
     }
 
+    public function equipDimension($value) {
+
+        $unit = Unit::select("COEFF_A", "COEFF_B")->where("TYPE_UNIT", $this->value->EQUIP_DIMENSION)->first();
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B);
+    }
+
     public function toc($value) 
     {
         $uPercent = $this->uPercent();
@@ -194,6 +245,12 @@ class UnitsConverterService
     public function precision($value) {
         $uNone = $this->uNone();
         return $this->convertCalculator($value, $uNone["coeffA"], $uNone["coeffB"], 3);
+    }
+
+    public function monetary($value, $nbDecimal = 3) 
+    {
+        $uMoney = $this->uMoney();
+        return $this->convertCalculator($value, $uMoney["coeffA"], $uMoney["coeffB"],  $nbDecimal);
     }
 
     public function consumption($value, $energy, $type, $decimal = 2)

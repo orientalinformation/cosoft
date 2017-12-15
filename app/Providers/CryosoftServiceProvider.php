@@ -32,6 +32,10 @@ class CryosoftServiceProvier extends ServiceProvider
         $this->app->singleton(\App\Cryosoft\EconomicResultsService::class, function ($app) {
             return new \App\Cryosoft\EconomicResultsService();
         });
+
+        $this->app->singleton(\App\Cryosoft\StudyService::class, function ($app) {
+            return new \App\Cryosoft\StudyService();
+        });
     }
 
 }

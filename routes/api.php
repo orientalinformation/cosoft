@@ -172,6 +172,14 @@ $router->GET('/api/v1/optimum/headBalance/{idStudy}', 'Api1\\Output@getOptimumHe
 $router->GET('/api/v1/optimum/headBalanceMax/{idStudy}', 'Api1\\Output@getOptimumHeadBalanceMax');
 
 /**
+ * GET EquipSizing
+ * Summary: 
+ * Notes: get study equipment equip sizing
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/optimum/equipSizing/{idStudyEquipment}', 'Api1\\Output@getEquipSizing');
+
+/**
  * GET headBalanceEstimation
  * Summary: 
  * Notes: get head balance estimation result
@@ -180,9 +188,18 @@ $router->GET('/api/v1/optimum/headBalanceMax/{idStudy}', 'Api1\\Output@getOptimu
 $router->GET('/api/v1/estimation/headBalance/{idStudy}', 'Api1\\Output@getEstimationHeadBalance');
 
 /**
- * GET AnalyticalConsumption Result
+ * GET AnalyticalConsumptionResult
  * Summary: 
  * Notes: get analytical consumption result
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/common/consumption/{idStudy}', 'Api1\\Output@getAnalyticalConsumption');
+
+/**
+ * GETAnalyticalEconomicResult
+ * Summary: 
+ * Notes: get analytical economic result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/common/economic/{idStudy}', 'Api1\\Output@getAnalyticalEconomic');
+

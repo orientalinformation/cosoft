@@ -7,6 +7,7 @@ use App\Cryosoft\UnitsConverterService;
 use App\Models\Unit;
 use App\Models\StudyEquipment;
 use App\Models\Study;
+use App\Models\StudEqpPrm;
 
 
 class EquipmentsService
@@ -105,6 +106,11 @@ class EquipmentsService
         }
         
         return $energyDef;
+    }
+
+    public function getStudEqpPrm($idStudyEquipment, $dataType)
+    {
+        return StudEqpPrm::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("VALUE_TYPE", ">=", $dataType)->where("VALUE_TYPE", "<", $dataType + 100)->orderBy("VALUE_TYPE", "ASC")->get();
     }
     
 }
