@@ -45,7 +45,9 @@ class Products extends Controller
     	return $elements;
     }
 
-    public function appendElementsToProduct($id) {
+    public function appendElementsToProduct($id) 
+    {
+        // $id is product id
     	$input = $this->request->all();
 
         $componentId = $input['componentId'];
@@ -68,7 +70,7 @@ class Products extends Controller
 
     	$elmt->ORIGINAL_THICK = 0.0;
     	$elmt->PROD_ELMT_WEIGHT = 0.0;
-    	$elmt->PROD_ELMT_REALWEIGHT = 0.0;    	
+    	$elmt->PROD_ELMT_REALWEIGHT = 0.0;
     	$elmt->NODE_DECIM = 0; // @TODO: research more on nodeDecim
         $elmt->INSERT_LINE_ORDER = $product->ID_STUDY;
         
@@ -76,6 +78,7 @@ class Products extends Controller
         $elmt->SHAPE_POS2 = doubleval($nElements) / 100.0;
         $elmt->SHAPE_POS1 = 0;
         $elmt->SHAPE_POS3 = 0;
+
         $elmt->PROD_DEHYD = 0;
         $elmt->PROD_DEHYD_COST = 0;
 
@@ -83,8 +86,15 @@ class Products extends Controller
 
         $elmtId = $elmt->ID_PRODUCT_ELMT;
 
+        // call kernel recalculate weight
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $elmt->product->ID_STUDY);
+        $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 40);        
+
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $id, $elmtId);
         $ok1 = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($conf, 2);
+
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $elmt->product->ID_STUDY);
+        $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 47);
 
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $id);
         $ok2 = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($conf, 3);
@@ -106,6 +116,7 @@ class Products extends Controller
 
     public function removeProductElement($id)
     {
+        // $id is product id
         $input = $this->request->all();
         if (!isset($input['elementId'])) {
             throw new Exception("Error Processing Request", 500);
@@ -123,11 +134,9 @@ class Products extends Controller
 
         // call kernel recalculate weight
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $id);
-
         $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 41);
 
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id), 0);
-
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id));
         $ok = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($conf, 4);
 
         return compact('ok');

@@ -155,6 +155,55 @@ $router->GET('/api/v1/studies/{id}/equipments', 'Api1\\Studies@getStudyEquipment
 $router->GET('/api/v1/products/{id}/view', 'Api1\\Products@getProductViewModel');
 
 /**
+ *  * GET headBalanceOptimum
+ * Summary: 
+ * Notes: get head balance optimum result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/optimum/headBalance/{idStudy}', 'Api1\\Output@getOptimumHeadBalance');
+
+
+/**
+ * GET headBalanceMaxOptimum
+ * Summary: 
+ * Notes: get head balance optimum max result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/optimum/headBalanceMax/{idStudy}', 'Api1\\Output@getOptimumHeadBalanceMax');
+
+/**
+ * GET EquipSizing
+ * Summary: 
+ * Notes: get study equipment equip sizing
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/optimum/equipSizing/{idStudyEquipment}', 'Api1\\Output@getEquipSizing');
+
+/**
+ * GET headBalanceEstimation
+ * Summary: 
+ * Notes: get head balance estimation result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/estimation/headBalance/{idStudy}', 'Api1\\Output@getEstimationHeadBalance');
+
+/**
+ * GET AnalyticalConsumptionResult
+ * Summary: 
+ * Notes: get analytical consumption result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/common/consumption/{idStudy}', 'Api1\\Output@getAnalyticalConsumption');
+
+/**
+ * GETAnalyticalEconomicResult
+ * Summary: 
+ * Notes: get analytical economic result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/common/economic/{idStudy}', 'Api1\\Output@getAnalyticalEconomic');
+
+/**
  * DELETE removeProductElement
  * Summary: 
  * Notes: remove a product element
