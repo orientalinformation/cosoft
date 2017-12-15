@@ -23,8 +23,10 @@ class UnitsConverterService
         $enthalpySymbol = $this->enthalpySymbol();
         $percentSymbol = "%";
         $consumptionSymbol = "";
+        $consumMaintienSymbol = "";
+        $mefSymbol = "";
 
-        return compact("productFlowSymbol", "massSymbol", "temperatureSymbol", "percentSymbol", "timeSymbol", "perUnitOfMassSymbol", "enthalpySymbol", "consumptionSymbol");
+        return compact("productFlowSymbol", "massSymbol", "temperatureSymbol", "percentSymbol", "timeSymbol", "perUnitOfMassSymbol", "enthalpySymbol", "consumSymbol", "consumMaintienSymbol", "mefSymbol");
     }
 
     public function productFlowSymbol() 
@@ -131,7 +133,7 @@ class UnitsConverterService
     
     public function convertCalculator($value, $coeffA, $coeffB, $decimal = 2)
     {
-        return round(($value * $coeffA + $coeffB), $decimal);
+        return round(($value * $coeffA + $coeffB), $decimal, PHP_ROUND_HALF_DOWN);
     }
 
     public function uNone()
@@ -194,7 +196,7 @@ class UnitsConverterService
         return $this->convertCalculator($value, $uNone["coeffA"], $uNone["coeffB"], 3);
     }
 
-    public function consumption($value, $energy, $type)
+    public function consumption($value, $energy, $type, $decimal = 2)
     {
         $sValue = "";
         $sUnitLabel = "";
@@ -249,6 +251,6 @@ class UnitsConverterService
 
         }
 
-        return $this->unitConvert($sUnitLabel, $value);
+        return $this->unitConvert($sUnitLabel, $value, $decimal);
     }
 }

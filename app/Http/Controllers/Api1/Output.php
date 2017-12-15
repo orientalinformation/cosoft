@@ -15,10 +15,11 @@ use App\Models\EconomicResults;
 use App\Models\StudEqpPrm;
 use App\Models\MinMax;
 
+use App\Cryosoft\ValueListService;
 use App\Cryosoft\UnitsConverterService;
 use App\Cryosoft\EquipmentsService;
 use App\Cryosoft\DimaResultsService;
-use App\Cryosoft\ValueListService;
+use App\Cryosoft\EconomicResultsService;
 
 
 class Output extends Controller
@@ -40,7 +41,7 @@ class Output extends Controller
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth, UnitsConverterService $unit, EquipmentsService $equip, DimaResultsService $dima, ValueListService $value)
+    public function __construct(Request $request, Auth $auth, UnitsConverterService $unit, EquipmentsService $equip, DimaResultsService $dima, ValueListService $value, EconomicResultsService $eco)
     {
         $this->request = $request;
         $this->auth = $auth;
@@ -48,6 +49,7 @@ class Output extends Controller
         $this->equip = $equip;
         $this->dima = $dima;
         $this->value =  $value;
+        $this->eco = $eco;
     }
 
     public function getOptimumHeadBalance($idStudy)
@@ -458,7 +460,7 @@ class Output extends Controller
         return compact("ecoEnable", "resutlAna", "symbol", "result");
     }
 
-    public function getAnalyticalConsumptionAction($idStudy)
+    public function getAnalyticalConsumption($idStudy)
     {
         $study = Study::find($idStudy);
 
@@ -470,6 +472,12 @@ class Output extends Controller
         }
 
         $calculationMode = $study->CALCULATION_MODE;
+
+        // get Symbol
+        $symbol = $this->unit->getAllSymbol();
+        $symbol["consumSymbol"] = $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1);
+        $symbol["consumMaintienSymbol"] = $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 2);
+        $symbol["mefSymbol"] = $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 3);
 
         $studyEquipments = StudyEquipment::where("ID_STUDY", $idStudy)->where("BRAIN_TYPE", ">=", 0)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
 
@@ -495,7 +503,7 @@ class Output extends Controller
             $eqptCold = "";
             $lineCold = "";
             $linePerm = "";
-            $cTank = "";
+            $tank = "";
             $percentProduct = 0;
             $percentEquipmentPerm = 0;
             $percentEquipmentDown = 0;
@@ -503,7 +511,7 @@ class Output extends Controller
 
             if($this->equip->getCapability($capabilitie, 256)) {
                 $equipName = $this->equip->getSpecificEquipName($idStudyEquipment);
-                $economicResults = EconomicResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->first();
+                $economicResult = EconomicResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->first();
                
                if ($calculationMode == 1) {
                     $studEqpPrm = StudEqpPrm::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("VALUE_TYPE", 300)->first();
@@ -517,16 +525,88 @@ class Output extends Controller
                     $dimaR = DimaResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("DIMA_TYPE", 1)->first();
                }
 
-               if ($economicResults != null) {
+               if ($economicResult != null) {
                     if ($dimaR != null) {
-                        $dimaStatus = $this->_ima->getCalculationStatus($dimaR->getDimaStatus());
+                        $dimaStatus = $this->dima->getCalculationStatus($dimaR->DIMA_STATUS);
                         $equipStatus = $row->EQUIP_STATUS;
                     } else {
                         $dimaStatus = 1;
                         $equipStatus = 0;
                     }
+
+                    $consoToDisplay = $this->eco->isConsoToDisplay($dimaStatus, $equipStatus);
+                    if(!$consoToDisplay) {
+                        $equipName = "****";
+                        $tc = "****";
+                        $kgProduct = "****";
+                        $product = "****";
+                        $cday = "****";
+                        $week = "****";
+                        $hour = "****";
+                        $month = "****";
+                        $year = "****";
+                        $eqptPerm = "****";
+                        $eqptCold = "****";
+                        $lineCold = "****";
+                        $linePerm = "****";
+                        $tank = "****";
+                        $percentProduct = 0;
+                        $percentEquipmentPerm = 0;
+                        $percentEquipmentDown = 0;
+                        $percentLine = 0;
+                    } else {
+                        $tc = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_TOTAL / $lfcoef, $idCoolingFamily, 1);
+                        if ($lfcoef != 0.0) {
+                            $kgProduct = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_PER_KG / $lfcoef, $idCoolingFamily, 1);
+                            $product = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_PRODUCT / $lfcoef, $idCoolingFamily, 1);
+                        } else {
+                            $kgProduct = $product = "****";
+                        }
+    
+                        $cday = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_DAY, $idCoolingFamily, 1, 0);
+                        $eqptCold = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_MAT_GETCOLD, $idCoolingFamily, 3);
+                        $eqptPerm = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_MAT_PERM, $idCoolingFamily, 2);
+                        $lineCold = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_LINE_GETCOLD, $idCoolingFamily, 3);
+                        $linePerm = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_LINE_PERM, $idCoolingFamily, 2);
+                        $tank = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_TANK, $idCoolingFamily, 1);
+                        $week = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_WEEK, $idCoolingFamily, 1, 0);
+                        $hour = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_HOUR, $idCoolingFamily, 1);
+                        $month = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_MONTH, $idCoolingFamily, 1, 0);
+                        $year = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_YEAR, $idCoolingFamily, 1, 0);
+
+                        $percentProduct = round($economicResult->PERCENT_PRODUCT * 100);
+                        $percentEquipmentPerm = round($economicResult->PERCENT_EQUIPMENT_PERM * 100);
+                        $percentEquipmentDown = round($economicResult->PERCENT_EQUIPMENT_DOWN * 100);
+                        $percentLine = round($economicResult->PERCENT_LINE * 100);
+                    }
                }
             }
+
+            $item["id"] = $idStudyEquipment;
+            $item["equipName"] = $equipName;
+            
+            $item["tc"] = $tc;
+            $item["kgProduct"] = $kgProduct;
+            $item["product"] = $product;
+            $item["cday"] = $cday;
+            $item["week"] = $week;
+            $item["hour"] = $hour;
+            $item["month"] = $month;
+            $item["year"] = $year;
+            $item["eqptPerm"] = $eqptPerm;
+            $item["eqptCold"] = $eqptCold;
+            $item["lineCold"] = $lineCold;
+            $item["linePerm"] = $linePerm;
+            $item["tank"] = $tank;
+
+            $item["percentProduct"] = $percentProduct;
+            $item["percentEquipmentPerm"] = $percentEquipmentPerm;
+            $item["percentEquipmentDown"] = $percentEquipmentDown;
+            $item["percentLine"] = $percentLine;
+            
+            $result[] = $item;
         }
+
+        return compact("ecoEnable", "symbol", "result");
     }
 }

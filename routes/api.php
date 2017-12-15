@@ -178,3 +178,11 @@ $router->GET('/api/v1/optimum/headBalanceMax/{idStudy}', 'Api1\\Output@getOptimu
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/estimation/headBalance/{idStudy}', 'Api1\\Output@getEstimationHeadBalance');
+
+/**
+ * GET AnalyticalConsumption Result
+ * Summary: 
+ * Notes: get analytical consumption result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/common/consumption/{idStudy}', 'Api1\\Output@getAnalyticalConsumption');
