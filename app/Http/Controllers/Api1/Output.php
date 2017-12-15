@@ -67,7 +67,7 @@ class Output extends Controller
         $avgTInitial = $production->AVG_T_INITIAL;
         $prodElmtRealweight = $this->unit->mass($product->PROD_REALWEIGHT);
 
-        $resutlAna = compact("prodFlowRate", "prodElmtRealweight", "avgTInitial");
+        $resultAna = compact("prodFlowRate", "prodElmtRealweight", "avgTInitial");
 
         $calculationMode = $study->CALCULATION_MODE;
 
@@ -93,7 +93,8 @@ class Output extends Controller
             $calculWarning = "";
             $item["id"] = $idStudyEquipment = $row->ID_STUDY_EQUIPMENTS;
             $item["specificSize"] = $this->equip->getSpecificEquipSize($idStudyEquipment);
-            $item["equipName"] = $this->equip->getResultsEquipName($idStudyEquipment);     
+            $item["equipName"] = $this->equip->getResultsEquipName($idStudyEquipment);   
+            $calculate = "";  
 
             $item["runBrainPopup"] = false;
             if ($this->equip->getCapability($capabilitie , 128)) {
@@ -198,7 +199,7 @@ class Output extends Controller
         }
 
 
-        return compact("ecoEnable", "resutlAna", "symbol", "result");
+        return compact("ecoEnable", "resultAna", "symbol", "result");
     }
 
     public function getOptimumHeadBalanceMax($idStudy)
@@ -213,7 +214,7 @@ class Output extends Controller
         $avgTInitial = $production->AVG_T_INITIAL;
         $prodElmtRealweight = $this->unit->mass($product->PROD_REALWEIGHT);
 
-        $resutlAna = compact("prodFlowRate", "prodElmtRealweight", "avgTInitial");
+        $resultAna = compact("prodFlowRate", "prodElmtRealweight", "avgTInitial");
 
 
         $calculationMode = $study->CALCULATION_MODE;
@@ -312,7 +313,7 @@ class Output extends Controller
         }
 
 
-        return compact("ecoEnable", "resutlAna", "symbol", "result");
+        return compact("ecoEnable", "resultAna", "symbol", "result");
     }
 
     public function getEstimationHeadBalance($idStudy)
@@ -328,7 +329,7 @@ class Output extends Controller
         $avgTInitial = $production->AVG_T_INITIAL;
         $prodElmtRealweight = $this->unit->mass($product->PROD_REALWEIGHT);
 
-        $resutlAna = compact("prodFlowRate", "prodElmtRealweight", "avgTInitial");
+        $resultAna = compact("prodFlowRate", "prodElmtRealweight", "avgTInitial");
 
         $calculationMode = $study->CALCULATION_MODE;
 
@@ -460,7 +461,7 @@ class Output extends Controller
         }
 
 
-        return compact("ecoEnable", "resutlAna", "symbol", "result");
+        return compact("ecoEnable", "resultAna", "symbol", "result");
     }
 
     public function getAnalyticalConsumption($idStudy)
@@ -756,6 +757,10 @@ class Output extends Controller
             $tsPrm = $this->equip->getStudEqpPrm($idStudyEquipment, 200);
             $vcPrm = $this->equip->getStudEqpPrm($idStudyEquipment, 100);
             $tePrm  = $this->equip->getStudEqpPrm($idStudyEquipment, 500)[0];
+            if(count($tePrm) > 0) $tePrm = $tePrm[0]; 
+
+            $ldSetpointmax = ( count($tsPrm) > count($trPrm) ) ? ( count($tsPrm) > count($vcPrm) ) ? count($tsPrm) : count($vcPrm) : (count($trPrm) > count($vcPrm)) ? count($trPrm) : count($vcPrm);
+
         }
     }
 }
