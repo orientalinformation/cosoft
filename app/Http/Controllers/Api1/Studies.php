@@ -71,7 +71,7 @@ class Studies extends Controller
     {
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id), -1);
 
-        return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 40);
+        return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 10);
     }
 
     /**
@@ -108,8 +108,9 @@ class Studies extends Controller
         $product->PRODNAME = $input['name'];
         $product->PROD_WEIGHT = 0.0;
         $product->PROD_REALWEIGHT = 0.0;
-        $product->PROD_VOLUME = 0;
-        $product->PROD_ISO = 0;
+        $product->PROD_VOLUME = 0.0;
+        $product->PROD_ISO = 1;
+        $product->ID_MESH_GENERATION = 0;
         $product->save();
 
         return 0;

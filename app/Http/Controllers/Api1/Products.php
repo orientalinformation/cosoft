@@ -59,30 +59,35 @@ class Products extends Controller
         $elmt->SHAPE_PARAM2 = 0.01; //default 1cm
         
         if (isset($input['dim1']))
-            $elmt->SHAPE_PARAM1 = floatval($input['dim1']);
+            $elmt->SHAPE_PARAM1 = $input['dim1'];
             
         if (isset($input['dim3']))
-            $elmt->SHAPE_PARAM3 = floatval($input['dim3']);
+            $elmt->SHAPE_PARAM3 = $input['dim3'];
             
+        $elmt->PROD_ELMT_NAME = "";
+
+    	$elmt->ORIGINAL_THICK = 0.0;
     	$elmt->PROD_ELMT_WEIGHT = 0.0;
-    	$elmt->PROD_ELMT_REALWEIGHT = -1.0;
+    	$elmt->PROD_ELMT_REALWEIGHT = 0.0;    	
     	$elmt->NODE_DECIM = 0; // @TODO: research more on nodeDecim
         $elmt->INSERT_LINE_ORDER = $product->ID_STUDY;
         
         $nElements = \App\Models\ProductElmt::where('ID_PROD', $id)->count();
-        $elmt->SHAPE_POS2 = floatval($nElements) / 100.0;
+        $elmt->SHAPE_POS2 = doubleval($nElements) / 100.0;
+        $elmt->SHAPE_POS1 = 0;
+        $elmt->SHAPE_POS3 = 0;
+        $elmt->PROD_DEHYD = 0;
+        $elmt->PROD_DEHYD_COST = 0;
 
     	$elmt->save();
 
         $elmtId = $elmt->ID_PRODUCT_ELMT;
 
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id), $elmt->ID_PRODUCT_ELMT);
-
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $id, $elmtId);
         $ok1 = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($conf, 2);
-        $conf->ldIdTmp = 0;
 
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $id);
         $ok2 = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($conf, 3);
-        $ok2 = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($conf, 4);
 
         return compact('ok1', 'ok2', 'elmtId');
     }
@@ -117,8 +122,14 @@ class Products extends Controller
         }
 
         // call kernel recalculate weight
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id));
-        $ok2 = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($conf, 3);
-        return $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($conf, 4);
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $id);
+
+        $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 41);
+
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id), 0);
+
+        $ok = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($conf, 4);
+
+        return compact('ok');
     }
 }

@@ -54,7 +54,12 @@ class ProductElements extends Controller
         $moveElement->save();
 
         // call kernel recalculate weight
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($moveElement->product->ID_PROD));
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $moveElement->product->ID_STUDY);
+
+        $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 47);
+
+        $conf->idStudy = $moveElement->product->ID_PROD;
+
         return $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($conf, 4);
     }
 
