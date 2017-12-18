@@ -36,6 +36,10 @@ class CryosoftServiceProvier extends ServiceProvider
         $this->app->singleton(\App\Cryosoft\StudyService::class, function ($app) {
             return new \App\Cryosoft\StudyService();
         });
+
+        $this->app->singleton(\App\Cryosoft\CheckControlService::class, function ($app) {
+            return new \App\Cryosoft\CheckControlService();
+        });
     }
 
 }

@@ -242,3 +242,68 @@ $router->PUT('/api/v1/studies/{id}/product', 'Api1\\Studies@newProduct');
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/studies/{id}/product', 'Api1\\Studies@updateProduct');
+
+/**
+ * GET getMeshParamDefByIdUser
+ * Summary: 
+ * Notes: get available MeshParamDef by filter
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/meshparamdef', 'Api1\\Settings@getMyMeshParamDef');
+
+/**
+ * PUT saveMeshParamDefByIdUser
+ * Summary: 
+ * Notes: 	
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/savemeshparamdef', 'Api1\\Settings@saveMyMeshParamDef');
+
+/**
+ * GET getTempRecordPtsDefByIdUser
+ * Summary: 
+ * Notes: get available MeshParamDef by filter	
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/temprecordptsdef', 'Api1\\Settings@getMyTempRecordPtsDef');
+
+/**
+ * POST saveTempRecordPtsDef
+ * Summary: 
+ * Notes: 
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/savetemprecordptsdef', 'Api1\\Settings@saveMyTempRecordPtsDef');
+
+/**
+ * GET getCalculationParametersDefByIdUser
+ * Summary: 
+ * Notes: get available CalculationParametersDef by filter
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/calculationparametersdef', 'Api1\\Settings@getMyCalculationParametersDef');
+
+/**
+ * POST savecalculationparametersdef
+ * Summary: 
+ * Notes: 
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/savecalculationparametersdef', 'Api1\\Settings@saveMyCalculationParametersDef');
+
+/**
+ * GET CheckControl View
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/checkcontrolview', 'Api1\\CheckControl@checkControlView');
+
+/**
+ * GET CheckControl
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/checkcontrol', 'Api1\\CheckControl@checkControl');
+
