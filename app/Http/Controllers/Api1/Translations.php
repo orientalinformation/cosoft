@@ -38,4 +38,25 @@ class Translations extends Controller
 
         return $translations;
     }
+
+    public function getPackingTranslations($lang)
+    {
+        $langIds = [
+            'en' => 1,
+            'fr' => 2,
+            'es' => 3,
+            'de' => 4,
+            'it' => 5
+        ];
+        $translations = \App\Models\Translation::where('TRANS_TYPE',3)
+            ->where('CODE_LANGUE',$langIds[$lang])
+            ->get();
+        
+        // @TODO: Use mutator or other more efficient way to decode the languages
+        for ($i=0; $i < $translations->count(); $i++) {
+            $translations[$i]->LABEL = \mb_convert_encoding($translations[$i]->LABEL, "UTF-8");
+        }
+
+        return $translations;
+    }
 }

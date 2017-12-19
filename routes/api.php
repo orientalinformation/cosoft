@@ -193,3 +193,19 @@ $router->PUT('/api/v1/studies/{id}/product', 'Api1\\Studies@newProduct');
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/studies/{id}/product', 'Api1\\Studies@updateProduct');
+
+/**
+ * POST updateProduct
+ * Summary: 
+ * Notes: update a product
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/packingLayers', 'Api1\\Packings@findPackingLayers');
+
+/**
+ * GET getPackingTranslations
+ * Summary: 
+ * Notes: 
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/translations/{lang}/packings', 'Api1\\Translations@getPackingTranslations');
