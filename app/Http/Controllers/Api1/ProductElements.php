@@ -54,13 +54,9 @@ class ProductElements extends Controller
         $moveElement->push();
 
         // call kernel recalculate weight
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $moveElement->product->ID_STUDY);
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $moveElement->product->ID_PROD);
 
-        $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 47);
-
-        $conf->idStudy = $moveElement->product->ID_PROD;
-
-        return $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($conf, 4);
+        return $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($moveElement->product->ID_STUDY, $conf, 4);
     }
 
     public function productElementMoveDown($id)
@@ -81,13 +77,9 @@ class ProductElements extends Controller
 
         $moveElement->SHAPE_POS2 = $newPosition;
         $moveElement->push();
-
-        // call kernel recalculate weight
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $moveElement->product->ID_STUDY);
-        $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 47);
         
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($moveElement->product->ID_PROD));
-        return $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($conf, 4);
+        return $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($moveElement->product->ID_STUDY, $conf, 4);
     }
 
 }
