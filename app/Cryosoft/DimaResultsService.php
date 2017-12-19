@@ -7,10 +7,11 @@ use App\Cryosoft\UnitsConverterService;
 
 class DimaResultsService
 {
-    public function __construct(ValueListService $valueService, UnitsConverterService $unitConverter)
+    public function __construct(\Laravel\Lumen\Application $app)
     {
-        $this->value = $valueService;
-        $this->unit = $unitConverter;
+        $this->app = $app;
+        $this->value = $app['App\\Cryosoft\\ValueListService'];
+        $this->unit = $app['App\\Cryosoft\\UnitsConverterService'];
     }
 
     public function getCalculationStatus($dimaStatus)

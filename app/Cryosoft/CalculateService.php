@@ -42,11 +42,12 @@ class CalculateService
    */
   protected $calParametersDef;
 
-	public function __construct(Auth $auth, ValueListService $value, UnitsConverterService $convert) 
+	public function __construct(\Laravel\Lumen\Application $app) 
 	{
-		$this->auth = $auth;
-		$this->value = $value;
-		$this->convert = $convert;
+    $this->app = $app;
+    $this->auth = $app['Illuminate\\Contracts\\Auth\\Factory'];
+    $this->value = $app['App\\Cryosoft\\ValueListService'];
+    $this->convert = $app['App\\Cryosoft\\UnitsConverterService'];
 		$this->calParametersDef = $this->getCalculationParametersDef();
 	}
 

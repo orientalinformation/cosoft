@@ -15,11 +15,11 @@ class StudyService
     */
     protected $auth;
 
-    public function __construct(Auth $auth, ValueListService $valueService, UnitsConverterService $unitConverter)
+    public function __construct(\Laravel\Lumen\Application $app)
     {
-        $this->auth = $auth;
-        $this->value = $valueService;
-        $this->unit = $unitConverter;
+        $this->app = $app;
+        $this->auth = $app['Illuminate\\Contracts\\Auth\\Factory'];
+        $this->value = $app['App\\Cryosoft\\ValueListService'];
     }
 
     public function isMyStudy($idStudy) 
