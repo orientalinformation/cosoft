@@ -169,4 +169,32 @@ class Studies extends Controller
 
         return compact('packing', 'packingLayers');
     }
+    public function savePacking($id)
+    {
+        $input = $this->request->all();
+        $packing = \App\Models\Packing::where('ID_STUDY', $id)->first();
+        if (empty($packing)) {
+            $packing = new \App\Models\Packing();
+            $packing->ID_SHAPE = $input['packing']['ID_SHAPE'];
+            $packing->ID_STUDY = $id;
+        }
+        if (!isset($input['packing']['NOMEMBMAT']))
+            $input['packing']['NOMEMBMAT'] = "";
+
+        $packing->NOMEMBMAT = $input['packing']['NOMEMBMAT'];
+        $packing->save();
+
+        $packingLayer = \App\Models\PackingLayer::where('ID_PACKING', $packing->ID_PACKING)->delete();
+
+        foreach ($input['packingLayers'] as $key => $value) {
+            $packingLayer = new \App\Models\PackingLayer();
+            $packingLayer->ID_PACKING = $packing->ID_PACKING;
+            $packingLayer->ID_PACKING_ELMT = $value['ID_PACKING_ELMT'];
+            $packingLayer->THICKNESS = $value['THICKNESS'];
+            $packingLayer->PACKING_SIDE_NUMBER = $value['PACKING_SIDE_NUMBER'];
+            $packingLayer->PACKING_LAYER_ORDER = $value['PACKING_LAYER_ORDER'];
+            $packingLayer->save();
+        }
+        return 1;
+    }
 }

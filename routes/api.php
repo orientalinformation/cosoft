@@ -429,3 +429,10 @@ $router->GET('/api/v1/optimumcalculator', 'Api1\\Calculator@getOptimumCalculator
  */
 $router->GET('/api/v1/studies/{id}/packingLayers', 'Api1\\Studies@getStudyPackingLayers');
 
+/**
+ * POST savePacking
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/studies/{id}/packingLayers', 'Api1\\Studies@savePacking');
