@@ -36,7 +36,7 @@ class Output extends Controller
      * @var Illuminate\Contracts\Auth\Factory
      */
     protected $auth;
-    
+
 
     /**
      * Create a new controller instance.
@@ -50,39 +50,54 @@ class Output extends Controller
         $this->unit = $unit;
         $this->equip = $equip;
         $this->dima = $dima;
-        $this->value =  $value;
+        $this->value = $value;
         $this->eco = $eco;
         $this->study = $study;
     }
 
-    public function getOptimumHeadBalance($idStudy)
+    public function getSymbol($idStudy)
     {
-        $idUser = $this->auth->user()->ID_USER;
+        $productFlowSymbol = $this->unit->productFlowSymbol();
+        $massSymbol = $this->unit->massSymbol();
+        $temperatureSymbol = mb_convert_encoding($this->unit->temperatureSymbol(), "UTF-8", "ISO-8859-1");
+        $timeSymbol = $this->unit->timeSymbol();
+        $perUnitOfMassSymbol = $this->unit->perUnitOfMassSymbol();
+        $enthalpySymbol = $this->unit->enthalpySymbol();
+        $monetarySymbol = $this->unit->monetarySymbol();
+        $equipDimensionSymbol = $this->unit->equipDimensionSymbol();
+        $convectionSpeedSymbol = $this->unit->convectionSpeedSymbol();
+        $percentSymbol = "%";
+        $consumSymbol = $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1);
+        $consumMaintienSymbol = $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 2);
+        $mefSymbol = $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 3);
 
-        $study = Study::find($idStudy);
-        $production = Production::where("ID_STUDY", $idStudy)->first();
-        $product = Product::where("ID_STUDY", $idStudy)->first();
+        $ret = compact("productFlowSymbol", "massSymbol", "temperatureSymbol", "percentSymbol", "timeSymbol", "perUnitOfMassSymbol", "enthalpySymbol", "monetarySymbol", "equipDimensionSymbol", "convectionSpeedSymbol", "consumSymbol", "consumMaintienSymbol", "mefSymbol");
+        // var_dump($ret);
+        return $ret;
+    }
+
+    public function getProInfoStudy($idStudy)
+    {
+        $production = Production::select("PROD_FLOW_RATE", "AVG_T_INITIAL")->where("ID_STUDY", $idStudy)->first();
+        $product = Product::select("PROD_REALWEIGHT")->where("ID_STUDY", $idStudy)->first();
 
         $prodFlowRate = $production->PROD_FLOW_RATE;
         $avgTInitial = $production->AVG_T_INITIAL;
         $prodElmtRealweight = $this->unit->mass($product->PROD_REALWEIGHT);
 
-        $resultAna = compact("prodFlowRate", "prodElmtRealweight", "avgTInitial");
+        return compact("prodFlowRate", "prodElmtRealweight", "avgTInitial");
+    }
 
+    public function getOptimumHeadBalance($idStudy)
+    {
+        $idUser = $this->auth->user()->ID_USER;
+        $study = Study::find($idStudy);
         $calculationMode = $study->CALCULATION_MODE;
-
-        // get Symbol
-        $symbol = $this->unit->getAllSymbol();
 
         //get study equipment
         $studyEquipments = StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
 
         $lfcoef = $this->unit->unitConvert($this->value->MASS_PER_UNIT, 1.0);
-
-        $ecoEnable = false;
-        if ($this->auth->user()->USERPRIO < $this->value->PROFIL_GUEST && $study->OPTION_ECO == $this->value->STUDY_ECO_MODE) {
-            $ecoEnable = true;
-        }
 
         $result = array();
 
@@ -93,18 +108,18 @@ class Output extends Controller
             $calculWarning = "";
             $item["id"] = $idStudyEquipment = $row->ID_STUDY_EQUIPMENTS;
             $item["specificSize"] = $this->equip->getSpecificEquipSize($idStudyEquipment);
-            $item["equipName"] = $this->equip->getResultsEquipName($idStudyEquipment);   
-            $calculate = "";  
+            $item["equipName"] = $this->equip->getResultsEquipName($idStudyEquipment);
+            $calculate = "";
 
             $item["runBrainPopup"] = false;
-            if ($this->equip->getCapability($capabilitie , 128)) {
+            if ($this->equip->getCapability($capabilitie, 128)) {
                 $item["runBrainPopup"] = true;
             }
 
-            if (!($this->equip->getCapability($capabilitie , 128))) {
+            if (!($this->equip->getCapability($capabilitie, 128))) {
                 $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $toc = $precision = "null";
                 $calculate = "disabled";
-            } else if (($equipStatus != 0) && ($equipStatus != 1) && ($equipStatus != 100000)){
+            } else if (($equipStatus != 0) && ($equipStatus != 1) && ($equipStatus != 100000)) {
                 $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $toc = $precision = "****";
                 $calculate = "disabled";
             } else if ($equipStatus == 10000) {
@@ -117,17 +132,17 @@ class Output extends Controller
                 } else {
                     switch ($brainType) {
                         case 0:
-                            $calculate = "";
-                            break;
-                        
-                        case 1:
-                        case 2:
-                        case 3:    
-                            $calculate = "disabled";
+                            $calculate = true;
                             break;
 
-                        case 4:    
-                            $calculate = "disabled";
+                        case 1:
+                        case 2:
+                        case 3:
+                            $calculate = false;
+                            break;
+
+                        case 4:
+                            $calculate = false;
                             break;
 
                         default:
@@ -136,14 +151,14 @@ class Output extends Controller
                     }
 
                     if ($this->dima->getCalculationWarning($dimaResult->DIMA_STATUS) != 0) {
-                        $calculWarning =  $this->dima->getCalculationWarning($dimaResult->DIMA_STATUS);
+                        $calculWarning = $this->dima->getCalculationWarning($dimaResult->DIMA_STATUS);
                     }
 
-                    $tr = $this->unit->unitConvert($this->value->TEMPERATURE, $dimaResult->SETPOINT);
-                    $ts = $this->unit->unitConvert($this->value->TIME, $dimaResult->DIMA_TS);
-                    $vc = $this->unit->unitConvert($this->value->CONV_SPEED, $dimaResult->DIMA_VC);
-                    $vep = $this->unit->unitConvert($this->value->ENTHALPY, $dimaResult->DIMA_VEP);
-                    $tfp = $this->unit->unitConvert($this->value->TEMPERATURE, $dimaResult->DIMA_TFP);
+                    $tr = $this->unit->controlTemperature($dimaResult->SETPOINT);
+                    $ts = $this->unit->time($dimaResult->DIMA_TS);
+                    $vc = $this->unit->convectionSpeed($dimaResult->DIMA_VC);
+                    $vep = $this->unit->enthalpy($dimaResult->DIMA_VEP);
+                    $tfp = $this->unit->prodTemperature($dimaResult->DIMA_TFP);
 
                     if ($this->equip->getCapability($capabilitie, 256)) {
                         $consumption = $dimaResult->CONSUM / $lfcoef;
@@ -159,9 +174,9 @@ class Output extends Controller
                         $conso = "****";
                     }
 
-                    if ($this->equip->getCapability($capabilitie , 32)) {
-                        $dhp = $this->unit->unitConvert($this->value->PRODUCT_FLOW, $dimaResult->HOURLYOUTPUTMAX);
-                        
+                    if ($this->equip->getCapability($capabilitie, 32)) {
+                        $dhp = $this->unit->productFlow($dimaResult->HOURLYOUTPUTMAX);
+
                         $batch = $row->BATCH_PROCESS;
                         if ($batch) {
                             $massConvert = $this->unit->mass($dimaResult->USERATE);
@@ -179,7 +194,7 @@ class Output extends Controller
                     } else {
                         $precision = "!!!!";
                     }
-                    
+
                 }
             }
 
@@ -199,38 +214,22 @@ class Output extends Controller
         }
 
 
-        return compact("ecoEnable", "resultAna", "symbol", "result");
+        return $result;
     }
 
     public function getOptimumHeadBalanceMax($idStudy)
     {
         $idUser = $this->auth->user()->ID_USER;
-
         $study = Study::find($idStudy);
-        $production = Production::where("ID_STUDY", $idStudy)->first();
-        $product = Product::where("ID_STUDY", $idStudy)->first();
-
-        $prodFlowRate = $production->PROD_FLOW_RATE;
-        $avgTInitial = $production->AVG_T_INITIAL;
-        $prodElmtRealweight = $this->unit->mass($product->PROD_REALWEIGHT);
-
-        $resultAna = compact("prodFlowRate", "prodElmtRealweight", "avgTInitial");
-
 
         $calculationMode = $study->CALCULATION_MODE;
-
-        // get Symbol
-        $symbol = $this->unit->getAllSymbol();
 
         //get study equipment
         $studyEquipments = StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
 
         $lfcoef = $this->unit->unitConvert($this->value->MASS_PER_UNIT, 1.0);
 
-        $ecoEnable = false;
-        if ($this->auth->user()->USERPRIO < $this->value->PROFIL_GUEST && $study->OPTION_ECO == $this->value->STUDY_ECO_MODE) {
-            $ecoEnable = true;
-        }
+
 
         $result = array();
 
@@ -241,13 +240,13 @@ class Output extends Controller
             $calculWarning = "";
             $item["id"] = $idStudyEquipment = $row->ID_STUDY_EQUIPMENTS;
             $item["specificSize"] = $this->equip->getSpecificEquipSize($idStudyEquipment);
-            $item["equipName"] = $this->equip->getResultsEquipName($idStudyEquipment);   
+            $item["equipName"] = $this->equip->getResultsEquipName($idStudyEquipment);
 
-            $dimaResult = DimaResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("DIMA_TYPE", 16)->first();  
+            $dimaResult = DimaResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("DIMA_TYPE", 16)->first();
 
-            if (!($this->equip->getCapability($capabilitie , 128))) {
+            if (!($this->equip->getCapability($capabilitie, 128))) {
                 $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $toc = $precision = "****";
-            } else if ($dimaResult == null) { 
+            } else if ($dimaResult == null) {
                 $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $toc = $precision = "";
             } else {
                 $calculWarning = $this->dima->getCalculationWarning($dimaResult->DIMA_STATUS);
@@ -255,11 +254,11 @@ class Output extends Controller
                 if ($calculWarning != 0) {
                     $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $toc = $precision = "****";
                 } else {
-                    $tr = $this->unit->unitConvert($this->value->TEMPERATURE, $dimaResult->SETPOINT);
-                    $ts = $this->unit->unitConvert($this->value->TIME, $dimaResult->DIMA_TS);
-                    $vc = $this->unit->unitConvert($this->value->CONV_SPEED, $dimaResult->DIMA_VC);
-                    $vep = $this->unit->unitConvert($this->value->ENTHALPY, $dimaResult->DIMA_VEP);
-                    $tfp = $this->unit->unitConvert($this->value->TEMPERATURE, $dimaResult->DIMA_TFP);
+                    $tr = $this->unit->controlTemperature($dimaResult->SETPOINT);
+                    $ts = $this->unit->time($dimaResult->DIMA_TS);
+                    $vc = $this->unit->convectionSpeed($dimaResult->DIMA_VC);
+                    $vep = $this->unit->enthalpy($dimaResult->DIMA_VEP);
+                    $tfp = $this->unit->prodTemperature($dimaResult->DIMA_TFP);
 
                     if ($this->equip->getCapability($capabilitie, 256)) {
                         $consumption = $dimaResult->CONSUM / $lfcoef;
@@ -275,9 +274,9 @@ class Output extends Controller
                         $conso = "****";
                     }
 
-                    if ($this->equip->getCapability($capabilitie , 32)) {
-                        $dhp = $this->unit->unitConvert($this->value->PRODUCT_FLOW, $dimaResult->HOURLYOUTPUTMAX);
-                        
+                    if ($this->equip->getCapability($capabilitie, 32)) {
+                        $dhp = $this->unit->productFlow($dimaResult->HOURLYOUTPUTMAX);
+
                         $batch = $row->BATCH_PROCESS;
                         if ($batch) {
                             $massConvert = $this->unit->mass($dimaResult->USERATE);
@@ -312,41 +311,23 @@ class Output extends Controller
             $result[] = $item;
         }
 
-
-        return compact("ecoEnable", "resultAna", "symbol", "result");
+        return $result;
     }
 
-    public function getEstimationHeadBalance($idStudy)
+    public function getEstimationHeadBalance()
     {
+        $idStudy = $this->request->input('idStudy');
         $trSelect = ($this->request->input('tr') != "") ? $this->request->input('tr') : 1;
         $idUser = $this->auth->user()->ID_USER;
 
         $study = Study::find($idStudy);
-        $production = Production::where("ID_STUDY", $idStudy)->first();
-        $product = Product::where("ID_STUDY", $idStudy)->first();
-
-        $prodFlowRate = $production->PROD_FLOW_RATE;
-        $avgTInitial = $production->AVG_T_INITIAL;
-        $prodElmtRealweight = $this->unit->mass($product->PROD_REALWEIGHT);
-
-        $resultAna = compact("prodFlowRate", "prodElmtRealweight", "avgTInitial");
 
         $calculationMode = $study->CALCULATION_MODE;
-
-        // get Symbol
-        $symbol = $this->unit->getAllSymbol();
-        $consumptionSymbol = $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1);
-        $symbol["consumptionSymbol"] = $consumptionSymbol;
 
         //get study equipment
         $studyEquipments = StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
 
         $lfcoef = $this->unit->unitConvert($this->value->MASS_PER_UNIT, 1.0);
-
-        $ecoEnable = false;
-        if ($this->auth->user()->USERPRIO < $this->value->PROFIL_GUEST && $study->OPTION_ECO == $this->value->STUDY_ECO_MODE) {
-            $ecoEnable = true;
-        }
 
         $result = array();
 
@@ -358,7 +339,7 @@ class Output extends Controller
             $calculWarning = "";
             $item["id"] = $idStudyEquipment = $row->ID_STUDY_EQUIPMENTS;
             $item["specificSize"] = $this->equip->getSpecificEquipSize($idStudyEquipment);
-            $item["equipName"] = $this->equip->getResultsEquipName($idStudyEquipment);     
+            $item["equipName"] = $this->equip->getResultsEquipName($idStudyEquipment);
 
             $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $toc = $tocMax = $consoMax = $precision = "null";
 
@@ -373,7 +354,7 @@ class Output extends Controller
 
             $itemTr = $row->ITEM_TR;
             $minMax = MinMax::where("LIMIT_ITEM", $itemTr)->first();
-            if (!($this->equip->getCapability($capabilitie , 16)) || !($this->equip->getCapability($capabilitie , 1)) && (($trSelect == 0) || ($trSelect == 2))) {
+            if (!($this->equip->getCapability($capabilitie, 16)) || !($this->equip->getCapability($capabilitie, 1)) && (($trSelect == 0) || ($trSelect == 2))) {
                 $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $toc = $tocMax = $consoMax = $precision = "---";
             } else if ($lfTr < $minMax->LIMIT_MIN || $lfTr > $minMax->LIMIT_MAX) {
                 $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $toc = $tocMax = $consoMax = $precision = "****";
@@ -396,16 +377,16 @@ class Output extends Controller
 
                             if ($row->PRECIS < 50.0) {
                                 $precision = $this->unit->precision($row->PRECIS);
-                            }else {
+                            } else {
                                 $precision = "!!!!";
                             }
                         } else {
                             $vep = $this->unit->enthalpy($dimaR->DIMA_VEP);
-                            $tfp = $this->unit->prodTemperature($dimaR->DIMA_TFP); 
+                            $tfp = $this->unit->prodTemperature($dimaR->DIMA_TFP);
                             $precision = "&nbsp;";
                         }
 
-                        if ($this->equip->getCapability($capabilitie , 256)) {
+                        if ($this->equip->getCapability($capabilitie, 256)) {
                             if ($lfcoef != 0.0) {
                                 if ($this->dima->isConsoToDisplay($dimaR->DIMA_STATUS) == 0) {
                                     $conso = "****";
@@ -419,11 +400,12 @@ class Output extends Controller
 
                         }
 
-                        if ($this->equip->getCapability($capabilitie , 32)) {
+                        if ($this->equip->getCapability($capabilitie, 32)) {
                             $batch = $row->BATCH_PROCESS;
                             if ($this->dima->isConsoToDisplay($dimaR->DIMA_STATUS) == 0) {
                                 $toc = "****";
-                            } if ($batch) {
+                            }
+                            if ($batch) {
                                 $toc = $this->unit->mass($dimaR->USERATE) . $this->unit->massSymbol() . "/batch";
                             } else {
                                 $toc = $this->unit->toc($dimaR->USERATE) . "%";
@@ -461,7 +443,7 @@ class Output extends Controller
         }
 
 
-        return compact("ecoEnable", "resultAna", "symbol", "result");
+        return $result;
     }
 
     public function getAnalyticalConsumption($idStudy)
@@ -470,18 +452,7 @@ class Output extends Controller
 
         $lfcoef = $this->unit->unitConvert($this->value->MASS_PER_UNIT, 1.0);
 
-        $ecoEnable = false;
-        if ($this->auth->user()->USERPRIO < $this->value->PROFIL_GUEST && $study->OPTION_ECO == $this->value->STUDY_ECO_MODE) {
-            $ecoEnable = true;
-        }
-
         $calculationMode = $study->CALCULATION_MODE;
-
-        // get Symbol
-        $symbol = $this->unit->getAllSymbol();
-        $symbol["consumSymbol"] = $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1);
-        $symbol["consumMaintienSymbol"] = $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 2);
-        $symbol["mefSymbol"] = $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 3);
 
         $studyEquipments = StudyEquipment::where("ID_STUDY", $idStudy)->where("BRAIN_TYPE", ">=", 0)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
 
@@ -494,11 +465,11 @@ class Output extends Controller
             $idCoolingFamily = $row->ID_COOLING_FAMILY;
             $idStudyEquipment = $row->ID_STUDY_EQUIPMENTS;
 
-            if($this->equip->getCapability($capabilitie, 256)) {
+            if ($this->equip->getCapability($capabilitie, 256)) {
                 $equipName = $this->equip->getSpecificEquipName($idStudyEquipment);
                 $economicResult = EconomicResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->first();
-               
-               if ($calculationMode == 1) {
+
+                if ($calculationMode == 1) {
                     $studEqpPrm = StudEqpPrm::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("VALUE_TYPE", 300)->first();
                     $lfSetpoint = 0.0;
                     if (!empty($studEqpPrm)) {
@@ -506,11 +477,11 @@ class Output extends Controller
                     }
 
                     $dimaR = DimaResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("SETPOINT", $lfSetpoint)->first();
-               } else {
+                } else {
                     $dimaR = DimaResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("DIMA_TYPE", 1)->first();
-               }
+                }
 
-               if ($economicResult != null) {
+                if ($economicResult != null) {
                     if ($dimaR != null) {
                         $dimaStatus = $this->dima->getCalculationStatus($dimaR->DIMA_STATUS);
                         $equipStatus = $row->EQUIP_STATUS;
@@ -520,7 +491,7 @@ class Output extends Controller
                     }
 
                     $consoToDisplay = $this->eco->isConsoToDisplay($dimaStatus, $equipStatus);
-                    if(!$consoToDisplay) {
+                    if (!$consoToDisplay) {
                         $equipName = "****";
                         $tc = "****";
                         $kgProduct = "****";
@@ -547,7 +518,7 @@ class Output extends Controller
                         } else {
                             $kgProduct = $product = "****";
                         }
-    
+
                         $day = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_DAY, $idCoolingFamily, 1, 0);
                         $week = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_WEEK, $idCoolingFamily, 1, 0);
                         $hour = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_HOUR, $idCoolingFamily, 1);
@@ -557,7 +528,7 @@ class Output extends Controller
                         $eqptPerm = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_MAT_PERM, $idCoolingFamily, 2);
                         $lineCold = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_LINE_GETCOLD, $idCoolingFamily, 3);
                         $linePerm = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_LINE_PERM, $idCoolingFamily, 2);
-                        $tank = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_TANK, $idCoolingFamily, 1); 
+                        $tank = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_TANK, $idCoolingFamily, 1);
 
                         $percentProduct = round($economicResult->PERCENT_PRODUCT * 100);
                         $percentEquipmentPerm = round($economicResult->PERCENT_EQUIPMENT_PERM * 100);
@@ -567,7 +538,7 @@ class Output extends Controller
 
                     $item["id"] = $idStudyEquipment;
                     $item["equipName"] = $equipName;
-                    
+
                     $item["tc"] = $tc;
                     $item["kgProduct"] = $kgProduct;
                     $item["product"] = $product;
@@ -586,14 +557,14 @@ class Output extends Controller
                     $item["percentEquipmentPerm"] = $percentEquipmentPerm;
                     $item["percentEquipmentDown"] = $percentEquipmentDown;
                     $item["percentLine"] = $percentLine;
-                    
+
                     $result[] = $item;
-               }
+                }
             }
-            
+
         }
 
-        return compact("ecoEnable", "symbol", "result");
+        return $result;
     }
 
     public function getAnalyticalEconomic($idStudy)
@@ -602,15 +573,7 @@ class Output extends Controller
 
         $lfcoef = $this->unit->unitConvert($this->value->MASS_PER_UNIT, 1.0);
 
-        $ecoEnable = false;
-        if ($this->auth->user()->USERPRIO < $this->value->PROFIL_GUEST && $study->OPTION_ECO == $this->value->STUDY_ECO_MODE) {
-            $ecoEnable = true;
-        }
-
         $calculationMode = $study->CALCULATION_MODE;
-
-        // get Symbol
-        $symbol = $this->unit->getAllSymbol();
 
         $studyEquipments = StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
 
@@ -623,10 +586,10 @@ class Output extends Controller
             $idCoolingFamily = $row->ID_COOLING_FAMILY;
             $idStudyEquipment = $row->ID_STUDY_EQUIPMENTS;
 
-            if($this->equip->getCapability($capabilitie, 256)) {
+            if ($this->equip->getCapability($capabilitie, 256)) {
                 $equipName = $this->equip->getSpecificEquipName($idStudyEquipment);
                 $economicResult = EconomicResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->first();
-               
+
                 $studEqpPrm = StudEqpPrm::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("VALUE_TYPE", 300)->first();
                 $lfSetpoint = 0.0;
                 if (!empty($studEqpPrm)) {
@@ -635,7 +598,7 @@ class Output extends Controller
 
                 $dimaR = DimaResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("SETPOINT", $lfSetpoint)->first();
 
-               if ($economicResult != null) {
+                if ($economicResult != null) {
                     if ($dimaR != null) {
                         $dimaStatus = $this->dima->getCalculationStatus($dimaR->DIMA_STATUS);
                         $equipStatus = $row->EQUIP_STATUS;
@@ -645,7 +608,7 @@ class Output extends Controller
                     }
 
                     $consoToDisplay = $this->eco->isConsoToDisplay($dimaStatus, $equipStatus);
-                    if(!$consoToDisplay) {
+                    if (!$consoToDisplay) {
                         $equipName = "****";
                         $tc = "****";
                         $kgProduct = "****";
@@ -667,7 +630,7 @@ class Output extends Controller
                         } else {
                             $kgProduct = $product = "****";
                         }
-    
+
                         $day = $this->unit->monetary($economicResult->COST_DAY, 0);
                         $week = $this->unit->monetary($economicResult->COST_WEEK, 0);
                         $hour = $this->unit->monetary($economicResult->COST_HOUR);
@@ -676,7 +639,7 @@ class Output extends Controller
                         $eqptPerm = $this->unit->monetary($economicResult->COST_MAT_PERM);
                         $lineCold = $this->unit->monetary($economicResult->COST_LINE_GETCOLD);
                         $linePerm = $this->unit->monetary($economicResult->COST_LINE_PERM);
-                        $tank = $this->unit->monetary($economicResult->COST_TANK);                       
+                        $tank = $this->unit->monetary($economicResult->COST_TANK);
                     }
 
                     $item["id"] = $idStudyEquipment;
@@ -693,33 +656,30 @@ class Output extends Controller
                     $item["lineCold"] = $lineCold;
                     $item["linePerm"] = $linePerm;
                     $item["tank"] = $tank;
-                    
+
                     $result[] = $item;
                 }
             }
 
-            
+
         }
 
-        return compact("ecoEnable", "symbol", "result");
+        return $result;
     }
 
     public function getEquipSizing($idStudyEquipment)
     {
         $studyEquipment = StudyEquipment::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->first();
         if (!empty($studyEquipment)) {
-            // get Symbol
-            $symbol = $this->unit->getAllSymbol();
-
             $equipName = $this->equip->getSpecificEquipName($idStudyEquipment);
 
             $initWidth = $this->unit->equipDimension($studyEquipment->STDEQP_WIDTH);
             $initLength = $this->unit->equipDimension($studyEquipment->STDEQP_LENGTH);
 
-            $minWidth   = 0;
-            $maxWidth   = -1;
-            $minLength  = 0;
-            $maxLength  = -1;
+            $minWidth = 0;
+            $maxWidth = -1;
+            $minLength = 0;
+            $maxLength = -1;
 
             $mmWidth = MinMax::where("LIMIT_ITEM", $this->value->MIN_MAX_EQUIPMENT_WIDTH)->first();
             $minWidth = $this->unit->equipDimension($mmWidth->LIMIT_MIN);
@@ -737,7 +697,7 @@ class Output extends Controller
                 $disabled = "disabled";
             }
 
-            return compact("idStudyEquipment", "equipName", "minWidth", "maxWidth", "minLength", "maxLength", "minSurf", "maxSurf", "disabled", "symbol");
+            return compact("idStudyEquipment", "equipName", "minWidth", "maxWidth", "minLength", "maxLength", "minSurf", "maxSurf", "disabled");
         }
     }
 
@@ -745,22 +705,42 @@ class Output extends Controller
     {
         $studyEquipment = StudyEquipment::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->first();
         if (!empty($studyEquipment)) {
-            $idStudy = $studyEquipments->ID_STUDY;
-            // get Symbol
-            $symbol = $this->unit->getAllSymbol();
+            $idStudy = $studyEquipment->ID_STUDY;
 
             $equipName = $this->equip->getSpecificEquipName($idStudyEquipment);
 
-            $disableField = $this->study->disableFields($idStudy);
+            $disabled = $this->study->disableFields($idStudy);
 
-            $trPrm = $this->equip->getStudEqpPrm($idStudyEquipment, 300); 
+            $trPrm = $this->equip->getStudEqpPrm($idStudyEquipment, 300);
             $tsPrm = $this->equip->getStudEqpPrm($idStudyEquipment, 200);
             $vcPrm = $this->equip->getStudEqpPrm($idStudyEquipment, 100);
-            $tePrm  = $this->equip->getStudEqpPrm($idStudyEquipment, 500)[0];
-            if(count($tePrm) > 0) $tePrm = $tePrm[0]; 
+            $tePrm = $this->equip->getStudEqpPrm($idStudyEquipment, 500);
+            if (count($tePrm) > 0) $tePrm = $tePrm[0];
 
-            $ldSetpointmax = ( count($tsPrm) > count($trPrm) ) ? ( count($tsPrm) > count($vcPrm) ) ? count($tsPrm) : count($vcPrm) : (count($trPrm) > count($vcPrm)) ? count($trPrm) : count($vcPrm);
+            $ldSetpointmax = (count($tsPrm) > count($trPrm)) ? (count($tsPrm) > count($vcPrm)) ? count($tsPrm) : count($vcPrm) : (count($trPrm) > count($vcPrm)) ? count($trPrm) : count($vcPrm);
 
+            $mmTr = MinMax::where("LIMIT_ITEM", $studyEquipment->ITEM_TR)->first();
+            $mmTs = MinMax::where("LIMIT_ITEM", $studyEquipment->ITEM_TS)->first();
+
+            $trMin = $this->unit->controlTemperature($mmTr->LIMIT_MIN);
+            $trMax = $this->unit->controlTemperature($mmTr->LIMIT_MAX);
+            $tsMin = $this->unit->controlTemperature($mmTs->LIMIT_MIN);
+            $tsMax = $this->unit->controlTemperature($mmTs->LIMIT_MAX);
+
+            return compact("idStudyEquipment", "equipName", "trPrm", "tsPrm", "vcPrm", "tePrm", "ldSetpointmax", "trMin", "trMax", "tsMin", "tsMax", "disabled");
+        }
+    }
+
+    public function viewEquipTr($idStudyEquipment)
+    {
+        $studyEquipment = StudyEquipment::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->first();
+        if (!empty($studyEquipment)) {
+            $idStudy = $studyEquipment->ID_STUDY;
+            $equipName = $this->equip->getSpecificEquipName($idStudyEquipment);
+
+            $dimaResult = DimaResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->first();
+
+            return compact("equipName", "dimaResult");
         }
     }
 }

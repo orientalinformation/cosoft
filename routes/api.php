@@ -307,3 +307,93 @@ $router->GET('/api/v1/checkcontrolview', 'Api1\\CheckControl@checkControlView');
  */
 $router->GET('/api/v1/checkcontrol', 'Api1\\CheckControl@checkControl');
 
+
+/**
+ * GET getSymbol
+ * Summary: 
+ * Notes: get symbol study
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/symbol/{idStudy}', 'Api1\\Output@getSymbol');
+
+/**
+ * GET getProInfoStudy
+ * Summary: 
+ * Notes: product production study
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/proInfoStudy/{idStudy}', 'Api1\\Output@getProInfoStudy');
+
+
+/**
+ *  * GET headBalanceOptimum
+ * Summary: 
+ * Notes: get head balance optimum result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/optimum/headBalance/{idStudy}', 'Api1\\Output@getOptimumHeadBalance');
+
+
+/**
+ * GET headBalanceMaxOptimum
+ * Summary: 
+ * Notes: get head balance optimum max result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/optimum/headBalanceMax/{idStudy}', 'Api1\\Output@getOptimumHeadBalanceMax');
+
+/**
+ * GET EquipSizing
+ * Summary: 
+ * Notes: get study equipment equip sizing
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/optimum/equipSizing/{idStudyEquipment}', 'Api1\\Output@getEquipSizing');
+
+/**
+ * GET temperatureCalculation
+ * Summary: 
+ * Notes: gettemperature calulation data
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/estimation/trCalculate/{idStudyEquipment}', 'Api1\\Output@temperatureCalculation');
+
+/**
+ * GET viewEquipTr
+ * Summary: 
+ * Notes: view Equipment Temperature
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/estimation/viewEquipTr/{idStudyEquipment}', 'Api1\\Output@viewEquipTr');
+
+/**
+ * GET getEstimationHeadBalance
+ * Summary: 
+ * Notes: get head balance estimation result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/estimation/headBalance', 'Api1\\Output@getEstimationHeadBalance');
+
+/**
+ * GET AnalyticalConsumptionResult
+ * Summary: 
+ * Notes: get analytical consumption result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/common/consumption/{idStudy}', 'Api1\\Output@getAnalyticalConsumption');
+
+/**
+ * GETAnalyticalEconomicResult
+ * Summary: 
+ * Notes: get analytical economic result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/common/economic/{idStudy}', 'Api1\\Output@getAnalyticalEconomic');
+
+/**
+ * GET StudyEquipments
+ * Summary: 
+ * Notes: get study equipment by id
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/studyEquipment/{id}', 'Api1\\StudyEquipments@getStudyEquipmentById');

@@ -92,7 +92,6 @@ class CheckControlService
 
 	public function isStdMesh_InitTempChecked($idStudy, $idProd) 
 	{
-
 		try {
 			$productElmt = ProductElmt::where('ID_PROD', $idProd)->first();
 			$idProdElmt = null;
@@ -114,7 +113,7 @@ class CheckControlService
 					return false;
 				}
 
-				$production = Production::find('ID_STUDY', $idStudy)->first();
+				$production = Production::where('ID_STUDY', $idStudy)->first();
 
 				if ($production == null) {
 					return false;
@@ -133,8 +132,8 @@ class CheckControlService
 			return false;
 
 		} catch (Exception $e) {
-       echo "Exception Found - " . $e . "<br/>";
-    }
+       		echo "Exception Found - " . $e . "<br/>";
+    	}
 
 		return false;
 	}
