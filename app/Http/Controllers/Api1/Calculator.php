@@ -19,25 +19,25 @@ use App\Cryosoft\CalculateService;
 class Calculator extends Controller
 {
 	/**
-   * @var Illuminate\Http\Request
-   */
-  protected $request;
+	* @var Illuminate\Http\Request
+	*/
+	protected $request;
 
-  /**
-   * @var Illuminate\Contracts\Auth\Factory
-   */
-  protected $auth;
+	/**
+	* @var Illuminate\Contracts\Auth\Factory
+	*/
+	protected $auth;
 
- 	/**
-   * @var App\Cryosoft\CalculateService
-   */
-  protected $cal;
+	/**
+	* @var App\Cryosoft\CalculateService
+	*/
+	protected $cal;
   
-  /**
-   * Create a new controller instance.
-   *
-   * @return void
-   */
+	/**
+	* Create a new controller instance.
+	*
+	* @return void
+	*/
 	public function __construct(Request $request, Auth $auth, CalculateService $cal)
 	{
 		$this->request = $request;

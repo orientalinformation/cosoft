@@ -139,4 +139,12 @@ class Studies extends Controller
         }
         return 0;
     }
+
+    public function getStudyPackingLayers($id)
+    {
+        $packing = \App\Models\Packing::where('ID_STUDY', $id)->first();
+        $packingLayer = \App\Models\PackingLayer::where('ID_PACKING', $packing->ID_PACKING)->get();
+
+        return compact('packing', 'packingLayer');
+    }
 }

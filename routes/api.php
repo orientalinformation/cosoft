@@ -397,3 +397,19 @@ $router->GET('/api/v1/common/economic/{idStudy}', 'Api1\\Output@getAnalyticalEco
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/studyEquipment/{id}', 'Api1\\StudyEquipments@getStudyEquipmentById');
+
+/**
+ * GET optimumcalculator
+ * Summary: 
+ * Notes: get head balance result/products/{id}/packingLayers
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/optimumcalculator', 'Api1\\Calculator@getOptimumCalculator');
+
+/**
+ * GET StudyPackingLayers
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/studies/{id}/packingLayers', 'Api1\\Studies@getStudyPackingLayers');
