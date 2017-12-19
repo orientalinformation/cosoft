@@ -95,7 +95,8 @@ $app->register(Sofa\Eloquence\BaseServiceProvider::class);
 $app->register(Nord\Lumen\Cors\CorsServiceProvider::class);
 $app->register(Tymon\JWTAuth\Providers\LumenServiceProvider::class);
 
-$app->register(App\Providers\KernelServiceProvider::class);
+$app->register(\App\Providers\KernelServiceProvider::class);
+$app->register(\App\Providers\CryosoftServiceProvider::class);
 
 if ($app->environment('local')) {
     $app->register(Krlove\EloquentModelGenerator\Provider\GeneratorServiceProvider::class);
