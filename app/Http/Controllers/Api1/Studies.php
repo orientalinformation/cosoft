@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\Auth\Factory as Auth;
 use App\Kernel\KernelService;
+use App\Cryosoft\UnitsConverterService;
+use App\Cryosoft\ValueListService;
 
 class Studies extends Controller
 {
@@ -24,6 +26,16 @@ class Studies extends Controller
      * @var App\Kernel\KernelService
      */
     protected $kernel;
+
+    /**
+     * @var App\Cryosoft\UnitsConverterService
+     */
+    protected $convert;
+
+    /**
+     * @var App\Cryosoft\ValueListService
+     */
+    protected $value;
     
 
     /**
@@ -31,14 +43,14 @@ class Studies extends Controller
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth, KernelService $kernel)
+    public function __construct(Request $request, Auth $auth, KernelService $kernel, UnitsConverterService $convert, ValueListService $value)
     {
         $this->request = $request;
         $this->auth = $auth;
         $this->kernel = $kernel;
+        $this->convert = $convert;
     }
 
-    //
     public function findStudies()
     {
         $studies = $this->auth->user()->studies;
@@ -77,12 +89,14 @@ class Studies extends Controller
     /**
     * 
     **/
-    public function getStudyEquipments($id) {
+    public function getStudyEquipments($id) 
+    {
         $study = \App\Models\Study::find($id);
         return $study->studyEquipments;
     }
 
-    public function newProduct($id) {
+    public function newProduct($id) 
+    {
         $input = $this->request->all();
 
         if (!isset($input['name']) || empty($input['name']))
@@ -116,7 +130,8 @@ class Studies extends Controller
         return 0;
     }
 
-    public function updateProduct($id) {
+    public function updateProduct($id) 
+    {
         $study = \App\Models\Study::find($id);
         $product = $study->product;
         $input = $this->request->all();
@@ -143,7 +158,14 @@ class Studies extends Controller
     public function getStudyPackingLayers($id)
     {
         $packing = \App\Models\Packing::where('ID_STUDY', $id)->first();
-        $packingLayers = \App\Models\PackingLayer::where('ID_PACKING', $packing->ID_PACKING)->get();
+        $packingLayers = array();
+
+        if ($packing != null) {
+            $packingLayers = \App\Models\PackingLayer::where('ID_PACKING', $packing->ID_PACKING)->get();
+            for ($i = 0; $i < count($packingLayers); $i++) { 
+                $packingLayers[$i]->THICKNESS = $this->convert->unitConvert($this->value->TIME, $packingLayers[$i]->THICKNESS, 1);
+            }
+        }
 
         return compact('packing', 'packingLayers');
     }
