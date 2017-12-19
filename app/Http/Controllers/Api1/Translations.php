@@ -33,7 +33,7 @@ class Translations extends Controller
         
         // @TODO: Use mutator or other more efficient way to decode the languages
         for ($i=0; $i < $translations->count(); $i++) {
-            $translations[$i]->LABEL = \mb_convert_encoding($translations[$i]->LABEL, "UTF-8");
+            $translations[$i]->LABEL = \mb_convert_encoding($translations[$i]->LABEL, "UTF-8", "ISO-8859-1");
         }
 
         return $translations;

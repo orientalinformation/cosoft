@@ -62,7 +62,7 @@ class Studies extends Controller
     }
 
     public function refreshMesh($id) {
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $id);
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $id, 10);
         
         return $this->kernel->getKernelObject('MeshBuilder')->MBMeshBuild($conf);
     }
@@ -71,7 +71,7 @@ class Studies extends Controller
     {
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id), -1);
 
-        return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 40);
+        return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 10);
     }
 
     /**
@@ -108,8 +108,9 @@ class Studies extends Controller
         $product->PRODNAME = $input['name'];
         $product->PROD_WEIGHT = 0.0;
         $product->PROD_REALWEIGHT = 0.0;
-        $product->PROD_VOLUME = 0;
-        $product->PROD_ISO = 0;
+        $product->PROD_VOLUME = 0.0;
+        $product->PROD_ISO = 1;
+        $product->ID_MESH_GENERATION = 0;
         $product->save();
 
         return 0;
@@ -137,5 +138,13 @@ class Studies extends Controller
             }
         }
         return 0;
+    }
+
+    public function getStudyPackingLayers($id)
+    {
+        $packing = \App\Models\Packing::where('ID_STUDY', $id)->first();
+        $packingLayers = \App\Models\PackingLayer::where('ID_PACKING', $packing->ID_PACKING)->get();
+
+        return compact('packing', 'packingLayers');
     }
 }

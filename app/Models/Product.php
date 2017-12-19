@@ -49,7 +49,7 @@ class Product extends Model
      */
     public function studies()
     {
-        return $this->belongsTo('Studies', 'ID_STUDY', 'ID_STUDY');
+        return $this->belongsTo('\\App\\Models\\Study', 'ID_STUDY', 'ID_STUDY');
     }
 
     /**
@@ -57,7 +57,7 @@ class Product extends Model
      */
     public function meshGenerations()
     {
-        return $this->hasMany('MeshGeneration', 'ID_PROD', 'ID_PROD');
+        return $this->hasMany('\\App\\Models\\MeshGeneration', 'ID_PROD', 'ID_PROD');
     }
 
     /**
@@ -65,7 +65,7 @@ class Product extends Model
      */
     public function prodcharColors()
     {
-        return $this->hasMany('ProdcharColors', 'ID_PROD', 'ID_PROD');
+        return $this->hasMany('\\App\\Models\\ProdcharColors', 'ID_PROD', 'ID_PROD');
     }
 
     /**

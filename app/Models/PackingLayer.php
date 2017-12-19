@@ -43,6 +43,7 @@ class PackingLayer extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
+
     public function packing()
     {
         return $this->belongsTo('App\\Models\\Packing', 'ID_PACKING', 'ID_PACKING');
@@ -51,6 +52,7 @@ class PackingLayer extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
+
     public function packingElmt()
     {
         return $this->belongsTo('App\\Models\\PackingElmt', 'ID_PACKING_ELMT', 'ID_PACKING_ELMT');
