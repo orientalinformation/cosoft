@@ -132,4 +132,26 @@ class Products extends Controller
 
         return compact('ok');
     }
+
+    /**
+     * @id: Product's ID
+     */
+    public function getMeshView($id)
+    {
+        $product = \App\Models\Product::findOrFail($id);
+        if (!$product)
+            throw new Exception("Error Processing Request", 1);
+
+        $meshGeneration = $product->meshGenerations->first();
+
+        $elements = $product->productElmts;
+        $elmtMeshPositions = [];
+
+        foreach ($elements as $elmt) {
+            $meshPositions = \App\Models\MeshPosition::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->get();
+            array_push($elmtMeshPositions, $meshPositions);
+        }
+
+        return compact('meshGeneration', 'elements', 'elmtMeshPositions');
+    }
 }
