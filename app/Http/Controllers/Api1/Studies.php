@@ -158,17 +158,19 @@ class Studies extends Controller
     public function getStudyPackingLayers($id)
     {
         $packing = \App\Models\Packing::where('ID_STUDY', $id)->first();
-        $packingLayers = array();
+        $packingLayers = null;
 
         if ($packing != null) {
             $packingLayers = \App\Models\PackingLayer::where('ID_PACKING', $packing->ID_PACKING)->get();
             for ($i = 0; $i < count($packingLayers); $i++) { 
-                $packingLayers[$i]->THICKNESS = $this->convert->unitConvert($this->value->TIME, $packingLayers[$i]->THICKNESS, 1);
+                $value = $this->convert->unitConvert(16, $packingLayers[$i]->THICKNESS);
+                $packingLayers[$i]->THICKNESS = $value;
             }
         }
 
         return compact('packing', 'packingLayers');
     }
+
     public function savePacking($id)
     {
         $input = $this->request->all();
