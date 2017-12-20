@@ -53,15 +53,29 @@ class CheckControlService
 
 		$production = null;
 
-    $production = Production::where('ID_STUDY', $idStudy)->first();
+	    $production = Production::where('ID_STUDY', $idStudy)->first();
 
-    if ($production == null) {
-    	return false;
-    }
+	    if ($production == null) {
+	    	return false;
+	    }
 
-    if ($production->NB_PROD_WEEK_PER_YEAR <= 0.0) {
-    	return false;
-    }
+	    if ($production->NB_PROD_WEEK_PER_YEAR <= 0.0) {
+	    	return false;
+	    }
+
+	    $product = Product::where('ID_STUDY', $idStudy)->first();
+
+		if ($product == null) {
+	        return false;
+	    }
+
+      	$idProd = $product->ID_PROD;
+	    $productElmts = ProductElmt::where('ID_PROD', $idProd)->first();
+
+	    if (count($productElmts) <= 0) {
+			return false;
+		}
+
 		return true;
 	}
 
@@ -69,18 +83,18 @@ class CheckControlService
 	{
 
 		try {
-				$product = Product::where('ID_STUDY', $idStudy)->first();
+			$product = Product::where('ID_STUDY', $idStudy)->first();
 
-				if ($product == null) {
-	        return false;
-	      }
+			if ($product == null) {
+		        return false;
+		    }
 
-	      $idProd = $product->ID_PROD;
+	      	$idProd = $product->ID_PROD;
 		    $productElmts = ProductElmt::where('ID_PROD', $idProd)->first();
 
 		    if (count($productElmts) <= 0) {
-					return false;
-				}
+				return false;
+			}
 
 			return true;
 		} catch (Exception $e) {
@@ -157,10 +171,10 @@ class CheckControlService
 
 			if ($product == null) {
 				return false;
-      }
+      		}
 
 			$idProd = $product->ID_PROD;
-	    $productElmt = ProductElmt::where('ID_PROD', $idProd)->first();
+	    	$productElmt = ProductElmt::where('ID_PROD', $idProd)->first();
 			$idShape = null;
 
 			if ($productElmt != null) {
@@ -174,10 +188,10 @@ class CheckControlService
 			$shape = Shape::where('ID_SHAPE', $idShape)->first();
 
 			if ($shape == null) {
-        return false;
-      }
+		        return false;
+		    }
 
-	    $packing = Packing::where('ID_STUDY', $idStudy)->first();
+	    	$packing = Packing::where('ID_STUDY', $idStudy)->first();
 
 			if ($packing == null) {
 				return false;
@@ -186,9 +200,9 @@ class CheckControlService
 			return true;
 
 		} catch (Exception $e) {
-       echo "Exception Found - " . $e . "<br/>";
-       return false;
-    }
+	       echo "Exception Found - " . $e . "<br/>";
+	       return false;
+	    }
 
 		return true;
 	}
@@ -217,27 +231,35 @@ class CheckControlService
 				$pipe = PipeGen::where('ID_STUDY_EQUIPMENTS', $idStudyEquipments)->first();
 			}
 		} catch (Exception $e) {
-      echo "Exception Found - " . $e . "<br/>";
-      return false;
-    }
+	      echo "Exception Found - " . $e . "<br/>";
+	      return false;
+	    }
 
-    if ($pipe == null) {
-        return false;
-    }
+	    if ($pipe == null) {
+	        return false;
+	    }
 
 		return true;
 	}
 
-	public function checkControl($idStudy, $idProd) 
+	public function checkControl($idStudy, $idProd)
 	{
 		$checkControl = false;
 
-		if ($this->isStdCalcModeChecked($idStudy) && $this->isStdCustomerChecked($idStudy) 
-			&& $this->isStdProductChecked($idStudy) && $this->isStdMesh_InitTempChecked($idStudy, $idProd) && 
-			$this->isStdEquipmentChecked($idStudy) && $this->isStdPackingChecked($idStudy) 
-			&& $this->isStdLineChecked($idStudy)) {
-			$checkControl = true;
-		} 
+		if ($this->isLineEnabled($idStudy)) {
+			if ($this->isStdCalcModeChecked($idStudy) && $this->isStdCustomerChecked($idStudy) 
+				&& $this->isStdMesh_InitTempChecked($idStudy, $idProd) && 
+				$this->isStdEquipmentChecked($idStudy) && $this->isStdPackingChecked($idStudy) 
+				&& $this->isStdLineChecked($idStudy)) {
+				$checkControl = true;
+			}
+		} else {
+			if ($this->isStdCalcModeChecked($idStudy) && $this->isStdCustomerChecked($idStudy) 
+				&& $this->isStdMesh_InitTempChecked($idStudy, $idProd) && 
+				$this->isStdEquipmentChecked($idStudy) && $this->isStdPackingChecked($idStudy)) {
+				$checkControl = true;
+			}
+		}
 
 		return $checkControl;
 	}
