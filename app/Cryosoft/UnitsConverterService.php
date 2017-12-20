@@ -235,6 +235,12 @@ class UnitsConverterService
         return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 1);
     }
 
+    public function timeUnit($value)
+    {
+        $unit = Unit::select("COEFF_A", "COEFF_B")->where("TYPE_UNIT", $this->value->TIME)->first();
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 1);
+    }
+
     public function toc($value) 
     {
         $uPercent = $this->uPercent();

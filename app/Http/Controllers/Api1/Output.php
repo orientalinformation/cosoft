@@ -117,7 +117,7 @@ class Output extends Controller
             }
 
             if (!($this->equip->getCapability($capabilitie, 128))) {
-                $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $toc = $precision = "null";
+                $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $toc = $precision = "";
                 $calculate = "disabled";
             } else if (($equipStatus != 0) && ($equipStatus != 1) && ($equipStatus != 100000)) {
                 $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $toc = $precision = "****";
@@ -341,7 +341,7 @@ class Output extends Controller
             $item["specificSize"] = $this->equip->getSpecificEquipSize($idStudyEquipment);
             $item["equipName"] = $this->equip->getResultsEquipName($idStudyEquipment);
 
-            $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $toc = $tocMax = $consoMax = $precision = "null";
+            $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $toc = $tocMax = $consoMax = $precision = "";
 
             $studEqpPrm = StudEqpPrm::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("VALUE_TYPE", 300)->first();
             $lfTr = $studEqpPrm->VALUE;
@@ -364,7 +364,7 @@ class Output extends Controller
                 $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $toc = $tocMax = $consoMax = $precision = "";
             } else {
                 $dimaResults = DimaResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("SETPOINT", "DESC")->get();
-                if (!empty($dimaResults)) {
+                if (count($dimaResults) > 0) {
                     $dimaR = $dimaResults[$trSelect];
 
                     if (!empty($dimaR)) {
@@ -742,5 +742,100 @@ class Output extends Controller
 
             return compact("equipName", "dimaResult");
         }
+    }
+
+    public function sizingOptimumResult($idStudy)
+    {
+        $study = Study::find($idStudy);
+        $calculationMode = $study->CALCULATION_MODE;
+
+        //get study equipment
+        $studyEquipments = StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
+
+        $lfcoef = $this->unit->unitConvert($this->value->MASS_PER_UNIT, 1.0);
+        $result = array();
+        foreach ($studyEquipments as $row) {
+            $capabilitie = $row->CAPABILITIES;
+            $equipStatus = $row->EQUIP_STATUS;
+            $brainType = $row->BRAIN_TYPE;
+            $idCoolingFamily = $row->ID_COOLING_FAMILY;
+            $calculWarning = "";
+            $item["id"] = $idStudyEquipment = $row->ID_STUDY_EQUIPMENTS;
+            $item["equipName"] = $this->equip->getResultsEquipName($idStudyEquipment);
+
+            $tr = $ts = $vc = $dhp = $conso = $toc = [];
+
+            if (!($this->equip->getCapability($capabilitie , 128))){
+                for ($i = 0; $i < 2; $i++) {
+                    $tr[$i] = $ts[$i] = $vc[$i] = $dhp[$i] = $conso[$i] = $toc[$i] = "****";
+                }
+            } else if ($equipStatus == 100000) {
+                for ($i = 0; $i < 2; $i++) {
+                   $tr[$i] = $ts[$i] = $vc[$i] = $dhp[$i] = $conso[$i] = $toc[$i] = "";
+                }
+            } else {
+                for ($i = 0; $i < 2; $i++) {
+                    if (($i == 0) && ($equipStatus != 0) && ($equipStatus != 1) && ($equipStatus != 100000)) {
+                        $tr[$i] = $ts[$i] = $vc[$i] = $dhp[$i] = $conso[$i] = $toc[$i] = "****";
+                    } else {
+                        $dimaType = ($i == 0) ? 1 : 16;
+                        $dimaResult = DimaResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("DIMA_TYPE", $dimaType)->first();
+
+                        if ($dimaResult == null) {
+                            $tr[$i] = $ts[$i] = $vc[$i] = $dhp[$i] = $conso[$i] = $toc[$i] = "";
+                        } else {
+                            $ldError = 0;
+                            if ($i == 1) {
+                                $ldError = $this->dima->getCalculationWarning($dimaResult->DIMA_STATUS);
+                                if (($ldError == 282) || ($ldError == 283) || ($ldError == 284) || ($ldError == 285) || ($ldError == 286)) {
+                                    $ldError = 0;
+                                }
+                            }
+                            if (($i == 1) && ($ldError != 0)) {
+                                $tr[$i] = $ts[$i] = $vc[$i] = $dhp[$i] = $conso[$i] = $toc[$i] = "****";
+                            } else {
+                                $tr[$i] = $this->unit->controlTemperature($dimaResult->SETPOINT);
+                                $ts[$i] = $this->unit->timeUnit($dimaResult->DIMA_TS);
+                                $vc[$i] = $this->unit->convectionSpeed($dimaResult->DIMA_VC);
+
+                                if ($this->equip->getCapability($capabilitie, 128)) {
+                                    $consumption = $dimaResult->CONSUM / $lfcoef;
+                                    $valueStr = $this->unit->consumption($consumption, $idCoolingFamily, 1);
+                                    $calculationStatus = $this->dima->getCalculationStatus($dimaResult->DIMA_STATUS);
+                                    $conso[$i] = $this->dima->consumptionCell($lfcoef, $calculationStatus, $valueStr);
+                                } else {
+                                    $conso[$i] = "****";
+                                }
+
+                                if ($this->equip->getCapability($capabilitie, 32)) {
+                                    $dhp[$i] = $this->unit->productFlow($dimaResult->HOURLYOUTPUTMAX);
+
+                                    $batch = $row->BATCH_PROCESS;
+                                    if ($batch) {
+                                        $toc[$i] = $this->unit->mass($dimaResult->USERATE) . " " . $this->unit->massSymbol() . "/batch"; 
+                                    } else {
+                                        $toc[$i] = $this->unit->toc($dimaResult->USERATE) . " %";
+                                    }
+                                } else {
+                                    $toc[$i] = $dhp[$i] = "****";
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            $item["tr"] = $tr;
+            $item["ts"] = $ts;
+            $item["vc"] = $vc;
+            $item["dhp"] = $dhp;
+            $item["conso"] = $conso;
+            $item["toc"] = $toc;
+
+            $result[] = $item;
+        }
+
+
+        return $result;
     }
 }

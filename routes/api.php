@@ -391,6 +391,13 @@ $router->GET('/api/v1/estimation/headBalance', 'Api1\\Output@getEstimationHeadBa
 $router->GET('/api/v1/common/consumption/{idStudy}', 'Api1\\Output@getAnalyticalConsumption');
 
 /**
+ * GET sizingOptimumResult
+ * Summary: 
+ * Notes: 
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/output/sizingresult/{idStudy}/optimum', 'Api1\\Output@sizingOptimumResult');
+/**
  * GETAnalyticalEconomicResult
  * Summary: 
  * Notes: get analytical economic result
