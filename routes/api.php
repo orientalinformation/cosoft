@@ -396,7 +396,7 @@ $router->GET('/api/v1/common/consumption/{idStudy}', 'Api1\\Output@getAnalytical
  * Notes: 
  * Output-Formats: [application/json]
  */
-$router->GET('/api/v1/output/sizingresult/{idStudy}/optimum', 'Api1\\Output@sizingOptimumResult');
+$router->GET('/api/v1/output/sizingresult/optimum', 'Api1\\Output@sizingOptimumResult');
 /**
  * GETAnalyticalEconomicResult
  * Summary: 
