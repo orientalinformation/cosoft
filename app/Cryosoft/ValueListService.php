@@ -32,4 +32,35 @@ class ValueListService
     public $CONSUMPTION_UNIT = 28;
     public $CONSUM_MAINTIEN = 31;
     public $CONSUM_MEF = 34;
+
+    //brand mode
+    public $BRAIN_MODE_ESTIMATION = 1;
+    public $BRAIN_MODE_ESTIMATION_OPTIM = 2;
+    public $BRAIN_MODE_OPTIMUM_CALCULATE = 10;
+    public $BRAIN_MODE_OPTIMUM_REFINE = 11;
+    public $BRAIN_MODE_OPTIMUM_FULL = 12;
+    public $BRAIN_MODE_OPTIMUM_DHPMAX = 13;
+    public $BRAIN_MODE_SELECTED_CALCULATE = 14;
+    public $BRAIN_MODE_SELECTED_REFINE = 15;
+    public $BRAIN_MODE_SELECTED_FULL = 16;
+    public $BRAIN_MODE_SELECTED_DHPMAX = 17;
+
+    //Value list
+    public $VALUE_N_A = "N.A.";
+    public $EQUIP_NOT_STANDARD = 0;
+    public $STUDY_OPTIMUM_MODE = 3;
+    public $STUDY_SELECTED_MODE = 2;
+    public $SLAB = 1;
+    public $NO_SPECIFIC_SIZE = -1.0;
+    public $CAP_DIMMAT_ENABLE = 16;
+    public $CAP_VARIABLE_TR = 1;
+    public $TRHIGHT_INDEX = 0;
+    public $TRLOW_INDEX = 2;
+    public $NO_RESULTS = "---";
+    public $CAP_CONSO_ENABLE = 256;
+    public $RESULT_NOT_APPLIC = "****";
+    public $CAP_VARIABLE_TOC = 8192;
+    public $DIMA_STATUS_KO = 0;
+    public $DIMA_STATUS_OK = 1;
+
 }

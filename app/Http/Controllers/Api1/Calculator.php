@@ -1,80 +1,126 @@
 <?php
 /****************************************************************************
-**
-** Copyright (C) 2017 Oriental Tran.
-** Contact: dongtp@dfm-engineering.com
-** Company: DFM-Engineering Vietnam
-**
-** This file is part of the cryosoft project.
-**
-**All rights reserved.
-****************************************************************************/
+ **
+ ** Copyright (C) 2017 Oriental Tran.
+ ** Contact: dongtp@dfm-engineering.com
+ ** Company: DFM-Engineering Vietnam
+ **
+ ** This file is part of the cryosoft project.
+ **
+ **All rights reserved.
+ ****************************************************************************/
 namespace App\Http\Controllers\Api1;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Contracts\Auth\Factory as Auth;
 use App\Cryosoft\CalculateService;
+use App\Cryosoft\ValueListService;
+use App\Http\Controllers\Controller;
+use Illuminate\Contracts\Auth\Factory as Auth;
+use Illuminate\Http\Request;
 
-class Calculator extends Controller
-{
+class Calculator extends Controller {
 	/**
-	* @var Illuminate\Http\Request
-	*/
+	 * @var Illuminate\Http\Request
+	 */
 	protected $request;
 
 	/**
-	* @var Illuminate\Contracts\Auth\Factory
-	*/
+	 * @var Illuminate\Contracts\Auth\Factory
+	 */
 	protected $auth;
 
 	/**
-	* @var App\Cryosoft\CalculateService
-	*/
+	 * @var App\Cryosoft\CalculateService
+	 */
 	protected $cal;
-  
+
 	/**
-	* Create a new controller instance.
-	*
-	* @return void
-	*/
-	public function __construct(Request $request, Auth $auth, CalculateService $cal)
+	 * @var App\Cryosoft\ValueListService
+	 */
+	protected $value;
+
+	/**
+	 * Create a new controller instance.
+	 *
+	 * @return void
+	 */
+	public function __construct(Request $request, Auth $auth, CalculateService $cal, ValueListService $value) 
 	{
 		$this->request = $request;
 		$this->auth = $auth;
 		$this->cal = $cal;
+		$this->value = $value;
 	}
 
-	public function getOptimumCalculator()
+	public function getOptimumCalculator() 
 	{
 		$input = $this->request->all();
 		$idStudy = $input['idStudy'];
 
-		$sdisableFields = 0;
-		$sdisableCalculate = 1;
-		$scheckOptim = 0.1;
-		$sdisableOptim = 0.2;
-		$sdisableNbOptim = 0.2;
-		$epsilonTemp = 0.1;
-		$epsilonEnth = 0.1;
-		$nbOptimIter = 0.2;
-		$sdisableTimeStep = 0.1;
-		$sdisablePrecision = 0.1;
-		$sdisableStorage = 0.2;
-		$timeStep = 0.2;
-		$precision = 0.2;
-		$scheckStorage = 0.1;
-		$storagestep = 0.2;
-		$hRadioOn = 0;
-		$hRadioOff = 1;
-		$maxIter = 0.1;
-		$relaxCoef = 0.1;
-		$vRadioOn = 0.2;
-		$vRadioOff = 0.2;
-		$tempPtSurf = 0.1;
-		$tempPtIn = 0.2;
-		$tempPtBot = 0.1;
-		$tempPtAvg = 0.1;
+		$calMode = $this->cal->getCalculationMode($idStudy);
+		$sdisableFields = $this->cal->disableFields($idStudy);
+		$sdisableCalculate = $this->cal->disableCalculate($idStudy);
+
+		$sdisableOptim = $sdisableNbOptim = $sdisableStorage = "";
+		$sclassNbOptim = $sclassStorage = "";
+		$sdisableTimeStep = $sdisablePrecision = "";
+		$scheckOptim = $scheckStorage = 0;
+
+		if ($sdisableFields == "") {
+			$sdisableOptim = $sdisableFields;
+
+			if ($calMode == $this->value->STUDY_OPTIMUM_MODE) {
+				$sdisableNbOptim = $sdisableStorage = "disabled";
+				$sclassNbOptim = $sclassStorage = "sous-titredisabled";
+				$scheckOptim = 1;
+				$scheckStorage = 0;
+
+				if ($this->cal->getTimeStep($idStudy) == $this->value->VALUE_N_A) {
+					$sdisableTimeStep = "disabled";
+				} else {
+					$sdisableTimeStep = "";
+				}
+
+				if ($this->cal->getPrecision($idStudy) == $this->value->VALUE_N_A) {
+					$sdisablePrecision = "disabled";
+				} else {
+					$sdisablePrecision = "";
+				}
+			} else if ($calMode == $this->value->STUDY_SELECTED_MODE) {
+				$sdisableNbOptim = $sdisableStorage = "";
+				$sclassNbOptim = $sclassStorage = "sous-titre";
+				$scheckOptim = 1;
+				$scheckStorage = 0;
+				$sdisableTimeStep = $sdisablePrecision = "";
+			} else {
+				$sdisableNbOptim = $sdisableStorage = "disabled";
+				$sclassNbOptim = $sclassStorage = "sous-titredisabled";
+				$scheckOptim = $scheckStorage = 0;
+				$sdisableTimeStep = $sdisablePrecision = "";
+			}
+
+		} else {
+			$sdisableOptim = $sdisableNbOptim = $sdisableStorage = "disabled";
+			$sdisableTimeStep = $sdisablePrecision = "disabled";
+			$sclassNbOptim = $sclassStorage = "sous-titredisabled";
+			$scheckOptim = $scheckStorage = 0;
+		}
+
+		$epsilonTemp = $this->cal->getOptimErrorT();
+		$epsilonEnth = $this->cal->getOptimErrorH();
+		$nbOptimIter = $this->cal->getNbOptim();
+		$timeStep = $this->cal->getTimeStep($idStudy);
+		$precision = $this->cal->getPrecision($idStudy);
+		$storagestep = $this->cal->getStorageStep();
+		$hRadioOn = $this->cal->getHradioOn();
+		$hRadioOff = $this->cal->getHradioOff();
+		$maxIter = $this->cal->getMaxIter();
+		$relaxCoef = $this->cal->getRelaxCoef();
+		$vRadioOn = $this->cal->getVradioOn();
+		$vRadioOff = $this->cal->getVradioOff();
+		$tempPtSurf = $this->cal->getTempPtSurf();
+		$tempPtIn = $this->cal->getTempPtIn();
+		$tempPtBot = $this->cal->getTempPtBot();
+		$tempPtAvg = $this->cal->getTempPtAvg();
 
 		$select1 = array();
 		$select2 = array();
@@ -86,14 +132,14 @@ class Calculator extends Controller
 		$select8 = array();
 		$select9 = array();
 		$selecta = [
-			'selected' => 0.1, 
+			'selected' => 0.1,
 			'value' => 0.2,
-			'label' => 0.3
+			'label' => 0.3,
 		];
 		$selectb = [
-			'selected' => 0.1, 
+			'selected' => 0.1,
 			'value' => 0.2,
-			'label' => 0.3
+			'label' => 0.3,
 		];
 
 		array_push($select1, $selecta, $selectb);
@@ -105,8 +151,7 @@ class Calculator extends Controller
 		array_push($select7, $selecta, $selectb);
 		array_push($select8, $selecta, $selectb);
 		array_push($select9, $selecta, $selectb);
-		
-		
+
 		$array = [
 			'sdisableFields' => $sdisableFields,
 			'sdisableCalculate' => $sdisableCalculate,
@@ -122,7 +167,7 @@ class Calculator extends Controller
 			'timeStep' => $timeStep,
 			'precision' => $precision,
 			'scheckStorage' => $scheckStorage,
-			'storagestep' =>  $storagestep,
+			'storagestep' => $storagestep,
 			'hRadioOn' => $hRadioOn,
 			'hRadioOff' => $hRadioOff,
 			'maxIter' => $maxIter,
@@ -141,7 +186,7 @@ class Calculator extends Controller
 			'select6' => $select6,
 			'select7' => $select7,
 			'select8' => $select8,
-			'select9' => $select9
+			'select9' => $select9,
 		];
 
 		return $array;
