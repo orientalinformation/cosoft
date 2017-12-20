@@ -244,17 +244,14 @@ $router->PUT('/api/v1/studies/{id}/product', 'Api1\\Studies@newProduct');
 $router->POST('/api/v1/studies/{id}/product', 'Api1\\Studies@updateProduct');
 
 /**
-<<<<<<< HEAD
- * POST updateProduct
+ * GET findPackingLayers
  * Summary: 
- * Notes: update a product
+ * Notes: get packing layers
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/packingLayers', 'Api1\\Packings@findPackingLayers');
 
 /**
- * GET getPackingTranslations
-=======
  * GET getMeshParamDefByIdUser
  * Summary: 
  * Notes: get available MeshParamDef by filter
@@ -279,15 +276,11 @@ $router->POST('/api/v1/savemeshparamdef', 'Api1\\Settings@saveMyMeshParamDef');
 $router->GET('/api/v1/temprecordptsdef', 'Api1\\Settings@getMyTempRecordPtsDef');
 
 /**
- * POST saveTempRecordPtsDef
->>>>>>> origin/master
+ * POST saveMyTempRecordPtsDef
  * Summary: 
- * Notes: 
+ * Notes: save TempRecordPtsDef by id
  * Output-Formats: [application/json]
  */
-
-$router->GET('/api/v1/translations/{lang}/packings', 'Api1\\Translations@getPackingTranslations');
-
 $router->POST('/api/v1/savetemprecordptsdef', 'Api1\\Settings@saveMyTempRecordPtsDef');
 
 /**
