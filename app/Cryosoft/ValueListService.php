@@ -29,4 +29,7 @@ class ValueListService
     public $MIN_MAX_EQUIPMENT_LENGTH = 1076;
     public $PROFIL_EXPERT = 2;
     public $CONV_SPEED_UNIT = 3;
+    public $CONSUMPTION_UNIT = 28;
+    public $CONSUM_MAINTIEN = 31;
+    public $CONSUM_MEF = 34;
 }
