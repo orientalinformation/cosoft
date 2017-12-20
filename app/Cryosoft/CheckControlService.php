@@ -32,7 +32,6 @@ class CheckControlService
 
 	public function isStdCalcModeChecked($idStudy) 
 	{
-
 		$study = Study::select('CALCULATION_MODE')->where('ID_STUDY', $idStudy)->first();
 
 		if ($study != null) {
@@ -46,7 +45,6 @@ class CheckControlService
 
 	public function isStdCustomerChecked($idStudy) 
 	{
-
 		if (($idStudy == null) || ($idStudy < 1)) {
 			return false;
 		}
@@ -81,7 +79,6 @@ class CheckControlService
 
 	public function isStdProductChecked($idStudy) 
 	{
-
 		try {
 			$product = Product::where('ID_STUDY', $idStudy)->first();
 
@@ -154,7 +151,6 @@ class CheckControlService
 
 	public function isStdEquipmentChecked($idStudy) 
 	{
-
 		$studyEquipment = StudyEquipment::where('ID_STUDY', $idStudy);
 
 		if ($studyEquipment == null) {

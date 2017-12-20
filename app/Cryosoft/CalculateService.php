@@ -18,6 +18,10 @@ use App\Models\CalculationParametersDef;
 use App\Models\MinMax;
 use App\Models\Study;
 use App\Models\StudyEquipment;
+use App\Models\TempRecordPts;
+use App\Models\MeshPosition;
+use App\Models\Product;
+use App\Models\ProductElmt;
 use Illuminate\Contracts\Auth\Factory as Auth;
 
 class CalculateService 
@@ -274,4 +278,73 @@ class CalculateService
     {
 		return $this->convert->unitConvert($this->value->TEMPERATURE, $this->calParametersDef->STOP_AVG_DEF, 2);
 	}
+
+    // public function getOption($idStudy, $key, $axe)
+    // {
+    //     $meshAxis = 0;
+    //     switch ($key) {
+    //         case "X":
+    //             $meshAxis = 1;
+    //             break;
+
+    //         case "Y":
+    //             $meshAxis = 2;
+    //             break;
+
+    //         case "Z":
+    //             $meshAxis = 3;
+    //             break;
+    //     }
+    
+    //     $lint = MeshPosition::join('ProductElmt', 'MeshPosition.ID_PRODUCT_ELMT', '=', 'ProductElmt.ID_PRODUCT_ELMT')
+    //         ->join('Product', 'ProductElmt.ID_PROD', '=', 'Product.ID_PROD')
+    //         ->select('MESH_AXIS_POS')
+    //         ->where('Product.ID_STUDY', '=', $idStudy)
+    //         ->Where('MeshPosition.MESH_AXIS_POS', '=', $meshAxis)
+    //         ->distinct()
+    //         ->orderBy("MeshPosition.MESH_AXIS_POS", 'desc')->get();
+    //     var_dump($lint); die;
+        
+    //     $arrLint = array();
+    //     $item = array();
+
+    //     if (!empty($lint)) {
+    //         foreach ($lint as $row) {
+    //             $item["selected"] = ($this->getCoordinate($idStudy, $key, $axe) == $row["meshAxisPos"]) ? true : false;
+    //             $item["value"] = $this->convert->unitConvert($this->value->MESH_CUT, $row["meshAxisPos"]);
+    //             $item["lable"] = $row["meshAxisPos"];
+    //             array_push($arrLint, $item);
+    //         }
+    //     }
+
+    //     return $arrLint;
+    // }
+
+    public function getCoordinate($idStudy, $key, $axe)
+    {
+        $val = 0.0;
+        $tempRecordsPt = TempRecordPts::where('ID_STUDY', $idStudy)->first();
+        
+        if ($key == "X" && $axe == "INT") {
+            $val = ($tempRecordsPt != null) ? $tempRecordsPt->AXIS1_PT_INT_PT : 0.0;
+        } else if ($key == "Y" && $axe == "INT") {
+            $val = ($tempRecordsPt != null) ? $tempRecordsPt->AXIS2_PT_INT_PT : 0.0;
+        } else if ($key == "Z" && $axe == "INT") {
+            $val = ($tempRecordsPt != null) ? $tempRecordsPt->AXIS3_PT_INT_PT : 0.0;
+        } else if ($key == "X" && $axe == "BOT") {
+            $val = ($tempRecordsPt != null) ? $tempRecordsPt->AXIS1_PT_BOT_SURF : 0.0;
+        } else if ($key == "Y" && $axe == "BOT") {
+            $val = ($tempRecordsPt != null) ? $tempRecordsPt->AXIS2_PT_BOT_SURF : 0.0;
+        } else if ($key == "Z" && $axe == "BOT") {
+            $val = ($tempRecordsPt != null) ? $tempRecordsPt->AXIS3_PT_BOT_SURF : 0.0;
+        } else if ($key == "X" && $axe == "TOP") {
+            $val = ($tempRecordsPt != null) ? $tempRecordsPt->AXIS1_PT_TOP_SURF : 0.0;
+        } else if ($key == "Y" && $axe == "TOP") {
+            $val = ($tempRecordsPt != null) ? $tempRecordsPt->AXIS2_PT_TOP_SURF : 0.0;
+        } else if ($key == "Z" && $axe == "TOP") {
+            $val = ($tempRecordsPt != null) ? $tempRecordsPt->AXIS3_PT_TOP_SURF : 0.0;
+        }
+
+        return $this->convert->unitConvert($this->value->MESH_CUT, $val);
+    }
 }
