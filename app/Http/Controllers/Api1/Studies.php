@@ -166,11 +166,11 @@ class Studies extends Controller
                 $value = $this->convert->unitConvert(16, $packingLayers[$i]->THICKNESS);
                 $packingLayers[$i]->THICKNESS = $value;
             }
-            var_dump("test".$packingLayers); return 0;
         }
 
         return compact('packing', 'packingLayers');
     }
+
     public function savePacking($id)
     {
         $input = $this->request->all();
