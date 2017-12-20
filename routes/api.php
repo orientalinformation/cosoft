@@ -436,11 +436,3 @@ $router->GET('/api/v1/studies/{id}/packingLayers', 'Api1\\Studies@getStudyPackin
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/studies/{id}/packingLayers', 'Api1\\Studies@savePacking');
-
-/**
- * GET getMeshView
- * Summary: 
- * Notes: 
- * Output-Formats: [application/json]
- */
-$router->GET('/api/v1/products/{id}/meshView', 'Api1\\Products@getMeshView');
