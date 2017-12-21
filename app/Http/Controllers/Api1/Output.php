@@ -666,7 +666,7 @@ class Output extends Controller
 
         }
 
-        return compact("result");
+        return $result;
     }
 
     public function getEquipSizing($idStudyEquipment)
@@ -746,9 +746,8 @@ class Output extends Controller
         }
     }
 
-    public function sizingOptimumResult()
+    public function sizingOptimumResult($idStudy)
     {
-        $idStudy = $this->request->input('idStudy');
         $study = Study::find($idStudy);
         $calculationMode = $study->CALCULATION_MODE;
 
@@ -759,7 +758,6 @@ class Output extends Controller
         $result = array();
         $selectedEquipment =  array();
         $availableEquipment = array(); 
-        $profileEquipment = array();
         $dataGrapChart = array();
         $dataTemProfileChart = array();
 
@@ -771,7 +769,7 @@ class Output extends Controller
             $idCoolingFamily = $row->ID_COOLING_FAMILY;
             $calculWarning = "";
             $item["id"] = $idStudyEquipment = $row->ID_STUDY_EQUIPMENTS;
-            $item["equipName"] = $this->equip->getResultsEquipName($idStudyEquipment);
+            $item["equipName"] = $equipName = $this->equip->getResultsEquipName($idStudyEquipment);
 
             $tr = $ts = $vc = $dhp = $conso = $toc = $trMax = $tsMax = $vcMax = $dhpMax = $consoMax = $tocMax = "";
 
@@ -860,37 +858,88 @@ class Output extends Controller
 
             //get study equip profile
             $tempProfile = StudEquipprofile::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("EP_X_POSITION", "ASC")->get();
+            /*
             if (count($tempProfile) > 0) {
-                $itemProfile["id"] = $idStudyEquipment;
-                $itemProfile["name"] = $this->equip->getResultsEquipName($idStudyEquipment);
+                $lfTime = 0.0;
+                $lfTemp = 0.0;
+                $lfConv = 0.0;
 
-                foreach ($tempProfile as $rowT) {
-                    $lfTime = 0.0;
-                    $lfTemp = 0.0;
-                    $lfConv = 0.0;
+                $point2DSeriesTempCurveTop = array();
+                $point2DSeriesConvCurveTop = array();
 
-                    $point2DSeriesTempCurveTop = array();
-                    $point2DSeriesConvCurveTop = array();
+                $point2DSeriesTempCurveBottom = array();
+                $point2DSeriesConvCurveBottom = array();
 
-                    $point2DSeriesTempCurveBottom = array();
-                    $point2DSeriesConvCurveBottom = array();
+                $point2DSeriesTempCurveLeft = array();
+                $point2DSeriesConvCurveLeft = array();
 
-                    $point2DSeriesTempCurveLeft = array();
-                    $point2DSeriesConvCurveLeft = array();
+                $point2DSeriesTempCurveRight = array();
+                $point2DSeriesConvCurveRight = array();
 
-                    $point2DSeriesTempCurveRight = array();
-                    $point2DSeriesConvCurveRight = array();
+                $point2DSeriesTempCurveFront = array();
+                $point2DSeriesConvCurveFront = array();
 
-                    $point2DSeriesTempCurveFront = array();
-                    $point2DSeriesConvCurveFront = array();
+                $point2DSeriesTempCurveRear = array();
+                $point2DSeriesConvCurveRear = array();
 
-                    $point2DSeriesTempCurveRear = array();
-                    $point2DSeriesConvCurveRear = array();
+                // $dataTemProfileChart["id"][] = $idStudyEquipment;
+                $dataTemProfileChart[$idStudyEquipment]["id"] = $idStudyEquipment;
+                $dataTemProfileChart[$idStudyEquipment]["name"] = $equipName;
+
+                foreach ($tempProfile as $rowTemp) {
+                    $lfTime = $this->unit->timePosition($rowTemp->EP_X_POSITION);
+
+                    $lfTempTop = $this->unit->temperature($rowTemp->EP_TEMP_TOP);
+                    $lfConvTop = $this->unit->convectionCoeff($rowTemp->EP_ALPHA_TOP); 
+
+                    $lfTempBottom= $this->unit->temperature($rowTemp->EP_TEMP_BOTTOM);
+                    $lfConvBottom = $this->unit->convectionCoeff($rowTemp->EP_ALPHA_BOTTOM);
+
+                    $lfTempLeft = $this->unit->temperature($rowTemp->EP_ALPHA_LEFT);
+                    $lfConvLeft = $this->unit->convectionCoeff($rowTemp->EP_ALPHA_LEFT);
+
+                    $lfTempRight = $this->unit->temperature($rowTemp->EP_ALPHA_RIGHT);
+                    $lfConvRight = $this->unit->convectionCoeff($rowTemp->EP_ALPHA_RIGHT);
+               
+                    $lfTempFront = $this->unit->temperature($rowTemp->EP_TEMP_FRONT);
+                    $lfConvFront = $this->unit->convectionCoeff($rowTemp->EP_ALPHA_FRONT);
+
+                    $lfTempRear = $this->unit->temperature($rowTemp->EP_TEMP_REAR);
+                    $lfConvRear = $this->unit->convectionCoeff($rowTemp->EP_ALPHA_REAR);
+
+                    //add item top to array
+                    $point2DSeriesTempCurveTop[] = ["x" => $lfTime, "y" => $lfTempTop];
+                    $point2DSeriesConvCurveTop[] = ["x" => $lfTime, "y" => $lfConvTop];
+
+                    //add item bottom to array
+                    $point2DSeriesTempCurveBottom[] = ["x" => $lfTime, "y" => $lfTempBottom];
+                    $point2DSeriesConvCurveBottom[] = ["x" => $lfTime, "y" => $lfConvBottom];
+
+                    //add item left to array
+                    $point2DSeriesTempCurveLeft[] = ["x" => $lfTime, "y" => $lfTempLeft];
+                    $point2DSeriesConvCurveLeft[] = ["x" => $lfTime, "y" => $lfConvLeft];
+
+                    //add item right to array
+                    $point2DSeriesTempCurveRight[] = ["x" => $lfTime, "y" => $lfTempRight];
+                    $point2DSeriesConvCurveRight[] = ["x" => $lfTime, "y" => $lfConvRight];
+
+                    //add item Front to array
+                    $point2DSeriesTempCurveFront[] = ["x" => $lfTime, "y" => $lfTempFront];
+                    $point2DSeriesConvCurveFront[] = ["x" => $lfTime, "y" => $lfConvFront];
+
+                    //add item rear to array
+                    $point2DSeriesTempCurveRear[] = ["x" => $lfTime, "y" => $lfTempRear];
+                    $point2DSeriesConvCurveRear[] = ["x" => $lfTime, "y" => $lfConvRear];
+
+                    $tempChartData = array("top" => $point2DSeriesTempCurveTop, "bottom" => $point2DSeriesTempCurveBottom, "left" => $point2DSeriesTempCurveLeft, "right" => $point2DSeriesTempCurveRight, "front" => $point2DSeriesTempCurveFront, "rear" => $point2DSeriesTempCurveRear);
+
+                    $convChartData = array("top" => $point2DSeriesConvCurveTop, "bottom" => $point2DSeriesConvCurveBottom, "left" => $point2DSeriesConvCurveLeft, "right" => $point2DSeriesConvCurveRight, "front" => $point2DSeriesConvCurveFront, "rear" => $point2DSeriesConvCurveRear);
+
+
+                    $dataTemProfileChart[$idStudyEquipment]["data"][$rowTemp->ID_STUD_EQUIPPROFILE][] = compact("tempChartData", "convChartData");
                 }
 
-
-                $profileEquipment[] = $itemProfile;
-            }
+            }*/
             
             $item["tr"] = $tr;
             $item["ts"] = $ts;
@@ -988,44 +1037,45 @@ class Output extends Controller
                 $i++;
             } 
 
-            if (!empty($selectedEquipment)) {
-                foreach ($selectedEquipment as $row) {
-                    $dhpChart = $row["dhp"];
-                    $consoChart = $row["conso"];
-                    $dhpMaxChart = $row["dhpMax"];
-                    $consoMaxChart = $row["consoMax"];
+            
+        }
 
-                    if (($dhpChart == null || $dhpChart == "****") || $dhpChart == "") {
-                        $itemChart["dhp"] = 0.0;
-                    } else {
-                        $itemChart["dhp"] = $dhpChart;
-                    }
+        if (!empty($selectedEquipment)) {
+            foreach ($selectedEquipment as $row) {
+                $dhpChart = $row["dhp"];
+                $consoChart = $row["conso"];
+                $dhpMaxChart = $row["dhpMax"];
+                $consoMaxChart = $row["consoMax"];
 
-                    if (($consoChart == null || $consoChart == "****") || $consoChart == "") {
-                        $itemChart["conso"] = 0.0;
-                    } else {
-                        $itemChart["conso"] = $consoChart;
-                    }
-
-                    if (($dhpMaxChart == null || $dhpMaxChart == "****") || $dhpMaxChart == "") {
-                        $itemChart["dhpMax"] = 0.0;
-                    } else {
-                        $itemChart["dhpMax"] = $dhpMaxChart;
-                    }
-
-                    if (($consoMaxChart == null || $consoMaxChart == "****") || $consoMaxChart == "") {
-                        $itemChart["consoMax"] = 0.0;
-                    } else {
-                        $itemChart["consoMax"] = $consoMaxChart;
-                    }
-
-                
-                    $dataGrapChart[] =  $itemChart;    
+                if (($dhpChart == null || $dhpChart == "****") || $dhpChart == "") {
+                    $itemChart["dhp"] = 0.0;
+                } else {
+                    $itemChart["dhp"] = $dhpChart;
                 }
+
+                if (($consoChart == null || $consoChart == "****") || $consoChart == "") {
+                    $itemChart["conso"] = 0.0;
+                } else {
+                    $itemChart["conso"] = $consoChart;
+                }
+
+                if (($dhpMaxChart == null || $dhpMaxChart == "****") || $dhpMaxChart == "") {
+                    $itemChart["dhpMax"] = 0.0;
+                } else {
+                    $itemChart["dhpMax"] = $dhpMaxChart;
+                }
+
+                if (($consoMaxChart == null || $consoMaxChart == "****") || $consoMaxChart == "") {
+                    $itemChart["consoMax"] = 0.0;
+                } else {
+                    $itemChart["consoMax"] = $consoMaxChart;
+                }
+
+            
+                $dataGrapChart[] =  $itemChart;    
             }
         }
 
-
-        return compact("result", "selectedEquipment", "availableEquipment", "profileEquipment", "dataGrapChart");
+        return compact("result", "selectedEquipment", "availableEquipment", "dataGrapChart", "dataTemProfileChart");
     }
 }
