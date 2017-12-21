@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Sofa\Eloquence\Eloquence; // base trait
+use Sofa\Eloquence\Mappable; // extension trait
 
 /**
  * @property int $ID_MESH_POSITION
@@ -21,6 +23,10 @@ class MeshPosition extends Model
      */
     protected $table = 'mesh_position';
 
+    protected $hidden = [
+        'productElmt'
+    ];
+
     /**
      * @var array
      */
@@ -38,11 +44,17 @@ class MeshPosition extends Model
      */
     public $timestamps = false;
 
+    protected $maps = [
+      'productElmt' => ['ID_STUDY']
+    ];
+
+    protected $appends = ['ID_STUDY'];
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function productElmt()
     {
-        return $this->belongsTo('ProductElmt', 'ID_PRODUCT_ELMT', 'ID_PRODUCT_ELMT');
+        return $this->belongsTo('App\\Models\\ProductElmt', 'ID_PRODUCT_ELMT', 'ID_PRODUCT_ELMT');
     }
 }

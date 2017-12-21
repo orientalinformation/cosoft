@@ -23,6 +23,8 @@ use App\Models\MeshPosition;
 use App\Models\Product;
 use App\Models\ProductElmt;
 use Illuminate\Contracts\Auth\Factory as Auth;
+use DB;
+use App\Quotation;
 
 class CalculateService 
 {
@@ -279,46 +281,48 @@ class CalculateService
 		return $this->convert->unitConvert($this->value->TEMPERATURE, $this->calParametersDef->STOP_AVG_DEF, 2);
 	}
 
-    // public function getOption($idStudy, $key, $axe)
-    // {
-    //     $meshAxis = 0;
-    //     switch ($key) {
-    //         case "X":
-    //             $meshAxis = 1;
-    //             break;
+    public function getOption($idStudy, $key, $axe)
+    {
+        $meshAxis = 0;
+        switch ($key) {
+            case "X":
+                $meshAxis = 1;
+                break;
 
-    //         case "Y":
-    //             $meshAxis = 2;
-    //             break;
+            case "Y":
+                $meshAxis = 2;
+                break;
 
-    //         case "Z":
-    //             $meshAxis = 3;
-    //             break;
-    //     }
+            case "Z":
+                $meshAxis = 3;
+                break;
+        }
     
-    //     $lint = MeshPosition::join('ProductElmt', 'MeshPosition.ID_PRODUCT_ELMT', '=', 'ProductElmt.ID_PRODUCT_ELMT')
-    //         ->join('Product', 'ProductElmt.ID_PROD', '=', 'Product.ID_PROD')
-    //         ->select('MESH_AXIS_POS')
-    //         ->where('Product.ID_STUDY', '=', $idStudy)
-    //         ->Where('MeshPosition.MESH_AXIS_POS', '=', $meshAxis)
-    //         ->distinct()
-    //         ->orderBy("MeshPosition.MESH_AXIS_POS", 'desc')->get();
-    //     var_dump($lint); die;
+        // $lint = DB::table('MESH_POSITION')->select('MESH_AXIS_POS')
+        //         ->join('PRODUCT_ELMT', 'MESH_POSITION.ID_PRODUCT_ELMT', '=', 'PRODUCT_ELMT.ID_PRODUCT_ELMT')
+        //         ->join('PRODUCT', 'PRODUCT_ELMT.ID_PROD', '=', 'PRODUCT.ID_PROD')
+        //         ->where('PRODUCT.ID_STUDY', '=', $idStudy)
+        //         ->where('MESH_POSITION.MESH_AXIS_POS', '=', $meshAxis)
+        //         ->distinct()
+        //         ->orderBy("MESH_POSITION.MESH_AXIS_POS", 'desc')->get();
         
-    //     $arrLint = array();
-    //     $item = array();
 
-    //     if (!empty($lint)) {
-    //         foreach ($lint as $row) {
-    //             $item["selected"] = ($this->getCoordinate($idStudy, $key, $axe) == $row["meshAxisPos"]) ? true : false;
-    //             $item["value"] = $this->convert->unitConvert($this->value->MESH_CUT, $row["meshAxisPos"]);
-    //             $item["lable"] = $row["meshAxisPos"];
-    //             array_push($arrLint, $item);
-    //         }
-    //     }
+        var_dump($lint); die("hjj");
+        
+        $arrLint = array();
+        $item = array();
 
-    //     return $arrLint;
-    // }
+        if (!empty($lint)) {
+            foreach ($lint as $row) {
+                $item["selected"] = ($this->getCoordinate($idStudy, $key, $axe) == $row["meshAxisPos"]) ? true : false;
+                $item["value"] = $this->convert->unitConvert($this->value->MESH_CUT, $row["meshAxisPos"]);
+                $item["lable"] = $row["meshAxisPos"];
+                array_push($arrLint, $item);
+            }
+        }
+
+        return $arrLint;
+    }
 
     public function getCoordinate($idStudy, $key, $axe)
     {
