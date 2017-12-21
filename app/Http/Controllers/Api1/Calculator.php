@@ -122,35 +122,15 @@ class Calculator extends Controller {
 		$tempPtBot = $this->cal->getTempPtBot();
 		$tempPtAvg = $this->cal->getTempPtAvg();
 
-		$select1 = array();
-		$select2 = array();
-		$select3 = array();
-		$select4 = array();
-		$select5 = array();
-		$select6 = array();
-		$select7 = array();
-		$select8 = array();
-		$select9 = array();
-		$selecta = [
-			'selected' => 0.1,
-			'value' => 0.2,
-			'label' => 0.3,
-		];
-		$selectb = [
-			'selected' => 0.1,
-			'value' => 0.2,
-			'label' => 0.3,
-		];
-
-		array_push($select1, $selecta, $selectb);
-		array_push($select2, $selecta, $selectb);
-		array_push($select3, $selecta, $selectb);
-		array_push($select4, $selecta, $selectb);
-		array_push($select5, $selecta, $selectb);
-		array_push($select6, $selecta, $selectb);
-		array_push($select7, $selecta, $selectb);
-		array_push($select8, $selecta, $selectb);
-		array_push($select9, $selecta, $selectb);
+		$select1 = $this->cal->getOption($idStudy, "X", "TOP");
+		$select2 = $this->cal->getOption($idStudy, "Y", "TOP");
+        $select3 = $this->cal->getOption($idStudy, "Z", "TOP");
+        $select4 = $this->cal->getOption($idStudy, "X", "INT");
+        $select5 = $this->cal->getOption($idStudy, "Y", "INT");
+        $select6 = $this->cal->getOption($idStudy, "Z", "INT");
+        $select7 = $this->cal->getOption($idStudy, "X", "BOT");
+        $select8 = $this->cal->getOption($idStudy, "Y", "BOT");
+        $select9 = $this->cal->getOption($idStudy, "Z", "BOT");
 
 		$array = [
 			'sdisableFields' => $sdisableFields,
