@@ -753,6 +753,9 @@ class Output extends Controller
 
         //get study equipment
         $studyEquipments = StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
+        $production = Production::where("ID_STUDY", $idStudy)->first();
+
+        $customFlowRate = (int) $this->unit->productFlow($production->PROD_FLOW_RATE);
 
         $lfcoef = $this->unit->unitConvert($this->value->MASS_PER_UNIT, 1.0);
         $result = array();
@@ -1042,10 +1045,11 @@ class Output extends Controller
 
         if (!empty($selectedEquipment)) {
             foreach ($selectedEquipment as $row) {
-                $dhpChart = $row["dhp"];
-                $consoChart = $row["conso"];
-                $dhpMaxChart = $row["dhpMax"];
-                $consoMaxChart = $row["consoMax"];
+                $itemChart["equipName"] = $row["equipName"];
+                $dhpChart = (int) $row["dhp"];
+                $consoChart = (int) $row["conso"];
+                $dhpMaxChart = (int) $row["dhpMax"];
+                $consoMaxChart = (int) $row["consoMax"];
 
                 if (($dhpChart == null || $dhpChart == "****") || $dhpChart == "") {
                     $itemChart["dhp"] = 0.0;
@@ -1076,6 +1080,6 @@ class Output extends Controller
             }
         }
 
-        return compact("result", "selectedEquipment", "availableEquipment", "dataGrapChart", "dataTemProfileChart");
+        return compact("result", "selectedEquipment", "availableEquipment", "customFlowRate", "dataGrapChart", "dataTemProfileChart");
     }
 }
