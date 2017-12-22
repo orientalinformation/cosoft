@@ -55,6 +55,11 @@ class Calculator extends Controller {
 	{
 		$input = $this->request->all();
 		$idStudy = $input['idStudy'];
+		$idStudyEquipment = null;
+
+		if (isset($input['idStudyEquipment'])) {
+			$idStudyEquipment = $input['idStudyEquipment'];
+		}
 
 		$calMode = $this->cal->getCalculationMode($idStudy);
 		$sdisableFields = $this->cal->disableFields($idStudy);
@@ -64,6 +69,11 @@ class Calculator extends Controller {
 		$sclassNbOptim = $sclassStorage = "";
 		$sdisableTimeStep = $sdisablePrecision = "";
 		$scheckOptim = $scheckStorage = 0;
+		$isBrainCalculator = 0;
+
+		if ($idStudyEquipment != null) {
+			$isBrainCalculator = 1;
+		}
 
 		if ($sdisableFields == "") {
 			$sdisableOptim = $sdisableFields;
@@ -167,6 +177,7 @@ class Calculator extends Controller {
 			'select7' => $select7,
 			'select8' => $select8,
 			'select9' => $select9,
+			'isBrainCalculator' => $isBrainCalculator,
 		];
 
 		return $array;

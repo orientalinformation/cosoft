@@ -22,6 +22,8 @@ use App\Models\TempRecordPts;
 use App\Models\MeshPosition;
 use App\Models\Product;
 use App\Models\ProductElmt;
+use App\Models\LayoutResults;
+use App\Models\StudEqpPrm;
 use Illuminate\Contracts\Auth\Factory as Auth;
 use DB;
 use App\Quotation;
@@ -360,5 +362,59 @@ class CalculateService
         }
 
         return $this->convert->unitConvert($this->value->MESH_CUT, $val);
+    }
+
+    public function getLoadingRate($idStudyEquipment, $idStudy)
+    {
+        $calMode = $this->getCalculationMode($idStudy);
+        $loadingRate = 0;
+        $layoutResult =  LayoutResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->first();
+
+        if ($layoutResult != null) {
+            if ($calMode == $this->value->BRAIN_MODE_OPTIMUM_DHPMAX) {
+                $loadingRate = $layoutResult->LOADING_RATE_MAX;
+            } else {
+                $loadingRate = $layoutResult->LOADING_RATE;
+            }
+        }
+
+        return $loadingRate;
+    }
+
+    public function getListTr($idStudyEquipments)
+    {
+        $studEqpPrms = $this->loadStudEqpPrm($idStudyEquipments, 300);
+        $tR = array();
+
+        if (!empty($studEqpPrms)) {
+            foreach ($studEqpPrms as $prms) {
+                array_push($tR, $prms->VALUE);
+             } 
+        }
+
+        return $tR;
+    }
+
+    public function getListTs($idStudyEquipments)
+    {
+        $studEqpPrms = $this->loadStudEqpPrm($idStudyEquipments, 200);
+        $tS = array();
+
+        if (!empty($studEqpPrms)) {
+            foreach ($studEqpPrms as $prms) {
+                array_push($tS, $prms->VALUE);
+            } 
+        }
+        
+        return $tS;
+    }
+
+    public function loadStudEqpPrm($idStudyEquipments, $dataType)
+    {
+        $studEqpPrms = StudEqpPrm::where('ID_STUDY_EQUIPMENTS', $idStudyEquipments)
+                                    ->where('VALUE_TYPE', '>=', $dataType)
+                                    ->where('VALUE_TYPE', '<', ($dataType + 100))->get();
+
+        return $studEqpPrms;
     }
 }
