@@ -306,25 +306,24 @@ class CalculateService
         //         ->orderBy("MESH_POSITION.MESH_AXIS_POS", 'desc')->get();
         $product = Product::where('ID_STUDY', $idStudy)->first();
         $productElmt = null;
-        $meshPos = null;
-        $idProductElmt = 0;
+        $meshPosition = null;
 
         if ($product != null) {
             $idProd = $product->ID_PROD;
             $productElmt = ProductElmt::where('ID_PROD', $idProd)->first();
             if ($productElmt != null) {
                 $idProductElmt = $productElmt->ID_PRODUCT_ELMT;
-                $meshPos = MeshPosition::select('MESH_AXIS_POS')
-                    ->where('MESH_AXIS', $meshAxis)
-                    ->where('ID_PRODUCT_ELMT', $idProductElmt)->get();
+                $meshPosition = MeshPosition::select('MESH_AXIS_POS')
+                    ->where('MESH_AXIS', '=', $meshAxis)
+                    ->where('ID_PRODUCT_ELMT', '=', $idProductElmt)->get();
             }
         }
         
         $arrLint = array();
         $item = array();
 
-        if (!empty($meshPos)) {
-            foreach ($meshPos as $row) {
+        if (!empty($meshPosition)) {
+            foreach ($meshPosition as $row) {
                 $item["selected"] = ($this->getCoordinate($idStudy, $key, $axe) == $row["MESH_AXIS_POS"]) ? true : false;
                 $item["value"] = $this->convert->unitConvert($this->value->MESH_CUT, $row["MESH_AXIS_POS"]);
                 $item["label"] = $row["MESH_AXIS_POS"];
