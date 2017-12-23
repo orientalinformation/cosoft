@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Sofa\Eloquence\Eloquence; // base trait
+use Sofa\Eloquence\Mappable; // extension trait
 
 /**
  * @property int $ID_PRODUCT_ELMT
@@ -38,6 +40,10 @@ class ProductElmt extends Model
      */
     protected $table = 'product_elmt';
 
+    protected $hidden = [
+        'product'
+    ];
+
     /**
      * @var array
      */
@@ -54,6 +60,12 @@ class ProductElmt extends Model
      * @var bool
      */
     public $timestamps = false;
+
+    protected $maps = [
+      'product' => ['ID_STUDY']
+    ];
+
+    protected $appends = ['ID_STUDY'];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

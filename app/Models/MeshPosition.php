@@ -43,6 +43,6 @@ class MeshPosition extends Model
      */
     public function productElmt()
     {
-        return $this->belongsTo('ProductElmt', 'ID_PRODUCT_ELMT', 'ID_PRODUCT_ELMT');
+        return $this->belongsTo('App\\Models\\ProductElmt', 'ID_PRODUCT_ELMT', 'ID_PRODUCT_ELMT');
     }
 }
