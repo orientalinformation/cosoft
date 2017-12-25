@@ -74,6 +74,11 @@ class UnitsConverterService
         $unit = Unit::select("SYMBOL")->where("TYPE_UNIT", $this->value->UNIT_TIME)->first();
         return $unit->SYMBOL;
     }
+
+    public function convectionCoeffSymbol() {
+        $unit = Unit::select("SYMBOL")->where("TYPE_UNIT", $this->value->CONV_COEFF)->first();
+        return $unit->SYMBOL;
+    }
     
     public function monetarySymbol() 
     {
