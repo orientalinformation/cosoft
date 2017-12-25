@@ -68,6 +68,12 @@ class UnitsConverterService
         $unit = Unit::select("SYMBOL")->where("TYPE_UNIT", $this->value->CONV_SPEED_UNIT)->first();
         return $unit->SYMBOL;
     }
+
+    public function timePositionSymbol() 
+    {
+        $unit = Unit::select("SYMBOL")->where("TYPE_UNIT", $this->value->UNIT_TIME)->first();
+        return $unit->SYMBOL;
+    }
     
     public function monetarySymbol() 
     {

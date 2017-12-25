@@ -68,12 +68,13 @@ class Output extends Controller
         $monetarySymbol = $this->unit->monetarySymbol();
         $equipDimensionSymbol = $this->unit->equipDimensionSymbol();
         $convectionSpeedSymbol = $this->unit->convectionSpeedSymbol();
+        $timePositionSymbol = $this->unit->timePositionSymbol();
         $percentSymbol = "%";
         $consumSymbol = $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1);
         $consumMaintienSymbol = $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 2);
         $mefSymbol = $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 3);
 
-        $ret = compact("productFlowSymbol", "massSymbol", "temperatureSymbol", "percentSymbol", "timeSymbol", "perUnitOfMassSymbol", "enthalpySymbol", "monetarySymbol", "equipDimensionSymbol", "convectionSpeedSymbol", "consumSymbol", "consumMaintienSymbol", "mefSymbol");
+        $ret = compact("productFlowSymbol", "massSymbol", "temperatureSymbol", "percentSymbol", "timeSymbol", "perUnitOfMassSymbol", "enthalpySymbol", "monetarySymbol", "equipDimensionSymbol", "convectionSpeedSymbol", "timePositionSymbol", "consumSymbol", "consumMaintienSymbol", "mefSymbol");
         // var_dump($ret);
         return $ret;
     }
@@ -755,7 +756,7 @@ class Output extends Controller
         $studyEquipments = StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
         $production = Production::where("ID_STUDY", $idStudy)->first();
 
-        $customFlowRate = (int) $this->unit->productFlow($production->PROD_FLOW_RATE);
+        $customFlowRate = $this->unit->productFlow($production->PROD_FLOW_RATE);
 
         $lfcoef = $this->unit->unitConvert($this->value->MASS_PER_UNIT, 1.0);
         $result = array();
@@ -858,91 +859,6 @@ class Output extends Controller
                     }
                 }
             }
-
-            //get study equip profile
-            $tempProfile = StudEquipprofile::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("EP_X_POSITION", "ASC")->get();
-            /*
-            if (count($tempProfile) > 0) {
-                $lfTime = 0.0;
-                $lfTemp = 0.0;
-                $lfConv = 0.0;
-
-                $point2DSeriesTempCurveTop = array();
-                $point2DSeriesConvCurveTop = array();
-
-                $point2DSeriesTempCurveBottom = array();
-                $point2DSeriesConvCurveBottom = array();
-
-                $point2DSeriesTempCurveLeft = array();
-                $point2DSeriesConvCurveLeft = array();
-
-                $point2DSeriesTempCurveRight = array();
-                $point2DSeriesConvCurveRight = array();
-
-                $point2DSeriesTempCurveFront = array();
-                $point2DSeriesConvCurveFront = array();
-
-                $point2DSeriesTempCurveRear = array();
-                $point2DSeriesConvCurveRear = array();
-
-                // $dataTemProfileChart["id"][] = $idStudyEquipment;
-                $dataTemProfileChart[$idStudyEquipment]["id"] = $idStudyEquipment;
-                $dataTemProfileChart[$idStudyEquipment]["name"] = $equipName;
-
-                foreach ($tempProfile as $rowTemp) {
-                    $lfTime = $this->unit->timePosition($rowTemp->EP_X_POSITION);
-
-                    $lfTempTop = $this->unit->temperature($rowTemp->EP_TEMP_TOP);
-                    $lfConvTop = $this->unit->convectionCoeff($rowTemp->EP_ALPHA_TOP); 
-
-                    $lfTempBottom= $this->unit->temperature($rowTemp->EP_TEMP_BOTTOM);
-                    $lfConvBottom = $this->unit->convectionCoeff($rowTemp->EP_ALPHA_BOTTOM);
-
-                    $lfTempLeft = $this->unit->temperature($rowTemp->EP_ALPHA_LEFT);
-                    $lfConvLeft = $this->unit->convectionCoeff($rowTemp->EP_ALPHA_LEFT);
-
-                    $lfTempRight = $this->unit->temperature($rowTemp->EP_ALPHA_RIGHT);
-                    $lfConvRight = $this->unit->convectionCoeff($rowTemp->EP_ALPHA_RIGHT);
-               
-                    $lfTempFront = $this->unit->temperature($rowTemp->EP_TEMP_FRONT);
-                    $lfConvFront = $this->unit->convectionCoeff($rowTemp->EP_ALPHA_FRONT);
-
-                    $lfTempRear = $this->unit->temperature($rowTemp->EP_TEMP_REAR);
-                    $lfConvRear = $this->unit->convectionCoeff($rowTemp->EP_ALPHA_REAR);
-
-                    //add item top to array
-                    $point2DSeriesTempCurveTop[] = ["x" => $lfTime, "y" => $lfTempTop];
-                    $point2DSeriesConvCurveTop[] = ["x" => $lfTime, "y" => $lfConvTop];
-
-                    //add item bottom to array
-                    $point2DSeriesTempCurveBottom[] = ["x" => $lfTime, "y" => $lfTempBottom];
-                    $point2DSeriesConvCurveBottom[] = ["x" => $lfTime, "y" => $lfConvBottom];
-
-                    //add item left to array
-                    $point2DSeriesTempCurveLeft[] = ["x" => $lfTime, "y" => $lfTempLeft];
-                    $point2DSeriesConvCurveLeft[] = ["x" => $lfTime, "y" => $lfConvLeft];
-
-                    //add item right to array
-                    $point2DSeriesTempCurveRight[] = ["x" => $lfTime, "y" => $lfTempRight];
-                    $point2DSeriesConvCurveRight[] = ["x" => $lfTime, "y" => $lfConvRight];
-
-                    //add item Front to array
-                    $point2DSeriesTempCurveFront[] = ["x" => $lfTime, "y" => $lfTempFront];
-                    $point2DSeriesConvCurveFront[] = ["x" => $lfTime, "y" => $lfConvFront];
-
-                    //add item rear to array
-                    $point2DSeriesTempCurveRear[] = ["x" => $lfTime, "y" => $lfTempRear];
-                    $point2DSeriesConvCurveRear[] = ["x" => $lfTime, "y" => $lfConvRear];
-
-                    $tempChartData = array("top" => $point2DSeriesTempCurveTop, "bottom" => $point2DSeriesTempCurveBottom, "left" => $point2DSeriesTempCurveLeft, "right" => $point2DSeriesTempCurveRight, "front" => $point2DSeriesTempCurveFront, "rear" => $point2DSeriesTempCurveRear);
-
-                    $convChartData = array("top" => $point2DSeriesConvCurveTop, "bottom" => $point2DSeriesConvCurveBottom, "left" => $point2DSeriesConvCurveLeft, "right" => $point2DSeriesConvCurveRight, "front" => $point2DSeriesConvCurveFront, "rear" => $point2DSeriesConvCurveRear);
-
-
-                    $dataTemProfileChart[$idStudyEquipment]["data"][$rowTemp->ID_STUD_EQUIPPROFILE][] = compact("tempChartData", "convChartData");
-                }
-
-            }*/
             
             $item["tr"] = $tr;
             $item["ts"] = $ts;
@@ -1046,10 +962,10 @@ class Output extends Controller
         if (!empty($selectedEquipment)) {
             foreach ($selectedEquipment as $row) {
                 $itemChart["equipName"] = $row["equipName"];
-                $dhpChart = (int) $row["dhp"];
-                $consoChart = (int) $row["conso"];
-                $dhpMaxChart = (int) $row["dhpMax"];
-                $consoMaxChart = (int) $row["consoMax"];
+                $dhpChart = $row["dhp"];
+                $consoChart = $row["conso"];
+                $dhpMaxChart = $row["dhpMax"];
+                $consoMaxChart = $row["consoMax"];
 
                 if (($dhpChart == null || $dhpChart == "****") || $dhpChart == "") {
                     $itemChart["dhp"] = 0.0;
@@ -1081,5 +997,93 @@ class Output extends Controller
         }
 
         return compact("result", "selectedEquipment", "availableEquipment", "customFlowRate", "dataGrapChart", "dataTemProfileChart");
+    }
+
+    public function temperatureProfile($idStudyEquipment) 
+    {
+        //get study equip profile
+        $tempProfile = StudEquipprofile::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("EP_X_POSITION", "ASC")->get();
+    
+        if (count($tempProfile) > 0) {
+            $lfTime = 0.0;
+            $lfTemp = 0.0;
+            $lfConv = 0.0;
+
+            $point2DSeriesTempCurveTop = array();
+            $point2DSeriesConvCurveTop = array();
+
+            $point2DSeriesTempCurveBottom = array();
+            $point2DSeriesConvCurveBottom = array();
+
+            $point2DSeriesTempCurveLeft = array();
+            $point2DSeriesConvCurveLeft = array();
+
+            $point2DSeriesTempCurveRight = array();
+            $point2DSeriesConvCurveRight = array();
+
+            $point2DSeriesTempCurveFront = array();
+            $point2DSeriesConvCurveFront = array();
+
+            $point2DSeriesTempCurveRear = array();
+            $point2DSeriesConvCurveRear = array();
+
+            $tempChartData = array();
+            $convChartData = array();
+
+
+            foreach ($tempProfile as $rowTemp) {
+                $lfTime = $this->unit->timePosition($rowTemp->EP_X_POSITION);
+
+                $lfTempTop = $this->unit->temperature($rowTemp->EP_TEMP_TOP);
+                $lfConvTop = $this->unit->convectionCoeff($rowTemp->EP_ALPHA_TOP); 
+
+                $lfTempBottom= $this->unit->temperature($rowTemp->EP_TEMP_BOTTOM);
+                $lfConvBottom = $this->unit->convectionCoeff($rowTemp->EP_ALPHA_BOTTOM);
+
+                $lfTempLeft = $this->unit->temperature($rowTemp->EP_ALPHA_LEFT);
+                $lfConvLeft = $this->unit->convectionCoeff($rowTemp->EP_ALPHA_LEFT);
+
+                $lfTempRight = $this->unit->temperature($rowTemp->EP_ALPHA_RIGHT);
+                $lfConvRight = $this->unit->convectionCoeff($rowTemp->EP_ALPHA_RIGHT);
+           
+                $lfTempFront = $this->unit->temperature($rowTemp->EP_TEMP_FRONT);
+                $lfConvFront = $this->unit->convectionCoeff($rowTemp->EP_ALPHA_FRONT);
+
+                $lfTempRear = $this->unit->temperature($rowTemp->EP_TEMP_REAR);
+                $lfConvRear = $this->unit->convectionCoeff($rowTemp->EP_ALPHA_REAR);
+
+                //add item top to array
+                $point2DSeriesTempCurveTop[] = ["x" => $lfTime, "y" => $lfTempTop];
+                $point2DSeriesConvCurveTop[] = ["x" => $lfTime, "y" => $lfConvTop];
+
+                //add item bottom to array
+                $point2DSeriesTempCurveBottom[] = ["x" => $lfTime, "y" => $lfTempBottom];
+                $point2DSeriesConvCurveBottom[] = ["x" => $lfTime, "y" => $lfConvBottom];
+
+                //add item left to array
+                $point2DSeriesTempCurveLeft[] = ["x" => $lfTime, "y" => $lfTempLeft];
+                $point2DSeriesConvCurveLeft[] = ["x" => $lfTime, "y" => $lfConvLeft];
+
+                //add item right to array
+                $point2DSeriesTempCurveRight[] = ["x" => $lfTime, "y" => $lfTempRight];
+                $point2DSeriesConvCurveRight[] = ["x" => $lfTime, "y" => $lfConvRight];
+
+                //add item Front to array
+                $point2DSeriesTempCurveFront[] = ["x" => $lfTime, "y" => $lfTempFront];
+                $point2DSeriesConvCurveFront[] = ["x" => $lfTime, "y" => $lfConvFront];
+
+                //add item rear to array
+                $point2DSeriesTempCurveRear[] = ["x" => $lfTime, "y" => $lfTempRear];
+                $point2DSeriesConvCurveRear[] = ["x" => $lfTime, "y" => $lfConvRear];
+
+                $tempChartData = array("top" => $point2DSeriesTempCurveTop, "bottom" => $point2DSeriesTempCurveBottom, "left" => $point2DSeriesTempCurveLeft, "right" => $point2DSeriesTempCurveRight, "front" => $point2DSeriesTempCurveFront, "rear" => $point2DSeriesTempCurveRear);
+
+                $convChartData = array("top" => $point2DSeriesConvCurveTop, "bottom" => $point2DSeriesConvCurveBottom, "left" => $point2DSeriesConvCurveLeft, "right" => $point2DSeriesConvCurveRight, "front" => $point2DSeriesConvCurveFront, "rear" => $point2DSeriesConvCurveRear);
+                
+            }
+
+            return compact("tempChartData", "convChartData");
+
+        }
     }
 }

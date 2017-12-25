@@ -397,6 +397,15 @@ $router->GET('/api/v1/common/consumption/{idStudy}', 'Api1\\Output@getAnalytical
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/output/sizingresult/{idStudy}/optimum', 'Api1\\Output@sizingOptimumResult');
+
+/**
+ * GET temperatureProfile
+ * Summary: 
+ * Notes: 
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/output/temperatureProfile/{idStudyEquipment}', 'Api1\\Output@temperatureProfile');
+
 /**
  * GETAnalyticalEconomicResult
  * Summary: 
