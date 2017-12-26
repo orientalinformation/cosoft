@@ -772,9 +772,8 @@ class Output extends Controller
             $equipStatus = $row->EQUIP_STATUS;
             $brainType = $row->BRAIN_TYPE;
             $idCoolingFamily = $row->ID_COOLING_FAMILY;
-            $calculWarning = "";
             $item["id"] = $idStudyEquipment = $row->ID_STUDY_EQUIPMENTS;
-            $item["equipName"] = $equipName = $this->equip->getResultsEquipName($idStudyEquipment);
+            $item["equipName"] = $equipName = $this->equip->getSpecificEquipName($idStudyEquipment);
 
             $tr = $ts = $vc = $dhp = $conso = $toc = $trMax = $tsMax = $vcMax = $dhpMax = $consoMax = $tocMax = "";
 
@@ -884,11 +883,10 @@ class Output extends Controller
             $equipStatus = $row->EQUIP_STATUS;
             $brainType = $row->BRAIN_TYPE;
             $idCoolingFamily = $row->ID_COOLING_FAMILY;
-            $calculWarning = "";
             $itemGrap["id"] = $idStudyEquipment = $row->ID_STUDY_EQUIPMENTS;
             $itemGrap["equipName"] = $equipName = $this->equip->getResultsEquipName($idStudyEquipment);
 
-            $$dhp = $conso = $dhpMax = $consoMax = "";
+            $dhp = $conso = $dhpMax = $consoMax = "";
 
             if (($this->equip->getCapability($capabilitie , 128) && ($brainType != 0) && ($equipStatus == 1))) {
                 $dimaResult = DimaResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("DIMA_TYPE", 1)->first();
@@ -898,23 +896,15 @@ class Output extends Controller
                             if ($lfcoef != 0.0) {
                                 $conso = $this->unit->consumption($dimaResult->CONSUM / $lfcoef, $idCoolingFamily, 1);
                             } else {
-                                $conso = "****";
+                                $conso = $this->unit->consumption(0.0, $idCoolingFamily, 1);
                             }
-                        } else {
-                            $conso = "****";
-                        }
-                    } else {
-                        $conso = "****";
+                        } 
                     }
 
                     if ($this->equip->getCapability($capabilitie , 32)) {
                         $dhp = $this->unit->productFlow($dimaResult->HOURLYOUTPUTMAX);
-                    } else {
-                        $dhp = "****";
                     }
-                } else {
-                    $dhp = $conso = "";
-                }
+                } 
 
                 $dimaResultMax = DimaResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("DIMA_TYPE", 16)->first();
                 if ($dimaResultMax != null) {
@@ -923,22 +913,18 @@ class Output extends Controller
                             if ($lfcoef != 0.0) {
                                 $consoMax = $this->unit->consumption($dimaResultMax->CONSUM / $lfcoef, $idCoolingFamily, 1);
                             } else {
-                                $consoMax = "****";
+                                $consoMax = $this->unit->consumption(0.0, $idCoolingFamily, 1);;
                             }
-                        } else {
-                            $consoMax = "****";
-                        }
-                    } else {
-                        $consoMax = "****";
+                        } 
                     }
 
                     if ($this->equip->getCapability($capabilitie , 32)) {
                         $dhpMax = $this->unit->productFlow($dimaResultMax->HOURLYOUTPUTMAX);
                     } else {
-                        $dhpMax = "****";
+                        $dhpMax = $this->unit->consumption(0.0, $idCoolingFamily, 1);;
                     }
                 } else {
-                    $dhpMax = $consoMax = "";
+                    $dhpMax = $consoMax = $this->unit->consumption(0.0, $idCoolingFamily, 1);
                 }
 
                 if ($dimaResult != null || $dimaResultMax != null) {
@@ -955,9 +941,7 @@ class Output extends Controller
                 }
 
                 $i++;
-            } 
-
-            
+            }
         }
 
         if (!empty($selectedEquipment)) {
@@ -998,6 +982,180 @@ class Output extends Controller
         }
 
         return compact("result", "selectedEquipment", "availableEquipment", "customFlowRate", "dataGrapChart", "dataTemProfileChart");
+    }
+
+    public function sizingEstimationResult() 
+    {
+        $idStudy = $this->request->input('idStudy');
+        $trSelect = ($this->request->input('tr') != "") ? $this->request->input('tr') : 1;
+
+        $production = Production::where("ID_STUDY", $idStudy)->first();
+
+        $studyEquipments = StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
+        $lfcoef = $this->unit->unitConvert($this->value->MASS_PER_UNIT, 1.0);
+        $result = array();
+        $dataGrapChart = array();
+
+        //get result
+        foreach ($studyEquipments as $row) {
+            $capabilitie = $row->CAPABILITIES;
+            $equipStatus = $row->EQUIP_STATUS;
+            $brainType = $row->BRAIN_TYPE;
+            $idCoolingFamily = $row->ID_COOLING_FAMILY;
+            $item["id"] = $idStudyEquipment = $row->ID_STUDY_EQUIPMENTS;
+            $item["equipName"] = $equipName = $this->equip->getSpecificEquipName($idStudyEquipment);
+
+            $dimaResults = DimaResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("SETPOINT", "DESC")->get();
+
+            $viewEquip = false;
+            $optionTr = "";
+            $addEquipment = false;
+            $tr = $dhp = $conso = $toc = $dhpMax = $consoMax = $tocMax = "";
+
+            if ($row->NB_TR > 1 && count($dimaResults) > 0) { 
+                $dimaR = $dimaResults[$trSelect];
+                if (( (!($this->equip->getCapability($capabilitie, 16))) || (!($this->equip->getCapability($capabilitie, 1))) ) && ($trSelect == 0 || $trSelect == 2)) {
+                    $tr = "---";
+                    $viewEquip = false;
+                    $optionTr = "disabled";
+                    $dhp = $conso = $toc = $dhpMax = $consoMax = $tocMax = "---";
+                } else {
+                    if ($this->equip->isValidTemperature($idStudyEquipment, $trSelect) && $dimaR != null) {
+                        $tr = $this->unit->controlTemperature($dimaR->SETPOINT);
+                        $viewEquip = true;
+
+                        if ($this->equip->getCapability($capabilitie, 256)) {
+                            if ($lfcoef != 0.0) {
+                                if ($this->dima->isConsoToDisplay($dimaR->DIMA_STATUS) == 0) {
+                                    $conso = "****";
+                                } else {
+                                    $consumption = $dimaR->CONSUM / $lfcoef;
+                                    $conso = $this->unit->consumption($consumption, $idCoolingFamily, 1);
+                                }
+                                $consumptionMax = $dimaR->CONSUMMAX / $lfcoef;
+                                $consomax = $this->unit->consumption($consumptionMax, $idCoolingFamily, 1);
+                            } else {
+                                $conso = $consomax = "****";
+                            }
+                        } else {
+                            $conso = $consomax = "---";
+                        }
+
+                        if ($this->equip->getCapability($capabilitie, 8192)) {
+                            $batch = $row->BATCH_PROCESS;
+                            $calculationStatus = $this->dima->getCalculationStatus($dimaR->DIMA_STATUS);
+
+                            if ($calculationStatus != 1) {
+                                $toc = $dhp = "****";
+                            } else {
+                                if ($batch) {
+                                    $massConvert = $this->unit->mass($dimaResult->USERATE);
+                                    $massSymbol = $this->unit->massSymbol();
+                                    $toc = $massConvert . $massSymbol . "/batch";
+                                } else {
+                                    $toc = $this->unit->toc($dimaResult->USERATE) . "%";
+                                }
+                                $dhp = $this->unit->productFlow($production->PROD_FLOW_RATE);
+                            }
+
+                            if ($batch) {
+                                $tocMax = $this->unit->mass($dimaR->USERATEMAX) . $this->unit->massSymbol() . "/batch";
+                            } else {
+                                $tocMax = $this->unit->toc($dimaR->USERATEMAX) . "%";
+                            }
+
+                            $dhpMax = $this->unit->productFlow($dimaR->HOURLYOUTPUTMAX);
+                            
+                        } else {
+                            $toc = $tocMax = "---";
+                            $dhp = $dhpMax = "---";
+                        }
+                    } else {
+                        $viewEquip = false;
+                        $optionTr = "disabled";
+                        $dhp = $conso = $toc = "****";
+                        $dhpMax  = $consoMax = $tocMax = "****";
+                    }
+                }
+            } else {
+                $viewEquip = false; 
+                $optionTr = "disabled";
+                $tr = $dhp = $conso = $toc = $dhpMax = $consoMax = $tocMax = "---";
+            }
+
+            if ($this->equip->getCapability($capabilitie , 1024)) {
+                $addEquipment = true;
+            } else {
+                $addEquipment = false;
+            }
+
+            $item["viewEquip"] = $viewEquip;
+            $item["optionTr"] = $optionTr;
+            $item["addEquipment"] = $addEquipment;
+            $item["tr"] = $tr;
+            $item["dhp"] = $dhp;
+            $item["conso"] = $conso;
+            $item["toc"] = $toc;
+            $item["dhpMax"] = $dhpMax;
+            $item["consoMax"] = $consoMax;
+            $item["tocMax"] = $tocMax;
+
+            $result[] = $item;
+        }
+
+        foreach ($studyEquipments as $row) {
+            $capabilitie = $row->CAPABILITIES;
+            $equipStatus = $row->EQUIP_STATUS;
+            $brainType = $row->BRAIN_TYPE;
+            $idCoolingFamily = $row->ID_COOLING_FAMILY;
+            $itemGrap["id"] = $idStudyEquipment = $row->ID_STUDY_EQUIPMENTS;
+            $itemGrap["equipName"] = $equipName = $this->equip->getSpecificEquipName($idStudyEquipment);
+
+            $dimaResults = DimaResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("SETPOINT", "DESC")->get();
+            $dhp = $conso = $dhpMax = $consoMax = "";
+
+            foreach ($dimaResults as $key => $dimaR) {
+                $dhp = $this->unit->productFlow($production->PROD_FLOW_RATE);
+                if ($key == 0 || $key == 2) {
+                    if ($this->equip->isValidTemperature($idStudyEquipment, $trSelect)) {
+                        $dhp = $this->unit->productFlow($production->PROD_FLOW_RATE);
+                    } else {
+                        $dhp = 0;
+                    }
+                }
+
+                $dhpMax = $this->unit->productFlow($dimaR->HOURLYOUTPUTMAX);
+
+                if ($this->equip->getCapability($capabilitie, 256)) {
+                    if ($lfcoef != 0.0) {
+                        if ($this->dima->isConsoToDisplay($dimaR->DIMA_STATUS) == 0) {
+                            $conso = $this->unit->consumption(0.0, $idCoolingFamily, 1);
+                        } else {
+                            $consumption = $dimaR->CONSUM / $lfcoef;
+                            $conso = $this->unit->consumption($consumption, $idCoolingFamily, 1);
+                        }
+                        $consumptionMax = $dimaR->CONSUMMAX / $lfcoef;
+                        $consoMax = $this->unit->consumption($consumptionMax, $idCoolingFamily, 1);
+                    } else {
+                        $conso = $this->unit->consumption(0.0, $idCoolingFamily, 1);
+                        $consoMax = $this->unit->consumption(0.0, $idCoolingFamily, 1);
+                    }
+                } else {
+                    $conso = $this->unit->consumption(0.0, $idCoolingFamily, 1);
+                    $consoMax = $this->unit->consumption(0.0, $idCoolingFamily, 1);
+                }
+
+                $itemGrap["data"][$key]["dhp"] = $dhp;
+                $itemGrap["data"][$key]["conso"] = $conso;
+                $itemGrap["data"][$key]["dhpMax"] = $dhpMax;
+                $itemGrap["data"][$key]["consoMax"] = $dhp;
+            } 
+
+
+            $dataGrapChart[] =  $itemGrap;
+        }
+
+        return compact("result", "dataGrapChart");
     }
 
     public function temperatureProfile($idStudyEquipment) 
