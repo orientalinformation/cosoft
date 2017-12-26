@@ -17,7 +17,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Contracts\Auth\Factory as Auth;
 use Illuminate\Http\Request;
 
-class Calculator extends Controller {
+class Calculator extends Controller 
+{
 	/**
 	 * @var Illuminate\Http\Request
 	 */
@@ -181,5 +182,23 @@ class Calculator extends Controller {
 		];
 
 		return $array;
+	}
+
+	public function startCalculate()
+	{
+		$input = $this->request->all();
+
+		$idStudy = null;
+		$idStudyEquipment = null;
+
+		if (isset($input['idStudy'])) {
+			$idStudy = $input['idStudy'];
+		}
+
+		if (isset($input['idStudyEquipment'])) {
+			$idStudyEquipment = $input['idStudyEquipment'];
+		}
+
+		$calMode = $this->cal->getCalculationMode($idStudy);
 	}
 }

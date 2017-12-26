@@ -14,6 +14,7 @@ namespace App\Cryosoft;
 use App\Models\CalculationParameter;
 use App\Cryosoft\ValueListService;
 use App\Cryosoft\UnitsConverterService;
+use App\Models\MinMax;
 
 
 class BrainCalculateService
