@@ -1006,6 +1006,12 @@ class Output extends Controller
         $tempProfile = StudEquipprofile::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("EP_X_POSITION", "ASC")->get();
     
         if (count($tempProfile) > 0) {
+            $lfminTemp = INF;
+            $lfmaxTemp = -INF;
+
+            $lfminConv = INF;
+            $lfmaxConv = -INF;
+
             $lfTime = 0.0;
             $lfTemp = 0.0;
             $lfConv = 0.0;
@@ -1038,20 +1044,86 @@ class Output extends Controller
                 $lfTempTop = $this->unit->temperature($rowTemp->EP_TEMP_TOP);
                 $lfConvTop = $this->unit->convectionCoeff($rowTemp->EP_ALPHA_TOP); 
 
+                if ($lfTempTop > $lfmaxTemp) {
+                    $lfmaxTemp = $lfTempTop;
+                } else if ($lfTempTop < $lfminTemp) {
+                    $lfminTemp = $lfTempTop;
+                }
+                if ($lfConvTop > $lfmaxConv) {
+                    $lfmaxConv = $lfConvTop;
+                } else if ($lfConvTop < $lfminConv) {
+                    $lfminConv = $lfConvTop;
+                }
+
                 $lfTempBottom= $this->unit->temperature($rowTemp->EP_TEMP_BOTTOM);
                 $lfConvBottom = $this->unit->convectionCoeff($rowTemp->EP_ALPHA_BOTTOM);
+
+                if ($lfTempBottom > $lfmaxTemp) {
+                    $lfmaxTemp = $lfTempBottom;
+                } else if ($lfTempBottom < $lfminTemp) {
+                    $lfminTemp = $lfTempBottom;
+                }
+                if ($lfConvBottom > $lfmaxConv) {
+                    $lfmaxConv = $lfConvBottom;
+                } else if ($lfminConv < $lfConvBottom) {
+                    $lfminConv = $lfConvBottom;
+                }
 
                 $lfTempLeft = $this->unit->temperature($rowTemp->EP_ALPHA_LEFT);
                 $lfConvLeft = $this->unit->convectionCoeff($rowTemp->EP_ALPHA_LEFT);
 
+                if ($lfTempLeft > $lfmaxTemp) {
+                    $lfmaxTemp = $lfTempLeft;
+                } else if ($lfTempLeft < $lfminTemp) {
+                    $lfminTemp = $lfTempLeft;
+                }
+                if ($lfConvLeft > $lfmaxConv) {
+                    $lfmaxConv = $lfConvLeft;
+                } else if ($lfConvLeft < $lfminConv) {
+                    $lfminConv = $lfConvLeft;
+                }
+
                 $lfTempRight = $this->unit->temperature($rowTemp->EP_ALPHA_RIGHT);
                 $lfConvRight = $this->unit->convectionCoeff($rowTemp->EP_ALPHA_RIGHT);
+
+                if ($lfTempRight > $lfmaxTemp) {
+                    $lfmaxTemp = $lfTempRight;
+                } else if ($lfTempRight < $lfminTemp) {
+                    $lfminTemp = $lfTempRight;
+                }
+                if ($lfConvRight > $lfmaxConv) {
+                    $lfmaxConv = $lfConvRight;
+                } else if ($lfConvRight < $lfminConv) {
+                    $lfminConv = $lfConvRight;
+                }
            
                 $lfTempFront = $this->unit->temperature($rowTemp->EP_TEMP_FRONT);
                 $lfConvFront = $this->unit->convectionCoeff($rowTemp->EP_ALPHA_FRONT);
 
+                if ($lfTempFront > $lfmaxTemp) {
+                    $lfmaxTemp = $lfTempFront;
+                } else if ($lfTempFront < $lfminTemp) {
+                    $lfminTemp = $lfTempFront;
+                }
+                if ($lfConvFront > $lfmaxConv) {
+                    $lfmaxConv = $lfConvFront;
+                } else if ($lfConvFront < $lfminConv) {
+                    $lfminConv = $lfConvFront;
+                }
+
                 $lfTempRear = $this->unit->temperature($rowTemp->EP_TEMP_REAR);
                 $lfConvRear = $this->unit->convectionCoeff($rowTemp->EP_ALPHA_REAR);
+
+                if ($lfTempRear > $lfmaxTemp) {
+                    $lfmaxTemp = $lfTempRear;
+                } else if ($lfTempRear < $lfminTemp) {
+                    $lfminTemp = $lfTempRear;
+                }
+                if ($lfConvRear > $lfmaxConv) {
+                    $lfmaxConv = $lfConvRear;
+                } else if ($lfConvRear < $lfminConv) {
+                    $lfminConv = $lfConvRear;
+                }
 
                 //add item top to array
                 $point2DSeriesTempCurveTop[] = ["x" => $lfTime, "y" => $lfTempTop];
@@ -1077,11 +1149,32 @@ class Output extends Controller
                 $point2DSeriesTempCurveRear[] = ["x" => $lfTime, "y" => $lfTempRear];
                 $point2DSeriesConvCurveRear[] = ["x" => $lfTime, "y" => $lfConvRear];
             }
+
+            $minScaleTemp = ($lfminTemp < 0.0) ? -ceil(-$lfminTemp) : floor($lfminTemp) - 1;
+            $maxScaleTemp = ($lfmaxTemp < 0.0) ? -floor(-$lfmaxTemp) : ceil($lfmaxTemp) + 1;
+            if ($lfmaxTemp == $lfminTemp) {
+                if ($lfminTemp < 0.0) {
+                    $maxScaleTemp = 0;
+                } else if ($lfminTemp > 0.0) {
+                    $minScaleTemp = 0;
+                }
+            }
+
+            $minScaleConv = ($lfminConv < 0.0) ? -ceil(-$lfminConv) : floor($lfminConv) - 1;
+            $maxScaleConv = ($lfmaxConv < 0.0) ? -floor(-$lfmaxConv) : ceil($lfmaxConv) + 1;
+            if ($lfmaxConv == $lfminConv) {
+                if ($lfminConv < 0.0) {
+                    $maxScaleConv = 0;
+                } else if ($lfminConv > 0.0) {
+                    $minScaleConv = 0;
+                }
+            }
+
             $tempChartData = array("top" => $point2DSeriesTempCurveTop, "bottom" => $point2DSeriesTempCurveBottom, "left" => $point2DSeriesTempCurveLeft, "right" => $point2DSeriesTempCurveRight, "front" => $point2DSeriesTempCurveFront, "rear" => $point2DSeriesTempCurveRear);
 
             $convChartData = array("top" => $point2DSeriesConvCurveTop, "bottom" => $point2DSeriesConvCurveBottom, "left" => $point2DSeriesConvCurveLeft, "right" => $point2DSeriesConvCurveRight, "front" => $point2DSeriesConvCurveFront, "rear" => $point2DSeriesConvCurveRear);
 
-            return compact("tempChartData", "convChartData");
+            return compact("minScaleTemp", "maxScaleTemp", "minScaleConv", "maxScaleConv", "tempChartData", "convChartData");
 
         }
     }
