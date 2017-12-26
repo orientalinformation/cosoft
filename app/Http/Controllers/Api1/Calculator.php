@@ -13,9 +13,13 @@ namespace App\Http\Controllers\Api1;
 
 use App\Cryosoft\CalculateService;
 use App\Cryosoft\ValueListService;
+use App\Cryosoft\EquipmentsService;
 use App\Http\Controllers\Controller;
 use Illuminate\Contracts\Auth\Factory as Auth;
 use Illuminate\Http\Request;
+use App\Models\StudyEquipment;
+use App\Kernel\KernelService;
+
 
 class Calculator extends Controller 
 {
@@ -40,16 +44,28 @@ class Calculator extends Controller
 	protected $value;
 
 	/**
+     * @var App\Kernel\KernelService
+     */
+    protected $kernel;
+
+   	/**
+     * @var App\Cryosoft\EquipmentsService
+     */
+    protected $equipment;
+
+	/**
 	 * Create a new controller instance.
 	 *
 	 * @return void
 	 */
-	public function __construct(Request $request, Auth $auth, CalculateService $cal, ValueListService $value) 
+	public function __construct(Request $request, Auth $auth, CalculateService $cal, ValueListService $value, KernelService $kernel, EquipmentsService $equipment) 
 	{
 		$this->request = $request;
 		$this->auth = $auth;
 		$this->cal = $cal;
 		$this->value = $value;
+		$this->kernel = $kernel;
+		$this->equipment = $equipment;
 	}
 
 	public function getOptimumCalculator() 
@@ -200,5 +216,45 @@ class Calculator extends Controller
 		}
 
 		$calMode = $this->cal->getCalculationMode($idStudy);
+	}
+
+	public function startStudyCalculation($idStudy)
+	{
+		$conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, -1);
+		$this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 50);
+
+		$studyEquipments = StudyEquipment::where('ID_STUDY', $idStudy)->get();
+
+		
+
+		$results = [];
+		
+		if (count($studyEquipments) > 0) {
+			for ($i = 0; $i < count($studyEquipments); $i++) { 
+				$idStudyEquipment = $studyEquipments[$i]->ID_STUDY_EQUIPMENTS;
+				$capability = $studyEquipments[$i]->CAPABILITIES;
+
+				$conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
+				$this->kernel->getKernelObject('DimMatCalculator')->DMCCalculation($conf, 1);
+
+				if ($this->equipment->getCapability($capability, 16)) {
+					array_push($results, $this->startConsumptionEconomic($idStudy, $idStudyEquipment));
+				}
+			}
+		}
+		return $results;
+	}
+
+	// public function startDimMat($idStudy, $IdEquipment)
+	// {
+	// 	$error = 0;
+	// 	$conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $IdEquipment);
+	// 	$this->kernel->getKernelObject('DimMatCalculator')->DMCCalculation($conf, 10);
+	// }
+
+	public function startConsumptionEconomic($idStudy, $idStudyEquipment)
+	{
+		$conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
+		return $this->kernel->getKernelObject('ConsumptionCalculator')->COCConsumptionCalculation($conf);
 	}
 }

@@ -453,3 +453,11 @@ $router->POST('/api/v1/studies/{id}/packingLayers', 'Api1\\Studies@savePacking')
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/startcalculate', 'Api1\\Calculator@startCalculate');
+
+/**
+ * GET start Estimation
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/studies/{id}/calculate', 'Api1\\Calculator@startStudyCalculation');
