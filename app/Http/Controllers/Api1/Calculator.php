@@ -225,8 +225,6 @@ class Calculator extends Controller
 
 		$studyEquipments = StudyEquipment::where('ID_STUDY', $idStudy)->get();
 
-		
-
 		$results = [];
 		
 		if (count($studyEquipments) > 0) {
@@ -244,13 +242,6 @@ class Calculator extends Controller
 		}
 		return $results;
 	}
-
-	// public function startDimMat($idStudy, $IdEquipment)
-	// {
-	// 	$error = 0;
-	// 	$conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $IdEquipment);
-	// 	$this->kernel->getKernelObject('DimMatCalculator')->DMCCalculation($conf, 10);
-	// }
 
 	public function startConsumptionEconomic($idStudy, $idStudyEquipment)
 	{
