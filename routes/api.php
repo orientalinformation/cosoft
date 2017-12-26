@@ -461,3 +461,8 @@ $router->POST('/api/v1/startcalculate', 'Api1\\Calculator@startCalculate');
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/studies/{id}/calculate', 'Api1\\Calculator@startStudyCalculation');
+
+
+include_once("api_ngonc.php");
+include_once("api_dongtp.php");
+include_once("api_thaolt.php");
