@@ -185,7 +185,7 @@ class Output extends Controller
                         if ($batch) {
                             $massConvert = $this->unit->mass($dimaResult->USERATE);
                             $massSymbol = $this->unit->massSymbol();
-                            $toc = $massConvert . $massSymbol . "/batch";
+                            $toc = $massConvert . " " . $massSymbol . "/batch";
                         } else {
                             $toc = $this->unit->toc($dimaResult->USERATE) . "%";
                         }
@@ -285,7 +285,7 @@ class Output extends Controller
                         if ($batch) {
                             $massConvert = $this->unit->mass($dimaResult->USERATE);
                             $massSymbol = $this->unit->massSymbol();
-                            $toc = $massConvert . $massSymbol . "/batch";
+                            $toc = $massConvert . " " . $massSymbol . "/batch";
                         } else {
                             $toc = $this->unit->toc($dimaResult->USERATE) . "%";
                         }
@@ -410,13 +410,13 @@ class Output extends Controller
                                 $toc = "****";
                             }
                             if ($batch) {
-                                $toc = $this->unit->mass($dimaR->USERATE) . $this->unit->massSymbol() . "/batch";
+                                $toc = $this->unit->mass($dimaR->USERATE) . " " . $this->unit->massSymbol() . "/batch";
                             } else {
                                 $toc = $this->unit->toc($dimaR->USERATE) . "%";
                             }
 
                             if ($batch) {
-                                $tocMax = $this->unit->mass($dimaR->USERATEMAX) . $this->unit->massSymbol() . "/batch";
+                                $tocMax = $this->unit->mass($dimaR->USERATEMAX) . " " . $this->unit->massSymbol() . "/batch";
                             } else {
                                 $tocMax = $this->unit->toc($dimaR->USERATEMAX) . "%";
                             }
