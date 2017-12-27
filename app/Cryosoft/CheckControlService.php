@@ -187,11 +187,11 @@ class CheckControlService
 		        return false;
 		    }
 
-	    	$packing = Packing::where('ID_STUDY', $idStudy)->first();
+	    	//$packing = Packing::where('ID_STUDY', $idStudy)->first();
 
-			if ($packing == null) {
-				return false;
-			}
+			// if ($packing == null) {
+			// 	return false;
+			// }
 
 			return true;
 
