@@ -994,7 +994,7 @@ class Output extends Controller
         $studyEquipments = StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
         $lfcoef = $this->unit->unitConvert($this->value->MASS_PER_UNIT, 1.0);
         $result = array();
-        $dataGrapChart = array();
+        $dataGraphChart = array();
 
         //get result
         foreach ($studyEquipments as $row) {
@@ -1012,7 +1012,7 @@ class Output extends Controller
             $addEquipment = false;
             $tr = $dhp = $conso = $toc = $dhpMax = $consoMax = $tocMax = "";
 
-            if ($row->NB_TR > 1 && count($dimaResults) > 0) { 
+            if ($row->NB_TR <= 1 && count($dimaResults) > 0) { 
                 $dimaR = $dimaResults[$trSelect];
                 if (( (!($this->equip->getCapability($capabilitie, 16))) || (!($this->equip->getCapability($capabilitie, 1))) ) && ($trSelect == 0 || $trSelect == 2)) {
                     $tr = "---";
@@ -1033,12 +1033,12 @@ class Output extends Controller
                                     $conso = $this->unit->consumption($consumption, $idCoolingFamily, 1);
                                 }
                                 $consumptionMax = $dimaR->CONSUMMAX / $lfcoef;
-                                $consomax = $this->unit->consumption($consumptionMax, $idCoolingFamily, 1);
+                                $consoMax = $this->unit->consumption($consumptionMax, $idCoolingFamily, 1);
                             } else {
-                                $conso = $consomax = "****";
+                                $conso = $consoMax = "****";
                             }
                         } else {
-                            $conso = $consomax = "---";
+                            $conso = $consoMax = "---";
                         }
 
                         if ($this->equip->getCapability($capabilitie, 8192)) {
@@ -1049,11 +1049,11 @@ class Output extends Controller
                                 $toc = $dhp = "****";
                             } else {
                                 if ($batch) {
-                                    $massConvert = $this->unit->mass($dimaResult->USERATE);
+                                    $massConvert = $this->unit->mass($dimaR->USERATE);
                                     $massSymbol = $this->unit->massSymbol();
                                     $toc = $massConvert . $massSymbol . "/batch";
                                 } else {
-                                    $toc = $this->unit->toc($dimaResult->USERATE) . "%";
+                                    $toc = $this->unit->toc($dimaR->USERATE) . "%";
                                 }
                                 $dhp = $this->unit->productFlow($production->PROD_FLOW_RATE);
                             }
@@ -1148,14 +1148,14 @@ class Output extends Controller
                 $itemGrap["data"][$key]["dhp"] = $dhp;
                 $itemGrap["data"][$key]["conso"] = $conso;
                 $itemGrap["data"][$key]["dhpMax"] = $dhpMax;
-                $itemGrap["data"][$key]["consoMax"] = $dhp;
+                $itemGrap["data"][$key]["consoMax"] = $consoMax;
             } 
 
 
-            $dataGrapChart[] =  $itemGrap;
+            $dataGraphChart[] =  $itemGrap;
         }
 
-        return compact("result", "dataGrapChart");
+        return compact("result", "dataGraphChart");
     }
 
     public function temperatureProfile($idStudyEquipment) 
