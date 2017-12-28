@@ -757,14 +757,11 @@ class Output extends Controller
         $studyEquipments = StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
         $production = Production::where("ID_STUDY", $idStudy)->first();
 
-        $customFlowRate = $this->unit->productFlow($production->PROD_FLOW_RATE);
-
         $lfcoef = $this->unit->unitConvert($this->value->MASS_PER_UNIT, 1.0);
         $result = array();
         $selectedEquipment =  array();
         $availableEquipment = array(); 
         $dataGrapChart = array();
-        $dataTemProfileChart = array();
 
         //get result
         foreach ($studyEquipments as $row) {
@@ -981,7 +978,7 @@ class Output extends Controller
             }
         }
 
-        return compact("result", "selectedEquipment", "availableEquipment", "customFlowRate", "dataGrapChart", "dataTemProfileChart");
+        return compact("result", "selectedEquipment", "availableEquipment", "dataGrapChart");
     }
 
     public function sizingEstimationResult() 
