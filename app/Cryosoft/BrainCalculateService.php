@@ -46,7 +46,7 @@ class BrainCalculateService
         $etat = "";
         $calcParameter = $this->getCalcParams($idStudyEquipments);
         if (!empty($calcParameter)) {
-            if ($calcParameter->isHorizScan()) {
+            if ($calcParameter->HORIZ_SCAN) {
                 $etat = "checked";
             }   
         }
@@ -59,7 +59,7 @@ class BrainCalculateService
         $etat = "";
         $calcParameter = $this->getCalcParams($idStudyEquipments);
         if (!empty($calcParameter)) {
-            if (!$calcParameter->isHorizScan()) {
+            if (!$calcParameter->HORIZ_SCAN) {
                 $etat = "checked";
             }
         }
@@ -71,7 +71,7 @@ class BrainCalculateService
         $etat = "";
         $calcParameter = $this->getCalcParams($idStudyEquipments);
         if (!empty($calcParameter)) {
-            if ($calcParameter->isVertScan()) {
+            if ($calcParameter->VERT_SCAN) {
                 $etat = "checked";
             }
         }
@@ -83,7 +83,7 @@ class BrainCalculateService
         $calcParameter = $this->getCalcParams($idStudyEquipments);
         $maxItNb = 0;
         if (!empty($calcParameter)) {
-            $maxItNb = $calcParameter->getMaxItNb();
+            $maxItNb = $calcParameter->MAX_IT_NB;
         }
         return $maxItNb;
     }
@@ -93,7 +93,7 @@ class BrainCalculateService
         $calcParameter = $this->getCalcParams($idStudyEquipments);
         $relaxCoeff = 0;
         if (!empty($calcParameter)) {
-            $relaxCoeff =  $calcParameter->getRelaxCoeff();
+            $relaxCoeff =  $calcParameter->RELAX_COEFF;
         }
 
         return $relaxCoeff;
@@ -105,7 +105,7 @@ class BrainCalculateService
         $precision = 0;
 
         if (!empty($calcParameter)) {
-            $precision = $calcParameter->getPrecisionRequest();
+            $precision = $calcParameter->PRECISION_REQUEST;
         }
 
         return $this->convert->unitConvert($this->value->TIME, $precision, 3);
@@ -117,7 +117,7 @@ class BrainCalculateService
         $topSurf = 0;
 
         if (!empty($calcParameter)) {
-            $topSurf = $calcParameter->getStopTopSurf();
+            $topSurf = $calcParameter->STOP_TOP_SURF;
         }
 
         return $this->convert->unitConvert($this->value->TEMPERATURE, $topSurf, 2);
@@ -129,7 +129,7 @@ class BrainCalculateService
         $topInt = 0;
 
         if (!empty($calcParameter)) {
-            $topInt = $calcParameter->getStopInt();
+            $topInt = $calcParameter->STOP_INT;
         }
 
         return $this->convert->unitConvert($this->value->TEMPERATURE, $topInt, 2);
@@ -141,7 +141,7 @@ class BrainCalculateService
         $bottomSurf = 0;
 
         if (!empty($calcParameter)) {
-            $bottomSurf = $calcParameter->getStopBottomSurf();
+            $bottomSurf = $calcParameter->STOP_BOTTOM_SURF;
         }
 
         return $this->convert->unitConvert($this->value->TEMPERATURE, $bottomSurf, 2);
@@ -153,7 +153,7 @@ class BrainCalculateService
         $topAvg = 0;
 
         if (!empty($calcParameter)) {
-            $topAvg = $calcParameter->getStopAvg();
+            $topAvg = $calcParameter->STOP_AVG;
         }
 
         return $this->convert->unitConvert($this->value->TEMPERATURE, $topAvg, 2);
@@ -165,7 +165,7 @@ class BrainCalculateService
         $logStep = 0;
 
         if (!empty($calcParameter)) {
-            $logStep = $calcParameter->getPrecisionLogStep();
+            $logStep = $calcParameter->PRECISION_LOG_STEP;
         }
 
         return $logStep;
@@ -177,7 +177,7 @@ class BrainCalculateService
         $lfStep = 0.0;
 
         if (!empty($calcParameter)) {
-            $lfStep = $calcParameter->getStorageStep() * $calcParameter->getTimeStep();
+            $lfStep = $calcParameter->STORAGE_STEP * $calcParameter->TIME_STEP;
         }
 
         return $this->convert->unitConvert($this->value->TIME, $lfStep, 1);
@@ -189,7 +189,7 @@ class BrainCalculateService
         $lfStep = 0.0;
 
         if (!empty($calcParameter)) {
-            $lfStep = $calcParameter->getTimeStep();
+            $lfStep = $calcParameter->TIME_STEP;
         }
 
         return $this->convert->unitConvert($this->value->TIME, $lfStep, 1);
