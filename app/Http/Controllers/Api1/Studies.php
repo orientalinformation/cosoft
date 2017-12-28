@@ -83,6 +83,7 @@ class Studies extends Controller
         // @class: \App\Models\Study
         $study = Study::find($id);
         $update = (object) $this->request->json()->all();
+
         $study->CALCULATION_MODE = $update->CALCULATION_MODE;
         $study->CALCULATION_STATUS = $update->CALCULATION_STATUS;
         $study->STUDY_NAME = $update->STUDY_NAME;
@@ -97,6 +98,7 @@ class Studies extends Controller
         $study->TO_RECALCULATE = $update->TO_RECALCULATE;
         $study->HAS_CHILD = $update->HAS_CHILD;
         $study->OPEN_BY_OWNER = $update->OPEN_BY_OWNER;
+
         return (int) $study->save();
     }
 
