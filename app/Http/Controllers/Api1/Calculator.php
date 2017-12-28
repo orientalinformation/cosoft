@@ -413,6 +413,10 @@ class Calculator extends Controller
 	public function startNumericalCalculation($idStudy)
 	{
 		$studyEquipments = StudyEquipment::where('ID_STUDY', $idStudy)->get();
+
+		// $confCleaner = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, -1);
+		// $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($confCleaner, 50);
+
 		$results = [];
 
 		if (count($studyEquipments) > 0) {
@@ -421,9 +425,6 @@ class Calculator extends Controller
 				$capability = $studyEquipments[$i]->CAPABILITIES;
 
 				if ($this->equipment->getCapability($capability, 128)) {
-					$confCleaner = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, -1);
-					$this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($confCleaner, 50);
-
 					$conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
 					$param = new \Cryosoft\stSKBRParam();
 
