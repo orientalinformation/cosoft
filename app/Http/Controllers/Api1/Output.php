@@ -943,6 +943,7 @@ class Output extends Controller
 
         if (!empty($selectedEquipment)) {
             foreach ($selectedEquipment as $row) {
+                $itemChart["id"] = $row["id"];
                 $itemChart["equipName"] = $row["equipName"];
                 $dhpChart = $row["dhp"];
                 $consoChart = $row["conso"];
