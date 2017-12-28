@@ -23,6 +23,8 @@ use App\Models\CalculationParameter;
 use App\Models\CalculationParametersDef;
 use App\Models\TempRecordPts;
 use App\Kernel\KernelService;
+use App\Models\Equipment;
+use App\Models\Study;
 
 
 class Calculator extends Controller 
@@ -158,6 +160,11 @@ class Calculator extends Controller
 		$tempPtIn = $this->cal->getTempPtIn();
 		$tempPtBot = $this->cal->getTempPtBot();
 		$tempPtAvg = $this->cal->getTempPtAvg();
+		$selectDefault = [
+			'selected' => 'true',
+			'value' => '0.0',
+			'label' => '0.0'
+		];
 
 		$select1 = $this->cal->getOption($idStudy, "X", "TOP");
 		$select2 = $this->cal->getOption($idStudy, "Y", "TOP");
@@ -168,6 +175,16 @@ class Calculator extends Controller
         $select7 = $this->cal->getOption($idStudy, "X", "BOT");
         $select8 = $this->cal->getOption($idStudy, "Y", "BOT");
         $select9 = $this->cal->getOption($idStudy, "Z", "BOT");
+
+        // if ($select1 == null) $select1 = [$selectDefault];
+        // if ($select2 == null) $select2 = [$selectDefault];
+        // if ($select3 == null) $select3 = [$selectDefault];
+        // if ($select4 == null) $select4 = [$selectDefault];
+        // if ($select5 == null) $select5 = [$selectDefault];
+        // if ($select6 == null) $select6 = [$selectDefault];
+        // if ($select7 == null) $select7 = [$selectDefault];
+        // if ($select8 == null) $select8 = [$selectDefault];
+        // if ($select9 == null) $select9 = [$selectDefault];
 
 		$array = [
 			'sdisableFields' => $sdisableFields,
@@ -332,6 +349,7 @@ class Calculator extends Controller
 		$this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 50);
 
 		$studyEquipments = StudyEquipment::where('ID_STUDY', $idStudy)->get();
+		$study = Study::find($idStudy);
 
 		$results = [];
 		
@@ -339,12 +357,29 @@ class Calculator extends Controller
 			for ($i = 0; $i < count($studyEquipments); $i++) { 
 				$idStudyEquipment = $studyEquipments[$i]->ID_STUDY_EQUIPMENTS;
 				$capability = $studyEquipments[$i]->CAPABILITIES;
+				$idEquipment = $studyEquipments[$i]->ID_EQUIP;
 
-				$conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
-				$this->kernel->getKernelObject('DimMatCalculator')->DMCCalculation($conf, 1);
+				$equipment = Equipment::find($idEquipment);
+				$error = $this->startDimMat($idStudy, $idStudyEquipment);
 
-				if ($this->equipment->getCapability($capability, 16)) {
-					array_push($results, $this->startConsumptionEconomic($idStudy, $idStudyEquipment));
+				if ($error != 0) {
+					echo "OXException on calculate for Equipment" . $equipment->EQUIP_NAME;
+				}
+
+				if (($error == 0) && ($study->OPTION_CRYOPIPELINE == 1)) {
+					array_push($results, $this->startPipeLine($idStudy, $idStudyEquipment));
+				}
+
+				if ($error == 0) {
+					if ($study->OPTION_ECO == 1) {
+						if ($this->equipment->getCapability($capability, 16)) {
+							array_push($results, $this->startEconomic($idStudy, $idStudyEquipment));
+						}
+					} else {
+						if ($this->equipment->getCapability($capability, 16)) {
+							array_push($results, $this->startConsumptionEconomic($idStudy, $idStudyEquipment));
+						}
+					}
 				}
 			}
 		}
@@ -355,6 +390,24 @@ class Calculator extends Controller
 	{
 		$conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
 		return $this->kernel->getKernelObject('ConsumptionCalculator')->COCConsumptionCalculation($conf);
+	}
+
+	public function startDimMat($idStudy, $idStudyEquipment)
+	{
+		$conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
+		return $this->kernel->getKernelObject('DimMatCalculator')->DMCCalculation($conf, 1);
+	}
+
+	public function startEconomic($idStudy, $idStudyEquipment)
+	{
+		$conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
+		return $this->kernel->getKernelObject('EconomicCalculator')->ECEconomicCalculation($conf);
+	}
+
+	public function startPipeLine($idStudy, $idStudyEquipment)
+	{
+		$conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
+		return $this->kernel->getKernelObject('PipelineCalculator')->PCPipelineCalculation($conf);
 	}
 
 	public function startNumericalCalculation($idStudy)
