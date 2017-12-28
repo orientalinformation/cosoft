@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api1;
 
 use App\Http\Controllers\Controller;
+use App\Models\Study;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\Auth\Factory as Auth;
 use App\Kernel\KernelService;
@@ -64,13 +65,39 @@ class Studies extends Controller
 
     public function getStudyById($id)
     {
-        $study = \App\Models\Study::find($id);
+        $study = Study::find($id);
         return $study;
     }
 
     public function saveStudyAs($id)
     {
 
+    }
+
+    /**
+     * @param $id
+     * @return int
+     */
+    public function saveStudy($id)
+    {
+        // @class: \App\Models\Study
+        $study = Study::find($id);
+        $update = (object) $this->request->json()->all();
+        $study->CALCULATION_MODE = $update->CALCULATION_MODE;
+        $study->CALCULATION_STATUS = $update->CALCULATION_STATUS;
+        $study->STUDY_NAME = $update->STUDY_NAME;
+        $study->CUSTOMER = $update->CUSTOMER;
+        $study->COMMENT_TXT = $update->COMMENT_TXT;
+        $study->OPTION_CRYOPIPELINE = $update->OPTION_CRYOPIPELINE;
+        $study->OPTION_EXHAUSTPIPELINE = $update->OPTION_EXHAUSTPIPELINE;
+        $study->OPTION_ECO = $update->OPTION_ECO;
+        $study->CHAINING_CONTROLS = $update->CHAINING_CONTROLS;
+        $study->CHAINING_ADD_COMP_ENABLE = $update->CHAINING_ADD_COMP_ENABLE;
+        $study->CHAINING_NODE_DECIM_ENABLE = $update->CHAINING_NODE_DECIM_ENABLE;
+        $study->TO_RECALCULATE = $update->TO_RECALCULATE;
+        $study->HAS_CHILD = $update->HAS_CHILD;
+        $study->OPEN_BY_OWNER = $update->OPEN_BY_OWNER;
+        return (int) $study->save();
     }
 
     public function refreshMesh($id) {
