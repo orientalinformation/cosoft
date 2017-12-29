@@ -23,3 +23,11 @@ $router->PATCH('/api/v1/studies/{id}', 'Api1\\Studies@saveStudy');
  * Output-Formats: [application/json]
  */
 $router->PATCH('/api/v1/productions/{id}', 'Api1\\Productions@saveProduction');
+
+/**
+ * POST generateMesh
+ * Summary:
+ * Notes: generate product mesh
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/products/{idProd}/generateMesh', 'Api1\\Products@generateMesh');

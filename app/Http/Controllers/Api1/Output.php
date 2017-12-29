@@ -61,7 +61,7 @@ class Output extends Controller
     {
         $productFlowSymbol = $this->unit->productFlowSymbol();
         $massSymbol = $this->unit->massSymbol();
-        $temperatureSymbol = mb_convert_encoding($this->unit->temperatureSymbol(), "UTF-8", "ISO-8859-1");
+        $temperatureSymbol = $this->unit->temperatureSymbol();
         $timeSymbol = $this->unit->timeSymbol();
         $perUnitOfMassSymbol = $this->unit->perUnitOfMassSymbol();
         $enthalpySymbol = $this->unit->enthalpySymbol();
