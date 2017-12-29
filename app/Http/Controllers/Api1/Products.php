@@ -139,8 +139,9 @@ class Products extends Controller
     public function getMeshView($id)
     {
         $product = \App\Models\Product::findOrFail($id);
+
         if (!$product)
-            throw new Exception("Error Processing Request", 1);
+            throw new Exception("Error Processing Request. Product ID not found", 1);
 
         $meshGeneration = $product->meshGenerations->first();
 
@@ -153,5 +154,9 @@ class Products extends Controller
         }
 
         return compact('meshGeneration', 'elements', 'elmtMeshPositions');
+    }
+
+    public function generateMesh($idProd) {
+        return 0;
     }
 }
