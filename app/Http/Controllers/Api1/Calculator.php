@@ -15,6 +15,7 @@ use App\Cryosoft\CalculateService;
 use App\Cryosoft\ValueListService;
 use App\Cryosoft\EquipmentsService;
 use App\Cryosoft\UnitsConverterService;
+use App\Cryosoft\BrainCalculateService;
 use App\Http\Controllers\Controller;
 use Illuminate\Contracts\Auth\Factory as Auth;
 use Illuminate\Http\Request;
@@ -64,12 +65,17 @@ class Calculator extends Controller
      */
     protected $convert;
 
+    /**
+     * @var App\Cryosoft\BrainCalculateService
+     */
+    protected $brainCal;
+
 	/**
 	 * Create a new controller instance.
 	 *
 	 * @return void
 	 */
-	public function __construct(Request $request, Auth $auth, CalculateService $cal, ValueListService $value, KernelService $kernel, EquipmentsService $equipment, UnitsConverterService $convert) 
+	public function __construct(Request $request, Auth $auth, CalculateService $cal, ValueListService $value, KernelService $kernel, EquipmentsService $equipment, UnitsConverterService $convert, BrainCalculateService $brainCal) 
 	{
 		$this->request = $request;
 		$this->auth = $auth;
@@ -78,6 +84,7 @@ class Calculator extends Controller
 		$this->kernel = $kernel;
 		$this->equipment = $equipment;
 		$this->convert = $convert;
+		$this->brainCal = $brainCal;
 	}
 
 	public function getOptimumCalculator() 
@@ -95,8 +102,7 @@ class Calculator extends Controller
 		$sdisableCalculate = $this->cal->disableCalculate($idStudy);
 
 		$sdisableOptim = $sdisableNbOptim = $sdisableStorage = 0;
-		$sclassNbOptim = $sclassStorage = "";
-		$sdisableTimeStep = $sdisablePrecision = "";
+		$sdisableTimeStep = $sdisablePrecision = 0;
 		$scheckOptim = $scheckStorage = 0;
 		$isBrainCalculator = 0;
 
@@ -104,43 +110,39 @@ class Calculator extends Controller
 			$isBrainCalculator = 1;
 		}
 
-		if ($sdisableFields == "") {
+		if ($sdisableFields == 0) {
 			$sdisableOptim = $sdisableFields;
 
 			if ($calMode == $this->value->STUDY_OPTIMUM_MODE) {
 				$sdisableNbOptim = $sdisableStorage = 1;
-				$sclassNbOptim = $sclassStorage = "sous-titredisabled";
 				$scheckOptim = 1;
 				$scheckStorage = 0;
 
 				if ($this->cal->getTimeStep($idStudy) == $this->value->VALUE_N_A) {
-					$sdisableTimeStep = "disabled";
+					$sdisableTimeStep = 1;
 				} else {
-					$sdisableTimeStep = "";
+					$sdisableTimeStep = 0;
 				}
 
 				if ($this->cal->getPrecision($idStudy) == $this->value->VALUE_N_A) {
-					$sdisablePrecision = "disabled";
+					$sdisablePrecision = 1;
 				} else {
-					$sdisablePrecision = "";
+					$sdisablePrecision = 0;
 				}
 			} else if ($calMode == $this->value->STUDY_SELECTED_MODE) {
 				$sdisableNbOptim = $sdisableStorage = 0;
-				$sclassNbOptim = $sclassStorage = "sous-titre";
 				$scheckOptim = 1;
 				$scheckStorage = 0;
-				$sdisableTimeStep = $sdisablePrecision = "";
+				$sdisableTimeStep = $sdisablePrecision = 0;
 			} else {
 				$sdisableNbOptim = $sdisableStorage = 1;
-				$sclassNbOptim = $sclassStorage = "sous-titredisabled";
 				$scheckOptim = $scheckStorage = 0;
-				$sdisableTimeStep = $sdisablePrecision = "";
+				$sdisableTimeStep = $sdisablePrecision = 0;
 			}
 
 		} else {
 			$sdisableOptim = $sdisableNbOptim = $sdisableStorage = 1;
-			$sdisableTimeStep = $sdisablePrecision = "disabled";
-			$sclassNbOptim = $sclassStorage = "sous-titredisabled";
+			$sdisableTimeStep = $sdisablePrecision = 1;
 			$scheckOptim = $scheckStorage = 0;
 		}
 
@@ -236,8 +238,8 @@ class Calculator extends Controller
 		$scheckOptim = null;
 		$epsilonTemp = null;
 		$epsilonEnth = null;
-		$timeStep = -1.0;
-		$precision = -1.0;
+		$timeStep = 1.0;
+		$precision = 0.5;
 		$storagestep = 0.0;
 		$hRadioOn = 1;
 		$vRadioOn  = 0;
@@ -433,5 +435,151 @@ class Calculator extends Controller
 			}
 		}
 		return $results;
+	}
+
+	public function startStudyEquipmentCalculation()
+	{
+		$input = $this->request->all();
+		$idStudy = null;
+		$idStudyEquipment = null;
+		$checkOptim = false;
+
+		if (isset($input['idStudy'])) $idStudy = intval($input['idStudy']);
+		if (isset($input['idStudyEquipment'])) $idStudyEquipment = intval($input['idStudyEquipment']);
+		if (isset($input['checkOptim'])) $checkOptim = $input['checkOptim'];
+
+		$brainMode = $this->brainCal->getBrainMode($idStudy);
+
+		$sdisableCalculate 	= $this->cal->disableCalculate($idStudy);
+		$sdisableFields = $this->cal->disableFields($idStudy);
+		
+		$sdisableTS = $sdisableTR = $sdisableTOC = $sdisableOptim = $sdisableNbOptim = $sdisableStorage = 0;
+		$sclassTS = $sclassTR = $sclassTOC = $sclassNbOptim = $sclassStorage = "";
+		
+		$scheckOptim = $scheckStorage = 0;
+
+		if ($sdisableFields == 0) {
+			switch($brainMode)
+			{
+				case $this->value->BRAIN_MODE_ESTIMATION 		: 
+				case $this->value->BRAIN_MODE_ESTIMATION_OPTIM : 
+					$sdisableTS = $sdisableTR = $sdisableTOC = $sdisableNbOptim = $sdisableStorage = 1;
+					$scheckOptim = $scheckStorage = 0;
+					break;
+				case $this->value->BRAIN_MODE_OPTIMUM_CALCULATE:
+				case $this->value->BRAIN_MODE_OPTIMUM_FULL 	: 
+				case $this->value->BRAIN_MODE_SELECTED_FULL : 
+					$sdisableTS = $sdisableTR = $sdisableNbOptim = $sdisableStorage = 0;
+					$sdisableTOC = 1;
+					$scheckOptim = 0;
+					$scheckStorage = 1;
+					break;
+					
+				case $this->value->BRAIN_MODE_OPTIMUM_REFINE 	: 
+				case $this->value->BRAIN_MODE_SELECTED_REFINE 	: 
+					$sdisableTS = $sdisableTR = $sdisableNbOptim = 0;
+					$sdisableTOC = $sdisableStorage = 1;
+					$scheckOptim = 1;
+					$scheckStorage = 0;
+					break;
+				
+				case $this->value->BRAIN_MODE_OPTIMUM_DHPMAX 	: 
+				case $this->value->BRAIN_MODE_SELECTED_DHPMAX 	: 
+					$sdisableTR = $sdisableTOC = 0;
+					$sdisableTS = $sdisableNbOptim = $sdisableStorage = 1;
+					$scheckOptim = 1;
+					$scheckStorage = 0;
+					break;
+				
+				default :
+					$sdisableTS = $sdisableTR = $sdisableTOC = $sdisableNbOptim = $sdisableStorage = 1;
+					$scheckOptim = $scheckStorage = 0;
+			}		
+		} else {
+			$sdisableTS = $sdisableTR = $sdisableTOC = $sdisableOptim = $sdisableNbOptim = $sdisableStorage = 1;
+			$scheckOptim = $scheckStorage = 0;
+		}
+
+		$lTs = $this->brainCal->getListTs($idStudyEquipment);
+		$itemTs = array();
+		$dwellingTimes = array();
+
+		for ($i = 0; $i < count($lTs); $i++) { 
+			$itemTs['name'] = $i;
+			$itemTs['value'] = $lTs[$i];
+			array_push($dwellingTimes, $itemTs);
+		}
+
+		$lTr = $this->brainCal->getListTr($idStudyEquipment);
+		$itemTr = array();
+		$temperatures = array();
+
+		for($i = 0; $i < count($lTr); $i++) {
+			$itemTr['name'] = $i;
+			$itemTr['value'] = $lTr[$i];
+			array_push($temperatures, $itemTr);
+		}
+
+		$uPercent = $this->convert->uPercent();
+		$toc = $this->convert->convertCalculator($this->brainCal->getLoadingRate($idStudyEquipment, $idStudy), $uPercent['coeffA'], $uPercent['coeffB']);
+
+		$scheckOptim = ($checkOptim == "true") ? 1 : 0;
+		$epsilonTemp = $this->brainCal->getOptimErrorT($brainMode, $idStudyEquipment);
+		$epsilonEnth = $this->brainCal->getOptimErrorH($brainMode, $idStudyEquipment);
+		$nbOptimIter = $this->brainCal->getNbOptim($brainMode, $idStudyEquipment);
+		$timeStep = $this->brainCal->getTimeStep($idStudyEquipment);
+		$precision = $this->brainCal->getPrecision($idStudyEquipment);
+		$storagestep = $this->brainCal->getStorageStep($idStudyEquipment);
+		$hRadioOn = $this->brainCal->getHradioOn($idStudyEquipment);
+		$vRadioOn = $this->brainCal->getVradioOn($idStudyEquipment);
+		$maxIter = $this->brainCal->getMaxIter($idStudyEquipment);
+		$relaxCoef = $this->brainCal->getRelaxCoef($idStudyEquipment);
+		$tempPtSurf = $this->brainCal->getTempPtSurf($idStudyEquipment);
+		$tempPtIn = $this->brainCal->getTempPtIn($idStudyEquipment);
+		$tempPtBot = $this->brainCal->getTempPtBot($idStudyEquipment);
+		$tempPtAvg = $this->brainCal->getTempPtAvg($idStudyEquipment);
+
+		$select1 = $this->cal->getOption($idStudy, "X", "TOP");
+		$select2 = $this->cal->getOption($idStudy, "Y", "TOP");
+        $select3 = $this->cal->getOption($idStudy, "Z", "TOP");
+        $select4 = $this->cal->getOption($idStudy, "X", "INT");
+        $select5 = $this->cal->getOption($idStudy, "Y", "INT");
+        $select6 = $this->cal->getOption($idStudy, "Z", "INT");
+        $select7 = $this->cal->getOption($idStudy, "X", "BOT");
+        $select8 = $this->cal->getOption($idStudy, "Y", "BOT");
+        $select9 = $this->cal->getOption($idStudy, "Z", "BOT");
+
+		$array = [
+			'dwellingTimes' => $dwellingTimes,
+			'temperatures' => $temperatures,
+			'toc' => $toc,
+			'scheckOptim' => $scheckOptim,
+			'epsilonTemp' => $epsilonTemp,
+			'epsilonEnth' => $epsilonEnth,
+			'nbOptimIter' => $nbOptimIter,
+			'timeStep' => $timeStep,
+			'precision' => $precision,
+			'scheckStorage' => $scheckStorage,
+			'storagestep' => $storagestep,
+			'hRadioOn' => $hRadioOn,
+			'vRadioOn' => $vRadioOn,
+			'maxIter' => $maxIter,
+			'relaxCoef' => $relaxCoef,
+			'tempPtSurf' => $tempPtSurf,
+			'tempPtIn' => $tempPtIn,
+			'tempPtBot' => $tempPtBot,
+			'tempPtAvg' => $tempPtAvg,
+			'select1' => $select1,
+			'select2' => $select2,
+			'select3' => $select3,
+			'select4' => $select4,
+			'select5' => $select5,
+			'select6' => $select6,
+			'select7' => $select7,
+			'select8' => $select8,
+			'select9' => $select9,
+		];
+
+		return $array;
 	}
 }
