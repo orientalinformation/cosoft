@@ -159,4 +159,8 @@ class Products extends Controller
     public function generateMesh($idProd) {
         return 0;
     }
+
+    public function generateDefaultMesh($idProd) {
+        return 0;
+    }
 }
