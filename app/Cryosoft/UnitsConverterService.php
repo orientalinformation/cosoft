@@ -204,6 +204,17 @@ class UnitsConverterService
         return $result;
     }
 
+    public function meshes($sValue, $typeUnit) 
+    {
+        $unit = Unit::select("COEFF_A", "COEFF_B")->where("TYPE_UNIT", $typeUnit)->first();
+        $value = doubleval($sValue);
+        $coeffA = 1000;
+        $coeffB = 0;
+        if ($value != null) $value = ($value - $coeffB) * $coeffA;
+
+        return round($value, 2);
+    }
+
     public function mass($value) 
     {
         $unit = Unit::select("COEFF_A", "COEFF_B")->where("TYPE_UNIT", $this->value->MASS)->first();

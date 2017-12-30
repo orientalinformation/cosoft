@@ -321,14 +321,14 @@ class CalculateService
                     ->orderBy("MESH_AXIS_POS", "ASC")->distinct()->get();
             }
         }
-        // var_dump($meshPosition); die("");
+
         $arrLint = array();
         $item = array();
 
         if (!empty($meshPosition)) {
             foreach ($meshPosition as $mesh) {
-                $item["selected"] = ($this->getCoordinate($idStudy, $key, $axe) == $mesh->MESH_AXIS_POS) ? true : false;
-                $item["value"] = $this->convert->unitConvert($this->value->MESH_CUT, $mesh->MESH_AXIS_POS);
+                $item["selected"] = ($this->getCoordinate($idStudy, $key, $axe) == $this->convert->meshes($mesh->MESH_AXIS_POS, $this->value->MESH_CUT)) ? true : false;
+                $item["value"] = $this->convert->meshes($mesh->MESH_AXIS_POS, $this->value->MESH_CUT);
                 $item["label"] = $mesh->MESH_AXIS_POS;
                 array_push($arrLint, $item);
             }
@@ -362,6 +362,6 @@ class CalculateService
             $val = ($tempRecordsPt != null) ? $tempRecordsPt->AXIS3_PT_TOP_SURF : 0.0;
         }
 
-        return $this->convert->unitConvert($this->value->MESH_CUT, $val);
+        return $this->convert->meshes($val, $this->value->MESH_CUT);
     }
 }
