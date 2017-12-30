@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Api1;
 
 use App\Http\Controllers\Controller;
+use App\Models\MeshGeneration;
+use App\Models\Product;
 use App\Models\ProductElmt;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\Auth\Factory as Auth;
-
 use App\Kernel\KernelService;
 
 class Products extends Controller
@@ -21,12 +22,17 @@ class Products extends Controller
      * @var Illuminate\Contracts\Auth\Factory
      */
     protected $auth;
-    
 
     /**
-     * Create a new controller instance.
-     *
-     * @return void
+     * @var App\Kernel\KernelService
+     */
+    protected $kernel;
+
+    /**
+     * Products constructor.
+     * @param Request $request
+     * @param Auth $auth
+     * @param KernelService $kernel
      */
     public function __construct(Request $request, Auth $auth, KernelService $kernel)
     {
@@ -35,8 +41,12 @@ class Products extends Controller
         $this->kernel = $kernel;
     }
 
+    /**
+     * @param $id
+     * @return mixed
+     */
     public function getProductById($id) {
-        $product = \App\Models\Product::find($id);
+        $product = Product::find($id);
         return $product;
     }
 
@@ -45,13 +55,13 @@ class Products extends Controller
     	return $elements;
     }
 
-    public function appendElementsToProduct($id) 
+    public function appendElementsToProduct($id)
     {
         // $id is product id
     	$input = $this->request->all();
 
         $componentId = $input['componentId'];
-        $product = \App\Models\Product::find($id);
+        $product = Product::find($id);
 
     	$elmt = new ProductElmt();
     	$elmt->ID_PROD = $id;
@@ -59,13 +69,13 @@ class Products extends Controller
     	$elmt->ID_COMP = $componentId;
     	$elmt->PROD_ELMT_ISO = $product->PROD_ISO;
         $elmt->SHAPE_PARAM2 = 0.01; //default 1cm
-        
+
         if (isset($input['dim1']))
             $elmt->SHAPE_PARAM1 = $input['dim1'];
-            
+
         if (isset($input['dim3']))
             $elmt->SHAPE_PARAM3 = $input['dim3'];
-            
+
         $elmt->PROD_ELMT_NAME = "";
 
     	$elmt->ORIGINAL_THICK = 0.0;
@@ -73,7 +83,7 @@ class Products extends Controller
     	$elmt->PROD_ELMT_REALWEIGHT = -1;
     	$elmt->NODE_DECIM = 0; // @TODO: research more on nodeDecim
         $elmt->INSERT_LINE_ORDER = $product->ID_STUDY;
-        
+
         $nElements = \App\Models\ProductElmt::where('ID_PROD', $id)->count();
         $elmt->SHAPE_POS2 = doubleval($nElements) / 100.0;
         $elmt->SHAPE_POS1 = 0;
@@ -96,7 +106,7 @@ class Products extends Controller
     }
 
     public function getProductViewModel($id) {
-        $product = \App\Models\Product::find($id);
+        $product = Product::find($id);
         $elements = \App\Models\ProductElmt::where('ID_PROD', $id)->orderBy('SHAPE_POS2', 'DESC')->get();
         $specificDimension = 0.0;
 
@@ -112,9 +122,9 @@ class Products extends Controller
         // $id is product id
         $input = $this->request->all();
         if (!isset($input['elementId'])) {
-            throw new Exception("Error Processing Request", 500);
+            throw new \Exception("Error Processing Request", 500);
         }
-        
+
         $elementId = $input['elementId'];
         $element = \App\Models\ProductElmt::find($elementId);
         $studyId = $element->product->ID_STUDY;
@@ -134,14 +144,17 @@ class Products extends Controller
     }
 
     /**
-     * @id: Product's ID
+     * @param $id
+     * @return array
+     * @throws \Exception
      */
     public function getMeshView($id)
     {
-        $product = \App\Models\Product::findOrFail($id);
+        /** @var Product $product */
+        $product = Product::findOrFail($id);
 
         if (!$product)
-            throw new Exception("Error Processing Request. Product ID not found", 1);
+            throw new \Exception("Error Processing Request. Product ID not found", 1);
 
         $meshGeneration = $product->meshGenerations->first();
 
@@ -160,7 +173,85 @@ class Products extends Controller
         return 0;
     }
 
+    /**
+     * @param $idProd
+     * @return array
+     * @throws \Exception
+     */
     public function generateDefaultMesh($idProd) {
-        return 0;
+        /** @var Product $product */
+        $product = Product::findOrFail($idProd);
+
+        if (!$product)
+            throw new \Exception("Error Processing Request. Product ID not found", 1);
+
+
+        $meshGeneration = MeshGeneration::where('ID_PROD', $product->ID_PROD)->first();
+
+        if (!$meshGeneration) {
+            $meshGeneration = new MeshGeneration();
+            $meshGeneration->ID_PROD = $product->ID_PROD;
+            $meshGeneration->save();
+        }
+
+        $product->ID_MESH_GENERATION = $meshGeneration->ID_MESH_GENERATION;
+        $product->save();
+
+        // regular mesh
+        $calcultype = 1; //estimation
+
+        $meshGeneration->MESH_1_FIXED = $calcultype;
+        $meshGeneration->MESH_2_FIXED = $calcultype;
+        $meshGeneration->MESH_3_FIXED = $calcultype;
+
+        $meshGeneration->MESH_1_MODE = 0;
+        $meshGeneration->MESH_2_MODE = 0;
+        $meshGeneration->MESH_3_MODE = 0;
+
+        $meshGeneration->MESH_1_SIZE = -1;
+        $meshGeneration->MESH_2_SIZE = -1;
+        $meshGeneration->MESH_3_SIZE = -1;
+        $meshGeneration->save();
+
+//        if( Meshtype.equals("iregular") )
+//        {
+//            byte calcultype = 0;//
+//			mg.setMesh1Fixed(calcultype);
+//			mg.setMesh2Fixed(calcultype);
+//			mg.setMesh3Fixed(calcultype);
+//			short cal = ValuesList.MAILLAGE_MODE_IRREGULAR;
+//			mg.setMesh1Mode(cal);
+//			mg.setMesh2Mode(cal);
+//			mg.setMesh3Mode(cal);
+//			mg.setMesh1Ratio(meshParamDefault.getMeshRatio());
+//			mg.setMesh2Ratio(meshParamDefault.getMeshRatio());
+//			mg.setMesh3Ratio(meshParamDefault.getMeshRatio());
+//			mg.setMesh1Int(meshSize1);
+//			mg.setMesh2Int(meshSize2);
+//			mg.setMesh3Int(meshSize3);
+//			mg.setMesh1Size(calcultype);
+//			mg.setMesh2Size(calcultype);
+//			mg.setMesh3Size(calcultype);
+//		}
+
+        // run study cleaner, mode 51
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_STUDY, -1);
+        $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 51);
+
+
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_STUDY);
+        $this->kernel->getKernelObject('MeshBuilder')->MBMeshBuild($conf);
+
+        $meshGeneration = MeshGeneration::where('ID_PROD', $product->ID_PROD)->first();
+
+        $elements = $product->productElmts;
+        $elmtMeshPositions = [];
+
+        foreach ($elements as $elmt) {
+            $meshPositions = \App\Models\MeshPosition::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->get();
+            array_push($elmtMeshPositions, $meshPositions);
+        }
+
+        return compact('meshGeneration', 'elements', 'elmtMeshPositions');
     }
 }
