@@ -529,6 +529,7 @@ class Calculator extends Controller
 		$nbOptimIter = $this->brainCal->getNbOptim($brainMode, $idStudyEquipment);
 		$timeStep = $this->brainCal->getTimeStep($idStudyEquipment);
 		$precision = $this->brainCal->getPrecision($idStudyEquipment);
+		$precisionlogstep = $this->brainCal->getPrecisionLogStep($idStudyEquipment);
 		$storagestep = $this->brainCal->getStorageStep($idStudyEquipment);
 		$hRadioOn = $this->brainCal->getHradioOn($idStudyEquipment);
 		$vRadioOn = $this->brainCal->getVradioOn($idStudyEquipment);
@@ -559,6 +560,7 @@ class Calculator extends Controller
 			'nbOptimIter' => $nbOptimIter,
 			'timeStep' => $timeStep,
 			'precision' => $precision,
+			'precisionlogstep' => $precisionlogstep,
 			'scheckStorage' => $scheckStorage,
 			'storagestep' => $storagestep,
 			'hRadioOn' => $hRadioOn,

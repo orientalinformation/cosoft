@@ -317,18 +317,19 @@ class CalculateService
                 $idProductElmt = $productElmt->ID_PRODUCT_ELMT;
                 $meshPosition = MeshPosition::select('MESH_AXIS_POS')
                     ->where('MESH_AXIS', '=', $meshAxis)
-                    ->where('ID_PRODUCT_ELMT', '=', $idProductElmt)->get();
+                    ->where('ID_PRODUCT_ELMT', '=', $idProductElmt)
+                    ->orderBy("MESH_AXIS_POS", "ASC")->distinct()->get();
             }
         }
-        
+        // var_dump($meshPosition); die("");
         $arrLint = array();
         $item = array();
 
         if (!empty($meshPosition)) {
-            foreach ($meshPosition as $row) {
-                $item["selected"] = ($this->getCoordinate($idStudy, $key, $axe) == $row["MESH_AXIS_POS"]) ? true : false;
-                $item["value"] = $this->convert->unitConvert($this->value->MESH_CUT, $row["MESH_AXIS_POS"]);
-                $item["label"] = $row["MESH_AXIS_POS"];
+            foreach ($meshPosition as $mesh) {
+                $item["selected"] = ($this->getCoordinate($idStudy, $key, $axe) == $mesh->MESH_AXIS_POS) ? true : false;
+                $item["value"] = $this->convert->unitConvert($this->value->MESH_CUT, $mesh->MESH_AXIS_POS);
+                $item["label"] = $mesh->MESH_AXIS_POS;
                 array_push($arrLint, $item);
             }
         }
