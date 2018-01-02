@@ -450,6 +450,12 @@ class Calculator extends Controller
 
 		$brainMode = $this->brainCal->getBrainMode($idStudy);
 
+		if ($checkOptim == "true") {
+			$brainMode = 11;
+		} else {
+			$brainMode = 12;
+		}
+
 		$sdisableCalculate 	= $this->cal->disableCalculate($idStudy);
 		$sdisableFields = $this->cal->disableFields($idStudy);
 		
