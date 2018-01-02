@@ -6,4 +6,4 @@
  * Notes: get head balance result
  * Output-Formats: [application/json]
  */
-$router->GET('/api/v1/studyequipment/braincalculate', 'Api1\\Calculator@startStudyEquipmentCalculation');
+$router->GET('/api/v1/studyequipment/braincalculate', 'Api1\\Calculator@getStudyEquipmentCalculation');
