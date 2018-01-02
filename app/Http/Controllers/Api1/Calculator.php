@@ -608,4 +608,9 @@ class Calculator extends Controller
     {
     	return $this->brainMode;
     }
+
+    public function startBrainCalculate()
+    {
+    	
+    }
 }
