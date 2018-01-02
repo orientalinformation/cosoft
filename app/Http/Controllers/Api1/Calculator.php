@@ -241,9 +241,6 @@ class Calculator extends Controller
 
 		$idStudy = null;
 		$idStudyEquipment = null;
-		$scheckOptim = null;
-		$epsilonTemp = null;
-		$epsilonEnth = null;
 		$timeStep = 1.0;
 		$precision = 0.5;
 		$storagestep = 0.0;
@@ -611,6 +608,109 @@ class Calculator extends Controller
 
     public function startBrainCalculate()
     {
-    	
+    	$input = $this->request->all();
+
+    	$idStudy = null;
+		$idStudyEquipment = null;
+		$checkOptim = null;
+		$dwellingTimes = [];
+		$temperatures = [];
+		$epsilonTemp = null;
+		$epsilonEnth = null;
+		$timeStep = 1.0;
+		$precision = 0.5;
+		$storagestep = 0.0;
+		$hRadioOn = 1;
+		$vRadioOn  = 0;
+		$maxIter = 100;
+		$relaxCoef = 0.0;
+		$tempPtSurf = 0;
+		$tempPtIn = 0;
+		$tempPtBot = 0;
+		$tempPtAvg = 0;
+		$select1 = $select2 = $select3 = $select4 = $select5 = $select6 = $select7 = $select8 = $select9 = 0.0;
+
+		if (isset($input['idStudy'])) $idStudy = intval($input['idStudy']);
+		if (isset($input['idStudyEquipment'])) $idStudyEquipment = intval($input['idStudyEquipment']);
+		if (isset($input['checkOptim'])) $checkOptim = intval($input['checkOptim']);
+		if (isset($input['dwellingTimes'])) $newLTs = $input['dwellingTimes'];
+		if (isset($input['temperatures'])) $newLTr = $input['temperatures'];
+
+		$oldLTs = $this->brainCal->getListTs($idStudyEquipment);
+		for ($i = 0; $i < count($oldLTs) ; $i++) { 
+			if ($oldLTs[$i] != $newLTs[$i]['value']) {
+				$oldLTs[$i] = $newLTs[$i]['value'];
+				$this->brainCal->setTs($idStudyEquipment, doubleval($oldLTs[$i]), $i);
+			}
+		}
+
+		$oldLTr = $this->brainCal->getListTr($idStudyEquipment);
+		for ($i = 0; $i < count($oldLTr); $i++) { 
+			if ($oldLTr[$i] != $newLTr[$i]['value']) {
+				$oldLTr[$i] = $newLTr[$i]['value'];
+				$this->brainCal->setTr($idStudyEquipment, doubleval($oldLTr[$i]), $i);
+			}
+		}
+ 		   	
+    	return 0;
+    }
+
+    public function loadCalculationParametersFromHMI(Request $request, $idStudyEquipment)
+    {
+    	$input = $request->all();
+
+    	$checkOptim = null;
+		$epsilonTemp = null;
+		$epsilonEnth = null;
+
+    	if (isset($input['checkOptim'])) $checkOptim = intval($input['checkOptim']);
+		if (isset($input['epsilonTemp'])) $epsilonTemp = $input['epsilonTemp'];
+		if (isset($input['epsilonEnth'])) $epsilonEnth = $input['epsilonEnth'];
+
+		$calculationParameter = CalculationParameter::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
+
+		// if ($checkOptim != null) {
+		// 	$calculationParameter->NB_OPTIM = $scheckOptim;
+		// 	$calculationParameter->ERROR_T = $this->convert->unitConvert($this->value->TEMPERATURE, $epsilonTemp);
+		// 	$calculationParameter->ERROR_H = $this->convert->unitConvert($this->value->TEMPERATURE, $epsilonEnth);
+		// } else {
+		// 	switch ($this->brainMode) {
+  //               case 1:
+  //                   $calculationParameter->NB_OPTIM = 0;
+  //                   $minMaxH = $this->brainCal->getMinMax(1131);
+  //                   $calculationParameter->setErrorH($minMaxH->DEFAULT_VALUE);
+  //                   $minMaxT = $this->brainCal->getMinMax(1132);
+  //                   $calculationParameter->setErrorT($minMaxT->DEFAULT_VALUE);
+  //                   break;
+  //               case 2:
+  //                   $calculationParameter->setNbOptim((int) mmNbOptim.getDefaultValue());
+  //                   $calculationParameter->setErrorH(mmErrorH[0].getDefaultValue());
+  //                   $calculationParameter->setErrorT(mmErrorT[0].getDefaultValue());
+  //                   break;
+  //               case 10:
+  //               case 14:
+  //                   $calculationParameter->setNbOptim(0);
+  //                   $calculationParameter->setErrorT(mmErrorT[0].getDefaultValue());
+  //                   $calculationParameter->setErrorH(mmErrorH[0].getDefaultValue());
+  //                   break;
+  //               case 11:
+  //               case 15:
+  //                   $calculationParameter->setNbOptim(0);
+  //                   $calculationParameter->setErrorT(mmErrorT[1].getDefaultValue());
+  //                   $calculationParameter->setErrorH(mmErrorH[1].getDefaultValue());
+  //                   break;
+  //               case 12:
+  //               case 16:
+  //                   $calculationParameter->setNbOptim(0);
+  //                   $calculationParameter->setErrorT(mmErrorT[2].getDefaultValue());
+  //                   $calculationParameter->setErrorH(mmErrorH[2].getDefaultValue());
+  //                   break;
+  //               case 13:
+  //               case 17:
+  //                   $calculationParameter->setNbOptim(0);
+  //                   $calculationParameter->setErrorT(mmErrorT[3].getDefaultValue());
+  //                   $calculationParameter->setErrorH(mmErrorH[3].getDefaultValue());
+  //           }
+		// }
     }
 }

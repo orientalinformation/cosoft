@@ -236,6 +236,15 @@ class BrainCalculateService
         return $tR;
     }
 
+    public function setTr($idStudyEquipments, $value, $i) 
+    {
+        $studEqpPrms = $this->loadStudEqpPrm($idStudyEquipments, 300);
+        if (!empty($studEqpPrms[$i])) {
+            $studEqpPrms[$i]->VALUE = $value;
+            $studEqpPrms[$i]->save();
+        }
+    }
+
     public function getListTs($idStudyEquipments)
     {
         $studEqpPrms = $this->loadStudEqpPrm($idStudyEquipments, 200);
@@ -248,6 +257,15 @@ class BrainCalculateService
         }
         
         return $tS;
+    }
+
+    public function setTs($idStudyEquipments, $value, $i) 
+    {
+        $studEqpPrms = $this->loadStudEqpPrm($idStudyEquipments, 200);
+        if (!empty($studEqpPrms[$i])) {
+            $studEqpPrms[$i]->VALUE = $value;
+            $studEqpPrms[$i]->save();
+        }
     }
 
     public function loadStudEqpPrm($idStudyEquipments, $dataType)
