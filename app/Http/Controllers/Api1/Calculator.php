@@ -70,6 +70,12 @@ class Calculator extends Controller
      */
     protected $brainCal;
 
+    /**
+     * @var 
+     */
+    protected $brainMode;
+
+
 	/**
 	 * Create a new controller instance.
 	 *
@@ -437,7 +443,7 @@ class Calculator extends Controller
 		return $results;
 	}
 
-	public function startStudyEquipmentCalculation()
+	public function getStudyEquipmentCalculation()
 	{
 		$input = $this->request->all();
 		$idStudy = null;
@@ -449,6 +455,14 @@ class Calculator extends Controller
 		if (isset($input['checkOptim'])) $checkOptim = $input['checkOptim'];
 
 		$brainMode = $this->brainCal->getBrainMode($idStudy);
+
+		if ($checkOptim == "true") {
+			$this->setBrainMode(11);
+			$brainMode = $this->brainMode;
+		} else {
+			$this->setBrainMode(12);
+			$brainMode = $this->brainMode;
+		}
 
 		$sdisableCalculate 	= $this->cal->disableCalculate($idStudy);
 		$sdisableFields = $this->cal->disableFields($idStudy);
@@ -584,4 +598,14 @@ class Calculator extends Controller
 
 		return $array;
 	}
+
+	public function setBrainMode($brainMode) 
+	{
+        $this->brainMode = $brainMode;
+    }
+
+    public function  getBrainMode()
+    {
+    	return $this->brainMode;
+    }
 }

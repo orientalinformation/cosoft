@@ -54,8 +54,10 @@ class Studies extends Controller
 
     public function findStudies()
     {
-        $studies = $this->auth->user()->studies;
-        return $studies;
+        $mine = $this->auth->user()->studies;
+        $others = Study::where('ID_USER', '!=', $this->auth->user()->ID_USER)->get();
+
+        return compact('mine', 'others');
     }
 
     public function deleteStudyById($id)
