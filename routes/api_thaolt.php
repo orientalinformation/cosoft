@@ -31,3 +31,11 @@ $router->PATCH('/api/v1/productions/{id}', 'Api1\\Productions@saveProduction');
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/products/{idProd}/generateMesh', 'Api1\\Products@generateMesh');
+
+/**
+ * POST generateDefaultMesh
+ * Summary:
+ * Notes: generate product default mesh
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/products/{idProd}/defaultMesh', 'Api1\\Products@generateDefaultMesh');
