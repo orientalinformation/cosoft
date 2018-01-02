@@ -185,7 +185,7 @@ class Products extends Controller
         if (!$product)
             throw new \Exception("Error Processing Request. Product ID not found", 1);
 
-
+        /** @var MeshGeneration $meshGeneration */
         $meshGeneration = MeshGeneration::where('ID_PROD', $product->ID_PROD)->first();
 
         if (!$meshGeneration) {
@@ -253,5 +253,24 @@ class Products extends Controller
         }
 
         return compact('meshGeneration', 'elements', 'elmtMeshPositions');
+    }
+
+    /**
+     * @param $idProd
+     * @throws \Exception
+     */
+    public function initTemperature($idProd) {
+        /** @var Product $product */
+        $product = Product::findOrFail($idProd);
+
+        if (!$product)
+            throw new \Exception("Error Processing Request. Product ID not found", 1);
+
+//        if ( studyBean.RunStudyCleaner( StudyCleaner.SC_CLEAN_OUTPUT_PRODUCTION) != ValuesList.KERNEL_OK )
+//        run study cleaner, mode 42
+
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_STUDY, -1);
+        $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 42);
+
     }
 }

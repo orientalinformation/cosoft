@@ -39,3 +39,11 @@ $router->POST('/api/v1/products/{idProd}/generateMesh', 'Api1\\Products@generate
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/products/{idProd}/defaultMesh', 'Api1\\Products@generateDefaultMesh');
+
+/**
+ * POST initTemperature
+ * Summary:
+ * Notes: initialize temperature
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/products/{idProd}/initTemperature', 'Api1\\Products@initTemperature');
