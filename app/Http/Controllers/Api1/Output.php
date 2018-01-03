@@ -17,6 +17,7 @@ use App\Models\MinMax;
 use App\Models\StudEquipprofile;
 use App\Models\RecordPosition;
 use App\Models\TempRecordPts;
+use App\Models\TempRecordData;
 
 use App\Cryosoft\ValueListService;
 use App\Cryosoft\UnitsConverterService;
@@ -1365,5 +1366,21 @@ class Output extends Controller
         }
 
         return $data;
+    }
+
+    public function timeBased($idStudyEquipment)
+    {
+        $recordPosition = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->get();
+        $result = array();
+
+        if (count($recordPosition) > 0) {
+            foreach ($recordPosition as $row) {
+                $item["record"] = $row;
+                // $item["temp"] = TempRecordData::where("ID_REC_POS", $row->ID_REC_POS)->get();
+                $result[] = $item;
+            }
+        }
+
+        return $result;
     }
 }
