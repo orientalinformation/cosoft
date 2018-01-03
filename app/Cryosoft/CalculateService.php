@@ -364,4 +364,16 @@ class CalculateService
 
         return $this->convert->meshes($val, $this->value->MESH_CUT);
     }
+
+    public function isStudyHasChilds($idStudy)
+    {
+    	$bret = false;
+    	$study = Study::find($idStudy);
+    	if ($study != null) {
+    		if ($study->CHAINING_CONTROLS == 1 && $study->HAS_CHILD == 1) {
+	    		$bret = true;
+	    	}
+    	}
+    	return $bret;
+    }
 }
