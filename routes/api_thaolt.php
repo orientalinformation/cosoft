@@ -47,3 +47,11 @@ $router->POST('/api/v1/products/{idProd}/defaultMesh', 'Api1\\Products@generateD
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/products/{idProd}/initTemperature', 'Api1\\Products@initTemperature');
+
+/**
+ * PUT createStudy
+ * Summary:
+ * Notes: create a new study
+ * Output-Formats: [application/json]
+ */
+$router->PUT('/api/v1/studies', 'Api1\\Studies@createStudy');
