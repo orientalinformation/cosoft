@@ -55,3 +55,11 @@ $router->POST('/api/v1/products/{idProd}/initTemperature', 'Api1\\Products@initT
  * Output-Formats: [application/json]
  */
 $router->PUT('/api/v1/studies', 'Api1\\Studies@createStudy');
+
+/**
+ * GET recentStudies
+ * Summary: 
+ * Notes: get my recent studies
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/recentStudies', 'Api1\\Studies@recentStudies');

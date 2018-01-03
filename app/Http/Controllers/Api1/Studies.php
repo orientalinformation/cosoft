@@ -353,4 +353,9 @@ class Studies extends Controller
 
         return $study;
     }
+
+    public function recentStudies() {
+        $studies = Study::where('ID_USER',$this->auth->user()->ID_USER)->orderBy('ID_STUDY', 'desc')->take(5)->get();
+        return $studies;
+    }
 }
