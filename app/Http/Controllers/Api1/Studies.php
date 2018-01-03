@@ -14,6 +14,7 @@ use App\Kernel\KernelService;
 use App\Cryosoft\UnitsConverterService;
 use App\Cryosoft\ValueListService;
 use App\Models\MinMax;
+use App\Models\PrecalcLdgRatePrm;
 
 class Studies extends Controller
 {
@@ -304,6 +305,9 @@ class Studies extends Controller
         /** @var Production $production */
         $production = new Production();
 
+        /** @var PrecalcLdgRatePrm $precalc */
+        $precalc = new PrecalcLdgRatePrm();
+
         $input = $this->request->json()->all();
 
         $study->STUDY_NAME = $input['STUDY_NAME'];
@@ -315,6 +319,9 @@ class Studies extends Controller
         $study->OPTION_EXHAUSTPIPELINE = false;
         $study->CHAINING_CONTROLS = false;
         $study->CHAINING_ADD_COMP_ENABLE = false;
+        $study->CHAINING_NODE_DECIM_ENABLE = 0;
+        $study->HAS_CHILD = 0;
+        $study->TO_RECALCULATE = 0;
         $study->save();
 
         $nbMF 					= (float) MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_DAILY_STARTUP)->first()->DEFAULT_VALUE;
@@ -326,15 +333,15 @@ class Studies extends Controller
         $avTempDesired 		    = (float) MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_AVG_TEMPERATURE_DES)->first()->DEFAULT_VALUE;
         $temp 					= (float) MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_TEMP_AMBIANT)->first()->DEFAULT_VALUE;
 
-        $production->DAILY_STARTUP = $nbMF;
-        $production->DAILY_PROD = $nbheures;
-        $production->NB_PROD_WEEK_PER_YEAR = $nbWeekPeryear;
-        $production->WEEKLY_PROD = $nbjours;
-        $production->AMBIENT_HUM = $humidity;
-        $production->PROD_FLOW_RATE = $dailyProductFlow;
-        $production->AVG_T_DESIRED = $avTempDesired;
-        $production->AMBIENT_TEMP = $temp;
-        $production->ID_STUDY = $study->ID_STUDY;
+        $production->DAILY_STARTUP          = $nbMF;
+        $production->DAILY_PROD             = $nbheures;
+        $production->NB_PROD_WEEK_PER_YEAR  = $nbWeekPeryear;
+        $production->WEEKLY_PROD            = $nbjours;
+        $production->AMBIENT_HUM            = $humidity;
+        $production->PROD_FLOW_RATE         = $dailyProductFlow;
+        $production->AVG_T_DESIRED          = $avTempDesired;
+        $production->AMBIENT_TEMP           = $temp;
+        $production->ID_STUDY               = $study->ID_STUDY;
         $production->save();
 
         $product = new Product();
@@ -347,8 +354,16 @@ class Studies extends Controller
         $product->PROD_VOLUME = 0.0;
         $product->save();
 
+        $precalc->ID_STUDY          = $study->ID_STUDY;
+        $precalc->W_INTERVAL        = (float)MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_INTERVAL_WIDTH)->first()->DEFAULT_VALUE;
+        $precalc->L_INTERVAL        = (float)MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_INTERVAL_LENGHT)->first()->DEFAULT_VALUE;
+        $precalc->APPROX_LDG_RATE   = (float)MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_STDEQP_TEMP_REGULATION_LN2)->first()->DEFAULT_VALUE;
+        $precalc->PRECALC_LDG_TR    = (float)MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_STDEQP_TOP)->first()->DEFAULT_VALUE;
+        $precalc->save();
+
         $study->ID_PROD = $product->ID_PROD;
         $study->ID_PRODUCTION = $production->ID_PRODUCTION;
+        $study->ID_PRECALC_LDG_RATE_PRM = $precalc->ID_PRECALC_LDG_RATE_PRM;
         $study->save();
 
         return $study;
