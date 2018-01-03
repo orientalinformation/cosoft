@@ -376,4 +376,20 @@ class CalculateService
     	}
     	return $bret;
     }
+
+    public function setChildsStudiesToRecalculate($idStudy, $idStudyEquipment)
+    {
+    	if ($this->isStudyHasChilds($idStudy)) {
+    		$studies = Study::where('PARENT_ID', '=', $idStudy)->get();
+    		if (count($studies) > 0) {
+    			for ($i = 0; $i < count($studies) ; $i++) { 
+    				if (($idStudyEquipment == -1) || ($idStudyEquipment == $studies[$i]->PARENT_STUD_EQP_ID)) {
+    					$studies[$i]->TO_RECALCULATE = 1;
+    					$studies[$i]->save();
+    				}
+    			}
+    		}
+    	}
+    	return 0;
+    }
 }
