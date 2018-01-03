@@ -16,6 +16,7 @@ use App\Models\StudEqpPrm;
 use App\Models\MinMax;
 use App\Models\StudEquipprofile;
 use App\Models\RecordPosition;
+use App\Models\TempRecordPts;
 
 use App\Cryosoft\ValueListService;
 use App\Cryosoft\UnitsConverterService;
@@ -23,6 +24,7 @@ use App\Cryosoft\EquipmentsService;
 use App\Cryosoft\DimaResultsService;
 use App\Cryosoft\EconomicResultsService;
 use App\Cryosoft\StudyService;
+use App\Cryosoft\OutputService;
 
 
 
@@ -45,7 +47,7 @@ class Output extends Controller
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth, UnitsConverterService $unit, EquipmentsService $equip, DimaResultsService $dima, ValueListService $value, EconomicResultsService $eco, StudyService $study)
+    public function __construct(Request $request, Auth $auth, UnitsConverterService $unit, EquipmentsService $equip, DimaResultsService $dima, ValueListService $value, EconomicResultsService $eco, StudyService $study, OutputService $output)
     {
         $this->request = $request;
         $this->auth = $auth;
@@ -55,6 +57,7 @@ class Output extends Controller
         $this->value = $value;
         $this->eco = $eco;
         $this->study = $study;
+        $this->output = $output;
     }
 
     public function getSymbol($idStudy)
@@ -1333,5 +1336,34 @@ class Output extends Controller
             return compact("minScaleTemp", "maxScaleTemp", "minScaleConv", "maxScaleConv", "tempChartData", "convChartData");
 
         }
+    }
+    
+
+    public function heatExchange() 
+    {
+        $idStudy = $this->request->input('idStudy');
+        $idStudyEquipment = $this->request->input('idStudyEquipment');
+        $listRecordPos = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("RECORD_TIME", "ASC")->get();
+        $nbSteps = TempRecordPts::where("ID_STUDY", $idStudy)->first();
+        $nbSample = $nbSteps->NB_STEPS;
+
+        $nbRecord = count($listRecordPos);
+
+        $lfTS = $listRecordPos[$nbRecord - 1]->RECORD_TIME;
+        $lfStep = $listRecordPos[1]->RECORD_TIME - $listRecordPos[0]->RECORD_TIME;
+        $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
+
+        $data = array();
+
+        foreach ($lEchantillon as $key => $value) {
+            $recordPos = $listRecordPos[$key];
+
+            $item["x"] = $this->unit->time($recordPos->RECORD_TIME);
+            $item["y"] = $this->unit->enthalpy($recordPos->AVERAGE_ENTH_VAR);
+
+            $data[] = $item;
+        }
+
+        return $data;
     }
 }
