@@ -588,14 +588,33 @@ class Calculator extends Controller
 
     	$idStudy = null;
 		$idStudyEquipment = null;
+		$checkOptim = null;
 
 		if (isset($input['idStudy'])) $idStudy = intval($input['idStudy']);
 		if (isset($input['idStudyEquipment'])) $idStudyEquipment = intval($input['idStudyEquipment']);
+		if (isset($input['checkOptim'])) $checkOptim = intval($input['checkOptim']);
 		
  		$this->saveEquipmentSettings($this->request, $idStudyEquipment);
  		$this->saveCalculationParameters($this->request, $idStudyEquipment);
  		$this->saveTempRecordPts($this->request, $idStudy);
-    	return 0;
+
+ 		if ($this->cal->isStudyHasChilds($idStudy)) {
+ 			$this->cal->setChildsStudiesToRecalculate($idStudy, $idStudyEquipment);
+ 		}
+
+ 		$this->runStudyCleaner($idStudy, $idStudyEquipment);
+
+ 		$brainMode = $this->brainCal->getBrainMode($idStudy);
+
+		if ($checkOptim == "true") {
+			$this->setBrainMode(11);
+			$brainMode = $this->brainMode;
+		} else {
+			$this->setBrainMode(12);
+			$brainMode = $this->brainMode;
+		}
+
+    	return $this->startBrainNumericalCalculation($idStudy, $brainMode);
     }
 
     public function saveCalculationParameters(Request $request, $idStudyEquipment)
@@ -639,7 +658,7 @@ class Calculator extends Controller
 		$calculationParameter = CalculationParameter::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
 
 		if ($checkOptim != null) {
-			$calculationParameter->NB_OPTIM = $scheckOptim;
+			$calculationParameter->NB_OPTIM = $checkOptim;
 			$calculationParameter->ERROR_T = $this->convert->unitConvert($this->value->TEMPERATURE, $epsilonTemp);
 			$calculationParameter->ERROR_H = $this->convert->unitConvert($this->value->TEMPERATURE, $epsilonEnth);
 		} else {
@@ -813,5 +832,67 @@ class Calculator extends Controller
 				$this->brainCal->setTr($idStudyEquipment, doubleval($oldLTr[$i]), $i);
 			}
 		}
+    }
+
+    public function runStudyCleaner($idStudy, $idStudyEquipment)
+    {
+    	$ret = 0;
+		$conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
+		$ret = $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 53);
+
+		if ($ret == 0 && $this->cal->isStudyHasChilds($idStudy)) {
+			$this->cal->getCalculableStudyEquipments($idStudy, $idStudyEquipment);
+		}
+
+		return $ret;	
+    }
+
+    public function startBrainNumericalCalculation($idStudy, $brainMode)
+    {
+    	$ldMode = 10;
+        
+        switch ($brainMode) {
+            case 10:
+                $ldMode = 10;
+                break;
+
+            case 11:
+            case 15:
+                $ldMode = 11;
+                break;
+
+            case 12:
+            case 14:
+            case 16:
+                $ldMode = 12;
+                break;
+
+            case 13:
+            case 17:
+                $ldMode = 13;
+                break;
+
+            default:
+                $ldMode = 10;
+        }
+
+        $studyEquipments = StudyEquipment::where('ID_STUDY', $idStudy)->get();
+
+		$results = [];
+
+		if (count($studyEquipments) > 0) {
+			for ($i = 0; $i < count($studyEquipments); $i++) { 
+				$idStudyEquipment = $studyEquipments[$i]->ID_STUDY_EQUIPMENTS;
+				$capability = $studyEquipments[$i]->CAPABILITIES;
+
+				if ($this->equipment->getCapability($capability, 128)) {
+					$conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
+					$param = new \Cryosoft\stSKBRParam();
+
+					array_push($results, $this->kernel->getKernelObject('BrainCalculator')->BRTeachCalculation($conf, $param, $ldMode));
+				}
+			}
+		}
+		return $results;
     }
 }
