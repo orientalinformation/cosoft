@@ -128,6 +128,10 @@ class Products extends Controller
         $elementId = $input['elementId'];
         $element = \App\Models\ProductElmt::find($elementId);
         $studyId = $element->product->ID_STUDY;
+
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $element->product->ID_STUDY, -1);
+        $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, SC_CLEAN_OUTPUT_PRODUCT);
+
         $element->delete();
 
         $elements = \App\Models\ProductElmt::where('ID_PROD', $id)->orderBy('SHAPE_POS2')->get();
@@ -236,7 +240,7 @@ class Products extends Controller
 
         // run study cleaner, mode 51
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_STUDY, -1);
-        $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 51);
+        $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, SC_CLEAN_OUTPUT_SIZINGCONSO);
 
 
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_STUDY);
@@ -270,7 +274,7 @@ class Products extends Controller
 //        run study cleaner, mode 42
 
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_STUDY, -1);
-        $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 42);
+        $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, SC_CLEAN_OUTPUT_PRODUCTION);
 
     }
 }
