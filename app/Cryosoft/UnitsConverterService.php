@@ -278,6 +278,11 @@ class UnitsConverterService
         return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B);
     }
 
+    public function meshesUnit($value) {
+        $unit = Unit::select("COEFF_A", "COEFF_B")->where("TYPE_UNIT", $this->value->MESH_CUT)->first();
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B);
+    }
+
     public function toc($value) 
     {
         $uPercent = $this->uPercent();
