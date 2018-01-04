@@ -114,9 +114,12 @@ class Products extends Controller
 
         $product = Product::find($id);
 
-        $idElement = isset($input['elementId']);
-        $dim2 = isset($input['dim2']);
-        $description = isset($input['description']);
+        if (!isset($input['elementId']) || !isset($input['dim2']))
+            throw new \Exception("Error Processing Request", 1);            
+
+        $idElement = $input['elementId'];
+        $dim2 = $input['dim2'];
+        $description = $input['description'];
 
         $nElements = \App\Models\ProductElmt::find($idElement);
         $nElements->PROD_ELMT_NAME = $description;
