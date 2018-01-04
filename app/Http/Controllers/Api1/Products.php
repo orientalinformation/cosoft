@@ -326,5 +326,6 @@ class Products extends Controller
                 }
             }
         }
+        return 0;
     }
 }
