@@ -15,3 +15,11 @@ $router->GET('/api/v1/studyequipment/braincalculate', 'Api1\\Calculator@getStudy
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/studyequipment/startbraincalculate', 'Api1\\Calculator@startBrainCalculate');
+
+/**
+ * POST new user
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/admin/newuser', 'Api1\\Admin@newUser');
