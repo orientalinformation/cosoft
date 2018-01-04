@@ -1345,6 +1345,17 @@ class Output extends Controller
         $idStudy = $this->request->input('idStudy');
         $idStudyEquipment = $this->request->input('idStudyEquipment');
         $listRecordPos = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("RECORD_TIME", "ASC")->get();
+
+        $curve = array();
+        $result = array();
+        foreach ($listRecordPos as $row) {
+
+            $item["x"] = $this->unit->time($row->RECORD_TIME);
+            $item["y"] = $this->unit->enthalpy($row->AVERAGE_ENTH_VAR);
+
+            $curve[] = $item;
+        }
+
         $nbSteps = TempRecordPts::where("ID_STUDY", $idStudy)->first();
         $nbSample = $nbSteps->NB_STEPS;
 
@@ -1354,18 +1365,17 @@ class Output extends Controller
         $lfStep = $listRecordPos[1]->RECORD_TIME - $listRecordPos[0]->RECORD_TIME;
         $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
 
-        $data = array();
+        foreach ($lEchantillon as $row) {
 
-        foreach ($lEchantillon as $key => $value) {
-            $recordPos = $listRecordPos[$key];
+            $recordPos = $listRecordPos[$row];
 
-            $item["x"] = $this->unit->time($recordPos->RECORD_TIME);
-            $item["y"] = $this->unit->enthalpy($recordPos->AVERAGE_ENTH_VAR);
+            $itemResult["x"] = $this->unit->time($recordPos->RECORD_TIME);
+            $itemResult["y"] = $this->unit->enthalpy($recordPos->AVERAGE_ENTH_VAR);
 
-            $data[] = $item;
+            $result[] = $itemResult;
         }
 
-        return $data;
+        return compact("result", "curve");
     }
 
     public function timeBased($idStudyEquipment)
