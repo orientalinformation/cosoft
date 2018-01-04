@@ -108,6 +108,30 @@ class Products extends Controller
         return compact('ok1', 'ok2', 'elmtId');
     }
 
+    public function updateProductElement($id)
+    {
+        $input = $this->request->all();
+
+        $product = Product::find($id);
+
+        $idElement = isset($input['elementId']);
+        $dim2 = isset($input['dim2']);
+        $description = isset($input['description']);
+
+        $nElements = \App\Models\ProductElmt::find($idElement);
+        $nElements->PROD_ELMT_NAME = $description;
+        $nElements->SHAPE_PARAM2 = $dim2;
+        $nElements->save();
+
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $id, $idElement);
+        $ok2 = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($product->ID_STUDY,  $conf, 2);
+
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $id);
+        $ok2 = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($product->ID_STUDY,  $conf, 3);
+
+        return compact('ok1', 'ok2', 'idElement');
+    }
+
     public function getProductViewModel($id) {
         $product = Product::find($id);
         $elements = \App\Models\ProductElmt::where('ID_PROD', $id)->orderBy('SHAPE_POS2', 'DESC')->get();
