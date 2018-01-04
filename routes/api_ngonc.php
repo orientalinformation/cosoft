@@ -30,4 +30,4 @@ $router->GET('/api/v1/output/heatExchange', 'Api1\\Output@heatExchange');
  * Notes: get time based chart data
  * Output-Formats: [application/json]
  */
-$router->GET('/api/v1/output/timeBased/{idStudyEquipment}', 'Api1\\Output@timeBased');
+$router->GET('/api/v1/output/timeBased', 'Api1\\Output@timeBased');

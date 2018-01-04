@@ -4,6 +4,8 @@ namespace App\Cryosoft;
 
 use App\Cryosoft\ValueListService;
 use App\Cryosoft\UnitsConverterService;
+use App\Models\TempRecordPts;
+use App\Models\TempRecordData;
 
 class OutputService
 {
@@ -37,4 +39,9 @@ class OutputService
 
         return $tdSamplePos;
     } 
+
+    public function getTemperaturePosition($idRecPos, $axis1, $axis2)
+    {
+        return TempRecordData::where("ID_REC_POS", $idRecPos)->where("REC_AXIS_X_POS", $axis1)->where("REC_AXIS_Y_POS", $axis2)->where("REC_AXIS_Z_POS", 0)->first();
+    }
 }

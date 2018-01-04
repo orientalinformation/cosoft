@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\Auth\Factory as Auth;
+use Illuminate\Support\Facades\DB;
 
 use App\Models\Study;
 use App\Models\StudyEquipment;
@@ -1378,19 +1379,75 @@ class Output extends Controller
         return compact("result", "curve");
     }
 
-    public function timeBased($idStudyEquipment)
+    public function timeBased()
     {
-        $recordPosition = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->get();
-        $result = array();
+        $idStudy = $this->request->input('idStudy');
+        $idStudyEquipment = $this->request->input('idStudyEquipment');
 
-        if (count($recordPosition) > 0) {
-            foreach ($recordPosition as $row) {
-                $item["record"] = $row;
-                // $item["temp"] = TempRecordData::where("ID_REC_POS", $row->ID_REC_POS)->get();
-                $result[] = $item;
+        $listRecordPos = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->get();
+        $result = array();
+        $label = array();
+        $curve = array();
+
+        if (count($listRecordPos) > 0) {
+            foreach ($listRecordPos as $row) {
+                $termRecordDataTop = $this->output->getTemperaturePosition($row->ID_REC_POS, (int) $row->AXIS1_PT_TOP_SURF, (int) $row->AXIS2_PT_TOP_SURF);
+                $termRecordDataInt = $this->output->getTemperaturePosition($row->ID_REC_POS, (int) $row->AXIS1_PT_INT_PT, (int) $row->AXIS2_PT_INT_PT);
+                $termRecordDataBot = $this->output->getTemperaturePosition($row->ID_REC_POS, (int) $row->AXIS1_PT_BOT_SURF, (int) $row->AXIS2_PT_BOT_SURF);
+
+                $itemCurveTop["x"] = $this->unit->time($row->RECORD_TIME);
+                $itemCurveTop["y"] = $this->unit->prodTemperature($termRecordDataTop->TEMP);
+
+                $itemCurveInt["x"] = $this->unit->time($row->RECORD_TIME);
+                $itemCurveInt["y"] = $this->unit->prodTemperature($termRecordDataInt->TEMP);
+
+                $itemCurveBotom["x"] = $this->unit->time($row->RECORD_TIME);
+                $itemCurveBotom["y"] = $this->unit->prodTemperature($termRecordDataBot->TEMP);
+
+                $itemCurveAverage["x"] = $this->unit->time($row->RECORD_TIME);
+                $itemCurveAverage["y"] = $this->unit->prodTemperature($row->AVERAGE_TEMP);
+
+                $curve["top"][] = $itemCurveTop;
+                $curve["int"][] = $itemCurveInt;
+                $curve["bot"][] = $itemCurveBotom;
+                $curve["average"][] = $itemCurveAverage;
             }
+            $tempRecordPts = TempRecordPts::where("ID_STUDY", $idStudy)->first();
+            $nbSample = $tempRecordPts->NB_STEPS;
+
+            $nbRecord = count($listRecordPos);
+
+            $lfTS = $listRecordPos[$nbRecord - 1]->RECORD_TIME;
+            $lfStep = $listRecordPos[1]->RECORD_TIME - $listRecordPos[0]->RECORD_TIME;
+            $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
+
+            foreach ($lEchantillon as $row) {
+                $recordPos = $listRecordPos[$row];
+                $item["points"] = $this->unit->time($recordPos->RECORD_TIME);
+
+                //top
+                $termRecordDataTop = $this->output->getTemperaturePosition($recordPos->ID_REC_POS, (int) $tempRecordPts->AXIS1_PT_TOP_SURF, (int) $tempRecordPts->AXIS2_PT_TOP_SURF);
+                $item["top"] =  $this->unit->prodTemperature($termRecordDataTop->TEMP);
+                
+                //int
+                $termRecordDataInt = $this->output->getTemperaturePosition($recordPos->ID_REC_POS, (int) $tempRecordPts->AXIS1_PT_INT_PT, (int) $tempRecordPts->AXIS2_PT_INT_PT);
+                $item["int"] = $this->unit->prodTemperature($termRecordDataInt->TEMP);
+
+                //bot
+                $termRecordDataBot = $this->output->getTemperaturePosition($recordPos->ID_REC_POS, (int) $tempRecordPts->AXIS1_PT_BOT_SURF, (int) $tempRecordPts->AXIS2_PT_BOT_SURF);
+                $item["bot"] = $this->unit->prodTemperature($termRecordDataBot->TEMP);
+
+                $item["average"] = $this->unit->prodTemperature($recordPos->AVERAGE_TEMP);
+                $result[] = $item; 
+            }
+
+            $label["top"] = $this->unit->meshesUnit($tempRecordPts->AXIS1_PT_TOP_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_TOP_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_TOP_SURF);
+
+            $label["int"] = $this->unit->meshesUnit($tempRecordPts->AXIS1_PT_INT_PT) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_INT_PT) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_INT_PT);
+
+            $label["bot"] = $this->unit->meshesUnit($tempRecordPts->AXIS1_PT_BOT_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_BOT_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_BOT_SURF);
         }
 
-        return $result;
+        return compact("label", "curve", "result");
     }
 }

@@ -8,6 +8,8 @@ use App\Models\Product;
 use App\Models\Production;
 use App\Models\Packing;
 use App\Models\Study;
+use App\Models\StudyEquipment;
+use App\Models\LayoutResults;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\Auth\Factory as Auth;
 use App\Kernel\KernelService;
@@ -15,6 +17,9 @@ use App\Cryosoft\UnitsConverterService;
 use App\Cryosoft\ValueListService;
 use App\Models\MinMax;
 use App\Models\PrecalcLdgRatePrm;
+use App\Models\LayoutGeneration;
+use App\Models\Translation;
+use App\Models\StudEqpPrm;
 
 class Studies extends Controller
 {
@@ -178,12 +183,121 @@ class Studies extends Controller
     }
 
     /**
+     * @param StudyEquipment $studyEquip
+     * @param int $dataType
+     */
+    function loadEquipmentData(StudyEquipment $studyEquip, int $dataType) {
+        $num_fields = 0;
+        $num_fields = 1;
+        switch ($dataType) {
+            case CONVECTION_SPEED:
+                // unit_ident = UnitsConverter . CONV_SPEED_UNIT;
+                $num_fields = $studyEquip->equipment->NB_VC;
+                break;
+            case DWELLING_TIME:
+                // unit_ident = UnitsConverter . TIME_UNIT;
+                $num_fields = $studyEquip->equipment->NB_TS;
+                break;
+            case REGULATION_TEMP:
+                // unit_ident = UnitsConverter . CONTROL_TEMP_UNIT;
+                $num_fields = $studyEquip->equipment->NB_TR;
+                break;
+            case ENTHALPY_VAR:
+                // unit_ident = UnitsConverter . ENTHALPY_UNIT;
+                $num_fields = $studyEquip->equipment->NB_TR;
+                break;
+            case EXHAUST_TEMP:
+                // unit_ident = UnitsConverter . CONTROL_TEMP_UNIT;
+                $num_fields = 1;
+                break;
+        }
+        $studyEquipParams = StudEqpPrm::where('ID_STUDY_EQUIPMENTS', $studyEquip->ID_STUDY_EQUIPMENTS)
+            ->where('VALUE_TYPE','>=', $dataType)->where('VALUE_TYPE', '<', $dataType+100)->pluck('VALUE')->toArray();
+        return array_map('doubleval', $studyEquipParams);
+    }
+
+    /**
     * 
     **/
     public function getStudyEquipments($id) 
     {
         $study = \App\Models\Study::find($id);
-        return $study->studyEquipments;
+        $studyEquipments = StudyEquipment::where('ID_STUDY', $study->ID_STUDY)->with('equipment')->get();
+        $returnStudyEquipments = [];
+
+        foreach ($studyEquipments as $studyEquipment) {
+            /** @var StudyEquipment $studyEquipment */
+            $equip = [
+                'ID_STUDY_EQUIPMENTS' => $studyEquipment->ID_STUDY_EQUIPMENTS,
+                'EQUIP_NAME' => $studyEquipment->EQUIP_NAME,
+                'ID_EQUIP' => $studyEquipment->ID_EQUIP,
+                'EQP_LENGTH' => $studyEquipment->EQP_LENGTH,
+                'EQP_WIDTH' => $studyEquipment->EQP_WIDTH,
+                'EQUIP_VERSION' => $studyEquipment->EQUIP_VERSION,
+            ];
+            $layoutGen = LayoutGeneration::where('ID_STUDY_EQUIPMENTS', $studyEquipment->ID_STUDY_EQUIPMENTS)->first();
+
+            $equip['ORIENTATION'] = $layoutGen->PROD_POSITION;
+            $equip['displayName'] = 'EQUIP_NAME_NOT_FOUND';
+
+            // determine study equipment name
+            if ($studyEquipment->equipment->STD
+                && !($studyEquipment->equipment->CAPABILITIES & CAP_DISPLAY_DB_NAME != 0)
+                && !($studyEquipment->equipment->CAPABILITIES & CAP_EQUIP_SPECIFIC_SIZE != 0))
+            {
+                $equip['displayName'] = $equip['EQUIP_NAME'] . " - " 
+                    . number_format($studyEquipment->equipment->EQP_LENGTH + ($studyEquipment->NB_MODUL * $studyEquipment->equipment->MODUL_LENGTH), 2)
+                    . "x" . number_format($studyEquipment->equipment->EQP_WIDTH, 2) . " (v" . ($studyEquipment->EQUIP_VERSION) . ")"
+                    . ($studyEquipment->EQUIP_RELEASE == 3 ? ' / Active' : ''); // @TODO: translate
+            }
+            else if (($studyEquipment->equipment->CAPABILITIES & CAP_EQUIP_SPECIFIC_SIZE != 0)
+                && ($studyEquipment->equipment->STDEQP_LENGTH != NO_SPECIFIC_SIZE)
+                && ($studyEquipment->equipment->STDEQP_WIDTH != NO_SPECIFIC_SIZE))
+            {
+                $equip['displayName'] = $equip['EQUIP_NAME']
+                    . " (v" . ($studyEquipment->EQUIP_VERSION) . ")"
+                    . ($studyEquipment->EQUIP_RELEASE == 3 ? ' / Active' : ''); // @TODO: translate
+            } else {
+                $equip['displayName'] = $equip['EQUIP_NAME'] 
+                    . ($studyEquipment->EQUIP_RELEASE == 3 ? ' / Active' : ''); // @TODO: translate
+            }
+
+            $equip['tr'] = $this->loadEquipmentData($studyEquipment, REGULATION_TEMP);
+            $equip['ts'] = $this->loadEquipmentData($studyEquipment, DWELLING_TIME);
+            $equip['vc'] = $this->loadEquipmentData($studyEquipment, CONVECTION_SPEED);
+            $equip['dh'] = $this->loadEquipmentData($studyEquipment, ENTHALPY_VAR);
+            $equip['TExt'] = $this->loadEquipmentData($studyEquipment, EXHAUST_TEMP)[0];
+
+            $equip['top_or_QperBatch'] = $this->topOrQperBatch($studyEquipment);
+            
+            array_push($returnStudyEquipments, $equip);
+        }
+
+        return $returnStudyEquipments;
+    }
+
+    function topOrQperBatch(StudyEquipment $se)
+    {
+        /** @var App\Models\LayoutResults $lr */
+        $lr = $se->layoutResults->first();
+        $returnStr = "";
+        if ($se->equipment->BATCH_PROCESS==1) {
+            $returnStr = ((!$lr) || !($se->equipment->CAPABILITIES & CAP_LAYOUT_ENABLE != 0)) ?
+                "" :
+                $this->convert->mass($lr->QUANTITY_PER_BATCH) .
+                " " . $this->convert->massSymbol() .
+                "/batch"; // @TODO: translate
+        } else {
+            $returnStr = ((!$lr) || !($se->equipment->CAPABILITIES & CAP_LAYOUT_ENABLE != 0)) ?
+                "" : $this->convert->toc($lr->LOADING_RATE) . " %";
+        }
+
+        // if ((lg . getWidthInterval() != ValuesList . INTERVAL_UNDEFINED)
+        //     || (lg . getLengthInterval() != ValuesList . INTERVAL_UNDEFINED)) {
+        //     String simg = "<br><img src=\"/cryosoft/jspPages/img/icon_info.gif\" alt=\"\" border=\"0\">";
+        //     out . println(simg);
+        // }
+        return $returnStr;
     }
 
     public function newProduct($id) 
@@ -264,7 +378,10 @@ class Studies extends Controller
 
         return compact('packing', 'packingLayers');
     }
-
+    
+    /**
+     * 
+     */
     public function savePacking($id)
     {
         $input = $this->request->all();
