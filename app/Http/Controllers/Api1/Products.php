@@ -9,6 +9,9 @@ use App\Models\ProductElmt;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\Auth\Factory as Auth;
 use App\Kernel\KernelService;
+use App\Models\Production;
+use App\Models\InitialTemperature;
+use App\Models\Study;
 
 class Products extends Controller
 {
@@ -170,7 +173,18 @@ class Products extends Controller
             array_push($elmtMeshPositions, $meshPositions);
         }
 
-        return compact('meshGeneration', 'elements', 'elmtMeshPositions');
+        $productIsoTemp = null;
+        
+        if ($product->PROD_ISO) {
+            if (InitialTemperature::where('ID_PRODUCTION', $product->study->ID_PRODUCTION)->count() > 0) {
+                $productIsoTemp = InitialTemperature::where('ID_PRODUCTION', $product->study->ID_PRODUCTION)->first();
+                if ($productIsoTemp) {
+                    $productIsoTemp = $productIsoTemp->INITIAL_T;
+                }
+            }
+        }
+        
+        return compact('meshGeneration', 'elements', 'elmtMeshPositions', 'productIsoTemp');
     }
 
     public function generateMesh($idProd) {
@@ -264,17 +278,53 @@ class Products extends Controller
      * @throws \Exception
      */
     public function initTemperature($idProd) {
+
+        $input = $this->request->all();
+        
         /** @var Product $product */
-        $product = Product::findOrFail($idProd);
+        $product = Product::findOrFail($idProd);        
 
         if (!$product)
             throw new \Exception("Error Processing Request. Product ID not found", 1);
+        
+        $study = Study::findOrFail($product->ID_STUDY);
 
-//        if ( studyBean.RunStudyCleaner( StudyCleaner.SC_CLEAN_OUTPUT_PRODUCTION) != ValuesList.KERNEL_OK )
-//        run study cleaner, mode 42
+        /** @var App\Models\Production $production */
+        $production = $study->productions->first();
 
+        // run study cleaner, mode 42
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_STUDY, -1);
         $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, SC_CLEAN_OUTPUT_PRODUCTION);
 
+        // delete all current initial temperature
+        InitialTemperature::where('ID_PRODUCTION', $production->ID_PRODUCTION)->delete();
+
+        /** @var MeshGeneration $meshGeneration */
+        $meshGeneration = MeshGeneration::where('ID_PROD', $product->ID_PROD)->first();
+
+        // 1D Temp Init
+        $nbNode1 = 1;
+        $nbNode3 = 1;
+        $nbNode2 = $meshGeneration->MESH_2_NB;
+
+        foreach ($product->productElmts as $elmt) {
+            $elmt->PROD_ELMT_ISO = 0;
+            $elmt->save();
+        }
+
+        for ($x=0; $x < $nbNode1; $x++) {
+            for ($y = 0; $y < $nbNode2; $y++) {
+                for ($z = 0; $z < $nbNode3; $z++) {
+                    /** @var InitialTemperature $t */
+                    $t = new InitialTemperature();
+                    $t->MESH_1_ORDER = $x;
+                    $t->MESH_2_ORDER = $y;
+                    $t->MESH_3_ORDER = $z;
+                    $t->ID_PRODUCTION = $production->ID_PRODUCTION;
+                    $t->INITIAL_T = floatval( $input['initTemp'] );
+                    $t->save();
+                }
+            }
+        }
     }
 }
