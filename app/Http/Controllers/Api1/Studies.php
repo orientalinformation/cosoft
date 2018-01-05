@@ -20,6 +20,9 @@ use App\Models\PrecalcLdgRatePrm;
 use App\Models\LayoutGeneration;
 use App\Models\Translation;
 use App\Models\StudEqpPrm;
+use App\Models\CalculationParametersDef;
+use App\Models\CalculationParameter;
+use App\Cryosoft\CalculateService;
 
 class Studies extends Controller
 {
@@ -188,7 +191,6 @@ class Studies extends Controller
      */
     function loadEquipmentData(StudyEquipment $studyEquip, int $dataType) {
         $num_fields = 0;
-        $num_fields = 1;
         switch ($dataType) {
             case CONVECTION_SPEED:
                 // unit_ident = UnitsConverter . CONV_SPEED_UNIT;
@@ -490,4 +492,357 @@ class Studies extends Controller
         $studies = Study::where('ID_USER',$this->auth->user()->ID_USER)->orderBy('ID_STUDY', 'desc')->take(5)->get();
         return $studies;
     }
+
+    function getDefaultPrecision ($productshape, $nbComp, $itemPrecis) {
+        $limitItem = 0;
+        $defaultPrecis = 0.005;
+        $FirstItemMonoComp = [
+            0,1151 ,1161 ,1171 ,1181 ,1191 ,1201 ,1211 ,1221 , 1231
+        ];
+        $FirstItemMultiComp = [
+            0,1156 ,1166 ,1176 ,1186 ,1196 ,1206 ,1216 ,1226 , 1236
+        ];
+
+        switch ($productshape) {
+            case SLAB:
+            case PARALLELEPIPED_STANDING:
+            case PARALLELEPIPED_LAYING:
+            case CYLINDER_STANDING:
+            case CYLINDER_LAYING:
+            case SPHERE:
+            case CYLINDER_CONCENTRIC_STANDING:
+            case CYLINDER_CONCENTRIC_LAYING:
+            case PARALLELEPIPED_BREADED:
+                if ($nbComp == 1) {
+                    $limitItem = $FirstItemMonoComp[$productshape] + $itemPrecis - 1;
+                } else {
+                    $limitItem = $FirstItemMultiComp[$productshape] + $itemPrecis - 1;
+                }
+                break;
+
+            default:
+                $limitItem = $FirstItemMonoComp[0] + $itemPrecis - 1;
+                break;
+
+        }
+
+        $defaultPrecis = MinMax::where('LIMIT_ITEM', $limitItem)->first()->DEFAULT_VALUE;
+
+        return ($defaultPrecis);
+    }
+
+    public function getDefaultTimeStep ($itemTimeStep) {
+        $limitItem = 0;
+        $defaultTimeStep = 1;		// s
+        $FirstItem = 1241;
+
+        $limitItem = $FirstItem + $itemTimeStep - 1;
+
+        $defaultTimeStep = MinMax::where('LIMIT_ITEM', $limitItem)->first()->DEFAULT_VALUE;
+
+        return ($defaultTimeStep);
+    }
+
+    /**
+     * @param $id
+     */
+    public function addEquipment($id)
+    {
+        $input = $this->request->all();
+
+        /** @var App\Models\Study $study */
+        $study = \App\Models\Study::find($id);
+
+        $productshape = $study->products->first()->productElmts->first()->ID_SHAPE;
+
+        $mmTop = MinMax::where('LIMIT_ITEM', MIN_MAX_STDEQP_TOP)->first();
+
+        $equip = \App\Models\Equipment::findOrFail( $input['idEquip'] );
+        
+        $sEquip = new \App\Models\StudyEquipment();
+        $sEquip->ID_EQUIP = $equip->ID_EQUIP;
+        $sEquip->ID_STUDY = $study->ID_STUDY;
+        $sEquip->ENABLE_CONS_PIE = DISABLE_CONS_PIE;
+        $sEquip->RUN_CALCULATE = EQUIP_SELECTED;
+        
+        $sEquip->RUN_CALCULATE = $study->CALCULATION_MODE == 1? SAVE_NUM_TO_DB_YES: SAVE_NUM_TO_DB_NO;
+
+        $sEquip->STDEQP_WIDTH = -1;
+        $sEquip->STDEQP_LENGTH = -1;
+
+        $sEquip->save();
+
+        // @TODO: JAVA initCalculationParameters(idUser, sEquip, productshape, nbComp);
+        $defaultCalcParams = CalculationParametersDef::where('ID_USER', $this->auth->user()->ID_USER)->first();
+        
+        $calcParams = new CalculationParameter();
+        $calcParams->ID_STUDY_EQUIPMENTS = $sEquip->ID_STUDY_EQUIPMENTS;
+        
+        // Fixed alpha value
+        $calcParams->STUDY_ALPHA_TOP_FIXED = $defaultCalcParams->STUDY_ALPHA_TOP_FIXED_DEF;
+        $calcParams->STUDY_ALPHA_BOTTOM_FIXED = $defaultCalcParams->STUDY_ALPHA_BOTTOM_FIXEDD_DEF;
+        $calcParams->STUDY_ALPHA_LEFT_FIXED = $defaultCalcParams->STUDY_ALPHA_LEFT_FIXED_DEF;
+        $calcParams->STUDY_ALPHA_RIGHT_FIXED = $defaultCalcParams->STUDY_ALPHA_RIGHT_FIXED_DEF;
+        $calcParams->STUDY_ALPHA_FRONT_FIXED = $defaultCalcParams->STUDY_ALPHA_FRONT_FIXED_DEF;
+        $calcParams->STUDY_ALPHA_REAR_FIXED = $defaultCalcParams->STUDY_ALPHA_REAR_FIXED_DEF;
+        $calcParams->STUDY_ALPHA_TOP = $defaultCalcParams->STUDY_ALPHA_TOP_DEF;
+        $calcParams->STUDY_ALPHA_BOTTOM = $defaultCalcParams->STUDY_ALPHA_BOTTOM_DEF;
+        $calcParams->STUDY_ALPHA_RIGHT = $defaultCalcParams->STUDY_ALPHA_RIGHT_DEF;
+        $calcParams->STUDY_ALPHA_LEFT = $defaultCalcParams->STUDY_ALPHA_LEFT_DEF;
+        $calcParams->STUDY_ALPHA_FRONT = $defaultCalcParams->STUDY_ALPHA_FRONT_DEF;
+        $calcParams->STUDY_ALPHA_REAR = $defaultCalcParams->STUDY_ALPHA_REAR_DEF;
+        
+        // Brain calculation parameters
+        $calcParams->HORIZ_SCAN = $defaultCalcParams->HORIZ_SCAN_DEF;
+        $calcParams->VERT_SCAN = $defaultCalcParams->isVert_scan_def;
+        $calcParams->MAX_IT_NB = $defaultCalcParams->getMaxItNbDef;
+        $calcParams->RELAX_COEFF = $defaultCalcParams->getRelaxCoeffDef;
+        
+        $calcParams->STOP_TOP_SURF = $defaultCalcParams->STOP_TOP_SURF_DEF;
+        $calcParams->STOP_INT = $defaultCalcParams->STOP_INT_DEF;
+        $calcParams->STOP_BOTTOM_SURF = $defaultCalcParams->STOP_BOTTOM_SURF_DEF;
+        $calcParams->STOP_AVG = $defaultCalcParams->STOP_AVG_DEF;
+        
+        $calcParams->TIME_STEPS_NB = $defaultCalcParams->TIME_STEPS_NB_DEF;
+        $calcParams->STORAGE_STEP = $defaultCalcParams->STORAGE_STEP_DEF;
+        $calcParams->PRECISION_LOG_STEP = $defaultCalcParams->PRECISION_LOG_STEP_DEF;
+        
+        // Get default values according to product and equipment
+        $defPrecision = $this->GetDefaultPrecision(
+            $productshape,
+            $study->products->first()->productElmts->count(),
+            $sEquip->equipment->ITEM_PRECIS
+        );
+        $calcParams->PRECISION_REQUEST = $defPrecision;
+        
+        $defTimeStep = $this->GetDefaultTimeStep($sEquip->equipment->ITEM_TIME_STEP);
+        $calcParams->TIME_STEP = $defTimeStep;
+        
+        $calcParams->save();
+
+        $sEquip->ID_CALC_PARAMS = $calcParams->ID_CALC_PARAMS;
+        $sEquip->save();
+        
+        $TRType = $equip->ITEM_TR;
+        $TSType = $equip->ITEM_TS;
+        $VCType = $equip->ITEM_VC;
+        
+        $tr = []; //double
+        $ts = []; //double
+        
+        if ($equip->STD != EQUIP_STANDARD) {
+            // TODO: generated non-standard equipment is not supported yet
+        } else {
+            // standard equipment
+            $tr = $this->getEqpPrmInitialData(array_fill(0, $equip->NB_TR, 0.0), $TRType, false);
+            $ts = $this->getEqpPrmInitialData(array_fill(0, $equip->NB_TS, 0.0), $TSType, true);	
+        }
+
+        $vc = $this->getEqpPrmInitialData(array_fill(0, $equip->NB_VC, 0.0), $VCType, false);
+		//number of DH = number of TR
+        $dh = $this->getEqpPrmInitialData(array_fill(0, $equip->NB_TR, 0.0), 0, false);
+        $TExt = doubleval($tr[0]);
+
+        // set equipment data
+        // clear first
+        StudEqpPrm::where('ID_STUDY_EQUIPMENTS', $sEquip->ID_STUDY_EQUIPMENTS)->delete();
+
+        foreach ($tr as $trValue) {
+            $p = new StudEqpPrm();
+            $p->ID_STUDY_EQUIPMENTS = $sEquip->ID_STUDY_EQUIPMENTS;
+            $p->VALUE_TYPE = REGULATION_TEMP;
+            $p->VALUE = $trValue;
+            $p->save();
+        }
+
+        foreach ($ts as $tsValue) {
+            $p = new StudEqpPrm();
+            $p->ID_STUDY_EQUIPMENTS = $sEquip->ID_STUDY_EQUIPMENTS;
+            $p->VALUE_TYPE = DWELLING_TIME;
+            $p->VALUE = $tsValue;
+            $p->save();
+        }
+
+        foreach ($vc as $vcValue) {
+            $p = new StudEqpPrm();
+            $p->ID_STUDY_EQUIPMENTS = $sEquip->ID_STUDY_EQUIPMENTS;
+            $p->VALUE_TYPE = CONVECTION_SPEED;
+            $p->VALUE = $vcValue;
+            $p->save();
+        }
+
+        foreach ($dh as $dhValue) {
+            $p = new StudEqpPrm();
+            $p->ID_STUDY_EQUIPMENTS = $sEquip->ID_STUDY_EQUIPMENTS;
+            $p->VALUE_TYPE = ENTHALPY_VAR;
+            $p->VALUE = $dhValue;
+            $p->save();
+        }
+
+        if ( true ) {
+            $p = new StudEqpPrm();
+            $p->ID_STUDY_EQUIPMENTS = $sEquip->ID_STUDY_EQUIPMENTS;
+            $p->VALUE_TYPE = EXHAUST_TEMP;
+            $p->VALUE = $TExt;
+            $p->save();
+        }
+
+        $position = POSITION_PARALLEL;
+        
+        // if (this . stdBean . isStudyHasParent()) {
+		// 	// Chaining : use orientation from parent equip
+        //     position = stdBean . ParentProdPosition;
+        // } else {
+			// no chaining : force standard orientation depending on the shape
+        $position = (($productshape == CYLINDER_LAYING)
+            || ($productshape == CYLINDER_CONCENTRIC_LAYING)
+            || ($productshape == PARALLELEPIPED_LAYING))
+            ? POSITION_NOT_PARALLEL
+            : POSITION_PARALLEL;
+        // }
+
+        $lg = new LayoutGeneration();
+        $lg->ID_STUDY_EQUIPMENTS = $sEquip->ID_STUDY_EQUIPMENTS;
+        $lg->PROD_POSITION = $position;
+
+        $equipWithSpecificSize = ( $sEquip->STDEQP_WIDTH != NO_SPECIFIC_SIZE ) && ($sEquip->STDEQP_LENGTH != NO_SPECIFIC_SIZE );
+
+        if ($equipWithSpecificSize) {
+            $lg->SHELVES_TYPE = SHELVES_USERDEFINED;
+            $lg->SHELVES_LENGTH = $sEquip->STDEQP_LENGTH;
+            $lg->SHELVES_WIDTH  = $sEquip->STDEQP_WIDTH;
+        } else if ($sEquip->equipment->BATCH_PROCESS) {
+            // default is now euronorme
+            $lg->SHELVES_TYPE = SHELVES_EURONORME;
+            $lg->SHELVES_LENGTH = SHELVES_EURO_LENGTH;
+            $lg->SHELVES_WIDTH = SHELVES_EURO_WIDTH;
+        } else {
+            $lg->SHELVES_TYPE = SHELVES_USERDEFINED;
+            $lg->SHELVES_LENGTH = $sEquip->equipment->EQP_LENGTH;
+            $lg->SHELVES_WIDTH = $sEquip->equipment->EQP_WIDTH;
+        }
+        $lg->LENGTH_INTERVAL = INTERVAL_UNDEFINED;
+        $lg->WIDTH_INTERVAL = INTERVAL_UNDEFINED;
+
+        $lg->save();
+
+        $sEquip->ID_LAYOUT_GENERATION = $lg->ID_LAYOUT_GENERATION;
+        $sEquip->save();
+        
+        // $sEquip->setLayoutResults(dbdata . getLayoutResults($sEquip, $mmTop));
+        $lr = new LayoutResults();
+        $lr->ID_STUDY_EQUIPMENTS = $sEquip->ID_STUDY_EQUIPMENTS;
+        $lr->LOADING_RATE = $mmTop->DEFAULT_VALUE;
+        $lr->LOADING_RATE_MAX = $mmTop->LIMIT_MAX;
+        $lr->save();
+
+        $sEquip->ID_LAYOUT_RESULTS = $lr->ID_LAYOUT_RESULTS;
+        $sEquip->save();
+
+        // runLayoutCalculator(sEquip, username, password);
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
+        $lcRunResult = $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, 1);
+
+        $lcTSRunResult = -1;
+
+        if ( ($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TS != 0) &&
+            ($sEquip->equipment->CAPABILITIES & CAP_TS_FROM_TOC !=0) ) {
+            $lcTSRunResult = $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, 2);
+        }
+
+        //calculate TR = f( TS )
+        $doTR = false;
+
+        if (($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TR != 0)
+            && ($sEquip->equipment->CAPABILITIES & CAP_TR_FROM_TS != 0)
+            && ($sEquip->equipment->CAPABILITIES & CAP_PHAMCAST_ENABLE !=0)) {
+            // log . debug("starting TR=f(TS) calculation");
+            $doTR = true;
+			//PhamCast: run automatic
+            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
+            $lcRunResult = $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, $doTR);
+
+            // if (calc . GetPCCError() != ValuesList . KERNEL_OK) {
+            //     log . warn("automatic run of PhamCast failed");
+            //     throw new OXException("ERROR_KERNEL_PHAMCAST");
+            // } else {
+				// Read result (i.e. tr) data from the DB
+            // $tr = dbdata . loadEquipmentData(sEquip, StudEqpPrm . REGULATION_TEMP);
+            // for (int i = 0; i < tr . length; i ++) {
+            //     tr[i] = new Double(Math . floor(tr[i] . doubleValue()));
+            // }
+            // sEquip . setTr(tr);
+            // }
+            // $sEquip->fresh();
+        }
+
+        if (!$doTR
+            && ($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TS != 0)
+            && ($sEquip->equipment->CAPABILITIES & CAP_TS_FROM_TR != 0)
+            && ($sEquip->equipment->CAPABILITIES & CAP_PHAMCAST_ENABLE != 0)) {
+            log . debug("starting TS=f(TR) calculation");
+			//PhamCast: run automatic
+            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
+            $lcRunResult = $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, $doTR);
+
+            // if (calc . GetPCCError() != ValuesList . KERNEL_OK) {
+            //     log . warn("automatic run of PhamCast failed");
+            //     throw new OXException("ERROR_KERNEL_PHAMCAST");
+            // } else {
+			// 	// Read result (i.e. ts) data from the DB
+            //     Double[] ts = dbdata . loadEquipmentData(sequip, StudEqpPrm . DWELLING_TIME);
+            //     for (int i = 0; i < ts . length; i ++) {
+            //         ts[i] = new Double(Math . floor(ts[i] . doubleValue()));
+            //     }
+            // $sEquip->fresh();
+            // }
+        }
+
+        //run automatic calculation of exhaust gas temp
+        // KernelToolsCalculation kerneltools = new KernelToolsCalculation(
+        //     CryosoftDB . CRYOSOFT_DB_ODBCNAME,
+        //     username,
+        //     password,
+        //     Ln2Servlet . getLogsDirectory() + "\\" + study . getStudyName() + "\\KT_ExhaustGasTempTr.txt",
+        //     getUserID(),
+        //     sequip . getStudy() . getIdStudy(),
+        //     sequip . getIdStudyEquipments(),
+        //     0
+        // );
+
+        // kerneltools . StartKTCalculation(true, KernelToolsCalculation . EXHAUST_GAS_TEMPERATURE);
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
+        $lcRunResult = $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 1);
+
+        $sEquip->fresh();
+        return $sEquip;
+    }
+
+    /**
+     * @param double[]
+     * @param int
+     * @param boolean
+     */
+    private function getEqpPrmInitialData (array $dd, int $type, $isTS) {
+        // MinMax mm = (MinMax) retrieveApplValueList(type, 0, ValuesList . MINMAX);
+        $mm = MinMax::where('LIMIT_ITEM', $type)->first();
+        for ($i=0; $i < count($dd); $i++) {
+            if ((($type > 0) && ($mm != null))) {
+                $dd[$i] = doubleval($mm->DEFAULT_VALUE);
+            } else {
+                $dd[$i] = 0.0;
+            }
+        }
+		
+		// Special for multi_tr : apply a simple coeff : find something better in the future
+        if (($isTS) && (count($dd) > 1)) {
+            $MultiTRRatio = MinMax::where('LIMIT_ITEM', MIN_MAX_MULTI_TR_RATIO)->first();
+            if ($MultiTRRatio != null) {
+                $dd[0] = doubleval( doubleval($dd[0]) * $MultiTRRatio->DEFAULT_VALUE);
+            }
+        }
+
+        return $dd;
+    }
+
 }

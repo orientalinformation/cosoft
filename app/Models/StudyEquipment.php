@@ -89,7 +89,7 @@ class StudyEquipment extends Model
 
     protected $maps = [
       'equipment' => ['ID_COOLING_FAMILY', 'EQUIP_NAME', 'CAPABILITIES', 'MODUL_LENGTH', 'EQP_LENGTH', 'EQP_WIDTH', 
-        'EQUIP_VERSION', 'STDEQP_LENGTH', 'STDEQP_WIDTH', 'STD', 'ITEM_TR', 'NB_TR', 'SERIES_NAME', 'BATCH_PROCESS',
+        'EQUIP_VERSION', 'STD', 'ITEM_TR', 'NB_TR', 'SERIES_NAME', 'BATCH_PROCESS',
         'NB_TS', 'NB_VC', 'EQP_HEIGHT', 'EQUIP_RELEASE'
         ]
     ];
@@ -99,8 +99,8 @@ class StudyEquipment extends Model
      */
     protected $appends = [
         'ID_COOLING_FAMILY', 'EQUIP_NAME', 'CAPABILITIES', 'MODUL_LENGTH', 'EQP_LENGTH',
-        'EQP_WIDTH', 'EQUIP_VERSION', 'STDEQP_LENGTH', 'STDEQP_WIDTH', 'STD', 'ITEM_TR', 
-        'NB_TR', 'NB_TS', 'NB_VC', 'EQP_HEIGHT', 'SERIES_NAME', 'BATCH_PROCESS', 'EQUIP_RELEASE'
+        'EQP_WIDTH', 'EQUIP_VERSION', 'STD', 'ITEM_TR', 'NB_TR', 'NB_TS', 'NB_VC', 'EQP_HEIGHT', 
+        'SERIES_NAME', 'BATCH_PROCESS', 'EQUIP_RELEASE'
     ];
 
     /**

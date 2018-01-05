@@ -91,3 +91,57 @@ define('REGULATION_TEMP', 300);
 define('ENTHALPY_VAR', 400);
 define('EXHAUST_TEMP', 500);
 define('OFFSET', 100);
+
+// REPORT
+define('ENABLE_CONS_PIE', 1);				// enable to insert consumption pie in to the report
+define('DISABLE_CONS_PIE', 0);				// disable the consumption pie
+
+define('EQUIP_SELECTED', 0x01);
+define('EQUIP_UNSELECTED', 0x00);
+
+define('SAVE_NUM_TO_DB_YES', 0x01);
+define('SAVE_NUM_TO_DB_NO', 0x00);
+
+
+//STUD_EQP_PRM
+define('MIN_MAX_STDEQP_DW_TIME', 1035);
+define('MIN_MAX_STDEQP_TEMP_REGULATION_LN2', 1036);
+define('MIN_MAX_STDEQP_TEMP_REGULATION_CO2', 1091);
+define('MIN_MAX_STDEQP_TEMP_REGULATION_FM', 1092);
+define('MIN_MAX_STDEQP_TEMP_REGULATION_LN2_BATH', 1093);
+define('MIN_MAX_STDEQP_CONVECTION_SPEED', 1037);
+define('MIN_MAX_STDEQP_TOP', 704);
+define('MIN_MAX_INTERVAL_LENGHT', 1034);
+define('MIN_MAX_INTERVAL_WIDTH', 1033);
+define('MIN_MAX_MULTI_TR_RATIO', 1095);
+define('MIN_MAX_SHELVES_LENGTH', 1096);
+define('MIN_MAX_SHELVES_WIDTH', 1097);
+define('MIN_MAX_EXH_RES_GAS_TEMP', 1028);
+define('MIN_MAX_EQP_PROFIL_CONVECTION', 1039);
+define('MIN_MAX_EQP_PROFIL_TEMPERATURE', 1040);
+
+define('POSITION_PARALLEL', 1);
+define('POSITION_NOT_PARALLEL', 0);
+
+define('SHELVES_EURONORME', 0);	//case euronorme
+define('SHELVES_GASTRONORME', 1);	//case gastronorme
+define('SHELVES_USERDEFINED', 2);	//case user defined
+
+define('INTERVAL_UNDEFINED', -1.0);	// to identify when no data was given by user
+define('INTERVAL_USER_TOC', -2.0);	// to identify when the user has forced the TOC value
+
+
+define('SHELVES_EURO_LENGTH', 0.8);
+define('SHELVES_EURO_WIDTH', 0.6);
+define('SHELVES_GASTRO_LENGTH', 0.65);
+define('SHELVES_GASTRO_WIDTH', 0.53);
+
+define('SLAB', 1);
+define('PARALLELEPIPED_STANDING', 2);
+define('PARALLELEPIPED_LAYING', 3);
+define('CYLINDER_STANDING', 4);
+define('CYLINDER_LAYING', 5);
+define('SPHERE', 6);
+define('CYLINDER_CONCENTRIC_STANDING', 7);
+define('CYLINDER_CONCENTRIC_LAYING', 8);
+define('PARALLELEPIPED_BREADED', 9);
