@@ -1,12 +1,12 @@
 <?php
 
 /**
- * GET sizingEstimationResult
+ * GET getTempRecordPts
  * Summary: 
- * Notes: sizing result estimation
+ * Notes: get temperature record pts
  * Output-Formats: [application/json]
  */
-$router->GET('/api/v1/output/sizingresult/estimation', 'Api1\\Output@sizingEstimationResult');
+$router->GET('/api/v1/studies/{id}/tempRecordPts', 'Api1\\Studies@getTempRecordPts');
 
 /**
  * GET getstudyEquipmentProductChart
@@ -15,6 +15,14 @@ $router->GET('/api/v1/output/sizingresult/estimation', 'Api1\\Output@sizingEstim
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/studyEquipment/{id}/productChart', 'Api1\\StudyEquipments@getstudyEquipmentProductChart');
+
+/**
+ * GET sizingEstimationResult
+ * Summary: 
+ * Notes: sizing result estimation
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/output/sizingresult/estimation', 'Api1\\Output@sizingEstimationResult');
 
 /**
  * GET heatExchange
