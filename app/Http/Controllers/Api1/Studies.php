@@ -780,7 +780,7 @@ class Studies extends Controller
             && ($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TS != 0)
             && ($sEquip->equipment->CAPABILITIES & CAP_TS_FROM_TR != 0)
             && ($sEquip->equipment->CAPABILITIES & CAP_PHAMCAST_ENABLE != 0)) {
-            log . debug("starting TS=f(TR) calculation");
+            // log . debug("starting TS=f(TR) calculation");
 			//PhamCast: run automatic
             $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
             $lcRunResult = $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, $doTR);
@@ -816,8 +816,8 @@ class Studies extends Controller
 
         $sEquip->fresh();
 
-        // $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id), $sEquip->ID_STUDY_EQUIPMENTS);
-        // return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 43);
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id), $sEquip->ID_STUDY_EQUIPMENTS);
+        return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 43);
 
         return $sEquip;
     }
