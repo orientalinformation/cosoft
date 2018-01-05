@@ -815,6 +815,10 @@ class Studies extends Controller
         $lcRunResult = $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 1);
 
         $sEquip->fresh();
+
+        // $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id), $sEquip->ID_STUDY_EQUIPMENTS);
+        // return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 43);
+
         return $sEquip;
     }
 

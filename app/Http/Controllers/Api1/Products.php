@@ -297,6 +297,17 @@ class Products extends Controller
             array_push($elmtMeshPositions, $meshPositions);
         }
 
+        // KernelToolsCalculation kerneltools = new KernelToolsCalculation(
+        //     CryosoftDB . CRYOSOFT_DB_ODBCNAME,
+        //     username,
+        //     password,
+        //     sLogsDir,
+        //     getUserID(),
+        //     studyBean . getSelectedStudy(),
+        //     0,
+        //     0
+        // );
+
         return compact('meshGeneration', 'elements', 'elmtMeshPositions');
     }
 
@@ -353,6 +364,10 @@ class Products extends Controller
                 }
             }
         }
+
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY);
+        $ktOk = $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 4);
+        
         return 0;
     }
 }
