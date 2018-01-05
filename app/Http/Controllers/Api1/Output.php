@@ -126,18 +126,18 @@ class Output extends Controller
             }
 
             if (!($this->equip->getCapability($capabilitie, 128))) {
-                $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $toc = $precision = "";
+                $tr = $ts = $vc = $vep = $tfp = $dhp = $conso= $conso_warning = $toc = $precision = "";
                 $calculate = "disabled";
             } else if (($equipStatus != 0) && ($equipStatus != 1) && ($equipStatus != 100000)) {
-                $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $toc = $precision = "****";
+                $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $conso_warning = $toc = $precision = "****";
                 $calculate = "disabled";
             } else if ($equipStatus == 10000) {
-                $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $toc = $precision = "";
+                $tr = $ts = $vc = $vep = $tfp = $dhp = $conso= $conso_warning = $toc = $precision = "";
                 $calculate = "disabled";
             } else {
                 $dimaResult = DimaResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("DIMA_TYPE", 1)->first();
                 if ($dimaResult == null) {
-                    $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $toc = $precision = "";
+                    $tr = $ts = $vc = $vep = $tfp = $dhp = $conso= $conso_warning = $toc = $precision = "";
                 } else {
                     switch ($brainType) {
                         case 0:
@@ -177,7 +177,9 @@ class Output extends Controller
 
                         $calculationStatus = $this->dima->getCalculationStatus($dimaResult->DIMA_STATUS);
 
-                        $conso = $this->dima->consumptionCell($lfcoef, $calculationStatus, $valueStr);
+                        $consumptionCell = $this->dima->consumptionCell($lfcoef, $calculationStatus, $valueStr);
+                        $conso = $consumptionCell["value"];
+                        $conso_warning = $consumptionCell["warning"];
 
                     } else {
                         $conso = "****";
@@ -216,6 +218,7 @@ class Output extends Controller
             $item["tfp"] = $tfp;
             $item["dhp"] = $dhp;
             $item["conso"] = $conso;
+            $item["conso_warning"] = $conso_warning;
             $item["toc"] = $toc;
             $item["precision"] = $precision;
 
@@ -254,14 +257,14 @@ class Output extends Controller
             $dimaResult = DimaResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("DIMA_TYPE", 16)->first();
 
             if (!($this->equip->getCapability($capabilitie, 128))) {
-                $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $toc = $precision = "****";
+                $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $conso_warning = $toc = $precision = "****";
             } else if ($dimaResult == null) {
-                $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $toc = $precision = "";
+                $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $conso_warning = $toc = $precision = "";
             } else {
                 $calculWarning = $this->dima->getCalculationWarning($dimaResult->DIMA_STATUS);
 
                 if ($calculWarning != 0) {
-                    $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $toc = $precision = "****";
+                    $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $conso_warning = $toc = $precision = "****";
                 } else {
                     $tr = $this->unit->controlTemperature($dimaResult->SETPOINT);
                     $ts = $this->unit->time($dimaResult->DIMA_TS);
@@ -277,10 +280,13 @@ class Output extends Controller
 
                         $calculationStatus = $this->dima->getCalculationStatus($dimaResult->DIMA_STATUS);
 
-                        $conso = $this->dima->consumptionCell($lfcoef, $calculationStatus, $valueStr);
+                        $consumptionCell = $this->dima->consumptionCell($lfcoef, $calculationStatus, $valueStr);
+                        $conso = $consumptionCell["value"];
+                        $conso_warning = $consumptionCell["warning"];
 
                     } else {
                         $conso = "****";
+                        $conso_warning = "";
                     }
 
                     if ($this->equip->getCapability($capabilitie, 32)) {
@@ -314,6 +320,7 @@ class Output extends Controller
             $item["tfp"] = $tfp;
             $item["dhp"] = $dhp;
             $item["conso"] = $conso;
+            $item["conso_warning"] = $conso_warning;
             $item["toc"] = $toc;
             $item["precision"] = $precision;
 
@@ -777,12 +784,12 @@ class Output extends Controller
             $item["id"] = $idStudyEquipment = $row->ID_STUDY_EQUIPMENTS;
             $item["equipName"] = $equipName = $this->equip->getSpecificEquipName($idStudyEquipment);
 
-            $tr = $ts = $vc = $dhp = $conso = $toc = $trMax = $tsMax = $vcMax = $dhpMax = $consoMax = $tocMax = "";
+            $tr = $ts = $vc = $dhp = $conso = $conso_warning = $toc = $trMax = $tsMax = $vcMax = $dhpMax = $consoMax = $consomax_warning = $tocMax = "";
 
             if (!($this->equip->getCapability($capabilitie , 128))){
-                $tr = $ts = $vc = $dhp = $conso = $toc = $trMax = $tsMax = $vcMax = $dhpMax = $consoMax = $tocMax = "";
+                $tr = $ts = $vc = $dhp = $conso = $conso_warning = $toc = $trMax = $tsMax = $vcMax = $dhpMax = $consoMax = $consomax_warning = $tocMax = "";
             } else if ($equipStatus == 100000) {
-                $tr = $ts = $vc = $dhp = $conso = $toc = $trMax = $tsMax = $vcMax = $dhpMax = $consoMax = $tocMax = "";
+                $tr = $ts = $vc = $dhp = $conso = $conso_warning = $toc = $trMax = $tsMax = $vcMax = $dhpMax = $consoMax = $consomax_warning = $tocMax = "";
             } else {
                 if (($equipStatus != 0) && ($equipStatus != 1) && ($equipStatus != 100000)) {
                     $tr = $ts = $vc = $dhp = $conso = $toc = "****";
@@ -799,9 +806,12 @@ class Output extends Controller
                             $consumption = $dimaResult->CONSUM / $lfcoef;
                             $valueStr = $this->unit->consumption($consumption, $idCoolingFamily, 1);
                             $calculationStatus = $this->dima->getCalculationStatus($dimaResult->DIMA_STATUS);
-                            $conso = $this->dima->consumptionCell($lfcoef, $calculationStatus, $valueStr);
+                            $consumptionCell = $this->dima->consumptionCell($lfcoef, $calculationStatus, $valueStr);
+                            $conso = $consumptionCell["value"];
+                            $conso_warning = $consumptionCell["warning"];
                         } else {
                             $conso = "****";
+                            $conso_warning = "";
                         }
 
                         if ($this->equip->getCapability($capabilitie, 32)) {
@@ -840,9 +850,12 @@ class Output extends Controller
                                 $consumption = $dimaResultMax->CONSUM / $lfcoef;
                                 $valueStr = $this->unit->consumption($consumption, $idCoolingFamily, 1);
                                 $calculationStatus = $this->dima->getCalculationStatus($dimaResultMax->DIMA_STATUS);
-                                $consoMax = $this->dima->consumptionCell($lfcoef, $calculationStatus, $valueStr);
+                                $consumptionCellMax = $this->dima->consumptionCell($lfcoef, $calculationStatus, $valueStr);
+                                $consoMax = $consumptionCellMax["value"];
+                                $consomax_warning = $consumptionCellMax["warning"];
                             } else {
-                                $conso = "****";
+                                $consoMax = "****";
+                                $consomax_warning = "";
                             }
 
                             if ($this->equip->getCapability($capabilitie, 32)) {
@@ -867,12 +880,14 @@ class Output extends Controller
             $item["vc"] = $vc;
             $item["dhp"] = $dhp;
             $item["conso"] = $conso;
+            $item["conso_warning"] = $conso_warning;
             $item["toc"] = $toc;
             $item["trMax"] = $trMax;
             $item["tsMax"] = $tsMax;
             $item["vcMax"] = $vcMax;
             $item["dhpMax"] = $dhpMax;
             $item["consoMax"] = $consoMax;
+            $item["consomax_warning"] = $consomax_warning;
             $item["tocMax"] = $tocMax;
 
             $result[] = $item;
@@ -1013,7 +1028,7 @@ class Output extends Controller
             $viewEquip = false;
             $optionTr = "";
             $addEquipment = false;
-            $tr = $dhp = $conso = $toc = $dhpMax = $consoMax = $tocMax = "";
+            $tr = $dhp = $conso = $conso_warning = $toc = $dhpMax = $consoMax = $consomax_warning = $tocMax = "";
 
             if ($row->NB_TR <= 1 && count($dimaResults) > 0) { 
                 $dimaR = $dimaResults[$trSelect];
@@ -1021,7 +1036,7 @@ class Output extends Controller
                     $tr = "---";
                     $viewEquip = false;
                     $optionTr = "disabled";
-                    $dhp = $conso = $toc = $dhpMax = $consoMax = $tocMax = "---";
+                    $dhp = $conso = $conso_warning = $toc = $dhpMax = $consoMax = $consomax_warning = $tocMax = "---";
                 } else {
                     if ($this->equip->isValidTemperature($idStudyEquipment, $trSelect) && $dimaR != null) {
                         $tr = $this->unit->controlTemperature($dimaR->SETPOINT);
