@@ -22,6 +22,7 @@ use App\Models\Translation;
 use App\Models\StudEqpPrm;
 use App\Models\CalculationParametersDef;
 use App\Models\CalculationParameter;
+use App\Models\TempRecordPts;
 use App\Cryosoft\CalculateService;
 
 class Studies extends Controller
@@ -820,6 +821,11 @@ class Studies extends Controller
         return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 43);
 
         return $sEquip;
+    }
+
+    public function getTempRecordPts($id)
+    {
+        return TempRecordPts::where('ID_STUDY', $id)->first();
     }
 
     /**
