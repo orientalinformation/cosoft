@@ -39,14 +39,16 @@ class Admin extends Controller
 	{
 		$input = $this->request->all();
 
-		$username = isset($input['username']);
-		$email = isset($input['email']);
-		$password = isset($input['password']);
-		$confirm = isset($input['confirmpassword']);
-		if ($username == null || $email == null || $password == null || $confirm == null) return 0;
+		if (!isset($input['username']) || !isset($input['email']) || !isset($input['password']) || !isset($input['confirmpassword']))
+            throw new \Exception("Error Processing Request", 1);   
+
+		$username = $input['username'];
+		$email = $input['email'];
+		$password = $input['password'];
+		$confirm = $input['confirmpassword'];
+
 
 		$hashPassword = Hash::make($password);
-		$hashConfirm = Hash::make($confirm);
 
 		if ($password != $confirm) {
 			return 2;
