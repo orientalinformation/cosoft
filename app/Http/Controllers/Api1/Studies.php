@@ -23,6 +23,7 @@ use App\Models\StudEqpPrm;
 use App\Models\CalculationParametersDef;
 use App\Models\CalculationParameter;
 use App\Cryosoft\CalculateService;
+use App\Models\TempRecordPts;
 
 class Studies extends Controller
 {
