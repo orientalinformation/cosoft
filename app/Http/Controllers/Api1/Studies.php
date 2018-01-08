@@ -22,7 +22,6 @@ use App\Models\Translation;
 use App\Models\StudEqpPrm;
 use App\Models\CalculationParametersDef;
 use App\Models\CalculationParameter;
-use App\Models\TempRecordPts;
 use App\Cryosoft\CalculateService;
 
 class Studies extends Controller
@@ -358,7 +357,7 @@ class Studies extends Controller
                 foreach ($elements as $elmt) {
                     if (isset($input['dim1'])) $elmt->SHAPE_PARAM1 = floatval($input['dim1']);
                     if (isset($input['dim2'])) $elmt->SHAPE_PARAM2 = floatval($input['dim2']);
-                    if (isset($input['dim3'])) $elmt->SHAPE_PARAM3 = floatval($input['dim3']);
+                    if (isset($input['dim3'])) $elmt->SHAPE_PARẢM = floatval($input['dim3']);
                     $elmt->save();
                 }
             }
@@ -595,9 +594,9 @@ class Studies extends Controller
         
         // Brain calculation parameters
         $calcParams->HORIZ_SCAN = $defaultCalcParams->HORIZ_SCAN_DEF;
-        $calcParams->VERT_SCAN = $defaultCalcParams->isVert_scan_def;
-        $calcParams->MAX_IT_NB = $defaultCalcParams->getMaxItNbDef;
-        $calcParams->RELAX_COEFF = $defaultCalcParams->getRelaxCoeffDef;
+        $calcParams->VERT_SCAN = $defaultCalcParams->VERT_SCAN_DEF;
+        $calcParams->MAX_IT_NB = $defaultCalcParams->MAX_IT_NB_DEF;
+        $calcParams->RELAX_COEFF = $defaultCalcParams->RELAX_COEFF_DEF;
         
         $calcParams->STOP_TOP_SURF = $defaultCalcParams->STOP_TOP_SURF_DEF;
         $calcParams->STOP_INT = $defaultCalcParams->STOP_INT_DEF;
@@ -821,11 +820,6 @@ class Studies extends Controller
         return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 43);
 
         return $sEquip;
-    }
-
-    public function getTempRecordPts($id)
-    {
-        return TempRecordPts::where('ID_STUDY', $id)->first();
     }
 
     /**
