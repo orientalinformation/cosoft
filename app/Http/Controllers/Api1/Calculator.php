@@ -168,11 +168,6 @@ class Calculator extends Controller
 		$tempPtIn = $this->cal->getTempPtIn();
 		$tempPtBot = $this->cal->getTempPtBot();
 		$tempPtAvg = $this->cal->getTempPtAvg();
-		$selectDefault = [
-			'selected' => 'true',
-			'value' => '0.0',
-			'label' => '0.0'
-		];
 
 		$select1 = $this->cal->getOption($idStudy, "X", "TOP");
 		$select2 = $this->cal->getOption($idStudy, "Y", "TOP");
@@ -183,16 +178,6 @@ class Calculator extends Controller
         $select7 = $this->cal->getOption($idStudy, "X", "BOT");
         $select8 = $this->cal->getOption($idStudy, "Y", "BOT");
         $select9 = $this->cal->getOption($idStudy, "Z", "BOT");
-
-        // if ($select1 == null) $select1 = [$selectDefault];
-        // if ($select2 == null) $select2 = [$selectDefault];
-        // if ($select3 == null) $select3 = [$selectDefault];
-        // if ($select4 == null) $select4 = [$selectDefault];
-        // if ($select5 == null) $select5 = [$selectDefault];
-        // if ($select6 == null) $select6 = [$selectDefault];
-        // if ($select7 == null) $select7 = [$selectDefault];
-        // if ($select8 == null) $select8 = [$selectDefault];
-        // if ($select9 == null) $select9 = [$selectDefault];
 
 		$array = [
 			'sdisableFields' => $sdisableFields,
