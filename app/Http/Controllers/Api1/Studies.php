@@ -357,7 +357,7 @@ class Studies extends Controller
                 foreach ($elements as $elmt) {
                     if (isset($input['dim1'])) $elmt->SHAPE_PARAM1 = floatval($input['dim1']);
                     if (isset($input['dim2'])) $elmt->SHAPE_PARAM2 = floatval($input['dim2']);
-                    if (isset($input['dim3'])) $elmt->SHAPE_PARẢM = floatval($input['dim3']);
+                    if (isset($input['dim3'])) $elmt->SHAPE_PARAM3 = floatval($input['dim3']);
                     $elmt->save();
                 }
             }
@@ -822,6 +822,10 @@ class Studies extends Controller
         return $sEquip;
     }
 
+    public function getTempRecordPts($id)
+    {
+        return TempRecordPts::where('ID_STUDY', $id)->first();
+    }
     /**
      * @param double[]
      * @param int
