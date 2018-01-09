@@ -22,8 +22,8 @@ use App\Models\Translation;
 use App\Models\StudEqpPrm;
 use App\Models\CalculationParametersDef;
 use App\Models\CalculationParameter;
-use App\Models\TempRecordPts;
 use App\Cryosoft\CalculateService;
+use App\Models\TempRecordPts;
 
 class Studies extends Controller
 {
@@ -595,9 +595,9 @@ class Studies extends Controller
         
         // Brain calculation parameters
         $calcParams->HORIZ_SCAN = $defaultCalcParams->HORIZ_SCAN_DEF;
-        $calcParams->VERT_SCAN = $defaultCalcParams->isVert_scan_def;
-        $calcParams->MAX_IT_NB = $defaultCalcParams->getMaxItNbDef;
-        $calcParams->RELAX_COEFF = $defaultCalcParams->getRelaxCoeffDef;
+        $calcParams->VERT_SCAN = $defaultCalcParams->VERT_SCAN_DEF;
+        $calcParams->MAX_IT_NB = $defaultCalcParams->MAX_IT_NB_DEF;
+        $calcParams->RELAX_COEFF = $defaultCalcParams->RELAX_COEFF_DEF;
         
         $calcParams->STOP_TOP_SURF = $defaultCalcParams->STOP_TOP_SURF_DEF;
         $calcParams->STOP_INT = $defaultCalcParams->STOP_INT_DEF;
@@ -827,7 +827,6 @@ class Studies extends Controller
     {
         return TempRecordPts::where('ID_STUDY', $id)->first();
     }
-
     /**
      * @param double[]
      * @param int
