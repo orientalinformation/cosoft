@@ -122,7 +122,8 @@ class CalculateService
     {
 		$mmErrorH = 0.0;
 		$minMax = $this->getMinMax(1131);
-		$mmErrorH = $this->convert->unitConvert($this->value->TEMPERATURE, $minMax->DEFAULT_VALUE);
+		$uPercent = $this->convert->uPercent();
+		$mmErrorH =  $this->convert->convertCalculator($minMax->DEFAULT_VALUE, $uPercent["coeffA"], $uPercent["coeffB"]);
 		return $mmErrorH;
 	}
 

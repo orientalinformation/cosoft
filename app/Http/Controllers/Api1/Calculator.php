@@ -272,7 +272,10 @@ class Calculator extends Controller
 				if ($scheckOptim != null) {
 					$calculationParameter->NB_OPTIM = $scheckOptim;
 					$calculationParameter->ERROR_T = $this->convert->unitConvert($this->value->TEMPERATURE, $epsilonTemp);
-					$calculationParameter->ERROR_H = $this->convert->unitConvert($this->value->TEMPERATURE, $epsilonEnth);
+
+					$uPercent = $this->convert->uPercent();
+					$mmErrorH =  $this->convert->convertCalculator($epsilonEnth, $uPercent["coeffA"], $uPercent["coeffB"]);
+					$calculationParameter->ERROR_H = $mmErrorH;
 				}
 
 				$calculationParameter->TIME_STEP = $this->convert->unitConvert($this->value->TIME, $timeStep, 3);
