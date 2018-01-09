@@ -272,10 +272,7 @@ class Calculator extends Controller
 				if ($scheckOptim != null) {
 					$calculationParameter->NB_OPTIM = $scheckOptim;
 					$calculationParameter->ERROR_T = $this->convert->unitConvert($this->value->TEMPERATURE, $epsilonTemp);
-
-					$uPercent = $this->convert->uPercent();
-					$mmErrorH =  $this->convert->convertCalculator($epsilonEnth, $uPercent["coeffA"], $uPercent["coeffB"]);
-					$calculationParameter->ERROR_H = $mmErrorH;
+					$calculationParameter->ERROR_H = $this->convert->unitConvert($this->value->TEMPERATURE, $epsilonEnth);
 				}
 
 				$calculationParameter->TIME_STEP = $this->convert->unitConvert($this->value->TIME, $timeStep, 3);
@@ -555,6 +552,7 @@ class Calculator extends Controller
 			'select7' => $select7,
 			'select8' => $select8,
 			'select9' => $select9,
+			'sdisableTOC' => $sdisableTOC,
 		];
 
 		return $array;
@@ -648,10 +646,7 @@ class Calculator extends Controller
 		if ($checkOptim != null) {
 			$calculationParameter->NB_OPTIM = $checkOptim;
 			$calculationParameter->ERROR_T = $this->convert->unitConvert($this->value->TEMPERATURE, $epsilonTemp);
-
-			$uPercent = $this->convert->uPercent();
-			$mmErrorH =  $this->convert->convertCalculator($epsilonEnth, $uPercent["coeffA"], $uPercent["coeffB"]);
-			$calculationParameter->ERROR_H = $mmErrorH;
+			$calculationParameter->ERROR_H = $this->convert->unitConvert($this->value->TEMPERATURE, $epsilonEnth);
 		} else {
 			$minMaxH = $this->brainCal->getMinMax(1131);
 			$minMaxT = $this->brainCal->getMinMax(1132);
@@ -772,7 +767,6 @@ class Calculator extends Controller
 
     	$select1 = $select2 = $select3 = $select4 = $select5 = $select6 = $select7 = $select8 = $select9 = array();
     	$value1 = $value2 = $value3 = $value4 = $value5 = $value6 = $value7 = $value8 = $value9 = 0.0;
-
 
     	if (isset($input['select1'])) $select1 = $input['select1'];
 		if (isset($input['select2'])) $select2 = $input['select2'];
