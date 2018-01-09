@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api1;
 
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\MeshGeneration;
 use App\Models\Product;
@@ -24,6 +25,9 @@ use App\Models\CalculationParametersDef;
 use App\Models\CalculationParameter;
 use App\Cryosoft\CalculateService;
 use App\Models\TempRecordPts;
+use App\Models\MeshPosition;
+use App\Models\ProductElmt;
+
 
 class Studies extends Controller
 {
@@ -827,6 +831,14 @@ class Studies extends Controller
     {
         return TempRecordPts::where('ID_STUDY', $id)->first();
     }
+
+    public function getProductElmt($id)
+    {
+        $productElmt = ProductElmt::where('ID_STUDY', $id)->first();
+
+        return $productElmt;
+    }
+
     /**
      * @param double[]
      * @param int
