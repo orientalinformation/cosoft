@@ -223,7 +223,7 @@ class Calculator extends Controller
 	public function startCalculate()
 	{
 		$input = $this->request->all();
-
+		
 		$idStudy = null;
 		$idStudyEquipment = null;
 		$timeStep = 1.0;
@@ -648,7 +648,10 @@ class Calculator extends Controller
 		if ($checkOptim != null) {
 			$calculationParameter->NB_OPTIM = $checkOptim;
 			$calculationParameter->ERROR_T = $this->convert->unitConvert($this->value->TEMPERATURE, $epsilonTemp);
-			$calculationParameter->ERROR_H = $this->convert->unitConvert($this->value->TEMPERATURE, $epsilonEnth);
+
+			$uPercent = $this->convert->uPercent();
+			$mmErrorH =  $this->convert->convertCalculator($epsilonEnth, $uPercent["coeffA"], $uPercent["coeffB"]);
+			$calculationParameter->ERROR_H = $mmErrorH;
 		} else {
 			$minMaxH = $this->brainCal->getMinMax(1131);
 			$minMaxT = $this->brainCal->getMinMax(1132);
@@ -767,29 +770,42 @@ class Calculator extends Controller
     {
     	$input = $request->all();
 
-    	$select1 = $select2 = $select3 = $select4 = $select5 = $select6 = $select7 = $select8 = $select9 = 0.0;
-    	if (isset($input['select1'])) $select1 = floatval($input['select1']);
-		if (isset($input['select2'])) $select2 = floatval($input['select2']);
-		if (isset($input['select3'])) $select3 = floatval($input['select3']);
-		if (isset($input['select4'])) $select4 = floatval($input['select4']);
-		if (isset($input['select5'])) $select5 = floatval($input['select5']);
-		if (isset($input['select6'])) $select6 = floatval($input['select6']);
-		if (isset($input['select7'])) $select7 = floatval($input['select7']);
-		if (isset($input['select8'])) $select8 = floatval($input['select8']);
-		if (isset($input['select9'])) $select9 = floatval($input['select9']);
+    	$select1 = $select2 = $select3 = $select4 = $select5 = $select6 = $select7 = $select8 = $select9 = array();
+    	$value1 = $value2 = $value3 = $value4 = $value5 = $value6 = $value7 = $value8 = $value9 = 0.0;
+
+
+    	if (isset($input['select1'])) $select1 = $input['select1'];
+		if (isset($input['select2'])) $select2 = $input['select2'];
+		if (isset($input['select3'])) $select3 = $input['select3'];
+		if (isset($input['select4'])) $select4 = $input['select4'];
+		if (isset($input['select5'])) $select5 = $input['select5'];
+		if (isset($input['select6'])) $select6 = $input['select6'];
+		if (isset($input['select7'])) $select7 = $input['select7'];
+		if (isset($input['select8'])) $select8 = $input['select8'];
+		if (isset($input['select9'])) $select9 = $input['select9'];
+
+		$value1 = $this->cal->getValueSelected($select1);
+		$value2 = $this->cal->getValueSelected($select2);
+		$value3 = $this->cal->getValueSelected($select3);
+		$value4 = $this->cal->getValueSelected($select4);
+		$value5 = $this->cal->getValueSelected($select5);
+		$value6 = $this->cal->getValueSelected($select6);
+		$value7 = $this->cal->getValueSelected($select7);
+		$value8 = $this->cal->getValueSelected($select8);
+		$value9 = $this->cal->getValueSelected($select9);
 
     	$temRecordPt = TempRecordPts::where('ID_STUDY', $idStudy)->first();
 
 		if ($temRecordPt != null) {
-			$temRecordPt->AXIS1_PT_TOP_SURF = $select1;
-			$temRecordPt->AXIS2_PT_TOP_SURF = $select2;
-			$temRecordPt->AXIS3_PT_TOP_SURF = $select3;
-			$temRecordPt->AXIS1_PT_INT_PT = $select4;
-			$temRecordPt->AXIS2_PT_INT_PT = $select5;
-			$temRecordPt->AXIS3_PT_INT_PT = $select6;
-			$temRecordPt->AXIS1_PT_BOT_SURF = $select7;
-			$temRecordPt->AXIS2_PT_BOT_SURF = $select8;
-			$temRecordPt->AXIS3_PT_BOT_SURF = $select9;
+			$temRecordPt->AXIS1_PT_TOP_SURF = $value1;
+			$temRecordPt->AXIS2_PT_TOP_SURF = $value2;
+			$temRecordPt->AXIS3_PT_TOP_SURF = $value3;
+			$temRecordPt->AXIS1_PT_INT_PT = $value4;
+			$temRecordPt->AXIS2_PT_INT_PT = $value5;
+			$temRecordPt->AXIS3_PT_INT_PT = $value6;
+			$temRecordPt->AXIS1_PT_BOT_SURF = $value7;
+			$temRecordPt->AXIS2_PT_BOT_SURF = $value8;
+			$temRecordPt->AXIS3_PT_BOT_SURF = $value9;
 			$temRecordPt->CONTOUR2D_TEMP_MIN = 0.0;
 			$temRecordPt->CONTOUR2D_TEMP_MAX = 0.0;
 			$temRecordPt->save();

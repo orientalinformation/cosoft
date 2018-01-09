@@ -366,6 +366,22 @@ class CalculateService
         return $this->convert->meshes($val, $this->value->MESH_CUT);
     }
 
+    public function getValueSelected($select = array())
+    {
+    	$value = 0.0;
+    	if (count($select) > 0) {
+			for ($i = 0; $i < count($select); $i++) { 
+				if ($select[$i]['selected'] == true) {
+					$value = floatval($select[$i]['label']);
+				}
+			}
+		} else {
+			$value = 0.0;
+		}
+
+		return $value;
+    }
+
     public function isStudyHasChilds($idStudy)
     {
     	$bret = false;
