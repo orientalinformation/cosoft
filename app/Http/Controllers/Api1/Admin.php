@@ -22,6 +22,8 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\MinMax;
 use App\Models\ProdcharColorsDef;
 use App\Models\UserUnit;
+use Illuminate\Support\Facades\DB;
+
 
 class Admin extends Controller
 {	
@@ -192,5 +194,79 @@ class Admin extends Controller
 			$userUnit->ID_UNIT = $defaultUnits[$i]->ID_UNIT;
 			$userUnit->save();
 		}
+	}
+
+	public function loadUsers()
+	{
+		$users = User::all()->toArray();
+		return $users;
+	}
+
+	public function loadConnectUsers($idUserLogon) 
+	{
+		$users = DB::table('ln2user')
+		->join('connection', 'ln2user.ID_USER', '=', 'connection.ID_USER')
+		->select('ln2user.*')
+		->where('connection.DATE_CONNECTION', '!=', null)
+		->where('connection.DATE_DISCONNECTION', '=', null)
+		->where('connection.ID_USER', '<>', $idUserLogon)
+		->get();
+		return $users;
+	}
+
+	public function deleteUser($idUser) 
+	{
+		$user = User::find($idUser);
+
+		if(!$user) {
+			return -1;
+		}else{
+			DB::table('user_unit')->where('ID_USER', '=', $user->ID_USER)->delete();
+			DB::table('calculation_parameters_def')->where('ID_USER', '=', $user->ID_USER)->delete();
+			DB::table('temp_record_pts_def')->where('ID_USER', '=', $user->ID_USER)->delete();
+			DB::table('mesh_param_def')->where('ID_USER', '=', $user->ID_USER)->delete();
+			DB::table('prodchar_colors_def')->where('ID_USER', '=', $user->ID_USER)->delete();
+			DB::table('connection')->where('ID_USER', '=', $user->ID_USER)->delete();
+			$user->delete();
+
+			return 1;
+		}
+	}
+
+	public function updateUser()
+	{
+		$input = $this->request->all();
+		// $username = $input['username'];
+		var_dump($input);
+		// var_dump($username);
+
+		// if (!isset($input['username']) || !isset($input['email']) || !isset($input['password']) || !isset($input['confirmpassword']))
+        //     throw new \Exception("Error Processing Request", 1);   
+
+		// $username = $input['username'];
+		// $email = $input['email'];
+		// $password = $input['password'];
+		// $confirm = $input['confirmpassword'];
+		// $idUser = $input['iduser'];
+
+
+		// $hashPassword = Hash::make($password);
+
+		// if ($password != $confirm) {
+		// 	return 2;
+		// }
+
+		// $user = User::find($idUser);
+
+		// if(!$user){
+		// 	return -1;
+		// }else{
+			// if (isset($input['username'])) $user->USERNAM = $username;
+			// if (isset($input['password'])) $user->USERPASS = $hashPassword;
+			// if (isset($input['email'])) $user->USERMAIL = $email;
+			// $user->save();
+
+			return 1;
+		// }
 	}
 }
