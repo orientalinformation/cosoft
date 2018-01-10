@@ -19,6 +19,8 @@ use App\Models\StudEquipprofile;
 use App\Models\RecordPosition;
 use App\Models\TempRecordPts;
 use App\Models\TempRecordData;
+use App\Models\MeshPosition;
+use App\Models\ProductElmt;
 
 use App\Cryosoft\ValueListService;
 use App\Cryosoft\UnitsConverterService;
@@ -1355,6 +1357,27 @@ class Output extends Controller
         }
     }
     
+    public function location($idStudy)
+    {
+        $tfMesh = [];
+        for ($i = 0; $i < 3; $i++) {
+            $meshPoints = MeshPosition::distinct()->select('MESH_AXIS_POS')->where('ID_STUDY', $idStudy)->where('MESH_AXIS', $i+1)->orderBy('MESH_AXIS_POS')->get();
+            $item = [];
+            foreach ($meshPoints as $row) {
+                $item[] = $row->MESH_AXIS_POS;
+            }
+            $tfMesh[$i] = $item;
+        }
+
+        $productElmt = ProductElmt::where('ID_STUDY', $idStudy)->first();
+        $shape = $productElmt->SHAPECODE;
+        $bIsParallel = true;
+
+        $tfMesh = $this->output->convertMeshForAppletDim($shape, $bIsParallel, $tfMesh);
+
+
+        return $tfMesh;
+    }
 
     public function heatExchange() 
     {
