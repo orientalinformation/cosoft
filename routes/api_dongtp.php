@@ -22,7 +22,7 @@ $router->POST('/api/v1/studyequipment/startbraincalculate', 'Api1\\Calculator@st
  * Notes: get head balance result
  * Output-Formats: [application/json]
  */
-$router->POST('/api/v1/admin/newuser', 'Api1\\Admin@newUser');
+$router->POST('/api/v1/admin/users', 'Api1\\Admin@newUser');
 
 /**
  * POST update product

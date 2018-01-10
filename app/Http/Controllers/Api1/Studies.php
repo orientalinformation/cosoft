@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api1;
 
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\MeshGeneration;
 use App\Models\Product;
@@ -23,6 +24,10 @@ use App\Models\StudEqpPrm;
 use App\Models\CalculationParametersDef;
 use App\Models\CalculationParameter;
 use App\Cryosoft\CalculateService;
+use App\Models\TempRecordPts;
+use App\Models\MeshPosition;
+use App\Models\ProductElmt;
+
 
 class Studies extends Controller
 {
@@ -565,7 +570,7 @@ class Studies extends Controller
         $sEquip->ENABLE_CONS_PIE = DISABLE_CONS_PIE;
         $sEquip->RUN_CALCULATE = EQUIP_SELECTED;
         
-        $sEquip->RUN_CALCULATE = $study->CALCULATION_MODE == 1? SAVE_NUM_TO_DB_YES: SAVE_NUM_TO_DB_NO;
+        $sEquip->BRAIN_SAVETODB = $study->CALCULATION_MODE == 1? SAVE_NUM_TO_DB_YES: SAVE_NUM_TO_DB_NO;
 
         $sEquip->STDEQP_WIDTH = -1;
         $sEquip->STDEQP_LENGTH = -1;
@@ -573,18 +578,19 @@ class Studies extends Controller
         $sEquip->save();
 
         // @TODO: JAVA initCalculationParameters(idUser, sEquip, productshape, nbComp);
-        $defaultCalcParams = CalculationParametersDef::where('ID_USER', $this->auth->user()->ID_USER)->first();
+        $defaultCalcParams = CalculationParametersDef::find($this->auth->user()->ID_USER);
         
         $calcParams = new CalculationParameter();
         $calcParams->ID_STUDY_EQUIPMENTS = $sEquip->ID_STUDY_EQUIPMENTS;
         
         // Fixed alpha value
         $calcParams->STUDY_ALPHA_TOP_FIXED = $defaultCalcParams->STUDY_ALPHA_TOP_FIXED_DEF;
-        $calcParams->STUDY_ALPHA_BOTTOM_FIXED = $defaultCalcParams->STUDY_ALPHA_BOTTOM_FIXEDD_DEF;
+        $calcParams->STUDY_ALPHA_BOTTOM_FIXED = $defaultCalcParams->STUDY_ALPHA_BOTTOM_FIXED_DEF;
         $calcParams->STUDY_ALPHA_LEFT_FIXED = $defaultCalcParams->STUDY_ALPHA_LEFT_FIXED_DEF;
         $calcParams->STUDY_ALPHA_RIGHT_FIXED = $defaultCalcParams->STUDY_ALPHA_RIGHT_FIXED_DEF;
         $calcParams->STUDY_ALPHA_FRONT_FIXED = $defaultCalcParams->STUDY_ALPHA_FRONT_FIXED_DEF;
         $calcParams->STUDY_ALPHA_REAR_FIXED = $defaultCalcParams->STUDY_ALPHA_REAR_FIXED_DEF;
+
         $calcParams->STUDY_ALPHA_TOP = $defaultCalcParams->STUDY_ALPHA_TOP_DEF;
         $calcParams->STUDY_ALPHA_BOTTOM = $defaultCalcParams->STUDY_ALPHA_BOTTOM_DEF;
         $calcParams->STUDY_ALPHA_RIGHT = $defaultCalcParams->STUDY_ALPHA_RIGHT_DEF;
@@ -594,9 +600,9 @@ class Studies extends Controller
         
         // Brain calculation parameters
         $calcParams->HORIZ_SCAN = $defaultCalcParams->HORIZ_SCAN_DEF;
-        $calcParams->VERT_SCAN = $defaultCalcParams->isVert_scan_def;
-        $calcParams->MAX_IT_NB = $defaultCalcParams->getMaxItNbDef;
-        $calcParams->RELAX_COEFF = $defaultCalcParams->getRelaxCoeffDef;
+        $calcParams->VERT_SCAN = $defaultCalcParams->VERT_SCAN_DEF;
+        $calcParams->MAX_IT_NB = $defaultCalcParams->MAX_IT_NB_DEF;
+        $calcParams->RELAX_COEFF = $defaultCalcParams->RELAX_COEFF_DEF;
         
         $calcParams->STOP_TOP_SURF = $defaultCalcParams->STOP_TOP_SURF_DEF;
         $calcParams->STOP_INT = $defaultCalcParams->STOP_INT_DEF;
@@ -613,6 +619,7 @@ class Studies extends Controller
             $study->products->first()->productElmts->count(),
             $sEquip->equipment->ITEM_PRECIS
         );
+
         $calcParams->PRECISION_REQUEST = $defPrecision;
         
         $defTimeStep = $this->GetDefaultTimeStep($sEquip->equipment->ITEM_TIME_STEP);
@@ -820,6 +827,18 @@ class Studies extends Controller
         return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 43);
 
         return $sEquip;
+    }
+
+    public function getTempRecordPts($id)
+    {
+        return TempRecordPts::where('ID_STUDY', $id)->first();
+    }
+
+    public function getProductElmt($id)
+    {
+        $productElmt = ProductElmt::where('ID_STUDY', $id)->first();
+
+        return $productElmt;
     }
 
     /**

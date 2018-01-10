@@ -122,7 +122,8 @@ class CalculateService
     {
 		$mmErrorH = 0.0;
 		$minMax = $this->getMinMax(1131);
-		$mmErrorH = $this->convert->unitConvert($this->value->TEMPERATURE, $minMax->DEFAULT_VALUE);
+		$uPercent = $this->convert->uPercent();
+		$mmErrorH =  $this->convert->convertCalculator($minMax->DEFAULT_VALUE, $uPercent["coeffA"], $uPercent["coeffB"]);
 		return $mmErrorH;
 	}
 
@@ -363,6 +364,22 @@ class CalculateService
         }
 
         return $this->convert->meshes($val, $this->value->MESH_CUT);
+    }
+
+    public function getValueSelected($select = array())
+    {
+    	$value = 0.0;
+    	if (count($select) > 0) {
+			for ($i = 0; $i < count($select); $i++) { 
+				if ($select[$i]['selected'] == true) {
+					$value = floatval($select[$i]['label']);
+				}
+			}
+		} else {
+			$value = 0.0;
+		}
+
+		return $value;
     }
 
     public function isStudyHasChilds($idStudy)
