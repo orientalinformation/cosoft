@@ -101,10 +101,19 @@ class Studies extends Controller
             foreach ($product->productElmts as $productElmt) {
                 $productElmt->delete();
             }
+
+            foreach ($product->prodcharColors as $prodCharColor) {
+                $prodCharColor->delete();
+            }
+
             $product->delete();
         }
 
         $productions = $study->productions;
+
+        foreach ($study->prices as $price) {
+            $price->delete();
+        }
 
         foreach ($productions as $production) {
             $production->delete();
@@ -130,6 +139,46 @@ class Studies extends Controller
 
         foreach ($study->precalcLdgRatePrms as $precalcLdgRatePrm) {
             $precalcLdgRatePrm->delete();
+        }
+
+        foreach ($study->studyEquipments as $equip) {
+            foreach ($equip->layoutGenerations as $layoutGen) {
+                $layoutGen->delete();
+            }
+
+            foreach ($equip->layoutResults as $layoutResult) {
+                $layoutResult->delete();
+            }
+
+            foreach ($equip->calculationParameters as $calcParam) {
+                $calcParam->delete();
+            }
+
+            foreach ($equip->pipeGens as $pipeGen) {
+                $pipeGen->delete();
+            }
+
+            foreach ($equip->pipeRes as $pipeRes) {
+                $pipeRes->delete();
+            }
+
+            foreach ($equip->exhGens as $exhGen) {
+                $exhGen->delete();
+            }
+
+            foreach ($equip->exhRes as $exhRes) {
+                $exhRes->delete();
+            }
+
+            foreach ($equip->economicResults as $ecoRes) {
+                $ecoRes->delete();
+            }
+
+            foreach ($equip->studEqpPrms as $studEqpPrm) {
+                $studEqpPrm->delete();
+            }
+
+            $equip->delete();
         }
 
         return (int) $study->delete();
