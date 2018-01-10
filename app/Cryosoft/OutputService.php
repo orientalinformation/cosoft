@@ -44,4 +44,67 @@ class OutputService
     {
         return TempRecordData::where("ID_REC_POS", $idRecPos)->where("REC_AXIS_X_POS", $axis1)->where("REC_AXIS_Y_POS", $axis2)->where("REC_AXIS_Z_POS", 0)->first();
     }
+
+    public function convertMeshForAppletDim($ldShape, $bIsParallel, $dbDim)
+    {
+        $appDim = [];
+        switch ($ldShape) {
+            case 1:
+                $appDim = $dbDim;
+                break;
+
+            case 2:
+            case 9:
+                if ($bIsParallel) {
+                    $appDim = array_reverse($dbDim);
+                } else {
+                    $appDim = $dbDim;
+                }
+                break;
+
+            case 3:
+                if ($bIsParallel) {
+                    $appDim[0] = $dbDim[2];
+                    $appDim[1] = $dbDim[0];
+                    $appDim[2] = $dbDim[1];
+                } else {
+                    $appDim[0] = $dbDim[1];
+                    $appDim[1] = $dbDim[0];
+                    $appDim[2] = $dbDim[2];
+                }
+                break;
+
+            case 4:
+            case 5:
+                $appDim[0] = $dbDim[0];
+                $appDim[1] = $dbDim[1];
+                $appDim[2] = [];
+                break;
+
+            case 7:
+            case 8:
+                $appDim[0] = $dbDim[1];
+                $appDim[1] = $dbDim[0];
+                $appDim[2] = [];
+                break;
+
+            case 6:
+                $appDim[0] = [];
+                $appDim[1] = $dbDim[1];
+                $appDim[2] = [];
+                break;
+
+            default:
+                $appDim[] = [[],[],[]];
+                break;
+        }
+
+
+        return $appDim;
+    }
+
+    public function getSelectedMeshPoint($iType, $iObj)
+    {
+        
+    }
 }
