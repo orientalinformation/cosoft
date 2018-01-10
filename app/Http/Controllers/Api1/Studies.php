@@ -570,7 +570,7 @@ class Studies extends Controller
         $sEquip->ENABLE_CONS_PIE = DISABLE_CONS_PIE;
         $sEquip->RUN_CALCULATE = EQUIP_SELECTED;
         
-        $sEquip->RUN_CALCULATE = $study->CALCULATION_MODE == 1? SAVE_NUM_TO_DB_YES: SAVE_NUM_TO_DB_NO;
+        $sEquip->BRAIN_SAVETODB = $study->CALCULATION_MODE == 1? SAVE_NUM_TO_DB_YES: SAVE_NUM_TO_DB_NO;
 
         $sEquip->STDEQP_WIDTH = -1;
         $sEquip->STDEQP_LENGTH = -1;
@@ -578,18 +578,19 @@ class Studies extends Controller
         $sEquip->save();
 
         // @TODO: JAVA initCalculationParameters(idUser, sEquip, productshape, nbComp);
-        $defaultCalcParams = CalculationParametersDef::where('ID_USER', $this->auth->user()->ID_USER)->first();
+        $defaultCalcParams = CalculationParametersDef::find($this->auth->user()->ID_USER);
         
         $calcParams = new CalculationParameter();
         $calcParams->ID_STUDY_EQUIPMENTS = $sEquip->ID_STUDY_EQUIPMENTS;
         
         // Fixed alpha value
         $calcParams->STUDY_ALPHA_TOP_FIXED = $defaultCalcParams->STUDY_ALPHA_TOP_FIXED_DEF;
-        $calcParams->STUDY_ALPHA_BOTTOM_FIXED = $defaultCalcParams->STUDY_ALPHA_BOTTOM_FIXEDD_DEF;
+        $calcParams->STUDY_ALPHA_BOTTOM_FIXED = $defaultCalcParams->STUDY_ALPHA_BOTTOM_FIXED_DEF;
         $calcParams->STUDY_ALPHA_LEFT_FIXED = $defaultCalcParams->STUDY_ALPHA_LEFT_FIXED_DEF;
         $calcParams->STUDY_ALPHA_RIGHT_FIXED = $defaultCalcParams->STUDY_ALPHA_RIGHT_FIXED_DEF;
         $calcParams->STUDY_ALPHA_FRONT_FIXED = $defaultCalcParams->STUDY_ALPHA_FRONT_FIXED_DEF;
         $calcParams->STUDY_ALPHA_REAR_FIXED = $defaultCalcParams->STUDY_ALPHA_REAR_FIXED_DEF;
+
         $calcParams->STUDY_ALPHA_TOP = $defaultCalcParams->STUDY_ALPHA_TOP_DEF;
         $calcParams->STUDY_ALPHA_BOTTOM = $defaultCalcParams->STUDY_ALPHA_BOTTOM_DEF;
         $calcParams->STUDY_ALPHA_RIGHT = $defaultCalcParams->STUDY_ALPHA_RIGHT_DEF;
@@ -618,6 +619,7 @@ class Studies extends Controller
             $study->products->first()->productElmts->count(),
             $sEquip->equipment->ITEM_PRECIS
         );
+
         $calcParams->PRECISION_REQUEST = $defPrecision;
         
         $defTimeStep = $this->GetDefaultTimeStep($sEquip->equipment->ITEM_TIME_STEP);
