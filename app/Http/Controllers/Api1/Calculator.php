@@ -230,6 +230,8 @@ class Calculator extends Controller
 		if (isset($input['idStudy'])) $idStudy = intval($input['idStudy']);
 		if (isset($input['idStudyEquipment'])) $idStudyEquipment = intval($input['idStudyEquipment']);
 
+		$this->cal->resetEquipSatus($idStudy);
+
 		$calMode = $this->cal->getCalculationMode($idStudy);
 
 		$brainMode = $this->brainCal->getBrainMode($idStudy);
@@ -251,6 +253,7 @@ class Calculator extends Controller
 		}
 
 		$this->saveTempRecordPts($this->request, $idStudy);
+		$this->cal->saveTempRecordPtsToReport($idStudy);
 
 		return $this->startNumericalCalculation($idStudy);
 	}
@@ -590,7 +593,13 @@ class Calculator extends Controller
 		$calculationParameter = CalculationParameter::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
 
 		if ($checkOptim != null) {
-			$calculationParameter->NB_OPTIM = $checkOptim;
+			$minMaxOptim = $this->brainCal->getMinMax(1130);
+			if ($checkOptim != null) {
+				$calculationParameter->NB_OPTIM = $checkOptim;
+			} else {
+				$calculationParameter->NB_OPTIM = $minMaxOptim->DEFAULT_VALUE;
+			}
+
 			$calculationParameter->ERROR_T = $this->convert->unitConvert($this->value->TEMPERATURE, $epsilonTemp);
 			$calculationParameter->ERROR_H = $this->convert->unitConvert($this->value->TEMPERATURE, $epsilonEnth);
 		} else {
