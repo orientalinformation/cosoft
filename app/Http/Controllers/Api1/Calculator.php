@@ -562,10 +562,10 @@ class Calculator extends Controller
 		if (isset($input['idStudy'])) $idStudy = intval($input['idStudy']);
 		if (isset($input['idStudyEquipment'])) $idStudyEquipment = intval($input['idStudyEquipment']);
 
-		$brainMode = $this->setBrainMode(1);
+		$brainMode = 1;
 		$this->saveCalculationParameters($this->request, $idStudyEquipment, $brainMode);
 
-    	return 0;
+    	return $this->runBrainCalculator($idStudy, $idStudyEquipment, false, 0, $brainMode);
     }
 
     public function saveCalculationParameters(Request $request, $idStudyEquipment, $brainMode)
@@ -863,5 +863,102 @@ class Calculator extends Controller
 			}
 		}
 		return $results;
+    }
+
+    private function runBrainCalculator($idStudy, $idStudyEquipment, $bOptim, $brainOption, $brainMode)
+    {
+    	if ($this->cal->isStudyHasChilds($idStudy)) {
+    		$this->cal->setChildsStudiesToRecalculate($idStudy, $idStudyEquipment);
+    	}
+
+    	$studyEquipment = StudyEquipment::find($idStudyEquipment);
+
+    	try {
+    		if (!$this->equipment->getCapability($studyEquipment->CAPABILITIES, 128)) 
+    			throw new \Exception("CAN NOT RUN BRAIN CALCULATOR: MULTI TR!!", 1);
+
+    		if ($this->equipment->getCapability($studyEquipment->CAPABILITIES, 64)) $bOptim = false;
+
+    		if ($bOptim) {
+    			if (!$this->doAnalogicBrainOptim($idStudy, $idStudyEquipment, $brainOption)) 
+    				throw new \Exception("OPTIMIZATION - ANA1: PHAMCAST FAILLED !!", 1);
+
+    			if (!$this->startExhaustGasTemp($idStudy, $idStudyEquipment))
+    				throw new \Exception("OPTIMIZATION - EXHAUST GAS TEMP CALCULATION FAILED !!", 1);
+    		}
+
+    		$brainMode = 0;
+        
+	        if ($bOptim) {
+	            switch ($brainOption) {
+	                case 0:
+	                case 3:
+	                case 4:
+	                case 5:
+	                    $brainMode = 0;
+	                    break;
+	                case 1:
+	                    $brainMode = 1;
+	                    break;
+	                case 2:
+	                    $brainMode = 2;
+	                    break;
+
+	                default:
+	                    $brainMode = 0;
+	                    break;
+	            }
+	        } else {
+	            $brainMode = 0;
+	        }
+
+	        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
+			$param = new \Cryosoft\stSKBRParam();
+			return $this->kernel->getKernelObject('BrainCalculator')->BRTeachCalculation($conf, $param, $brainMode);
+
+    	} catch (Exception $e) {
+    		return false;
+    	}
+    	return true;
+    }
+
+    private function doAnalogicBrainOptim($idStudy, $idStudyEquipment, $brainOption)
+    {
+    	$ret = true;
+
+        switch ($brainOption) {
+            case 2:
+                $ret = $this->startPhamCastCalculator($idStudy, $idStudyEquipment, false);
+                break;
+
+            case 1:
+                $ret = $this->startPhamCastCalculator($idStudy, $idStudyEquipment, true);
+                break;
+
+            case 3:
+                $ret = false;
+                break;
+
+            case 4:
+                $ret = false;
+                break;
+
+            case 5:
+                $ret = false;
+        }
+
+        return $ret;
+    }
+
+    private function startPhamCastCalculator($idStudy, $idStudyEquipment, $doTr)
+    {
+    	$conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
+		return $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf);
+    }
+
+    private function startExhaustGasTemp($idStudy, $idStudyEquipment)
+    {
+    	$conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
+		return $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 1);
     }
 }
