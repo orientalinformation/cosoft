@@ -988,4 +988,21 @@ class Studies extends Controller
 
         return 0;
     }
+
+    public function getMeshPoints($id)
+    {
+        $tfMesh = [];
+        for ($i = 0; $i < 3; $i++) {
+            $meshPoints = MeshPosition::distinct()->select('MESH_AXIS_POS')->where('ID_STUDY', $id)->where('MESH_AXIS', $i+1)->orderBy('MESH_AXIS_POS')->get();
+            $itemName = [];
+            foreach ($meshPoints as $row) {
+                $item['value'] = $row->MESH_AXIS_POS;
+                $item['name'] = $this->convert->meshesUnit($row->MESH_AXIS_POS * 1000);
+                $itemName[] = $item;
+            }
+            $tfMesh[$i] = array_reverse($itemName);
+        }
+
+        return $tfMesh;
+    }
 }
