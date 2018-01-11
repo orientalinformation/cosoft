@@ -564,6 +564,7 @@ class Calculator extends Controller
 
 		$brainMode = 1;
 		$this->saveCalculationParameters($this->request, $idStudyEquipment, $brainMode);
+		$this->cal->reset2DTempRecordPts($idStudy);
 
     	return $this->runBrainCalculator($idStudy, $idStudyEquipment, false, 0, $brainMode);
     }

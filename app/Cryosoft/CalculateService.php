@@ -461,6 +461,17 @@ class CalculateService
     		if (($tempRecordsPt->CONTOUR2D_TEMP_MIN) ==  ($tempRecordsPt->CONTOUR2D_TEMP_MAX)) {
     			$report->CONTOUR2D_TEMP_STEP = 0;
     		}
+    		$report->save();
     	}
+    }
+
+    public function reset2DTempRecordPts($idStudy)
+    {
+    	$tempRecordsPt = TempRecordPts::where('ID_STUDY', $idStudy)->first();
+    	$tempRecordsPt->CONTOUR2D_TEMP_MIN = 0.0;
+    	$tempRecordsPt->CONTOUR2D_TEMP_MAX = 0.0;
+    	$tempRecordsPt->save();
+
+    	$this->saveTempRecordPtsToReport($idStudy);
     }
 }
