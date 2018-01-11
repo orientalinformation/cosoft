@@ -552,6 +552,22 @@ class Calculator extends Controller
     	return $this->startBrainNumericalCalculation($idStudy, $brainMode);
     }
 
+    public function startCalcul()
+    {
+    	$input = $this->request->all();
+
+    	$idStudy = null;
+		$idStudyEquipment = null;
+
+		if (isset($input['idStudy'])) $idStudy = intval($input['idStudy']);
+		if (isset($input['idStudyEquipment'])) $idStudyEquipment = intval($input['idStudyEquipment']);
+
+		$brainMode = $this->setBrainMode(1);
+		$this->saveCalculationParameters($this->request, $idStudyEquipment, $brainMode);
+
+    	return 0;
+    }
+
     public function saveCalculationParameters(Request $request, $idStudyEquipment, $brainMode)
     {
     	$input = $request->all();

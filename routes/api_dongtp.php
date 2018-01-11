@@ -31,3 +31,11 @@ $router->POST('/api/v1/admin/users', 'Api1\\Admin@newUser');
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/products/{id}/elements', 'Api1\\Products@updateProductElement');
+
+/**
+ * POST start calcul
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/calculator/startcalcul', 'Api1\\Calculator@startCalcul');
