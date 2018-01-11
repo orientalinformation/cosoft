@@ -17,9 +17,17 @@ $router->GET('/api/v1/studies/{id}/tempRecordPts', 'Api1\\Studies@getTempRecordP
 $router->GET('/api/v1/studies/{id}/productElmt', 'Api1\\Studies@getProductElmt');
 
 /**
- * GET getstudyEquipmentProductChart
+ * GET getProductElmt
  * Summary: 
- * Notes: get study equipment product chart
+ * Notes: get productElmt
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/studies/{id}/meshPoints', 'Api1\\Studies@getMeshPoints');
+
+/**
+ * GET getMeshPoints
+ * Summary: 
+ * Notes: get meshPoints Study
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/studyEquipment/{id}/productChart', 'Api1\\StudyEquipments@getstudyEquipmentProductChart');
