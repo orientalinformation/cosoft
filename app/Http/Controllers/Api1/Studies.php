@@ -25,6 +25,7 @@ use App\Models\CalculationParametersDef;
 use App\Models\CalculationParameter;
 use App\Cryosoft\CalculateService;
 use App\Models\TempRecordPts;
+use App\Models\TempRecordPtsDef;
 use App\Models\MeshPosition;
 use App\Models\ProductElmt;
 
@@ -105,10 +106,19 @@ class Studies extends Controller
             foreach ($product->productElmts as $productElmt) {
                 $productElmt->delete();
             }
+
+            foreach ($product->prodcharColors as $prodCharColor) {
+                $prodCharColor->delete();
+            }
+
             $product->delete();
         }
 
         $productions = $study->productions;
+
+        foreach ($study->prices as $price) {
+            $price->delete();
+        }
 
         foreach ($productions as $production) {
             $production->delete();
@@ -134,6 +144,46 @@ class Studies extends Controller
 
         foreach ($study->precalcLdgRatePrms as $precalcLdgRatePrm) {
             $precalcLdgRatePrm->delete();
+        }
+
+        foreach ($study->studyEquipments as $equip) {
+            foreach ($equip->layoutGenerations as $layoutGen) {
+                $layoutGen->delete();
+            }
+
+            foreach ($equip->layoutResults as $layoutResult) {
+                $layoutResult->delete();
+            }
+
+            foreach ($equip->calculationParameters as $calcParam) {
+                $calcParam->delete();
+            }
+
+            foreach ($equip->pipeGens as $pipeGen) {
+                $pipeGen->delete();
+            }
+
+            foreach ($equip->pipeRes as $pipeRes) {
+                $pipeRes->delete();
+            }
+
+            foreach ($equip->exhGens as $exhGen) {
+                $exhGen->delete();
+            }
+
+            foreach ($equip->exhRes as $exhRes) {
+                $exhRes->delete();
+            }
+
+            foreach ($equip->economicResults as $ecoRes) {
+                $ecoRes->delete();
+            }
+
+            foreach ($equip->studEqpPrms as $studEqpPrm) {
+                $studEqpPrm->delete();
+            }
+
+            $equip->delete();
         }
 
         return (int) $study->delete();
@@ -243,6 +293,7 @@ class Studies extends Controller
                 'EQUIP_VERSION' => $studyEquipment->EQUIP_VERSION,
             ];
             $layoutGen = LayoutGeneration::where('ID_STUDY_EQUIPMENTS', $studyEquipment->ID_STUDY_EQUIPMENTS)->first();
+            if (!$layoutGen) continue;
 
             $equip['ORIENTATION'] = $layoutGen->PROD_POSITION;
             $equip['displayName'] = 'EQUIP_NAME_NOT_FOUND';
@@ -432,6 +483,10 @@ class Studies extends Controller
         /** @var PrecalcLdgRatePrm $precalc */
         $precalc = new PrecalcLdgRatePrm();
 
+        /** @var TempRecordPts $tempRecordPts */
+        $tempRecordPts = new TempRecordPts();
+
+
         $input = $this->request->json()->all();
 
         $study->STUDY_NAME = $input['STUDY_NAME'];
@@ -488,6 +543,15 @@ class Studies extends Controller
         $study->ID_PROD = $product->ID_PROD;
         $study->ID_PRODUCTION = $production->ID_PRODUCTION;
         $study->ID_PRECALC_LDG_RATE_PRM = $precalc->ID_PRECALC_LDG_RATE_PRM;
+        $study->save();
+
+        // 165 : tempRecordPts = new TempRecordPtsBean(userPrivateData, convert, this);
+        $tempRecordPtsDef = TempRecordPtsDef::where('ID_USER', $this->auth->user()->ID_USER)->first();
+        $tempRecordPts->ID_STUDY = $study->ID_STUDY;
+        $tempRecordPts->NB_STEPS = $tempRecordPtsDef->NB_STEPS_DEF;
+        $tempRecordPts->save();
+
+        $study->ID_TEMP_RECORD_PTS = $tempRecordPts->ID_TEMP_RECORD_PTS;
         $study->save();
 
         return $study;
@@ -578,7 +642,7 @@ class Studies extends Controller
         $sEquip->save();
 
         // @TODO: JAVA initCalculationParameters(idUser, sEquip, productshape, nbComp);
-        $defaultCalcParams = CalculationParametersDef::find($this->auth->user()->ID_USER);
+        $defaultCalcParams = CalculationParametersDef::where('ID_USER', $this->auth->user()->ID_USER)->first();
         
         $calcParams = new CalculationParameter();
         $calcParams->ID_STUDY_EQUIPMENTS = $sEquip->ID_STUDY_EQUIPMENTS;
@@ -639,10 +703,11 @@ class Studies extends Controller
         
         if ($equip->STD != EQUIP_STANDARD) {
             // TODO: generated non-standard equipment is not supported yet
+            throw new \Exception('Non standard equipment is not yet supported', 500);
         } else {
             // standard equipment
             $tr = $this->getEqpPrmInitialData(array_fill(0, $equip->NB_TR, 0.0), $TRType, false);
-            $ts = $this->getEqpPrmInitialData(array_fill(0, $equip->NB_TS, 0.0), $TSType, true);	
+            $ts = $this->getEqpPrmInitialData(array_fill(0, $equip->NB_TS, 0.0), $TSType, true);
         }
 
         $vc = $this->getEqpPrmInitialData(array_fill(0, $equip->NB_VC, 0.0), $VCType, false);
@@ -747,13 +812,14 @@ class Studies extends Controller
         $sEquip->save();
 
         // runLayoutCalculator(sEquip, username, password);
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\layout-trace.txt');
         $lcRunResult = $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, 1);
 
         $lcTSRunResult = -1;
 
         if ( ($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TS != 0) &&
             ($sEquip->equipment->CAPABILITIES & CAP_TS_FROM_TOC !=0) ) {
+            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\layout-ts-trace.txt');
             $lcTSRunResult = $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, 2);
         }
 
@@ -767,7 +833,7 @@ class Studies extends Controller
             $doTR = true;
 			//PhamCast: run automatic
             $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
-            $lcRunResult = $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, $doTR);
+            $lcRunResult = $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, !$doTR);
 
             // if (calc . GetPCCError() != ValuesList . KERNEL_OK) {
             //     log . warn("automatic run of PhamCast failed");
@@ -790,7 +856,7 @@ class Studies extends Controller
             // log . debug("starting TS=f(TR) calculation");
 			//PhamCast: run automatic
             $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
-            $lcRunResult = $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, $doTR);
+            $lcRunResult = $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, !$doTR);
 
             // if (calc . GetPCCError() != ValuesList . KERNEL_OK) {
             //     log . warn("automatic run of PhamCast failed");
@@ -868,4 +934,58 @@ class Studies extends Controller
         return $dd;
     }
 
+
+    public function removeStudyEquipment($id, $idEquip) {
+        $study = \App\Models\Study::findOrFail($id);
+
+        if (!$study) {
+            throw new \Exception('Study not found', 404);
+        }
+
+        $equip = \App\Models\StudyEquipment::find($idEquip);
+
+        if (!$equip) {
+            throw new \Exception('Study equipment not found', 404);
+        }
+
+        foreach ($equip->layoutGenerations as $layoutGen) {
+            $layoutGen->delete();
+        }
+
+        foreach ($equip->layoutResults as $layoutResult) {
+            $layoutResult->delete();
+        }
+
+        foreach ($equip->calculationParameters as $calcParam) {
+            $calcParam->delete();
+        }
+
+        foreach ($equip->pipeGens as $pipeGen) {
+            $pipeGen->delete();
+        }
+
+        foreach ($equip->pipeRes as $pipeRes) {
+            $pipeRes->delete();
+        }
+
+        foreach ($equip->exhGens as $exhGen) {
+            $exhGen->delete();
+        }
+
+        foreach ($equip->exhRes as $exhRes) {
+            $exhRes->delete();
+        }
+
+        foreach ($equip->economicResults as $ecoRes) {
+            $ecoRes->delete();
+        }
+
+        foreach ($equip->studEqpPrms as $studEqpPrm) {
+            $studEqpPrm->delete();
+        }
+
+        $equip->delete();
+
+        return 0;
+    }
 }
