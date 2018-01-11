@@ -1366,11 +1366,20 @@ class Output extends Controller
         $tfMesh = [];
         for ($i = 0; $i < 3; $i++) {
             $meshPoints = MeshPosition::distinct()->select('MESH_AXIS_POS')->where('ID_STUDY', $idStudy)->where('MESH_AXIS', $i+1)->orderBy('MESH_AXIS_POS')->get();
-            $item = [];
+            $itemName = [];
             foreach ($meshPoints as $row) {
-                $item[] = $row->MESH_AXIS_POS * 1000;
+                $item['value'] = $row->MESH_AXIS_POS;
+                $item['name'] = $this->unit->meshesUnit($row->MESH_AXIS_POS * 1000);
+                $itemName[] = $item;
             }
-            $tfMesh[$i] = $item;
+            $tfMesh[$i] = array_reverse($itemName);
+        }
+        $meshAxisPos = [];
+        if (!empty($tfMesh)) {
+            $meshAxisPos = $tfMesh;
+            /*$meshAxisPos['x'] = $tfMesh[0];
+            $meshAxisPos['y'] = $tfMesh[1];
+            $meshAxisPos['z'] = $tfMesh[2];*/
         }
 
         $productElmt = ProductElmt::where('ID_STUDY', $idStudy)->first();
@@ -1411,7 +1420,7 @@ class Output extends Controller
         $v3fSelectedPoints[1] = $this->output->convertAxisForAppletDim($shape, $parallel, $v3fSelectedPoints[1]);
 
 
-        return $tfMesh;
+        return $meshAxisPos;
     }
 
     public function heatExchange() 
