@@ -29,6 +29,7 @@ use App\Cryosoft\DimaResultsService;
 use App\Cryosoft\EconomicResultsService;
 use App\Cryosoft\StudyService;
 use App\Cryosoft\OutputService;
+use App\Models\LayoutGeneration;
 
 
 
@@ -1357,23 +1358,57 @@ class Output extends Controller
         }
     }
     
-    public function location($idStudy)
+    public function location()
     {
+        $idStudy = $this->request->input('idStudy');
+        $idStudyEquipment = $this->request->input('idStudyEquipment');
+
         $tfMesh = [];
         for ($i = 0; $i < 3; $i++) {
             $meshPoints = MeshPosition::distinct()->select('MESH_AXIS_POS')->where('ID_STUDY', $idStudy)->where('MESH_AXIS', $i+1)->orderBy('MESH_AXIS_POS')->get();
             $item = [];
             foreach ($meshPoints as $row) {
-                $item[] = $row->MESH_AXIS_POS;
+                $item[] = $row->MESH_AXIS_POS * 1000;
             }
             $tfMesh[$i] = $item;
         }
 
         $productElmt = ProductElmt::where('ID_STUDY', $idStudy)->first();
         $shape = $productElmt->SHAPECODE;
-        $bIsParallel = true;
+        $layoutGen = LayoutGeneration::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
+        $parallel = $layoutGen->PROD_POSITION;
+        $v3fSelectedPoints = [];
 
-        $tfMesh = $this->output->convertMeshForAppletDim($shape, $bIsParallel, $tfMesh);
+        $tfMesh = $this->output->convertMeshForAppletDim($shape, $parallel, $tfMesh);
+
+        $tfCoord = $this->output->convertPointForAppletDim($shape, $parallel, $tfMesh); 
+        $v3fSelectedPoints[0][0] = $tfCoord;
+
+        $tfCoord = $this->output->convertPointForAppletDim($shape, $parallel, $tfMesh); 
+        $v3fSelectedPoints[0][1] = $tfCoord;
+
+        $tfCoord = $this->output->convertPointForAppletDim($shape, $parallel, $tfMesh); 
+        $v3fSelectedPoints[0][2] = $tfCoord;
+
+        $tfCoord[0] = 0.0;
+        $tfCoord[1] = $tfMesh[0];
+        $tfCoord[2] = $tfMesh[1];
+
+        $v3fSelectedPoints[1][0] = $tfCoord;
+
+        $tfCoord[0] = $tfMesh[0];
+        $tfCoord[1] = 0.0;
+        $tfCoord[2] = $tfMesh[1];
+        
+        $v3fSelectedPoints[1][1] = $tfCoord;
+
+        $tfCoord[0] = $tfMesh[0];
+        $tfCoord[1] = $tfMesh[1];
+        $tfCoord[2] = 0.0;
+        
+        $v3fSelectedPoints[1][2] = $tfCoord;
+
+        $v3fSelectedPoints[1] = $this->output->convertAxisForAppletDim($shape, $parallel, $v3fSelectedPoints[1]);
 
 
         return $tfMesh;
