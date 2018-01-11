@@ -39,7 +39,7 @@ $router->GET('/api/v1/output/sizingresult/estimation', 'Api1\\Output@sizingEstim
  * Notes: product chart location
  * Output-Formats: [application/json]
  */
-$router->GET('/api/v1/output/location/{idStudy}', 'Api1\\Output@location');
+$router->GET('/api/v1/output/location', 'Api1\\Output@location');
 
 /**
  * GET heatExchange
