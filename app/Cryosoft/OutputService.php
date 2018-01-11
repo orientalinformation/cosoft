@@ -78,29 +78,146 @@ class OutputService
             case 5:
                 $appDim[0] = $dbDim[0];
                 $appDim[1] = $dbDim[1];
-                $appDim[2] = [];
+                $appDim[2] = "";
                 break;
 
             case 7:
             case 8:
                 $appDim[0] = $dbDim[1];
                 $appDim[1] = $dbDim[0];
-                $appDim[2] = [];
+                $appDim[2] = "";
                 break;
 
             case 6:
-                $appDim[0] = [];
+                $appDim[0] = "";
                 $appDim[1] = $dbDim[1];
-                $appDim[2] = [];
+                $appDim[2] = "";
                 break;
 
             default:
-                $appDim[] = [[],[],[]];
+                $appDim[] = ["","",""];
+                break;
+        }
+
+        return $appDim;
+    }
+
+    public function convertPointForAppletDim($ldShape, $bIsParallel, $dbDim)
+    {
+        $appDim = [];
+        switch ($ldShape) {
+            case 1:
+                $appDim = $dbDim;
+                break;
+
+            case 2:
+            case 9:
+                if ($bIsParallel) {
+                    $appDim = array_reverse($dbDim);
+                } else {
+                    $appDim = $dbDim;
+                }
+                break;
+
+            case 3:
+                if ($bIsParallel) {
+                    $appDim[0] = $dbDim[2];
+                    $appDim[1] = $dbDim[0];
+                    $appDim[2] = $dbDim[1];
+                } else {
+                    $appDim[0] = $dbDim[1];
+                    $appDim[1] = $dbDim[0];
+                    $appDim[2] = $dbDim[2];
+                }
+                break;
+
+            case 4:
+            case 5:
+                $appDim[0] = $dbDim[0];
+                $appDim[1] = $dbDim[1];
+                $appDim[2] = 0.0;
+                break;
+
+            case 7:
+            case 8:
+                $appDim[0] = $dbDim[1];
+                $appDim[1] = $dbDim[0];
+                $appDim[2] = 0.0;
+                break;
+
+            case 6:
+                $appDim[0] = 0.0;
+                $appDim[1] = $dbDim[1];
+                $appDim[2] = 0.0;
+                break;
+
+            default:
+                $appDim[] = [0.0, 0.0, 0.0];
                 break;
         }
 
 
         return $appDim;
+    }
+
+    public function convertAxisForAppletDim($ldShape, $bIsParallel, $dbAxe)
+    {
+        $appAxe = [];
+        switch ($ldShape) {
+            case 1:
+                $appAxe[0] = $this->convertPointForAppletDim($ldShape, $bIsParallel, $dbAxe[0]);
+                $appAxe[1] = $this->convertPointForAppletDim($ldShape, $bIsParallel, $dbAxe[1]);
+                $appAxe[2] = $this->convertPointForAppletDim($ldShape, $bIsParallel, $dbAxe[2]);
+                break;
+
+            case 2:
+            case 9:
+                if ($bIsParallel) {
+                    $appAxe[0] = $this->convertPointForAppletDim($ldShape, $bIsParallel, $dbAxe[2]);
+                    $appAxe[1] = $this->convertPointForAppletDim($ldShape, $bIsParallel, $dbAxe[1]);
+                    $appAxe[2] = $this->convertPointForAppletDim($ldShape, $bIsParallel, $dbAxe[0]);
+                } else {
+                    $appAxe[0] = convertPointForAppletDim($ldShape, $bIsParallel, $dbAxe[0]);
+                    $appAxe[1] = convertPointForAppletDim($ldShape, $bIsParallel, $dbAxe[1]);
+                    $appAxe[2] = convertPointForAppletDim($ldShape, $bIsParallel, $dbAxe[2]);
+                }
+                break;
+
+            case 3:
+                if ($bIsParallel) {
+                    $appAxe[0] = $this->convertPointForAppletDim($ldShape, $bIsParallel, $dbAxe[2]);
+                    $appAxe[1] = $this->convertPointForAppletDim($ldShape, $bIsParallel, $dbAxe[0]);
+                    $appAxe[2] = $this->convertPointForAppletDim($ldShape, $bIsParallel, $dbAxe[1]);
+                } else {
+                    $appAxe[0] = $this->convertPointForAppletDim($ldShape, $bIsParallel, $dbAxe[1]);
+                    $appAxe[1] = $this->convertPointForAppletDim($ldShape, $bIsParallel, $dbAxe[0]);
+                    $appAxe[2] = $this->convertPointForAppletDim($ldShape, $bIsParallel, $dbAxe[2]);
+                }
+                break;
+
+            case 4:
+            case 5:
+                $appAxe[0] = $this->convertPointForAppletDim($ldShape, $bIsParallel, $dbAxe[0]);
+                $appAxe[1] = $this->convertPointForAppletDim($ldShape, $bIsParallel, $dbAxe[1]);
+                $appAxe[2] = "";
+                break;
+            
+            case 7:
+            case 8:
+                $appAxe[0] = $this->convertPointForAppletDim($ldShape, $bIsParallel, $dbAxe[1]);
+                $appAxe[1] = $this->convertPointForAppletDim($ldShape, $bIsParallel, $dbAxe[0]);
+                $appAxe[2] = "";
+                break;
+
+            case 6:
+                $appAxe[0] = "";
+                $appAxe[1] = $this->convertPointForAppletDim($ldShape, $bIsParallel, $dbAxe[1]);
+                $appAxe[2] = "";
+                break;
+
+            default:
+                $appAxe = ["", "", ""];
+        }
     }
 
     public function getSelectedMeshPoint($iType, $iObj)
