@@ -236,6 +236,18 @@ class Studies extends Controller
 
     public function openStudy($id)
     {
+        // 165 : tempRecordPts = new TempRecordPtsBean(userPrivateData, convert, this);
+        $tempRecordPts = TempRecordPts::where('ID_STUDY', $id)->first();
+        if (!$tempRecordPts) {
+            $tempRecordPtsDef = TempRecordPtsDef::where('ID_USER', $this->auth->user()->ID_USER)->first();
+            $tempRecordPts->NB_STEPS = $tempRecordPtsDef->NB_STEPS_DEF;
+        }
+        $tempRecordPts->ID_STUDY = $id;
+        $tempRecordPts->save();
+
+        $study->ID_TEMP_RECORD_PTS = $tempRecordPts->ID_TEMP_RECORD_PTS;
+        $study->save();
+
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id), -1);
         return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 10);
     }
