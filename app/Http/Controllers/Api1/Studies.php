@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\MeshGeneration;
 use App\Models\Product;
+use App\Models\ProductElmt;
 use App\Models\Production;
 use App\Models\Packing;
 use App\Models\Study;
@@ -26,7 +27,9 @@ use App\Models\CalculationParameter;
 use App\Cryosoft\CalculateService;
 use App\Models\TempRecordPts;
 use App\Models\MeshPosition;
-use App\Models\ProductElmt;
+use App\Models\InitialTemperature;
+use App\Models\Price;
+use App\Models\Report;
 
 
 class Studies extends Controller
@@ -147,7 +150,300 @@ class Studies extends Controller
 
     public function saveStudyAs($id)
     {
+        $study = new Study();
+        $temprecordpst = new TempRecordPts();
+        $production = new Production();
+        $product = new Product();
+        $meshgeneration = new MeshGeneration();
+        $price = new Price();
+        $report = new Report();
+        
+        // @class: \App\Models\Study
+        $studyCurrent = Study::find($id);
+        // var_dump($studyCurrent);die;
 
+        // @class: \App\Models\TempRecordPts
+        $temprecordpstCurr = TempRecordPts::where('ID_STUDY',$studyCurrent->ID_STUDY)->first();
+        // @class: \App\Models\Production
+        $productionCurr = Production::where('ID_STUDY',$studyCurrent->ID_STUDY)->first(); 
+        // @class: \App\Models\Product
+        $productCurr = Product::where('ID_STUDY',$studyCurrent->ID_STUDY)->first();
+        // @class: \App\Models\MeshGeneration
+        $meshgenerationCurr = MeshGeneration::where('ID_PROD',$productCurr->ID_PROD)->first(); 
+        // @class: \App\Models\Price
+        $priceCurr = Price::where('ID_STUDY',$studyCurrent->ID_STUDY)->first(); 
+        // @class: \App\Models\Price
+        $reportCurr = Report::where('ID_STUDY',$studyCurrent->ID_STUDY)->first(); 
+        // @class: \App\Models\ProductEmlt
+        $productemltCurr = ProductElmt::where('ID_PROD',$productCurr->ID_PROD)->get(); 
+        // var_dump($productemltCurr);die;
+        $input = $this->request->all();
+
+
+        if (!empty($input['name'])) {
+
+            //duplicate study already exsits
+            $study->STUDY_NAME = $input['name'];
+            $study->ID_USER = $this->auth->user()->ID_USER;
+            $study->OPTION_ECO = $studyCurrent->OPTION_ECO;
+            $study->CALCULATION_MODE = $studyCurrent->CALCULATION_MODE;
+            $study->COMMENT_TXT = $studyCurrent->COMMENT_TXT;
+            $study->OPTION_CRYOPIPELINE = $studyCurrent->OPTION_CRYOPIPELINE;
+            $study->OPTION_EXHAUSTPIPELINE = $studyCurrent->OPTION_EXHAUSTPIPELINE;
+            $study->CHAINING_CONTROLS = $studyCurrent->CHAINING_CONTROLS;
+            $study->CHAINING_ADD_COMP_ENABLE = $studyCurrent->CHAINING_ADD_COMP_ENABLE;
+            $study->CHAINING_NODE_DECIM_ENABLE = $studyCurrent->CHAINING_NODE_DECIM_ENABLE;
+            $study->HAS_CHILD = $studyCurrent->HAS_CHILD;
+            $study->TO_RECALCULATE = $studyCurrent->TO_RECALCULATE;
+            $study->save();
+
+            //duplicate TempRecordPts already exsits
+            if(count($temprecordpstCurr) > 0) {
+                $temprecordpst->ID_STUDY = $study->ID_STUDY;
+                $temprecordpst->AXIS1_PT_TOP_SURF = $temprecordpstCurr->AXIS1_PT_TOP_SURF;
+                $temprecordpst->AXIS2_PT_TOP_SURF = $temprecordpstCurr->AXIS2_PT_TOP_SURF;
+                $temprecordpst->AXIS3_PT_TOP_SURF = $temprecordpstCurr->AXIS3_PT_TOP_SURF;
+                $temprecordpst->AXIS1_PT_INT_PT = $temprecordpstCurr->AXIS1_PT_INT_PT;
+                $temprecordpst->AXIS2_PT_INT_PT = $temprecordpstCurr->AXIS2_PT_INT_PT;
+                $temprecordpst->AXIS3_PT_INT_PT = $temprecordpstCurr->AXIS3_PT_INT_PT;
+                $temprecordpst->AXIS1_PT_BOT_SURF = $temprecordpstCurr->AXIS1_PT_BOT_SURF;
+                $temprecordpst->AXIS2_PT_BOT_SURF = $temprecordpstCurr->AXIS2_PT_BOT_SURF;
+                $temprecordpst->AXIS3_PT_BOT_SURF = $temprecordpstCurr->AXIS3_PT_BOT_SURF;
+                $temprecordpst->AXIS2_AX_1 = $temprecordpstCurr->AXIS2_AX_1;
+                $temprecordpst->AXIS3_AX_1 = $temprecordpstCurr->AXIS3_AX_1;
+                $temprecordpst->AXIS1_AX_2 = $temprecordpstCurr->AXIS1_AX_2;
+                $temprecordpst->AXIS3_AX_2 = $temprecordpstCurr->AXIS3_AX_2;
+                $temprecordpst->AXIS1_AX_3 = $temprecordpstCurr->AXIS1_AX_3;
+                $temprecordpst->AXIS2_AX_3 = $temprecordpstCurr->AXIS2_AX_3;
+                $temprecordpst->AXIS1_PL_2_3 = $temprecordpstCurr->AXIS1_PL_2_3;
+                $temprecordpst->AXIS2_PL_1_3 = $temprecordpstCurr->AXIS2_PL_1_3;
+                $temprecordpst->AXIS3_PL_1_2 = $temprecordpstCurr->AXIS3_PL_1_2;
+                $temprecordpst->NB_STEPS = $temprecordpstCurr->NB_STEPS;
+                $temprecordpst->CONTOUR2D_TEMP_MIN = $temprecordpstCurr->CONTOUR2D_TEMP_MIN;
+                $temprecordpst->CONTOUR2D_TEMP_MAX = $temprecordpstCurr->CONTOUR2D_TEMP_MAX;
+                $temprecordpst->save();
+
+            }
+
+            //duplicate Production already exsits
+            if(count($productionCurr)>0) {
+
+            }
+            $production->ID_STUDY = $study->ID_STUDY;
+            $production->DAILY_PROD = $productionCurr->DAILY_PROD ;
+            $production->DAILY_STARTUP = $productionCurr->DAILY_STARTUP ;
+            $production->WEEKLY_PROD = $productionCurr->WEEKLY_PROD ;
+            $production->PROD_FLOW_RATE = $productionCurr->PROD_FLOW_RATE ;
+            $production->NB_PROD_WEEK_PER_YEAR = $productionCurr->NB_PROD_WEEK_PER_YEAR ;
+            $production->AMBIENT_TEMP = $productionCurr->AMBIENT_TEMP ;
+            $production->AMBIENT_HUM = $productionCurr->AMBIENT_HUM ;
+            $production->AVG_T_DESIRED = $productionCurr->AVG_T_DESIRED ;
+            $production->AVG_T_INITIAL = $productionCurr->AVG_T_INITIAL ;
+            $production->APPROX_DWELLING_TIME = $productionCurr->APPROX_DWELLING_TIME ;
+            $production->save();
+            
+            //duplicate initial_Temp already exsits
+            // @class: \App\Models\InitialTemperature
+            $initialtempCurr = InitialTemperature::where('ID_PRODUCTION', $productionCurr->ID_PRODUCTION)->get();
+            if(count($initialtempCurr) > 0) {
+                
+                foreach ($initialtempCurr as $ins) { 
+                    $initialtemp = new InitialTemperature();
+                    $initialtemp->ID_PRODUCTION = $production->ID_PRODUCTION ;
+                    $initialtemp->MESH_1_ORDER = $ins->MESH_1_ORDER ;
+                    $initialtemp->MESH_2_ORDER = $ins->MESH_2_ORDER ;
+                    $initialtemp->MESH_3_ORDER = $ins->MESH_3_ORDER ;
+                    $initialtemp->INITIAL_T = $ins->INITIAL_T ;
+                    $initialtemp->save();
+                }
+
+            }
+
+            //duplicate Product already exsits
+            if(count($productCurr)>0) {
+                $product->ID_STUDY = $study->ID_STUDY;
+                $product->PRODNAME = $productCurr->PRODNAME;
+                $product->PROD_ISO = $productCurr->PROD_ISO;
+                $product->PROD_WEIGHT = $productCurr->PROD_WEIGHT;
+                $product->PROD_REALWEIGHT = $productCurr->PROD_REALWEIGHT;
+                $product->PROD_VOLUME = $productCurr->PROD_VOLUME;
+                $product->save();
+            }
+            
+
+            //duplicate MeshGeneration already exsits
+            if(count($meshgenerationCurr) > 0) {
+                $meshgeneration->ID_PROD = $product->ID_PROD;
+                $meshgeneration->MESH_1_FIXED = $meshgenerationCurr->MESH_1_FIXED;
+                $meshgeneration->MESH_2_FIXED = $meshgenerationCurr->MESH_2_FIXED;
+                $meshgeneration->MESH_3_FIXED = $meshgenerationCurr->MESH_3_FIXED;
+                $meshgeneration->MESH_1_MODE = $meshgenerationCurr->MESH_1_MODE;
+                $meshgeneration->MESH_2_MODE = $meshgenerationCurr->MESH_2_MODE;
+                $meshgeneration->MESH_3_MODE = $meshgenerationCurr->MESH_3_MODE;
+                $meshgeneration->MESH_1_NB = $meshgenerationCurr->MESH_1_NB;
+                $meshgeneration->MESH_2_NB = $meshgenerationCurr->MESH_2_NB;
+                $meshgeneration->MESH_3_NB = $meshgenerationCurr->MESH_3_NB;
+                $meshgeneration->MESH_1_SIZE = $meshgenerationCurr->MESH_1_SIZE;
+                $meshgeneration->MESH_2_SIZE = $meshgenerationCurr->MESH_2_SIZE;
+                $meshgeneration->MESH_3_SIZE = $meshgenerationCurr->MESH_3_SIZE;
+                $meshgeneration->MESH_1_INT = $meshgenerationCurr->MESH_1_INT;
+                $meshgeneration->MESH_2_INT = $meshgenerationCurr->MESH_2_INT;
+                $meshgeneration->MESH_3_INT = $meshgenerationCurr->MESH_3_INT;
+                $meshgeneration->MESH_1_RATIO = $meshgenerationCurr->MESH_1_RATIO;
+                $meshgeneration->MESH_2_RATIO = $meshgenerationCurr->MESH_2_RATIO;
+                $meshgeneration->MESH_3_RATIO = $meshgenerationCurr->MESH_3_RATIO;
+                $meshgeneration->BEST_1_NB = $meshgenerationCurr->BEST_1_NB;
+                $meshgeneration->BEST_2_NB = $meshgenerationCurr->BEST_2_NB;
+                $meshgeneration->BEST_3_NB = $meshgenerationCurr->BEST_3_NB;
+                $meshgeneration->save();
+
+            } 
+
+            if(count($productemltCurr) > 0) {
+                foreach ($productemltCurr as $prodelmtCurr ) {
+                    $productemlt = new ProductElmt();
+                    $productemlt->ID_PROD = $product->ID_PROD;
+                    $productemlt->ID_SHAPE = $prodelmtCurr->ID_SHAPE;
+                    $productemlt->ID_COMP = $prodelmtCurr->ID_COMP;
+                    $productemlt->PROD_ELMT_NAME = $prodelmtCurr->PROD_ELMT_NAME;
+                    $productemlt->SHAPE_PARAM1 = $prodelmtCurr->SHAPE_PARAM1;
+                    $productemlt->SHAPE_PARAM2 = $prodelmtCurr->SHAPE_PARAM2;
+                    $productemlt->SHAPE_PARAM3 = $prodelmtCurr->SHAPE_PARAM3;
+                    $productemlt->PROD_DEHYD = $prodelmtCurr->PROD_DEHYD;
+                    $productemlt->PROD_DEHYD_COST = $prodelmtCurr->PROD_DEHYD_COST;
+                    $productemlt->SHAPE_POS1 = $prodelmtCurr->SHAPE_POS1;
+                    $productemlt->SHAPE_POS2 = $prodelmtCurr->SHAPE_POS2;
+                    $productemlt->SHAPE_POS3 = $prodelmtCurr->SHAPE_POS3;
+                    $productemlt->PROD_ELMT_ISO = $prodelmtCurr->PROD_ELMT_ISO;
+                    $productemlt->ORIGINAL_THICK = $prodelmtCurr->ORIGINAL_THICK;
+                    $productemlt->NODE_DECIM = $prodelmtCurr->NODE_DECIM;
+                    $productemlt->INSERT_LINE_ORDER = $prodelmtCurr->INSERT_LINE_ORDER;
+                    $productemlt->PROD_ELMT_WEIGHT = $prodelmtCurr->PROD_ELMT_WEIGHT;
+                    $productemlt->PROD_ELMT_REALWEIGHT = $prodelmtCurr->PROD_ELMT_REALWEIGHT;
+                    $productemlt->save();
+                }
+            }
+
+            //duplicate Price already exsits
+            if(count($priceCurr) > 0) {
+                $price->ID_STUDY = $study->ID_STUDY;
+                $price->ENERGY = $priceCurr->ENERGY;
+                $price->ECO_IN_CRYO1 = $priceCurr->ECO_IN_CRYO1;
+                $price->ECO_IN_PBP1 = $priceCurr->ECO_IN_PBP1;
+                $price->ECO_IN_CRYO2 = $priceCurr->ECO_IN_CRYO2;
+                $price->ECO_IN_PBP2 = $priceCurr->ECO_IN_PBP2;
+                $price->ECO_IN_CRYO3 = $priceCurr->ECO_IN_CRYO3;
+                $price->ECO_IN_PBP3 = $priceCurr->ECO_IN_PBP3;
+                $price->ECO_IN_CRYO4 = $priceCurr->ECO_IN_CRYO4;
+                $price->ECO_IN_MINMP = $priceCurr->ECO_IN_MINMP;
+                $price->ECO_IN_MAXMP = $priceCurr->ECO_IN_MAXMP;
+                $price->save();
+
+            }
+
+            //duplicate Report already exsits
+            if(count($reportCurr) > 0) {
+                $report->ID_STUDY = $study->ID_STUDY;
+                $report->REP_CUSTOMER = $reportCurr->REP_CUSTOMER;
+                $report->PROD_LIST = $reportCurr->PROD_LIST;
+                $report->PROD_TEMP = $reportCurr->PROD_TEMP;
+                $report->PROD_3D = $reportCurr->PROD_3D;
+                $report->PACKING = $reportCurr->PACKING;
+                $report->EQUIP_LIST = $reportCurr->EQUIP_LIST;
+                $report->EQUIP_PARAM = $reportCurr->EQUIP_PARAM;
+                $report->EQUIP_PARAM = $reportCurr->EQUIP_PARAM;
+                $report->PIPELINE = $reportCurr->PIPELINE;
+                $report->ASSES_TERMAL = $reportCurr->ASSES_TERMAL;
+                $report->ASSES_CONSUMP = $reportCurr->ASSES_CONSUMP;
+                $report->ASSES_ECO = $reportCurr->ASSES_ECO;
+                $report->ASSES_TR = $reportCurr->ASSES_TR;
+                $report->ASSES_TR_MIN = $reportCurr->ASSES_TR_MIN;
+                $report->ASSES_TR_MAX = $reportCurr->ASSES_TR_MAX;
+                $report->SIZING_TR = $reportCurr->SIZING_TR;
+                $report->SIZING_TR_MIN = $reportCurr->SIZING_TR_MIN;
+                $report->SIZING_TR_MAX = $reportCurr->SIZING_TR_MAX;
+                $report->SIZING_VALUES = $reportCurr->SIZING_VALUES;
+                $report->SIZING_GRAPHE = $reportCurr->SIZING_GRAPHE;
+                $report->SIZING_TEMP_G = $reportCurr->SIZING_TEMP_G;
+                $report->SIZING_TEMP_V = $reportCurr->SIZING_TEMP_V;
+                $report->SIZING_TEMP_SAMPLE = $reportCurr->SIZING_TEMP_SAMPLE;
+                $report->AXE1_X = $reportCurr->AXE1_X;
+                $report->AXE1_Y = $reportCurr->AXE1_Y;
+                $report->AXE2_X = $reportCurr->AXE2_X;
+                $report->AXE2_Z = $reportCurr->AXE2_Z;
+                $report->AXE3_Y = $reportCurr->AXE3_Y;
+                $report->AXE3_Z = $reportCurr->AXE3_Z;
+                $report->ISOCHRONE_G = $reportCurr->ISOCHRONE_G;
+                $report->ISOCHRONE_V = $reportCurr->ISOCHRONE_V;
+                $report->ISOCHRONE_SAMPLE = $reportCurr->ISOCHRONE_SAMPLE;
+                $report->POINT1_X = $reportCurr->POINT1_X;
+                $report->POINT1_Y = $reportCurr->POINT1_Y;
+                $report->POINT1_Z = $reportCurr->POINT1_Z;
+                $report->POINT2_X = $reportCurr->POINT2_X;
+                $report->POINT2_Y = $reportCurr->POINT2_Y;
+                $report->POINT2_Z = $reportCurr->POINT2_Z;
+                $report->POINT3_X = $reportCurr->POINT3_X;
+                $report->POINT3_Y = $reportCurr->POINT3_Y;
+                $report->POINT3_Z = $reportCurr->POINT3_Z;
+                $report->ISOVALUE_G = $reportCurr->ISOVALUE_G;
+                $report->ISOVALUE_V = $reportCurr->ISOVALUE_V;
+                $report->ISOVALUE_SAMPLE = $reportCurr->ISOVALUE_SAMPLE;
+                $report->PLAN_X = $reportCurr->PLAN_X;
+                $report->PLAN_Y = $reportCurr->PLAN_Y;
+                $report->PLAN_Z = $reportCurr->PLAN_Z;
+                $report->CONTOUR2D_G = $reportCurr->CONTOUR2D_G;
+                $report->CONTOUR2D_SAMPLE = $reportCurr->CONTOUR2D_SAMPLE;
+                $report->CONTOUR2D_TEMP_STEP = $reportCurr->CONTOUR2D_TEMP_STEP;
+                $report->ENTHALPY_V = $reportCurr->ENTHALPY_V;
+                $report->ENTHALPY_G = $reportCurr->ENTHALPY_G;
+                $report->ENTHALPY_SAMPLE = $reportCurr->ENTHALPY_SAMPLE;
+                $report->DEST_SURNAME = $reportCurr->DEST_SURNAME;
+                $report->DEST_NAME = $reportCurr->DEST_NAME;
+                $report->DEST_FUNCTION = $reportCurr->DEST_FUNCTION;
+                $report->DEST_COORD = $reportCurr->DEST_COORD;
+                $report->PHOTO_PATH = $reportCurr->PHOTO_PATH;
+                $report->CUSTOMER_LOGO = $reportCurr->CUSTOMER_LOGO;
+                $report->CONS_SPECIFIC = $reportCurr->CONS_SPECIFIC;
+                $report->CONS_OVERALL = $reportCurr->CONS_OVERALL;
+                $report->CONS_TOTAL = $reportCurr->CONS_TOTAL;
+                $report->CONS_HOUR = $reportCurr->CONS_HOUR;
+                $report->CONS_DAY = $reportCurr->CONS_DAY;
+                $report->CONS_WEEK = $reportCurr->CONS_WEEK;
+                $report->CONS_MONTH = $reportCurr->CONS_MONTH;
+                $report->CONS_YEAR = $reportCurr->CONS_YEAR;
+                $report->CONS_EQUIP = $reportCurr->CONS_EQUIP;
+                $report->CONS_PIPE = $reportCurr->CONS_PIPE;
+                $report->CONS_TANK = $reportCurr->CONS_TANK;
+                $report->CONTOUR2D_OUTLINE_TIME = $reportCurr->CONTOUR2D_OUTLINE_TIME;
+                $report->REPORT_COMMENT = $reportCurr->REPORT_COMMENT;
+                $report->WRITER_SURNAME = $reportCurr->WRITER_SURNAME;
+                $report->WRITER_NAME = $reportCurr->WRITER_NAME;
+                $report->WRITER_FUNCTION = $reportCurr->WRITER_FUNCTION;
+                $report->WRITER_COORD = $reportCurr->WRITER_COORD;
+                $report->REP_CONS_PIE = $reportCurr->REP_CONS_PIE;
+                $report->CONTOUR2D_TEMP_MIN = $reportCurr->CONTOUR2D_TEMP_MIN;
+                $report->CONTOUR2D_TEMP_MAX = $reportCurr->CONTOUR2D_TEMP_MAX;
+                $report->save();
+            }
+            
+
+
+            $study->ID_TEMP_RECORD_PTS = $temprecordpst->ID_TEMP_RECORD_PTS;
+            $study->ID_PRODUCTION = $production->ID_PRODUCTION;
+            $study->ID_PROD = $product->ID_PROD;
+            $study->ID_PRICE = $price->ID_PRICE;
+            $study->ID_REPORT = $report->ID_REPORT;
+            $study->save();
+
+            $product->ID_MESH_GENERATION = $meshgeneration->ID_MESH_GENERATION;
+            $product->save();
+
+            return 1000;
+
+        } else {
+            return 1001;
+        }
+        
     }
 
     /**
@@ -431,7 +727,6 @@ class Studies extends Controller
 
         /** @var PrecalcLdgRatePrm $precalc */
         $precalc = new PrecalcLdgRatePrm();
-
         $input = $this->request->json()->all();
 
         $study->STUDY_NAME = $input['STUDY_NAME'];
