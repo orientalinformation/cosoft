@@ -25,6 +25,7 @@ use App\Models\CalculationParametersDef;
 use App\Models\CalculationParameter;
 use App\Cryosoft\CalculateService;
 use App\Models\TempRecordPts;
+use App\Models\TempRecordPtsDef;
 use App\Models\MeshPosition;
 use App\Models\ProductElmt;
 
@@ -482,6 +483,10 @@ class Studies extends Controller
         /** @var PrecalcLdgRatePrm $precalc */
         $precalc = new PrecalcLdgRatePrm();
 
+        /** @var TempRecordPts $tempRecordPts */
+        $tempRecordPts = new TempRecordPts();
+
+
         $input = $this->request->json()->all();
 
         $study->STUDY_NAME = $input['STUDY_NAME'];
@@ -538,6 +543,15 @@ class Studies extends Controller
         $study->ID_PROD = $product->ID_PROD;
         $study->ID_PRODUCTION = $production->ID_PRODUCTION;
         $study->ID_PRECALC_LDG_RATE_PRM = $precalc->ID_PRECALC_LDG_RATE_PRM;
+        $study->save();
+
+        // 165 : tempRecordPts = new TempRecordPtsBean(userPrivateData, convert, this);
+        $tempRecordPtsDef = TempRecordPtsDef::where('ID_USER', $this->auth->user()->ID_USER)->first();
+        $tempRecordPts->ID_STUDY = $study->ID_STUDY;
+        $tempRecordPts->NB_STEPS = $tempRecordPtsDef->NB_STEPS_DEF;
+        $tempRecordPts->save();
+
+        $study->ID_TEMP_RECORD_PTS = $tempRecordPts->ID_TEMP_RECORD_PTS;
         $study->save();
 
         return $study;
