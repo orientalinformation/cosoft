@@ -86,4 +86,4 @@ $router->PUT('/api/v1/studies/{id}/equipments', 'Api1\\Studies@addEquipment');
  * Notes: 
  * Output-Formats: [application/json]
  */
-$app->DELETE('/api/v1/studies/{id}/equipments/{idEquip}', 'Api1\\Studies@removeStudyEquipment');
+$router->DELETE('/api/v1/studies/{id}/equipments/{idEquip}', 'Api1\\Studies@removeStudyEquipment');

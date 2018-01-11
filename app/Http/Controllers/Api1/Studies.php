@@ -288,6 +288,7 @@ class Studies extends Controller
                 'EQUIP_VERSION' => $studyEquipment->EQUIP_VERSION,
             ];
             $layoutGen = LayoutGeneration::where('ID_STUDY_EQUIPMENTS', $studyEquipment->ID_STUDY_EQUIPMENTS)->first();
+            if (!$layoutGen) continue;
 
             $equip['ORIENTATION'] = $layoutGen->PROD_POSITION;
             $equip['displayName'] = 'EQUIP_NAME_NOT_FOUND';
@@ -623,7 +624,7 @@ class Studies extends Controller
         $sEquip->save();
 
         // @TODO: JAVA initCalculationParameters(idUser, sEquip, productshape, nbComp);
-        $defaultCalcParams = CalculationParametersDef::find($this->auth->user()->ID_USER);
+        $defaultCalcParams = CalculationParametersDef::where('ID_USER', $this->auth->user()->ID_USER)->first();
         
         $calcParams = new CalculationParameter();
         $calcParams->ID_STUDY_EQUIPMENTS = $sEquip->ID_STUDY_EQUIPMENTS;
@@ -684,10 +685,11 @@ class Studies extends Controller
         
         if ($equip->STD != EQUIP_STANDARD) {
             // TODO: generated non-standard equipment is not supported yet
+            throw new \Exception('Non standard equipment is not yet supported', 500);
         } else {
             // standard equipment
             $tr = $this->getEqpPrmInitialData(array_fill(0, $equip->NB_TR, 0.0), $TRType, false);
-            $ts = $this->getEqpPrmInitialData(array_fill(0, $equip->NB_TS, 0.0), $TSType, true);	
+            $ts = $this->getEqpPrmInitialData(array_fill(0, $equip->NB_TS, 0.0), $TSType, true);
         }
 
         $vc = $this->getEqpPrmInitialData(array_fill(0, $equip->NB_VC, 0.0), $VCType, false);
@@ -792,13 +794,14 @@ class Studies extends Controller
         $sEquip->save();
 
         // runLayoutCalculator(sEquip, username, password);
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\layout-trace.txt');
         $lcRunResult = $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, 1);
 
         $lcTSRunResult = -1;
 
         if ( ($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TS != 0) &&
             ($sEquip->equipment->CAPABILITIES & CAP_TS_FROM_TOC !=0) ) {
+            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\layout-ts-trace.txt');
             $lcTSRunResult = $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, 2);
         }
 
@@ -812,7 +815,7 @@ class Studies extends Controller
             $doTR = true;
 			//PhamCast: run automatic
             $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
-            $lcRunResult = $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, $doTR);
+            $lcRunResult = $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, !$doTR);
 
             // if (calc . GetPCCError() != ValuesList . KERNEL_OK) {
             //     log . warn("automatic run of PhamCast failed");
@@ -835,7 +838,7 @@ class Studies extends Controller
             // log . debug("starting TS=f(TR) calculation");
 			//PhamCast: run automatic
             $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
-            $lcRunResult = $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, $doTR);
+            $lcRunResult = $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, !$doTR);
 
             // if (calc . GetPCCError() != ValuesList . KERNEL_OK) {
             //     log . warn("automatic run of PhamCast failed");
@@ -905,4 +908,58 @@ class Studies extends Controller
         return $dd;
     }
 
+
+    public function removeStudyEquipment($id, $idEquip) {
+        $study = \App\Models\Study::findOrFail($id);
+
+        if (!$study) {
+            throw new \Exception('Study not found', 404);
+        }
+
+        $equip = \App\Models\StudyEquipment::find($idEquip);
+
+        if (!$equip) {
+            throw new \Exception('Study equipment not found', 404);
+        }
+
+        foreach ($equip->layoutGenerations as $layoutGen) {
+            $layoutGen->delete();
+        }
+
+        foreach ($equip->layoutResults as $layoutResult) {
+            $layoutResult->delete();
+        }
+
+        foreach ($equip->calculationParameters as $calcParam) {
+            $calcParam->delete();
+        }
+
+        foreach ($equip->pipeGens as $pipeGen) {
+            $pipeGen->delete();
+        }
+
+        foreach ($equip->pipeRes as $pipeRes) {
+            $pipeRes->delete();
+        }
+
+        foreach ($equip->exhGens as $exhGen) {
+            $exhGen->delete();
+        }
+
+        foreach ($equip->exhRes as $exhRes) {
+            $exhRes->delete();
+        }
+
+        foreach ($equip->economicResults as $ecoRes) {
+            $ecoRes->delete();
+        }
+
+        foreach ($equip->studEqpPrms as $studEqpPrm) {
+            $studEqpPrm->delete();
+        }
+
+        $equip->delete();
+
+        return 0;
+    }
 }
