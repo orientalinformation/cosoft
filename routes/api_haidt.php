@@ -13,7 +13,31 @@ $router->GET('/api/v1/referencedata/{lang}/family', 'Api1\\ReferenceData@getFami
  * Notes: get list user
  * Output-Formats: [application/json]
  */
-$router->GET('/api/v1/admin/loadusers', 'Api1\\Admin@loadUsers');
+$router->GET('/api/v1/admin/users', 'Api1\\Admin@getUsers');
+
+/**
+ * PUT add user
+ * Summary:
+ * Notes: add user
+ * Output-Formats: [application/json]
+ */
+$router->PUT('/api/v1/admin/users', 'Api1\\Admin@newUser');
+
+/**
+ * POST updateUser
+ * Summary:
+ * Notes: update User
+ * Output-Formats: [number]
+ */
+$router->POST('/api/v1/admin/users/{id}', 'Api1\\Admin@updateUser');
+
+/**
+ * GET deleteUser
+ * Summary:
+ * Notes: delete User
+ * Output-Formats: [number]
+ */
+$router->DELETE('/api/v1/admin/users/{id}', 'Api1\\Admin@deleteUser');
 
 /**
  * GET getConnectionUsers
@@ -21,20 +45,22 @@ $router->GET('/api/v1/admin/loadusers', 'Api1\\Admin@loadUsers');
  * Notes: get list connection user
  * Output-Formats: [application/json]
  */
-$router->GET('/api/v1/admin/{iduser}/loadconnectusers', 'Api1\\Admin@loadConnectUsers');
+$router->GET('/api/v1/admin/connections/users', 'Api1\\Admin@loadConnectUsers');
 
 /**
- * GET deleteUser
+ * POST disconnectUser
  * Summary:
- * Notes: delete User
- * Output-Formats: [application/json]
+ * Notes: disconnect User
+ * Output-Formats: [number]
  */
-$router->DELETE('/api/v1/admin/{iduser}/delete', 'Api1\\Admin@deleteUser');
+$router->POST('/api/v1/admin/connections/{id}', 'Api1\\Admin@disconnectUser');
 
 /**
- * GET updateUser
+ * POST disconnectUser
  * Summary:
- * Notes: update User
- * Output-Formats: [application/json]
+ * Notes: disconnect User
+ * Output-Formats: [number]
  */
-$router->PUT('/api/v1/admin/users', 'Api1\\Admin@updateUser');
+$router->GET('/api/v1/admin/connections', 'Api1\\Admin@loadConnections');
+
+
