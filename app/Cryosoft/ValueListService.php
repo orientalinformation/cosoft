@@ -33,6 +33,7 @@ class ValueListService
     public $MESH_CUT = 20;
     public $UNIT_TIME = 5;
     public $CONV_COEFF = 14;
+    public $PRODCHART_DIMENSION = 38;
 
     //brand mode
     public $BRAIN_MODE_ESTIMATION = 1;
