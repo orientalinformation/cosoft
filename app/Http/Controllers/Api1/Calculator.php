@@ -569,6 +569,26 @@ class Calculator extends Controller
     	return $this->runBrainCalculator($idStudy, $idStudyEquipment, false, 0, $brainMode);
     }
 
+    public function calculOptim()
+    {
+    	$input = $this->request->all();
+
+    	$idStudy = null;
+		$idStudyEquipment = null;
+
+		if (isset($input['idStudy'])) $idStudy = intval($input['idStudy']);
+		if (isset($input['idStudyEquipment'])) $idStudyEquipment = intval($input['idStudyEquipment']);
+
+		$brainMode = 1;
+		$this->saveCalculationParameters($this->request, $idStudyEquipment, $brainMode);
+		$this->cal->reset2DTempRecordPts($idStudy);
+    }
+
+    public function startCalculOptim()
+    {
+
+    }
+
     public function saveCalculationParameters(Request $request, $idStudyEquipment, $brainMode)
     {
     	$input = $request->all();
