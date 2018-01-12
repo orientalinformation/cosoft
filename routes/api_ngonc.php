@@ -64,3 +64,11 @@ $router->GET('/api/v1/output/heatExchange', 'Api1\\Output@heatExchange');
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/output/timeBased', 'Api1\\Output@timeBased');
+
+/**
+ * GET productSection
+ * Summary: 
+ * Notes: get product section based chart data
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/output/productSection', 'Api1\\Output@productSection');
