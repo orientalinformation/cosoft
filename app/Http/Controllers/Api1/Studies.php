@@ -28,6 +28,7 @@ use App\Models\TempRecordPts;
 use App\Models\TempRecordPtsDef;
 use App\Models\MeshPosition;
 use App\Models\ProductElmt;
+use App\Models\InitialTemperature;
 
 
 class Studies extends Controller
@@ -121,6 +122,7 @@ class Studies extends Controller
         }
 
         foreach ($productions as $production) {
+            InitialTemperature::where('ID_PRODUCTION', $production->ID_PRODUCTION)->delete();
             $production->delete();
         }
 
@@ -557,17 +559,15 @@ class Studies extends Controller
         $precalc->PRECALC_LDG_TR    = (float)MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_STDEQP_TOP)->first()->DEFAULT_VALUE;
         $precalc->save();
 
-        $study->ID_PROD = $product->ID_PROD;
-        $study->ID_PRODUCTION = $production->ID_PRODUCTION;
-        $study->ID_PRECALC_LDG_RATE_PRM = $precalc->ID_PRECALC_LDG_RATE_PRM;
-        $study->save();
-
         // 165 : tempRecordPts = new TempRecordPtsBean(userPrivateData, convert, this);
         $tempRecordPtsDef = TempRecordPtsDef::where('ID_USER', $this->auth->user()->ID_USER)->first();
         $tempRecordPts->ID_STUDY = $study->ID_STUDY;
         $tempRecordPts->NB_STEPS = $tempRecordPtsDef->NB_STEPS_DEF;
         $tempRecordPts->save();
 
+        $study->ID_PROD = $product->ID_PROD;
+        $study->ID_PRODUCTION = $production->ID_PRODUCTION;
+        $study->ID_PRECALC_LDG_RATE_PRM = $precalc->ID_PRECALC_LDG_RATE_PRM;
         $study->ID_TEMP_RECORD_PTS = $tempRecordPts->ID_TEMP_RECORD_PTS;
         $study->save();
 
