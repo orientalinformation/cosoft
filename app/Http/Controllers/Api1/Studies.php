@@ -426,7 +426,7 @@ class Studies extends Controller
                 $report->save();
             }
             
-
+            
 
             $study->ID_TEMP_RECORD_PTS = $temprecordpst->ID_TEMP_RECORD_PTS;
             $study->ID_PRODUCTION = $production->ID_PRODUCTION;
