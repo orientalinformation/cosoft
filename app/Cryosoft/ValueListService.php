@@ -64,6 +64,13 @@ class ValueListService
     public $CAP_VARIABLE_TOC = 8192;
     public $DIMA_STATUS_KO = 0;
     public $DIMA_STATUS_OK = 1;
+    /****************************ESTIMATION*********************/
+    public $EQUIP_STANDARD = 1;
+    public $BRAIN_OPTIM_TSFIXED = 1;
+    public $BRAIN_OPTIM_TRFIXED = 2;
+    public $BRAIN_OPTIM_DHPFIXED = 3;
+    public $BRAIN_OPTIM_TOPFIXED = 4;
+    public $BRAIN_OPTIM_COSTFIXED = 5;
 
     /****************** MIN_MAX	*********************************/
 

@@ -55,3 +55,11 @@ $router->POST('/api/v1/calculator/calculoptim', 'Api1\\Calculator@calculOptim');
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/calculator/startcalculoptim', 'Api1\\Calculator@startCalculOptim');
+
+/**
+ * GET brain optim
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/calculator/brainoptim', 'Api1\\Calculator@getBrainOptim');
