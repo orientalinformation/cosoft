@@ -579,7 +579,7 @@ class Calculator extends Controller
 		if (isset($input['idStudy'])) $idStudy = intval($input['idStudy']);
 		if (isset($input['idStudyEquipment'])) $idStudyEquipment = intval($input['idStudyEquipment']);
 
-		$brainMode = 1;
+		$brainMode = 2;
 		$this->saveCalculationParameters($this->request, $idStudyEquipment, $brainMode);
 		$this->cal->reset2DTempRecordPts($idStudy);
     }
@@ -587,6 +587,38 @@ class Calculator extends Controller
     public function startCalculOptim()
     {
 
+    }
+
+    public function getBrainOptim()
+    {
+    	$input = $this->request->all();
+
+    	$idStudyEquipment = null;
+
+    	if (isset($input['idStudyEquipment'])) $idStudyEquipment = intval($input['idStudyEquipment']);
+    	$std = $this->equipment->getStd($idStudyEquipment);
+    	($std == $this->value->EQUIP_STANDARD) ? $BRAIN_OPTIM = 1 : $BRAIN_OPTIM = 0;
+
+    	$EQUIP_STANDARD = $this->value->EQUIP_STANDARD;
+    	$BRAIN_OPTIM_TSFIXED = $this->value->BRAIN_OPTIM_TSFIXED;
+    	$BRAIN_OPTIM_TRFIXED = $this->value->BRAIN_OPTIM_TRFIXED;
+    	$BRAIN_OPTIM_DHPFIXED = $this->value->BRAIN_OPTIM_DHPFIXED;
+    	$BRAIN_OPTIM_TOPFIXED = $this->value->BRAIN_OPTIM_TOPFIXED;
+    	$BRAIN_OPTIM_COSTFIXED = $this->value->BRAIN_OPTIM_COSTFIXED;
+
+    	$array = [
+    		'BRAIN_OPTIM' => $BRAIN_OPTIM,
+    		'EQUIP_STANDARD' => $EQUIP_STANDARD,
+    		'BRAIN_OPTIM_TSFIXED' => $BRAIN_OPTIM_TSFIXED,
+    		'BRAIN_OPTIM_TRFIXED' => $BRAIN_OPTIM_TRFIXED,
+    		'BRAIN_OPTIM_DHPFIXED' => $BRAIN_OPTIM_DHPFIXED,
+    		'BRAIN_OPTIM_TOPFIXED' => $BRAIN_OPTIM_TOPFIXED,
+    		'BRAIN_OPTIM_COSTFIXED' => $BRAIN_OPTIM_COSTFIXED
+
+
+    	];
+    	
+    	return $array;
     }
 
     public function saveCalculationParameters(Request $request, $idStudyEquipment, $brainMode)
@@ -650,7 +682,7 @@ class Calculator extends Controller
                     break;
                 case 2:
                 	$minMaxOptim = $this->brainCal->getMinMax(1130);
-                    $calculationParameter->NB_OPTIM = $minMaxOptim->DEFAULT_VALUE;
+                    $calculationParameter->NB_OPTIM = intval($minMaxOptim->DEFAULT_VALUE);
                     $calculationParameter->ERROR_H = $minMaxH->DEFAULT_VALUE;
                     $calculationParameter->ERROR_T = $minMaxT->DEFAULT_VALUE;
                     break;
