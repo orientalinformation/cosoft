@@ -78,12 +78,13 @@ class Output extends Controller
         $convectionSpeedSymbol = $this->unit->convectionSpeedSymbol();
         $convectionCoeffSymbol = $this->unit->convectionCoeffSymbol();
         $timePositionSymbol = $this->unit->timePositionSymbol();
+        $prodchartDimensionSymbol = $this->unit->prodchartDimensionSymbol();
         $percentSymbol = "%";
         $consumSymbol = $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1);
         $consumMaintienSymbol = $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 2);
         $mefSymbol = $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 3);
 
-        $ret = compact("productFlowSymbol", "massSymbol", "temperatureSymbol", "percentSymbol", "timeSymbol", "perUnitOfMassSymbol", "enthalpySymbol", "monetarySymbol", "equipDimensionSymbol", "convectionSpeedSymbol", "convectionCoeffSymbol", "timePositionSymbol", "consumSymbol", "consumMaintienSymbol", "mefSymbol");
+        $ret = compact("productFlowSymbol", "massSymbol", "temperatureSymbol", "percentSymbol", "timeSymbol", "perUnitOfMassSymbol", "enthalpySymbol", "monetarySymbol", "equipDimensionSymbol", "convectionSpeedSymbol", "convectionCoeffSymbol", "timePositionSymbol", "prodchartDimensionSymbol", "consumSymbol", "consumMaintienSymbol", "mefSymbol");
         // var_dump($ret);
         return $ret;
     }
@@ -1531,5 +1532,48 @@ class Output extends Controller
         }
 
         return compact("label", "curve", "result");
+    }
+
+    public function productSection(){
+        $idStudy = $this->request->input('idStudy');
+        $idStudyEquipment = $this->request->input('idStudyEquipment');
+        $result = [];
+
+        $selPoints = $this->output->getSelectedMeshPoints($idStudy);
+        if (empty($selPoints)) {
+            $selPoints = $this->output->getMeshSelectionDef();
+        }
+
+        $axeTempRecordData = [];
+        if (!empty($selPoints)) {
+            $axeTempRecordData = [
+                [-1.0, $selPoints[9], $selPoints[10]],
+                [$selPoints[11], -1.0, $selPoints[12]],
+                [$selPoints[13], $selPoints[14], -1.0]
+            ];
+        }
+
+        $listRecordPos = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("RECORD_TIME", "ASC")->get();
+        $nbSteps = TempRecordPts::where("ID_STUDY", $idStudy)->first();
+        $nbSample = $nbSteps->NB_STEPS;
+
+        $nbRecord = count($listRecordPos);
+
+        $lfTS = $listRecordPos[$nbRecord - 1]->RECORD_TIME;
+        $lfStep = $listRecordPos[1]->RECORD_TIME - $listRecordPos[0]->RECORD_TIME;
+        $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
+
+        foreach ($lEchantillon as $row) {
+
+            $recordPos = $listRecordPos[$row];
+
+            $itemResult["x"] = $this->unit->time($recordPos->RECORD_TIME);
+            $itemResult["y"] = TempRecordData::where("ID_REC_POS", $recordPos->ID_REC_POS)->count();
+
+            $result[] = $itemResult;
+        }
+
+
+        return compact("axeTempRecordData", "result");
     }
 }
