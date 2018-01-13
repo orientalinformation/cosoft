@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\ProductElmt;
 use App\Models\Production;
 use App\Models\Packing;
+use App\Models\PackingLayer;
 use App\Models\Study;
 use App\Models\StudyEquipment;
 use App\Models\LayoutResults;
@@ -207,293 +208,455 @@ class Studies extends Controller
         $meshgeneration = new MeshGeneration();
         $price = new Price();
         $report = new Report();
+        $precalcLdgRatePrm = new PrecalcLdgRatePrm();
+        $packing = new Packing();
         
         // @class: \App\Models\Study
         $studyCurrent = Study::find($id);
-        // var_dump($studyCurrent);die;
-
-        // @class: \App\Models\TempRecordPts
-        $temprecordpstCurr = TempRecordPts::where('ID_STUDY',$studyCurrent->ID_STUDY)->first();
-        // @class: \App\Models\Production
-        $productionCurr = Production::where('ID_STUDY',$studyCurrent->ID_STUDY)->first(); 
-        // @class: \App\Models\Product
-        $productCurr = Product::where('ID_STUDY',$studyCurrent->ID_STUDY)->first();
-        // @class: \App\Models\MeshGeneration
-        $meshgenerationCurr = MeshGeneration::where('ID_PROD',$productCurr->ID_PROD)->first(); 
-        // @class: \App\Models\Price
-        $priceCurr = Price::where('ID_STUDY',$studyCurrent->ID_STUDY)->first(); 
-        // @class: \App\Models\Price
-        $reportCurr = Report::where('ID_STUDY',$studyCurrent->ID_STUDY)->first(); 
-        // @class: \App\Models\ProductEmlt
-        $productemltCurr = ProductElmt::where('ID_PROD',$productCurr->ID_PROD)->get(); 
-        // var_dump($productemltCurr);die;
-        $input = $this->request->all();
-
-
-        if (!empty($input['name'])) {
-
-            //duplicate study already exsits
-            $study->STUDY_NAME = $input['name'];
-            $study->ID_USER = $this->auth->user()->ID_USER;
-            $study->OPTION_ECO = $studyCurrent->OPTION_ECO;
-            $study->CALCULATION_MODE = $studyCurrent->CALCULATION_MODE;
-            $study->COMMENT_TXT = $studyCurrent->COMMENT_TXT;
-            $study->OPTION_CRYOPIPELINE = $studyCurrent->OPTION_CRYOPIPELINE;
-            $study->OPTION_EXHAUSTPIPELINE = $studyCurrent->OPTION_EXHAUSTPIPELINE;
-            $study->CHAINING_CONTROLS = $studyCurrent->CHAINING_CONTROLS;
-            $study->CHAINING_ADD_COMP_ENABLE = $studyCurrent->CHAINING_ADD_COMP_ENABLE;
-            $study->CHAINING_NODE_DECIM_ENABLE = $studyCurrent->CHAINING_NODE_DECIM_ENABLE;
-            $study->HAS_CHILD = $studyCurrent->HAS_CHILD;
-            $study->TO_RECALCULATE = $studyCurrent->TO_RECALCULATE;
-            $study->save();
-
-            //duplicate TempRecordPts already exsits
-            if(count($temprecordpstCurr) > 0) {
-                $temprecordpst->ID_STUDY = $study->ID_STUDY;
-                $temprecordpst->AXIS1_PT_TOP_SURF = $temprecordpstCurr->AXIS1_PT_TOP_SURF;
-                $temprecordpst->AXIS2_PT_TOP_SURF = $temprecordpstCurr->AXIS2_PT_TOP_SURF;
-                $temprecordpst->AXIS3_PT_TOP_SURF = $temprecordpstCurr->AXIS3_PT_TOP_SURF;
-                $temprecordpst->AXIS1_PT_INT_PT = $temprecordpstCurr->AXIS1_PT_INT_PT;
-                $temprecordpst->AXIS2_PT_INT_PT = $temprecordpstCurr->AXIS2_PT_INT_PT;
-                $temprecordpst->AXIS3_PT_INT_PT = $temprecordpstCurr->AXIS3_PT_INT_PT;
-                $temprecordpst->AXIS1_PT_BOT_SURF = $temprecordpstCurr->AXIS1_PT_BOT_SURF;
-                $temprecordpst->AXIS2_PT_BOT_SURF = $temprecordpstCurr->AXIS2_PT_BOT_SURF;
-                $temprecordpst->AXIS3_PT_BOT_SURF = $temprecordpstCurr->AXIS3_PT_BOT_SURF;
-                $temprecordpst->AXIS2_AX_1 = $temprecordpstCurr->AXIS2_AX_1;
-                $temprecordpst->AXIS3_AX_1 = $temprecordpstCurr->AXIS3_AX_1;
-                $temprecordpst->AXIS1_AX_2 = $temprecordpstCurr->AXIS1_AX_2;
-                $temprecordpst->AXIS3_AX_2 = $temprecordpstCurr->AXIS3_AX_2;
-                $temprecordpst->AXIS1_AX_3 = $temprecordpstCurr->AXIS1_AX_3;
-                $temprecordpst->AXIS2_AX_3 = $temprecordpstCurr->AXIS2_AX_3;
-                $temprecordpst->AXIS1_PL_2_3 = $temprecordpstCurr->AXIS1_PL_2_3;
-                $temprecordpst->AXIS2_PL_1_3 = $temprecordpstCurr->AXIS2_PL_1_3;
-                $temprecordpst->AXIS3_PL_1_2 = $temprecordpstCurr->AXIS3_PL_1_2;
-                $temprecordpst->NB_STEPS = $temprecordpstCurr->NB_STEPS;
-                $temprecordpst->CONTOUR2D_TEMP_MIN = $temprecordpstCurr->CONTOUR2D_TEMP_MIN;
-                $temprecordpst->CONTOUR2D_TEMP_MAX = $temprecordpstCurr->CONTOUR2D_TEMP_MAX;
-                $temprecordpst->save();
-
-            }
-
-            //duplicate Production already exsits
-            if(count($productionCurr)>0) {
-
-            }
-            $production->ID_STUDY = $study->ID_STUDY;
-            $production->DAILY_PROD = $productionCurr->DAILY_PROD ;
-            $production->DAILY_STARTUP = $productionCurr->DAILY_STARTUP ;
-            $production->WEEKLY_PROD = $productionCurr->WEEKLY_PROD ;
-            $production->PROD_FLOW_RATE = $productionCurr->PROD_FLOW_RATE ;
-            $production->NB_PROD_WEEK_PER_YEAR = $productionCurr->NB_PROD_WEEK_PER_YEAR ;
-            $production->AMBIENT_TEMP = $productionCurr->AMBIENT_TEMP ;
-            $production->AMBIENT_HUM = $productionCurr->AMBIENT_HUM ;
-            $production->AVG_T_DESIRED = $productionCurr->AVG_T_DESIRED ;
-            $production->AVG_T_INITIAL = $productionCurr->AVG_T_INITIAL ;
-            $production->APPROX_DWELLING_TIME = $productionCurr->APPROX_DWELLING_TIME ;
-            $production->save();
-            
-            //duplicate initial_Temp already exsits
-            // @class: \App\Models\InitialTemperature
-            $initialtempCurr = InitialTemperature::where('ID_PRODUCTION', $productionCurr->ID_PRODUCTION)->get();
-            if(count($initialtempCurr) > 0) {
-                
-                foreach ($initialtempCurr as $ins) { 
-                    $initialtemp = new InitialTemperature();
-                    $initialtemp->ID_PRODUCTION = $production->ID_PRODUCTION ;
-                    $initialtemp->MESH_1_ORDER = $ins->MESH_1_ORDER ;
-                    $initialtemp->MESH_2_ORDER = $ins->MESH_2_ORDER ;
-                    $initialtemp->MESH_3_ORDER = $ins->MESH_3_ORDER ;
-                    $initialtemp->INITIAL_T = $ins->INITIAL_T ;
-                    $initialtemp->save();
-                }
-
-            }
-
-            //duplicate Product already exsits
-            if(count($productCurr)>0) {
-                $product->ID_STUDY = $study->ID_STUDY;
-                $product->PRODNAME = $productCurr->PRODNAME;
-                $product->PROD_ISO = $productCurr->PROD_ISO;
-                $product->PROD_WEIGHT = $productCurr->PROD_WEIGHT;
-                $product->PROD_REALWEIGHT = $productCurr->PROD_REALWEIGHT;
-                $product->PROD_VOLUME = $productCurr->PROD_VOLUME;
-                $product->save();
-            }
-            
-
-            //duplicate MeshGeneration already exsits
-            if(count($meshgenerationCurr) > 0) {
-                $meshgeneration->ID_PROD = $product->ID_PROD;
-                $meshgeneration->MESH_1_FIXED = $meshgenerationCurr->MESH_1_FIXED;
-                $meshgeneration->MESH_2_FIXED = $meshgenerationCurr->MESH_2_FIXED;
-                $meshgeneration->MESH_3_FIXED = $meshgenerationCurr->MESH_3_FIXED;
-                $meshgeneration->MESH_1_MODE = $meshgenerationCurr->MESH_1_MODE;
-                $meshgeneration->MESH_2_MODE = $meshgenerationCurr->MESH_2_MODE;
-                $meshgeneration->MESH_3_MODE = $meshgenerationCurr->MESH_3_MODE;
-                $meshgeneration->MESH_1_NB = $meshgenerationCurr->MESH_1_NB;
-                $meshgeneration->MESH_2_NB = $meshgenerationCurr->MESH_2_NB;
-                $meshgeneration->MESH_3_NB = $meshgenerationCurr->MESH_3_NB;
-                $meshgeneration->MESH_1_SIZE = $meshgenerationCurr->MESH_1_SIZE;
-                $meshgeneration->MESH_2_SIZE = $meshgenerationCurr->MESH_2_SIZE;
-                $meshgeneration->MESH_3_SIZE = $meshgenerationCurr->MESH_3_SIZE;
-                $meshgeneration->MESH_1_INT = $meshgenerationCurr->MESH_1_INT;
-                $meshgeneration->MESH_2_INT = $meshgenerationCurr->MESH_2_INT;
-                $meshgeneration->MESH_3_INT = $meshgenerationCurr->MESH_3_INT;
-                $meshgeneration->MESH_1_RATIO = $meshgenerationCurr->MESH_1_RATIO;
-                $meshgeneration->MESH_2_RATIO = $meshgenerationCurr->MESH_2_RATIO;
-                $meshgeneration->MESH_3_RATIO = $meshgenerationCurr->MESH_3_RATIO;
-                $meshgeneration->BEST_1_NB = $meshgenerationCurr->BEST_1_NB;
-                $meshgeneration->BEST_2_NB = $meshgenerationCurr->BEST_2_NB;
-                $meshgeneration->BEST_3_NB = $meshgenerationCurr->BEST_3_NB;
-                $meshgeneration->save();
-
-            } 
-
-            if(count($productemltCurr) > 0) {
-                foreach ($productemltCurr as $prodelmtCurr ) {
-                    $productemlt = new ProductElmt();
-                    $productemlt->ID_PROD = $product->ID_PROD;
-                    $productemlt->ID_SHAPE = $prodelmtCurr->ID_SHAPE;
-                    $productemlt->ID_COMP = $prodelmtCurr->ID_COMP;
-                    $productemlt->PROD_ELMT_NAME = $prodelmtCurr->PROD_ELMT_NAME;
-                    $productemlt->SHAPE_PARAM1 = $prodelmtCurr->SHAPE_PARAM1;
-                    $productemlt->SHAPE_PARAM2 = $prodelmtCurr->SHAPE_PARAM2;
-                    $productemlt->SHAPE_PARAM3 = $prodelmtCurr->SHAPE_PARAM3;
-                    $productemlt->PROD_DEHYD = $prodelmtCurr->PROD_DEHYD;
-                    $productemlt->PROD_DEHYD_COST = $prodelmtCurr->PROD_DEHYD_COST;
-                    $productemlt->SHAPE_POS1 = $prodelmtCurr->SHAPE_POS1;
-                    $productemlt->SHAPE_POS2 = $prodelmtCurr->SHAPE_POS2;
-                    $productemlt->SHAPE_POS3 = $prodelmtCurr->SHAPE_POS3;
-                    $productemlt->PROD_ELMT_ISO = $prodelmtCurr->PROD_ELMT_ISO;
-                    $productemlt->ORIGINAL_THICK = $prodelmtCurr->ORIGINAL_THICK;
-                    $productemlt->NODE_DECIM = $prodelmtCurr->NODE_DECIM;
-                    $productemlt->INSERT_LINE_ORDER = $prodelmtCurr->INSERT_LINE_ORDER;
-                    $productemlt->PROD_ELMT_WEIGHT = $prodelmtCurr->PROD_ELMT_WEIGHT;
-                    $productemlt->PROD_ELMT_REALWEIGHT = $prodelmtCurr->PROD_ELMT_REALWEIGHT;
-                    $productemlt->save();
-                }
-            }
-
-            //duplicate Price already exsits
-            if(count($priceCurr) > 0) {
-                $price->ID_STUDY = $study->ID_STUDY;
-                $price->ENERGY = $priceCurr->ENERGY;
-                $price->ECO_IN_CRYO1 = $priceCurr->ECO_IN_CRYO1;
-                $price->ECO_IN_PBP1 = $priceCurr->ECO_IN_PBP1;
-                $price->ECO_IN_CRYO2 = $priceCurr->ECO_IN_CRYO2;
-                $price->ECO_IN_PBP2 = $priceCurr->ECO_IN_PBP2;
-                $price->ECO_IN_CRYO3 = $priceCurr->ECO_IN_CRYO3;
-                $price->ECO_IN_PBP3 = $priceCurr->ECO_IN_PBP3;
-                $price->ECO_IN_CRYO4 = $priceCurr->ECO_IN_CRYO4;
-                $price->ECO_IN_MINMP = $priceCurr->ECO_IN_MINMP;
-                $price->ECO_IN_MAXMP = $priceCurr->ECO_IN_MAXMP;
-                $price->save();
-
-            }
-
-            //duplicate Report already exsits
-            if(count($reportCurr) > 0) {
-                $report->ID_STUDY = $study->ID_STUDY;
-                $report->REP_CUSTOMER = $reportCurr->REP_CUSTOMER;
-                $report->PROD_LIST = $reportCurr->PROD_LIST;
-                $report->PROD_TEMP = $reportCurr->PROD_TEMP;
-                $report->PROD_3D = $reportCurr->PROD_3D;
-                $report->PACKING = $reportCurr->PACKING;
-                $report->EQUIP_LIST = $reportCurr->EQUIP_LIST;
-                $report->EQUIP_PARAM = $reportCurr->EQUIP_PARAM;
-                $report->EQUIP_PARAM = $reportCurr->EQUIP_PARAM;
-                $report->PIPELINE = $reportCurr->PIPELINE;
-                $report->ASSES_TERMAL = $reportCurr->ASSES_TERMAL;
-                $report->ASSES_CONSUMP = $reportCurr->ASSES_CONSUMP;
-                $report->ASSES_ECO = $reportCurr->ASSES_ECO;
-                $report->ASSES_TR = $reportCurr->ASSES_TR;
-                $report->ASSES_TR_MIN = $reportCurr->ASSES_TR_MIN;
-                $report->ASSES_TR_MAX = $reportCurr->ASSES_TR_MAX;
-                $report->SIZING_TR = $reportCurr->SIZING_TR;
-                $report->SIZING_TR_MIN = $reportCurr->SIZING_TR_MIN;
-                $report->SIZING_TR_MAX = $reportCurr->SIZING_TR_MAX;
-                $report->SIZING_VALUES = $reportCurr->SIZING_VALUES;
-                $report->SIZING_GRAPHE = $reportCurr->SIZING_GRAPHE;
-                $report->SIZING_TEMP_G = $reportCurr->SIZING_TEMP_G;
-                $report->SIZING_TEMP_V = $reportCurr->SIZING_TEMP_V;
-                $report->SIZING_TEMP_SAMPLE = $reportCurr->SIZING_TEMP_SAMPLE;
-                $report->AXE1_X = $reportCurr->AXE1_X;
-                $report->AXE1_Y = $reportCurr->AXE1_Y;
-                $report->AXE2_X = $reportCurr->AXE2_X;
-                $report->AXE2_Z = $reportCurr->AXE2_Z;
-                $report->AXE3_Y = $reportCurr->AXE3_Y;
-                $report->AXE3_Z = $reportCurr->AXE3_Z;
-                $report->ISOCHRONE_G = $reportCurr->ISOCHRONE_G;
-                $report->ISOCHRONE_V = $reportCurr->ISOCHRONE_V;
-                $report->ISOCHRONE_SAMPLE = $reportCurr->ISOCHRONE_SAMPLE;
-                $report->POINT1_X = $reportCurr->POINT1_X;
-                $report->POINT1_Y = $reportCurr->POINT1_Y;
-                $report->POINT1_Z = $reportCurr->POINT1_Z;
-                $report->POINT2_X = $reportCurr->POINT2_X;
-                $report->POINT2_Y = $reportCurr->POINT2_Y;
-                $report->POINT2_Z = $reportCurr->POINT2_Z;
-                $report->POINT3_X = $reportCurr->POINT3_X;
-                $report->POINT3_Y = $reportCurr->POINT3_Y;
-                $report->POINT3_Z = $reportCurr->POINT3_Z;
-                $report->ISOVALUE_G = $reportCurr->ISOVALUE_G;
-                $report->ISOVALUE_V = $reportCurr->ISOVALUE_V;
-                $report->ISOVALUE_SAMPLE = $reportCurr->ISOVALUE_SAMPLE;
-                $report->PLAN_X = $reportCurr->PLAN_X;
-                $report->PLAN_Y = $reportCurr->PLAN_Y;
-                $report->PLAN_Z = $reportCurr->PLAN_Z;
-                $report->CONTOUR2D_G = $reportCurr->CONTOUR2D_G;
-                $report->CONTOUR2D_SAMPLE = $reportCurr->CONTOUR2D_SAMPLE;
-                $report->CONTOUR2D_TEMP_STEP = $reportCurr->CONTOUR2D_TEMP_STEP;
-                $report->ENTHALPY_V = $reportCurr->ENTHALPY_V;
-                $report->ENTHALPY_G = $reportCurr->ENTHALPY_G;
-                $report->ENTHALPY_SAMPLE = $reportCurr->ENTHALPY_SAMPLE;
-                $report->DEST_SURNAME = $reportCurr->DEST_SURNAME;
-                $report->DEST_NAME = $reportCurr->DEST_NAME;
-                $report->DEST_FUNCTION = $reportCurr->DEST_FUNCTION;
-                $report->DEST_COORD = $reportCurr->DEST_COORD;
-                $report->PHOTO_PATH = $reportCurr->PHOTO_PATH;
-                $report->CUSTOMER_LOGO = $reportCurr->CUSTOMER_LOGO;
-                $report->CONS_SPECIFIC = $reportCurr->CONS_SPECIFIC;
-                $report->CONS_OVERALL = $reportCurr->CONS_OVERALL;
-                $report->CONS_TOTAL = $reportCurr->CONS_TOTAL;
-                $report->CONS_HOUR = $reportCurr->CONS_HOUR;
-                $report->CONS_DAY = $reportCurr->CONS_DAY;
-                $report->CONS_WEEK = $reportCurr->CONS_WEEK;
-                $report->CONS_MONTH = $reportCurr->CONS_MONTH;
-                $report->CONS_YEAR = $reportCurr->CONS_YEAR;
-                $report->CONS_EQUIP = $reportCurr->CONS_EQUIP;
-                $report->CONS_PIPE = $reportCurr->CONS_PIPE;
-                $report->CONS_TANK = $reportCurr->CONS_TANK;
-                $report->CONTOUR2D_OUTLINE_TIME = $reportCurr->CONTOUR2D_OUTLINE_TIME;
-                $report->REPORT_COMMENT = $reportCurr->REPORT_COMMENT;
-                $report->WRITER_SURNAME = $reportCurr->WRITER_SURNAME;
-                $report->WRITER_NAME = $reportCurr->WRITER_NAME;
-                $report->WRITER_FUNCTION = $reportCurr->WRITER_FUNCTION;
-                $report->WRITER_COORD = $reportCurr->WRITER_COORD;
-                $report->REP_CONS_PIE = $reportCurr->REP_CONS_PIE;
-                $report->CONTOUR2D_TEMP_MIN = $reportCurr->CONTOUR2D_TEMP_MIN;
-                $report->CONTOUR2D_TEMP_MAX = $reportCurr->CONTOUR2D_TEMP_MAX;
-                $report->save();
-            }
-            
-            
-
-            $study->ID_TEMP_RECORD_PTS = $temprecordpst->ID_TEMP_RECORD_PTS;
-            $study->ID_PRODUCTION = $production->ID_PRODUCTION;
-            $study->ID_PROD = $product->ID_PROD;
-            $study->ID_PRICE = $price->ID_PRICE;
-            $study->ID_REPORT = $report->ID_REPORT;
-            $study->save();
-
-            $product->ID_MESH_GENERATION = $meshgeneration->ID_MESH_GENERATION;
-            $product->save();
-
-            return 1000;
-
-        } else {
-            return 1001;
-        }
         
+        if($studyCurrent != null) {
+
+            // @class: \App\Models\TempRecordPts
+            $temprecordpstCurr = TempRecordPts::where('ID_STUDY',$studyCurrent->ID_STUDY)->first();
+            // @class: \App\Models\Production
+            $productionCurr = Production::where('ID_STUDY',$studyCurrent->ID_STUDY)->first(); 
+            // @class: \App\Models\Product
+            $productCurr = Product::where('ID_STUDY',$studyCurrent->ID_STUDY)->first();
+            // @class: \App\Models\MeshGeneration
+            $meshgenerationCurr = MeshGeneration::where('ID_PROD',$productCurr->ID_PROD)->first(); 
+            // @class: \App\Models\Price
+            $priceCurr = Price::where('ID_STUDY',$studyCurrent->ID_STUDY)->first(); 
+            // @class: \App\Models\Price
+            $reportCurr = Report::where('ID_STUDY',$studyCurrent->ID_STUDY)->first(); 
+            // @class: \App\Models\ProductEmlt
+            $productemltCurr = ProductElmt::where('ID_PROD',$productCurr->ID_PROD)->get(); 
+            // @class: \App\Models\PrecalcLdgRatePrm
+            $precalcLdgRatePrmCurr = PrecalcLdgRatePrm::where('ID_STUDY',$studyCurrent->ID_STUDY)->first();
+            // @class: \App\Models\Packing
+            $packingCurr = Packing::where('ID_STUDY',$studyCurrent->ID_STUDY)->first(); 
+            // @class: \App\Models\StudyEquipment
+            $studyemtlCurr = StudyEquipment::where('ID_STUDY',$studyCurrent->ID_STUDY)->get(); 
+            
+            
+            // var_dump($studyemtlCurr);die;
+            $input = $this->request->all();
+
+
+            if (!empty($input['name'])) {
+
+                //duplicate study already exsits
+                $study->STUDY_NAME = $input['name'];
+                $study->ID_USER = $this->auth->user()->ID_USER;
+                $study->OPTION_ECO = $studyCurrent->OPTION_ECO;
+                $study->CALCULATION_MODE = $studyCurrent->CALCULATION_MODE;
+                $study->COMMENT_TXT = $studyCurrent->COMMENT_TXT;
+                $study->OPTION_CRYOPIPELINE = $studyCurrent->OPTION_CRYOPIPELINE;
+                $study->OPTION_EXHAUSTPIPELINE = $studyCurrent->OPTION_EXHAUSTPIPELINE;
+                $study->CHAINING_CONTROLS = $studyCurrent->CHAINING_CONTROLS;
+                $study->CHAINING_ADD_COMP_ENABLE = $studyCurrent->CHAINING_ADD_COMP_ENABLE;
+                $study->CHAINING_NODE_DECIM_ENABLE = $studyCurrent->CHAINING_NODE_DECIM_ENABLE;
+                $study->HAS_CHILD = $studyCurrent->HAS_CHILD;
+                $study->CALCULATION_STATUS = $studyCurrent->CALCULATION_STATUS;
+                $study->TO_RECALCULATE = $studyCurrent->TO_RECALCULATE;
+                $study->save();
+
+                //duplicate TempRecordPts already exsits
+                if(count($temprecordpstCurr) > 0) {
+                    $temprecordpst->ID_STUDY = $study->ID_STUDY;
+                    $temprecordpst->AXIS1_PT_TOP_SURF = $temprecordpstCurr->AXIS1_PT_TOP_SURF;
+                    $temprecordpst->AXIS2_PT_TOP_SURF = $temprecordpstCurr->AXIS2_PT_TOP_SURF;
+                    $temprecordpst->AXIS3_PT_TOP_SURF = $temprecordpstCurr->AXIS3_PT_TOP_SURF;
+                    $temprecordpst->AXIS1_PT_INT_PT = $temprecordpstCurr->AXIS1_PT_INT_PT;
+                    $temprecordpst->AXIS2_PT_INT_PT = $temprecordpstCurr->AXIS2_PT_INT_PT;
+                    $temprecordpst->AXIS3_PT_INT_PT = $temprecordpstCurr->AXIS3_PT_INT_PT;
+                    $temprecordpst->AXIS1_PT_BOT_SURF = $temprecordpstCurr->AXIS1_PT_BOT_SURF;
+                    $temprecordpst->AXIS2_PT_BOT_SURF = $temprecordpstCurr->AXIS2_PT_BOT_SURF;
+                    $temprecordpst->AXIS3_PT_BOT_SURF = $temprecordpstCurr->AXIS3_PT_BOT_SURF;
+                    $temprecordpst->AXIS2_AX_1 = $temprecordpstCurr->AXIS2_AX_1;
+                    $temprecordpst->AXIS3_AX_1 = $temprecordpstCurr->AXIS3_AX_1;
+                    $temprecordpst->AXIS1_AX_2 = $temprecordpstCurr->AXIS1_AX_2;
+                    $temprecordpst->AXIS3_AX_2 = $temprecordpstCurr->AXIS3_AX_2;
+                    $temprecordpst->AXIS1_AX_3 = $temprecordpstCurr->AXIS1_AX_3;
+                    $temprecordpst->AXIS2_AX_3 = $temprecordpstCurr->AXIS2_AX_3;
+                    $temprecordpst->AXIS1_PL_2_3 = $temprecordpstCurr->AXIS1_PL_2_3;
+                    $temprecordpst->AXIS2_PL_1_3 = $temprecordpstCurr->AXIS2_PL_1_3;
+                    $temprecordpst->AXIS3_PL_1_2 = $temprecordpstCurr->AXIS3_PL_1_2;
+                    $temprecordpst->NB_STEPS = $temprecordpstCurr->NB_STEPS;
+                    $temprecordpst->CONTOUR2D_TEMP_MIN = $temprecordpstCurr->CONTOUR2D_TEMP_MIN;
+                    $temprecordpst->CONTOUR2D_TEMP_MAX = $temprecordpstCurr->CONTOUR2D_TEMP_MAX;
+                    $temprecordpst->save();
+
+                }
+
+                //duplicate Production already exsits
+                if(count($productionCurr)>0) {
+
+                }
+                $production->ID_STUDY = $study->ID_STUDY;
+                $production->DAILY_PROD = $productionCurr->DAILY_PROD ;
+                $production->DAILY_STARTUP = $productionCurr->DAILY_STARTUP ;
+                $production->WEEKLY_PROD = $productionCurr->WEEKLY_PROD ;
+                $production->PROD_FLOW_RATE = $productionCurr->PROD_FLOW_RATE ;
+                $production->NB_PROD_WEEK_PER_YEAR = $productionCurr->NB_PROD_WEEK_PER_YEAR ;
+                $production->AMBIENT_TEMP = $productionCurr->AMBIENT_TEMP ;
+                $production->AMBIENT_HUM = $productionCurr->AMBIENT_HUM ;
+                $production->AVG_T_DESIRED = $productionCurr->AVG_T_DESIRED ;
+                $production->AVG_T_INITIAL = $productionCurr->AVG_T_INITIAL ;
+                $production->APPROX_DWELLING_TIME = $productionCurr->APPROX_DWELLING_TIME ;
+                $production->save();
+                
+                //duplicate initial_Temp already exsits
+                // @class: \App\Models\InitialTemperature
+                $initialtempCurr = InitialTemperature::where('ID_PRODUCTION', $productionCurr->ID_PRODUCTION)->get();
+                if(count($initialtempCurr) > 0) {
+                    
+                    foreach ($initialtempCurr as $ins) { 
+                        $initialtemp = new InitialTemperature();
+                        $initialtemp->ID_PRODUCTION = $production->ID_PRODUCTION ;
+                        $initialtemp->MESH_1_ORDER = $ins->MESH_1_ORDER ;
+                        $initialtemp->MESH_2_ORDER = $ins->MESH_2_ORDER ;
+                        $initialtemp->MESH_3_ORDER = $ins->MESH_3_ORDER ;
+                        $initialtemp->INITIAL_T = $ins->INITIAL_T ;
+                        $initialtemp->save();
+                    }
+
+                }
+
+                //duplicate Product already exsits
+                if(count($productCurr)>0) {
+                    $product->ID_STUDY = $study->ID_STUDY;
+                    $product->PRODNAME = $productCurr->PRODNAME;
+                    $product->PROD_ISO = $productCurr->PROD_ISO;
+                    $product->PROD_WEIGHT = $productCurr->PROD_WEIGHT;
+                    $product->PROD_REALWEIGHT = $productCurr->PROD_REALWEIGHT;
+                    $product->PROD_VOLUME = $productCurr->PROD_VOLUME;
+                    $product->save();
+                }
+                
+
+                //duplicate MeshGeneration already exsits
+                if(count($meshgenerationCurr) > 0) {
+                    $meshgeneration->ID_PROD = $product->ID_PROD;
+                    $meshgeneration->MESH_1_FIXED = $meshgenerationCurr->MESH_1_FIXED;
+                    $meshgeneration->MESH_2_FIXED = $meshgenerationCurr->MESH_2_FIXED;
+                    $meshgeneration->MESH_3_FIXED = $meshgenerationCurr->MESH_3_FIXED;
+                    $meshgeneration->MESH_1_MODE = $meshgenerationCurr->MESH_1_MODE;
+                    $meshgeneration->MESH_2_MODE = $meshgenerationCurr->MESH_2_MODE;
+                    $meshgeneration->MESH_3_MODE = $meshgenerationCurr->MESH_3_MODE;
+                    $meshgeneration->MESH_1_NB = $meshgenerationCurr->MESH_1_NB;
+                    $meshgeneration->MESH_2_NB = $meshgenerationCurr->MESH_2_NB;
+                    $meshgeneration->MESH_3_NB = $meshgenerationCurr->MESH_3_NB;
+                    $meshgeneration->MESH_1_SIZE = $meshgenerationCurr->MESH_1_SIZE;
+                    $meshgeneration->MESH_2_SIZE = $meshgenerationCurr->MESH_2_SIZE;
+                    $meshgeneration->MESH_3_SIZE = $meshgenerationCurr->MESH_3_SIZE;
+                    $meshgeneration->MESH_1_INT = $meshgenerationCurr->MESH_1_INT;
+                    $meshgeneration->MESH_2_INT = $meshgenerationCurr->MESH_2_INT;
+                    $meshgeneration->MESH_3_INT = $meshgenerationCurr->MESH_3_INT;
+                    $meshgeneration->MESH_1_RATIO = $meshgenerationCurr->MESH_1_RATIO;
+                    $meshgeneration->MESH_2_RATIO = $meshgenerationCurr->MESH_2_RATIO;
+                    $meshgeneration->MESH_3_RATIO = $meshgenerationCurr->MESH_3_RATIO;
+                    $meshgeneration->BEST_1_NB = $meshgenerationCurr->BEST_1_NB;
+                    $meshgeneration->BEST_2_NB = $meshgenerationCurr->BEST_2_NB;
+                    $meshgeneration->BEST_3_NB = $meshgenerationCurr->BEST_3_NB;
+                    $meshgeneration->save();
+
+                } 
+
+                if(count($productemltCurr) > 0) {
+                    foreach ($productemltCurr as $prodelmtCurr ) {
+                        $productemlt = new ProductElmt();
+                        $productemlt->ID_PROD = $product->ID_PROD;
+                        $productemlt->ID_SHAPE = $prodelmtCurr->ID_SHAPE;
+                        $productemlt->ID_COMP = $prodelmtCurr->ID_COMP;
+                        $productemlt->PROD_ELMT_NAME = $prodelmtCurr->PROD_ELMT_NAME;
+                        $productemlt->SHAPE_PARAM1 = $prodelmtCurr->SHAPE_PARAM1;
+                        $productemlt->SHAPE_PARAM2 = $prodelmtCurr->SHAPE_PARAM2;
+                        $productemlt->SHAPE_PARAM3 = $prodelmtCurr->SHAPE_PARAM3;
+                        $productemlt->PROD_DEHYD = $prodelmtCurr->PROD_DEHYD;
+                        $productemlt->PROD_DEHYD_COST = $prodelmtCurr->PROD_DEHYD_COST;
+                        $productemlt->SHAPE_POS1 = $prodelmtCurr->SHAPE_POS1;
+                        $productemlt->SHAPE_POS2 = $prodelmtCurr->SHAPE_POS2;
+                        $productemlt->SHAPE_POS3 = $prodelmtCurr->SHAPE_POS3;
+                        $productemlt->PROD_ELMT_ISO = $prodelmtCurr->PROD_ELMT_ISO;
+                        $productemlt->ORIGINAL_THICK = $prodelmtCurr->ORIGINAL_THICK;
+                        $productemlt->NODE_DECIM = $prodelmtCurr->NODE_DECIM;
+                        $productemlt->INSERT_LINE_ORDER = $prodelmtCurr->INSERT_LINE_ORDER;
+                        $productemlt->PROD_ELMT_WEIGHT = $prodelmtCurr->PROD_ELMT_WEIGHT;
+                        $productemlt->PROD_ELMT_REALWEIGHT = $prodelmtCurr->PROD_ELMT_REALWEIGHT;
+                        $productemlt->save();
+                    }
+                }
+
+                //duplicate Price already exsits
+                if(count($priceCurr) > 0) {
+                    $price->ID_STUDY = $study->ID_STUDY;
+                    $price->ENERGY = $priceCurr->ENERGY;
+                    $price->ECO_IN_CRYO1 = $priceCurr->ECO_IN_CRYO1;
+                    $price->ECO_IN_PBP1 = $priceCurr->ECO_IN_PBP1;
+                    $price->ECO_IN_CRYO2 = $priceCurr->ECO_IN_CRYO2;
+                    $price->ECO_IN_PBP2 = $priceCurr->ECO_IN_PBP2;
+                    $price->ECO_IN_CRYO3 = $priceCurr->ECO_IN_CRYO3;
+                    $price->ECO_IN_PBP3 = $priceCurr->ECO_IN_PBP3;
+                    $price->ECO_IN_CRYO4 = $priceCurr->ECO_IN_CRYO4;
+                    $price->ECO_IN_MINMP = $priceCurr->ECO_IN_MINMP;
+                    $price->ECO_IN_MAXMP = $priceCurr->ECO_IN_MAXMP;
+                    $price->save();
+
+                }
+
+                //duplicate Report already exsits
+                if(count($reportCurr) > 0) {
+                    $report->ID_STUDY = $study->ID_STUDY;
+                    $report->REP_CUSTOMER = $reportCurr->REP_CUSTOMER;
+                    $report->PROD_LIST = $reportCurr->PROD_LIST;
+                    $report->PROD_TEMP = $reportCurr->PROD_TEMP;
+                    $report->PROD_3D = $reportCurr->PROD_3D;
+                    $report->PACKING = $reportCurr->PACKING;
+                    $report->EQUIP_LIST = $reportCurr->EQUIP_LIST;
+                    $report->EQUIP_PARAM = $reportCurr->EQUIP_PARAM;
+                    $report->EQUIP_PARAM = $reportCurr->EQUIP_PARAM;
+                    $report->PIPELINE = $reportCurr->PIPELINE;
+                    $report->ASSES_TERMAL = $reportCurr->ASSES_TERMAL;
+                    $report->ASSES_CONSUMP = $reportCurr->ASSES_CONSUMP;
+                    $report->ASSES_ECO = $reportCurr->ASSES_ECO;
+                    $report->ASSES_TR = $reportCurr->ASSES_TR;
+                    $report->ASSES_TR_MIN = $reportCurr->ASSES_TR_MIN;
+                    $report->ASSES_TR_MAX = $reportCurr->ASSES_TR_MAX;
+                    $report->SIZING_TR = $reportCurr->SIZING_TR;
+                    $report->SIZING_TR_MIN = $reportCurr->SIZING_TR_MIN;
+                    $report->SIZING_TR_MAX = $reportCurr->SIZING_TR_MAX;
+                    $report->SIZING_VALUES = $reportCurr->SIZING_VALUES;
+                    $report->SIZING_GRAPHE = $reportCurr->SIZING_GRAPHE;
+                    $report->SIZING_TEMP_G = $reportCurr->SIZING_TEMP_G;
+                    $report->SIZING_TEMP_V = $reportCurr->SIZING_TEMP_V;
+                    $report->SIZING_TEMP_SAMPLE = $reportCurr->SIZING_TEMP_SAMPLE;
+                    $report->AXE1_X = $reportCurr->AXE1_X;
+                    $report->AXE1_Y = $reportCurr->AXE1_Y;
+                    $report->AXE2_X = $reportCurr->AXE2_X;
+                    $report->AXE2_Z = $reportCurr->AXE2_Z;
+                    $report->AXE3_Y = $reportCurr->AXE3_Y;
+                    $report->AXE3_Z = $reportCurr->AXE3_Z;
+                    $report->ISOCHRONE_G = $reportCurr->ISOCHRONE_G;
+                    $report->ISOCHRONE_V = $reportCurr->ISOCHRONE_V;
+                    $report->ISOCHRONE_SAMPLE = $reportCurr->ISOCHRONE_SAMPLE;
+                    $report->POINT1_X = $reportCurr->POINT1_X;
+                    $report->POINT1_Y = $reportCurr->POINT1_Y;
+                    $report->POINT1_Z = $reportCurr->POINT1_Z;
+                    $report->POINT2_X = $reportCurr->POINT2_X;
+                    $report->POINT2_Y = $reportCurr->POINT2_Y;
+                    $report->POINT2_Z = $reportCurr->POINT2_Z;
+                    $report->POINT3_X = $reportCurr->POINT3_X;
+                    $report->POINT3_Y = $reportCurr->POINT3_Y;
+                    $report->POINT3_Z = $reportCurr->POINT3_Z;
+                    $report->ISOVALUE_G = $reportCurr->ISOVALUE_G;
+                    $report->ISOVALUE_V = $reportCurr->ISOVALUE_V;
+                    $report->ISOVALUE_SAMPLE = $reportCurr->ISOVALUE_SAMPLE;
+                    $report->PLAN_X = $reportCurr->PLAN_X;
+                    $report->PLAN_Y = $reportCurr->PLAN_Y;
+                    $report->PLAN_Z = $reportCurr->PLAN_Z;
+                    $report->CONTOUR2D_G = $reportCurr->CONTOUR2D_G;
+                    $report->CONTOUR2D_SAMPLE = $reportCurr->CONTOUR2D_SAMPLE;
+                    $report->CONTOUR2D_TEMP_STEP = $reportCurr->CONTOUR2D_TEMP_STEP;
+                    $report->ENTHALPY_V = $reportCurr->ENTHALPY_V;
+                    $report->ENTHALPY_G = $reportCurr->ENTHALPY_G;
+                    $report->ENTHALPY_SAMPLE = $reportCurr->ENTHALPY_SAMPLE;
+                    $report->DEST_SURNAME = $reportCurr->DEST_SURNAME;
+                    $report->DEST_NAME = $reportCurr->DEST_NAME;
+                    $report->DEST_FUNCTION = $reportCurr->DEST_FUNCTION;
+                    $report->DEST_COORD = $reportCurr->DEST_COORD;
+                    $report->PHOTO_PATH = $reportCurr->PHOTO_PATH;
+                    $report->CUSTOMER_LOGO = $reportCurr->CUSTOMER_LOGO;
+                    $report->CONS_SPECIFIC = $reportCurr->CONS_SPECIFIC;
+                    $report->CONS_OVERALL = $reportCurr->CONS_OVERALL;
+                    $report->CONS_TOTAL = $reportCurr->CONS_TOTAL;
+                    $report->CONS_HOUR = $reportCurr->CONS_HOUR;
+                    $report->CONS_DAY = $reportCurr->CONS_DAY;
+                    $report->CONS_WEEK = $reportCurr->CONS_WEEK;
+                    $report->CONS_MONTH = $reportCurr->CONS_MONTH;
+                    $report->CONS_YEAR = $reportCurr->CONS_YEAR;
+                    $report->CONS_EQUIP = $reportCurr->CONS_EQUIP;
+                    $report->CONS_PIPE = $reportCurr->CONS_PIPE;
+                    $report->CONS_TANK = $reportCurr->CONS_TANK;
+                    $report->CONTOUR2D_OUTLINE_TIME = $reportCurr->CONTOUR2D_OUTLINE_TIME;
+                    $report->REPORT_COMMENT = $reportCurr->REPORT_COMMENT;
+                    $report->WRITER_SURNAME = $reportCurr->WRITER_SURNAME;
+                    $report->WRITER_NAME = $reportCurr->WRITER_NAME;
+                    $report->WRITER_FUNCTION = $reportCurr->WRITER_FUNCTION;
+                    $report->WRITER_COORD = $reportCurr->WRITER_COORD;
+                    $report->REP_CONS_PIE = $reportCurr->REP_CONS_PIE;
+                    $report->CONTOUR2D_TEMP_MIN = $reportCurr->CONTOUR2D_TEMP_MIN;
+                    $report->CONTOUR2D_TEMP_MAX = $reportCurr->CONTOUR2D_TEMP_MAX;
+                    $report->save();
+                }
+                
+                if(count($precalcLdgRatePrmCurr) > 0) {
+                    $precalcLdgRatePrm->ID_STUDY = $study->ID_STUDY;
+                    $precalcLdgRatePrm->L_INTERVAL = $precalcLdgRatePrmCurr->L_INTERVAL;
+                    $precalcLdgRatePrm->W_INTERVAL = $precalcLdgRatePrmCurr->W_INTERVAL;
+                    $precalcLdgRatePrm->PRECALC_LDG_TR = $precalcLdgRatePrmCurr->PRECALC_LDG_TR;
+                    $precalcLdgRatePrm->APPROX_LDG_RATE = $precalcLdgRatePrmCurr->APPROX_LDG_RATE;
+                    $precalcLdgRatePrm->save();
+                    
+                }
+
+                if(count($packingCurr) > 0) {
+                    $packing->ID_STUDY = $study->ID_STUDY;
+                    $packing->ID_SHAPE = $packingCurr->ID_SHAPE;
+                    $packing->NOMEMBMAT = $packingCurr->NOMEMBMAT;
+                    $packing->save();
+
+                }
+                // @class: \App\Models\PackingLayer
+                if(($packingCurr != 0) || ($packingCurr != null)) {
+                    $packingLayerCurr = PackingLayer::where('ID_PACKING',$packingCurr->ID_PACKING)->get(); 
+                    if(count($packingLayerCurr) > 0) {
+                        foreach ($packingLayerCurr as $pLayer) {
+                            $packingLayer = new PackingLayer();
+                            $packingLayer->ID_PACKING = $packing->ID_PACKING;
+                            $packingLayer->ID_PACKING_ELMT = $pLayer->ID_PACKING_ELMT;
+                            $packingLayer->THICKNESS = $pLayer->THICKNESS;
+                            $packingLayer->PACKING_SIDE_NUMBER = $pLayer->PACKING_SIDE_NUMBER;
+                            $packingLayer->PACKING_LAYER_ORDER = $pLayer->PACKING_LAYER_ORDER;
+                            $packingLayer->save();
+                        }
+                    }
+                }
+
+                if(count($studyemtlCurr) > 0) {
+                    foreach ($studyemtlCurr as $stuElmt) {
+                        $studyelmt = new StudyEquipment();
+                        $studyelmt->ID_STUDY = $study->ID_STUDY;
+                        $studyelmt->ID_EQUIP = $stuElmt->ID_EQUIP;
+                        $studyelmt->ID_EXH_GEN = $stuElmt->ID_EXH_GEN;
+                        $studyelmt->ID_EXH_RES = $stuElmt->ID_EXH_RES;
+                        $studyelmt->ID_PIPE_GEN = $stuElmt->ID_PIPE_GEN;
+                        $studyelmt->ID_PIPE_RES = $stuElmt->ID_PIPE_RES;
+                        $studyelmt->ID_ECONOMIC_RESULTS = $stuElmt->ID_ECONOMIC_RESULTS;
+                        $studyelmt->ID_STUD_EQUIPPROFILE = $stuElmt->ID_STUD_EQUIPPROFILE;
+                        $studyelmt->ID_LAYOUT_GENERATION = $stuElmt->ID_LAYOUT_GENERATION;
+                        $studyelmt->ID_LAYOUT_RESULTS = $stuElmt->ID_LAYOUT_RESULTS;
+                        $studyelmt->ID_CALC_PARAMS = $stuElmt->ID_CALC_PARAMS;
+                        $studyelmt->LINE_ORDER = $stuElmt->LINE_ORDER;
+                        $studyelmt->STDEQP_LENGTH = $stuElmt->STDEQP_LENGTH;
+                        $studyelmt->STDEQP_WIDTH = $stuElmt->STDEQP_WIDTH;
+                        $studyelmt->EQP_INST = $stuElmt->EQP_INST;
+                        $studyelmt->AVERAGE_PRODUCT_TEMP = $stuElmt->AVERAGE_PRODUCT_TEMP;
+                        $studyelmt->AVERAGE_PRODUCT_ENTHALPY = $stuElmt->AVERAGE_PRODUCT_ENTHALPY;
+                        $studyelmt->ENTHALPY_VARIATION = $stuElmt->ENTHALPY_VARIATION;
+                        $studyelmt->PRECIS = $stuElmt->PRECIS;
+                        $studyelmt->NB_MODUL = $stuElmt->NB_MODUL;
+                        $studyelmt->STACKING_WARNING = $stuElmt->STACKING_WARNING;
+                        $studyelmt->ENABLE_CONS_PIE = $stuElmt->ENABLE_CONS_PIE;
+                        $studyelmt->EQUIP_STATUS = $stuElmt->EQUIP_STATUS;
+                        $studyelmt->RUN_CALCULATE = $stuElmt->RUN_CALCULATE;
+                        $studyelmt->BRAIN_SAVETODB = $stuElmt->BRAIN_SAVETODB;
+                        $studyelmt->BRAIN_TYPE = $stuElmt->BRAIN_TYPE;
+                        if ($studyelmt->save()) {
+                            $studyelmtId = $studyelmt->ID_STUDY_EQUIPMENTS;
+                            $calparam = CalculationParameter::where('ID_STUDY_EQUIPMENTS',$stuElmt->ID_STUDY_EQUIPMENTS)->first();
+                            if (count($calparam) > 0) {
+                                $calparameter = new CalculationParameter();
+                                $calparameter->ID_STUDY_EQUIPMENTS = $studyelmtId;
+                                $calparameter->HORIZ_SCAN = $calparam->HORIZ_SCAN;
+                                $calparameter->VERT_SCAN = $calparam->VERT_SCAN;
+                                $calparameter->MAX_IT_NB = $calparam->MAX_IT_NB;
+                                $calparameter->TIME_STEPS_NB = $calparam->TIME_STEPS_NB;
+                                $calparameter->RELAX_COEFF = $calparam->RELAX_COEFF;
+                                $calparameter->TIME_STEP = $calparam->TIME_STEP;
+                                $calparameter->STORAGE_STEP = $calparam->STORAGE_STEP;
+                                $calparameter->PRECISION_LOG_STEP = $calparam->PRECISION_LOG_STEP;
+                                $calparameter->STOP_TOP_SURF = $calparam->STOP_TOP_SURF;
+                                $calparameter->STOP_INT = $calparam->STOP_INT;
+                                $calparameter->STOP_BOTTOM_SURF = $calparam->STOP_BOTTOM_SURF;
+                                $calparameter->STOP_AVG = $calparam->STOP_AVG;
+                                $calparameter->STUDY_ALPHA_TOP_FIXED = $calparam->STUDY_ALPHA_TOP_FIXED;
+                                $calparameter->STUDY_ALPHA_TOP = $calparam->STUDY_ALPHA_TOP;
+                                $calparameter->STUDY_ALPHA_BOTTOM_FIXED = $calparam->STUDY_ALPHA_BOTTOM_FIXED;
+                                $calparameter->STUDY_ALPHA_BOTTOM = $calparam->STUDY_ALPHA_BOTTOM;
+                                $calparameter->STUDY_ALPHA_LEFT_FIXED = $calparam->STUDY_ALPHA_LEFT_FIXED;
+                                $calparameter->STUDY_ALPHA_LEFT = $calparam->STUDY_ALPHA_LEFT;
+                                $calparameter->STUDY_ALPHA_RIGHT_FIXED = $calparam->STUDY_ALPHA_RIGHT_FIXED;
+                                $calparameter->STUDY_ALPHA_RIGHT = $calparam->STUDY_ALPHA_RIGHT;
+                                $calparameter->STUDY_ALPHA_FRONT_FIXED = $calparam->STUDY_ALPHA_FRONT_FIXED;
+                                $calparameter->STUDY_ALPHA_FRONT = $calparam->STUDY_ALPHA_FRONT;
+                                $calparameter->STUDY_ALPHA_REAR_FIXED = $calparam->STUDY_ALPHA_REAR_FIXED;
+                                $calparameter->STUDY_ALPHA_REAR = $calparam->STUDY_ALPHA_REAR;
+                                $calparameter->PRECISION_REQUEST = $calparam->PRECISION_REQUEST;
+                                $calparameter->NB_OPTIM = $calparam->NB_OPTIM;
+                                $calparameter->ERROR_T = $calparam->ERROR_T;
+                                $calparameter->ERROR_H = $calparam->ERROR_H;
+                                $calparameter->save();
+                            } 
+                            
+                            $stdEqpPrms = StudEqpPrm::where('ID_STUDY_EQUIPMENTS',$stuElmt->ID_STUDY_EQUIPMENTS)->get();
+
+                            if(count($stdEqpPrms) > 0) {
+                                foreach ($stdEqpPrms as $stdEqpPrm) {
+                                    # code...
+                                    $newStdEqpParam = new StudEqpPrm();
+                                    $newStdEqpParam->ID_STUDY_EQUIPMENTS = $studyelmtId;
+                                    $newStdEqpParam->VALUE_TYPE = $stdEqpPrm->VALUE_TYPE;
+                                    $newStdEqpParam->VALUE = $stdEqpPrm->VALUE;
+                                    $newStdEqpParam->save();
+                                }
+                            }
+                            
+                            $layoutGeneration = LayoutGeneration::where('ID_STUDY_EQUIPMENTS',$stuElmt->ID_STUDY_EQUIPMENTS)->first(); 
+                            if(count($layoutGeneration) > 0) {
+                                $layoutGen = new LayoutGeneration();
+                                $layoutGen->ID_STUDY_EQUIPMENTS = $studyelmtId;
+                                $layoutGen->WIDTH_INTERVAL = $layoutGeneration->WIDTH_INTERVAL;
+                                $layoutGen->LENGTH_INTERVAL = $layoutGeneration->LENGTH_INTERVAL;
+                                $layoutGen->PROD_POSITION = $layoutGeneration->PROD_POSITION;
+                                $layoutGen->SHELVES_WIDTH = $layoutGeneration->SHELVES_WIDTH;
+                                $layoutGen->SHELVES_LENGTH = $layoutGeneration->SHELVES_LENGTH;
+                                $layoutGen->NB_SHELVES_PERSO = $layoutGeneration->NB_SHELVES_PERSO;
+                                $layoutGen->SHELVES_TYPE = $layoutGeneration->SHELVES_TYPE;
+                                $layoutGen->save();
+
+                            }
+
+                            $layoutRes = LayoutResults::where('ID_STUDY_EQUIPMENTS',$stuElmt->ID_STUDY_EQUIPMENTS)->first(); 
+                            if(count($layoutRes) > 0) {
+                                $layoutResult = new LayoutResults();
+                                $layoutResult->ID_STUDY_EQUIPMENTS = $layoutRes->ID_STUDY_EQUIPMENTS;
+                                $layoutResult->NUMBER_PER_M = $layoutRes->NUMBER_PER_M;
+                                $layoutResult->NUMBER_IN_WIDTH = $layoutRes->NUMBER_IN_WIDTH;
+                                $layoutResult->LEFT_RIGHT_INTERVAL = $layoutRes->LEFT_RIGHT_INTERVAL;
+                                $layoutResult->LOADING_RATE = $layoutRes->LOADING_RATE;
+                                $layoutResult->QUANTITY_PER_BATCH = $layoutRes->QUANTITY_PER_BATCH;
+                                $layoutResult->LOADING_RATE_MAX = $layoutRes->LOADING_RATE_MAX;
+                                $layoutResult->QUANTITY_PER_BATCH_MAX = $layoutRes->QUANTITY_PER_BATCH_MAX;
+                                $layoutResult->NB_SHELVES = $layoutRes->NB_SHELVES;
+                                $layoutResult->NB_SHELVES_MAX = $layoutRes->NB_SHELVES_MAX;
+                                $layoutResult->save();
+
+                            }
+                        }
+                    }
+                }
+
+                $study->ID_TEMP_RECORD_PTS = $temprecordpst->ID_TEMP_RECORD_PTS;
+                $study->ID_PRODUCTION = $production->ID_PRODUCTION;
+                $study->ID_PROD = $product->ID_PROD;
+                $study->ID_PRICE = $price->ID_PRICE;
+                $study->ID_REPORT = $report->ID_REPORT;
+                $study->ID_PRECALC_LDG_RATE_PRM = $precalcLdgRatePrm->ID_PRECALC_LDG_RATE_PRM;
+                $study->ID_PACKING = $packing->ID_PACKING;
+                $study->save();
+
+                $product->ID_MESH_GENERATION = $meshgeneration->ID_MESH_GENERATION;
+                $product->save();
+
+                return 1000;
+
+            } else {
+                return 1001;
+            }
+        } else {
+            echo "Id study is null";
+        }
+
     }
 
     /**
@@ -593,6 +756,7 @@ class Studies extends Controller
     {
         $study = \App\Models\Study::find($id);
         $studyEquipments = StudyEquipment::where('ID_STUDY', $study->ID_STUDY)->with('equipment')->get();
+        // var_dump($study);die;
         $returnStudyEquipments = [];
 
         foreach ($studyEquipments as $studyEquipment) {
