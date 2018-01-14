@@ -39,3 +39,19 @@ $router->POST('/api/v1/products/{id}/elements', 'Api1\\Products@updateProductEle
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/calculator/startcalcul', 'Api1\\Calculator@startCalcul');
+
+/**
+ * POST save calcul optim
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/calculator/calculoptim', 'Api1\\Calculator@calculOptim');
+
+/**
+ * POST start calcul optim
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/calculator/startcalculoptim', 'Api1\\Calculator@startCalculOptim');
