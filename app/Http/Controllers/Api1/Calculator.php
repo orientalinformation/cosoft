@@ -243,11 +243,17 @@ class Calculator extends Controller
 				$idStudyEquipment = $studyEquipments[$i]->ID_STUDY_EQUIPMENTS;
 				$calculationParameter = CalculationParameter::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
 
-				$calculationParametersDef = CalculationParametersDef::find($this->auth->user()->ID_USER);
-				$calculationParameter->STORAGE_STEP = $calculationParametersDef->STORAGE_STEP_DEF;
-				$calculationParameter->PRECISION_LOG_STEP = $calculationParametersDef->PRECISION_LOG_STEP_DEF;
-				$calculationParameter->save();
+				if (!$calculationParameter) {
+					$calculationParameter = new CalculationParameter();
 
+					$calculationParametersDef = CalculationParametersDef::where('ID_USER', $this->auth->user()->ID_USER)->first();
+
+					$calculationParameter->STORAGE_STEP = $calculationParametersDef->STORAGE_STEP_DEF;
+					$calculationParameter->PRECISION_LOG_STEP = $calculationParametersDef->PRECISION_LOG_STEP_DEF;
+					$calculationParameter->ID_STUDY_EQUIPMENTS = $idStudyEquipment;
+					$calculationParameter->save();
+				}
+				
 				$this->saveCalculationParameters($this->request, $idStudyEquipment, $brainMode);
 			}
 		}
@@ -356,10 +362,12 @@ class Calculator extends Controller
 		$idStudy = null;
 		$idStudyEquipment = null;
 		$checkOptim = false;
+		$typeCalculate = null;
 
 		if (isset($input['idStudy'])) $idStudy = intval($input['idStudy']);
 		if (isset($input['idStudyEquipment'])) $idStudyEquipment = intval($input['idStudyEquipment']);
 		if (isset($input['checkOptim'])) $checkOptim = $input['checkOptim'];
+		if (isset($input['type'])) $typeCalculate = intval($input['type']);
 
 		$brainMode = $this->brainCal->getBrainMode($idStudy);
 
@@ -502,6 +510,7 @@ class Calculator extends Controller
 			'select8' => $select8,
 			'select9' => $select9,
 			'sdisableTOC' => $sdisableTOC,
+			'typeCalculate' => $typeCalculate
 		];
 
 		return $array;
@@ -592,7 +601,7 @@ class Calculator extends Controller
 
 		if (isset($input['idStudy'])) $idStudy = intval($input['idStudy']);
 		if (isset($input['idStudyEquipment'])) $idStudyEquipment = intval($input['idStudyEquipment']);
-		
+
     	$BRAIN_OPTIM = $BRAIN_OPTIM_TSFIXED = $BRAIN_OPTIM_TRFIXED = $BRAIN_OPTIM_DHPFIXED = $BRAIN_OPTIM_TOPFIXED = $BRAIN_OPTIM_COSTFIXED= null;
     	$brainOptim = null;
 
