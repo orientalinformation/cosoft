@@ -586,7 +586,27 @@ class Calculator extends Controller
 
     public function startCalculOptim()
     {
+    	$input = $this->request->all();
+    	$idStudy = null;
+		$idStudyEquipment = null;
 
+		if (isset($input['idStudy'])) $idStudy = intval($input['idStudy']);
+		if (isset($input['idStudyEquipment'])) $idStudyEquipment = intval($input['idStudyEquipment']);
+		
+    	$BRAIN_OPTIM = $BRAIN_OPTIM_TSFIXED = $BRAIN_OPTIM_TRFIXED = $BRAIN_OPTIM_DHPFIXED = $BRAIN_OPTIM_TOPFIXED = $BRAIN_OPTIM_COSTFIXED= null;
+    	$brainOptim = null;
+
+    	if (isset($input['BRAIN_OPTIM'])) $BRAIN_OPTIM = intval($input['BRAIN_OPTIM']);
+    	if (isset($input['BRAIN_OPTIM_TSFIXED'])) $BRAIN_OPTIM_TSFIXED = intval($input['BRAIN_OPTIM_TSFIXED']);
+    	if (isset($input['BRAIN_OPTIM_TRFIXED'])) $BRAIN_OPTIM_TRFIXED = intval($input['BRAIN_OPTIM_TRFIXED']);
+
+    	if ($BRAIN_OPTIM == 1) {
+    		$brainOptim = $BRAIN_OPTIM_TSFIXED;
+    	} else {
+    		$brainOptim = $BRAIN_OPTIM_TRFIXED;
+    	}
+    	
+    	return $this->runBrainCalculator($idStudy, $idStudyEquipment, false, 0, $brainOptim);
     }
 
     public function getBrainOptim()
@@ -614,8 +634,6 @@ class Calculator extends Controller
     		'BRAIN_OPTIM_DHPFIXED' => $BRAIN_OPTIM_DHPFIXED,
     		'BRAIN_OPTIM_TOPFIXED' => $BRAIN_OPTIM_TOPFIXED,
     		'BRAIN_OPTIM_COSTFIXED' => $BRAIN_OPTIM_COSTFIXED
-
-
     	];
     	
     	return $array;
