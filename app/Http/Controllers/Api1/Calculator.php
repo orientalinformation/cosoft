@@ -359,10 +359,8 @@ class Calculator extends Controller
 	public function getStudyEquipmentCalculation()
 	{
 		$input = $this->request->all();
-		$idStudy = null;
-		$idStudyEquipment = null;
+		$idStudy = $idStudyEquipment = $typeCalculate =  null;
 		$checkOptim = false;
-		$typeCalculate = null;
 
 		if (isset($input['idStudy'])) $idStudy = intval($input['idStudy']);
 		if (isset($input['idStudyEquipment'])) $idStudyEquipment = intval($input['idStudyEquipment']);
@@ -530,10 +528,7 @@ class Calculator extends Controller
     {
     	$input = $this->request->all();
 
-    	$idStudy = null;
-		$idStudyEquipment = null;
-		$checkOptim = null;
-		$typeCalculate = null;
+    	$idStudy = $idStudyEquipment = $checkOptim = $typeCalculate = null;
 
 		if (isset($input['idStudy'])) $idStudy = intval($input['idStudy']);
 		if (isset($input['idStudyEquipment'])) $idStudyEquipment = intval($input['idStudyEquipment']);
@@ -578,8 +573,7 @@ class Calculator extends Controller
     {
     	$input = $this->request->all();
 
-    	$idStudy = null;
-		$idStudyEquipment = null;
+    	$idStudy = $idStudyEquipment = null;
 
 		if (isset($input['idStudy'])) $idStudy = intval($input['idStudy']);
 		if (isset($input['idStudyEquipment'])) $idStudyEquipment = intval($input['idStudyEquipment']);
@@ -595,8 +589,7 @@ class Calculator extends Controller
     {
     	$input = $this->request->all();
 
-    	$idStudy = null;
-		$idStudyEquipment = null;
+    	$idStudy = $idStudyEquipment = null;
 
 		if (isset($input['idStudy'])) $idStudy = intval($input['idStudy']);
 		if (isset($input['idStudyEquipment'])) $idStudyEquipment = intval($input['idStudyEquipment']);
@@ -609,14 +602,12 @@ class Calculator extends Controller
     public function startCalculOptim()
     {
     	$input = $this->request->all();
-    	$idStudy = null;
-		$idStudyEquipment = null;
+    	$idStudy = $idStudyEquipment = $brainOptim = null;
 
 		if (isset($input['idStudy'])) $idStudy = intval($input['idStudy']);
 		if (isset($input['idStudyEquipment'])) $idStudyEquipment = intval($input['idStudyEquipment']);
 
     	$BRAIN_OPTIM = $BRAIN_OPTIM_TSFIXED = $BRAIN_OPTIM_TRFIXED = $BRAIN_OPTIM_DHPFIXED = $BRAIN_OPTIM_TOPFIXED = $BRAIN_OPTIM_COSTFIXED= null;
-    	$brainOptim = null;
 
     	if (isset($input['BRAIN_OPTIM'])) $BRAIN_OPTIM = intval($input['BRAIN_OPTIM']);
     	if (isset($input['BRAIN_OPTIM_TSFIXED'])) $BRAIN_OPTIM_TSFIXED = intval($input['BRAIN_OPTIM_TSFIXED']);
@@ -665,23 +656,14 @@ class Calculator extends Controller
     {
     	$input = $request->all();
 
-    	$checkOptim = null;
-		$epsilonTemp = null;
-		$epsilonEnth = null;
-		$epsilonTemp = null;
-		$epsilonEnth = null;
+    	$checkOptim = $epsilonTemp = $epsilonEnth = $epsilonTemp = $epsilonEnth = $scheckStorage = null;
+
 		$timeStep = 1.0;
 		$precision = 0.5;
-		$scheckStorage = null;
-		$storagestep = 0.0;
+		$storagestep = $relaxCoef = 0.0;
 		$hRadioOn = 1;
-		$vRadioOn  = 0;
+		$vRadioOn = $tempPtSurf = $tempPtIn = $tempPtBot = $tempPtAvg = 0;
 		$maxIter = 100;
-		$relaxCoef = 0.0;
-		$tempPtSurf = 0;
-		$tempPtIn = 0;
-		$tempPtBot = 0;
-		$tempPtAvg = 0;
 
     	if (isset($input['checkOptim'])) $checkOptim = intval($input['checkOptim']);
 		if (isset($input['epsilonTemp'])) $epsilonTemp = $input['epsilonTemp'];
@@ -873,8 +855,7 @@ class Calculator extends Controller
     public function saveEquipmentSettings(Request $request, $idStudyEquipment)
     {
     	$input = $request->all();
-    	$dwellingTimes = [];
-		$temperatures = [];
+    	$dwellingTimes = $temperatures = [];
 
 		if (isset($input['dwellingTimes'])) $newLTs = $input['dwellingTimes'];
 		if (isset($input['temperatures'])) $newLTr = $input['temperatures'];
@@ -1051,8 +1032,7 @@ class Calculator extends Controller
     private function startMaxCapacityCalculation(Request $request, $idStudy, $idStudyEquipment)
     {
         $input = $request->all();
-    	$lfControlTemp = 0.0;
-        $lfLoadingRateMax = 0.0;
+    	$lfControlTemp = $lfLoadingRateMax = 0.0;
         $toc = 0;
 
         $studyEquipment = StudyEquipment::find($idStudyEquipment);
