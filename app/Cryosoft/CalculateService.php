@@ -150,11 +150,13 @@ class CalculateService
 
 		foreach ($studyEquipments as $sEquipment) {
 			$calParamester = CalculationParameter::where('ID_CALC_PARAMS', $sEquipment->ID_CALC_PARAMS)->first();
-			if ($timeStep != $calParamester->TIME_STEP) {
-				if ($timeStep == -1.0) {
-					$timeStep = $calParamester->TIME_STEP;
-				} else {
-					$bOneTimeStep = false;
+			if ($calParamester) {
+				if ($timeStep != $calParamester->TIME_STEP) {
+					if ($timeStep == -1.0) {
+						$timeStep = $calParamester->TIME_STEP;
+					} else {
+						$bOneTimeStep = false;
+					}
 				}
 			}
 		}
@@ -176,11 +178,13 @@ class CalculateService
 		foreach ($studyEquipments as $sEquipment) {
 			$calParamester = CalculationParameter::where('ID_CALC_PARAMS', $sEquipment->ID_CALC_PARAMS)->first();
 
-			if ($precision != $calParamester->PRECISION_REQUEST) {
-				if ($precision == -1.0) {
-					$precision = $calParamester->PRECISION_REQUEST;
-				} else {
-					$bOnePrecision = false;
+			if ($calParamester) {
+				if ($precision != $calParamester->PRECISION_REQUEST) {
+					if ($precision == -1.0) {
+						$precision = $calParamester->PRECISION_REQUEST;
+					} else {
+						$bOnePrecision = false;
+					}
 				}
 			}
 		}
