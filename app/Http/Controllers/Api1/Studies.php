@@ -211,6 +211,9 @@ class Studies extends Controller
         $report = new Report();
         $precalcLdgRatePrm = new PrecalcLdgRatePrm();
         $packing = new Packing();
+
+        // if (!isset($input['name'])) 
+        //     throw new \Exception("Error Processing Request", 1);
         
         // @class: \App\Models\Study
         $studyCurrent = Study::find($id);
@@ -239,12 +242,12 @@ class Studies extends Controller
             $studyemtlCurr = StudyEquipment::where('ID_STUDY',$studyCurrent->ID_STUDY)->get(); 
             
             
-            // var_dump($studyemtlCurr);die;
             $input = $this->request->all();
 
 
             if (!empty($input['name'])) {
 
+            var_dump($input['name']);die;
                 //duplicate study already exsits
                 $study->STUDY_NAME = $input['name'];
                 $study->ID_USER = $this->auth->user()->ID_USER;
