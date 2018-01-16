@@ -1544,7 +1544,8 @@ class Output extends Controller
         $layoutGen = LayoutGeneration::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
         $orientation = $layoutGen->PROD_POSITION;
 
-        $result = [];
+        $resultLabel = [];
+        $resultTemperature = [];
 
         $selPoints = $this->output->getSelectedMeshPoints($idStudy);
         if (empty($selPoints)) {
@@ -1559,6 +1560,7 @@ class Output extends Controller
                 [$selPoints[13], $selPoints[14], -1.0]
             ];
         }
+        // return $axeTempRecordData;
 
         $listRecordPos = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("RECORD_TIME", "ASC")->get();
         $nbSteps = TempRecordPts::where("ID_STUDY", $idStudy)->first();
@@ -1577,18 +1579,60 @@ class Output extends Controller
             $itemResult["x"] = $this->unit->time($recordPos->RECORD_TIME);
             $tempRecordData = $this->output->getTempRecordData($recordPos->ID_REC_POS, $idStudy, $axeTempRecordData, $selectedAxe - 1, $shape, $orientation);
             $item = [];
+            $recAxis = [];
+            $mesAxis = [];
             if (count($tempRecordData) > 0) {
                 foreach ($tempRecordData as $row) {
                     $item[] = $this->unit->prodTemperature($row->TEMP);
+                    switch ($selectedAxe) {
+                        case 1:
+                            if (($shape == 1) || ($shape == 2 && $orientation == 1) && ($shape == 9 && $orientation == 1)) {
+                                $recAxisValue = $row->REC_AXIS_Z_POS;
+                            } else if ($shape == 3 || $shape == 5 || $shape == 7) {
+                                $recAxisValue = $row->REC_AXIS_Y_POS;
+                            } else {
+                                $recAxisValue = $row->REC_AXIS_X_POS;
+                            }
+                            break;
+
+                        case 2:
+                            if ($shape == 1 || $shape == 2 || $shape == 9 || $shape == 4 || $shape == 8 || $shape == 6) {
+                                $recAxisValue = $row->REC_AXIS_Y_POS;
+                            } else {
+                                $recAxisValue = $row->REC_AXIS_X_POS;
+                            }
+                            break;
+
+                        case 3:
+                            if (($shape == 3) || ($shape == 2 && $orientation == 1) && ($shape == 9)) {
+                                $recAxisValue = $row->REC_AXIS_X_POS;
+                            } else {
+                                $recAxisValue = $row->REC_AXIS_Z_POS;
+                            }
+                            break;
+                    }
+                    $recAxis[] = $recAxisValue;
+                    $mesAxis[] = $this->output->getAxisForPosition2($idStudy, $recAxisValue, $selectedAxe);
+                    $meshPoints = MeshPosition::select('MESH_AXIS_POS')->where('ID_STUDY', $idStudy)->where('MESH_AXIS', $selectedAxe)->orderBy('MESH_AXIS_POS')->first();
                 }
             }
-            
-            $itemResult["y"] = $item;
 
-            $result[] = $itemResult;
+            $resultLabel[] = $itemResult["x"];
+            $resultTemperature[] = $item;
         }
 
+        $result = [];
 
-        return compact("axeTempRecordData", "result");
+        foreach ($resultTemperature as $row) {
+            foreach ($row as $key => $value) {
+                $resultValue[$key][] = $value;
+            }
+        }
+        $result["recAxis"] = $recAxis;
+        $result["mesAxis"] = $mesAxis;
+        $result["resultValue"] = $resultValue;
+
+
+        return compact("resultLabel", "result");
     }
 }
