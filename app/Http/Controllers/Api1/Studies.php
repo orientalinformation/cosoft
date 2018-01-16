@@ -61,7 +61,7 @@ class Studies extends Controller
      * @var App\Cryosoft\ValueListService
      */
     protected $value;
-    
+
 
     /**
      * Create a new controller instance.
