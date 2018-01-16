@@ -1537,8 +1537,8 @@ class Output extends Controller
     public function productSection(){
         $idStudy = $this->request->input('idStudy');
         $idStudyEquipment = $this->request->input('idStudyEquipment');
+        $selectedAxe = $this->request->input('selectedAxe');
 
-        $selectedAxe = 2;
         $productElmt = ProductElmt::where('ID_STUDY', $idStudy)->first();
         $shape = $productElmt->SHAPECODE;
         $layoutGen = LayoutGeneration::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
@@ -1560,7 +1560,23 @@ class Output extends Controller
                 [$selPoints[13], $selPoints[14], -1.0]
             ];
         }
-        // return $axeTempRecordData;
+        $axeTemp = [];
+        switch ($selectedAxe) {
+            case 1:
+                array_push($axeTemp, $this->unit->prodchartDimension($selPoints[9]));
+                array_push($axeTemp, $this->unit->prodchartDimension($selPoints[10]));
+                break;
+
+            case 2:
+                array_push($axeTemp, $this->unit->prodchartDimension($selPoints[11]));
+                array_push($axeTemp, $this->unit->prodchartDimension($selPoints[12]));
+                break;
+
+            case 3:
+                array_push($axeTemp, $this->unit->prodchartDimension($selPoints[13]));
+                array_push($axeTemp, $this->unit->prodchartDimension($selPoints[14]));
+                break;
+        }
 
         $listRecordPos = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("RECORD_TIME", "ASC")->get();
         $nbSteps = TempRecordPts::where("ID_STUDY", $idStudy)->first();
@@ -1571,6 +1587,7 @@ class Output extends Controller
         $lfTS = $listRecordPos[$nbRecord - 1]->RECORD_TIME;
         $lfStep = $listRecordPos[1]->RECORD_TIME - $listRecordPos[0]->RECORD_TIME;
         $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
+        // return $axeTempRecordData;
 
         foreach ($lEchantillon as $row) {
 
@@ -1578,6 +1595,7 @@ class Output extends Controller
 
             $itemResult["x"] = $this->unit->time($recordPos->RECORD_TIME);
             $tempRecordData = $this->output->getTempRecordData($recordPos->ID_REC_POS, $idStudy, $axeTempRecordData, $selectedAxe - 1, $shape, $orientation);
+
             $item = [];
             $recAxis = [];
             $mesAxis = [];
@@ -1622,6 +1640,7 @@ class Output extends Controller
         }
 
         $result = [];
+        $resultValue = [];
 
         foreach ($resultTemperature as $row) {
             foreach ($row as $key => $value) {
@@ -1633,6 +1652,6 @@ class Output extends Controller
         $result["resultValue"] = $resultValue;
 
 
-        return compact("resultLabel", "result");
+        return compact("axeTemp", "resultLabel", "result");
     }
 }
