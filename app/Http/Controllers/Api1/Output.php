@@ -123,6 +123,7 @@ class Output extends Controller
             $item["specificSize"] = $this->equip->getSpecificEquipSize($idStudyEquipment);
             $item["equipName"] = $this->equip->getResultsEquipName($idStudyEquipment);
             $calculate = "";
+            $tr = $ts = $vc = $vep = $tfp = $dhp = $conso= $conso_warning = $toc = $precision = "";
 
             $item["runBrainPopup"] = false;
             if ($this->equip->getCapability($capabilitie, 128)) {
