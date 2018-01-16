@@ -1537,6 +1537,13 @@ class Output extends Controller
     public function productSection(){
         $idStudy = $this->request->input('idStudy');
         $idStudyEquipment = $this->request->input('idStudyEquipment');
+
+        $selectedAxe = 2;
+        $productElmt = ProductElmt::where('ID_STUDY', $idStudy)->first();
+        $shape = $productElmt->SHAPECODE;
+        $layoutGen = LayoutGeneration::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
+        $orientation = $layoutGen->PROD_POSITION;
+
         $result = [];
 
         $selPoints = $this->output->getSelectedMeshPoints($idStudy);
@@ -1568,7 +1575,15 @@ class Output extends Controller
             $recordPos = $listRecordPos[$row];
 
             $itemResult["x"] = $this->unit->time($recordPos->RECORD_TIME);
-            $itemResult["y"] = TempRecordData::where("ID_REC_POS", $recordPos->ID_REC_POS)->count();
+            $tempRecordData = $this->output->getTempRecordData($recordPos->ID_REC_POS, $idStudy, $axeTempRecordData, $selectedAxe - 1, $shape, $orientation);
+            $item = [];
+            if (count($tempRecordData) > 0) {
+                foreach ($tempRecordData as $row) {
+                    $item[] = $this->unit->prodTemperature($row->TEMP);
+                }
+            }
+            
+            $itemResult["y"] = $item;
 
             $result[] = $itemResult;
         }
