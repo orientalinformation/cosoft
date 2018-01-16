@@ -96,21 +96,16 @@ class Calculator extends Controller
 	public function getOptimumCalculator() 
 	{
 		$input = $this->request->all();
-		$idStudy = $input['idStudy'];
-		$idStudyEquipment = null;
+		$idStudy = $idStudyEquipment = null;
 
-		if (isset($input['idStudyEquipment'])) {
-			$idStudyEquipment = $input['idStudyEquipment'];
-		}
+		if (isset($input['idStudyEquipment'])) $idStudyEquipment = intval($input['idStudyEquipment']);
+		if (isset($input['idStudy'])) $idStudy = intval($input['idStudy']);
 
 		$calMode = $this->cal->getCalculationMode($idStudy);
 		$sdisableFields = $this->cal->disableFields($idStudy);
 		$sdisableCalculate = $this->cal->disableCalculate($idStudy);
 
-		$sdisableOptim = $sdisableNbOptim = $sdisableStorage = 0;
-		$sdisableTimeStep = $sdisablePrecision = 0;
-		$scheckOptim = $scheckStorage = 0;
-		$isBrainCalculator = 0;
+		$sdisableOptim = $sdisableNbOptim = $sdisableStorage = $sdisableTimeStep = $sdisablePrecision = $scheckOptim = $scheckStorage = $isBrainCalculator = 0;
 
 		if ($idStudyEquipment != null) {
 			$isBrainCalculator = 1;
@@ -224,8 +219,7 @@ class Calculator extends Controller
 	{
 		$input = $this->request->all();
 		
-		$idStudy = null;
-		$idStudyEquipment = null;
+		$idStudy = $idStudyEquipment = null;
 
 		if (isset($input['idStudy'])) $idStudy = intval($input['idStudy']);
 		if (isset($input['idStudyEquipment'])) $idStudyEquipment = intval($input['idStudyEquipment']);
@@ -381,8 +375,6 @@ class Calculator extends Controller
 		$sdisableFields = $this->cal->disableFields($idStudy);
 		
 		$sdisableTS = $sdisableTR = $sdisableTOC = $sdisableOptim = $sdisableNbOptim = $sdisableStorage = 0;
-		$sclassTS = $sclassTR = $sclassTOC = $sclassNbOptim = $sclassStorage = "";
-		
 		$scheckOptim = $scheckStorage = 0;
 
 		if ($sdisableFields == 0) {
@@ -1065,5 +1057,31 @@ class Calculator extends Controller
 		$ldMode = 13;
 
 		return $this->kernel->getKernelObject('BrainCalculator')->BRTeachCalculation($conf, $param, $ldMode);
+    }
+
+    public function getProgressBarStudyEquipment()
+    {
+    	$input = $this->request->all();
+    	$idStudy = null;
+    	$progress = array();
+    	$item = array();
+
+    	if (isset($input['idStudy'])) $idStudy = intval($input['idStudy']);
+
+    	$studyEquipments = StudyEquipment::where('ID_STUDY', $idStudy)->get();
+
+    	if (count($studyEquipments) > 0) {
+    		for ($i = 0; $i < count($studyEquipments); $i++) { 
+	    		$item['EQUIP_NAME'] = $studyEquipments[$i]->EQUIP_NAME;
+	    		$item['id'] = $i;
+	    		array_push($progress, $item);
+	    	}
+    	}
+    	
+    	$array = [
+    		'studyEquipments' => $progress,
+    	];
+
+    	return $array;
     }
 }
