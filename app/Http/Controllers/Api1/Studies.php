@@ -708,6 +708,32 @@ class Studies extends Controller
             $tempRecordPts = new TempRecordPts();
             $tempRecordPts->NB_STEPS = $tempRecordPtsDef->NB_STEPS_DEF;
             $tempRecordPts->ID_STUDY = $id;
+
+            $tempRecordPts->AXIS1_PT_TOP_SURF = $tempRecordPtsDef->AXIS1_PT_TOP_SURF_DEF;
+            $tempRecordPts->AXIS2_PT_TOP_SURF = $tempRecordPtsDef->AXIS2_PT_TOP_SURF_DEF;
+            $tempRecordPts->AXIS3_PT_TOP_SURF = $tempRecordPtsDef->AXIS3_PT_TOP_SURF_DEF;
+
+            $tempRecordPts->AXIS1_PT_INT_PT = $tempRecordPtsDef->AXIS1_PT_INT_PT_DEF;
+            $tempRecordPts->AXIS2_PT_INT_PT = $tempRecordPtsDef->AXIS2_PT_INT_PT_DEF;
+            $tempRecordPts->AXIS3_PT_INT_PT = $tempRecordPtsDef->AXIS3_PT_INT_PT_DEF;
+
+            $tempRecordPts->AXIS1_PT_BOT_SURF = $tempRecordPtsDef->AXIS1_PT_BOT_SURF_DEF;
+            $tempRecordPts->AXIS2_PT_BOT_SURF = $tempRecordPtsDef->AXIS2_PT_BOT_SURF_DEF;
+            $tempRecordPts->AXIS3_PT_BOT_SURF = $tempRecordPtsDef->AXIS3_PT_BOT_SURF_DEF;
+
+            $tempRecordPts->AXIS1_AX_2 = $tempRecordPtsDef->AXIS1_AX_2_DEF;
+            $tempRecordPts->AXIS1_AX_3 = $tempRecordPtsDef->AXIS1_AX_3_DEF;
+
+            $tempRecordPts->AXIS2_AX_3 = $tempRecordPtsDef->AXIS2_AX_3_DEF;
+            $tempRecordPts->AXIS2_AX_1 = $tempRecordPtsDef->AXIS2_AX_1_DEF;
+
+            $tempRecordPts->AXIS3_AX_1 = $tempRecordPtsDef->AXIS3_AX_1_DEF;
+            $tempRecordPts->AXIS3_AX_2 = $tempRecordPtsDef->AXIS3_AX_2_DEF;
+
+            $tempRecordPts->AXIS1_PL_2_3 = $tempRecordPtsDef->AXIS1_PL_2_3_DEF;
+            $tempRecordPts->AXIS2_PL_1_3 = $tempRecordPtsDef->AXIS2_PL_1_3_DEF;
+            $tempRecordPts->AXIS3_PL_1_2 = $tempRecordPtsDef->AXIS3_PL_1_2_DEF;
+
             $tempRecordPts->save();
         }
 
