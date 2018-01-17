@@ -70,3 +70,27 @@ $router->GET('/api/v1/referencedata/packing', 'Api1\\PackingElements@findRefPack
  * Output-Formats: [application/json]
  */
 $router->PUT('/api/v1/referencedata/packing', 'Api1\\PackingElements@newPacking');
+
+/**
+ * GET deletePacking
+ * Summary:
+ * Notes: delete Packing
+ * Output-Formats: [string]
+ */
+$router->DELETE('/api/v1/referencedata/packing/{id}', 'Api1\\PackingElements@deletePacking');
+
+/**
+ * POST updatePacking
+ * Summary:
+ * Notes: update PackingElmt
+ * Output-Formats: [number]
+ */
+$router->POST('/api/v1/referencedata/packing/{id}', 'Api1\\PackingElements@updatePacking');
+
+/**
+ * PUT save as packing
+ * Summary:
+ * Notes: save as packing
+ * Output-Formats: [application/json]
+ */
+$router->PUT('/api/v1/referencedata/packing/{id}', 'Api1\\PackingElements@saveAsPacking');
