@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api1;
 
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Response;
 use App\Models\MeshGeneration;
 use App\Models\Product;
 use App\Models\ProductElmt;
@@ -35,7 +36,6 @@ use App\Models\Report;
 use App\Models\EconomicResults;
 use App\Models\PipeGen;
 use App\Models\PipeRes;
-
 
 class Studies extends Controller
 {
@@ -222,7 +222,10 @@ class Studies extends Controller
         $duplicateStudy = Study::where('STUDY_NAME', '=', $input['name'])->count();
         if($duplicateStudy){
 
-            return 1002;
+            return response([
+                'code' => 1002,
+                'message' => 'Duplicate Study Name!'
+            ], 406);
         }
         
         if($studyCurrent != null) {
@@ -480,10 +483,13 @@ class Studies extends Controller
 
                 
 
-                return 1000;
+                return $study;
 
             } else {
-                return 1001;
+                return response([
+                    'code' => 1001,
+                    'message' => 'Unknown error!'
+                ], 406); // Status code here
             }
         } else {
             echo "Id study is null";
