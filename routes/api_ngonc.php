@@ -72,3 +72,11 @@ $router->GET('/api/v1/output/timeBased', 'Api1\\Output@timeBased');
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/output/productSection', 'Api1\\Output@productSection');
+
+/**
+ * PATCH saveTempRecordPts
+ * Summary: 
+ * Notes: get product section based chart data
+ * Output-Formats: [application/json]
+ */
+$router->PATCH('/api/v1/output/saveTempRecordPts', 'Api1\\Output@saveTempRecordPts');
