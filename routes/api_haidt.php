@@ -40,14 +40,6 @@ $router->POST('/api/v1/admin/users/{id}', 'Api1\\Admin@updateUser');
 $router->DELETE('/api/v1/admin/users/{id}', 'Api1\\Admin@deleteUser');
 
 /**
- * GET getConnectionUsers
- * Summary:
- * Notes: get list connection user
- * Output-Formats: [application/json]
- */
-$router->GET('/api/v1/admin/connections/users', 'Api1\\Admin@loadConnectUsers');
-
-/**
  * POST disconnectUser
  * Summary:
  * Notes: disconnect User
@@ -56,11 +48,25 @@ $router->GET('/api/v1/admin/connections/users', 'Api1\\Admin@loadConnectUsers');
 $router->POST('/api/v1/admin/connections/{id}', 'Api1\\Admin@disconnectUser');
 
 /**
- * POST disconnectUser
+ * GET disconnectUser
  * Summary:
  * Notes: disconnect User
  * Output-Formats: [number]
  */
 $router->GET('/api/v1/admin/connections', 'Api1\\Admin@loadConnections');
 
+/**
+ * GET findRefPackingElmt
+ * Summary:
+ * Notes: get packing elmt
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/referencedata/packing', 'Api1\\PackingElements@findRefPackingElmt');
 
+/**
+ * PUT add packing
+ * Summary:
+ * Notes: add packing
+ * Output-Formats: [application/json]
+ */
+$router->PUT('/api/v1/referencedata/packing', 'Api1\\PackingElements@newPacking');
