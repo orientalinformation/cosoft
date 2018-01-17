@@ -19,6 +19,7 @@ use Illuminate\Contracts\Auth\Factory as Auth;
 use App\Kernel\KernelService;
 use App\Cryosoft\UnitsConverterService;
 use App\Cryosoft\ValueListService;
+use App\Cryosoft\LineService;
 use App\Models\MinMax;
 use App\Models\PrecalcLdgRatePrm;
 use App\Models\LayoutGeneration;
@@ -71,13 +72,14 @@ class Studies extends Controller
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth, KernelService $kernel, UnitsConverterService $convert, ValueListService $value)
+    public function __construct(Request $request, Auth $auth, KernelService $kernel, UnitsConverterService $convert, ValueListService $value, LineService $line)
     {
         $this->request = $request;
         $this->auth = $auth;
         $this->kernel = $kernel;
         $this->convert = $convert;
         $this->value = $value;
+        $this->line = $line;
     }
 
     public function findStudies()
@@ -492,7 +494,10 @@ class Studies extends Controller
                 ], 406); // Status code here
             }
         } else {
-            echo "Id study is null";
+           return response([
+                    'code' => 1003,
+                    'message' => 'Study id not found'
+                ], 406); // Status code here
         }
 
     }
@@ -1342,5 +1347,23 @@ class Studies extends Controller
         }
 
         return $tfMesh;
+    }
+
+    public function loadPipeline($id) {
+        $idIsolation = 5;
+        $diameter = 0.0;
+        $idPipeGen = 0;
+        $studyID = Study::find($id);
+        $studyEquip = StudyEquipment::where('ID_STUDY', $studyID->ID_STUDY)->get();
+        $pipegen = $this->line->loadPipeline($studyID);
+        if($pipegen != null) {
+            $listLineDefinition = $this->line->getListLineDefinition($pipegen->ID_PIPE_GEN);
+        }
+        $idCoolingFamily = $this->line->getIdCoolingFamily($studyID);
+        $listLineDiametre = $this->line->linegetListLineDiametre($idCoolingFamily, $idIsolation);
+        $userCurr = Study::where('ID_USER', '!=', $this->auth->user()->ID_USER)->get();
+
+        $storageTank = $this->line->getComboLineElmt((short) 7, l, $idCoolingFamily, $idIsolation(), $diameter, $userCurr, $studyID, $this->line->getListLineDefinition($idPipeGen), getUserPrivateData().getUserBundle());
+
     }
 }

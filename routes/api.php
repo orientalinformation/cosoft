@@ -454,6 +454,22 @@ $router->POST('/api/v1/startcalculate', 'Api1\\Calculator@startCalculate');
  */
 $router->GET('/api/v1/studies/{id}/calculate', 'Api1\\Calculator@startStudyCalculation');
 
+/**
+ * GET findLines
+ * Summary: 
+ * Notes: Get a list of line
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/studies/{id}/getListLine', 'Api1\\Studies@loadPipeline');
+
+/**
+ * PUT createLine
+ * Summary: 
+ * Notes: 
+ * Output-Formats: [application/json]
+ */
+$router->PUT('/api/v1/lines', 'Api1\\Lines@createLine');
+
 
 include_once("api_ngonc.php");
 include_once("api_dongtp.php");
