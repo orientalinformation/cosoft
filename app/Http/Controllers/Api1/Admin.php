@@ -71,7 +71,7 @@ class Admin extends Controller
 
 		$tempRecordDef = new TempRecordPtsDef();
 
-		$users = $this->getUsers();
+		$users = User::all();
 
 		for ($i = 0; $i < count($users); $i++) { 
 			if (strtoupper($users[$i]->USERNAM) == strtoupper($username)) {
@@ -168,9 +168,14 @@ class Admin extends Controller
 
 	public function getUsers()
 	{
-		$users = User::where('USERPRIO', '<>', 0)->orderBy('USERNAM', 'ASC')->get();
+		$idUserLogon = $this->auth->user()->ID_USER;
+		$offline = User::where('USERPRIO', '<>', 0)->orderBy('USERNAM', 'ASC')->get();
 		
-		return $users;
+		$online = Connection::where('DATE_CONNECTION', '<>', null)
+			->where('DATE_DISCONNECTION', null)
+			->where('ID_USER', '<>', $idUserLogon)->get();
+		
+		return compact('online', 'offline');
 	}
 
 	public function getMinMax($limitItem) 
@@ -202,17 +207,6 @@ class Admin extends Controller
 			$userUnit->ID_UNIT = $defaultUnits[$i]->ID_UNIT;
 			$userUnit->save();
 		}
-	}
-
-	public function loadConnectUsers() 
-	{
-		$idUserLogon = $this->auth->user()->ID_USER;
-		$listConnect = Connection::with('User')->where('DATE_CONNECTION', '<>', null)
-		->where('DATE_DISCONNECTION', null)
-		->where('ID_USER', '<>', $idUserLogon)
-		->get();
-
-		return $listConnect;
 	}
 
 	public function deleteUser($idUser) 
