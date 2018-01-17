@@ -445,4 +445,21 @@ class OutputService
 
         return $result;
     }
+
+    public function mixRange($color1, $color2, $MIN = 1, $MAX = 10)
+    {
+        $range = rand($MIN, $MAX);
+     
+        $r = hexdec(substr($color1,0,2));
+        $g = hexdec(substr($color1,2,2));
+        $b = hexdec(substr($color1,4,2));
+         
+        $gr = (hexdec(substr($color2,0,2))-$r)/$MAX; //Graduation Size Red
+        $gg = (hexdec(substr($color2,2,2))-$g)/$MAX;
+        $gb = (hexdec(substr($color2,4,2))-$b)/$MAX;
+         
+        return str_pad(dechex($r+($gr*$range)),2,'0',STR_PAD_LEFT) .
+            str_pad(dechex($g+($gg*$range)),2,'0',STR_PAD_LEFT) .
+            str_pad(dechex($b+($gb*$range)),2,'0',STR_PAD_LEFT);
+    }
 }
