@@ -57,15 +57,13 @@ class LineService
         	$query = LineElmt::where('ELT_TYPE', $elt_type)
         	->where('ID_COOLING_FAMILY', $idCoolingFamily)
         	->where('INSULATION_TYPE', $idIsolation)
-        	->where('ELT_SIZE', ($typeElmt != 7 ? $diameter : 'ELT_SIZE')
+        	->where('ELT_SIZE', ($typeElmt != 7 ? $diameter : 'ELT_SIZE'))
             ->where('ELT_IMP_ID_STUDY', $idStudy)->orWhere('ELT_IMP_ID_STUDY', 0)
             ->whereRaw("(LINE_RELEASE = 3 OR LINE_RELEASE = 4 OR (LINE_RELEASE = 2) AND (ID_USER = $id_user))")
             ->get();
 		}
         return $query;
          
-         
-        }
     }
 	
 	public function getIdCoolingFamily($idStudy) {
