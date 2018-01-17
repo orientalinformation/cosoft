@@ -71,3 +71,19 @@ $router->GET('/api/v1/calculator/brainoptim', 'Api1\\Calculator@getBrainOptim');
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/calculator/progressbar', 'Api1\\Calculator@getProgressBarStudyEquipment');
+
+/**
+ * GET optimumcalculator
+ * Summary: 
+ * Notes: get head balance result/products/{id}/packingLayers
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/calculator/optimumcalculator', 'Api1\\Calculator@getOptimumCalculator');
+
+/**
+ * POST start caluclate
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/calculator/startcalculate', 'Api1\\Calculator@startCalculate');
