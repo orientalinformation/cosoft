@@ -648,13 +648,13 @@ class Calculator extends Controller
     {
     	$input = $request->all();
 
-    	$checkOptim = $epsilonTemp = $epsilonEnth = $epsilonTemp = $epsilonEnth = $scheckStorage = null;
+    	$checkOptim = $epsilonTemp = $epsilonEnth = $epsilonTemp = $epsilonEnth = $scheckStorage = $sdisableOptim = null;
 
 		$timeStep = 1.0;
 		$precision = 0.5;
 		$storagestep = $relaxCoef = 0.0;
 		$hRadioOn = 1;
-		$vRadioOn = $tempPtSurf = $tempPtIn = $tempPtBot = $tempPtAvg = 0;
+		$vRadioOn = $tempPtSurf = $tempPtIn = $tempPtBot = $tempPtAvg = $nbOptimIter = 0;
 		$maxIter = 100;
 
     	if (isset($input['checkOptim'])) $checkOptim = intval($input['checkOptim']);
@@ -672,13 +672,15 @@ class Calculator extends Controller
 		if (isset($input['tempPtIn'])) $tempPtIn = $input['tempPtIn'];
 		if (isset($input['tempPtBot'])) $tempPtBot = $input['tempPtBot'];
 		if (isset($input['tempPtAvg'])) $tempPtAvg = $input['tempPtAvg'];
+		if (isset($input['nbOptimIter'])) $nbOptimIter = intval($input['nbOptimIter']);
+		if (isset($input['sdisableOptim'])) $sdisableOptim = intval($input['sdisableOptim']);
 
 		$calculationParameter = CalculationParameter::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
 
 		if ($checkOptim == 1) {
 			$minMaxOptim = $this->brainCal->getMinMax(1130);
-			if ($scheckStorage == 1) {
-				$calculationParameter->NB_OPTIM = $checkOptim;
+			if ($sdisableOptim == 1) {
+				$calculationParameter->NB_OPTIM = $nbOptimIter;
 			} else {
 				$calculationParameter->NB_OPTIM = intval($minMaxOptim->DEFAULT_VALUE);
 			}
