@@ -72,14 +72,14 @@ class Studies extends Controller
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth, KernelService $kernel, UnitsConverterService $convert, ValueListService $value, LineService $line)
+    public function __construct(Request $request, Auth $auth, KernelService $kernel, UnitsConverterService $convert, ValueListService $value, LineService $lineE)
     {
         $this->request = $request;
         $this->auth = $auth;
         $this->kernel = $kernel;
         $this->convert = $convert;
         $this->value = $value;
-        $this->line = $line;
+        $this->lineE = $lineE;
     }
 
     public function findStudies()
@@ -1386,17 +1386,47 @@ class Studies extends Controller
         $idIsolation = 5;
         $diameter = 0.0;
         $idPipeGen = 0;
-        $studyID = Study::find($id);
-        $studyEquip = StudyEquipment::where('ID_STUDY', $studyID->ID_STUDY)->get();
-        $pipegen = $this->line->loadPipeline($studyID);
+        $insulatedLineLength = 0.0;
+        $nonInsulatedLineLength = 0.0;
+        $elbowsQuantity = 0;
+        $teesQuantity = 0;
+        $insulatedValvesQuantity = 0;
+        $nonInsulatedValvesQuantity = 0;
+        $storageTank = "";
+        $storageTankCapacity = 0;
+        $height = 0.0;
+        $pressure = 0.0;
+        $gasTemperature = 0.0;
+
+        // $studyCurr = Study::find($id);
+        // $studyEquip = StudyEquipment::where('ID_STUDY', $id)->get();
+        $pipegen = $this->lineE->loadPipeline($id);
+
         if($pipegen != null) {
-            $listLineDefinition = $this->line->getListLineDefinition($pipegen->ID_PIPE_GEN);
+            $listLineDefinition = $this->lineE->getListLineDefinition($pipegen->ID_PIPE_GEN);
         }
-        $idCoolingFamily = $this->line->getIdCoolingFamily($studyID);
-        $listLineDiametre = $this->line->linegetListLineDiametre($idCoolingFamily, $idIsolation);
-        $userCurr = Study::where('ID_USER', '!=', $this->auth->user()->ID_USER)->get();
 
-        $storageTank = $this->line->getComboLineElmt((short) 7, l, $idCoolingFamily, $idIsolation(), $diameter, $userCurr, $studyID, $this->line->getListLineDefinition($idPipeGen), getUserPrivateData().getUserBundle());
+        $idCoolingFamily = $this->lineE->getIdCoolingFamily($id);
+        $listLineDiametre = $this->lineE->linegetListLineDiametre($idCoolingFamily, $idIsolation);
+        $userCurr = LineElmt::where('ID_USER', '!=', $this->auth->user()->ID_USER)->get();
 
+        $storageTank = $this->line->getComboLineElmt(7, $idCoolingFamily, $idIsolation, $diameter, $userCurr, $studyCurr, 
+            $this->line->getListLineDefinition($idPipeGen));
+
+        if($pipegen !=  null) {
+            $idPipeGen = $pipegen->ID_PIPE_GEN;
+            $insulatedLineLength = $pipegen->INSULLINE_LENGHT;
+            $nonInsulatedLineLength = $pipegen->NOINSULLINE_LENGHT;
+            $elbowsQuantity = $pipegen->ELBOWS;
+            $teesQuantity = $pipegen->TEES;
+            $insulatedValvesQuantity = $pipegen->INSUL_VALVES;
+            $nonInsulatedValvesQuantity = $pipegen->NOINSUL_VALVES;
+            $height = $pipegen->HEIGHT;
+            $pressure = $pipegen->PRESSURE;
+            $gasTemperature = $pipegen->GAS_TEMP;
+            $storageTankCapacity = $pipegen->FLUID;
+        }
+
+        return $pipegen;
     }
 }

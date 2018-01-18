@@ -10,14 +10,27 @@
  **All rights reserved.
  ****************************************************************************/
 namespace App\Cryosoft;
+
 use App\Models\Study;
-use App\Models\StudyEquipments;
+use App\Models\User;
+use App\Models\StudyEquipment;
 use App\Models\LineElmt;
 use App\Models\LineDefinition;
 use App\Models\PipeGen;
+use App\Models\Translation;
+use App\Cryosoft\ValueListService;
+use App\Cryosoft\UnitsConverterService;
 
 class LineService 
 {
+    public function __construct(\Laravel\Lumen\Application $app)
+    {
+        $this->app = $app;
+        $this->auth = $app['Illuminate\\Contracts\\Auth\\Factory'];
+        $this->value = $app['App\\Cryosoft\\ValueListService'];
+        $this->unit = $app['App\\Cryosoft\\UnitsConverterService'];
+    }
+
 	public function queryListLineElmtFromType($typeElmt, $idCoolingFamily, $idIsolation, 
 		$diameter, $id_user, $idStudy) {
 		$elt_type = -1;
@@ -55,7 +68,7 @@ class LineService
         }
 
         if ($elt_type > 0) {
-        	$query = LineElmt::where('ELT_TYPE', $elt_type)
+        	$lineElmt = LineElmt::where('ELT_TYPE', $elt_type)
         	->where('ID_COOLING_FAMILY', $idCoolingFamily)
         	->where('INSULATION_TYPE', $idIsolation)
         	->where('ELT_SIZE', (($typeElmt != 7) ? $diameter : 'ELT_SIZE'))
@@ -63,12 +76,13 @@ class LineService
             ->whereRaw("(LINE_RELEASE = 3 OR LINE_RELEASE = 4 OR (LINE_RELEASE = 2 AND (ID_USER = $id_user)))")
             ->get();
 		}
-        return $query;
+        return $lineElmt;
          
     }
 
     public function loadPipeline($idStudy) {
-        $studyEquip = StudyEquipments::where('ID_STUDY', $idStudy)->orderBy('ID_STUDY_EQUIPMENTS', '')->first();
+        $pipe = "";
+        $studyEquip = StudyEquipment::where('ID_STUDY', $idStudy)->first();
         if(count($studyEquip) > 0) {
             $pipe = PipeGen::Where('ID_STUDY_EQUIPMENTS', $studyEquip->ID_STUDY_EQUIPMENTS)->first();
         }
@@ -77,7 +91,7 @@ class LineService
     }
 	
 	public function getIdCoolingFamily($idStudy) {
-        $studyEquipCurr = StudyEquipments::where('ID_STUDY', $idStudy)->first();
+        $studyEquipCurr = StudyEquipment::where('ID_STUDY', $idStudy)->first();
         return $studyEquipCurr->ID_COOLING_FAMILY;
 	}
 
@@ -89,17 +103,19 @@ class LineService
 	}
 
 	public function getListLineDefinition($idPipegen) {
-		$pipeGen = LineDefinition::where('ID_PIPE_GEN', $idPipegen)->get();
-        return $pipeGen;
+		$pipeDefinition = LineDefinition::where('ID_PIPE_GEN', $idPipegen)->get();
+        var_dump($pipeDefinition);die;
+        return $pipeDefinition;
 	}
 
-	public function getComboLineElmt($typeElmt, $lang, $idCoolingFamily, 
-		$idIsolation, $diameter, $id_user, $idStudy) {
-        $UnnamedObjectQuery= $this.queryListLineElmtFromType($typeElmt, $idCoolingFamily, $idIsolation, 
+	public function getComboLineElmt($typeElmt, $idCoolingFamily, $idIsolation, $diameter, 
+        $id_user, $idStudy, $lineDefi) {
+        $idLineElmt = 0;
+        $lineOjb = $this->queryListLineElmtFromType($typeElmt, $idCoolingFamily, $idIsolation, 
         $diameter, $id_user, $idStudy);
-
 	}
 
+}
     
 
 
