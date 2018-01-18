@@ -1731,8 +1731,18 @@ class Output extends Controller
         $idStudyEquipment = $input['ID_STUDY_EQUIPMENTS'];
         $selectedAxe = $input['AXE'];
         $nbSteps = $input['NB_STEPS'];
-        if (empty($nbSteps)) return 1001;
-        if (!is_numeric($nbSteps) || $nbSteps < 0) return 1002;
+        if (empty($nbSteps)) {
+            return response([
+                'code' => 1000,
+                'message' => 'Enter a value in Curve Number !'
+            ], 406);
+        }
+        if (!is_numeric($nbSteps) || $nbSteps < 0) {
+            return response([
+                'code' => 1001,
+                'message' => 'Not a valid number in Curve Number !'
+            ], 406);
+        }
         $tempRecordPts =  TempRecordPts::where('ID_STUDY', $idStudy)->first();
         $tempRecordPts->NB_STEPS = $nbSteps;
         $tempRecordPts->save();
