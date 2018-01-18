@@ -1721,7 +1721,7 @@ class Output extends Controller
         $result["resultValue"] = $resultValue;
 
 
-        return compact("axeTempRecordData", "axeTemp", "dataChart", "resultLabel", "result");
+        return compact("axeTemp", "dataChart", "resultLabel", "result");
     }
 
     public function saveTempRecordPts()
@@ -1809,6 +1809,7 @@ class Output extends Controller
             if (count($tempRecordData) > 0) {
                 foreach ($tempRecordData as $row) {
                     $item[] = $this->unit->prodTemperature($row->TEMP);
+
                     switch ($selectedAxe) {
                         case 1:
                             if (($shape == 1) || ($shape == 2 && $orientation == 1) && ($shape == 9 && $orientation == 1)) {
@@ -1818,6 +1819,34 @@ class Output extends Controller
                             } else {
                                 $recAxisValue = $row->REC_AXIS_X_POS;
                             }
+
+                            switch ($shape) {
+                                case 1:
+                                case 6:
+                                    $meshAxisValue = "";
+                                    break;
+
+                                case 2:
+                                case 9:
+                                    if ($orientation == 1) {
+                                        $meshAxisValue = $this->output->getAxisForPosition2($idStudy, $row->REC_AXIS_Z_POS, $selectedAxe);
+                                    } else {
+                                        $meshAxisValue = $this->output->getAxisForPosition2($idStudy, $row->REC_AXIS_X_POS, $selectedAxe);
+                                    }
+                                    break;
+
+                                case 3:
+                                case 5:
+                                case 7:
+                                    $meshAxisValue = $this->output->getAxisForPosition2($idStudy, $row->REC_AXIS_Y_POS, $selectedAxe);
+                                    break;
+
+                                case 4:
+                                case 8:
+                                    $meshAxisValue = $this->output->getAxisForPosition2($idStudy, $row->REC_AXIS_X_POS, $selectedAxe);
+                                    break;
+                            }
+
                             break;
 
                         case 2:
@@ -1826,6 +1855,25 @@ class Output extends Controller
                             } else {
                                 $recAxisValue = $row->REC_AXIS_X_POS;
                             }
+
+                            switch ($shape) {
+                                case 1:
+                                case 2:
+                                case 4:
+                                case 6:
+                                case 8:
+                                case 9:
+                                    $meshAxisValue = $this->output->getAxisForPosition2($idStudy, $row->REC_AXIS_Y_POS, $selectedAxe);
+                                    break;
+
+                                case 3:
+                                case 5:
+                                case 7:
+                                    $meshAxisValue = $this->output->getAxisForPosition2($idStudy, $row->REC_AXIS_X_POS, $selectedAxe);
+                                    break;
+
+                            }
+
                             break;
 
                         case 3:
@@ -1834,15 +1882,26 @@ class Output extends Controller
                             } else {
                                 $recAxisValue = $row->REC_AXIS_Z_POS;
                             }
+
+                            if (($orientation == 0) && ($shape == 2 || $shape == 9)) {
+                                $meshAxisValue = $this->output->getAxisForPosition2($idStudy, $row->REC_AXIS_Z_POS, $selectedAxe);
+                            } else if ($shape == 3) {
+                                $meshAxisValue = $this->output->getAxisForPosition2($idStudy, $row->REC_AXIS_Z_POS, $selectedAxe);
+                            } else {
+                                $meshAxisValue = $this->output->getAxisForPosition2($idStudy, $row->REC_AXIS_X_POS, $selectedAxe);
+                            }
+
+
                             break;
                     }
+                    
+                    $recAxis[] = $recAxisValue;
+                    $mesAxis[] = $meshAxisValue;
+                    $meshPoints = MeshPosition::select('MESH_AXIS_POS')->where('ID_STUDY', $idStudy)->where('MESH_AXIS', $selectedAxe)->orderBy('MESH_AXIS_POS')->first();
                     $itemDataChart[] = [
                         "x" => $this->unit->prodTemperature($row->TEMP),
-                        "y" => $recAxisValue
+                        "y" => $meshAxisValue
                     ];
-                    $recAxis[] = $recAxisValue;
-                    $mesAxis[] = $this->output->getAxisForPosition2($idStudy, $recAxisValue, $selectedAxe);
-                    $meshPoints = MeshPosition::select('MESH_AXIS_POS')->where('ID_STUDY', $idStudy)->where('MESH_AXIS', $selectedAxe)->orderBy('MESH_AXIS_POS')->first();
                 }
             }
 
