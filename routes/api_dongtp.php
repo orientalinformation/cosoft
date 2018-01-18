@@ -87,3 +87,11 @@ $router->GET('/api/v1/calculator/optimumcalculator', 'Api1\\Calculator@getOptimu
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/calculator/startcalculate', 'Api1\\Calculator@startCalculate');
+
+/**
+ * GET Data family
+ * Summary: 
+ * Notes: get head balance result/products/{id}/packingLayers
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/referencedata/component', 'Api1\\ReferenceData@getDataComponent');
