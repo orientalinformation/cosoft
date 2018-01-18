@@ -548,30 +548,33 @@ class Studies extends Controller
             $tempRecordPts->NB_STEPS = $tempRecordPtsDef->NB_STEPS_DEF;
             $tempRecordPts->ID_STUDY = $id;
 
-            $tempRecordPts->AXIS1_PT_TOP_SURF = $tempRecordPtsDef->AXIS1_PT_TOP_SURF_DEF;
-            $tempRecordPts->AXIS2_PT_TOP_SURF = $tempRecordPtsDef->AXIS2_PT_TOP_SURF_DEF;
-            $tempRecordPts->AXIS3_PT_TOP_SURF = $tempRecordPtsDef->AXIS3_PT_TOP_SURF_DEF;
+            $tempRecordPts->AXIS1_PT_TOP_SURF = 0;
+            $tempRecordPts->AXIS2_PT_TOP_SURF = 0;
+            $tempRecordPts->AXIS3_PT_TOP_SURF = 0;
 
-            $tempRecordPts->AXIS1_PT_INT_PT = $tempRecordPtsDef->AXIS1_PT_INT_PT_DEF;
-            $tempRecordPts->AXIS2_PT_INT_PT = $tempRecordPtsDef->AXIS2_PT_INT_PT_DEF;
-            $tempRecordPts->AXIS3_PT_INT_PT = $tempRecordPtsDef->AXIS3_PT_INT_PT_DEF;
+            $tempRecordPts->AXIS1_PT_INT_PT = 0;
+            $tempRecordPts->AXIS2_PT_INT_PT = 0;
+            $tempRecordPts->AXIS3_PT_INT_PT = 0;
 
-            $tempRecordPts->AXIS1_PT_BOT_SURF = $tempRecordPtsDef->AXIS1_PT_BOT_SURF_DEF;
-            $tempRecordPts->AXIS2_PT_BOT_SURF = $tempRecordPtsDef->AXIS2_PT_BOT_SURF_DEF;
-            $tempRecordPts->AXIS3_PT_BOT_SURF = $tempRecordPtsDef->AXIS3_PT_BOT_SURF_DEF;
+            $tempRecordPts->AXIS1_PT_BOT_SURF = 0;
+            $tempRecordPts->AXIS2_PT_BOT_SURF = 0;
+            $tempRecordPts->AXIS3_PT_BOT_SURF = 0;
 
-            $tempRecordPts->AXIS1_AX_2 = $tempRecordPtsDef->AXIS1_AX_2_DEF;
-            $tempRecordPts->AXIS1_AX_3 = $tempRecordPtsDef->AXIS1_AX_3_DEF;
+            $tempRecordPts->AXIS1_AX_2 = 0;
+            $tempRecordPts->AXIS1_AX_3 = 0;
 
-            $tempRecordPts->AXIS2_AX_3 = $tempRecordPtsDef->AXIS2_AX_3_DEF;
-            $tempRecordPts->AXIS2_AX_1 = $tempRecordPtsDef->AXIS2_AX_1_DEF;
+            $tempRecordPts->AXIS2_AX_3 = 0;
+            $tempRecordPts->AXIS2_AX_1 = 0;
 
-            $tempRecordPts->AXIS3_AX_1 = $tempRecordPtsDef->AXIS3_AX_1_DEF;
-            $tempRecordPts->AXIS3_AX_2 = $tempRecordPtsDef->AXIS3_AX_2_DEF;
+            $tempRecordPts->AXIS3_AX_1 = 0;
+            $tempRecordPts->AXIS3_AX_2 = 0;
 
-            $tempRecordPts->AXIS1_PL_2_3 = $tempRecordPtsDef->AXIS1_PL_2_3_DEF;
-            $tempRecordPts->AXIS2_PL_1_3 = $tempRecordPtsDef->AXIS2_PL_1_3_DEF;
-            $tempRecordPts->AXIS3_PL_1_2 = $tempRecordPtsDef->AXIS3_PL_1_2_DEF;
+            $tempRecordPts->AXIS1_PL_2_3 = 0;
+            $tempRecordPts->AXIS2_PL_1_3 = 0;
+            $tempRecordPts->AXIS3_PL_1_2 = 0;
+
+            $tempRecordPts->CONTOUR2D_TEMP_MIN = 0;
+            $tempRecordPts->CONTOUR2D_TEMP_MAX = 0;
 
             $tempRecordPts->save();
         }
@@ -846,6 +849,7 @@ class Studies extends Controller
         $study->CHAINING_NODE_DECIM_ENABLE = 0;
         $study->HAS_CHILD = 0;
         $study->TO_RECALCULATE = 0;
+        $study->ID_REPORT = 0;
         $study->save();
 
         $nbMF 					= (float) MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_DAILY_STARTUP)->first()->DEFAULT_VALUE;
@@ -889,6 +893,35 @@ class Studies extends Controller
         $tempRecordPtsDef = TempRecordPtsDef::where('ID_USER', $this->auth->user()->ID_USER)->first();
         $tempRecordPts->ID_STUDY = $study->ID_STUDY;
         $tempRecordPts->NB_STEPS = $tempRecordPtsDef->NB_STEPS_DEF;
+
+        $tempRecordPts->AXIS1_PT_TOP_SURF = 0;
+        $tempRecordPts->AXIS2_PT_TOP_SURF = 0;
+        $tempRecordPts->AXIS3_PT_TOP_SURF = 0;
+
+        $tempRecordPts->AXIS1_PT_INT_PT = 0;
+        $tempRecordPts->AXIS2_PT_INT_PT = 0;
+        $tempRecordPts->AXIS3_PT_INT_PT = 0;
+
+        $tempRecordPts->AXIS1_PT_BOT_SURF = 0;
+        $tempRecordPts->AXIS2_PT_BOT_SURF = 0;
+        $tempRecordPts->AXIS3_PT_BOT_SURF = 0;
+
+        $tempRecordPts->AXIS1_AX_2 = 0;
+        $tempRecordPts->AXIS1_AX_3 = 0;
+
+        $tempRecordPts->AXIS2_AX_3 = 0;
+        $tempRecordPts->AXIS2_AX_1 = 0;
+
+        $tempRecordPts->AXIS3_AX_1 = 0;
+        $tempRecordPts->AXIS3_AX_2 = 0;
+
+        $tempRecordPts->AXIS1_PL_2_3 = 0;
+        $tempRecordPts->AXIS2_PL_1_3 = 0;
+        $tempRecordPts->AXIS3_PL_1_2 = 0;
+
+        $tempRecordPts->CONTOUR2D_TEMP_MIN = 0;
+        $tempRecordPts->CONTOUR2D_TEMP_MAX = 0;
+
         $tempRecordPts->save();
 
         $study->ID_PROD = $product->ID_PROD;

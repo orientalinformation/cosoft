@@ -1588,6 +1588,7 @@ class Output extends Controller
         $lfTS = $listRecordPos[$nbRecord - 1]->RECORD_TIME;
         $lfStep = $listRecordPos[1]->RECORD_TIME - $listRecordPos[0]->RECORD_TIME;
         $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
+        $dataChart = [];
         // return $axeTempRecordData;
 
         foreach ($lEchantillon as $row) {
@@ -1600,9 +1601,12 @@ class Output extends Controller
             $item = [];
             $recAxis = [];
             $mesAxis = [];
+            $itemDataChart = [];
+            
             if (count($tempRecordData) > 0) {
                 foreach ($tempRecordData as $row) {
                     $item[] = $this->unit->prodTemperature($row->TEMP);
+
                     switch ($selectedAxe) {
                         case 1:
                             if (($shape == 1) || ($shape == 2 && $orientation == 1) && ($shape == 9 && $orientation == 1)) {
@@ -1630,11 +1634,17 @@ class Output extends Controller
                             }
                             break;
                     }
+                    $itemDataChart[] = [
+                        "x" => $this->unit->prodTemperature($row->TEMP),
+                        "y" => $recAxisValue
+                    ];
                     $recAxis[] = $recAxisValue;
                     $mesAxis[] = $this->output->getAxisForPosition2($idStudy, $recAxisValue, $selectedAxe);
                     $meshPoints = MeshPosition::select('MESH_AXIS_POS')->where('ID_STUDY', $idStudy)->where('MESH_AXIS', $selectedAxe)->orderBy('MESH_AXIS_POS')->first();
                 }
             }
+
+            $dataChart[] = $itemDataChart;
 
             $resultLabel[] = $itemResult["x"];
             $resultTemperature[] = $item;
@@ -1653,16 +1663,12 @@ class Output extends Controller
         $result["resultValue"] = $resultValue;
 
 
-        return compact("axeTemp", "resultLabel", "result");
+        return compact("axeTemp", "dataChart", "resultLabel", "result");
     }
 
     public function saveTempRecordPts()
     {
         $input = $this->request->all();
-        /*$idStudy = $this->request->input('idStudy');
-        $idStudyEquipment = $this->request->input('idStudyEquipment');
-        $selectedAxe = $this->request->input('selectedAxe');
-        $nbSteps = $this->request->input('nbsteps');*/
         $idStudy = $input['ID_STUDY'];
         $idStudyEquipment = $input['ID_STUDY_EQUIPMENTS'];
         $selectedAxe = $input['AXE'];
@@ -1731,6 +1737,7 @@ class Output extends Controller
             $item = [];
             $recAxis = [];
             $mesAxis = [];
+            $itemDataChart = [];
             if (count($tempRecordData) > 0) {
                 foreach ($tempRecordData as $row) {
                     $item[] = $this->unit->prodTemperature($row->TEMP);
@@ -1761,12 +1768,17 @@ class Output extends Controller
                             }
                             break;
                     }
+                    $itemDataChart[] = [
+                        "x" => $this->unit->prodTemperature($row->TEMP),
+                        "y" => $recAxisValue
+                    ];
                     $recAxis[] = $recAxisValue;
                     $mesAxis[] = $this->output->getAxisForPosition2($idStudy, $recAxisValue, $selectedAxe);
                     $meshPoints = MeshPosition::select('MESH_AXIS_POS')->where('ID_STUDY', $idStudy)->where('MESH_AXIS', $selectedAxe)->orderBy('MESH_AXIS_POS')->first();
                 }
             }
 
+            $dataChart[] = $itemDataChart;
             $resultLabel[] = $itemResult["x"];
             $resultTemperature[] = $item;
         }
@@ -1780,10 +1792,12 @@ class Output extends Controller
             }
         }
 
+        $mixRange = $this->output->mixRange('rgb(0,0,255)', 'rgb(0,255,0)');
+
         $result["recAxis"] = $recAxis;
         $result["mesAxis"] = $mesAxis;
         $result["resultValue"] = $resultValue;
 
-        return compact("axeTemp", "resultLabel", "result");
+        return compact("axeTemp", "dataChart", "resultTemperature", "resultLabel", "result");
     }
 }
