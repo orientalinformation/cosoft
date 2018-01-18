@@ -94,3 +94,27 @@ $router->POST('/api/v1/referencedata/packing/{id}', 'Api1\\PackingElements@updat
  * Output-Formats: [application/json]
  */
 $router->PUT('/api/v1/referencedata/packing/{id}', 'Api1\\PackingElements@saveAsPacking');
+
+/**
+ * GET findRefLineElmt
+ * Summary:
+ * Notes: get line elmt
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/referencedata/pipeline', 'Api1\\PipeLine@findRefPipeline');
+
+/**
+ * GET getListLineType
+ * Summary:
+ * Notes: get list line type
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/translation/linetype', 'Api1\\PipeLine@getListLineType');
+
+/**
+ * GET getListLineType
+ * Summary:
+ * Notes: get list line type
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/translation/energies', 'Api1\\PipeLine@getListEnergies');

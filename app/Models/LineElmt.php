@@ -71,13 +71,15 @@ class LineElmt extends Model
         'ID_USER'
     ];
 
+     * @var string
+     */
+    protected $dateFormat = 'Y-m-d H:i:s.u';
     /**
      * Indicates if the model should be timestamped.
      * 
      * @var bool
      */
     public $timestamps = false;
-
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
