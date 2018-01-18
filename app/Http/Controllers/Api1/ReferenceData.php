@@ -30,7 +30,7 @@ class ReferenceData extends Controller
         $this->auth = $auth;
     }
 
-    public function getComponentFamilyTranslations($transType)
+    public function getFamilyTranslations($transType)
     {
         $translations = Translation::where('TRANS_TYPE', $transType)
             ->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
@@ -41,5 +41,15 @@ class ReferenceData extends Controller
         }
         
         return $translations;
+    }
+
+    public function getDataComponent()
+    {
+        $productFamily = $this->getFamilyTranslations(14);
+        $array = [
+            'productFamily' => $productFamily,
+        ];
+
+        return $array;
     }
 }
