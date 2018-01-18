@@ -14,6 +14,7 @@ use App\Models\Study;
 use App\Models\StudyEquipments;
 use App\Models\LineElmt;
 use App\Models\LineDefinition;
+use App\Models\PipeGen;
 
 class LineService 
 {
@@ -57,13 +58,22 @@ class LineService
         	$query = LineElmt::where('ELT_TYPE', $elt_type)
         	->where('ID_COOLING_FAMILY', $idCoolingFamily)
         	->where('INSULATION_TYPE', $idIsolation)
-        	->where('ELT_SIZE', ($typeElmt != 7 ? $diameter : 'ELT_SIZE'))
+        	->where('ELT_SIZE', (($typeElmt != 7) ? $diameter : 'ELT_SIZE'))
             ->where('ELT_IMP_ID_STUDY', $idStudy)->orWhere('ELT_IMP_ID_STUDY', 0)
-            ->whereRaw("(LINE_RELEASE = 3 OR LINE_RELEASE = 4 OR (LINE_RELEASE = 2) AND (ID_USER = $id_user))")
+            ->whereRaw("(LINE_RELEASE = 3 OR LINE_RELEASE = 4 OR (LINE_RELEASE = 2 AND (ID_USER = $id_user)))")
             ->get();
 		}
         return $query;
          
+    }
+
+    public function loadPipeline($idStudy) {
+        $studyEquip = StudyEquipments::where('ID_STUDY', $idStudy)->orderBy('ID_STUDY_EQUIPMENTS', '')->first();
+        if(count($studyEquip) > 0) {
+            $pipe = PipeGen::Where('ID_STUDY_EQUIPMENTS', $studyEquip->ID_STUDY_EQUIPMENTS)->first();
+        }
+        return $pipe;
+
     }
 	
 	public function getIdCoolingFamily($idStudy) {
@@ -85,9 +95,12 @@ class LineService
 
 	public function getComboLineElmt($typeElmt, $lang, $idCoolingFamily, 
 		$idIsolation, $diameter, $id_user, $idStudy) {
+        $UnnamedObjectQuery= $this.queryListLineElmtFromType($typeElmt, $idCoolingFamily, $idIsolation, 
+        $diameter, $id_user, $idStudy);
 
 	}
-}
+
+    
 
 
 
