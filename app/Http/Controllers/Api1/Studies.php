@@ -1335,7 +1335,7 @@ class Studies extends Controller
             $itemName = [];
             foreach ($meshPoints as $row) {
                 $item['value'] = $row->MESH_AXIS_POS;
-                $item['name'] = $this->convert->meshesUnit($row->MESH_AXIS_POS * 1000);
+                $item['name'] = $this->convert->meshesUnit($row->MESH_AXIS_POS);
                 $itemName[] = $item;
             }
             $tfMesh[$i] = array_reverse($itemName);
