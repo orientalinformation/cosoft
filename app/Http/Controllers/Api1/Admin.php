@@ -169,7 +169,8 @@ class Admin extends Controller
 	public function getUsers()
 	{
 		$idUserLogon = $this->auth->user()->ID_USER;
-		$offline = User::where('USERPRIO', '<>', 0)->orderBy('USERNAM', 'ASC')->get();
+		$offline = User::where('USERPRIO', '<>', 0)
+		->where('ID_USER', '<>', $idUserLogon)->orderBy('USERNAM', 'ASC')->get();
 		
 		$online = Connection::where('DATE_CONNECTION', '<>', null)
 			->where('DATE_DISCONNECTION', null)
@@ -236,6 +237,7 @@ class Admin extends Controller
 
 		$username = $input['username'];
 		$password = $input['password'];
+		$email = $input['email'];
 		$confirm = $input['confirmpassword'];
 		$hashPassword = Hash::make($password);
 
@@ -249,6 +251,9 @@ class Admin extends Controller
 		}else{
 			if (isset($input['username'])) $user->USERNAM = $username;
 			if (isset($input['password'])) $user->USERPASS = $hashPassword;
+			if ($user->USERMAIL === '' || $user->USERMAIL === null) {
+				$user->USERMAIL = $email;
+			}
 			$user->save();
 
 			return 1;
