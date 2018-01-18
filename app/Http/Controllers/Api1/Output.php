@@ -1659,12 +1659,16 @@ class Output extends Controller
     public function saveTempRecordPts()
     {
         $input = $this->request->all();
-        $idStudy = $this->request->input('idStudy');
+        /*$idStudy = $this->request->input('idStudy');
         $idStudyEquipment = $this->request->input('idStudyEquipment');
         $selectedAxe = $this->request->input('selectedAxe');
-        $nbSteps = $input['NBSTEPS'];
+        $nbSteps = $this->request->input('nbsteps');*/
+        $idStudy = $input['ID_STUDY'];
+        $idStudyEquipment = $input['ID_STUDY_EQUIPMENTS'];
+        $selectedAxe = $input['AXE'];
+        $nbSteps = $input['NB_STEPS'];
         if (empty($nbSteps)) return 1001;
-        if ($nbSteps < 0) return 1002;
+        if (!is_numeric($nbSteps) || $nbSteps < 0) return 1002;
         $tempRecordPts =  TempRecordPts::where('ID_STUDY', $idStudy)->first();
         $tempRecordPts->NB_STEPS = $nbSteps;
         $tempRecordPts->save();

@@ -415,14 +415,6 @@ $router->GET('/api/v1/output/temperatureProfile/{idStudyEquipment}', 'Api1\\Outp
 $router->GET('/api/v1/common/economic/{idStudy}', 'Api1\\Output@getAnalyticalEconomic');
 
 /**
- * GET optimumcalculator
- * Summary: 
- * Notes: get head balance result/products/{id}/packingLayers
- * Output-Formats: [application/json]
- */
-$router->GET('/api/v1/optimumcalculator', 'Api1\\Calculator@getOptimumCalculator');
-
-/**
  * GET StudyPackingLayers
  * Summary: 
  * Notes: get head balance result
@@ -437,14 +429,6 @@ $router->GET('/api/v1/studies/{id}/packingLayers', 'Api1\\Studies@getStudyPackin
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/studies/{id}/packingLayers', 'Api1\\Studies@savePacking');
-
-/**
- * POST start caluclate
- * Summary: 
- * Notes: get head balance result
- * Output-Formats: [application/json]
- */
-$router->POST('/api/v1/startcalculate', 'Api1\\Calculator@startCalculate');
 
 /**
  * GET start Estimation

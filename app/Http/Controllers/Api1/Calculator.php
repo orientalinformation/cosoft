@@ -105,7 +105,7 @@ class Calculator extends Controller
 		$sdisableFields = $this->cal->disableFields($idStudy);
 		$sdisableCalculate = $this->cal->disableCalculate($idStudy);
 
-		$sdisableOptim = $sdisableNbOptim = $sdisableStorage = $sdisableTimeStep = $sdisablePrecision = $scheckOptim = $scheckStorage = $isBrainCalculator = 0;
+		$sdisableOptim = $sdisableNbOptim = $sdisableStorage = $sdisableTimeStep = $sdisablePrecision = $checkOptim = $scheckStorage = $isBrainCalculator = 0;
 
 		if ($idStudyEquipment != null) {
 			$isBrainCalculator = 1;
@@ -116,7 +116,7 @@ class Calculator extends Controller
 
 			if ($calMode == $this->value->STUDY_OPTIMUM_MODE) {
 				$sdisableNbOptim = $sdisableStorage = 1;
-				$scheckOptim = 1;
+				$checkOptim = 1;
 				$scheckStorage = 0;
 
 				if ($this->cal->getTimeStep($idStudy) == $this->value->VALUE_N_A) {
@@ -132,19 +132,19 @@ class Calculator extends Controller
 				}
 			} else if ($calMode == $this->value->STUDY_SELECTED_MODE) {
 				$sdisableNbOptim = $sdisableStorage = 0;
-				$scheckOptim = 1;
+				$checkOptim = 1;
 				$scheckStorage = 0;
 				$sdisableTimeStep = $sdisablePrecision = 0;
 			} else {
 				$sdisableNbOptim = $sdisableStorage = 1;
-				$scheckOptim = $scheckStorage = 0;
+				$checkOptim = $scheckStorage = 0;
 				$sdisableTimeStep = $sdisablePrecision = 0;
 			}
 
 		} else {
 			$sdisableOptim = $sdisableNbOptim = $sdisableStorage = 1;
 			$sdisableTimeStep = $sdisablePrecision = 1;
-			$scheckOptim = $scheckStorage = 0;
+			$checkOptim = $scheckStorage = 0;
 		}
 
 		$epsilonTemp = $this->cal->getOptimErrorT();
@@ -177,7 +177,7 @@ class Calculator extends Controller
 		$array = [
 			'sdisableFields' => $sdisableFields,
 			'sdisableCalculate' => $sdisableCalculate,
-			'scheckOptim' => $scheckOptim,
+			'checkOptim' => $checkOptim,
 			'sdisableOptim' => $sdisableOptim,
 			'sdisableNbOptim' => $sdisableNbOptim,
 			'epsilonTemp' => $epsilonTemp,
@@ -680,7 +680,7 @@ class Calculator extends Controller
 			if ($checkOptim != null) {
 				$calculationParameter->NB_OPTIM = $checkOptim;
 			} else {
-				$calculationParameter->NB_OPTIM = $minMaxOptim->DEFAULT_VALUE;
+				$calculationParameter->NB_OPTIM = intval($minMaxOptim->DEFAULT_VALUE);
 			}
 
 			$calculationParameter->ERROR_T = $this->convert->unitConvert($this->value->TEMPERATURE, $epsilonTemp);
