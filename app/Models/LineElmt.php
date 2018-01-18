@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Sofa\Eloquence\Eloquence; // base trait
+use Sofa\Eloquence\Mappable; // extension trait
 
 /**
  * @property int $ID_PIPELINE_ELMT
@@ -27,6 +29,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class LineElmt extends Model
 {
+    use Eloquence, Mappable;
     /**
      * The table associated with the model.
      * 
@@ -48,6 +51,25 @@ class LineElmt extends Model
      * @var string
      */
     protected $primaryKey = 'ID_PIPELINE_ELMT';
+
+    /**
+     * @var array
+     */
+    protected $hidden = [
+        'user'
+    ];
+
+    protected $maps = [
+      'user' => [
+        'ID_USER'
+    ];
+
+    /**
+     * @var array
+     */
+    protected $appends = [
+        'ID_USER'
+    ];
 
     /**
      * Indicates if the model should be timestamped.
