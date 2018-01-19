@@ -442,7 +442,7 @@ class Calculator extends Controller
 		$uPercent = $this->convert->uPercent();
 		$toc = $this->convert->convertCalculator($this->brainCal->getLoadingRate($idStudyEquipment, $idStudy), $uPercent['coeffA'], $uPercent['coeffB']);
 
-		$scheckOptim = ($checkOptim == "true") ? 1 : 0;
+		$checkOptim = ($checkOptim == "true") ? 1 : 0;
 		$epsilonTemp = $this->brainCal->getOptimErrorT($brainMode, $idStudyEquipment);
 		$epsilonEnth = $this->brainCal->getOptimErrorH($brainMode, $idStudyEquipment);
 		$nbOptimIter = $this->brainCal->getNbOptim($brainMode, $idStudyEquipment);
@@ -473,7 +473,7 @@ class Calculator extends Controller
 			'dwellingTimes' => $dwellingTimes,
 			'temperatures' => $temperatures,
 			'toc' => $toc,
-			'scheckOptim' => $scheckOptim,
+			'checkOptim' => $checkOptim,
 			'epsilonTemp' => $epsilonTemp,
 			'epsilonEnth' => $epsilonEnth,
 			'nbOptimIter' => $nbOptimIter,
@@ -648,13 +648,13 @@ class Calculator extends Controller
     {
     	$input = $request->all();
 
-    	$checkOptim = $epsilonTemp = $epsilonEnth = $epsilonTemp = $epsilonEnth = $scheckStorage = null;
+    	$checkOptim = $epsilonTemp = $epsilonEnth = $epsilonTemp = $epsilonEnth = $scheckStorage = $sdisableOptim = null;
 
 		$timeStep = 1.0;
 		$precision = 0.5;
 		$storagestep = $relaxCoef = 0.0;
 		$hRadioOn = 1;
-		$vRadioOn = $tempPtSurf = $tempPtIn = $tempPtBot = $tempPtAvg = 0;
+		$vRadioOn = $tempPtSurf = $tempPtIn = $tempPtBot = $tempPtAvg = $nbOptimIter = 0;
 		$maxIter = 100;
 
     	if (isset($input['checkOptim'])) $checkOptim = intval($input['checkOptim']);
@@ -662,7 +662,7 @@ class Calculator extends Controller
 		if (isset($input['epsilonEnth'])) $epsilonEnth = $input['epsilonEnth'];
 		if (isset($input['timeStep'])) $timeStep = $input['timeStep'];
 		if (isset($input['precision'])) $precision = $input['precision'];
-		if (isset($input['scheckStorage'])) $scheckStorage = $input['scheckStorage'];
+		if (isset($input['scheckStorage'])) $scheckStorage = intval($input['scheckStorage']);
 		if (isset($input['storagestep'])) $storagestep = $input['storagestep'];
 		if (isset($input['hRadioOn'])) $hRadioOn = intval($input['hRadioOn']);
 		if (isset($input['vRadioOn'])) $vRadioOn = intval($input['vRadioOn']);
@@ -672,13 +672,15 @@ class Calculator extends Controller
 		if (isset($input['tempPtIn'])) $tempPtIn = $input['tempPtIn'];
 		if (isset($input['tempPtBot'])) $tempPtBot = $input['tempPtBot'];
 		if (isset($input['tempPtAvg'])) $tempPtAvg = $input['tempPtAvg'];
+		if (isset($input['nbOptimIter'])) $nbOptimIter = intval($input['nbOptimIter']);
+		if (isset($input['sdisableOptim'])) $sdisableOptim = intval($input['sdisableOptim']);
 
 		$calculationParameter = CalculationParameter::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
 
-		if ($checkOptim != null) {
+		if ($checkOptim == 1) {
 			$minMaxOptim = $this->brainCal->getMinMax(1130);
-			if ($checkOptim != null) {
-				$calculationParameter->NB_OPTIM = $checkOptim;
+			if ($sdisableOptim == 1) {
+				$calculationParameter->NB_OPTIM = $nbOptimIter;
 			} else {
 				$calculationParameter->NB_OPTIM = intval($minMaxOptim->DEFAULT_VALUE);
 			}
@@ -757,7 +759,7 @@ class Calculator extends Controller
             case 12:
             case 14:
             case 16:
-                if ($scheckStorage != null) {
+                if ($scheckStorage == 1) {
                     $studyEquipment->BRAIN_SAVETODB = 1;
                 } else {
                     $studyEquipment->BRAIN_SAVETODB = 0;
