@@ -50,12 +50,30 @@ class ReferenceData extends Controller
         $productNature = $this->getFamilyTranslations(15);
         $conductivity = $this->getFamilyTranslations(9);
         $fatType = $this->getFamilyTranslations(12);
+
+        $COMP_COMMENT = $COM_NAME = '';
+        $LIPID = $GLUCID = $PROTID = $WATER = $FREEZE_TEMP = $COMP_VERSION = 0;
+        $SALT = $AIR = $NON_FROZEN_WATER = 0;
+        $release = 1;
+
         $array = [
             'productFamily' => $productFamily,
             'subFamily' => $subFamily,
             'productNature' => $productNature,
             'Conductivity' => $conductivity,
             'FatType' => $fatType,
+            'COM_NAME' => $COM_NAME,
+            'COMP_COMMENT' => $COMP_COMMENT,
+            'COMP_VERSION' => $COMP_VERSION,
+            'FREEZE_TEMP' => $FREEZE_TEMP,
+            'WATER' => $WATER,
+            'PROTID' => $PROTID,
+            'LIPID' => $LIPID,
+            'GLUCID' => $GLUCID,
+            'SALT' => $SALT,
+            'AIR' => $AIR,
+            'NON_FROZEN_WATER' => $NON_FROZEN_WATER,
+            'release' => $release,
         ];
 
         return $array;
