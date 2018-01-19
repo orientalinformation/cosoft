@@ -53,27 +53,33 @@ class LineElmt extends Model
     protected $primaryKey = 'ID_PIPELINE_ELMT';
 
     /**
+     * @var array
+     */
+    protected $hidden = [
+        'user'
+    ];
+
+    protected $maps = [
+      'user' => [
+        'ID_USER'
+    ];
+
+    /**
+     * @var array
+     */
+    protected $appends = [
+        'ID_USER'
+    ];
+
      * @var string
      */
     protected $dateFormat = 'Y-m-d H:i:s.u';
-
     /**
      * Indicates if the model should be timestamped.
      * 
      * @var bool
      */
     public $timestamps = false;
-
-    protected $hidden = [
-        'user'
-    ];
-
-    protected $maps = [
-        'user' => ['USERNAM']
-      ];
-  
-      protected $appends = ['USERNAM'];
-
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
