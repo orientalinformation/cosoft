@@ -46,8 +46,16 @@ class ReferenceData extends Controller
     public function getDataComponent()
     {
         $productFamily = $this->getFamilyTranslations(14);
+        $subFamily = $this->getFamilyTranslations(16);
+        $productNature = $this->getFamilyTranslations(15);
+        $conductivity = $this->getFamilyTranslations(9);
+        $fatType = $this->getFamilyTranslations(12);
         $array = [
             'productFamily' => $productFamily,
+            'subFamily' => $subFamily,
+            'productNature' => $productNature,
+            'Conductivity' => $conductivity,
+            'FatType' => $fatType,
         ];
 
         return $array;
