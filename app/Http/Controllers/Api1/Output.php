@@ -1925,6 +1925,6 @@ class Output extends Controller
         $result["mesAxis"] = $mesAxis;
         $result["resultValue"] = $resultValue;
 
-        return compact("axeTemp", "dataChart", "resultTemperature", "resultLabel", "result");
+        return compact("axeTemp", "dataChart", "resultLabel", "result");
     }
 }
