@@ -19,6 +19,7 @@ use Illuminate\Contracts\Auth\Factory as Auth;
 use App\Kernel\KernelService;
 use App\Cryosoft\UnitsConverterService;
 use App\Cryosoft\ValueListService;
+use App\Cryosoft\LineService;
 use App\Models\MinMax;
 use App\Models\PrecalcLdgRatePrm;
 use App\Models\LayoutGeneration;
@@ -71,13 +72,14 @@ class Studies extends Controller
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth, KernelService $kernel, UnitsConverterService $convert, ValueListService $value)
+    public function __construct(Request $request, Auth $auth, KernelService $kernel, UnitsConverterService $convert, ValueListService $value, LineService $lineE)
     {
         $this->request = $request;
         $this->auth = $auth;
         $this->kernel = $kernel;
         $this->convert = $convert;
         $this->value = $value;
+        $this->lineE = $lineE;
     }
 
     public function findStudies()
@@ -492,7 +494,10 @@ class Studies extends Controller
                 ], 406); // Status code here
             }
         } else {
-            echo "Id study is null";
+           return response([
+                    'code' => 1003,
+                    'message' => 'Study id not found'
+                ], 406); // Status code here
         }
 
     }
@@ -1375,5 +1380,53 @@ class Studies extends Controller
         }
 
         return $tfMesh;
+    }
+
+    public function loadPipeline($id) {
+        $idIsolation = 5;
+        $diameter = 0.0;
+        $idPipeGen = 0;
+        $insulatedLineLength = 0.0;
+        $nonInsulatedLineLength = 0.0;
+        $elbowsQuantity = 0;
+        $teesQuantity = 0;
+        $insulatedValvesQuantity = 0;
+        $nonInsulatedValvesQuantity = 0;
+        $storageTank = "";
+        $storageTankCapacity = 0;
+        $height = 0.0;
+        $pressure = 0.0;
+        $gasTemperature = 0.0;
+
+        // $studyCurr = Study::find($id);
+        // $studyEquip = StudyEquipment::where('ID_STUDY', $id)->get();
+        $pipegen = $this->lineE->loadPipeline($id);
+
+        if($pipegen != null) {
+            $listLineDefinition = $this->lineE->getListLineDefinition($pipegen->ID_PIPE_GEN);
+        }
+
+        $idCoolingFamily = $this->lineE->getIdCoolingFamily($id);
+        $listLineDiametre = $this->lineE->linegetListLineDiametre($idCoolingFamily, $idIsolation);
+        $userCurr = LineElmt::where('ID_USER', '!=', $this->auth->user()->ID_USER)->get();
+
+        $storageTank = $this->line->getComboLineElmt(7, $idCoolingFamily, $idIsolation, $diameter, $userCurr, $studyCurr, 
+            $this->line->getListLineDefinition($idPipeGen));
+
+        if($pipegen !=  null) {
+            $idPipeGen = $pipegen->ID_PIPE_GEN;
+            $insulatedLineLength = $pipegen->INSULLINE_LENGHT;
+            $nonInsulatedLineLength = $pipegen->NOINSULLINE_LENGHT;
+            $elbowsQuantity = $pipegen->ELBOWS;
+            $teesQuantity = $pipegen->TEES;
+            $insulatedValvesQuantity = $pipegen->INSUL_VALVES;
+            $nonInsulatedValvesQuantity = $pipegen->NOINSUL_VALVES;
+            $height = $pipegen->HEIGHT;
+            $pressure = $pipegen->PRESSURE;
+            $gasTemperature = $pipegen->GAS_TEMP;
+            $storageTankCapacity = $pipegen->FLUID;
+        }
+
+        return $pipegen;
     }
 }
