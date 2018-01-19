@@ -104,6 +104,22 @@ $router->PUT('/api/v1/referencedata/packing/{id}', 'Api1\\PackingElements@saveAs
 $router->GET('/api/v1/referencedata/pipeline', 'Api1\\PipeLine@findRefPipeline');
 
 /**
+ * PUT add pipeline
+ * Summary:
+ * Notes: add pipeline
+ * Output-Formats: [application/json]
+ */
+$router->PUT('/api/v1/referencedata/pipeline', 'Api1\\PipeLine@newPipeLine');
+
+/**
+ * GET deletePipeLine
+ * Summary:
+ * Notes: delete PipeLine
+ * Output-Formats: [string]
+ */
+$router->DELETE('/api/v1/referencedata/pipeline/{id}', 'Api1\\PipeLine@deletePipeLine');
+
+/**
  * GET getListLineType
  * Summary:
  * Notes: get list line type
@@ -118,3 +134,5 @@ $router->GET('/api/v1/translation/linetype', 'Api1\\PipeLine@getListLineType');
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/translation/energies', 'Api1\\PipeLine@getListEnergies');
+
+
