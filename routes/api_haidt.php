@@ -112,12 +112,28 @@ $router->GET('/api/v1/referencedata/pipeline', 'Api1\\PipeLine@findRefPipeline')
 $router->PUT('/api/v1/referencedata/pipeline', 'Api1\\PipeLine@newPipeLine');
 
 /**
- * GET deletePipeLine
+ * DELETE deletePipeLine
  * Summary:
  * Notes: delete PipeLine
  * Output-Formats: [string]
  */
 $router->DELETE('/api/v1/referencedata/pipeline/{id}', 'Api1\\PipeLine@deletePipeLine');
+
+/**
+ * POST updatePipeLine
+ * Summary:
+ * Notes: update LineElmt
+ * Output-Formats: [number]
+ */
+$router->POST('/api/v1/referencedata/pipeline/{id}', 'Api1\\PipeLine@updatePipeLine');
+
+/**
+ * PUT save as pipe line
+ * Summary:
+ * Notes: save as pipe line
+ * Output-Formats: [application/json]
+ */
+$router->PUT('/api/v1/referencedata/pipeline/{id}', 'Api1\\PipeLine@saveAsPipeLine');
 
 /**
  * GET getListLineType
