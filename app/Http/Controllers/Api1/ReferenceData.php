@@ -52,16 +52,21 @@ class ReferenceData extends Controller
         $fatType = $this->getFamilyTranslations(12);
 
         $COMP_COMMENT = $COM_NAME = '';
-        $LIPID = $GLUCID = $PROTID = $WATER = $FREEZE_TEMP = $COMP_VERSION = 0;
-        $SALT = $AIR = $NON_FROZEN_WATER = 0;
-        $release = 1;
+        $LIPID = $GLUCID = $PROTID = $WATER = $FREEZE_TEMP = $COMP_VERSION = $CONDUCT_TYPE = 0;
+        $SALT = $AIR = $NON_FROZEN_WATER = $PRODUCT_TYPE = $SUB_TYPE = $FATTYPE = 0;
+        $release = $NATURE_TYPE = 1;
 
         $array = [
             'productFamily' => $productFamily,
+            'PRODUCT_TYPE' => $PRODUCT_TYPE,
             'subFamily' => $subFamily,
+            'SUB_TYPE' => $SUB_TYPE,
             'productNature' => $productNature,
+            'NATURE_TYPE' => $NATURE_TYPE,
             'Conductivity' => $conductivity,
+            'CONDUCT_TYPE' => $CONDUCT_TYPE,
             'FatType' => $fatType,
+            'FATTYPE' => $FATTYPE,
             'COM_NAME' => $COM_NAME,
             'COMP_COMMENT' => $COMP_COMMENT,
             'COMP_VERSION' => $COMP_VERSION,
