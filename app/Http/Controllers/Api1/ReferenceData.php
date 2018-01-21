@@ -12,6 +12,7 @@ use App\Cryosoft\ValueListService;
 use Carbon\Carbon;
 use App\Models\Compenth;
 use App\Models\MinMax;
+use App\Models\Language;
 
 class ReferenceData extends Controller
 {
@@ -129,11 +130,11 @@ class ReferenceData extends Controller
         if (isset($input['NATURE_TYPE'])) $NATURE_TYPE = intval($input['NATURE_TYPE']);
         if (isset($input['PRODUCT_TYPE'])) $PRODUCT_TYPE = intval($input['PRODUCT_TYPE']);
         if (isset($input['SUB_TYPE'])) $SUB_TYPE = intval($input['SUB_TYPE']);
-        if (isset($input['Temperatures'])) $temperatures = intval($input['Temperatures']);
+        if (isset($input['Temperatures'])) $temperatures = $input['Temperatures'];
         if (isset($input['release'])) $release = intval($input['release']);
 
         $comment = 'Created on ' . $current->toDateTimeString() . ' by '. $this->auth->user()->USERNAM;
-        $commentTrue = $COMP_COMMENT . '\n'. $comment;
+        $commentTrue = $COMP_COMMENT . "\n". $comment;
 
         $minMaxDensity = $this->getMinMax($this->value->MIN_MAX_DENSITY);
         $DENSITY = $minMaxDensity->DEFAULT_VALUE;
@@ -144,6 +145,7 @@ class ReferenceData extends Controller
         $component = new Component();
         $component->ID_USER = $this->auth->user()->ID_USER;
         $component->COMP_COMMENT = ($COMP_COMMENT == '') ? $comment : $commentTrue;
+        // $component->COMP_DATE = $current->toDateTimeString();
         $component->COMP_VERSION = $COMP_VERSION;
         $component->COMP_RELEASE = $release;
         $component->COMP_NATURE = $NATURE_TYPE;
@@ -164,16 +166,35 @@ class ReferenceData extends Controller
         $component->COMP_GEN_STATUS = 0;
         $component->COMP_IMP_ID_STUDY = 0;
         $component->OPEN_BY_OWNER = 0;
-        // $component->save();
+        $component->BLS_CODE = '';
+        $component->save();
 
-        // if (count($temperatures) > 0) {
-        //     for ($i = 0; $i < count($temperatures); $i++) { 
-        //         $compenth = new Compenth();
-        //         $compenth->ID_COMP = $comment->ID_COMP;
-        //         $compenth->COMTEMP = floatval($temperatures[$i]['temperature']);
-        //         // $compenth->save();
-        //     }
-        // }
+        Component::where('ID_COMP', $component->ID_COMP)->update(['COMP_DATE' => $current->toDateTimeString()]);
+
+        if (count($temperatures) > 0) {
+            for ($i = 0; $i < count($temperatures); $i++) { 
+                $compenth = new Compenth();
+                $compenth->ID_COMP = $component->ID_COMP;
+                $compenth->COMPTEMP = floatval($temperatures[$i]['temperature']);
+                $compenth->COMPENTH = 0;
+                $compenth->COMPCOND = 0;
+                $compenth->COMPDENS = 0;
+                $compenth->save();
+            }
+        }
+
+        $languages = Language::all();
+
+        for ($i = 0; $i < count($languages); $i++) {
+            $translation = new Translation();
+            $translation->TRANS_TYPE = 1;
+            $translation->ID_TRANSLATION = $component->ID_COMP;
+            $translation->LABEL = $COMP_NAME;
+            $translation->CODE_LANGUE = $languages[$i]->CODE_LANGUE;
+            $translation->save();
+        }
+
+        return 1;
     }
 
     public function getMinMax($limitItem) 
