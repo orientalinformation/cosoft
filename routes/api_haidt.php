@@ -151,4 +151,11 @@ $router->GET('/api/v1/translation/linetype', 'Api1\\PipeLine@getListLineType');
  */
 $router->GET('/api/v1/translation/energies', 'Api1\\PipeLine@getListEnergies');
 
+/**
+ * GET findRefEquipment
+ * Summary:
+ * Notes: get equipments
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/referencedata/equipments', 'Api1\\Equipments@findRefEquipment');
 

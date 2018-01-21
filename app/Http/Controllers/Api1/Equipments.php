@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api1;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Request;
-
+use Illuminate\Contracts\Auth\Factory as Auth;
+use Carbon\Carbon;
+use App\Models\Equipment;
 
 class Equipments extends Controller
 {
@@ -13,9 +15,10 @@ class Equipments extends Controller
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(Request $request, Auth $auth)
     {
-        //
+        $this->request = $request;
+        $this->auth = $auth;
     }
 
     public function getEquipments()
@@ -45,4 +48,11 @@ class Equipments extends Controller
         return $equipments;
     }
 
+    public function findRefEquipment()
+    {
+        $mine = Equipment::where('ID_USER', $this->auth->user()->ID_USER)->orderBy('EQUIP_NAME', 'ASC')->get();
+        $others = Equipment::where('ID_USER', '!=', $this->auth->user()->ID_USER)->orderBy('EQUIP_NAME', 'ASC')->get();
+        
+        return compact('mine', 'others');
+    }
 }
