@@ -60,17 +60,16 @@ class LineElmt extends Model
     ];
 
     protected $maps = [
-      'user' => [
-        'ID_USER'
+      'user' => ['USERNAM']
     ];
 
     /**
      * @var array
      */
     protected $appends = [
-        'ID_USER'
+        'USERNAM'
     ];
-
+    /**
      * @var string
      */
     protected $dateFormat = 'Y-m-d H:i:s.u';

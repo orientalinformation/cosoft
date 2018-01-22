@@ -59,6 +59,8 @@ class PackingElements extends Controller
 
     public function newPacking()
     {
+        $current = Carbon::now('Asia/Ho_Chi_Minh');
+        $idUserLogon = $this->auth->user()->ID_USER;
         $input = $this->request->all();
 
         if (!isset($input['name']) || !isset($input['version']) || !isset($input['conductivity']) || !isset($input['comment']) || !isset($input['release']))
@@ -69,6 +71,8 @@ class PackingElements extends Controller
         $cond = $input['conductivity'];
         $comment = $input['comment'];
         $release = $input['release'];
+        if ($comment == '') $comment =  'Created on ' . $current->toDateTimeString() . ' by '. $this->auth->user()->USERNAM ;
+
         
         $packingElmts = Translation::where('TRANS_TYPE', 3)->get();
 
@@ -77,8 +81,6 @@ class PackingElements extends Controller
 				return 0;
 			}
         }
-        $current = Carbon::now('Asia/Ho_Chi_Minh');
-        $idUserLogon = $this->auth->user()->ID_USER;
         
         $packingElmt = new PackingElmt();
         $packingElmt->PACKING_VERSION = $version;

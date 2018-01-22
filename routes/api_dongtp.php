@@ -91,7 +91,15 @@ $router->POST('/api/v1/calculator/startcalculate', 'Api1\\Calculator@startCalcul
 /**
  * GET Data family
  * Summary: 
- * Notes: get head balance result/products/{id}/packingLayers
+ * Notes: get head balance result
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/referencedata/component', 'Api1\\ReferenceData@getDataComponent');
+
+/**
+ * PUT Data family
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->PUT('/api/v1/referencedata/component', 'Api1\\ReferenceData@saveDataComponent');
