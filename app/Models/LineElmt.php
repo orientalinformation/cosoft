@@ -60,7 +60,10 @@ class LineElmt extends Model
     ];
 
     protected $maps = [
-      'user' => ['USERNAM']
+      'user' => [
+        'ID_USER',
+        'USERNAM'
+      ]
     ];
 
     /**
@@ -69,6 +72,7 @@ class LineElmt extends Model
     protected $appends = [
         'USERNAM'
     ];
+
     /**
      * @var string
      */
