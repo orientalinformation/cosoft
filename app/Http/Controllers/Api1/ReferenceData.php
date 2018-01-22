@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use App\Models\Compenth;
 use App\Models\MinMax;
 use App\Models\Language;
+use App\Models\User;
 
 class ReferenceData extends Controller
 {
@@ -69,6 +70,19 @@ class ReferenceData extends Controller
         $productNature = $this->getFamilyTranslations(15);
         $conductivity = $this->getFamilyTranslations(9);
         $fatType = $this->getFamilyTranslations(12);
+        $others = null;
+
+        $mine = Component::where('ID_USER', $this->auth->user()->ID_USER)
+        ->join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')
+        ->where('Translation.TRANS_TYPE', 1)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+        ->orderBy('LABEL', 'ASC')->get();
+
+        $others = Component::join('Ln2user', 'Ln2user.ID_USER', '=', 'Component.ID_USER')
+            ->join('Translation', 'Component.ID_COMP', '=', 'Translation.ID_TRANSLATION')
+            ->where('Translation.TRANS_TYPE', 1)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+            ->where('Component.ID_USER', '!=', $this->auth->user()->ID_USER)
+            ->orderBy('LABEL', 'ASC')->get();   
+
 
         $COMP_COMMENT = $COMP_NAME = '';
         $LIPID = $GLUCID = $PROTID = $WATER = $FREEZE_TEMP = $COMP_VERSION = $CONDUCT_TYPE = 0;
@@ -76,6 +90,8 @@ class ReferenceData extends Controller
         $release = $NATURE_TYPE = 1;
 
         $array = [
+            'mine' => $mine,
+            'others' => $others,
             'productFamily' => $productFamily,
             'PRODUCT_TYPE' => $PRODUCT_TYPE,
             'subFamily' => $subFamily,
