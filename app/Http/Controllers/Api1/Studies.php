@@ -1409,9 +1409,9 @@ class Studies extends Controller
                         foreach ($insideDiameters as $insideDiameter) {
                             $lineElmts[$key][] = $insideDiameter->ELT_SIZE;
                             //TODO: get name combo box
-                            $snameCombobox = LineElmt::select('LABEL')->where('ID_USER', '!=', $this->auth->user()->ID_USER)
+                            $snameCombobox = LineElmt::where('ID_USER', '!=', $this->auth->user()->ID_USER)
                             ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
-                            ->where('Translation.TRANS_TYPE', 27)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->get();
+                            ->where('Translation.TRANS_TYPE', 27)->where('ELT_SIZE', $insideDiameters)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->get();
                         }
                     }
                     
