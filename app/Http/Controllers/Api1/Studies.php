@@ -19,6 +19,7 @@ use Illuminate\Contracts\Auth\Factory as Auth;
 use App\Kernel\KernelService;
 use App\Cryosoft\UnitsConverterService;
 use App\Cryosoft\ValueListService;
+use App\Cryosoft\LineService;
 use App\Models\MinMax;
 use App\Models\PrecalcLdgRatePrm;
 use App\Models\LayoutGeneration;
@@ -67,19 +68,19 @@ class Studies extends Controller
      */
     protected $value;
 
-
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth, KernelService $kernel, UnitsConverterService $convert, ValueListService $value)
+    public function __construct(Request $request, Auth $auth, KernelService $kernel, UnitsConverterService $convert, ValueListService $value, LineService $lineE)
     {
         $this->request = $request;
         $this->auth = $auth;
         $this->kernel = $kernel;
         $this->convert = $convert;
         $this->value = $value;
+        $this->lineE = $lineE;
     }
 
     public function findStudies()
@@ -1385,8 +1386,6 @@ class Studies extends Controller
 
     public function loadPipeline($id) {
         $lineElmts = [];
-        $storageTanks = [];
-        $insulationType = [];
         $study = Study::find($id);
         if(count($study)> 0) {
             $user = $study->user;
@@ -1404,23 +1403,36 @@ class Studies extends Controller
                     $lineElmt = [];
 
                     foreach ($insulationTypes as $key => $insulationType) {
-                        $insideDiameters = LineElmt::distinct()->select('ELT_SIZE')->where('ID_COOLING_FAMILY ', $coolingFamily)->where('ELT_TYPE', '<>', 2)->get();
-                        
+                        $insideDiameters = LineElmt::distinct()->select('ELT_SIZE')->where('ID_COOLING_FAMILY ', $coolingFamily)->where('ELT_TYPE', '<>', 2)->where('INSULATION_TYPE', $insulationType->INSULATION_TYPE)->get();
                         foreach ($insideDiameters as $insideDiameter) {
                             $lineElmts[$key][] = $insideDiameter->ELT_SIZE;
                             //TODO: get name combo box
-                            $snameCombobox = LineElmt::where('ID_USER', '!=', $this->auth->user()->ID_USER)
-                            ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
-                            ->where('Translation.TRANS_TYPE', 27)->where('ELT_SIZE', $insideDiameters)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->get();
+                            $insulatedLine[$key][$insideDiameter->ELT_SIZE][] = $this->lineE->getNameComboBox(1,$insideDiameter->ELT_SIZE, $coolingFamily);
+
+                            $insulatedline[$key][$insideDiameter->ELT_SIZE][] = $this->lineE->getNameComboBox(5,$insideDiameter->ELT_SIZE, $coolingFamily);
+
+                            $tee[$key][$insideDiameter->ELT_SIZE][] = $this->lineE->getNameComboBox(3,$insideDiameter->ELT_SIZE, $coolingFamily);
+
+                            $elbows[$key][$insideDiameter->ELT_SIZE][] = $this->lineE->getNameComboBox(4,$insideDiameter->ELT_SIZE, $coolingFamily);
+
+                            $non_insulated_line[$key][$insideDiameter->ELT_SIZE][] = $this->lineE->getNonLine(1,$insideDiameter->ELT_SIZE, $coolingFamily);
+
+                            $non_insulated_valves[$key][$insideDiameter->ELT_SIZE][] = $this->lineE->getNonLine(5,$insideDiameter->ELT_SIZE, $coolingFamily);
+
+                            $storageTanks = LineElmt::distinct()->select('ELT_SIZE')->where('ID_COOLING_FAMILY ', $coolingFamily)->where('ELT_TYPE', '=', 2)->where('INSULATION_TYPE', $insulationType->INSULATION_TYPE)->get();;
+                            foreach ($storageTanks as $storageTank) {
+                                $lineElmts[$key][][][] = $storageTank->ELT_SIZE;
+                                $storageT[$key][$insideDiameter->ELT_SIZE][$storageTank->ELT_SIZE][] = $this->lineE->getNameComboBox(2,$storageTank->ELT_SIZE, $coolingFamily);
+                            }
+
                         }
                     }
-                    
                 }
             }
         } else {
             echo "ID study not found--------------------";
         }
         
-        return $snameCombobox;
+        return $storageT;
     }
 }

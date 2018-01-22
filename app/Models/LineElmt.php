@@ -3,8 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Sofa\Eloquence\Eloquence; // base trait
-use Sofa\Eloquence\Mappable; // extension trait
 
 /**
  * @property int $ID_PIPELINE_ELMT
@@ -29,7 +27,7 @@ use Sofa\Eloquence\Mappable; // extension trait
  */
 class LineElmt extends Model
 {
-    use Eloquence, Mappable;
+    
     /**
      * The table associated with the model.
      * 
@@ -55,19 +53,8 @@ class LineElmt extends Model
     /**
      * @var array
      */
-    protected $hidden = [
-        'user'
-    ];
-
-    protected $maps = [
-      'user' => ['USERNAM']
-    ];
-
-    /**
-     * @var array
-     */
-    protected $appends = [
-        'USERNAM'
+    protected $casts = [
+        'ELT_SIZE'    => 'float',
     ];
     /**
      * @var string
