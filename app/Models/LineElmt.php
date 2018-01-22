@@ -102,4 +102,4 @@ class LineElmt extends Model
     {
         return $this->hasMany('App\\Models\\LineDefinition', 'ID_PIPELINE_ELMT', 'ID_PIPELINE_ELMT');
     }
-}
+} 
