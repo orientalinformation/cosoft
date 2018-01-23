@@ -103,3 +103,11 @@ $router->GET('/api/v1/referencedata/component', 'Api1\\ReferenceData@getDataComp
  * Output-Formats: [application/json]
  */
 $router->PUT('/api/v1/referencedata/component', 'Api1\\ReferenceData@saveDataComponent');
+
+/**
+ * PUT Data family
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->PUT('/api/v1/referencedata/calculatefreeze', 'Api1\\ReferenceData@calculateFreeze');
