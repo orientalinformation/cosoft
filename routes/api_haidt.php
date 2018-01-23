@@ -166,3 +166,51 @@ $router->GET('/api/v1/referencedata/equipments', 'Api1\\Equipments@findRefEquipm
  * Output-Formats: [number]
  */
 $router->POST('/api/v1/users/{id}/changepassword', 'Api1\\Users@changePassword');
+
+/**
+ * GET getEnergies
+ * Summary:
+ * Notes: get list Energies
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/users/energies', 'Api1\\Users@getEnergies');
+
+/**
+ * GET getConstructors
+ * Summary:
+ * Notes: get list Constructors
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/users/constructors', 'Api1\\Users@getConstructors');
+
+/**
+ * GET getFamilies
+ * Summary:
+ * Notes: get list Family (equipment series)
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/users/families', 'Api1\\Users@getFamilies');
+
+/**
+ * GET getOrigines
+ * Summary:
+ * Notes: get list Origines (equipment origines)
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/users/origines', 'Api1\\Users@getOrigines');
+
+/**
+ * GET getProcesses
+ * Summary:
+ * Notes: get list Processes (Processes type)
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/users/processes', 'Api1\\Users@getProcesses');
+
+/**
+ * GET getModels
+ * Summary:
+ * Notes: get list Models 
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/users/models', 'Api1\\Users@getModels');
