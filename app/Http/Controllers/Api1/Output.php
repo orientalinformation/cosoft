@@ -21,6 +21,7 @@ use App\Models\TempRecordPts;
 use App\Models\TempRecordData;
 use App\Models\MeshPosition;
 use App\Models\ProductElmt;
+use App\Models\CalculationParameter;
 
 use App\Cryosoft\ValueListService;
 use App\Cryosoft\UnitsConverterService;
@@ -1939,22 +1940,52 @@ class Output extends Controller
         $layoutGen = LayoutGeneration::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
         $orientation = $layoutGen->PROD_POSITION;
 
+        // get TimeInterva
+        $recordPosition = RecordPosition::select('RECORD_TIME')->where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("RECORD_TIME", "ASC")->get();
+        $lfDwellingTime = $recordPosition[count($recordPosition) - 1]->RECORD_TIME;
+
+        $calculationParameter = CalculationParameter::select('STORAGE_STEP', 'TIME_STEP')->where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
+
+        $lfStep = $calculationParameter->STORAGE_STEP * $calculationParameter->TIME_STEP;
+        if (count($recordPosition) < 10) {
+            $lftimeInterval = $lfStep;
+
+        } else {
+            $lftimeInterval = $lfDwellingTime / 9.0;
+            $lftimeInterval = round($lftimeInterval / $lfStep) * $lfStep;
+        }
+
+        $lftimeInterval = $this->unit->none(round($lftimeInterval * 100.0) / 100.0);
+
         $selPoints = $this->output->getSelectedMeshPoints($idStudy);
         if (empty($selPoints)) {
             $selPoints = $this->output->getMeshSelectionDef();
         }
 
         $axeTempRecordData = [];
+        $planTempRecordData = [];
         if (!empty($selPoints)) {
             $axeTempRecordData = [
                 [-1.0, $selPoints[9], $selPoints[10]],
                 [$selPoints[11], -1.0, $selPoints[12]],
                 [$selPoints[13], $selPoints[14], -1.0]
             ];
+            $planTempRecordData = [
+                [$selPoints[15], 0.0, 0.0],
+                [0.0, $selPoints[16], 0.0],
+                [0.0, 0.0, $selPoints[17]]
+            ];
         }
 
-        $result = TempRecordData::select('TEMP')->where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->orderBy('TEMP', 'DESC')->first();
+        $valueRecAxis = [];
+        if (!empty($planTempRecordData)) {
+            $valueRecAxis = [
+                "x" => $this->unit->prodchartDimension($planTempRecordData[0][0]),
+                "y" => $this->unit->prodchartDimension($planTempRecordData[1][1]),
+                "z" => $this->unit->prodchartDimension($planTempRecordData[2][2])
+            ];
+        }
 
-        return $result;
+        return compact("valueRecAxis", "lfDwellingTime", "lftimeInterval");
     }
 }
