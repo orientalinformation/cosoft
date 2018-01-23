@@ -14,6 +14,7 @@ use App\Models\Compenth;
 use App\Models\MinMax;
 use App\Models\Language;
 use App\Models\User;
+use App\Kernel\KernelService;
 
 class ReferenceData extends Controller
 {
@@ -38,16 +39,22 @@ class ReferenceData extends Controller
     protected $convert;
 
     /**
+     * @var App\Kernel\KernelService
+     */
+    protected $kernel;
+
+    /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth, UnitsConverterService $convert, ValueListService $value)
+    public function __construct(Request $request, Auth $auth, UnitsConverterService $convert, ValueListService $value, KernelService $kernel)
     {
         $this->request = $request;
         $this->auth = $auth;
         $this->convert = $convert;
         $this->value = $value;
+        $this->kernel = $kernel;
     }
 
     public function getFamilyTranslations($transType)
@@ -121,9 +128,51 @@ class ReferenceData extends Controller
 
     public function saveDataComponent()
     {
+        $result = $this->saveComponent($this->request);
+        return $result;
+    }
+
+    public function getMinMax($limitItem) 
+    {
+        return MinMax::where('LIMIT_ITEM', $limitItem)->first();
+    }
+
+    public function calculateFreeze()
+    {   
+        $input = $this->request->all();
+        $idComp = null;
+        $result = null;
+        // var_dump($input); die();
+
+        if (isset($input['ID_COMP'])) $idComp = intval($input['ID_COMP']);
+
+        if ($idComp == null) {
+            $idComp = $this->saveComponent($this->request);
+
+            if ($idComp == 3) return 3;
+            if ($idComp == 2) return 2;
+            $result = $this->startFCCalculation($idComp);
+        } else {
+            if ($idComp) {
+               $result = $this->startFCCalculation($idComp);
+            }
+                
+            // $component->NON_FROZEN_WATER =
+        }
+        return $result;
+    }
+
+    public function startFCCalculation($idComp)
+    {
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idComp);
+        return $this->kernel->getKernelObject('FreezeCalculator')->FCFreezeCalculation($conf);
+    }
+
+    private function saveComponent(Request $request)
+    {
         $input = $this->request->all();
 
-        $COMP_COMMENT = $COMP_NAME = '';
+        $COMP_COMMENT = $COMP_NAME = null;
         $LIPID = $GLUCID = $PROTID = $WATER = $FREEZE_TEMP = $COMP_VERSION = $CONDUCT_TYPE = 0;
         $SALT = $AIR = $NON_FROZEN_WATER = $PRODUCT_TYPE = $SUB_TYPE = $FATTYPE = $DENSITY = $HEAT = 0;
         $release = $NATURE_TYPE = 1;
@@ -148,6 +197,9 @@ class ReferenceData extends Controller
         if (isset($input['SUB_TYPE'])) $SUB_TYPE = intval($input['SUB_TYPE']);
         if (isset($input['Temperatures'])) $temperatures = $input['Temperatures'];
         if (isset($input['release'])) $release = intval($input['release']);
+
+        if ($COMP_NAME == null) return 3;
+        if ($PRODUCT_TYPE == 0) return 2;
 
         $comment = 'Created on ' . $current->toDateTimeString() . ' by '. $this->auth->user()->USERNAM;
         $commentTrue = $COMP_COMMENT . "\n". $comment;
@@ -210,11 +262,6 @@ class ReferenceData extends Controller
             $translation->save();
         }
 
-        return 1;
-    }
-
-    public function getMinMax($limitItem) 
-    {
-        return MinMax::where('LIMIT_ITEM', $limitItem)->first();
+        return $component->ID_COMP;
     }
 }
