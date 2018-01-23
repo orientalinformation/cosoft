@@ -1927,4 +1927,34 @@ class Output extends Controller
 
         return compact("axeTemp", "dataChart", "resultLabel", "result");
     }
+
+    public function productchart2D()
+    {
+        $idStudy = $this->request->input('idStudy');
+        $idStudyEquipment = $this->request->input('idStudyEquipment');
+        $SelectedPlan = $this->request->input('SelectedPlan');
+
+        $productElmt = ProductElmt::where('ID_STUDY', $idStudy)->first();
+        $shape = $productElmt->SHAPECODE;
+        $layoutGen = LayoutGeneration::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
+        $orientation = $layoutGen->PROD_POSITION;
+
+        $selPoints = $this->output->getSelectedMeshPoints($idStudy);
+        if (empty($selPoints)) {
+            $selPoints = $this->output->getMeshSelectionDef();
+        }
+
+        $axeTempRecordData = [];
+        if (!empty($selPoints)) {
+            $axeTempRecordData = [
+                [-1.0, $selPoints[9], $selPoints[10]],
+                [$selPoints[11], -1.0, $selPoints[12]],
+                [$selPoints[13], $selPoints[14], -1.0]
+            ];
+        }
+
+        $result = TempRecordData::select('TEMP')->where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->orderBy('TEMP', 'DESC')->first();
+
+        return $result;
+    }
 }
