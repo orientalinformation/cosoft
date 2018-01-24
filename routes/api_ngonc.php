@@ -25,12 +25,21 @@ $router->GET('/api/v1/studies/{id}/productElmt', 'Api1\\Studies@getProductElmt')
 $router->GET('/api/v1/studies/{id}/meshPoints', 'Api1\\Studies@getMeshPoints');
 
 /**
- * GET getMeshPoints
+ * GET getstudyEquipmentProductChart
  * Summary: 
- * Notes: get meshPoints Study
+ * Notes: get Study Equipment Product Chart
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/studyEquipment/{id}/productChart', 'Api1\\StudyEquipments@getstudyEquipmentProductChart');
+
+/**
+ * GET getRecordPosition
+ * Summary: 
+ * Notes: get Study Equipment Record Position
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/studyEquipment/{id}/recordPosition', 'Api1\\StudyEquipments@getRecordPosition');
+
 
 /**
  * GET sizingEstimationResult
@@ -80,3 +89,11 @@ $router->GET('/api/v1/output/productSection', 'Api1\\Output@productSection');
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/output/saveTempRecordPts', 'Api1\\Output@saveTempRecordPts');
+
+/**
+ * GET productchart2D
+ * Summary: 
+ * Notes: get product chart 2D data
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/output/productchart2D', 'Api1\\Output@productchart2D');

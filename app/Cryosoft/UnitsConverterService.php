@@ -293,6 +293,12 @@ class UnitsConverterService
         return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B);
     }
 
+    public function none($value)
+    {
+        $uNone = $this->uNone();
+        return $this->convertCalculator($value, $uNone["coeffA"], $uNone["coeffB"]);
+    }
+
     public function toc($value) 
     {
         $uPercent = $this->uPercent();
