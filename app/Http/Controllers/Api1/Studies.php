@@ -749,15 +749,17 @@ class Studies extends Controller
     public function updateProduct($id) 
     {
         $study = \App\Models\Study::find($id);
-        $product = $study->product;
-        $input = $this->request->all();
+        $product = $study->products->first();
+        $input = $this->request->json()->all();
 
         if (isset($input['name']) && !empty($input['name'])) {
             $product->PRODNAME = $input['name'];
             $product->save();
         }
 
-        if (isset($input['dim1']) || isset($input['dim2']) || isset($input['dim3'])) {
+        $ok = 0;
+
+        if (isset($input['dim1']) || isset($input['dim3'])) {
             $elements = $product->productElmts;
             if ($elements->count() > 0) {
                 foreach ($elements as $elmt) {
@@ -765,10 +767,14 @@ class Studies extends Controller
                     if (isset($input['dim2'])) $elmt->SHAPE_PARAM2 = floatval($input['dim2']);
                     if (isset($input['dim3'])) $elmt->SHAPE_PARAM3 = floatval($input['dim3']);
                     $elmt->save();
-                }
+                    $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_PROD, intval($elmt->ID_PRODUCT_ELMT));
+                    $ok = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($id, $conf, 2);
+                }                
+                $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_PROD);
+                $ok = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($id, $conf, 4);
             }
         }
-        return 0;
+        return $ok;
     }
 
     public function getStudyPackingLayers($id)

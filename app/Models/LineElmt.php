@@ -53,9 +53,10 @@ class LineElmt extends Model
     /**
      * @var array
      */
+
     protected $casts = [
         'ELT_SIZE'    => 'float',
-    ];
+
     /**
      * @var string
      */
