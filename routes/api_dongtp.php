@@ -111,3 +111,11 @@ $router->PUT('/api/v1/referencedata/component', 'Api1\\ReferenceData@saveDataCom
  * Output-Formats: [application/json]
  */
 $router->PUT('/api/v1/referencedata/calculatefreeze', 'Api1\\ReferenceData@calculateFreeze');
+
+/**
+ * GET Data temperatures
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/referencedata/component/{id}', 'Api1\\ReferenceData@getTemperaturesByIdComp');

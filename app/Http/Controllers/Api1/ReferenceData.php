@@ -121,6 +121,7 @@ class ReferenceData extends Controller
             'AIR' => $AIR,
             'NON_FROZEN_WATER' => $NON_FROZEN_WATER,
             'release' => $release,
+            'ID_USER' => $this->auth->user()->ID_USER,
         ];
 
         return $array;
@@ -263,5 +264,21 @@ class ReferenceData extends Controller
         }
 
         return $component->ID_COMP;
+    }
+
+    public function getTemperaturesByIdComp($idComp)
+    {
+        $temperatures = array();
+        $item = array();
+
+        $compenths = Compenth::where('ID_COMP', $idComp)->get();
+        if (count($compenths) > 0) {
+            foreach ($compenths as $compenth) {
+                $item['temperature'] = $compenth->COMPTEMP;
+                array_push($temperatures, $item);
+            }
+        }
+
+        return $temperatures;
     }
 }
