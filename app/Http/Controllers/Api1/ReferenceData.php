@@ -15,6 +15,7 @@ use App\Models\MinMax;
 use App\Models\Language;
 use App\Models\User;
 use App\Kernel\KernelService;
+use App\Models\ProductElmt;
 
 class ReferenceData extends Controller
 {
@@ -121,9 +122,26 @@ class ReferenceData extends Controller
             'AIR' => $AIR,
             'NON_FROZEN_WATER' => $NON_FROZEN_WATER,
             'release' => $release,
+            'ID_USER' => $this->auth->user()->ID_USER,
         ];
 
         return $array;
+    }
+
+    public function getMyComponent()
+    {
+        $mine = Component::where('ID_USER', $this->auth->user()->ID_USER)
+        ->join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')
+        ->where('Translation.TRANS_TYPE', 1)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+        ->orderBy('LABEL', 'ASC')->get();
+
+        $others = Component::join('Ln2user', 'Ln2user.ID_USER', '=', 'Component.ID_USER')
+            ->join('Translation', 'Component.ID_COMP', '=', 'Translation.ID_TRANSLATION')
+            ->where('Translation.TRANS_TYPE', 1)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+            ->where('Component.ID_USER', '!=', $this->auth->user()->ID_USER)
+            ->orderBy('LABEL', 'ASC')->get();
+
+        return compact('mine', 'others');
     }
 
     public function saveDataComponent()
@@ -263,5 +281,59 @@ class ReferenceData extends Controller
         }
 
         return $component->ID_COMP;
+    }
+
+    public function getTemperaturesByIdComp($idComp)
+    {
+        $temperatures = array();
+        $item = array();
+
+        $compenths = Compenth::where('ID_COMP', $idComp)->get();
+        if (count($compenths) > 0) {
+            foreach ($compenths as $compenth) {
+                $item['temperature'] = $compenth->COMPTEMP;
+                array_push($temperatures, $item);
+            }
+        }
+
+        return $temperatures;
+    }
+
+    public function deleteComponent($idComp)
+    {
+        $productElmt = ProductElmt::where('ID_COMP', $idComp)->get();
+        if (count($productElmt) > 0) {
+            $component = Component::find($idComp);
+            if ($component && ($component->COMP_RELEASE != 5)) {
+                $component->COMP_RELEASE = 5;
+                $component->save();
+            }
+            return 0;
+        }
+
+        $this->cleaningComp($idComp);
+        return 1;
+    }
+
+    private function cleaningComp($idComp)
+    {
+        Translation::where('TRANS_TYPE', '=', 1)->where('ID_TRANSLATION', $idComp)->delete();
+
+
+        // if (count($translations) > 0) {
+        //     foreach ($translations as $translation) {
+        //         $translation->delete();
+        //     }    
+        // }
+
+        $compenths = Compenth::where('ID_COMP', $idComp)->get();
+        if (count($compenths) > 0) {
+            foreach ($compenths as $compenth) {
+                $compenth->delete();
+            }
+        }
+
+        $component = Component::find($idComp);
+        if ($component) $component->delete();
     }
 }
