@@ -1392,6 +1392,7 @@ class Studies extends Controller
             foreach ($study->studyEquipments as $studyEquip) {
                 $pipeGen = $studyEquip->pipeGens->first();
                 $coolingFamily = $studyEquip->ID_COOLING_FAMILY;
+                $lineElmts = [];
                 // @TODO if not found
                 if(count($pipeGen) > 0) {
                     foreach ($pipeGen->lineDefinitions as $lineDef) {
@@ -1399,40 +1400,80 @@ class Studies extends Controller
                         $lineElmts[] = $lineElmt;
                     }    
                 } else {
-                    $insulationTypes = LineElmt::distinct()->select('INSULATION_TYPE')->where('ID_COOLING_FAMILY', $coolingFamily)->get();
-                    $lineElmt = [];
+                    $lineElmts = LineElmt::distinct()->select('INSULATION_TYPE')->where('ID_COOLING_FAMILY', $coolingFamily)->get();
+                }
 
-                    foreach ($insulationTypes as $key => $insulationType) {
-                        $insideDiameters = LineElmt::distinct()->select('ELT_SIZE')->where('ID_COOLING_FAMILY ', $coolingFamily)->where('ELT_TYPE', '<>', 2)->where('INSULATION_TYPE', $insulationType->INSULATION_TYPE)->get();
-                        foreach ($insideDiameters as $insideDiameter) {
-                            $lineElmts[$key][] = $insideDiameter->ELT_SIZE;
-                            //TODO: get name combo box
-                            $insulatedLine[$key][$insideDiameter->ELT_SIZE][] = $this->lineE->getNameComboBox(1,$insideDiameter->ELT_SIZE, $coolingFamily);
-
-                            $insulatedline[$key][$insideDiameter->ELT_SIZE][] = $this->lineE->getNameComboBox(5,$insideDiameter->ELT_SIZE, $coolingFamily);
-
-                            $tee[$key][$insideDiameter->ELT_SIZE][] = $this->lineE->getNameComboBox(3,$insideDiameter->ELT_SIZE, $coolingFamily);
-
-                            $elbows[$key][$insideDiameter->ELT_SIZE][] = $this->lineE->getNameComboBox(4,$insideDiameter->ELT_SIZE, $coolingFamily);
-
-                            $non_insulated_line[$key][$insideDiameter->ELT_SIZE][] = $this->lineE->getNonLine(1,$insideDiameter->ELT_SIZE, $coolingFamily);
-
-                            $non_insulated_valves[$key][$insideDiameter->ELT_SIZE][] = $this->lineE->getNonLine(5,$insideDiameter->ELT_SIZE, $coolingFamily);
-
-                            $storageTanks = LineElmt::distinct()->select('ELT_SIZE')->where('ID_COOLING_FAMILY ', $coolingFamily)->where('ELT_TYPE', '=', 2)->where('INSULATION_TYPE', $insulationType->INSULATION_TYPE)->get();;
-                            foreach ($storageTanks as $storageTank) {
-                                $lineElmts[$key][][][] = $storageTank->ELT_SIZE;
-                                $storageT[$key][$insideDiameter->ELT_SIZE][$storageTank->ELT_SIZE][] = $this->lineE->getNameComboBox(2,$storageTank->ELT_SIZE, $coolingFamily);
-                            }
-
-                        }
-                    }
+                $resultInsideDiameters= [];
+                foreach ($lineElmts as $key => $insulationType) {
+                    $resultInsideDiameters[] = $insideDiameters = LineElmt::distinct()->select('ELT_SIZE')->where('ID_COOLING_FAMILY ', $coolingFamily)->where('ELT_TYPE', '<>', 2)->where('INSULATION_TYPE', $insulationType->INSULATION_TYPE)->get();
                 }
             }
         } else {
             echo "ID study not found--------------------";
         }
-        
-        return $storageT;
+
+        $result = [];
+
+        foreach ($resultInsideDiameters as $key => $value) {
+            $item = [];
+            foreach ($value as $key => $value) {
+                $item[] = $value->ELT_SIZE;
+            }
+            $result[] = $item;
+        }
+
+        foreach ($result as $key => $value) {
+
+            foreach ($value as $k => $v) {
+                $res = $this->lineE->getNameComboBox(1, $v, $coolingFamily);
+                $res1 = $this->lineE->getNameComboBox(5, $v, $coolingFamily);
+                $tee = $this->lineE->getNameComboBox(3, $v, $coolingFamily);
+                $elbows = $this->lineE->getNameComboBox(4, $v, $coolingFamily);
+                $non_insulated_line = $this->lineE->getNonLine(1, $v, $coolingFamily, 0);
+                $non_insulated_valves = $this->lineE->getNonLine(5, $v, $coolingFamily, 0);
+                $storageTanks= LineElmt::distinct()->select('ELT_SIZE')->where('ID_COOLING_FAMILY ', $coolingFamily)->where('ELT_TYPE', '=', 2)->where('INSULATION_TYPE', $insulationType->INSULATION_TYPE)->get();
+                foreach ($storageTanks as $key1 => $value1) {
+                   $a = [];
+                   $a[$k] = $value1->ELT_SIZE;
+                   $b[] = $a;
+                   $st = $this->lineE->getNameComboBox(2, $b, $coolingFamily);
+                   
+                }
+                
+
+                $item = [];
+                $item["Inside Diameter"] = $v;
+                foreach ($res as $row) {
+                    $item["Insulatedline"] = $row->LABEL;
+                }
+
+                foreach ($res1 as $row) {
+                    $item["Insulatedvalves"] = $row->LABEL;
+                }
+
+                foreach ($tee as $row) {
+                    $item["Tee"] = $row->LABEL;
+                } 
+ 
+                foreach ($elbows as $row) {
+                    $item["Elbows"] = $row->LABEL;
+                }
+
+                foreach ($non_insulated_line as $row) {
+                    $item["Noninsulatedline"] = $row->LABEL;
+                }
+
+                foreach ($non_insulated_valves as $row) {
+                    $item["Noninsulatedvalves"] = $row->LABEL;
+                }
+                
+               // $pipeline[$key][$k] = $item;
+               $pipeline[$key][$k] = $st;
+               
+            }
+            
+        }
+
+        return compact("pipeline");
     }
 }

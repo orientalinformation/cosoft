@@ -28,10 +28,10 @@ class LineService
         return $sname;
 	}
 
-	public function getNonLine($elt_type,$insideDiameter, $coolingFamily) {
+	public function getNonLine($elt_type,$insideDiameter, $coolingFamily, $idIsolation) {
 		$nonName = LineElmt::select('LABEL')->where('ID_USER', '!=', $this->auth->user()->ID_USER)
                 ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
-                ->where('Translation.TRANS_TYPE', 27)->where('ELT_TYPE', '=', $elt_type)->where('ELT_SIZE',$insideDiameter)->where('ID_COOLING_FAMILY', $coolingFamily)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
+                ->where('Translation.TRANS_TYPE', 27)->where('ELT_TYPE', '=', $elt_type)->where('ELT_SIZE',$insideDiameter)->where('ID_COOLING_FAMILY', $coolingFamily)->where('INSULATION_TYPE', $idIsolation)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->get();
         return $nonName;
 	}
 }
