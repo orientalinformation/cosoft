@@ -119,3 +119,19 @@ $router->PUT('/api/v1/referencedata/calculatefreeze', 'Api1\\ReferenceData@calcu
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/referencedata/component/{id}', 'Api1\\ReferenceData@getTemperaturesByIdComp');
+
+/**
+ * Delete Component
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->DELETE('/api/v1/referencedata/component/{id}', 'Api1\\ReferenceData@deleteComponent');
+
+/**
+ * GET Data family
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/referencedata/components', 'Api1\\ReferenceData@getMyComponent');
