@@ -159,3 +159,10 @@ $router->GET('/api/v1/translation/energies', 'Api1\\PipeLine@getListEnergies');
  */
 $router->GET('/api/v1/referencedata/equipments', 'Api1\\Equipments@findRefEquipment');
 
+/**
+ * POST changePassword
+ * Summary:
+ * Notes: change password
+ * Output-Formats: [number]
+ */
+$router->POST('/api/v1/users/{id}/changepassword', 'Api1\\Users@changePassword');
