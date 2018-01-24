@@ -214,3 +214,43 @@ $router->GET('/api/v1/users/processes', 'Api1\\Users@getProcesses');
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/users/models', 'Api1\\Users@getModels');
+
+/**
+ * GET getLangue
+ * Summary:
+ * Notes: get list Langue
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/users/lang', 'Api1\\Users@getLangue');
+
+/**
+ * GET getMonetary
+ * Summary:
+ * Notes: get list Monetary
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/users/monetary', 'Api1\\Users@getMonetary');
+
+/**
+ * GET getUnits
+ * Summary:
+ * Notes: get list Units 
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/users/{id}/units', 'Api1\\Users@getUnits');
+
+/**
+ * POST updateUnits
+ * Summary:
+ * Notes: update form Units 
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/users/{id}/units', 'Api1\\Users@updateUnits');
+
+/**
+ * GET getUser
+ * Summary:
+ * Notes: get user by ID
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/users/{id}', 'Api1\\Users@getUser');

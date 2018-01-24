@@ -13,6 +13,9 @@ use App\Models\Translation;
 use App\Models\Equipseries;
 use App\Models\Equipment;
 use App\Models\Equipfamily;
+use App\Models\Unit;
+use App\Models\UserUnit;
+use App\Models\MonetaryCurrency;
 
 
 class Users extends Controller
@@ -37,13 +40,9 @@ class Users extends Controller
 
         $oldPass = $input['oldPass'];
         $newPass = $input['newPass'];
-        // $hashOldPass = Hash::make($oldPass);
         $hashNewPass = Hash::make($newPass);
 
         $user = User::find($id);
-        // var_dump($user->USERPASS);
-        // var_dump($hashOldPass);
-        // die;
         if (!Hash::check($oldPass, $user->USERPASS)) {
             return -1;
         }
@@ -108,7 +107,6 @@ class Users extends Controller
 
     public function getOrigines()
     {
-
         $input = $this->request->all();
         $energy = 0;
         $manufacturerLabel = '';
@@ -201,5 +199,65 @@ class Users extends Controller
         ->orderBy('LABEL', 'ASC')->distinct()->get();
 
         return $list;
+    }
+
+    public function getLangue()
+    {   
+        $list = Translation::where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+        ->where('TRANS_TYPE', 9)->get();
+
+        return $list;
+    }
+
+    public function getMonetary()
+    {
+        $list = MonetaryCurrency::all();
+
+        return $list;
+    }
+
+    public function getUnits($id) 
+    {
+        $list = UserUnit::join('unit', 'user_unit.ID_UNIT', '=', 'unit.ID_UNIT')
+        ->where('ID_USER', $id)->get();
+
+        foreach ($list as $key) {
+            $symbol = Unit::select('ID_UNIT','TYPE_UNIT','SYMBOL')->where('TYPE_UNIT', $key->TYPE_UNIT)
+            ->orderBy('TYPE_UNIT', 'ASC')->get();
+            $key->listSymbol = $symbol;
+        }
+
+        return $list;
+    }
+
+    public function updateUnits($id)
+    {
+        $input = $this->request->all();
+
+        if (!isset($input['Langue']) || !isset($input['DefaultEquipment']) || !isset($input['Units']))
+            throw new \Exception("Error Processing Request", 1);
+            
+        $lang = $input['Langue'];
+        $defaultEquip = $input['DefaultEquipment'];
+        $units = $input['Units'];
+
+        $user = User::find($id);
+
+        $user->CODE_LANGUE = intval($lang['langId']);
+        $user->ID_MONETARY_CURRENCY = intval($lang['monetaryId']);
+        $user->USER_ENERGY = intval($defaultEquip['energyId']);
+        $user->USER_CONSTRUCTOR = $defaultEquip['construct'];
+        $user->USER_FAMILY = intval($defaultEquip['familyId']);
+        $user->USER_ORIGINE = intval($defaultEquip['stdId']);
+        $user->USER_PROCESS = intval($defaultEquip['batchProcess']);
+        $user->USER_MODEL = intval($defaultEquip['equipseriesId']);
+        $user->update();
+
+        return 1;
+    }
+
+    public function getUser($id)
+    {
+        return User::find($id);
     }
 }
