@@ -31,6 +31,8 @@ use App\Models\PackingElmt;
 use App\Models\Connection;
 use Carbon\Carbon;
 use App\Models\StudyEquipment;
+use App\Models\MonetaryCurrency;
+use App\Models\Unit;
 class Admin extends Controller
 {	
 	/**
@@ -337,5 +339,11 @@ class Admin extends Controller
 		}
 		
 		return $connections;
+	}
+
+	public function units()
+	{
+		$monetary = MonetaryCurrency::get();
+		$kernelUnits = Unit::where('ID_UNIT', 'TYPE_UNIT')->where('TYPE_UNIT', '<>', 27)->orderBy('TYPE_UNIT')->get();
 	}
 }
