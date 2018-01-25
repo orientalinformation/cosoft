@@ -23,6 +23,162 @@ class UnitsConverterService
         $this->value = $app['App\\Cryosoft\\ValueListService'];
     }
 
+    public function tmUnitTypeMapping()
+    {
+        $units =  [
+            [
+                "name" => "Conductivity",
+                "value" => 10
+            ],
+            [
+                "name" => "Consumption unit",
+                "value" => 28
+            ],
+            [
+                "name" => "Consumption unit (CO2)",
+                "value" => 30
+            ],
+            [
+                "name" => "Consumption unit (LN2)",
+                "value" => 29
+            ],
+            [
+                "name" => "Heat losses per hour",
+                "value" => 31
+            ],
+            [
+                "name" => "Heat losses per hour (CO2)",
+                "value" => 33
+            ],
+            [
+                "name" => "Heat losses per hour (LN2)",
+                "value" => 32
+            ],
+            [
+                "name" => "Cooldown",
+                "value" => 34
+            ],
+            [
+                "name" => "Cooldown (CO2)",
+                "value" => 36
+            ],
+            [
+                "name" => "Cooldown (LN2)",
+                "value" => 35
+            ],
+            [
+                "name" => "Convection coef",
+                "value" => 14
+            ],
+            [
+                "name" => "Convection speed",
+                "value" => 13
+            ],
+            [
+                "name" => "Density",
+                "value" => 7
+            ],
+            [
+                "name" => "Enthalpy",
+                "value" => 9
+            ],
+            [
+                "name" => "Equipment dimension",
+                "value" => 21
+            ],
+            [
+                "name" => "Evaporation",
+                "value" => 26
+            ],
+            [
+                "name" => "Fluid flow",
+                "value" => 1
+            ],
+            [
+                "name" => "Length",
+                "value" => 3
+            ],
+            [
+                "name" => "Line",
+                "value" => 17
+            ],
+            [
+                "name" => "Losses in get cold (Line)",
+                "value" => 11
+            ],
+            [
+                "name" => "Permanent Heat losses (Line)",
+                "value" => 12
+            ],
+            [
+                "name" => "Mass",
+                "value" => 4
+            ],
+            [
+                "name" => "Unit of mass (consumption)",
+                "value" => 37
+            ],
+            [
+                "name" => "Material Rise",
+                "value" => 24
+            ],
+            [
+                "name" => "Mesh cut",
+                "value" => 20
+            ],
+            [
+                "name" => "Pressure",
+                "value" => 15
+            ],
+            [
+                "name" => "Product dimension - product chart",
+                "value" => 38
+            ],
+            [
+                "name" => "Product flow",
+                "value" => 2
+            ],
+            [
+                "name" => "Product dimension",
+                "value" => 19
+            ],
+            [
+                "name" => "CO2 tank capacity",
+                "value" => 25
+            ],
+            [
+                "name" => "LN2 tank capacity",
+                "value" => 18
+            ],
+            [
+                "name" => "Slopes position",
+                "value" => 23
+            ],
+            [
+                "name" => "Specific Heat",
+                "value" => 6
+            ],
+            [
+                "name" => "Temperature",
+                "value" => 8
+            ],
+            [
+                "name" => "Thickness packing",
+                "value" => 16
+            ],
+            [
+                "name" => "Time",
+                "value" => 5
+            ],
+            [
+                "name" => "Carpet/Sieve width",
+                "value" => 22
+            ],
+        ];
+
+        return $units;
+    }
+
     public function productFlowSymbol() 
     {
     	$unit = Unit::select("SYMBOL")->where("TYPE_UNIT", $this->value->PRODUCT_FOLLOW)->first();
