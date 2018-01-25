@@ -94,7 +94,6 @@ class Users extends Controller
             ->join('equipseries', function ($series){
                 $series->on('equipfamily.ID_FAMILY', '=', 'equipseries.ID_FAMILY')
                 ->join('equipment', function($equip){
-
                     $equip->on('equipseries.ID_EQUIPSERIES', '=', 'equipment.ID_EQUIPSERIES');
                 });
             });
@@ -219,11 +218,10 @@ class Users extends Controller
     public function getUnits($id) 
     {
         $list = UserUnit::join('unit', 'user_unit.ID_UNIT', '=', 'unit.ID_UNIT')
-        ->where('ID_USER', $id)->get();
+        ->where('ID_USER', $id)->orderBy('unit.TYPE_UNIT', 'ASC')->get();
 
         foreach ($list as $key) {
-            $symbol = Unit::select('ID_UNIT','TYPE_UNIT','SYMBOL')->where('TYPE_UNIT', $key->TYPE_UNIT)
-            ->orderBy('TYPE_UNIT', 'ASC')->get();
+            $symbol = Unit::select('ID_UNIT','TYPE_UNIT','SYMBOL')->where('TYPE_UNIT', $key->TYPE_UNIT)->get();
             $key->listSymbol = $symbol;
         }
 
@@ -240,9 +238,7 @@ class Users extends Controller
         $lang = $input['Langue'];
         $defaultEquip = $input['DefaultEquipment'];
         $units = $input['Units'];
-
         $user = User::find($id);
-
         $user->CODE_LANGUE = intval($lang['langId']);
         $user->ID_MONETARY_CURRENCY = intval($lang['monetaryId']);
         $user->USER_ENERGY = intval($defaultEquip['energyId']);
@@ -252,6 +248,14 @@ class Users extends Controller
         $user->USER_PROCESS = intval($defaultEquip['batchProcess']);
         $user->USER_MODEL = intval($defaultEquip['equipseriesId']);
         $user->update();
+        UserUnit::where('ID_USER', $id)->delete();
+
+        foreach ($units as $key) {
+            $userUnit = new UserUnit();
+            $userUnit->ID_USER = $id;
+            $userUnit->ID_UNIT = intval($key['ID_UNIT']);
+            $userUnit->save();
+        }
 
         return 1;
     }
