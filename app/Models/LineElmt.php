@@ -61,7 +61,6 @@ class LineElmt extends Model
 
     protected $maps = [
       'user' => [
-        'ID_USER',
         'USERNAM'
       ]
     ];
