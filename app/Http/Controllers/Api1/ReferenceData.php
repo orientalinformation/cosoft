@@ -78,19 +78,6 @@ class ReferenceData extends Controller
         $productNature = $this->getFamilyTranslations(15);
         $conductivity = $this->getFamilyTranslations(9);
         $fatType = $this->getFamilyTranslations(12);
-        $others = null;
-
-        $mine = Component::where('ID_USER', $this->auth->user()->ID_USER)
-        ->join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')
-        ->where('Translation.TRANS_TYPE', 1)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
-        ->orderBy('LABEL', 'ASC')->get();
-
-        $others = Component::join('Ln2user', 'Ln2user.ID_USER', '=', 'Component.ID_USER')
-            ->join('Translation', 'Component.ID_COMP', '=', 'Translation.ID_TRANSLATION')
-            ->where('Translation.TRANS_TYPE', 1)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
-            ->where('Component.ID_USER', '!=', $this->auth->user()->ID_USER)
-            ->orderBy('LABEL', 'ASC')->get();   
-
 
         $COMP_COMMENT = $COMP_NAME = '';
         $LIPID = $GLUCID = $PROTID = $WATER = $FREEZE_TEMP = $COMP_VERSION = $CONDUCT_TYPE = 0;
@@ -98,8 +85,6 @@ class ReferenceData extends Controller
         $release = $NATURE_TYPE = 1;
 
         $array = [
-            'mine' => $mine,
-            'others' => $others,
             'productFamily' => $productFamily,
             'PRODUCT_TYPE' => $PRODUCT_TYPE,
             'subFamily' => $subFamily,
@@ -186,11 +171,17 @@ class ReferenceData extends Controller
         return $this->kernel->getKernelObject('FreezeCalculator')->FCFreezeCalculation($conf);
     }
 
+    public function startCBCalculation($idComp)
+    {
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idComp);
+        return $this->kernel->getKernelObject('ComponentBuilder')->CBComponentCalculation($conf);
+    }
+
     private function saveComponent(Request $request)
     {
         $input = $this->request->all();
 
-        $COMP_COMMENT = $COMP_NAME = null;
+        $COMP_COMMENT = $COMP_NAME = $COMP_NAME_NEW = $COMP_VERSION_NEW = null;
         $LIPID = $GLUCID = $PROTID = $WATER = $FREEZE_TEMP = $COMP_VERSION = $CONDUCT_TYPE = 0;
         $SALT = $AIR = $NON_FROZEN_WATER = $PRODUCT_TYPE = $SUB_TYPE = $FATTYPE = $DENSITY = $HEAT = 0;
         $release = $NATURE_TYPE = 1;
@@ -200,6 +191,7 @@ class ReferenceData extends Controller
         if (isset($FREEZE_TEMP)) $FREEZE_TEMP = (float) $this->convert->unitConvert($this->value->TEMPERATURE, floatval($input['FREEZE_TEMP']));
         if (isset($input['COMP_COMMENT'])) $COMP_COMMENT = $input['COMP_COMMENT'];
         if (isset($input['COMP_NAME'])) $COMP_NAME = $input['COMP_NAME'];
+        if (isset($input['COMP_NAME_NEW'])) $COMP_NAME_NEW = $input['COMP_NAME_NEW'];
         if (isset($input['NON_FROZEN_WATER'])) $NON_FROZEN_WATER = floatval($input['NON_FROZEN_WATER']);
         if (isset($input['WATER'])) $WATER = floatval($input['WATER']);
         if (isset($input['AIR'])) $AIR = floatval($input['AIR']);
@@ -209,6 +201,7 @@ class ReferenceData extends Controller
         if (isset($input['LIPID'])) $LIPID = floatval($input['LIPID']);
         if (isset($input['CONDUCT_TYPE'])) $CONDUCT_TYPE = intval($input['CONDUCT_TYPE']);
         if (isset($input['COMP_VERSION'])) $COMP_VERSION = intval($input['COMP_VERSION']);
+        if (isset($input['COMP_VERSION_NEW'])) $COMP_VERSION_NEW = intval($input['COMP_VERSION_NEW']);
         if (isset($input['FATTYPE'])) $FATTYPE = intval($input['FATTYPE']);
         if (isset($input['NATURE_TYPE'])) $NATURE_TYPE = intval($input['NATURE_TYPE']);
         if (isset($input['PRODUCT_TYPE'])) $PRODUCT_TYPE = intval($input['PRODUCT_TYPE']);
@@ -232,7 +225,11 @@ class ReferenceData extends Controller
         $component->ID_USER = $this->auth->user()->ID_USER;
         $component->COMP_COMMENT = ($COMP_COMMENT == '') ? $comment : $commentTrue;
         // $component->COMP_DATE = $current->toDateTimeString();
-        $component->COMP_VERSION = $COMP_VERSION;
+        if ($COMP_VERSION_NEW != null) {
+            $component->COMP_VERSION = $COMP_VERSION_NEW;
+        } else {
+            $component->COMP_VERSION = $COMP_VERSION;
+        }
         $component->COMP_RELEASE = $release;
         $component->COMP_NATURE = $NATURE_TYPE;
         $component->FAT_TYPE = $FATTYPE;
@@ -275,7 +272,11 @@ class ReferenceData extends Controller
             $translation = new Translation();
             $translation->TRANS_TYPE = 1;
             $translation->ID_TRANSLATION = $component->ID_COMP;
-            $translation->LABEL = $COMP_NAME;
+            if ($COMP_NAME_NEW != null) {
+                $translation->LABEL = $COMP_NAME_NEW;
+            } else {
+                $translation->LABEL = $COMP_NAME;
+            }
             $translation->CODE_LANGUE = $languages[$i]->CODE_LANGUE;
             $translation->save();
         }
