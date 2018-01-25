@@ -33,6 +33,7 @@ use Carbon\Carbon;
 use App\Models\StudyEquipment;
 use App\Models\MonetaryCurrency;
 use App\Models\Unit;
+use App\Cryosoft\UnitsConverterService;
 class Admin extends Controller
 {	
 	/**
@@ -40,10 +41,11 @@ class Admin extends Controller
 	 */
 	protected $request;
 
-	public function __construct(Request $request, Auth $auth)
+	public function __construct(Request $request, Auth $auth, UnitsConverterService $unit)
 	{
 		$this->request = $request;
 		$this->auth = $auth;
+		$this->unit = $unit;
 	}
 
 	public function newUser()
@@ -344,6 +346,31 @@ class Admin extends Controller
 	public function units()
 	{
 		$monetary = MonetaryCurrency::get();
-		$kernelUnits = Unit::where('ID_UNIT', 'TYPE_UNIT')->where('TYPE_UNIT', '<>', 27)->orderBy('TYPE_UNIT')->get();
+		$kernelMonetary = MonetaryCurrency::select('monetary_currency.*')->join('ln2user', 'monetary_currency.ID_MONETARY_CURRENCY', '=', 'ln2user.ID_MONETARY_CURRENCY')->where('ln2user.USERNAM', 'KERNEL')->first();
+		$units = $this->unit->tmUnitTypeMapping();
+
+		$listUnit = [];
+		foreach ($units as $key => $value) {
+			$kernelUnit = DB::table('Unit')
+						->where('ID_UNIT', '=', DB::raw('TYPE_UNIT'))
+			            ->where('TYPE_UNIT', $value['value'])
+			            ->where('TYPE_UNIT', '<>', 27)
+			            ->first();
+            $symbolSelect = Unit::where("TYPE_UNIT", $value['value'])->get();
+            $arrSymbol = [];
+            foreach ($symbolSelect as $row) {
+            	$item['SYMBOL'] = $row->SYMBOL;
+            	$item['COEFF_A'] = (strlen(substr(strrchr($row->COEFF_A, "."), 1) > 1)) ? $row->COEFF_A : $this->unit->time($row->COEFF_A);
+            	$item['COEFF_B'] = (strlen(substr(strrchr($row->COEFF_B, "."), 1) > 1)) ? $row->COEFF_B : $this->unit->time($row->COEFF_B);
+            	$arrSymbol[] = $item;
+            }
+			$listUnit[] = $value;
+			$listUnit[$key]['SYMBOL'] = $kernelUnit->SYMBOL;
+			$listUnit[$key]['symbolSelect'] = $arrSymbol;
+			$listUnit[$key]['COEFF_A'] = $this->unit->none($kernelUnit->COEFF_A);
+			$listUnit[$key]['COEFF_B'] = $this->unit->none($kernelUnit->COEFF_B);
+		}
+
+		return compact('monetary', 'kernelMonetary', 'listUnit');
 	}
 }

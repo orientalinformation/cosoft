@@ -40,6 +40,14 @@ $router->GET('/api/v1/studyEquipment/{id}/productChart', 'Api1\\StudyEquipments@
  */
 $router->GET('/api/v1/studyEquipment/{id}/recordPosition', 'Api1\\StudyEquipments@getRecordPosition');
 
+/**
+ * GET units
+ * Summary: 
+ * Notes: get Admin Units
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/admin/units', 'Api1\\Admin@units');
+
 
 /**
  * GET sizingEstimationResult

@@ -453,6 +453,10 @@ class OutputService
         return $result;
     }
 
+    public function getTemperatureBorne($idStudyEquipment) {
+        
+    }
+
     public function mixRange($color1, $color2, $MIN = 1, $MAX = 10)
     {
         $range = rand($MIN, $MAX);
