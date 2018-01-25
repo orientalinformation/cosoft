@@ -152,8 +152,9 @@ class ReferenceData extends Controller
         if ($idComp == null) {
             $idComp = $this->saveComponent($this->request);
 
-            if ($idComp == 3) return 3;
-            if ($idComp == 2) return 2;
+            if ($idComp == -3) return -3;
+            if ($idComp == -2) return -2;
+            if ($idComp == -4) return -4;
             $result = $this->startFCCalculation($idComp);
         } else {
             if ($idComp) {
@@ -209,8 +210,14 @@ class ReferenceData extends Controller
         if (isset($input['Temperatures'])) $temperatures = $input['Temperatures'];
         if (isset($input['release'])) $release = intval($input['release']);
 
-        if ($COMP_NAME == null) return 3;
-        if ($PRODUCT_TYPE == 0) return 2;
+        if ($COMP_NAME == null) return -3;
+        if ($PRODUCT_TYPE == 0) return -2;
+
+        if ($COMP_VERSION_NEW != null) {
+            if ($this->checkNameAndVersion($COMP_NAME_NEW, $COMP_VERSION_NEW)) return -4;
+        } else {
+            if ($this->checkNameAndVersion($COMP_NAME, $COMP_VERSION)) return -4;
+        }
 
         $comment = 'Created on ' . $current->toDateTimeString() . ' by '. $this->auth->user()->USERNAM;
         $commentTrue = $COMP_COMMENT . "\n". $comment;
@@ -336,5 +343,22 @@ class ReferenceData extends Controller
 
         $component = Component::find($idComp);
         if ($component) $component->delete();
+    }
+
+    private function checkNameAndVersion($compName, $compVersion)
+    {
+        $components = Component::select(array('Translation.LABEL', 'Component.COMP_VERSION'))
+        ->join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')
+        ->where('Translation.TRANS_TYPE', 1)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+        ->orderBy('LABEL', 'ASC')->get();
+
+        for ($i = 0; $i < count($components); $i++) { 
+            if (($components[$i]->LABEL == $compName) && 
+                (floatval($components[$i]->COMP_VERSION) == floatval($compVersion))) {
+                return 1;
+            }
+                
+        }
+        return 0;
     }
 }
