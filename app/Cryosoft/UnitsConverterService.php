@@ -5,6 +5,7 @@ namespace App\Cryosoft;
 use Illuminate\Contracts\Auth\Factory as Auth;
 use App\Cryosoft\ValueListService;
 use App\Models\Unit;
+use App\Models\UserUnit;
 use App\Models\MonetaryCurrency;
 
 
@@ -194,6 +195,14 @@ class UnitsConverterService
     public function temperatureSymbol() {
         $unit = Unit::select("SYMBOL")->where("TYPE_UNIT", $this->value->TEMPERATURE)->first();
     	return $unit->SYMBOL;
+    }
+
+    public function temperatureSymbolUser() {
+        $user = $this->auth->user();
+        $userUnit = UserUnit::join('unit', 'user_unit.ID_UNIT', '=', 'unit.ID_UNIT')->where('ID_USER', $user->ID_USER)
+        ->where("unit.TYPE_UNIT", $this->value->TEMPERATURE)->get();
+
+    	return $userUnit[0]->SYMBOL;
     }
 
     public function perUnitOfMassSymbol() 

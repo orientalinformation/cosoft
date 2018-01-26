@@ -143,3 +143,19 @@ $router->GET('/api/v1/referencedata/components', 'Api1\\ReferenceData@getMyCompo
  * Output-Formats: [application/json]
  */
 $router->PUT('/api/v1/referencedata/calculate', 'Api1\\ReferenceData@startFCCalculate');
+
+/**
+ * GET Data compenths
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/referencedata/compenths/{idComp}', 'Api1\\ReferenceData@getCompenthsByIdComp');
+
+/**
+ * GET Data compenth
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/referencedata/compenth/{id}', 'Api1\\ReferenceData@getCompenthById');

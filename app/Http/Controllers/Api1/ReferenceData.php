@@ -463,6 +463,18 @@ class ReferenceData extends Controller
         return 1;
     }
 
+    public function getCompenthsByIdComp($idComp)
+    {
+        $compenths = Compenth::where('ID_COMP', $idComp)->get();
+        return $compenths;
+    }
+
+    public function getCompenthById($id)
+    {
+        $compenth = Compenth::find($id);
+        return $compenth;
+    }
+
     private function cleaningComp($idComp)
     {
         Translation::where('TRANS_TYPE', '=', 1)->where('ID_TRANSLATION', $idComp)->delete();
