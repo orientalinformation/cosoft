@@ -21,17 +21,29 @@ class LineService
         
     }
 
-	public function getNameComboBox($elt_type,$insideDiameter, $coolingFamily) {
+	public function getNameComboBox($elt_type,$insideDiameter, $coolingFamily, $sort) {
+        if ($sort > 0) {
 		$sname = LineElmt::select('LABEL')->where('ID_USER', '!=', $this->auth->user()->ID_USER)
                 ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
-                ->where('Translation.TRANS_TYPE', 27)->where('ELT_TYPE', '=', $elt_type)->where('ELT_SIZE',$insideDiameter)->where('ID_COOLING_FAMILY', $coolingFamily)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->get();
+                ->where('Translation.TRANS_TYPE', 27)->where('ELT_TYPE', '=', $elt_type)->where('ELT_SIZE',$insideDiameter)->where('ID_COOLING_FAMILY', $coolingFamily)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->skip($sort)->take($sort)->get();
+        } else {
+            $sname = LineElmt::select('LABEL')->where('ID_USER', '!=', $this->auth->user()->ID_USER)
+                ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
+                ->where('Translation.TRANS_TYPE', 27)->where('ELT_TYPE', '=', $elt_type)->where('ELT_SIZE',$insideDiameter)->where('ID_COOLING_FAMILY', $coolingFamily)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->skip($sort)->take($sort)->first();
+        }
         return $sname;
 	}
 
-	public function getNonLine($elt_type,$insideDiameter, $coolingFamily, $idIsolation) {
+	public function getNonLine($elt_type,$insideDiameter, $coolingFamily, $idIsolation, $sort) {
+        if ($sort > 0) {
 		$nonName = LineElmt::select('LABEL')->where('ID_USER', '!=', $this->auth->user()->ID_USER)
                 ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
                 ->where('Translation.TRANS_TYPE', 27)->where('ELT_TYPE', '=', $elt_type)->where('ELT_SIZE',$insideDiameter)->where('ID_COOLING_FAMILY', $coolingFamily)->where('INSULATION_TYPE', $idIsolation)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->get();
+        } else {
+            $nonName = LineElmt::select('LABEL')->where('ID_USER', '!=', $this->auth->user()->ID_USER)
+                ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
+                ->where('Translation.TRANS_TYPE', 27)->where('ELT_TYPE', '=', $elt_type)->where('ELT_SIZE',$insideDiameter)->where('ID_COOLING_FAMILY', $coolingFamily)->where('INSULATION_TYPE', $idIsolation)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
+        }
         return $nonName;
 	}
 }

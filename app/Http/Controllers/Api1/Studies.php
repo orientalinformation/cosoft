@@ -1391,95 +1391,100 @@ class Studies extends Controller
 
 
     public function loadPipeline($id) {
-        $lineElmts = [];
         $study = Study::find($id);
-        if(count($study)> 0) {
-            $user = $study->user;
-            foreach ($study->studyEquipments as $studyEquip) {
-                $pipeGen = $studyEquip->pipeGens->first();
-                $coolingFamily = $studyEquip->ID_COOLING_FAMILY;
-                $lineElmts = [];
-                // @TODO if not found
-                if(count($pipeGen) > 0) {
-                    foreach ($pipeGen->lineDefinitions as $lineDef) {
-                        $lineElmt = $lineDef->lineElmt;
-                        $lineElmts[] = $lineElmt;
-                    }    
-                } else {
-                    $lineElmts = LineElmt::distinct()->select('INSULATION_TYPE')->where('ID_COOLING_FAMILY', $coolingFamily)->get();
-                }
+        $user = $study->user;
+        foreach ($study->studyEquipments as $studyEquip) {
+            $pipeGen = $studyEquip->pipeGens->first();
+            $coolingFamily = $studyEquip->ID_COOLING_FAMILY;
+            $lineElmts = [];
+            // @TODO if not found
+            if(count($pipeGen) > 0) {
+                foreach ($pipeGen->lineDefinitions as $lineDef) {
+                    $lineElmt = $lineDef->lineElmt;
+                    $lineElmts[] = $lineElmt;
 
-                $resultInsideDiameters= [];
-                foreach ($lineElmts as $key => $insulationType) {
-                    $resultInsideDiameters[] = $insideDiameters = LineElmt::distinct()->select('ELT_SIZE')->where('ID_COOLING_FAMILY ', $coolingFamily)->where('ELT_TYPE', '<>', 2)->where('INSULATION_TYPE', $insulationType->INSULATION_TYPE)->get();
+                    $arrPipeElmt = [];
+                    foreach ($lineElmts as $getIDlineElmt) {
+                        $arrPipeElmt[] = $getIDlineElmt->ID_PIPELINE_ELMT;
+                        $getLables = [];
+                        foreach ($arrPipeElmt as $idPipeElmt) {
+                            $array =[];
+                            
+                            $getLables[] = LineElmt::where('ID_USER', '!=', $this->auth->user()->ID_USER)->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')->where('Translation.TRANS_TYPE', 27)->where('ID_PIPELINE_ELMT', $idPipeElmt)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->get();
+                            $arrLable = [];
+                            foreach ($getLables as $arrgetLables) {
+                               $array[] = $idPipeElmt;
+                               foreach ($arrgetLables as $getLableName) {
+                                    $arrLable[] = $getLableName->LABEL;
+                                    $arrLable["diameter"] = $lineElmts[0]->ELT_SIZE;
+                                    $arrLable["insulationType"] = $lineElmts[0]->INSULATION_TYPE;
+                               }
+                            }
+                        }
+                    }
                 }
+            } else {
+                $lineElmts = LineElmt::distinct()->select('INSULATION_TYPE')->where('ID_COOLING_FAMILY', $coolingFamily)->get();
             }
-        } else {
-            echo "ID study not found--------------------";
-        }
 
-        $result = [];
+            $resultInsideDiameters= [];
+            foreach ($lineElmts as $key => $insulationType) {
+                $resultInsideDiameters[] = $insideDiameters = LineElmt::distinct()->select('ELT_SIZE')->where('ID_COOLING_FAMILY ', $coolingFamily)->where('ELT_TYPE', '<>', 2)->where('INSULATION_TYPE', $insulationType->INSULATION_TYPE)->get();
+                $storageTanks = LineElmt::distinct()->select('ELT_SIZE')->where('ID_COOLING_FAMILY ', $coolingFamily)->where('ELT_TYPE', '=', 2)->where('INSULATION_TYPE', $insulationType->INSULATION_TYPE)->get();
+            }
+        }
+        
+        $resultInsideDia = [];
 
         foreach ($resultInsideDiameters as $key => $value) {
             $item = [];
             foreach ($value as $key => $value) {
                 $item[] = $value->ELT_SIZE;
             }
-            $result[] = $item;
+            $resultInsideDia[] = $item;
         }
 
-        foreach ($result as $key => $value) {
+        $i = 0;
+        $dataResult = [];
+        foreach ($resultInsideDia as $res) {
+            $dataResult[] = $this->getData($item , $res, $storageTanks, $coolingFamily, $i);
+            $i++;
+        }
+        
+        return compact("getLableName");
+    }
 
-            foreach ($value as $k => $v) {
-                $res = $this->lineE->getNameComboBox(1, $v, $coolingFamily);
-                $res1 = $this->lineE->getNameComboBox(5, $v, $coolingFamily);
-                $tee = $this->lineE->getNameComboBox(3, $v, $coolingFamily);
-                $elbows = $this->lineE->getNameComboBox(4, $v, $coolingFamily);
-                $non_insulated_line = $this->lineE->getNonLine(1, $v, $coolingFamily, 0);
-                $non_insulated_valves = $this->lineE->getNonLine(5, $v, $coolingFamily, 0);
-                $storageTanks= LineElmt::distinct()->select('ELT_SIZE')->where('ID_COOLING_FAMILY ', $coolingFamily)->where('ELT_TYPE', '=', 2)->where('INSULATION_TYPE', $insulationType->INSULATION_TYPE)->get();
-                foreach ($storageTanks as $key1 => $value1) {
-                   $a = [];
-                   $a[$k] = $value1->ELT_SIZE;
-                   $b[] = $a;
-                   $st = $this->lineE->getNameComboBox(2, $b, $coolingFamily);
-                   
-                }
-                
+    public function getData($elttype,  $resultFirst, $storageTanks, $coolingFamily, $sort)
+    {
+        $item = [];
+        foreach ($resultFirst as $row) {
 
-                $item = [];
-                $item["Inside Diameter"] = $v;
-                foreach ($res as $row) {
-                    $item["Insulatedline"] = $row->LABEL;
+            $insulatedline = $this->lineE->getNameComboBox(1, $row, $coolingFamily, $sort);
+            $insulatedlineval = $this->lineE->getNameComboBox(5, $row, $coolingFamily, $sort);
+            $tee = $this->lineE->getNameComboBox(3, $row, $coolingFamily, $sort);
+            $elbows = $this->lineE->getNameComboBox(4, $row, $coolingFamily, $sort);
+            $non_insulated_line = $this->lineE->getNonLine(1, $row, $coolingFamily, 0, $sort);
+            $non_insulated_valves = $this->lineE->getNonLine(5, $row, $coolingFamily, 0, $sort);
+            $resStogeTs =[];
+            foreach ($storageTanks as $vstorageTank) {
+                $resStogeTs[]= $vstorageTank->ELT_SIZE;
+                $storageTank = [];
+                foreach ($resStogeTs as $resStogeT) {
+                    $storageTank[] = $this->lineE->getNameComboBox(2, $resStogeT, $coolingFamily, $sort);
                 }
-
-                foreach ($res1 as $row) {
-                    $item["Insulatedvalves"] = $row->LABEL;
-                }
-
-                foreach ($tee as $row) {
-                    $item["Tee"] = $row->LABEL;
-                } 
- 
-                foreach ($elbows as $row) {
-                    $item["Elbows"] = $row->LABEL;
-                }
-
-                foreach ($non_insulated_line as $row) {
-                    $item["Noninsulatedline"] = $row->LABEL;
-                }
-
-                foreach ($non_insulated_valves as $row) {
-                    $item["Noninsulatedvalves"] = $row->LABEL;
-                }
-                
-               // $pipeline[$key][$k] = $item;
-               $pipeline[$key][$k] = $st;
-               
             }
-            
+
+            $item['insulatedline'] = $insulatedline;
+            $item['insulatedlineval'] = $insulatedlineval;
+            $item['tee'] = $tee;
+            $item['elbows'] = $elbows;
+            $item['non_insulated_line'] = $non_insulated_line;
+            $item['non_insulated_valves'] = $non_insulated_valves;
+            $item['storageTank'] = $storageTank;
+            $data[] = $item;
         }
 
-        return compact("pipeline");
+        return $data;
     }
 }
+    
