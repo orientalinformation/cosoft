@@ -254,3 +254,27 @@ $router->POST('/api/v1/users/{id}/units', 'Api1\\Users@updateUnits');
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/users/{id}', 'Api1\\Users@getUser');
+
+/**
+ * GET getUnitData
+ * Summary:
+ * Notes: Get Price, interval Width Lenght
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/studies/{id}/equipment/unitData', 'Api1\\Equipments@getUnitData');
+
+/**
+ * POST updatePrice
+ * Summary:
+ * Notes: update Price 
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/studies/{id}/equipment/price', 'Api1\\Equipments@updatePrice');
+
+/**
+ * POST updateInterval
+ * Summary:
+ * Notes: update Interval Leght Width 
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/studies/{id}/equipment/interval', 'Api1\\Equipments@updateInterval');
