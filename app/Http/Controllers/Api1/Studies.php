@@ -1486,5 +1486,23 @@ class Studies extends Controller
 
         return $data;
     }
+
+    public function getStudyComment($id) {
+        // @class: \App\Models\Study
+        $study = Study::find($id);
+    }
+
+    public function postStudyComment($id) {
+        // @class: \App\Models\Study
+        $study = Study::find($id);
+        $input = $this->request->json()->all();
+
+        if (!empty($input['comment'])) {
+            $study->COMMENT_TXT = $input['comment'];
+            $study->save();
+        }
+
+        return $study;
+    }
 }
     

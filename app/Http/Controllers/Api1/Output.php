@@ -1933,7 +1933,7 @@ class Output extends Controller
     {
         $idStudy = $this->request->input('idStudy');
         $idStudyEquipment = $this->request->input('idStudyEquipment');
-        $SelectedPlan = $this->request->input('SelectedPlan');
+        $selectedPlan = $this->request->input('selectedPlan');
 
         $productElmt = ProductElmt::where('ID_STUDY', $idStudy)->first();
         $shape = $productElmt->SHAPECODE;

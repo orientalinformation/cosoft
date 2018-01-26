@@ -57,7 +57,6 @@ class LineElmt extends Model
     protected $casts = [
         'ELT_SIZE'    => 'float',
         'ELT_TYPE'     => 'integer'];
-
     /**
      * @var string
      */
