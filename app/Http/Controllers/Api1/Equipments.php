@@ -31,7 +31,7 @@ class Equipments extends Controller
 
     public function getEquipments()
     {
-        $input = Request::all();
+        $input = $this->request->all();
 
         //path params validation
 
