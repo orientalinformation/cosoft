@@ -6,11 +6,13 @@ use App\Http\Controllers\Controller;
 use Illuminate\Contracts\Auth\Factory as Auth;
 use Illuminate\Http\Request;
 use App\Cryosoft\UnitsConverterService;
+use App\Cryosoft\EquipmentsService;
 use Carbon\Carbon;
 use App\Models\Equipment;
 use App\Models\Study;
 use App\Models\Price;
 use App\Models\PrecalcLdgRatePrm;
+use App\Models\EquipGeneration;
 
 class Equipments extends Controller
 {
@@ -19,11 +21,12 @@ class Equipments extends Controller
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth, UnitsConverterService $convert)
+    public function __construct(Request $request, Auth $auth, UnitsConverterService $convert, EquipmentsService $equip)
     {
         $this->request = $request;
         $this->auth = $auth;
         $this->convert = $convert;
+        $this->equip = $equip;
     }
 
     public function getEquipments()
@@ -56,8 +59,50 @@ class Equipments extends Controller
     public function findRefEquipment()
     {
         $mine = Equipment::where('ID_USER', $this->auth->user()->ID_USER)->orderBy('EQUIP_NAME', 'ASC')->get();
+        foreach ($mine as $key) {
+            $key->capabilitiesCalc = $this->equip->getCapability($key->CAPABILITIES, 65536);
+            $isCapa = $key->capabilitiesCalc;
+            $equipGener = EquipGeneration::find($key->ID_EQUIPGENERATION);
+
+            if ($isCapa) {
+                if ($equipGener) { 
+                    $key->DWELLING_TIME = $this->convert->time($equipGener->DWELLING_TIME);
+                } else {
+                    $key->DWELLING_TIME = 0;
+                }
+                $key->symbol = $this->convert->timeSymbol();
+            } else {
+                if ($equipGener) { 
+                    $key->TEMP_SETPOINT = $this->convert->controlTemperature($equipGener->TEMP_SETPOINT);
+                } else {
+                    $key->TEMP_SETPOINT = 0;
+                }
+                $key->symbol = $this->convert->temperatureSymbolUser();
+            }
+        }
+
         $others = Equipment::where('ID_USER', '!=', $this->auth->user()->ID_USER)->orderBy('EQUIP_NAME', 'ASC')->get();
-        
+        foreach ($others as $key) {
+            $key->capabilitiesCalc = $this->equip->getCapability($key->CAPABILITIES, 65536);
+            $isCapa = $key->capabilitiesCalc;
+            $equipGener = EquipGeneration::find($key->ID_EQUIPGENERATION);
+
+            if ($isCapa) {
+                if ($equipGener) { 
+                    $key->DWELLING_TIME = $this->convert->time($equipGener->DWELLING_TIME);
+                } else {
+                    $key->DWELLING_TIME = 0;
+                }
+                $key->symbol = $this->convert->timeSymbol();
+            } else {
+                if ($equipGener) { 
+                    $key->TEMP_SETPOINT = $this->convert->controlTemperature($equipGener->TEMP_SETPOINT);
+                } else {
+                    $key->TEMP_SETPOINT = 0;
+                }
+                $key->symbol = $this->convert->temperatureSymbolUser();
+            }
+        }
         return compact('mine', 'others');
     }
 
