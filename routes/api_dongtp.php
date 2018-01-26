@@ -135,3 +135,11 @@ $router->DELETE('/api/v1/referencedata/component/{id}', 'Api1\\ReferenceData@del
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/referencedata/components', 'Api1\\ReferenceData@getMyComponent');
+
+/**
+ * PUT Data family
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->PUT('/api/v1/referencedata/calculate', 'Api1\\ReferenceData@startFCCalculate');
