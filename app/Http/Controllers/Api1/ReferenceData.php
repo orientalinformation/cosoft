@@ -198,7 +198,7 @@ class ReferenceData extends Controller
     {
         $input = $this->request->all();
 
-        $COMP_COMMENT = $COMP_NAME = $COMP_NAME_NEW = $COMP_VERSION_NEW = null;
+        $COMP_COMMENT = $COMP_NAME = $COMP_NAME_NEW = $COMP_VERSION_NEW = $TYPE_COMP = null;
         $LIPID = $GLUCID = $PROTID = $WATER = $FREEZE_TEMP = $COMP_VERSION = $CONDUCT_TYPE = 0;
         $SALT = $AIR = $NON_FROZEN_WATER = $PRODUCT_TYPE = $SUB_TYPE = $FATTYPE = $DENSITY = $HEAT = 0;
         $release = $NATURE_TYPE = 1;
@@ -225,14 +225,17 @@ class ReferenceData extends Controller
         if (isset($input['SUB_TYPE'])) $SUB_TYPE = intval($input['SUB_TYPE']);
         if (isset($input['Temperatures'])) $temperatures = $input['Temperatures'];
         if (isset($input['release'])) $release = intval($input['release']);
+        if (isset($input['TYPE_COMP'])) $TYPE_COMP = intval($input['TYPE_COMP']);
 
         if ($COMP_NAME == null) return -3;
         if ($PRODUCT_TYPE == 0) return -2;
 
-        if ($COMP_VERSION_NEW != null) {
-            if ($this->checkNameAndVersion($COMP_NAME_NEW, $COMP_VERSION_NEW)) return -4;
-        } else {
-            if ($this->checkNameAndVersion($COMP_NAME, $COMP_VERSION)) return -4;
+        if ($TYPE_COMP == null) {
+            if ($COMP_VERSION_NEW != null) {
+                if ($this->checkNameAndVersion($COMP_NAME_NEW, $COMP_VERSION_NEW)) return -4;
+            } else {
+                if ($this->checkNameAndVersion($COMP_NAME, $COMP_VERSION)) return -4;
+            }
         }
 
         $comment = 'Created on ' . $current->toDateTimeString() . ' by '. $this->auth->user()->USERNAM;
