@@ -159,3 +159,11 @@ $router->GET('/api/v1/referencedata/compenths/{idComp}', 'Api1\\ReferenceData@ge
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/referencedata/compenth/{id}', 'Api1\\ReferenceData@getCompenthById');
+
+/**
+ * PUT update compenth
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->PUT('/api/v1/referencedata/compenth', 'Api1\\ReferenceData@updateCompenth');
