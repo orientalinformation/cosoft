@@ -48,7 +48,28 @@ $router->GET('/api/v1/studyEquipment/{id}/recordPosition', 'Api1\\StudyEquipment
  */
 $router->GET('/api/v1/admin/units', 'Api1\\Admin@units');
 
+/**
+ * PUT createMonetaryCurrency
+ * Summary: 
+ * Notes: create a new montery currency
+ * Output-Formats: [application/json]
+ */
+$router->PUT('/api/v1/monetaryCurrency', 'Api1\\MonetaryCurrencies@createMonetaryCurrency');
 
+/**
+ * PATCH saveMonetaryCurrency
+ * Summary:
+ * Notes:
+ * Output-Formats: [application/json]
+ */
+$router->PATCH('/api/v1/monetaryCurrency', 'Api1\\MonetaryCurrencies@saveMonetaryCurrency');
+/**
+ * GET getMonetaryCurrencyById
+ * Summary: 
+ * Notes: 
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/monetaryCurrency/{id}', 'Api1\\MonetaryCurrencies@getMonetaryCurrencyById');
 /**
  * GET sizingEstimationResult
  * Summary: 
