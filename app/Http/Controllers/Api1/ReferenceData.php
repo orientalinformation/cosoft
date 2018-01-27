@@ -463,6 +463,43 @@ class ReferenceData extends Controller
         return 1;
     }
 
+    public function getCompenthsByIdComp($idComp)
+    {
+        $compenths = Compenth::where('ID_COMP', $idComp)->get();
+        return $compenths;
+    }
+
+    public function getCompenthById($id)
+    {
+        $compenth = Compenth::find($id);
+        return $compenth;
+    }
+
+    public function updateCompenth()
+    {
+        $input = $this->request->all();
+
+        $ID_COMPENTH = $ID_COMP = $COMPTEMP = $COMPCOND = $COMPDENS = $COMPENTH = null;
+
+        if (isset($input['ID_COMPENTH'])) $ID_COMPENTH = intval($input['ID_COMPENTH']);
+        if (isset($input['ID_COMP'])) $ID_COMP = intval($input['ID_COMP']);
+        if (isset($input['COMPTEMP'])) $COMPTEMP = doubleval($input['COMPTEMP']);
+        if (isset($input['COMPCOND'])) $COMPCOND = doubleval($input['COMPCOND']);
+        if (isset($input['COMPDENS'])) $COMPDENS = doubleval($input['COMPDENS']);
+        if (isset($input['COMPENTH'])) $COMPENTH = doubleval($input['COMPENTH']);
+
+        $compenth = Compenth::find($ID_COMPENTH);
+        if ($compenth) {
+            $compenth->COMPTEMP = $COMPTEMP;
+            $compenth->ID_COMP = $ID_COMP;
+            $compenth->COMPCOND = $COMPCOND;
+            $compenth->COMPDENS = $COMPDENS;
+            $compenth->COMPENTH = $COMPENTH;
+            $compenth->save();
+        }
+        return 1;
+    }
+
     private function cleaningComp($idComp)
     {
         Translation::where('TRANS_TYPE', '=', 1)->where('ID_TRANSLATION', $idComp)->delete();
