@@ -49,6 +49,22 @@ $router->GET('/api/v1/studyEquipment/{id}/recordPosition', 'Api1\\StudyEquipment
 $router->GET('/api/v1/admin/units', 'Api1\\Admin@units');
 
 /**
+ * PUT createUnit
+ * Summary: 
+ * Notes: create a new unit
+ * Output-Formats: [application/json]
+ */
+$router->PUT('/api/v1/unit', 'Api1\\Units@createUnit');
+
+/**
+ * PATCH saveUnit
+ * Summary:
+ * Notes:
+ * Output-Formats: [application/json]
+ */
+$router->PATCH('/api/v1/unit', 'Api1\\Units@saveUnit');
+
+/**
  * PUT createMonetaryCurrency
  * Summary: 
  * Notes: create a new montery currency
@@ -63,6 +79,7 @@ $router->PUT('/api/v1/monetaryCurrency', 'Api1\\MonetaryCurrencies@createMonetar
  * Output-Formats: [application/json]
  */
 $router->PATCH('/api/v1/monetaryCurrency', 'Api1\\MonetaryCurrencies@saveMonetaryCurrency');
+
 /**
  * GET getMonetaryCurrencyById
  * Summary: 
