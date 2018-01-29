@@ -39,7 +39,17 @@ class PipeGen extends Model
      * @var string
      */
     protected $primaryKey = 'ID_PIPE_GEN';
-
+    protected $casts = [
+        'INSULLINE_LENGHT'    => 'float',
+        'NOINSULLINE_LENGHT'     => 'float',
+        'ELBOWS'    => 'float',
+        'TEES'     => 'float',
+        'INSUL_VALVES'    => 'float',
+        'NOINSUL_VALVES'     => 'float',
+        'HEIGHT'    => 'float',
+        'PRESSURE'     => 'float',
+        'GAS_TEMP'    => 'float',
+    ];
     /**
      * Indicates if the model should be timestamped.
      * 
