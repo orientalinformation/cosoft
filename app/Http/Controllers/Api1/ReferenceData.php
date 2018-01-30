@@ -71,10 +71,36 @@ class ReferenceData extends Controller
         return $translations;
     }
 
+    public function getSubFamilyTranslations($transType, $compfamily)
+    {
+        //compfamily this is value return from combobox after select
+        $translations = Translation::where('TRANS_TYPE', $transType)
+            ->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+            ->where('ID_TRANSLATION', '>=', $compfamily*100)
+            ->where('ID_TRANSLATION', '<', ($compfamily + 1)*100)
+            ->get();
+
+        for ($i = 0; $i < $translations->count(); $i++) {
+            $translations[$i]->LABEL = \mb_convert_encoding($translations[$i]->LABEL, "UTF-8");
+        }
+        
+        return $translations;
+    }
+
     public function getDataComponent()
     {
+        $input = $this->request->all();
+        $compFamily = null;
+
+        if (isset($input['compfamily'])) $compFamily = intval($input['compfamily']);
+
         $productFamily = $this->getFamilyTranslations(14);
-        $subFamily = $this->getFamilyTranslations(16);
+        if ($compFamily == 0) {
+            $subFamily = $this->getFamilyTranslations(16);
+        } else {
+            $subFamily = $this->getSubFamilyTranslations(16, intval($compFamily));
+        }
+
         $productNature = $this->getFamilyTranslations(15);
         $conductivity = $this->getFamilyTranslations(9);
         $fatType = $this->getFamilyTranslations(12);
@@ -145,7 +171,6 @@ class ReferenceData extends Controller
         $input = $this->request->all();
         $idComp = null;
         $result = null;
-        // var_dump($input); die();
 
         if (isset($input['ID_COMP'])) $idComp = intval($input['ID_COMP']);
 
