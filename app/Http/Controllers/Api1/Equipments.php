@@ -117,6 +117,23 @@ class Equipments extends Controller
         return compact('mine', 'others');
     }
 
+    public function newEquipment()
+    {
+        $mask = 1096;
+
+        $capabilities = null;
+
+        if ($this->equip->getCapability($capabilities, 65536)) {
+            $mask |= 0x40002;
+        } else {
+            $mask |= 0x80001;
+        }
+        // var_dump($mask);die;
+        $capabilities &= ($mask ^ 0xFFFFFFFFFFFFFFFF);
+        
+        return $capabilities;
+    }
+
     /*** 
      * Studies Equipment
      *
