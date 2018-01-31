@@ -530,6 +530,76 @@ class OutputService
         return $tab;
     }
 
+    public function getAxisName($shape, $orientation, $selectedPlan)
+    {
+        $sAxe = [];
+
+        switch ($shape) {
+            case 1:
+            case 6:
+                break;
+
+            case 2:
+            case 9:
+                switch ($selectedPlan) {
+                    case 1:
+                        $sAxe = [3, 2];
+                        break;
+                    case 2:
+                        if ($orientation == 1) {
+                            $sAxe = [3, 1];
+                        } else {
+                            $sAxe = [1, 3];
+                        }
+                        break;
+                    case 3:
+                        $sAxe = [1, 2];
+                }
+
+                break;
+
+            case 3:
+                switch ($selectedPlan) {
+                    case 1:
+                        $sAxe = [2, 3];
+                        break;
+                    case 2:
+                        $sAxe = [3, 1];
+                        break;
+                    case 3:
+                        $sAxe = [2, 1];
+                }
+
+                break;
+
+            case 7:
+                if ($selectedPlan == 3) {
+                    $sAxe = [2, 1];
+                }
+                break;
+
+            case 4:
+                if ($selectedPlan == 3) {
+                    $sAxe = [1, 2];
+                }
+                break;
+
+            case 8:
+                if ($selectedPlan == 3) {
+                    $sAxe = [1, 2];
+                }
+                break;
+            case 5:
+                if ($selectedPlan == 3) {
+                    $sAxe = [2, 1];
+                }
+
+                break;
+        }
+
+        return $sAxe;
+    }
+
     public function mixRange($color1, $color2, $MIN = 1, $MAX = 10)
     {
         $range = rand($MIN, $MAX);
