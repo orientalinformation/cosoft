@@ -16,6 +16,7 @@ use App\Models\EquipGeneration;
 use App\Models\Equipseries;
 use App\Models\Equipfamily;
 use App\Kernel\KernelService;
+use Illuminate\Support\Facades\Crypt;
 
 class Equipments extends Controller
 {
@@ -236,7 +237,9 @@ class Equipments extends Controller
             // $newE->save();
 
             Equipment::where('ID_EQUIP', $newE->ID_EQUIP)->update(['EQUIP_DATE' => $current->toDateTimeString()]);
+            $CRYOSOFT_DB_PUBLIC_KEY = Crypt::encrypt($this->createCryosoftDBPublicKey());
             // $newE->ID_EQUIPGENERATION = ??????????
+            var_dump($CRYOSOFT_DB_PUBLIC_KEY); die;
             
         }
 
