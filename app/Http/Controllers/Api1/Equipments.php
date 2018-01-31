@@ -233,12 +233,27 @@ class Equipments extends Controller
             $newE->ITEM_TIMESTEP = $equipment1->ITEM_TIMESTEP;
             $newE->FATHER_DLL_IDX = $equipment1->FATHER_DLL_IDX;
             $newE->EQP_IMP_ID_STUDY = $equipment1->EQP_IMP_ID_STUDY;
-
             // $newE->save();
-
             Equipment::where('ID_EQUIP', $newE->ID_EQUIP)->update(['EQUIP_DATE' => $current->toDateTimeString()]);
+
+            $equipGeneration = new EquipGeneration();
+            $equipGeneration->ID_EQUIP = $newE->ID_EQUIP;
+            $equipGeneration->ID_ORIG_EQUIP1 = $equipId1;
+            $equipGeneration->ID_ORIG_EQUIP2 = $equipId2;
+            $equipGeneration->AVG_PRODINTEMP = 0;
+            $equipGeneration->TEMP_SETPOINT = $tempSetPoint;
+            $equipGeneration->DWELLING_TIME = $dwellingTime;
+            $equipGeneration->MOVING_CHANGE = 0;
+            $equipGeneration->MOVING_POS = 0;
+            $equipGeneration->ROTATE = 0;
+            $equipGeneration->POS_CHANGE = 0;
+            $equipGeneration->NEW_POS = $newPos;
+            $equipGeneration->EQP_GEN_STATUS = 0;
+            $equipGeneration->EQP_GEN_LOADRATE = 0;
+            // $equipGeneration->save();
+            Equipment::where('ID_EQUIP', $newE->ID_EQUIP)->update(['ID_EQUIPGENERATION' => $equipGeneration->ID_EQUIPGENERATION]);
+
             $CRYOSOFT_DB_PUBLIC_KEY = Crypt::encrypt($this->createCryosoftDBPublicKey());
-            // $newE->ID_EQUIPGENERATION = ??????????
             var_dump($CRYOSOFT_DB_PUBLIC_KEY); die;
             
         }
