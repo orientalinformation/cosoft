@@ -453,8 +453,81 @@ class OutputService
         return $result;
     }
 
-    public function getTemperatureBorne($idStudyEquipment) {
-        
+    public function init2DContourTempInterval($idStudyEquipment, $recordTime, $tempInterval, $pasTemp)
+    {
+        $tempResult = [];
+        $result = '';
+
+        if ($recordTime < 0) {
+            $tempRecordDataMin = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->orderBy('TEMP', 'ASC')->first();
+            $tempRecordDataMax = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->orderBy('TEMP', 'DESC')->first();
+            $tempResult = [$tempRecordDataMin->TEMP, $tempRecordDataMax->TEMP];
+        } else {
+            $tempRecordDataMin = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->where('RECORD_TIME', $recordTime)->orderBy('TEMP', 'ASC')->first();
+            $tempRecordDataMax = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->where('RECORD_TIME', $recordTime)->orderBy('TEMP', 'DESC')->first();
+            $tempResult = [$tempRecordDataMin->TEMP, $tempRecordDataMax->TEMP];
+        }
+
+        $bornesTemp = [];
+        if (!empty($tempResult)) {
+            if ($tempInterval[0] >= $tempInterval[1]) {
+                $tempInterval[0] = $tempResult[0];
+                $tempInterval[1] = $tempResult[1];
+            } else {
+                if ($tempInterval[0] > $tempResult[0]) {
+                    $tempInterval[0] = $tempResult[0];
+                }
+                if ($tempInterval[1] < $tempResult[1]) {
+                    $tempInterval[1] = $tempResult[1];
+                }
+            }
+            $bornesTemp = [$this->unit->prodTemperature($tempInterval[0]), $this->unit->prodTemperature($tempInterval[1])];
+
+            $result = $this->calculatePasTemp($bornesTemp[0], $bornesTemp[1], false, $pasTemp);
+        }
+
+        return $result;
+    }
+
+    protected function calculatePasTemp($lfTmin, $lfTMax, $auto, $pasTemp)
+    {
+        $tab = [];
+        $dTMin = 0;
+        $dTMax = 0;
+        $dpas = 0;
+        $dnbpas = 0;
+
+        $dTMin = floor($lfTmin);
+        $dTMax = ceil($lfTMax);
+
+        if ($auto) {
+            $dpas = floor(abs($dTMax - $dTMin) / 14) - 1;
+        } else {
+            $dpas = floor($pasTemp) - 1;
+        }
+
+        if ($dpas < 0) {
+            $dpas = 0;
+        }
+
+        do {
+            $dpas++;
+
+            while ($dTMin % $dpas != 0) {
+                $dTMin--;
+            }
+
+            while ($dTMax % $dpas != 0) {
+                $dTMax++;
+            }
+
+            $dnbpas = abs($dTMax - $dTMin) / $dpas;
+
+        } while ($dnbpas > 16);
+
+        $tab = [$this->unit->prodTemperature($dTMin), $this->unit->prodTemperature($dTMax), $dpas];
+
+        return $tab;
     }
 
     public function mixRange($color1, $color2, $MIN = 1, $MAX = 10)
