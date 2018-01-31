@@ -120,9 +120,7 @@ class Equipments extends Controller
     public function newEquipment()
     {
         $mask = 1096;
-
         $capabilities = null;
-
         if ($this->equip->getCapability($capabilities, 65536)) {
             $mask |= 0x40002;
         } else {
@@ -130,8 +128,16 @@ class Equipments extends Controller
         }
         // var_dump($mask);die;
         $capabilities &= ($mask ^ 0xFFFFFFFFFFFFFFFF);
+
+        // $current = Carbon::now('Asia/Ho_Chi_Minh');
+        // $idUserLogon = $this->auth->user()->ID_USER;
+        // $input = $this->request->all();
+
+        // if (!isset($input['nameEquipment']) || !isset($input['versionEquipment']) || !isset($input['equipmentId1']) || !isset($input['equipmentId2']) 
+        // || !isset($input['param1']) || !isset($input['param2']))
+        //     throw new \Exception("Error Processing Request", 1);
         
-        return $capabilities;
+        return 1;
     }
 
     /*** 
