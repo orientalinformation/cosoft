@@ -60,6 +60,6 @@ class PipeGen extends Model
      */
     public function lineDefinitions()
     {
-        return $this->hasMany('LineDefinition', 'ID_PIPE_GEN', 'ID_PIPE_GEN');
+        return $this->hasMany('App\\Models\\LineDefinition', 'ID_PIPE_GEN', 'ID_PIPE_GEN');
     }
 }
