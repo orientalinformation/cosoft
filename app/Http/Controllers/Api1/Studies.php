@@ -1437,9 +1437,12 @@ class Studies extends Controller
                             ->where('Translation.TRANS_TYPE', 27)->where('ID_PIPELINE_ELMT', $idPipeElmt)
                             ->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->get();
                             $arrLabel = [];
-                            $huy = [];
                             foreach ($getLabels as $arrgetLabels) {
-                               foreach ($arrgetLabels as $getLabelName) {
+                                foreach ($arrgetLabels as $getLabelName) {
+                                    $diameterParam = LineElmt::distinct()->select('ELT_SIZE')
+                                    ->where('ID_COOLING_FAMILY ', $coolingFamily)->where('ELT_TYPE', '<>', 2)
+                                    ->where('INSULATION_TYPE', $lineElmts[0]->INSULATION_TYPE)
+                                    ->get();
                                     $arrLabel[$this->eltTypeString($getLabelName->ELT_TYPE, $getLabelName->INSULATION_TYPE)] = $getLabelName->LABEL ."-". $this->lineE->getStatus();
                                     if ($lineElmts[0]->ELT_TYPE != 2) {
                                         $arrLabel["diameter"] = $lineElmts[0]->ELT_SIZE;
@@ -1454,7 +1457,10 @@ class Studies extends Controller
                                     $arrLabel["gastemp"] = $pipeGen->GAS_TEMP;
                                     $arrLabel["elbowsnumber"] = $pipeGen->ELBOWS;
                                     $arrLabel["teenumber"] = $pipeGen->TEES;
-                               }
+                                }
+                            }
+                            foreach ($diameterParam as $diameterParams) {
+                                $arrLabel['diameterParam'][] = $diameterParams->ELT_SIZE;
                             }
                         }
                     }
