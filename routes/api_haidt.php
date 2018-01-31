@@ -278,3 +278,11 @@ $router->POST('/api/v1/studies/{id}/equipment/price', 'Api1\\Equipments@updatePr
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/studies/{id}/equipment/interval', 'Api1\\Equipments@updateInterval');
+
+/**
+ * PUT save  equipment
+ * Summary:
+ * Notes: save equipment
+ * Output-Formats: [application/json]
+ */
+$router->PUT('/api/v1/referencedata/equipments', 'Api1\\Equipments@newEquipment');

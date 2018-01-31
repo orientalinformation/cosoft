@@ -216,6 +216,14 @@ class UnitsConverterService
     	return $unit->SYMBOL;
     }
 
+    public function timeSymbolUser() {
+        $user = $this->auth->user();
+        $userUnit = UserUnit::join('unit', 'user_unit.ID_UNIT', '=', 'unit.ID_UNIT')->where('ID_USER', $user->ID_USER)
+        ->where("unit.TYPE_UNIT", $this->value->TIME)->get();
+
+    	return $userUnit[0]->SYMBOL;
+    }
+
     public function enthalpySymbol() 
     {
         $unit = Unit::select("SYMBOL")->where("TYPE_UNIT", $this->value->ENTHALPY)->first();
