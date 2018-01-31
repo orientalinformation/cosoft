@@ -15,20 +15,52 @@ use App\Models\PrecalcLdgRatePrm;
 use App\Models\EquipGeneration;
 use App\Models\Equipseries;
 use App\Models\Equipfamily;
+use App\Kernel\KernelService;
 
 class Equipments extends Controller
 {
+    /**
+     * @var Illuminate\Http\Request
+     */
+    protected $request;
+
+    /**
+     * @var Illuminate\Contracts\Auth\Factory
+     */
+    protected $auth;
+
+    /**
+     * @var App\Cryosoft\ValueListService
+     */
+    protected $value;
+
+    /**
+     * @var App\Cryosoft\UnitsConverterService
+     */
+    protected $convert;
+
+    /**
+     * @var App\Kernel\KernelService
+     */
+    protected $kernel;
+
+    /**
+     * @var App\Cryosoft\EquipmentsService
+     */
+    protected $equip;
+
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth, UnitsConverterService $convert, EquipmentsService $equip)
+    public function __construct(Request $request, Auth $auth, UnitsConverterService $convert, EquipmentsService $equip, KernelService $kernel)
     {
         $this->request = $request;
         $this->auth = $auth;
         $this->convert = $convert;
         $this->equip = $equip;
+        $this->kernel = $kernel;
     }
 
     public function getEquipments()
@@ -61,6 +93,7 @@ class Equipments extends Controller
     public function findRefEquipment()
     {
         $mine = Equipment::where('ID_USER', $this->auth->user()->ID_USER)->orderBy('EQUIP_NAME', 'ASC')->get();
+
         foreach ($mine as $key) {
             $key->capabilitiesCalc = $this->equip->getCapability($key->CAPABILITIES, 65536);
             $isCapa = $key->capabilitiesCalc;
@@ -88,7 +121,9 @@ class Equipments extends Controller
             $key->timeSymbol = $this->convert->timeSymbolUser();
             $key->temperatureSymbol = $this->convert->temperatureSymbolUser();
         }
+
         $others = Equipment::where('ID_USER', '!=', $this->auth->user()->ID_USER)->orderBy('EQUIP_NAME', 'ASC')->get();
+
         foreach ($others as $key) {
             $key->capabilitiesCalc = $this->equip->getCapability($key->CAPABILITIES, 65536);
             $isCapa = $key->capabilitiesCalc;
@@ -124,6 +159,8 @@ class Equipments extends Controller
         $current = Carbon::now('Asia/Ho_Chi_Minh');
         $idUserLogon = $this->auth->user()->ID_USER;
         $input = $this->request->all();
+
+        $CRYOSOFT_DB_PUBLIC_KEY = null;
 
         if (!isset($input['nameEquipment']) || !isset($input['versionEquipment']) || !isset($input['equipmentId1']) 
         || !isset($input['equipmentId2']) || !isset($input['tempSetPoint']) || !isset($input['dwellingTime']) 
@@ -198,8 +235,8 @@ class Equipments extends Controller
 
             // $newE->save();
 
+            Equipment::where('ID_EQUIP', $newE->ID_EQUIP)->update(['EQUIP_DATE' => $current->toDateTimeString()]);
             // $newE->ID_EQUIPGENERATION = ??????????
-            // $newE->EQUIP_DATE = ???????
             
         }
 
@@ -344,4 +381,20 @@ class Equipments extends Controller
         }
      }
 
+     private function runEquipmentCalculation($IdEquipgeneration)
+     {
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $IdEquipgeneration);
+        return $this->kernel->getKernelObject('EquipmentBuilder')->EBEquipmentCalculation($conf);
+     }
+
+     private function createCryosoftDBPublicKey()
+     {
+        $cryosoftDBPublicKey = null;
+
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, 0, 0, 0, 0);
+        $result = $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 5);
+        // $cryosoftDBPublicKey = $result->GetKTLocal();
+
+        return $cryosoftDBPublicKey;
+     }
 }
