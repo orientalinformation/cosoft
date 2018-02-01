@@ -13,20 +13,55 @@ use App\Models\Study;
 use App\Models\Price;
 use App\Models\PrecalcLdgRatePrm;
 use App\Models\EquipGeneration;
+use App\Models\Equipseries;
+use App\Models\Equipfamily;
+use App\Kernel\KernelService;
+use Illuminate\Support\Facades\Crypt;
 
 class Equipments extends Controller
 {
+    /**
+     * @var Illuminate\Http\Request
+     */
+    protected $request;
+
+    /**
+     * @var Illuminate\Contracts\Auth\Factory
+     */
+    protected $auth;
+
+    /**
+     * @var App\Cryosoft\ValueListService
+     */
+    protected $value;
+
+    /**
+     * @var App\Cryosoft\UnitsConverterService
+     */
+    protected $convert;
+
+    /**
+     * @var App\Kernel\KernelService
+     */
+    protected $kernel;
+
+    /**
+     * @var App\Cryosoft\EquipmentsService
+     */
+    protected $equip;
+
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth, UnitsConverterService $convert, EquipmentsService $equip)
+    public function __construct(Request $request, Auth $auth, UnitsConverterService $convert, EquipmentsService $equip, KernelService $kernel)
     {
         $this->request = $request;
         $this->auth = $auth;
         $this->convert = $convert;
         $this->equip = $equip;
+        $this->kernel = $kernel;
     }
 
     public function getEquipments()
@@ -59,6 +94,7 @@ class Equipments extends Controller
     public function findRefEquipment()
     {
         $mine = Equipment::where('ID_USER', $this->auth->user()->ID_USER)->orderBy('EQUIP_NAME', 'ASC')->get();
+
         foreach ($mine as $key) {
             $key->capabilitiesCalc = $this->equip->getCapability($key->CAPABILITIES, 65536);
             $isCapa = $key->capabilitiesCalc;
@@ -86,7 +122,9 @@ class Equipments extends Controller
             $key->timeSymbol = $this->convert->timeSymbolUser();
             $key->temperatureSymbol = $this->convert->temperatureSymbolUser();
         }
+
         $others = Equipment::where('ID_USER', '!=', $this->auth->user()->ID_USER)->orderBy('EQUIP_NAME', 'ASC')->get();
+
         foreach ($others as $key) {
             $key->capabilitiesCalc = $this->equip->getCapability($key->CAPABILITIES, 65536);
             $isCapa = $key->capabilitiesCalc;
@@ -119,25 +157,118 @@ class Equipments extends Controller
 
     public function newEquipment()
     {
-        $mask = 1096;
-        $capabilities = null;
-        if ($this->equip->getCapability($capabilities, 65536)) {
-            $mask |= 0x40002;
-        } else {
-            $mask |= 0x80001;
-        }
-        // var_dump($mask);die;
-        $capabilities &= ($mask ^ 0xFFFFFFFFFFFFFFFF);
+        $current = Carbon::now('Asia/Ho_Chi_Minh');
+        $idUserLogon = $this->auth->user()->ID_USER;
+        $input = $this->request->all();
 
-        // $current = Carbon::now('Asia/Ho_Chi_Minh');
-        // $idUserLogon = $this->auth->user()->ID_USER;
-        // $input = $this->request->all();
+        $CRYOSOFT_DB_PUBLIC_KEY = null;
 
-        // if (!isset($input['nameEquipment']) || !isset($input['versionEquipment']) || !isset($input['equipmentId1']) || !isset($input['equipmentId2']) 
-        // || !isset($input['param1']) || !isset($input['param2']))
-        //     throw new \Exception("Error Processing Request", 1);
+        if (!isset($input['nameEquipment']) || !isset($input['versionEquipment']) || !isset($input['equipmentId1']) 
+        || !isset($input['equipmentId2']) || !isset($input['tempSetPoint']) || !isset($input['dwellingTime']) 
+        || !isset($input['newPos']) || !isset($input['typeEquipment'] ))
+            throw new \Exception("Error Processing Request", 1);
         
+        $nameE = $input['nameEquipment'];
+        $versionE = $input['versionEquipment'];
+        $equipId1 = $input['equipmentId1'];
+        $equipId2 = $input['equipmentId2'];
+        $tempSetPoint = $input['tempSetPoint'];
+        $dwellingTime = $input['dwellingTime'];
+        $newPos = $input['newPos'];
+        $typeEquipment = $input['typeEquipment'];
+
+        $equipment1 = Equipment::find($equipId1);
+        
+        if ($equipment1) {
+            $newE = new Equipment();
+
+            $newE->ID_EQUIP = 0;
+            $newE->EQUIP_RELEASE = 2;
+            $newE->STD = 0;
+            $newE->DLL_IDX = null;
+            $newE->OPEN_BY_OWNER = false;
+            $newE->ID_USER = $idUserLogon;
+
+            $mask = 1096;
+            $capabilities = $equipment1->CAPABILITIES;
+            if ($this->equip->getCapability($capabilities, 65536)) {
+                $mask |= 0x40002;
+            } else {
+                $mask |= 0x80001;
+            }
+            $capabilities &= ($mask ^ 0xFFFFFFFFFFF); //0xFFFFFFFFFFFFFFF
+            $newE->CAPABILITIES = $capabilities;
+
+            if (count($newE->EQUIP_COMMENT) == 0) {
+                $comment = 'Create on ' . $current->toDateTimeString() . ' by ' . $this->auth->user()->USERNAM;
+            } else if (count($newE->EQUIP_COMMENT) < 2100) {
+                $comment = $newE->EQUIP_COMMENT . '. Create on ' . $current->toDateTimeString() . ' by ' . $this->auth->user()->USERNAM;
+            } else {
+                $comment = substr($newE->EQUIP_COMMENT, 0, 1999) . '. Create on ' . $current->toDateTimeString() . ' by ' . $this->auth->user()->USERNAM;;
+            }
+            $newE->EQUIP_COMMENT = $comment;
+            $newE->ID_EQUIPSERIES = $this->MapToGeneratedEqp($newE->ID_EQUIPSERIES);
+            $newE->ID_COOLING_FAMILY = $equipment1->ID_COOLING_FAMILY;
+            $newE->EQUIPPICT = $equipment1->EQUIPPICT;
+            $newE->EQP_LENGTH = $equipment1->EQP_LENGTH;
+            $newE->EQP_WIDTH = $equipment1->EQP_WIDTH;
+            $newE->EQP_HEIGHT = $equipment1->EQP_HEIGHT;
+            $newE->MODUL_LENGTH = $equipment1->MODUL_LENGTH;
+            $newE->NB_MAX_MODUL = $equipment1->NB_MAX_MODUL;
+            $newE->NB_TR = $equipment1->NB_TR;
+            $newE->NB_TS = $equipment1->NB_TS;
+            $newE->NB_VC = $equipment1->NB_VC;
+            $newE->BUYING_COST = $equipment1->BUYING_COST;
+            $newE->RENTAL_COST = $equipment1->RENTAL_COST;
+            $newE->INSTALL_COST = $equipment1->INSTALL_COST;
+            $newE->MAX_FLOW_RATE = $equipment1->MAX_FLOW_RATE;
+            $newE->MAX_NOZZLES_BY_RAMP = $equipment1->MAX_NOZZLES_BY_RAMP;
+            $newE->MAX_RAMPS = $equipment1->MAX_RAMPS;
+            $newE->NUMBER_OF_ZONES = $equipment1->NUMBER_OF_ZONES;
+            $newE->TMP_REGUL_MIN = $equipment1->TMP_REGUL_MIN;
+            $newE->ITEM_TR = $equipment1->ITEM_TR;
+            $newE->ITEM_TS = $equipment1->ITEM_TS;
+            $newE->ITEM_VC = $equipment1->ITEM_VC;
+            $newE->ITEM_PRECIS = $equipment1->ITEM_PRECIS;
+            $newE->ITEM_TIMESTEP = $equipment1->ITEM_TIMESTEP;
+            $newE->FATHER_DLL_IDX = $equipment1->FATHER_DLL_IDX;
+            $newE->EQP_IMP_ID_STUDY = $equipment1->EQP_IMP_ID_STUDY;
+
+            // $newE->save();
+
+            Equipment::where('ID_EQUIP', $newE->ID_EQUIP)->update(['EQUIP_DATE' => $current->toDateTimeString()]);
+            $CRYOSOFT_DB_PUBLIC_KEY = Crypt::encrypt($this->createCryosoftDBPublicKey());
+            // $newE->ID_EQUIPGENERATION = ??????????
+            var_dump($CRYOSOFT_DB_PUBLIC_KEY); die;
+            
+        }
+
         return 1;
+    }
+
+    public function MapToGeneratedEqp($idEquipSeries)
+    {
+        $idEs = 0;
+        $equipSeries = Equipseries::find($idEquipSeries);
+
+        if ($equipSeries) {
+
+            if ($equipSeries->ID_FAMILY != 0) {
+
+                $equipFamily = Equipfamily::find($equipSeries->ID_FAMILY);
+                
+                if ($equipFamily) {
+
+                    if ($equipFamily->BATCH_PROCESS == 0) {
+                        $idEs = 42;
+                    } else {
+                        $idEs = 43;
+                    }
+                }
+            }
+        }
+
+        return $idEs;
     }
 
     /*** 
@@ -253,4 +384,20 @@ class Equipments extends Controller
         }
      }
 
+     private function runEquipmentCalculation($IdEquipgeneration)
+     {
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $IdEquipgeneration);
+        return $this->kernel->getKernelObject('EquipmentBuilder')->EBEquipmentCalculation($conf);
+     }
+
+     private function createCryosoftDBPublicKey()
+     {
+        $cryosoftDBPublicKey = null;
+
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, 0, 0, 0, 0);
+        $result = $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 5);
+        // $cryosoftDBPublicKey = $result->GetKTLocal();
+
+        return $cryosoftDBPublicKey;
+     }
 }
