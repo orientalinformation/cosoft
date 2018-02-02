@@ -55,10 +55,25 @@ class LineService
         }
         return $nonName;
     }
-    public function getStatus() {
+    
+    public function getStatus($lineRelease) {
         $sname = LineElmt::select('LABEL', 'LINE_VERSION')->where('ID_USER', '!=', $this->auth->user()->ID_USER)
-                ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')->where('ID_TRANSLATION', 3)
+                ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')->where('ID_TRANSLATION', '=', $lineRelease)
                 ->where('Translation.TRANS_TYPE', 100)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
         return $sname->LINE_VERSION. " " .$sname->LABEL;
+    }
+
+    public function getdiameter($coolingFamily, $insulationType) {
+        $diameter = LineElmt::distinct()->select('ELT_SIZE')
+        ->where('ID_COOLING_FAMILY ', $coolingFamily)->where('ELT_TYPE', '<>', 2)
+        ->where('INSULATION_TYPE', $insulationType)->get();
+        return $diameter;
+    }
+
+    public function getStorageTank($coolingFamily, $insulationType) {
+        $storageTank = LineElmt::distinct()->select('ELT_SIZE')
+        ->where('ID_COOLING_FAMILY ', $coolingFamily)->where('ELT_TYPE', '=', 2)
+        ->where('INSULATION_TYPE', $insulationType)->get();
+        return $storageTank;
     }
 }
