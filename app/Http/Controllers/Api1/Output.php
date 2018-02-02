@@ -1986,6 +1986,13 @@ class Output extends Controller
             ];
         }
 
-        return compact("valueRecAxis", "lfDwellingTime", "lftimeInterval");
+        //contour data
+        $pasTemp = -1.0;
+        $tempInterval = [0.0, 0.0];
+
+        $chartTempInterval = $this->output->init2DContourTempInterval($idStudyEquipment, $lfDwellingTime, $tempInterval, $pasTemp);
+        $axisName = $this->output->getAxisName($shape, $orientation, $selectedPlan);
+
+        return compact("chartTempInterval", "valueRecAxis", "lfDwellingTime", "lftimeInterval", "axisName");
     }
 }

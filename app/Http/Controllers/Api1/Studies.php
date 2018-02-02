@@ -249,9 +249,6 @@ class Studies extends Controller
             $packingCurr = Packing::where('ID_STUDY',$studyCurrent->ID_STUDY)->first(); 
             // @class: \App\Models\StudyEquipment
             $studyemtlCurr = StudyEquipment::where('ID_STUDY',$studyCurrent->ID_STUDY)->get(); 
-            
-            
-
 
             if (!empty($input['name']) || ($study->STUDY_NAME  != null)) {
 
@@ -272,7 +269,7 @@ class Studies extends Controller
                 $study->save();
 
                 //duplicate TempRecordPts already exsits
-                if(count($temprecordpstCurr) > 0) {
+                if (count($temprecordpstCurr) > 0) {
                     $temprecordpst = $temprecordpstCurr->replicate();
                     $temprecordpst->ID_STUDY = $study->ID_STUDY;
                     unset($temprecordpst->ID_TEMP_RECORD_PTS);
@@ -281,7 +278,7 @@ class Studies extends Controller
                 }
 
                 //duplicate Production already exsits
-                if(count($productionCurr)>0) {
+                if (count($productionCurr)>0) {
 
                     $production = $productionCurr->replicate();
                     $production->ID_STUDY = $study->ID_STUDY;
@@ -289,11 +286,10 @@ class Studies extends Controller
                     $production->save();
                 }
 
-                
                 //duplicate initial_Temp already exsits
                 // @class: \App\Models\InitialTemperature
                 $initialtempCurr = InitialTemperature::where('ID_PRODUCTION', $productionCurr->ID_PRODUCTION)->get();
-                if(count($initialtempCurr) > 0) {
+                if (count($initialtempCurr) > 0) {
                     
                     foreach ($initialtempCurr as $ins) { 
                         $initialtemp = new InitialTemperature();
@@ -302,11 +298,10 @@ class Studies extends Controller
                         unset($initialtemp->ID_INITIAL_TEMP);
                         $initialtemp->save();
                     }
-
                 }
 
                 //duplicate Product already exsits
-                if((count($productCurr)>0)) {
+                if ((count($productCurr)>0)) {
                     $product = $productCurr->replicate();
                     $product->ID_STUDY = $study->ID_STUDY;
                     unset($product->ID_PROD);
@@ -317,17 +312,16 @@ class Studies extends Controller
                     // @class: \App\Models\ProductEmlt
                     $productemltCurr = ProductElmt::where('ID_PROD',$productCurr->ID_PROD)->get(); 
                     //duplicate MeshGeneration already exsits
-                    if(count($meshgenerationCurr) > 0) {
+                    if (count($meshgenerationCurr) > 0) {
                         $meshgeneration = $meshgenerationCurr->replicate();
                         $meshgeneration->ID_PROD = $product->ID_PROD;
                         unset($meshgeneration->ID_MESH_GENERATION);
                         $meshgeneration->save();
                         $product->ID_MESH_GENERATION = $meshgeneration->ID_MESH_GENERATION;
                         $product->save();
-
                     } 
 
-                    if(count($productemltCurr) > 0) {
+                    if (count($productemltCurr) > 0) {
                         foreach ($productemltCurr as $prodelmtCurr ) {
                             $productemlt = new ProductElmt();
                             $productemlt = $prodelmtCurr->replicate();
@@ -339,41 +333,36 @@ class Studies extends Controller
                 }
                 
                 //duplicate Price already exsits
-                if(count($priceCurr) > 0) {
+                if (count($priceCurr) > 0) {
                     $price = $priceCurr->replicate();
                     $price->ID_STUDY = $study->ID_STUDY;
                     unset($price->ID_PRICE);
                     $price->save();
-
                 }
 
                 //duplicate Report already exsits
-                if(count($reportCurr) > 0) {
+                if (count($reportCurr) > 0) {
                     $report = $reportCurr->replicate();
                     $report->ID_STUDY = $study->ID_STUDY;
                     unset($report->ID_REPORT);
                     $report->save();
                 }
                 
-                if(count($precalcLdgRatePrmCurr) > 0) {
+                if (count($precalcLdgRatePrmCurr) > 0) {
                     $precalcLdgRatePrm = $precalcLdgRatePrmCurr->replicate();
                     $precalcLdgRatePrm->ID_STUDY = $study->ID_STUDY;
                     unset($precalcLdgRatePrm->ID_PRECALC_LDG_RATE_PRM);
                     $precalcLdgRatePrm->save();
-                    
                 }
 
-                if(count($packingCurr) > 0) {
+                if (count($packingCurr) > 0) {
                     $packing = $packingCurr->replicate();
                     $packing->ID_STUDY = $study->ID_STUDY;
                     unset($packing->ID_PACKING);
                     $packing->save();
-
-                }
-                // @class: \App\Models\PackingLayer
-                if(($packingCurr != 0) || ($packingCurr != null)) {
+                    // @class: \App\Models\PackingLayer
                     $packingLayerCurr = PackingLayer::where('ID_PACKING',$packingCurr->ID_PACKING)->get(); 
-                    if(count($packingLayerCurr) > 0) {
+                    if (count($packingLayerCurr) > 0) {
                         foreach ($packingLayerCurr as $pLayer) {
                             $packingLayer = new PackingLayer();
                             $packingLayer = $pLayer->replicate();
@@ -384,7 +373,7 @@ class Studies extends Controller
                     }
                 }
 
-                if(count($studyemtlCurr) > 0) {
+                if (count($studyemtlCurr) > 0) {
                     foreach ($studyemtlCurr as $stuElmt) {
                         $studyelmt = new StudyEquipment();
                         $studyelmt = $stuElmt->replicate();
@@ -392,19 +381,30 @@ class Studies extends Controller
                         unset($studyelmt->ID_STUDY_EQUIPMENTS);
                         if ($studyelmt->save()) {
                             $studyelmtId = $studyelmt->ID_STUDY_EQUIPMENTS;
-
                             $pipegen = new PipeGen();
                             $pipegenCurr = PipeGen::where('ID_STUDY_EQUIPMENTS',$stuElmt->ID_STUDY_EQUIPMENTS)->first();
-                            if(count($pipegenCurr) > 0) {
+                            if (count($pipegenCurr) > 0) {
                                 $pipegen = $pipegenCurr->replicate();
                                 $pipegen->ID_STUDY_EQUIPMENTS = $studyelmtId;
                                 unset($pipegen->ID_PIPE_GEN );
                                 $pipegen->save();
+                                $studyelmt->ID_PIPE_GEN = $pipegen->ID_PIPE_GEN;
+                                $studyelmt->save();
+                                $lineDefiCurr = LineDefinition::where('ID_PIPE_GEN', $pipegenCurr->ID_PIPE_GEN)->get();
+                                if (count($lineDefiCurr) > 0) {
+                                foreach ($lineDefiCurr as $lineDefiCurrs) {
+                                        $lineDefi = new LineDefinition();
+                                        $lineDefi = $lineDefiCurrs->replicate();
+                                        $lineDefi->ID_PIPE_GEN = $pipegen->ID_PIPE_GEN;
+                                        unset($lineDefi->ID_LINE_DEFINITION);
+                                        $lineDefi->save();
+                                    }
+                                }
                             }
 
                             $piperes = new PipeRes();
                             $piperesCurr = PipeRes::where('ID_STUDY_EQUIPMENTS',$stuElmt->ID_STUDY_EQUIPMENTS)->first();
-                            if(count($piperesCurr) > 0) {
+                            if (count($piperesCurr) > 0) {
                                 $piperes = $piperesCurr->replicate();
                                 $piperes->ID_STUDY_EQUIPMENTS = $studyelmtId;
                                 unset($piperes->ID_PIPE_RES);
@@ -413,12 +413,11 @@ class Studies extends Controller
 
                             $economicRes = new EconomicResults();
                             $economicResults = EconomicResults::where('ID_STUDY_EQUIPMENTS',$stuElmt->ID_STUDY_EQUIPMENTS)->first();
-                            if(count($economicResults) > 0) {
+                            if (count($economicResults) > 0) {
                                 $economicRes = $economicResults->replicate();
                                 $economicRes->ID_STUDY_EQUIPMENTS = $studyelmtId;
                                 unset($economicRes->ID_ECONOMIC_RESULTS);
                                 $economicRes->save();
-
                             }
 
                             $calparam = CalculationParameter::where('ID_STUDY_EQUIPMENTS',$stuElmt->ID_STUDY_EQUIPMENTS)->first();
@@ -428,12 +427,11 @@ class Studies extends Controller
                                 $calparameter->ID_STUDY_EQUIPMENTS = $studyelmtId;
                                 unset($calparameter->ID_CALC_PARAMS);
                                 $calparameter->save();
-
                             } 
                             
                             $stdEqpPrms = StudEqpPrm::where('ID_STUDY_EQUIPMENTS',$stuElmt->ID_STUDY_EQUIPMENTS)->get();
 
-                            if(count($stdEqpPrms) > 0) {
+                            if (count($stdEqpPrms) > 0) {
                                 foreach ($stdEqpPrms as $stdEqpPrm) {
                                     $newStdEqpParam = new StudEqpPrm();
                                     $newStdEqpParam->ID_STUDY_EQUIPMENTS = $studyelmtId;
@@ -444,7 +442,7 @@ class Studies extends Controller
                             }
                             
                             $layoutGenerations = LayoutGeneration::where('ID_STUDY_EQUIPMENTS',$stuElmt->ID_STUDY_EQUIPMENTS)->get(); 
-                            if(count($layoutGenerations) > 0) {
+                            if (count($layoutGenerations) > 0) {
                                 foreach ($layoutGenerations as $layoutGeneration) {
                                     $layoutGen = new LayoutGeneration();
                                     $layoutGen = $layoutGeneration->replicate();
@@ -455,7 +453,7 @@ class Studies extends Controller
                             }
 
                             $layoutResults = LayoutResults::where('ID_STUDY_EQUIPMENTS',$stuElmt->ID_STUDY_EQUIPMENTS)->get(); 
-                            if(count($layoutResults) > 0) {
+                            if (count($layoutResults) > 0) {
                                 foreach ($layoutResults as $layoutRes) {
                                     $layoutResult = $layoutRes->replicate();
                                     $layoutResult->ID_STUDY_EQUIPMENTS = $studyelmtId;
@@ -465,9 +463,8 @@ class Studies extends Controller
                             }
                         }
                     }
-
                     $studyelmt->ID_PIPE_RES = $piperes->ID_PIPE_RES;
-                    $studyelmt->ID_PIPE_GEN = $pipegen->ID_PIPE_GEN;
+                    
                     $studyelmt->ID_ECONOMIC_RESULTS = $economicRes->ID_ECONOMIC_RESULTS;
                     $studyelmt->ID_CALC_PARAMS = $calparameter->ID_CALC_PARAMS;
                     $studyelmt->ID_LAYOUT_GENERATION = $layoutGen->ID_LAYOUT_GENERATION;
@@ -484,8 +481,6 @@ class Studies extends Controller
                 $study->ID_PACKING = $packing->ID_PACKING;
                 $study->save();
 
-                
-
                 return $study;
 
             } else {
@@ -500,7 +495,6 @@ class Studies extends Controller
                     'message' => 'Study id not found'
                 ], 406); // Status code here
         }
-
     }
 
     /**
@@ -1389,6 +1383,37 @@ class Studies extends Controller
         return $tfMesh;
     }
 
+    function eltTypeString($intType, $idIsolation) {
+        switch ($intType) {
+            case 1:
+            if ($idIsolation != 0) {
+                return 'insulatedline';
+            } else {
+                return 'non_insulated_line';
+            }
+            case 2:
+            if ($idIsolation != 0) {
+                return 'storageTank';
+            }
+            case 3:
+            if ($idIsolation != 0) {
+                return 'tee';
+            }
+            case 4:
+            if ($idIsolation != 0) {
+                return 'elbows';
+            }
+            case 5:
+            if ($idIsolation != 0) {
+                return 'insulatedlineval';
+            } else {
+                return 'non_insulated_valves';
+            }
+            default:
+                break;
+        }
+        return false;
+    }
 
     public function loadPipeline($id) {
         $study = Study::find($id);
@@ -1398,36 +1423,44 @@ class Studies extends Controller
             $coolingFamily = $studyEquip->ID_COOLING_FAMILY;
             $lineElmts = [];
             // @TODO if not found
-            if(count($pipeGen) > 0) {
+            if (count($pipeGen) > 0) {
                 foreach ($pipeGen->lineDefinitions as $lineDef) {
                     $lineElmt = $lineDef->lineElmt;
                     $lineElmts[] = $lineElmt;
-
                     $arrPipeElmt = [];
                     foreach ($lineElmts as $getIDlineElmt) {
                         $arrPipeElmt[] = $getIDlineElmt->ID_PIPELINE_ELMT;
-                        $getLables = [];
+                        $getLabels = [];
                         foreach ($arrPipeElmt as $idPipeElmt) {
-                            $array =[];
-                            
-                            $getLables[] = LineElmt::where('ID_USER', '!=', $this->auth->user()->ID_USER)->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')->where('Translation.TRANS_TYPE', 27)->where('ID_PIPELINE_ELMT', $idPipeElmt)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->get();
-                            $arrLable = [];
-                            foreach ($getLables as $arrgetLables) {
-                               $array[] = $idPipeElmt;
-                               foreach ($arrgetLables as $getLableName) {
-                                    $arrLable[] = $getLableName->LABEL;
-                                    $arrLable["diameter"] = $lineElmts[0]->ELT_SIZE;
-                                    $arrLable["insulationType"] = $lineElmts[0]->INSULATION_TYPE;
-                                    $arrLable["height"] = $pipeGen->HEIGHT;
-                                    $arrLable["pressuer"] = $pipeGen->PRESSURE;
-                                    $arrLable["inslinelenght"] = $pipeGen->INSULLINE_LENGHT;
-                                    $arrLable["noninslinelenght"] = $pipeGen->NOINSULLINE_LENGHT;
-                                    $arrLable["insulvalves"] = $pipeGen->INSUL_VALVES;
-                                    $arrLable["noninsulvalves"] = $pipeGen->NOINSUL_VALVES;
-                                    $arrLable["gastemp"] = $pipeGen->GAS_TEMP;
-                                    $arrLable["elbowsnum"] = $pipeGen->ELBOWS;
-                                    $arrLable["teesnum"] = $pipeGen->TEES;
-                               }
+                            $getLabels[] = LineElmt::where('ID_USER', '!=', $this->auth->user()->ID_USER)
+                            ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
+                            ->where('Translation.TRANS_TYPE', 27)->where('ID_PIPELINE_ELMT', $idPipeElmt)
+                            ->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->get();
+                            $arrLabel = [];
+                            foreach ($getLabels as $arrgetLabels) {
+                                foreach ($arrgetLabels as $getLabelName) {
+                                    $diameterParam = LineElmt::distinct()->select('ELT_SIZE')
+                                    ->where('ID_COOLING_FAMILY ', $coolingFamily)->where('ELT_TYPE', '<>', 2)
+                                    ->where('INSULATION_TYPE', $lineElmts[0]->INSULATION_TYPE)
+                                    ->get();
+                                    $arrLabel[$this->eltTypeString($getLabelName->ELT_TYPE, $getLabelName->INSULATION_TYPE)] = $getLabelName->LABEL ."-". $this->lineE->getStatus();
+                                    if ($lineElmts[0]->ELT_TYPE != 2) {
+                                        $arrLabel["diameter"] = $lineElmts[0]->ELT_SIZE;
+                                    }
+                                    $arrLabel["insulationType"] = $lineElmts[0]->INSULATION_TYPE;
+                                    $arrLabel["height"] = $pipeGen->HEIGHT;
+                                    $arrLabel["pressuer"] = $pipeGen->PRESSURE;
+                                    $arrLabel["insulllenght"] = $pipeGen->INSULLINE_LENGHT;
+                                    $arrLabel["noninsullenght"] = $pipeGen->NOINSULLINE_LENGHT;
+                                    $arrLabel["insulvallenght"] = $pipeGen->INSUL_VALVES;
+                                    $arrLabel["noninsulatevallenght"] = $pipeGen->NOINSUL_VALVES;
+                                    $arrLabel["gastemp"] = $pipeGen->GAS_TEMP;
+                                    $arrLabel["elbowsnumber"] = $pipeGen->ELBOWS;
+                                    $arrLabel["teenumber"] = $pipeGen->TEES;
+                                }
+                            }
+                            foreach ($diameterParam as $diameterParams) {
+                                $arrLabel['diameterParam'][] = $diameterParams->ELT_SIZE;
                             }
                         }
                     }
@@ -1457,28 +1490,27 @@ class Studies extends Controller
         $dataResult = [];
         foreach ($resultInsideDia as $res) {
             if (count($pipeGen) > 0) {
-                $dataResult[0] = $arrLable;
+                $dataResultExist = $arrLabel;
             } else {
-                $dataResult[] = $this->getData($item , $res, $storageTanks, $coolingFamily, $i);
+                $dataResult[] = $this->getData($res, $storageTanks, $coolingFamily, $i);
                 $i++;
             }
         }
         
-        
-        return compact("dataResult");
+        return compact("dataResult", "dataResultExist");
     }
 
-    public function getData($elttype,  $resultFirst, $storageTanks, $coolingFamily, $sort)
+    public function getData($resultFirst, $storageTanks, $coolingFamily, $sort)
     {
         $item = [];
-        foreach ($resultFirst as $row) {
+        foreach ($resultFirst as $diameter) {
 
-            $insulatedline = $this->lineE->getNameComboBox(1, $row, $coolingFamily, $sort);
-            $non_insulated_line = $this->lineE->getNonLine(1, $row, $coolingFamily, 0, $sort);
-            $insulatedlineval = $this->lineE->getNameComboBox(5, $row, $coolingFamily, $sort);
-            $non_insulated_valves = $this->lineE->getNonLine(5, $row, $coolingFamily, 0, $sort);
-            $tee = $this->lineE->getNameComboBox(3, $row, $coolingFamily, $sort);
-            $elbows = $this->lineE->getNameComboBox(4, $row, $coolingFamily, $sort);
+            $insulatedline = $this->lineE->getNameComboBox(1, $diameter, $coolingFamily, $sort);
+            $non_insulated_line = $this->lineE->getNonLine(1, $diameter, $coolingFamily, 0, $sort);
+            $insulatedlineval = $this->lineE->getNameComboBox(5, $diameter, $coolingFamily, $sort);
+            $non_insulated_valves = $this->lineE->getNonLine(5, $diameter, $coolingFamily, 0, $sort);
+            $tee = $this->lineE->getNameComboBox(3, $diameter, $coolingFamily, $sort);
+            $elbows = $this->lineE->getNameComboBox(4, $diameter, $coolingFamily, $sort);
             $height = (float)MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_STUDY_LINE_HEIGHT)->first()->DEFAULT_VALUE;
             $pressuer = (float)MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_STUDY_LINE_PRESSURE)->first()->DEFAULT_VALUE;
             $insulllenght = (float)MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_STUDY_LINE_INSULATEDLINE_LENGHT)->first()->DEFAULT_VALUE;
@@ -1488,47 +1520,67 @@ class Studies extends Controller
             $insulvallenght = (float)MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_STUDY_LINE_INSULATEDVALVE_NUMBER)->first()->DEFAULT_VALUE;
             $noninsulatevallenght = (float)MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_STUDY_LINE_NON_INSULATEDVALVE_NUMBER)->first()->DEFAULT_VALUE;
             $gastemp = (float)MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_STUDY_LINE_GAZ_TEMP)->first()->DEFAULT_VALUE;
+            
             $resStogeTs =[];
             foreach ($storageTanks as $vstorageTank) {
-                $resStogeTs[]= $vstorageTank->ELT_SIZE;
-                $storageTank = [];
-                foreach ($resStogeTs as $resStogeT) {
-                    $storageTank[] = $this->lineE->getNameComboBox(2, $resStogeT, $coolingFamily, $sort);
-                }
+                $resStogeTs[] = $vstorageTank->ELT_SIZE;
             }
-
-            $insulatedlineLabel = '';
+            
             if ($sort ==  0) {
-                $insulatedlineLabel = $insulatedline->LABEL;
-                $non_insulated_lineLabel = $non_insulated_line->LABEL;
-                $insulatedlinevalLabel = $insulatedlineval->LABEL;
-                $non_insulated_valvesLabel = $non_insulated_valves->LABEL;
-                $teeLabel = $tee->LABEL;
-                $elbowsLabel = $elbows->LABEL;
-                // $storageTankLabel = $storageTank->LABEL;
+                $insulatedlineLabel = $insulatedline->LABEL ."-". $this->lineE->getStatus();
+                $non_insulated_lineLabel = $non_insulated_line->LABEL ."-". $this->lineE->getStatus();
+                $insulatedlinevalLabel = $insulatedlineval->LABEL ."-". $this->lineE->getStatus();
+                $non_insulated_valvesLabel = $non_insulated_valves->LABEL ."-". $this->lineE->getStatus();
+                $teeLabel = $tee->LABEL ."-". $this->lineE->getStatus();
+                $elbowsLabel = $elbows->LABEL ."-". $this->lineE->getStatus();
+                $itemResult = [];
+                $itemRes = [];
+                foreach ($resStogeTs as $resStogeT) {
+                    $itemRes[] = $this->lineE->getNameComboBox(2, $resStogeT, $coolingFamily, $sort);
+                }
+                foreach ($itemRes as $rowItem) {
+                    $itemResult[] = $rowItem->LABEL ."-". $this->lineE->getStatus();
+                }
+                $storageTank = $itemResult;
+                
             } else {
                 foreach ($insulatedline as $row) {
-                    $insulatedlineLabel = $row->LABEL;
+                    $insulatedlineLabel = $row->LABEL ."-". $this->lineE->getStatus();
                 }
                 foreach ($non_insulated_line as $row) {
-                    $non_insulated_lineLabel = $row->LABEL;
+                    $non_insulated_lineLabel = $row->LABEL ."-". $this->lineE->getStatus();
                 }
                 foreach ($insulatedlineval as $row) {
-                    $insulatedlinevalLabel = $row->LABEL;
+                    $insulatedlinevalLabel = $row->LABEL ."-". $this->lineE->getStatus();
                 }
                 foreach ($non_insulated_valves as $row) {
-                    $non_insulated_valvesLabel = $row->LABEL;
+                    $non_insulated_valvesLabel = $row->LABEL ."-". $this->lineE->getStatus();
                 }
                 foreach ($tee as $row) {
-                    $teeLabel = $row->LABEL;
+                    $teeLabel = $row->LABEL ."-". $this->lineE->getStatus();
                 }
                 foreach ($elbows as $row) {
-                    $elbowsLabel = $row->LABEL;
+                    $elbowsLabel = $row->LABEL ."-". $this->lineE->getStatus();
                 }
-                // foreach ($storageTank as $row) {
-                //     $storageTankLabel = $row->LABEL;
-                // }
+                // $storageTank =''
+                $itemRes = [];
+                $itemResult = [];
+                foreach ($resStogeTs as $resStogeT) {
+                    $itemRes[] = $this->lineE->getNameComboBox(2, $resStogeT, $coolingFamily, $sort);
+                }
+                foreach ($itemRes as $rowItem) {
+                    $itemResult[] = $rowItem;
+                }
+                $getLabel = [];
+                foreach ($itemResult as $getLabels) {
+                    $getLabel[] = $getLabels[0]->LABEL ."-". $this->lineE->getStatus();
+                }
+                
+                $storageTank = $getLabel;
+
             }
+            $item['diameter'] = $diameter;
+            $item['insulationType'] = $sort;
             $item['insulatedline'] = $insulatedlineLabel;
             $item['non_insulated_line'] = $non_insulated_lineLabel;
             $item['insulatedlineval'] = $insulatedlinevalLabel;
@@ -1546,7 +1598,7 @@ class Studies extends Controller
             $item['teenumber'] = $teenumber;
             $item['gastemp'] = $gastemp;
 
-            $data[] = $insulatedline;
+            $data[] = $item;
         }
 
         return $data;
