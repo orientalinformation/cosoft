@@ -94,64 +94,94 @@ class Equipments extends Controller
     public function findRefEquipment()
     {
         $mine = Equipment::where('ID_USER', $this->auth->user()->ID_USER)->orderBy('EQUIP_NAME', 'ASC')->get();
+        $others = Equipment::where('ID_USER', '!=', $this->auth->user()->ID_USER)->orderBy('EQUIP_NAME', 'ASC')->get();
 
         foreach ($mine as $key) {
             $key->capabilitiesCalc = $this->equip->getCapability($key->CAPABILITIES, 65536);
-            $isCapa = $key->capabilitiesCalc;
-            $equipGener = EquipGeneration::find($key->ID_EQUIPGENERATION);
-
-            if ($isCapa) {
-                if ($equipGener) { 
-                    $key->DWELLING_TIME = doubleval($this->convert->time($equipGener->DWELLING_TIME));
-                    $key->NEW_POS = doubleval($this->convert->time($equipGener->NEW_POS));
-                } else {
-                    $key->DWELLING_TIME = 0;
-                    $key->NEW_POS = 0;
-                }
-                $key->TEMP_SETPOINT = 0;
-            } else {
-                if ($equipGener) { 
-                    $key->TEMP_SETPOINT = doubleval($this->convert->controlTemperature($equipGener->TEMP_SETPOINT));
-                    $key->NEW_POS = doubleval($this->convert->time($equipGener->NEW_POS));
-                } else {
-                    $key->TEMP_SETPOINT = 0;
-                    $key->NEW_POS = 0;
-                }
-                $key->DWELLING_TIME = 0;
-            }
             $key->timeSymbol = $this->convert->timeSymbolUser();
             $key->temperatureSymbol = $this->convert->temperatureSymbolUser();
+            $equipGener = EquipGeneration::find($key->ID_EQUIPGENERATION);
+
+            if ($equipGener) { 
+                $equipGener->TEMP_SETPOINT = doubleval($this->convert->controlTemperature($equipGener->TEMP_SETPOINT));
+                $equipGener->DWELLING_TIME = doubleval($this->convert->time($equipGener->DWELLING_TIME));
+                $equipGener->NEW_POS = doubleval($this->convert->time($equipGener->NEW_POS));
+            }
+            $key->equipGeneration = $equipGener;
         }
-
-        $others = Equipment::where('ID_USER', '!=', $this->auth->user()->ID_USER)->orderBy('EQUIP_NAME', 'ASC')->get();
-
         foreach ($others as $key) {
             $key->capabilitiesCalc = $this->equip->getCapability($key->CAPABILITIES, 65536);
-            $isCapa = $key->capabilitiesCalc;
-            $equipGener = EquipGeneration::find($key->ID_EQUIPGENERATION);
-
-            if ($isCapa) {
-                if ($equipGener) { 
-                    $key->DWELLING_TIME = doubleval($this->convert->time($equipGener->DWELLING_TIME));
-                    $key->NEW_POS = doubleval($this->convert->time($equipGener->NEW_POS));
-                } else {
-                    $key->DWELLING_TIME = 0;
-                    $key->NEW_POS = 0;
-                }
-                $key->TEMP_SETPOINT = 0;
-            } else {
-                if ($equipGener) { 
-                    $key->TEMP_SETPOINT = doubleval($this->convert->controlTemperature($equipGener->TEMP_SETPOINT));
-                    $key->NEW_POS = doubleval($this->convert->time($equipGener->NEW_POS));
-                } else {
-                    $key->TEMP_SETPOINT = 0;
-                    $key->NEW_POS = 0;
-                }
-                $key->DWELLING_TIME = 0;
-            }
             $key->timeSymbol = $this->convert->timeSymbolUser();
             $key->temperatureSymbol = $this->convert->temperatureSymbolUser();
+            $equipGener = EquipGeneration::find($key->ID_EQUIPGENERATION);
+
+            if ($equipGener) { 
+                $equipGener->TEMP_SETPOINT = doubleval($this->convert->controlTemperature($equipGener->TEMP_SETPOINT));
+                $equipGener->DWELLING_TIME = doubleval($this->convert->time($equipGener->DWELLING_TIME));
+                $equipGener->NEW_POS = doubleval($this->convert->time($equipGener->NEW_POS));
+            }
+            $key->equipGeneration = $equipGener;
         }
+        // $mine = Equipment::where('ID_USER', $this->auth->user()->ID_USER)->orderBy('EQUIP_NAME', 'ASC')->get();
+
+        // foreach ($mine as $key) {
+        //     $key->capabilitiesCalc = $this->equip->getCapability($key->CAPABILITIES, 65536);
+        //     $isCapa = $key->capabilitiesCalc;
+        //     $equipGener = EquipGeneration::find($key->ID_EQUIPGENERATION);
+
+        //     if ($isCapa) {
+        //         if ($equipGener) { 
+        //             $key->DWELLING_TIME = doubleval($this->convert->time($equipGener->DWELLING_TIME));
+        //             $key->NEW_POS = doubleval($this->convert->time($equipGener->NEW_POS));
+        //         } else {
+        //             $key->DWELLING_TIME = 0;
+        //             $key->NEW_POS = 0;
+        //         }
+        //         $key->TEMP_SETPOINT = 0;
+        //     } else {
+        //         if ($equipGener) { 
+        //             $key->TEMP_SETPOINT = doubleval($this->convert->controlTemperature($equipGener->TEMP_SETPOINT));
+        //             $key->NEW_POS = doubleval($this->convert->time($equipGener->NEW_POS));
+        //         } else {
+        //             $key->TEMP_SETPOINT = 0;
+        //             $key->NEW_POS = 0;
+        //         }
+        //         $key->DWELLING_TIME = 0;
+        //     }
+        //     $key->timeSymbol = $this->convert->timeSymbolUser();
+        //     $key->temperatureSymbol = $this->convert->temperatureSymbolUser();
+        // }
+
+        // $others = Equipment::where('ID_USER', '!=', $this->auth->user()->ID_USER)->orderBy('EQUIP_NAME', 'ASC')->get();
+
+        // foreach ($others as $key) {
+        //     $key->capabilitiesCalc = $this->equip->getCapability($key->CAPABILITIES, 65536);
+        //     $isCapa = $key->capabilitiesCalc;
+        //     $equipGener = EquipGeneration::find($key->ID_EQUIPGENERATION);
+
+        //     if ($isCapa) {
+        //         if ($equipGener) { 
+        //             $key->DWELLING_TIME = doubleval($this->convert->time($equipGener->DWELLING_TIME));
+        //             $key->NEW_POS = doubleval($this->convert->time($equipGener->NEW_POS));
+        //         } else {
+        //             $key->DWELLING_TIME = 0;
+        //             $key->NEW_POS = 0;
+        //         }
+        //         $key->TEMP_SETPOINT = 0;
+        //     } else {
+        //         if ($equipGener) { 
+        //             $key->TEMP_SETPOINT = doubleval($this->convert->controlTemperature($equipGener->TEMP_SETPOINT));
+        //             $key->NEW_POS = doubleval($this->convert->time($equipGener->NEW_POS));
+        //         } else {
+        //             $key->TEMP_SETPOINT = 0;
+        //             $key->NEW_POS = 0;
+        //         }
+        //         $key->DWELLING_TIME = 0;
+        //     }
+        //     $key->timeSymbol = $this->convert->timeSymbolUser();
+        //     $key->temperatureSymbol = $this->convert->temperatureSymbolUser();
+        // }
+
         return compact('mine', 'others');
     }
 
@@ -415,4 +445,13 @@ class Equipments extends Controller
 
         return $cryosoftDBPublicKey;
      }
+
+    public function getEquipmentFamily()
+    {
+    $list = Equipfamily::join('Translation', 'ID_FAMILY', '=', 'Translation.ID_TRANSLATION')
+    ->where('Translation.TRANS_TYPE', 5)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+    ->orderBy('LABEL', 'ASC')->get();
+    
+    return $list;
+    }
 }

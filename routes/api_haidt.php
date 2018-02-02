@@ -286,3 +286,11 @@ $router->POST('/api/v1/studies/{id}/equipment/interval', 'Api1\\Equipments@updat
  * Output-Formats: [application/json]
  */
 $router->PUT('/api/v1/referencedata/equipments', 'Api1\\Equipments@newEquipment');
+
+/**
+ * GET getEquipmentFamily
+ * Summary:
+ * Notes: get list equipment family
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/referencedata/equipmentfamilys', 'Api1\\Equipments@getEquipmentFamily');
