@@ -191,21 +191,19 @@ class Equipments extends Controller
         $idUserLogon = $this->auth->user()->ID_USER;
         $input = $this->request->all();
 
-        $CRYOSOFT_DB_PUBLIC_KEY = null;
+        $CRYOSOFT_DB_PUBLIC_KEY = $nameE = null;
+        $versionE = $equipId1 = $equipId1 = $tempSetPoint = $dwellingTime = $newPos = $typeEquipment = 0;
 
-        if (!isset($input['nameEquipment']) || !isset($input['versionEquipment']) || !isset($input['equipmentId1']) 
-        || !isset($input['equipmentId2']) || !isset($input['tempSetPoint']) || !isset($input['dwellingTime']) 
-        || !isset($input['newPos']) || !isset($input['typeEquipment'] ))
-            throw new \Exception("Error Processing Request", 1);
+        $CRYOSOFT_DB_PUBLIC_KEY = Crypt::encrypt($this->createCryosoftDBPublicKey());
         
-        $nameE = $input['nameEquipment'];
-        $versionE = $input['versionEquipment'];
-        $equipId1 = $input['equipmentId1'];
-        $equipId2 = $input['equipmentId2'];
-        $tempSetPoint = $input['tempSetPoint'];
-        $dwellingTime = $input['dwellingTime'];
-        $newPos = $input['newPos'];
-        $typeEquipment = $input['typeEquipment'];
+        if (isset($input['nameEquipment'])) $nameE = $input['nameEquipment'];
+        if (isset($input['versionEquipment'])) $versionE = floatval($input['versionEquipment']);
+        if (isset($input['equipmentId1'])) $equipId1 = intval($input['equipmentId1']);
+        if (isset($input['equipmentId2'])) $equipId2 = intval($input['equipmentId2']);
+        if (isset($input['tempSetPoint'])) $tempSetPoint = floatval($input['tempSetPoint']);
+        if (isset($input['dwellingTime'])) $dwellingTime = floatval($input['dwellingTime']);
+        if (isset($input['newPos'])) $newPos = $input['newPos'];
+        if (isset($input['typeEquipment'])) $typeEquipment = $input['typeEquipment'];
 
         $equipment1 = Equipment::find($equipId1);
         
@@ -237,6 +235,7 @@ class Equipments extends Controller
                 $comment = substr($newE->EQUIP_COMMENT, 0, 1999) . '. Create on ' . $current->toDateTimeString() . ' by ' . $this->auth->user()->USERNAM;;
             }
             $newE->EQUIP_COMMENT = $comment;
+            $newE->EQUIP_NAME = $nameE;
             $newE->ID_EQUIPSERIES = $this->MapToGeneratedEqp($newE->ID_EQUIPSERIES);
             $newE->ID_COOLING_FAMILY = $equipment1->ID_COOLING_FAMILY;
             $newE->EQUIPPICT = $equipment1->EQUIPPICT;
@@ -261,9 +260,10 @@ class Equipments extends Controller
             $newE->ITEM_VC = $equipment1->ITEM_VC;
             $newE->ITEM_PRECIS = $equipment1->ITEM_PRECIS;
             $newE->ITEM_TIMESTEP = $equipment1->ITEM_TIMESTEP;
-            $newE->FATHER_DLL_IDX = $equipment1->FATHER_DLL_IDX;
+            $newE->DLL_IDX = $equipment1->DLL_IDX;
+            // $newE->FATHER_DLL_IDX = $equipment1->FATHER_DLL_IDX;
             $newE->EQP_IMP_ID_STUDY = $equipment1->EQP_IMP_ID_STUDY;
-            // $newE->save();
+            $newE->save();
             Equipment::where('ID_EQUIP', $newE->ID_EQUIP)->update(['EQUIP_DATE' => $current->toDateTimeString()]);
 
             $equipGeneration = new EquipGeneration();
@@ -280,11 +280,12 @@ class Equipments extends Controller
             $equipGeneration->NEW_POS = $newPos;
             $equipGeneration->EQP_GEN_STATUS = 0;
             $equipGeneration->EQP_GEN_LOADRATE = 0;
-            // $equipGeneration->save();
+            $equipGeneration->save();
             Equipment::where('ID_EQUIP', $newE->ID_EQUIP)->update(['ID_EQUIPGENERATION' => $equipGeneration->ID_EQUIPGENERATION]);
 
-            $CRYOSOFT_DB_PUBLIC_KEY = Crypt::encrypt($this->createCryosoftDBPublicKey());
-            var_dump($CRYOSOFT_DB_PUBLIC_KEY); die;
+            if (!$this->runEquipmentCalculation($newE->ID_EQUIP)) {
+                return;
+            }
             
         }
 
@@ -395,7 +396,6 @@ class Equipments extends Controller
 
             return 1;
         } else {
-
             return 0;
         }
      }
@@ -424,7 +424,6 @@ class Equipments extends Controller
             }
             return 1;
         } else {
-
             return 0;
         }
      }
@@ -448,10 +447,10 @@ class Equipments extends Controller
 
     public function getEquipmentFamily()
     {
-    $list = Equipfamily::join('Translation', 'ID_FAMILY', '=', 'Translation.ID_TRANSLATION')
-    ->where('Translation.TRANS_TYPE', 5)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
-    ->orderBy('LABEL', 'ASC')->get();
-    
-    return $list;
+        $list = Equipfamily::join('Translation', 'ID_FAMILY', '=', 'Translation.ID_TRANSLATION')
+        ->where('Translation.TRANS_TYPE', 5)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+        ->orderBy('LABEL', 'ASC')->get();
+        
+        return $list;
     }
 }
