@@ -15,8 +15,12 @@ use App\Models\PrecalcLdgRatePrm;
 use App\Models\EquipGeneration;
 use App\Models\Equipseries;
 use App\Models\Equipfamily;
+use App\Models\Ramps;
+use App\Models\Shelves;
+use App\Models\Consumptions;
 use App\Kernel\KernelService;
 use Illuminate\Support\Facades\Crypt;
+use DB;
 
 class Equipments extends Controller
 {
@@ -94,25 +98,47 @@ class Equipments extends Controller
     public function findRefEquipment()
     {
         $mine = Equipment::where('ID_USER', $this->auth->user()->ID_USER)->orderBy('EQUIP_NAME', 'ASC')->get();
+
         $others = Equipment::where('ID_USER', '!=', $this->auth->user()->ID_USER)->orderBy('EQUIP_NAME', 'ASC')->get();
 
         foreach ($mine as $key) {
             $key->capabilitiesCalc = $this->equip->getCapability($key->CAPABILITIES, 65536);
+            $key->capabilitiesCalc256 = $this->equip->getCapability($key->CAPABILITIES, 256);
             $key->timeSymbol = $this->convert->timeSymbolUser();
             $key->temperatureSymbol = $this->convert->temperatureSymbolUser();
-            $equipGener = EquipGeneration::find($key->ID_EQUIPGENERATION);
+            $key->dimensionSymbol = $this->convert->equipDimensionSymbolUser();
+            $key->consumptionSymbol1 = $this->convert->consumptionSymbolUser($key->ID_COOLING_FAMILY, 1);
+            $key->consumptionSymbol2 = $this->convert->consumptionSymbolUser($key->ID_COOLING_FAMILY, 2);
+            $key->consumptionSymbol3 = $this->convert->consumptionSymbolUser($key->ID_COOLING_FAMILY, 3);
+            $key->shelvesWidthSymbol = $this->convert->shelvesWidthSymbol();
+            $key->rampsPositionSymbol = $this->convert->rampsPositionSymbol();
 
+            $key->EQP_LENGTH = $this->convert->equipDimensionUser($key->EQP_LENGTH);
+            $key->EQP_WIDTH = $this->convert->equipDimensionUser($key->EQP_WIDTH);
+            $key->EQP_HEIGHT = $this->convert->equipDimensionUser($key->EQP_HEIGHT);
+            $key->MAX_FLOW_RATE = $this->convert->consumptionUser($key->MAX_FLOW_RATE, $key->ID_COOLING_FAMILY, 1);
+            $key->TMP_REGUL_MIN = $this->convert->controlTemperatureUser($key->TMP_REGUL_MIN);
+
+            $equipGener = EquipGeneration::find($key->ID_EQUIPGENERATION);
+        
             if ($equipGener) { 
-                $equipGener->TEMP_SETPOINT = doubleval($this->convert->controlTemperature($equipGener->TEMP_SETPOINT));
-                $equipGener->DWELLING_TIME = doubleval($this->convert->time($equipGener->DWELLING_TIME));
-                $equipGener->NEW_POS = doubleval($this->convert->time($equipGener->NEW_POS));
+                $equipGener->TEMP_SETPOINT = doubleval($this->convert->controlTemperatureUser($equipGener->TEMP_SETPOINT));
+                $equipGener->DWELLING_TIME = doubleval($this->convert->timeUser($equipGener->DWELLING_TIME));
+                $equipGener->NEW_POS = doubleval($this->convert->timeUser($equipGener->NEW_POS));
             }
             $key->equipGeneration = $equipGener;
         }
+
         foreach ($others as $key) {
             $key->capabilitiesCalc = $this->equip->getCapability($key->CAPABILITIES, 65536);
             $key->timeSymbol = $this->convert->timeSymbolUser();
             $key->temperatureSymbol = $this->convert->temperatureSymbolUser();
+            $key->dimensionSymbol = $this->convert->equipDimensionSymbolUser();
+            $key->EQP_LENGTH = $this->convert->equipDimensionUser($key->EQP_LENGTH);
+            $key->EQP_WIDTH = $this->convert->equipDimensionUser($key->EQP_WIDTH);
+            $key->EQP_HEIGHT = $this->convert->equipDimensionUser($key->EQP_HEIGHT);
+            $key->TMP_REGUL_MIN = $this->convert->controlTemperatureUser($key->TMP_REGUL_MIN);
+
             $equipGener = EquipGeneration::find($key->ID_EQUIPGENERATION);
 
             if ($equipGener) { 
@@ -122,65 +148,6 @@ class Equipments extends Controller
             }
             $key->equipGeneration = $equipGener;
         }
-        // $mine = Equipment::where('ID_USER', $this->auth->user()->ID_USER)->orderBy('EQUIP_NAME', 'ASC')->get();
-
-        // foreach ($mine as $key) {
-        //     $key->capabilitiesCalc = $this->equip->getCapability($key->CAPABILITIES, 65536);
-        //     $isCapa = $key->capabilitiesCalc;
-        //     $equipGener = EquipGeneration::find($key->ID_EQUIPGENERATION);
-
-        //     if ($isCapa) {
-        //         if ($equipGener) { 
-        //             $key->DWELLING_TIME = doubleval($this->convert->time($equipGener->DWELLING_TIME));
-        //             $key->NEW_POS = doubleval($this->convert->time($equipGener->NEW_POS));
-        //         } else {
-        //             $key->DWELLING_TIME = 0;
-        //             $key->NEW_POS = 0;
-        //         }
-        //         $key->TEMP_SETPOINT = 0;
-        //     } else {
-        //         if ($equipGener) { 
-        //             $key->TEMP_SETPOINT = doubleval($this->convert->controlTemperature($equipGener->TEMP_SETPOINT));
-        //             $key->NEW_POS = doubleval($this->convert->time($equipGener->NEW_POS));
-        //         } else {
-        //             $key->TEMP_SETPOINT = 0;
-        //             $key->NEW_POS = 0;
-        //         }
-        //         $key->DWELLING_TIME = 0;
-        //     }
-        //     $key->timeSymbol = $this->convert->timeSymbolUser();
-        //     $key->temperatureSymbol = $this->convert->temperatureSymbolUser();
-        // }
-
-        // $others = Equipment::where('ID_USER', '!=', $this->auth->user()->ID_USER)->orderBy('EQUIP_NAME', 'ASC')->get();
-
-        // foreach ($others as $key) {
-        //     $key->capabilitiesCalc = $this->equip->getCapability($key->CAPABILITIES, 65536);
-        //     $isCapa = $key->capabilitiesCalc;
-        //     $equipGener = EquipGeneration::find($key->ID_EQUIPGENERATION);
-
-        //     if ($isCapa) {
-        //         if ($equipGener) { 
-        //             $key->DWELLING_TIME = doubleval($this->convert->time($equipGener->DWELLING_TIME));
-        //             $key->NEW_POS = doubleval($this->convert->time($equipGener->NEW_POS));
-        //         } else {
-        //             $key->DWELLING_TIME = 0;
-        //             $key->NEW_POS = 0;
-        //         }
-        //         $key->TEMP_SETPOINT = 0;
-        //     } else {
-        //         if ($equipGener) { 
-        //             $key->TEMP_SETPOINT = doubleval($this->convert->controlTemperature($equipGener->TEMP_SETPOINT));
-        //             $key->NEW_POS = doubleval($this->convert->time($equipGener->NEW_POS));
-        //         } else {
-        //             $key->TEMP_SETPOINT = 0;
-        //             $key->NEW_POS = 0;
-        //         }
-        //         $key->DWELLING_TIME = 0;
-        //     }
-        //     $key->timeSymbol = $this->convert->timeSymbolUser();
-        //     $key->temperatureSymbol = $this->convert->temperatureSymbolUser();
-        // }
 
         return compact('mine', 'others');
     }
@@ -317,6 +284,93 @@ class Equipments extends Controller
         return $idEs;
     }
 
+    public function getEquipmentFamily()
+    {
+        $list = Equipfamily::join('Translation', 'ID_FAMILY', '=', 'Translation.ID_TRANSLATION')
+        ->where('Translation.TRANS_TYPE', 5)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+        ->orderBy('LABEL', 'ASC')->get();
+        
+        return $list;
+    }
+
+    public function getEquipmentSeries() {
+        $input = $this->request->all();
+
+        if (isset($input['idFamily'])) $idFamily = $input['idFamily'];
+
+        if (!$idFamily) {
+            $list = Equipseries::orderBy('SERIES_NAME', 'ASC')->get();
+        } else {
+            $list = Equipseries::where('ID_FAMILY', $idFamily)->orderBy('SERIES_NAME', 'ASC')->get();
+        }
+        
+        return $list;
+    }
+
+    public function getRamps()
+    {
+        $input = $this->request->all();
+        $list = [];
+
+        if (isset($input['idEquip'])) $idEquip = $input['idEquip'];
+
+        if ($idEquip) {
+            $list = Ramps::where('ID_EQUIP', $idEquip)->orderBy('POSITION', 'ASC')->get();
+
+            foreach ( $list as $ramps) {
+                $ramps->POSITION = $this->convert->rampsPositionUser($ramps->POSITION);
+            }
+        }
+
+        return $list;
+    }
+
+    public function getShelves()
+    {
+        $input = $this->request->all();
+        $list = [];
+
+        if (isset($input['idEquip'])) $idEquip = $input['idEquip'];
+
+        if ($idEquip) {
+            $list = Shelves::where('ID_EQUIP', $idEquip)->orderBy('SPACE', 'ASC')->get();
+
+            foreach ( $list as $shelves) {
+                $shelves->SPACE = $this->convert->shelvesWidthUser($shelves->SPACE);
+            }
+        }
+
+        return $list;
+    }
+
+    public function getConsumptions()
+    {
+        $input = $this->request->all();
+        $list = [];
+
+        if (isset($input['idEquip'])) $idEquip = $input['idEquip'];
+
+        $list = DB::select("select ID_CONSUMPTIONS, ID_EQUIP, CONVERT( float(53), convert(varchar(100), DecryptByPassPhrase('3a786565707472', TEMPERATURE))) as TEMPERATURE,
+        CONVERT( float(53), convert(varchar(100), DecryptByPassPhrase('3a786565707472', CONSUMPTION_PERM))) as CONSUMPTION_PERM,
+        CONVERT( float(53), convert(varchar(100), DecryptByPassPhrase('3a786565707472', CONSUMPTION_GETCOLD))) as CONSUMPTION_GETCOLD
+        from consumptions where ID_EQUIP = " . $idEquip . " ORDER BY TEMPERATURE");
+        
+        $equip = Equipment::find($idEquip);
+
+        foreach ($list as $key) {
+            if ($equip) {
+                if ($this->equip->getCapability($equip->CAPABILITIES, 65536)) {
+                    $key->TEMPERATURE = $this->convert->timeUser($key->TEMPERATURE);
+                } else {
+                    $key->TEMPERATURE = $this->convert->controlTemperatureUser($key->TEMPERATURE);
+                }
+                $key->CONSUMPTION_GETCOLD = $this->convert->consumptionUser($key->CONSUMPTION_GETCOLD, $equip->ID_COOLING_FAMILY, 2);
+            }
+        }
+
+        return $list;
+    }
+
     /*** 
      * Studies Equipment
      *
@@ -444,13 +498,4 @@ class Equipments extends Controller
 
         return $cryosoftDBPublicKey;
      }
-
-    public function getEquipmentFamily()
-    {
-        $list = Equipfamily::join('Translation', 'ID_FAMILY', '=', 'Translation.ID_TRANSLATION')
-        ->where('Translation.TRANS_TYPE', 5)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
-        ->orderBy('LABEL', 'ASC')->get();
-        
-        return $list;
-    }
 }

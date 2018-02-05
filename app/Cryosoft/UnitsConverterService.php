@@ -197,14 +197,6 @@ class UnitsConverterService
     	return $unit->SYMBOL;
     }
 
-    public function temperatureSymbolUser() {
-        $user = $this->auth->user();
-        $userUnit = UserUnit::join('unit', 'user_unit.ID_UNIT', '=', 'unit.ID_UNIT')->where('ID_USER', $user->ID_USER)
-        ->where("unit.TYPE_UNIT", $this->value->TEMPERATURE)->get();
-
-    	return $userUnit[0]->SYMBOL;
-    }
-
     public function perUnitOfMassSymbol() 
 	{
         $unit = Unit::select("SYMBOL")->where("TYPE_UNIT", $this->value->MASS_PER_UNIT)->first();
@@ -214,14 +206,6 @@ class UnitsConverterService
     public function timeSymbol() {
         $unit = Unit::select("SYMBOL")->where("TYPE_UNIT", $this->value->TIME)->first();
     	return $unit->SYMBOL;
-    }
-
-    public function timeSymbolUser() {
-        $user = $this->auth->user();
-        $userUnit = UserUnit::join('unit', 'user_unit.ID_UNIT', '=', 'unit.ID_UNIT')->where('ID_USER', $user->ID_USER)
-        ->where("unit.TYPE_UNIT", $this->value->TIME)->get();
-
-    	return $userUnit[0]->SYMBOL;
     }
 
     public function enthalpySymbol() 
@@ -548,4 +532,222 @@ class UnitsConverterService
 
         return $this->unitConvert($sUnitLabel, $value, $decimal);
     }
+
+// convert unit for user
+    public function temperatureSymbolUser() {
+        $user = $this->auth->user();
+        $userUnit = UserUnit::join('unit', 'user_unit.ID_UNIT', '=', 'unit.ID_UNIT')->where('ID_USER', $user->ID_USER)
+        ->where("unit.TYPE_UNIT", $this->value->TEMPERATURE)->get();
+
+        return $userUnit[0]->SYMBOL;
+    }
+
+    public function shelvesWidthSymbol() {
+        $user = $this->auth->user();
+        $unit = UserUnit::join('unit', 'user_unit.ID_UNIT', '=', 'unit.ID_UNIT')->where('ID_USER', $user->ID_USER)
+        ->where("unit.TYPE_UNIT", $this->value->W_CARPET_SHELVES)->first();
+
+        return $unit->SYMBOL;
+    }
+
+    public function shelvesWidthUser($value) {
+        $user = $this->auth->user();
+        $unit = UserUnit::join('unit', 'user_unit.ID_UNIT', '=', 'unit.ID_UNIT')->where('ID_USER', $user->ID_USER)
+        ->where("unit.TYPE_UNIT", $this->value->W_CARPET_SHELVES)->first();
+
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B);
+    }
+
+    public function rampsPositionSymbol() {
+        $user = $this->auth->user();
+        $unit = UserUnit::join('unit', 'user_unit.ID_UNIT', '=', 'unit.ID_UNIT')->where('ID_USER', $user->ID_USER)
+        ->where("unit.TYPE_UNIT", $this->value->SLOPES_POSITION)->first();
+
+        return $unit->SYMBOL;
+    }
+
+    public function rampsPositionUser($value) {
+        $user = $this->auth->user();
+        $unit = UserUnit::join('unit', 'user_unit.ID_UNIT', '=', 'unit.ID_UNIT')->where('ID_USER', $user->ID_USER)
+        ->where("unit.TYPE_UNIT", $this->value->SLOPES_POSITION)->first();
+
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B);
+    }
+
+    public function timeSymbolUser() {
+        $user = $this->auth->user();
+        $userUnit = UserUnit::join('unit', 'user_unit.ID_UNIT', '=', 'unit.ID_UNIT')->where('ID_USER', $user->ID_USER)
+        ->where("unit.TYPE_UNIT", $this->value->TIME)->get();
+
+    	return $userUnit[0]->SYMBOL;
+    }
+
+    public function equipDimensionUser($value) {
+        $user = $this->auth->user();
+        $unit = UserUnit::join('unit', 'user_unit.ID_UNIT', '=', 'unit.ID_UNIT')->where('ID_USER', $user->ID_USER)
+        ->where("unit.TYPE_UNIT", $this->value->EQUIP_DIMENSION)->first();
+
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B);
+    }
+
+    public function controlTemperatureUser($value) {
+        $user = $this->auth->user();
+
+        $unit = UserUnit::join('unit', 'user_unit.ID_UNIT', '=', 'unit.ID_UNIT')->where('ID_USER', $user->ID_USER)
+        ->where("unit.TYPE_UNIT", $this->value->TEMPERATURE)->first();
+
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 0);
+    }
+
+    public function equipDimensionSymbolUser() 
+    {
+        $user = $this->auth->user();
+        $unit = UserUnit::join('unit', 'user_unit.ID_UNIT', '=', 'unit.ID_UNIT')->where('ID_USER', $user->ID_USER)
+        ->where("unit.TYPE_UNIT", $this->value->EQUIP_DIMENSION)->first();
+
+        return $unit->SYMBOL;
+    }
+
+    public function consumptionUser($value, $energy, $type, $decimal = 2)
+    {
+        $sValue = "";
+        $sUnitLabel = "";
+
+        if ($energy == 2) {
+            switch ($type) {
+                case 1:
+                    $sUnitLabel = $this->value->CONSUMPTION_UNIT_LN2;
+                    break;
+                case 2:
+                    $sUnitLabel = $this->value->CONSUM_MAINTIEN_LN2;
+                    break;
+                case 3:
+                    $sUnitLabel = $this->value->CONSUM_MEF_LN2;
+                    break;
+                default:
+                    $sUnitLabel = $this->value->CONSUMPTION_UNIT_LN2;
+                    break;
+            }
+
+        } else if ($energy == 3) {
+            switch ($type) {
+                case 1:
+                    $sUnitLabel = $this->value->CONSUMPTION_UNIT_CO2;
+                    break;
+                case 2:
+                    $sUnitLabel = $this->value->CONSUM_MAINTIEN_CO2;
+                    break;
+                case 3:
+                    $sUnitLabel = $this->value->CONSUM_MEF_CO2;
+                    break;
+                default:
+                    $sUnitLabel = $this->value->CONSUMPTION_UNIT_CO2;
+                    break;
+
+            }
+
+        } else {
+            switch ($type) {
+                case 1:
+                    $sUnitLabel = $this->value->CONSUMPTION_UNIT;
+                    break;
+                case 2:
+                    $sUnitLabel = $this->value->CONSUM_MAINTIEN;
+                    break;
+                case 3:
+                    $sUnitLabel = $this->value->CONSUM_MEF;
+                    break;
+                default:
+                    $sUnitLabel = $this->value->CONSUMPTION_UNIT;
+            }
+
+        }
+
+        return $this->unitConvertUser($sUnitLabel, $value, $decimal);
+    }
+
+    public function unitConvertUser($unitType, $value, $decimal = 2)
+    {
+        $user = $this->auth->user();
+        $unit = UserUnit::join('unit', 'user_unit.ID_UNIT', '=', 'unit.ID_UNIT')->where('ID_USER', $user->ID_USER)
+        ->where("unit.TYPE_UNIT", $unitType)->first();
+
+        if (!empty($unit)) 
+            return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B,  $decimal);
+        else 
+            return $value;
+    }
+
+    public function consumptionSymbolUser($energy, $type) 
+    {
+        $sValue = "";
+        $sUnitLabel = "";
+
+        if ($energy == 2) {
+            switch ($type) {
+                case 1:
+                    $sUnitLabel = $this->value->CONSUMPTION_UNIT_LN2;
+                    break;
+                case 2:
+                    $sUnitLabel = $this->value->CONSUM_MAINTIEN_LN2;
+                    break;
+                case 3:
+                    $sUnitLabel = $this->value->CONSUM_MEF_LN2;
+                    break;
+                default:
+                    $sUnitLabel = $this->value->CONSUMPTION_UNIT_LN2;
+                    break;
+            }
+
+        } else if ($energy == 3) {
+            switch ($type) {
+                case 1:
+                    $sUnitLabel = $this->value->CONSUMPTION_UNIT_CO2;
+                    break;
+                case 2:
+                    $sUnitLabel = $this->value->CONSUM_MAINTIEN_CO2;
+                    break;
+                case 3:
+                    $sUnitLabel = $this->value->CONSUM_MEF_CO2;
+                    break;
+                default:
+                    $sUnitLabel = $this->value->CONSUMPTION_UNIT_CO2;
+                    break;
+
+            }
+
+        } else {
+            switch ($type) {
+                case 1:
+                    $sUnitLabel = $this->value->CONSUMPTION_UNIT;
+                    break;
+                case 2:
+                    $sUnitLabel = $this->value->CONSUM_MAINTIEN;
+                    break;
+                case 3:
+                    $sUnitLabel = $this->value->CONSUM_MEF;
+                    break;
+                default:
+                    $sUnitLabel = $this->value->CONSUMPTION_UNIT;
+            }
+
+        }
+
+
+
+        $user = $this->auth->user();
+        $unit = UserUnit::join('unit', 'user_unit.ID_UNIT', '=', 'unit.ID_UNIT')->where('ID_USER', $user->ID_USER)
+        ->where("unit.TYPE_UNIT", $sUnitLabel)->first();
+
+        return $unit->SYMBOL;
+    }
+
+    public function timeUser($value) {
+        $user = $this->auth->user();
+        $unit = UserUnit::join('unit', 'user_unit.ID_UNIT', '=', 'unit.ID_UNIT')->where('ID_USER', $user->ID_USER)
+        ->where("unit.TYPE_UNIT", $this->value->TIME)->first();
+
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 1);
+    }
+
 }

@@ -294,3 +294,35 @@ $router->PUT('/api/v1/referencedata/equipments', 'Api1\\Equipments@newEquipment'
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/referencedata/equipmentfamilys', 'Api1\\Equipments@getEquipmentFamily');
+
+/**
+ * GET getEquipmentSeries
+ * Summary:
+ * Notes: get list equipment series
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/referencedata/equipmentseries', 'Api1\\Equipments@getEquipmentSeries');
+
+/**
+ * GET getRamps
+ * Summary:
+ * Notes: get list ramps
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/referencedata/ramps', 'Api1\\Equipments@getRamps');
+
+/**
+ * GET getShelves
+ * Summary:
+ * Notes: get list shelves
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/referencedata/shelves', 'Api1\\Equipments@getShelves');
+
+/**
+ * GET getConsumptions
+ * Summary:
+ * Notes: get list Consumptions
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/referencedata/consumptions', 'Api1\\Equipments@getConsumptions');
