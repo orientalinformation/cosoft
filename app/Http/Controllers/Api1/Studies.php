@@ -1443,10 +1443,18 @@ class Studies extends Controller
                                     $storageTankParam = $this->lineE->getStorageTank($coolingFamily, $lineElmts[0]->INSULATION_TYPE);
                                     $insulationParams = LineElmt::distinct()->select('INSULATION_TYPE')
                                     ->where('ID_COOLING_FAMILY', $coolingFamily)->get();
+                                    $insulationlinesub = $this->lineE->getNameComboBox(1, $lineElmts[0]->ELT_SIZE, $coolingFamily, $lineElmts[0]->INSULATION_TYPE);
+                                    // $non_insulated_lineSub = $this->lineE->getNonLine(1, $lineElmts[0]->ELT_SIZE, $coolingFamily, $lineElmts[0]->INSULATION_TYPE);
+                                    // $insulatedlinevalSub = $this->lineE->getNameComboBox(5, $lineElmts[0]->ELT_SIZE, $coolingFamily, $lineElmts[0]->INSULATION_TYPE);
+                                    // $non_insulated_valveSub = $this->lineE->getNonLine(5, $lineElmts[0]->ELT_SIZE, $coolingFamily, $lineElmts[0]->INSULATION_TYPE);
+                                    // $insulationlinesub = $this->lineE->getNameComboBox(1, $lineElmts[0]->ELT_SIZE, $coolingFamily, $lineElmts[0]->INSULATION_TYPE);
+                                    // $insulationlinesub = $this->lineE->getNameComboBox(1, $lineElmts[0]->ELT_SIZE, $coolingFamily, $lineElmts[0]->INSULATION_TYPE);
                                     $arrLabel[$this->eltTypeString($getLabelName->ELT_TYPE, $getLabelName->INSULATION_TYPE)] = $getLabelName->LABEL ."-". $this->lineE->getStatus($getLabelName->LINE_RELEASE);
                                     if ($lineElmts[0]->ELT_TYPE != 2) {
                                         $arrLabel["diameter"] = $lineElmts[0]->ELT_SIZE;
                                     }
+                                    //lam tip tai day TODO
+                                    $arrLabel["insulationLineSub"] = $insulationlinesub;
                                     $arrLabel["insulationType"] = $lineElmts[0]->INSULATION_TYPE;
                                     $arrLabel["height"] = $pipeGen->HEIGHT;
                                     $arrLabel["pressuer"] = $pipeGen->PRESSURE;
@@ -1491,7 +1499,7 @@ class Studies extends Controller
             }
 
             $resultInsideDiameters= [];
-            foreach ($lineElmts as $key => $insulationType) {
+            foreach ($lineElmts as $insulationType) {
                 $resultInsideDiameters[] = $insideDiameters = $this->lineE->getdiameter($coolingFamily, $insulationType->INSULATION_TYPE);
                 $storageTanks = $this->lineE->getStorageTank($coolingFamily, $insulationType->INSULATION_TYPE);
             }
@@ -1499,9 +1507,9 @@ class Studies extends Controller
         
         $resultInsideDia = [];
 
-        foreach ($resultInsideDiameters as $key => $value) {
+        foreach ($resultInsideDiameters as $value) {
             $item = [];
-            foreach ($value as $key => $value) {
+            foreach ($value as $value) {
                 $item[] = $value->ELT_SIZE;
             }
             $resultInsideDia[] = $item;
@@ -1533,15 +1541,15 @@ class Studies extends Controller
             $non_insulated_valves = $this->lineE->getNonLine(5, $diameter, $coolingFamily, 0, $sort);
             $tee = $this->lineE->getNameComboBox(3, $diameter, $coolingFamily, $sort);
             $elbows = $this->lineE->getNameComboBox(4, $diameter, $coolingFamily, $sort);
-            $height = (float)MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_STUDY_LINE_HEIGHT)->first()->DEFAULT_VALUE;
-            $pressuer = (float)MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_STUDY_LINE_PRESSURE)->first()->DEFAULT_VALUE;
-            $insulllenght = (float)MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_STUDY_LINE_INSULATEDLINE_LENGHT)->first()->DEFAULT_VALUE;
-            $noninsullenght = (float)MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_STUDY_LINE_NON_INSULATEDLINE_LENGHT)->first()->DEFAULT_VALUE;
-            $elbowsnumber = (float)MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_STUDY_LINE_ELBOWS_NUMBER)->first()->DEFAULT_VALUE;
-            $teenumber = (float)MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_STUDY_LINE_TEES_NUMBER)->first()->DEFAULT_VALUE;
-            $insulvallenght = (float)MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_STUDY_LINE_INSULATEDVALVE_NUMBER)->first()->DEFAULT_VALUE;
-            $noninsulatevallenght = (float)MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_STUDY_LINE_NON_INSULATEDVALVE_NUMBER)->first()->DEFAULT_VALUE;
-            $gastemp = (float)MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_STUDY_LINE_GAZ_TEMP)->first()->DEFAULT_VALUE;
+            $height = 0.0;
+            $pressuer = 0.0;
+            $insulllenght = 0.0;
+            $noninsullenght = 0.0;
+            $elbowsnumber = 0.0;
+            $teenumber = 0.0;
+            $insulvallenght = 0.0;
+            $noninsulatevallenght = 0.0;
+            $gastemp = 0.0;
             
             $resStogeTs =[];
             foreach ($storageTanks as $vstorageTank) {
@@ -1618,7 +1626,6 @@ class Studies extends Controller
             $item['elbowsnumber'] = $elbowsnumber;
             $item['teenumber'] = $teenumber;
             $item['gastemp'] = $gastemp;
-
             $data[] = $item;
         }
 
