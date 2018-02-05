@@ -135,18 +135,16 @@ class Products extends Controller
 
         $ok1 = $ok2 = 0;
 
-        if ($oldRealMass != $realmass) {
-            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $id, $idElement);
-            $ok2 = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($product->ID_STUDY, $conf, 3);
-        } elseif ($oldDim2 != $dim2) {
+        if ($oldDim2 != $dim2) {
             $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $id, $idElement);
             $ok1 = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($product->ID_STUDY, $conf, 2);
 
             $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $id);
             $ok2 = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($product->ID_STUDY, $conf, 3);
+        } elseif ($oldRealMass != $realmass) {
+            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $id, $idElement);
+            $ok2 = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($product->ID_STUDY, $conf, 3);
         }
-
-        
 
         return compact('ok1', 'ok2', 'idElement');
     }
