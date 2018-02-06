@@ -222,7 +222,7 @@ class UnitsConverterService
 
     public function convectionSpeedSymbol() 
     {
-        $unit = Unit::select("SYMBOL")->where("TYPE_UNIT", $this->value->CONV_SPEED_UNIT)->first();
+        $unit = Unit::select("SYMBOL")->where("TYPE_UNIT", $this->value->CONV_SPEED)->first();
         return $unit->SYMBOL;
     }
 
