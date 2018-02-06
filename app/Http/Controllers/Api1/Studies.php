@@ -1430,6 +1430,7 @@ class Studies extends Controller
                     $arrPipeElmt = [];
                     foreach ($lineElmts as $getIDlineElmt) {
                         $arrPipeElmt[] = $getIDlineElmt->ID_PIPELINE_ELMT;
+                        // var_dump($lineElmts);die;
                         $getLabels = [];
                         foreach ($arrPipeElmt as $idPipeElmt) {
                             $getLabels[] = LineElmt::where('ID_USER', '!=', $this->auth->user()->ID_USER)
@@ -1443,18 +1444,34 @@ class Studies extends Controller
                                     $storageTankParam = $this->lineE->getStorageTank($coolingFamily, $lineElmts[0]->INSULATION_TYPE);
                                     $insulationParams = LineElmt::distinct()->select('INSULATION_TYPE')
                                     ->where('ID_COOLING_FAMILY', $coolingFamily)->get();
-                                    $insulationlinesub = $this->lineE->getNameComboBox(1, $lineElmts[0]->ELT_SIZE, $coolingFamily, $lineElmts[0]->INSULATION_TYPE);
-                                    // $non_insulated_lineSub = $this->lineE->getNonLine(1, $lineElmts[0]->ELT_SIZE, $coolingFamily, $lineElmts[0]->INSULATION_TYPE);
-                                    // $insulatedlinevalSub = $this->lineE->getNameComboBox(5, $lineElmts[0]->ELT_SIZE, $coolingFamily, $lineElmts[0]->INSULATION_TYPE);
-                                    // $non_insulated_valveSub = $this->lineE->getNonLine(5, $lineElmts[0]->ELT_SIZE, $coolingFamily, $lineElmts[0]->INSULATION_TYPE);
-                                    // $insulationlinesub = $this->lineE->getNameComboBox(1, $lineElmts[0]->ELT_SIZE, $coolingFamily, $lineElmts[0]->INSULATION_TYPE);
-                                    // $insulationlinesub = $this->lineE->getNameComboBox(1, $lineElmts[0]->ELT_SIZE, $coolingFamily, $lineElmts[0]->INSULATION_TYPE);
-                                    $arrLabel[$this->eltTypeString($getLabelName->ELT_TYPE, $getLabelName->INSULATION_TYPE)] = $getLabelName->LABEL ."-". $this->lineE->getStatus($getLabelName->LINE_RELEASE);
+                                    $insulationlineSub = $this->lineE->getNameComboBox(1, $lineElmts[0]->ELT_SIZE, $coolingFamily, $lineElmts[0]->INSULATION_TYPE);
+                                    $non_insulated_lineSub = $this->lineE->getNonLine(1, $lineElmts[0]->ELT_SIZE, $coolingFamily,0, $lineElmts[0]->INSULATION_TYPE);
+                                    $insulatedlinevalSub = $this->lineE->getNameComboBox(5, $lineElmts[0]->ELT_SIZE, $coolingFamily, $lineElmts[0]->INSULATION_TYPE);
+                                    $non_insulated_valveSub = $this->lineE->getNonLine(5, $lineElmts[0]->ELT_SIZE, $coolingFamily,0, $lineElmts[0]->INSULATION_TYPE);
+                                    $teeSub = $this->lineE->getNameComboBox(3, $lineElmts[0]->ELT_SIZE, $coolingFamily, $lineElmts[0]->INSULATION_TYPE);
+                                    $elbowsSub = $this->lineE->getNameComboBox(4, $lineElmts[0]->ELT_SIZE, $coolingFamily, $lineElmts[0]->INSULATION_TYPE);
+                                    if ($getLabelName->ELT_TYPE !=2 ) {
+                                        $arrLabel[$this->eltTypeString($getLabelName->ELT_TYPE, $getLabelName->INSULATION_TYPE)] = $getLabelName->LABEL ."-". $this->lineE->getStatus($getLabelName->LINE_RELEASE);
+                                    } else {
+                                        $arrLabel[$this->eltTypeString($getLabelName->ELT_TYPE, $getLabelName->INSULATION_TYPE)] = $getLabelName->ID_PIPELINE_ELMT;
+                                    }
                                     if ($lineElmts[0]->ELT_TYPE != 2) {
                                         $arrLabel["diameter"] = $lineElmts[0]->ELT_SIZE;
-                                    }
-                                    //lam tip tai day TODO
-                                    $arrLabel["insulationLineSub"] = $insulationlinesub;
+                                    } 
+                                    
+                                    $arrLabel["idPipeELMT"] = $arrPipeElmt;
+                                    $arrLabel["insulationLineSub"] = $insulationlineSub[0]->LABEL. "-" .  $this->lineE->getStatus($insulationlineSub[0]->LINE_RELEASE);
+                                    $arrLabel["non_insulated_lineSub"] = $non_insulated_lineSub[0]->LABEL. "-" .  $this->lineE->getStatus($non_insulated_lineSub[0]->LINE_RELEASE);
+                                    $arrLabel["insulatedlinevalSub"] = $insulatedlinevalSub[0]->LABEL. "-" .  $this->lineE->getStatus($insulatedlinevalSub[0]->LINE_RELEASE);
+                                    $arrLabel["non_insulated_valveSub"] = $non_insulated_valveSub[0]->LABEL. "-" .  $this->lineE->getStatus($non_insulated_valveSub[0]->LINE_RELEASE);
+                                    $arrLabel["teeSub"] = $teeSub[0]->LABEL. "-" .  $this->lineE->getStatus($teeSub[0]->LINE_RELEASE);
+                                    $arrLabel["elbowsSub"] = $elbowsSub[0]->LABEL. "-" .  $this->lineE->getStatus($elbowsSub[0]->LINE_RELEASE);
+                                    $arrLabel["insulationLineValue"] = $insulationlineSub[0]->ID_PIPELINE_ELMT;
+                                    $arrLabel["non_insulated_lineValue"] = $non_insulated_lineSub[0]->ID_PIPELINE_ELMT;
+                                    $arrLabel["insulatedlinevalValue"] = $insulatedlinevalSub[0]->ID_PIPELINE_ELMT;
+                                    $arrLabel["non_insulated_valValue"] = $non_insulated_valveSub[0]->ID_PIPELINE_ELMT;
+                                    $arrLabel["teeValue"] = $teeSub[0]->ID_PIPELINE_ELMT;
+                                    $arrLabel["elbowsValue"] = $elbowsSub[0]->ID_PIPELINE_ELMT;
                                     $arrLabel["insulationType"] = $lineElmts[0]->INSULATION_TYPE;
                                     $arrLabel["height"] = $pipeGen->HEIGHT;
                                     $arrLabel["pressuer"] = $pipeGen->PRESSURE;
@@ -1480,6 +1497,7 @@ class Studies extends Controller
                             if ($lineElmts[0]->INSULATION_TYPE == 0) {
                                 foreach ($stLabel as $stLabels) {
                                     $arrLabel['storageTankParam'][] = $stLabels->LABEL . "-" .  $this->lineE->getStatus($stLabels->LINE_RELEASE);
+                                    $arrLabel['storageTankValue'][] = $stLabels->ID_PIPELINE_ELMT;
                                 } 
                             } else {
                                 $arrItem = [];
@@ -1488,6 +1506,7 @@ class Studies extends Controller
                                 }
                                 foreach ($arrItem as $arrItems) {
                                     $arrLabel['storageTankParam'][] = $arrItems[0]->LABEL. "-" .  $this->lineE->getStatus($arrItems[0]->LINE_RELEASE);
+                                    $arrLabel['storageTankValue'][] = $arrItems[0]->ID_PIPELINE_ELMT;
                                 }
                             }
                         }
@@ -1497,37 +1516,56 @@ class Studies extends Controller
                 $lineElmts = LineElmt::distinct()->select('INSULATION_TYPE')
                 ->where('ID_COOLING_FAMILY', $coolingFamily)->get();
             }
-
+            
             $resultInsideDiameters= [];
             foreach ($lineElmts as $insulationType) {
                 $resultInsideDiameters[] = $insideDiameters = $this->lineE->getdiameter($coolingFamily, $insulationType->INSULATION_TYPE);
                 $storageTanks = $this->lineE->getStorageTank($coolingFamily, $insulationType->INSULATION_TYPE);
             }
-        }
-        
-        $resultInsideDia = [];
-
-        foreach ($resultInsideDiameters as $value) {
-            $item = [];
-            foreach ($value as $value) {
-                $item[] = $value->ELT_SIZE;
+            $resultInsideDia = [];
+    
+            foreach ($resultInsideDiameters as $value) {
+                $item = [];
+                foreach ($value as $value) {
+                    $item[] = $value->ELT_SIZE;
+                }
+                $resultInsideDia[] = $item;
             }
-            $resultInsideDia[] = $item;
-        }
+    
+            $i = 0;
+            $dataResult = [];
+            $dataResultExist = [];
+            foreach ($resultInsideDia as $res) {
+                if (count($pipeGen) > 0) {
+                    $dataResultExist = $arrLabel;
+                    $dataResult[$arrLabel['insulationType']] = $this->getData($arrLabel['diameterParam'], $storageTanks, $coolingFamily, $arrLabel['insulationType']);                    
+                    switch($arrLabel['insulationType']) {
+                        case 0:
+                            $dataResult[1] = $this->getData($res, $storageTanks, $coolingFamily, 1);
+                            $dataResult[2] = $this->getData($res, $storageTanks, $coolingFamily, 2);
+                            break;
+                        
+                        case 1:
+                            $dataResult[0] = $this->getData($res, $storageTanks, $coolingFamily, 0);
+                            $dataResult[2] = $this->getData($res, $storageTanks, $coolingFamily, 2);
+                            break;
 
-        $i = 0;
-        $dataResult = [];
-        $dataResultExist = [];
-        foreach ($resultInsideDia as $res) {
-            if (count($pipeGen) > 0) {
-                $dataResultExist = $arrLabel;
-            } else {
-                $dataResult[] = $this->getData($res, $storageTanks, $coolingFamily, $i);
+                        case 2:
+                            $dataResult[0] = $this->getData($res, $storageTanks, $coolingFamily, 0);
+                            $dataResult[1] = $this->getData($res, $storageTanks, $coolingFamily, 1);
+                            break;
+                    }
+                }else {
+                    $dataResult[] = $this->getData($res, $storageTanks, $coolingFamily, $i);
+                }
+                
                 $i++;
+                
             }
+            
+            return compact("dataResult", "dataResultExist");
         }
         
-        return compact("dataResult", "dataResultExist");
     }
 
     public function getData($resultFirst, $storageTanks, $coolingFamily, $sort)
@@ -1541,6 +1579,7 @@ class Studies extends Controller
             $non_insulated_valves = $this->lineE->getNonLine(5, $diameter, $coolingFamily, 0, $sort);
             $tee = $this->lineE->getNameComboBox(3, $diameter, $coolingFamily, $sort);
             $elbows = $this->lineE->getNameComboBox(4, $diameter, $coolingFamily, $sort);
+
             $height = 0.0;
             $pressuer = 0.0;
             $insulllenght = 0.0;
@@ -1563,34 +1602,49 @@ class Studies extends Controller
                 $non_insulated_valvesLabel = $non_insulated_valves->LABEL ."-". $this->lineE->getStatus($non_insulated_valves->LINE_RELEASE);
                 $teeLabel = $tee->LABEL ."-". $this->lineE->getStatus($tee->LINE_RELEASE);
                 $elbowsLabel = $elbows->LABEL ."-". $this->lineE->getStatus($elbows->LINE_RELEASE);
+                $insulationlineValue = $insulatedline->ID_PIPELINE_ELMT;
+                $non_insulated_lineValue = $non_insulated_line->ID_PIPELINE_ELMT;
+                $insulatedlinevalValue = $insulatedlineval->ID_PIPELINE_ELMT;
+                $non_insulated_valValue = $non_insulated_valves->ID_PIPELINE_ELMT;
+                $teeValue = $tee->ID_PIPELINE_ELMT;
+                $elbowsValue = $elbows->ID_PIPELINE_ELMT;
                 $itemResult = [];
+                $itemResultVal = [];
                 $itemRes = [];
                 foreach ($resStogeTs as $resStogeT) {
                     $itemRes[] = $this->lineE->getNameComboBox(2, $resStogeT, $coolingFamily, $sort);
                 }
                 foreach ($itemRes as $rowItem) {
                     $itemResult[] = $rowItem->LABEL ."-". $this->lineE->getStatus($rowItem->LINE_RELEASE);
+                    $itemResultVal[] = $rowItem->ID_PIPELINE_ELMT;
                 }
                 $storageTank = $itemResult;
+                $storageTankValue = $itemResultVal;
                 
             } else {
                 foreach ($insulatedline as $row) {
                     $insulatedlineLabel = $row->LABEL ."-". $this->lineE->getStatus($row->LINE_RELEASE);
+                    $insulationlineValue = $row->ID_PIPELINE_ELMT;
                 }
                 foreach ($non_insulated_line as $row) {
                     $non_insulated_lineLabel = $row->LABEL ."-". $this->lineE->getStatus($row->LINE_RELEASE);
+                    $non_insulated_lineValue = $row->ID_PIPELINE_ELMT;
                 }
                 foreach ($insulatedlineval as $row) {
                     $insulatedlinevalLabel = $row->LABEL ."-". $this->lineE->getStatus($row->LINE_RELEASE);
+                    $insulatedlinevalValue = $row->ID_PIPELINE_ELMT;
                 }
                 foreach ($non_insulated_valves as $row) {
                     $non_insulated_valvesLabel = $row->LABEL ."-". $this->lineE->getStatus($row->LINE_RELEASE);
+                    $non_insulated_valValue = $row->ID_PIPELINE_ELMT;
                 }
                 foreach ($tee as $row) {
                     $teeLabel = $row->LABEL ."-". $this->lineE->getStatus($row->LINE_RELEASE);
+                    $teeValue = $row->ID_PIPELINE_ELMT;
                 }
                 foreach ($elbows as $row) {
                     $elbowsLabel = $row->LABEL ."-". $this->lineE->getStatus($row->LINE_RELEASE);
+                    $elbowsValue = $row->ID_PIPELINE_ELMT;
                 }
                 // $storageTank =''
                 $itemRes = [];
@@ -1602,11 +1656,14 @@ class Studies extends Controller
                     $itemResult[] = $rowItem;
                 }
                 $getLabel = [];
+                $getValue = [];
                 foreach ($itemResult as $getLabels) {
                     $getLabel[] = $getLabels[0]->LABEL ."-". $this->lineE->getStatus($getLabels[0]->LINE_RELEASE);
+                    $getValue[] = $getLabels[0]->ID_PIPELINE_ELMT;
                 }
                 
                 $storageTank = $getLabel;
+                $storageTankValue = $getValue;
             }
             $item['diameter'] = $diameter;
             $item['insulationType'] = $sort;
@@ -1616,7 +1673,14 @@ class Studies extends Controller
             $item['non_insulated_valves'] = $non_insulated_valvesLabel;
             $item['tee'] = $teeLabel;
             $item['elbows'] = $elbowsLabel;
+            $item['insulationlineValue'] = $insulationlineValue;
+            $item['non_insulated_lineValue'] = $non_insulated_lineValue;
+            $item['insulatedlinevalValue'] = $insulatedlinevalValue;
+            $item['non_insulated_valValue'] = $non_insulated_valValue;
+            $item['teeValue'] = $teeValue;
+            $item['elbowsValue'] = $elbowsValue;
             $item['storageTankParam'] = $storageTank;
+            $item['storageTankValue'] = $storageTankValue;
             $item['height'] = $height;
             $item['pressuer'] = $pressuer;
             $item['insulllenght'] = $insulllenght;
