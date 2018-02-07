@@ -1386,9 +1386,6 @@ class Output extends Controller
         $meshAxisPos = [];
         if (!empty($tfMesh)) {
             $meshAxisPos = $tfMesh;
-            /*$meshAxisPos['x'] = $tfMesh[0];
-            $meshAxisPos['y'] = $tfMesh[1];
-            $meshAxisPos['z'] = $tfMesh[2];*/
         }
 
         $productElmt = ProductElmt::where('ID_STUDY', $idStudy)->first();
