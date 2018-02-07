@@ -192,6 +192,11 @@ class Equipments extends Controller
             if (isset($input['equipmentId2'])) $equipId2 = intval($input['equipmentId2']);
             if (isset($input['tempSetPoint'])) $tempSetPoint = floatval($input['tempSetPoint']);
         }
+
+        if ($nameE == null) return -1;
+        if (($equipId1 == null) || ($equipId1 == 0)) return -2;
+        if ($nameE == null) return -3;
+        if (!$this->checkNameAndVersion($nameE, $versionE)) return -4;
         
         $equipment1 = Equipment::find($equipId1);
         
@@ -683,5 +688,19 @@ class Equipments extends Controller
 
         DB::update(DB::RAW('update EQUIPMENT set DLL_IDX = ' .$DLL.' where ID_EQUIP = ' . $newIdEquip));
         DB::update(DB::RAW('update EQUIPMENT set FATHER_DLL_IDX = '  .$FATHER_DLL.'  where ID_EQUIP = ' . $newIdEquip));
+    }
+
+    private function checkNameAndVersion($equipName, $equipVersion)
+    {
+        $equipments = Equipment::all();
+
+        for($i = 0; $i < count($equipments); $i++) {
+            if (strtoupper($equipments[$i]->EQUIP_NAME) == strtoupper($equipName)) {
+                if (intval($equipments[$i]->EQUIP_VERSION) == intval($equipVersion)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }
