@@ -1999,6 +1999,8 @@ class Output extends Controller
         $chartTempInterval = $this->output->init2DContourTempInterval($idStudyEquipment, $lfDwellingTime, $tempInterval, $pasTemp);
         $axisName = $this->output->getAxisName($shape, $orientation, $selectedPlan);
 
-        return compact("chartTempInterval", "valueRecAxis", "lfDwellingTime", "lftimeInterval", "axisName");
+        $dataContour = $this->output->getGrideByPlan($idStudy, $idStudyEquipment, $lftimeInterval, $chartTempInterval[0], $chartTempInterval[1], $planTempRecordData, $selectedPlan - 1, $shape, $orientation);
+
+        return compact("chartTempInterval", "valueRecAxis", "lfDwellingTime", "lftimeInterval", "axisName", "dataContour");
     }
 }
