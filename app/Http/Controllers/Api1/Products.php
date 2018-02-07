@@ -118,14 +118,14 @@ class Products extends Controller
             throw new \Exception("Error Processing Request", 1);            
 
         $idElement = $input['elementId'];
-        $dim2 = $input['dim2'];
+        $dim2 = round(doubleval($input['dim2']), 4);
         $description = $input['description'];
         $computedmass = $input['computedmass'];
         $realmass = $input['realmass'];
         
         $nElements = \App\Models\ProductElmt::find($idElement);
         $oldRealMass = $nElements->PROD_ELMT_REALWEIGHT;
-        $oldDim2 = $nElements->SHAPE_PARAM2;
+        $oldDim2 = round(doubleval($nElements->SHAPE_PARAM2), 4);
 
         $nElements->PROD_ELMT_NAME = $description;
         $nElements->SHAPE_PARAM2 = $dim2;
@@ -146,7 +146,7 @@ class Products extends Controller
             $ok2 = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($product->ID_STUDY, $conf, 3);
         }
 
-        return compact('ok1', 'ok2', 'idElement');
+        return compact('oldDim2', 'dim2', 'ok1', 'ok2', 'idElement');
     }
 
     public function getProductViewModel($id) {
@@ -338,6 +338,9 @@ class Products extends Controller
 
         if (!$product)
             throw new \Exception("Error Processing Request. Product ID not found", 1);
+
+        $product->PROD_ISO = 1;
+        $product->save();
         
         $study = Study::findOrFail($product->ID_STUDY);
 
