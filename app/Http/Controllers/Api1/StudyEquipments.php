@@ -8,6 +8,7 @@ use Illuminate\Contracts\Auth\Factory as Auth;
 use App\Models\LayoutGeneration;
 use App\Models\RecordPosition;
 use App\Cryosoft\EquipmentsService;
+use App\Cryosoft\UnitsConverterService;
 
 class StudyEquipments extends Controller
 {
@@ -28,11 +29,12 @@ class StudyEquipments extends Controller
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth, EquipmentsService $equip)
+    public function __construct(Request $request, Auth $auth, EquipmentsService $equip, UnitsConverterService $unit)
     {
         $this->request = $request;
         $this->auth = $auth;
         $this->equip = $equip;
+        $this->unit = $unit;
     }
 
     public function getStudyEquipmentById($id)
@@ -73,6 +75,15 @@ class StudyEquipments extends Controller
     public function getRecordPosition($id)
     {
         $recordPosition = RecordPosition::where('ID_STUDY_EQUIPMENTS', $id)->orderBy('RECORD_TIME', 'ASC')->get();
+
+        $result = [];
+        if (count($recordPosition)) {
+            foreach ($recordPosition as $key => $value) {
+                $result[] = $value;
+                $result[$key]['RECORD_TIME'] = $this->unit->time($result[$key]['RECORD_TIME']);
+            }
+        }
+
         return $recordPosition;
     }
 }
