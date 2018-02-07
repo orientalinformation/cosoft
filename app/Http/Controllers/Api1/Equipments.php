@@ -9,6 +9,7 @@ use Illuminate\Contracts\Auth\Factory as Auth;
 use Illuminate\Http\Request;
 use App\Cryosoft\UnitsConverterService;
 use App\Cryosoft\EquipmentsService;
+use App\Cryosoft\StudyService;
 use App\Models\Equipment;
 use App\Models\Study;
 use App\Models\Price;
@@ -56,17 +57,24 @@ class Equipments extends Controller
     protected $equip;
 
     /**
+     * @var App\Cryosoft\EquipmentsService
+     */
+    protected $studies;
+
+    /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth, UnitsConverterService $convert, EquipmentsService $equip, KernelService $kernel)
+    public function __construct(Request $request, Auth $auth, UnitsConverterService $convert, EquipmentsService $equip
+    , KernelService $kernel, StudyService $studies)
     {
         $this->request = $request;
         $this->auth = $auth;
         $this->convert = $convert;
         $this->equip = $equip;
         $this->kernel = $kernel;
+        $this->studies = $studies;
     }
 
     public function getEquipments()
@@ -387,12 +395,8 @@ class Equipments extends Controller
         $priceEnergy = 0;
         if ($study) {
             $idPrice = $study->ID_PRICE;
-            if ($idPrice == 0 || !$idPrice) {
-                $priceEnergy = 0;
-            } else {
-                $price = Price::find($idPrice);
-                if ($price) $priceEnergy = $price->ENERGY; 
-            }
+            $priceEnergy =  $this->studies->getStudyPrice($study);
+
             $idRatePrm = $study->ID_PRECALC_LDG_RATE_PRM;
             $intervalW = $intervalL = 0;
 
