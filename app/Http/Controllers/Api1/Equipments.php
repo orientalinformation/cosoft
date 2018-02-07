@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\Api1;
 
+use DB;
+use Carbon\Carbon;
 use App\Http\Controllers\Controller;
 use Illuminate\Contracts\Auth\Factory as Auth;
 use Illuminate\Http\Request;
 use App\Cryosoft\UnitsConverterService;
 use App\Cryosoft\EquipmentsService;
-use Carbon\Carbon;
 use App\Models\Equipment;
 use App\Models\Study;
 use App\Models\Price;
@@ -20,7 +21,7 @@ use App\Models\Shelves;
 use App\Models\Consumptions;
 use App\Kernel\KernelService;
 use Illuminate\Support\Facades\Crypt;
-use DB;
+use App\Models\EquipCharact;
 
 class Equipments extends Controller
 {
@@ -158,31 +159,39 @@ class Equipments extends Controller
         $idUserLogon = $this->auth->user()->ID_USER;
         $input = $this->request->all();
 
-        $CRYOSOFT_DB_PUBLIC_KEY = $nameE = null;
-        $versionE = $equipId1 = $equipId1 = $tempSetPoint = $dwellingTime = $newPos = $typeEquipment = 0;
-
-        $CRYOSOFT_DB_PUBLIC_KEY = Crypt::encrypt($this->createCryosoftDBPublicKey());
+        $nameE = $typeCalculate = $versionE = $equipId1 = $equipId1 = $tempSetPoint = $dwellingTime = $newPos = $typeEquipment = null;
         
+        if (isset($input['typeEquipment'])) $typeEquipment = intval($input['typeEquipment']);
         if (isset($input['nameEquipment'])) $nameE = $input['nameEquipment'];
         if (isset($input['versionEquipment'])) $versionE = floatval($input['versionEquipment']);
-        if (isset($input['equipmentId1'])) $equipId1 = intval($input['equipmentId1']);
-        if (isset($input['equipmentId2'])) $equipId2 = intval($input['equipmentId2']);
-        if (isset($input['tempSetPoint'])) $tempSetPoint = floatval($input['tempSetPoint']);
-        if (isset($input['dwellingTime'])) $dwellingTime = floatval($input['dwellingTime']);
-        if (isset($input['newPos'])) $newPos = $input['newPos'];
-        if (isset($input['typeEquipment'])) $typeEquipment = $input['typeEquipment'];
-
+        if (isset($input['typeCalculate'])) $typeCalculate = intval($input['typeCalculate']);
+        
+        if ($typeEquipment == 0) {
+            if (isset($input['equipmentId1'])) $equipId1 = intval($input['equipmentId1']);
+            if (isset($input['tempSetPoint'])) $tempSetPoint = floatval($input['tempSetPoint']);
+            if (isset($input['dwellingTime'])) $dwellingTime = floatval($input['dwellingTime']);
+        } else if ($typeEquipment == 1) {
+            if (isset($input['equipmentId1'])) $equipId1 = intval($input['equipmentId1']);
+            if (isset($input['dwellingTime'])) $dwellingTime = floatval($input['dwellingTime']);
+            if (isset($input['newPos'])) $newPos = $input['newPos'];
+        } else if ($typeEquipment == 1) {
+            if (isset($input['equipmentId1'])) $equipId1 = intval($input['equipmentId1']);
+        } else {
+            if (isset($input['equipmentId2'])) $equipId2 = intval($input['equipmentId2']);
+            if (isset($input['tempSetPoint'])) $tempSetPoint = floatval($input['tempSetPoint']);
+        }
+        
         $equipment1 = Equipment::find($equipId1);
         
         if ($equipment1) {
             $newE = new Equipment();
 
-            $newE->ID_EQUIP = 0;
+            $newE->ID_USER = $idUserLogon;
+            $newE->EQUIP_NAME = $nameE;
+            $newE->EQUIP_VERSION = $versionE;
             $newE->EQUIP_RELEASE = 2;
             $newE->STD = 0;
-            $newE->DLL_IDX = null;
             $newE->OPEN_BY_OWNER = false;
-            $newE->ID_USER = $idUserLogon;
 
             $mask = 1096;
             $capabilities = $equipment1->CAPABILITIES;
@@ -202,8 +211,8 @@ class Equipments extends Controller
                 $comment = substr($newE->EQUIP_COMMENT, 0, 1999) . '. Create on ' . $current->toDateTimeString() . ' by ' . $this->auth->user()->USERNAM;;
             }
             $newE->EQUIP_COMMENT = $comment;
-            $newE->EQUIP_NAME = $nameE;
-            $newE->ID_EQUIPSERIES = $this->MapToGeneratedEqp($newE->ID_EQUIPSERIES);
+            $newE->DLL_IDX = $equipment1->DLL_IDX;
+            $newE->ID_EQUIPSERIES = $this->mapToGeneratedEqp($equipment1->ID_EQUIPSERIES);
             $newE->ID_COOLING_FAMILY = $equipment1->ID_COOLING_FAMILY;
             $newE->EQUIPPICT = $equipment1->EQUIPPICT;
             $newE->EQP_LENGTH = $equipment1->EQP_LENGTH;
@@ -227,11 +236,11 @@ class Equipments extends Controller
             $newE->ITEM_VC = $equipment1->ITEM_VC;
             $newE->ITEM_PRECIS = $equipment1->ITEM_PRECIS;
             $newE->ITEM_TIMESTEP = $equipment1->ITEM_TIMESTEP;
-            $newE->DLL_IDX = $equipment1->DLL_IDX;
-            // $newE->FATHER_DLL_IDX = $equipment1->FATHER_DLL_IDX;
+            $newE->FATHER_DLL_IDX = $equipment1->FATHER_DLL_IDX;
             $newE->EQP_IMP_ID_STUDY = $equipment1->EQP_IMP_ID_STUDY;
             $newE->save();
-            Equipment::where('ID_EQUIP', $newE->ID_EQUIP)->update(['EQUIP_DATE' => $current->toDateTimeString()]);
+
+            if ($newE->ID_EQUIP) Equipment::where('ID_EQUIP', $newE->ID_EQUIP)->update(['EQUIP_DATE' => $current->toDateTimeString()]);
 
             $equipGeneration = new EquipGeneration();
             $equipGeneration->ID_EQUIP = $newE->ID_EQUIP;
@@ -259,7 +268,7 @@ class Equipments extends Controller
         return 1;
     }
 
-    public function MapToGeneratedEqp($idEquipSeries)
+    public function mapToGeneratedEqp($idEquipSeries)
     {
         $idEs = 0;
         $equipSeries = Equipseries::find($idEquipSeries);
@@ -293,7 +302,8 @@ class Equipments extends Controller
         return $list;
     }
 
-    public function getEquipmentSeries() {
+    public function getEquipmentSeries() 
+    {
         $input = $this->request->all();
 
         if (isset($input['idFamily'])) $idFamily = $input['idFamily'];
@@ -371,13 +381,8 @@ class Equipments extends Controller
         return $list;
     }
 
-    /*** 
-     * Studies Equipment
-     *
-     */
-
-     public function getUnitData($id)
-     {
+    public function getUnitData($id)
+    {
         $study = Study::find($id);
         $priceEnergy = 0;
         if ($study) {
@@ -386,15 +391,13 @@ class Equipments extends Controller
                 $priceEnergy = 0;
             } else {
                 $price = Price::find($idPrice);
-
-                if ($price) { $priceEnergy = $price->ENERGY; }
+                if ($price) $priceEnergy = $price->ENERGY; 
             }
             $idRatePrm = $study->ID_PRECALC_LDG_RATE_PRM;
-            $intervalW = 0;
-            $intervalL = 0;
+            $intervalW = $intervalL = 0;
+
             if ($idRatePrm == 0 || !$idRatePrm) {
-                $intervalW = 0;
-                $intervalL = 0;
+                $intervalW = $intervalL = 0;
             } else {
                 $precalcLdgRatePrm = PrecalcLdgRatePrm::find($idRatePrm);
 
@@ -405,11 +408,11 @@ class Equipments extends Controller
             }
         }
 
-        if ($priceEnergy != 0) { $priceEnergy =  $this->convert->monetary($priceEnergy); }
+        if ($priceEnergy != 0) $priceEnergy =  $this->convert->monetary($priceEnergy);
 
-        if ($intervalW != 0) { $intervalW = $this->convert->prodchartDimension($intervalW); }
+        if ($intervalW != 0) $intervalW = $this->convert->prodchartDimension($intervalW);
 
-        if ($intervalL != 0) { $intervalL = $this->convert->prodchartDimension($intervalL); }
+        if ($intervalL != 0) $intervalL = $this->convert->prodchartDimension($intervalL);
 
         $res = [
             'Price' => doubleval($priceEnergy),
@@ -420,10 +423,10 @@ class Equipments extends Controller
         ];
 
         return $res;
-     }
+    }
 
-     public function updatePrice($id)
-     {
+    public function updatePrice($id)
+    {
         $input = $this->request->all();
 
         if (!isset($input['price']))
@@ -433,6 +436,7 @@ class Equipments extends Controller
 
         if ($priceEnergy) {
             $study = Study::find($id);
+
             if ($study) {
                 $price = Price::find($study->ID_PRICE);
                 if ($price) {
@@ -447,15 +451,14 @@ class Equipments extends Controller
                     }
                 }
             }
-
             return 1;
         } else {
             return 0;
         }
-     }
+    }
 
-     public function updateInterval($id)
-     {
+    public function updateInterval($id)
+    {
         $input = $this->request->all();
 
         if (!isset($input['lenght']) || !isset($input['width']))
@@ -480,16 +483,16 @@ class Equipments extends Controller
         } else {
             return 0;
         }
-     }
+    }
 
-     private function runEquipmentCalculation($IdEquipgeneration)
-     {
+    private function runEquipmentCalculation($IdEquipgeneration)
+    {
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $IdEquipgeneration);
         return $this->kernel->getKernelObject('EquipmentBuilder')->EBEquipmentCalculation($conf);
-     }
+    }
 
-     private function createCryosoftDBPublicKey()
-     {
+    private function createCryosoftDBPublicKey()
+    {
         $cryosoftDBPublicKey = null;
 
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, 0, 0, 0, 0);
@@ -497,5 +500,75 @@ class Equipments extends Controller
         // $cryosoftDBPublicKey = $result->GetKTLocal();
 
         return $cryosoftDBPublicKey;
-     }
+    }
+
+    private function copyRamps($oldIdEquip, $newIdEquip)
+    {
+        $oldRamps = Ramps::where('ID_EQUIP', $oldIdEquip)->get();
+        if (count($oldRamps) > 0) {
+            foreach ($oldRamps as $ramp) {
+                $newRamp = new Ramps();
+                $newRamp->ID_EQUIP = $newIdEquip;
+                $newRamp->POSITION = $ramp->POSITION;
+                $newRamp->save();
+            }
+        }
+    }
+
+    private function copyConsumptions($oldIdEquip, $newIdEquip)
+    {
+        $oldConsumptions = Consumptions::where('ID_EQUIP', $oldIdEquip)->get();
+        if (count($oldConsumptions) > 0) {
+            foreach ($oldConsumptions as $consumption) {
+                $newConsumption = new Consumptions();
+                $newConsumption->ID_EQUIP = $newIdEquip;
+                $newConsumption->TEMPERATURE = $consumption->TEMPERATURE;
+                $newConsumption->CONSUMPTION_PERM = $consumption->CONSUMPTION_PERM;
+                $newConsumption->CONSUMPTION_GETCOLD = $consumption->CONSUMPTION_GETCOLD;
+                $newConsumption->save();
+            }
+        }
+    }
+
+    private function copyShelves($oldIdEquip, $newIdEquip)
+    {
+        $oldShelves = Shelves::where('ID_EQUIP', $oldIdEquip)->get();
+        if (count($oldShelves) > 0) {
+            foreach ($oldShelves as $shelve) {
+                $newShelve = new Shelves();
+                $newShelve->ID_EQUIP = $newIdEquip;
+                $newShelve->NB = $shelve->NB;
+                $newShelve->SPACE = $shelve->SPACE;
+                $newShelve->save();
+            }
+        }
+    }
+
+    private function copyEquipCharact($oldIdEquip, $newIdEquip)
+    {
+        $oldEquipCharacts = EquipCharact::where('ID_EQUIP', $oldIdEquip)->get();
+        if (count($oldEquipCharacts) > 0) {
+            foreach ($oldEquipCharacts as $equipCharact) {
+                $newEquipCharact = new EquipCharact();
+                $newEquipCharact->ID_EQUIP = $newIdEquip;
+                $newEquipCharact->X_POSITION = $equipCharact->X_POSITION;
+                $newEquipCharact->TEMP_REGUL = $equipCharact->TEMP_REGUL;
+                $newEquipCharact->ALPHA_TOP = $equipCharact->ALPHA_TOP;
+                $newEquipCharact->ALPHA_BOTTOM = $equipCharact->ALPHA_BOTTOM;
+                $newEquipCharact->ALPHA_LEFT = $equipCharact->ALPHA_LEFT;
+                $newEquipCharact->ALPHA_RIGHT = $equipCharact->ALPHA_RIGHT;
+                $newEquipCharact->ALPHA_FRONT = $equipCharact->ALPHA_FRONT;
+                $newEquipCharact->ALPHA_REAR = $equipCharact->ALPHA_REAR;
+
+                $newEquipCharact->TEMP_TOP = $equipCharact->TEMP_TOP;
+                $newEquipCharact->TEMP_BOTTOM = $equipCharact->TEMP_BOTTOM;
+                $newEquipCharact->TEMP_LEFT = $equipCharact->TEMP_LEFT;
+                $newEquipCharact->TEMP_RIGHT = $equipCharact->TEMP_RIGHT;
+                $newEquipCharact->TEMP_FRONT = $equipCharact->TEMP_FRONT;
+                $newEquipCharact->TEMP_REAR = $equipCharact->TEMP_REAR;
+
+                $newEquipCharact->save();
+            }
+        }
+    }
 }
