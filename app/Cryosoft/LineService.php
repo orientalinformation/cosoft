@@ -21,16 +21,33 @@ class LineService
         
     }
 
-	public function getNameComboBox($elt_type,$insideDiameter, $coolingFamily, $sort) {
-        if ($sort > 0) {
-		    $sname = LineElmt::where('ID_USER', '!=', $this->auth->user()->ID_USER)
+    public function getNameComboBoxLarge($elt_type, $insideDiameter, $coolingFamily, $sort) {
+        $sname = LineElmt::select('ID_PIPELINE_ELMT', 'LABEL', 'LINE_RELEASE')->where('ID_USER', '!=', $this->auth->user()->ID_USER)
                 ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
                 ->where('Translation.TRANS_TYPE', 27)->where('ELT_TYPE', '=', $elt_type)
                 ->where('ELT_SIZE','=',$insideDiameter)->where('ID_COOLING_FAMILY', $coolingFamily)
                 ->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->skip($sort)->take($sort)->get();
         
-            } else {
-            $sname = LineElmt::where('ID_USER', '!=', $this->auth->user()->ID_USER)
+        $result = [];
+        foreach ($sname as $row) {
+            $result['ID_PIPELINE_ELMT'] = $row->ID_PIPELINE_ELMT;
+            $result['LABEL'] = $row->LABEL;
+            $result['LINE_RELEASE'] = $row->LINE_RELEASE;
+        }
+
+        return $result;
+	}
+
+	public function getNameComboBox($elt_type,$insideDiameter, $coolingFamily, $sort) {
+        if ($sort > 0) {
+		    $sname = LineElmt::select('ID_PIPELINE_ELMT', 'LABEL', 'LINE_RELEASE')->where('ID_USER', '!=', $this->auth->user()->ID_USER)
+                ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
+                ->where('Translation.TRANS_TYPE', 27)->where('ELT_TYPE', '=', $elt_type)
+                ->where('ELT_SIZE','=',$insideDiameter)->where('ID_COOLING_FAMILY', $coolingFamily)
+                ->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->skip($sort)->take($sort)->get();
+        
+        } else {
+            $sname = LineElmt::select('ID_PIPELINE_ELMT', 'LABEL', 'LINE_RELEASE')->where('ID_USER', '!=', $this->auth->user()->ID_USER)
                 ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
                 ->where('Translation.TRANS_TYPE', 27)->where('ELT_TYPE', '=', $elt_type)
                 ->where('ELT_SIZE','=',$insideDiameter)->where('ID_COOLING_FAMILY', $coolingFamily)
