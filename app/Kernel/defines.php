@@ -1,5 +1,5 @@
 <?php
-
+define('ENCRYPT_KEY', '3a786565707472');
 define('SC_CLEAN_TMP_DATA',10);  // clean temporary data
 
 define('SC_CLEAN_MODE_ESTIM_2_OPTIM',20);  // estimation -> optimum
