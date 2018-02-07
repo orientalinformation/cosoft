@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Contracts\Auth\Factory as Auth;
 use App\Models\LayoutGeneration;
 use App\Models\RecordPosition;
+use App\Cryosoft\EquipmentsService;
 
 class StudyEquipments extends Controller
 {
@@ -27,10 +28,11 @@ class StudyEquipments extends Controller
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth)
+    public function __construct(Request $request, Auth $auth, EquipmentsService $equip)
     {
         $this->request = $request;
         $this->auth = $auth;
+        $this->equip = $equip;
     }
 
     public function getStudyEquipmentById($id)
@@ -42,19 +44,30 @@ class StudyEquipments extends Controller
     public function getstudyEquipmentProductChart($idStudy)
     {
         $studyEquipments = \App\Models\StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
-        $result = array();
-        if (count($studyEquipments) > 0) {
-            $i = 0;
-            foreach ($studyEquipments as $row) {
-                $layoutGen = LayoutGeneration::where('ID_STUDY_EQUIPMENTS', $row->ID_STUDY_EQUIPMENTS)->first();
-                if ($row->BRAIN_TYPE == 4) {
-                    $result[] = $row;
-                    $result[$i]['ORIENTATION'] = $layoutGen->PROD_POSITION;
-                }
-                $i++;
-            }
+        $returnStudyEquipments = [];
+
+        foreach ($studyEquipments as $studyEquipment) {
+            /** @var StudyEquipment $studyEquipment */
+            $equip = [
+                'ID_STUDY_EQUIPMENTS' => $studyEquipment->ID_STUDY_EQUIPMENTS,
+                'EQUIP_NAME' => $studyEquipment->EQUIP_NAME,
+                'ID_EQUIP' => $studyEquipment->ID_EQUIP,
+                'EQP_LENGTH' => $studyEquipment->EQP_LENGTH,
+                'EQP_WIDTH' => $studyEquipment->EQP_WIDTH,
+                'EQUIP_VERSION' => $studyEquipment->EQUIP_VERSION,
+            ];
+            $layoutGen = LayoutGeneration::where('ID_STUDY_EQUIPMENTS', $studyEquipment->ID_STUDY_EQUIPMENTS)->first();
+            if (!$layoutGen) continue;
+
+            $equip['ORIENTATION'] = $layoutGen->PROD_POSITION;
+            $equip['displayName'] = $this->equip->getResultsEquipName($studyEquipment->ID_STUDY_EQUIPMENTS);
+            
+            array_push($returnStudyEquipments, $equip);
         }
-        return $result;
+
+        return $returnStudyEquipments;
+
+
     }
 
     public function getRecordPosition($id)
