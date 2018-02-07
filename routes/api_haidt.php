@@ -326,3 +326,11 @@ $router->GET('/api/v1/referencedata/shelves', 'Api1\\Equipments@getShelves');
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/referencedata/consumptions', 'Api1\\Equipments@getConsumptions');
+
+/**
+ * GET getReport
+ * Summary:
+ * Notes: get data report for study
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/studies/{id}/report', 'Api1\\Reports@getReport');

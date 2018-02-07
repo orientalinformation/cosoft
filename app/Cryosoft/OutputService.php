@@ -674,7 +674,7 @@ class OutputService
                       break;
                 }
             } else if ($selectedPlan == 1) {
-                $rMeshPosition = $this->getPositionForAxis2($idStudy, $empRecordDataPlan[$selectedPlan][1], 2);
+                $rMeshPosition = $this->getPositionForAxis2($idStudy, $tempRecordDataPlan[$selectedPlan][1], 2);
 
                 if (!empty($rMeshPosition)) {
                     $meshOrder = $rMeshPosition->MESH_ORDER;
@@ -722,7 +722,7 @@ class OutputService
                       break;
                 }
             } else if ($selectedPlan == 2) {
-                $rMeshPosition = $this->getPositionForAxis2($idStudy, $empRecordDataPlan[$selectedPlan][2], 3);
+                $rMeshPosition = $this->getPositionForAxis2($idStudy, $tempRecordDataPlan[$selectedPlan][2], 3);
 
                 if (!empty($rMeshPosition)) {
                     $meshOrder = ($shape == 4 || $shape == 5) ?  0 : $rMeshPosition->MESH_ORDER;
