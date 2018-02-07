@@ -447,12 +447,13 @@ $router->GET('/api/v1/studies/{id}/calculate', 'Api1\\Calculator@startStudyCalcu
 $router->GET('/api/v1/studies/{id}/getListLine', 'Api1\\Studies@loadPipeline');
 
 /**
- * PUT createLine
+ * PUT savePipeline
  * Summary: 
  * Notes: 
  * Output-Formats: [application/json]
  */
-$router->PUT('/api/v1/lines', 'Api1\\Lines@createLine');
+$router->PUT('/api/v1/studies/{id}/saveLines', 'Api1\\Studies@savePipelines');
+
 
 
 include_once("api_ngonc.php");
