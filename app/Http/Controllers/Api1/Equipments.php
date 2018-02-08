@@ -195,7 +195,7 @@ class Equipments extends Controller
 
         if ($nameE == null) return -1;
         if (($equipId1 == null) || ($equipId1 == 0)) return -2;
-        if ($nameE == null) return -3;
+        if ($versionE == null) return -3;
         if (!$this->checkNameAndVersion($nameE, $versionE)) return -4;
         
         $equipment1 = Equipment::find($equipId1);
