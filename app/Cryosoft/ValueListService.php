@@ -36,6 +36,7 @@ class ValueListService
     public $PRODCHART_DIMENSION = 38;
     public $W_CARPET_SHELVES = 22;
     public $SLOPES_POSITION = 23;
+    public $LINE = 17;
 
     //brand mode
     public $BRAIN_MODE_ESTIMATION = 1;

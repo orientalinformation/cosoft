@@ -119,9 +119,13 @@ class Output extends Controller
             $capabilitie = $row->CAPABILITIES;
             $equipStatus = $row->EQUIP_STATUS;
             $brainType = $row->BRAIN_TYPE;
+            $sSpecificSize = "";
             $calculWarning = "";
+            if ($this->equip->getCapability($capabilitie , 2097152)) {
+                $sSpecificSize = $this->equip->getSpecificEquipSize($idStudyEquipment);
+            }
             $item["id"] = $idStudyEquipment = $row->ID_STUDY_EQUIPMENTS;
-            $item["specificSize"] = $this->equip->getSpecificEquipSize($idStudyEquipment);
+            $item["specificSize"] = $sSpecificSize;
             $item["equipName"] = $this->equip->getResultsEquipName($idStudyEquipment);
             $calculate = "";
             $tr = $ts = $vc = $vep = $tfp = $dhp = $conso= $conso_warning = $toc = $precision = "";
@@ -781,6 +785,8 @@ class Output extends Controller
         $studyEquipments = StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
         $production = Production::where("ID_STUDY", $idStudy)->first();
 
+        $productFlowRate = (double) $production->PROD_FLOW_RATE;
+
         $lfcoef = $this->unit->unitConvert($this->value->MASS_PER_UNIT, 1.0);
         $result = array();
         $selectedEquipment =  array();
@@ -1011,7 +1017,7 @@ class Output extends Controller
             }
         }
 
-        return compact("result", "selectedEquipment", "availableEquipment", "dataGrapChart");
+        return compact("result", "selectedEquipment", "availableEquipment", "dataGrapChart", "productFlowRate");
     }
 
     public function sizingEstimationResult() 
@@ -1020,6 +1026,7 @@ class Output extends Controller
         $trSelect = ($this->request->input('tr') != "") ? $this->request->input('tr') : 1;
 
         $production = Production::where("ID_STUDY", $idStudy)->first();
+        $productFlowRate = (double) $production->PROD_FLOW_RATE;
 
         $studyEquipments = StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
         $lfcoef = $this->unit->unitConvert($this->value->MASS_PER_UNIT, 1.0);
@@ -1185,7 +1192,7 @@ class Output extends Controller
             $dataGraphChart[] =  $itemGrap;
         }
 
-        return compact("result", "dataGraphChart");
+        return compact("result", "dataGraphChart", "productFlowRate");
     }
 
     public function temperatureProfile($idStudyEquipment) 
