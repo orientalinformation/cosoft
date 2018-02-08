@@ -302,10 +302,10 @@ class Equipments extends Controller
 
             if ($typeCalculate == 1) {
                 if (!$this->runEquipmentCalculation($newEquip->ID_EQUIP)) {
-                    return;
+                    $this->deleteEquipment($newEquip->ID_EQUIP);
+                    return -5;
                 }
             }
-            
         }
 
         return 1;
