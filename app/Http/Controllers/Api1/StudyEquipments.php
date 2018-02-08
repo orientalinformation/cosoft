@@ -49,22 +49,23 @@ class StudyEquipments extends Controller
         $returnStudyEquipments = [];
 
         foreach ($studyEquipments as $studyEquipment) {
-            /** @var StudyEquipment $studyEquipment */
-            $equip = [
-                'ID_STUDY_EQUIPMENTS' => $studyEquipment->ID_STUDY_EQUIPMENTS,
-                'EQUIP_NAME' => $studyEquipment->EQUIP_NAME,
-                'ID_EQUIP' => $studyEquipment->ID_EQUIP,
-                'EQP_LENGTH' => $studyEquipment->EQP_LENGTH,
-                'EQP_WIDTH' => $studyEquipment->EQP_WIDTH,
-                'EQUIP_VERSION' => $studyEquipment->EQUIP_VERSION,
-            ];
-            $layoutGen = LayoutGeneration::where('ID_STUDY_EQUIPMENTS', $studyEquipment->ID_STUDY_EQUIPMENTS)->first();
-            if (!$layoutGen) continue;
+            if ($studyEquipment->BRAIN_TYPE == 4) {
+                $equip = [
+                    'ID_STUDY_EQUIPMENTS' => $studyEquipment->ID_STUDY_EQUIPMENTS,
+                    'EQUIP_NAME' => $studyEquipment->EQUIP_NAME,
+                    'ID_EQUIP' => $studyEquipment->ID_EQUIP,
+                    'EQP_LENGTH' => $studyEquipment->EQP_LENGTH,
+                    'EQP_WIDTH' => $studyEquipment->EQP_WIDTH,
+                    'EQUIP_VERSION' => $studyEquipment->EQUIP_VERSION,
+                ];
+                $layoutGen = LayoutGeneration::where('ID_STUDY_EQUIPMENTS', $studyEquipment->ID_STUDY_EQUIPMENTS)->first();
+                if (!$layoutGen) continue;
 
-            $equip['ORIENTATION'] = $layoutGen->PROD_POSITION;
-            $equip['displayName'] = $this->equip->getResultsEquipName($studyEquipment->ID_STUDY_EQUIPMENTS);
-            
-            array_push($returnStudyEquipments, $equip);
+                $equip['ORIENTATION'] = $layoutGen->PROD_POSITION;
+                $equip['displayName'] = $this->equip->getResultsEquipName($studyEquipment->ID_STUDY_EQUIPMENTS);
+                
+                array_push($returnStudyEquipments, $equip);
+            }
         }
 
         return $returnStudyEquipments;
