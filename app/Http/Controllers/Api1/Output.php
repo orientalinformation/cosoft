@@ -119,9 +119,13 @@ class Output extends Controller
             $capabilitie = $row->CAPABILITIES;
             $equipStatus = $row->EQUIP_STATUS;
             $brainType = $row->BRAIN_TYPE;
+            $sSpecificSize = "";
             $calculWarning = "";
+            if ($this->equip->getCapability($capabilitie , 2097152)) {
+                $sSpecificSize = $this->equip->getSpecificEquipSize($idStudyEquipment);
+            }
             $item["id"] = $idStudyEquipment = $row->ID_STUDY_EQUIPMENTS;
-            $item["specificSize"] = $this->equip->getSpecificEquipSize($idStudyEquipment);
+            $item["specificSize"] = $sSpecificSize;
             $item["equipName"] = $this->equip->getResultsEquipName($idStudyEquipment);
             $calculate = "";
             $tr = $ts = $vc = $vep = $tfp = $dhp = $conso= $conso_warning = $toc = $precision = "";
