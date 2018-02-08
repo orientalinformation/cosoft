@@ -171,6 +171,7 @@ class Studies extends Controller
             }
 
             foreach ($equip->pipeGens as $pipeGen) {
+                foreach ($pipeGen->lineDefinitions as $lineDef) $lineDef->delete();
                 $pipeGen->delete();
             }
 
@@ -1338,6 +1339,7 @@ class Studies extends Controller
         }
 
         foreach ($equip->pipeGens as $pipeGen) {
+            foreach ($pipeGen->lineDefinitions as $lineDef) $lineDef->delete();
             $pipeGen->delete();
         }
 
@@ -1356,6 +1358,8 @@ class Studies extends Controller
         foreach ($equip->economicResults as $ecoRes) {
             $ecoRes->delete();
         }
+
+        foreach ($equip->dimaResults as $dimaResult) $dimaResult->delete();
 
         foreach ($equip->studEqpPrms as $studEqpPrm) {
             $studEqpPrm->delete();
