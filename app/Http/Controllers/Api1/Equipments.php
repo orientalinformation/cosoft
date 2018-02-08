@@ -161,7 +161,13 @@ class Equipments extends Controller
             $key->equipGeneration = $equipGener;
         }
 
-        return compact('mine', 'others');
+        $array  = [
+            'mine' => $mine,
+            'others' => $others,
+            'ID_USER' => $this->auth->user()->ID_USER,
+        ];
+
+        return $array;
     }
 
     public function newEquipment()
@@ -516,6 +522,50 @@ class Equipments extends Controller
         } else {
             return 0;
         }
+    }
+
+    public function deleteEquipment($id)
+    {
+        $equipment = Equipment::find($id);
+        if ($equipment) {
+            $equipGenZone = EquipGenZone::where('ID_EQUIPGENERATION', $equipment->ID_EQUIPGENERATION)->get();
+            if (count($equipGenZone) > 0) {
+                EquipGenZone::where('ID_EQUIPGENERATION', $equipment->ID_EQUIPGENERATION)->delete();
+            }
+
+            $equipGeneration = EquipGeneration::find($equipment->ID_EQUIPGENERATION);
+            if (count($equipGeneration) > 0) {
+                EquipGeneration::where('ID_EQUIPGENERATION', $equipment->ID_EQUIPGENERATION)->delete();
+            }
+
+            $equipCharact = EquipCharact::where('ID_EQUIP', $equipment->ID_EQUIP)->get();
+            if (count($equipCharact) > 0) { 
+                EquipCharact::where('ID_EQUIP', $equipment->ID_EQUIP)->delete();
+            }
+
+            $ramps = Ramps::where('ID_EQUIP', $equipment->ID_EQUIP)->get();
+            if (count($ramps) > 0) {
+                Ramps::where('ID_EQUIP', $equipment->ID_EQUIP)->delete();
+            }
+
+            $shelves = Shelves::where('ID_EQUIP', $equipment->ID_EQUIP)->get();
+            if (count($shelves) > 0) {
+                Shelves::where('ID_EQUIP', $equipment->ID_EQUIP)->delete();
+            }
+
+            $consumptions = Consumptions::where('ID_EQUIP', $equipment->ID_EQUIP)->get();
+            if (count($consumptions) > 0) {
+                Consumptions::where('ID_EQUIP', $equipment->ID_EQUIP)->delete();
+            }
+
+            $equipZones = EquipZone::where('ID_EQUIP', $equipment->ID_EQUIP)->get();
+            if (count($equipZones) > 0) {
+                EquipZone::where('ID_EQUIP', $equipment->ID_EQUIP)->delete();
+            }
+
+            $equipment->delete();
+        }
+        return 1;
     }
 
     private function runEquipmentCalculation($IdEquipgeneration)
