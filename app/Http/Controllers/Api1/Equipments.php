@@ -23,6 +23,9 @@ use App\Models\Consumptions;
 use App\Kernel\KernelService;
 use Illuminate\Support\Facades\Crypt;
 use App\Models\EquipCharact;
+use App\Models\EquipGenZone;
+use App\Models\EquipZone;
+use App\Models\MinMax;
 
 class Equipments extends Controller
 {
@@ -167,7 +170,7 @@ class Equipments extends Controller
         $idUserLogon = $this->auth->user()->ID_USER;
         $input = $this->request->all();
 
-        $nameE = $typeCalculate = $versionE = $equipId1 = $equipId1 = $tempSetPoint = $dwellingTime = $newPos = $typeEquipment = null;
+        $nameE = $typeCalculate = $versionE = $equipId1 = $equipId2 = $tempSetPoint = $dwellingTime = $newPos = $typeEquipment = null;
         
         if (isset($input['typeEquipment'])) $typeEquipment = intval($input['typeEquipment']);
         if (isset($input['nameEquipment'])) $nameE = $input['nameEquipment'];
@@ -182,24 +185,30 @@ class Equipments extends Controller
             if (isset($input['equipmentId1'])) $equipId1 = intval($input['equipmentId1']);
             if (isset($input['dwellingTime'])) $dwellingTime = floatval($input['dwellingTime']);
             if (isset($input['newPos'])) $newPos = $input['newPos'];
-        } else if ($typeEquipment == 1) {
+        } else if ($typeEquipment == 2) {
             if (isset($input['equipmentId1'])) $equipId1 = intval($input['equipmentId1']);
         } else {
+            if (isset($input['equipmentId1'])) $equipId1 = intval($input['equipmentId1']);
             if (isset($input['equipmentId2'])) $equipId2 = intval($input['equipmentId2']);
             if (isset($input['tempSetPoint'])) $tempSetPoint = floatval($input['tempSetPoint']);
         }
+
+        if ($nameE == null) return -1;
+        if (($equipId1 == null) || ($equipId1 == 0)) return -2;
+        if ($versionE == null) return -3;
+        if (!$this->checkNameAndVersion($nameE, $versionE)) return -4;
         
         $equipment1 = Equipment::find($equipId1);
         
         if ($equipment1) {
-            $newE = new Equipment();
+            $newEquip = new Equipment();
 
-            $newE->ID_USER = $idUserLogon;
-            $newE->EQUIP_NAME = $nameE;
-            $newE->EQUIP_VERSION = $versionE;
-            $newE->EQUIP_RELEASE = 2;
-            $newE->STD = 0;
-            $newE->OPEN_BY_OWNER = false;
+            $newEquip->ID_USER = $idUserLogon;
+            $newEquip->EQUIP_NAME = $nameE;
+            $newEquip->EQUIP_VERSION = $versionE;
+            $newEquip->EQUIP_RELEASE = 2;
+            $newEquip->STD = 0;
+            $newEquip->OPEN_BY_OWNER = false;
 
             $mask = 1096;
             $capabilities = $equipment1->CAPABILITIES;
@@ -209,66 +218,86 @@ class Equipments extends Controller
                 $mask |= 0x80001;
             }
             $capabilities &= ($mask ^ 0xFFFFFFFFFFF); //0xFFFFFFFFFFFFFFF
-            $newE->CAPABILITIES = $capabilities;
+            $newEquip->CAPABILITIES = $capabilities;
 
-            if (count($newE->EQUIP_COMMENT) == 0) {
+            if (count($newEquip->EQUIP_COMMENT) == 0) {
                 $comment = 'Create on ' . $current->toDateTimeString() . ' by ' . $this->auth->user()->USERNAM;
-            } else if (count($newE->EQUIP_COMMENT) < 2100) {
-                $comment = $newE->EQUIP_COMMENT . '. Create on ' . $current->toDateTimeString() . ' by ' . $this->auth->user()->USERNAM;
+            } else if (count($newEquip->EQUIP_COMMENT) < 2100) {
+                $comment = $newEquip->EQUIP_COMMENT . '. Create on ' . $current->toDateTimeString() . ' by ' . $this->auth->user()->USERNAM;
             } else {
-                $comment = substr($newE->EQUIP_COMMENT, 0, 1999) . '. Create on ' . $current->toDateTimeString() . ' by ' . $this->auth->user()->USERNAM;;
+                $comment = substr($newEquip->EQUIP_COMMENT, 0, 1999) . '. Create on ' . $current->toDateTimeString() . ' by ' . $this->auth->user()->USERNAM;;
             }
-            $newE->EQUIP_COMMENT = $comment;
-            $newE->DLL_IDX = $equipment1->DLL_IDX;
-            $newE->ID_EQUIPSERIES = $this->mapToGeneratedEqp($equipment1->ID_EQUIPSERIES);
-            $newE->ID_COOLING_FAMILY = $equipment1->ID_COOLING_FAMILY;
-            $newE->EQUIPPICT = $equipment1->EQUIPPICT;
-            $newE->EQP_LENGTH = $equipment1->EQP_LENGTH;
-            $newE->EQP_WIDTH = $equipment1->EQP_WIDTH;
-            $newE->EQP_HEIGHT = $equipment1->EQP_HEIGHT;
-            $newE->MODUL_LENGTH = $equipment1->MODUL_LENGTH;
-            $newE->NB_MAX_MODUL = $equipment1->NB_MAX_MODUL;
-            $newE->NB_TR = $equipment1->NB_TR;
-            $newE->NB_TS = $equipment1->NB_TS;
-            $newE->NB_VC = $equipment1->NB_VC;
-            $newE->BUYING_COST = $equipment1->BUYING_COST;
-            $newE->RENTAL_COST = $equipment1->RENTAL_COST;
-            $newE->INSTALL_COST = $equipment1->INSTALL_COST;
-            $newE->MAX_FLOW_RATE = $equipment1->MAX_FLOW_RATE;
-            $newE->MAX_NOZZLES_BY_RAMP = $equipment1->MAX_NOZZLES_BY_RAMP;
-            $newE->MAX_RAMPS = $equipment1->MAX_RAMPS;
-            $newE->NUMBER_OF_ZONES = $equipment1->NUMBER_OF_ZONES;
-            $newE->TMP_REGUL_MIN = $equipment1->TMP_REGUL_MIN;
-            $newE->ITEM_TR = $equipment1->ITEM_TR;
-            $newE->ITEM_TS = $equipment1->ITEM_TS;
-            $newE->ITEM_VC = $equipment1->ITEM_VC;
-            $newE->ITEM_PRECIS = $equipment1->ITEM_PRECIS;
-            $newE->ITEM_TIMESTEP = $equipment1->ITEM_TIMESTEP;
-            $newE->FATHER_DLL_IDX = $equipment1->FATHER_DLL_IDX;
-            $newE->EQP_IMP_ID_STUDY = $equipment1->EQP_IMP_ID_STUDY;
-            $newE->save();
 
-            if ($newE->ID_EQUIP) Equipment::where('ID_EQUIP', $newE->ID_EQUIP)->update(['EQUIP_DATE' => $current->toDateTimeString()]);
+            $newEquip->EQUIP_COMMENT = $comment;
+            // $newEquip->DLL_IDX = $equipment1->DLL_IDX;
+            $newEquip->ID_EQUIPSERIES = $this->mapToGeneratedEqp($equipment1->ID_EQUIPSERIES);
+            $newEquip->ID_COOLING_FAMILY = $equipment1->ID_COOLING_FAMILY;
+            $newEquip->ID_EQUIPGENERATION = 0;
+            $newEquip->EQUIPPICT = $equipment1->EQUIPPICT;
+            $newEquip->EQP_LENGTH = $equipment1->EQP_LENGTH;
+            $newEquip->EQP_WIDTH = $equipment1->EQP_WIDTH;
+            $newEquip->EQP_HEIGHT = $equipment1->EQP_HEIGHT;
+            $newEquip->MODUL_LENGTH = $equipment1->MODUL_LENGTH;
+            $newEquip->NB_MAX_MODUL = $equipment1->NB_MAX_MODUL;
+            $newEquip->NB_TR = $equipment1->NB_TR;
+            $newEquip->NB_TS = $equipment1->NB_TS;
+            $newEquip->NB_VC = $equipment1->NB_VC;
+            $newEquip->BUYING_COST = $equipment1->BUYING_COST;
+            $newEquip->RENTAL_COST = $equipment1->RENTAL_COST;
+            $newEquip->INSTALL_COST = $equipment1->INSTALL_COST;
+            $newEquip->MAX_FLOW_RATE = $equipment1->MAX_FLOW_RATE;
+            $newEquip->MAX_NOZZLES_BY_RAMP = $equipment1->MAX_NOZZLES_BY_RAMP;
+            $newEquip->MAX_RAMPS = $equipment1->MAX_RAMPS;
+            $newEquip->NUMBER_OF_ZONES = $equipment1->NUMBER_OF_ZONES;
+            $newEquip->TMP_REGUL_MIN = $equipment1->TMP_REGUL_MIN;
+            $newEquip->ITEM_TR = $equipment1->ITEM_TR;
+            $newEquip->ITEM_TS = $equipment1->ITEM_TS;
+            $newEquip->ITEM_VC = $equipment1->ITEM_VC;
+            $newEquip->ITEM_PRECIS = $equipment1->ITEM_PRECIS;
+            $newEquip->ITEM_TIMESTEP = $equipment1->ITEM_TIMESTEP;
+            // $newEquip->FATHER_DLL_IDX = $equipment1->FATHER_DLL_IDX;
+            $newEquip->EQP_IMP_ID_STUDY = $equipment1->EQP_IMP_ID_STUDY;
+            $newEquip->save();
+
+            if ($newEquip->ID_EQUIP) {
+                Equipment::where('ID_EQUIP', $newEquip->ID_EQUIP)->update(['EQUIP_DATE' => $current->toDateTimeString()]);
+                $this->getDecryptBinary($equipment1->ID_EQUIP, $newEquip->ID_EQUIP);
+            }
+
+            $minMaxAvg = $this->getMinMax(1066);
+            $minMaxDwell = $this->getMinMax($equipment1->ITEM_TS);
 
             $equipGeneration = new EquipGeneration();
-            $equipGeneration->ID_EQUIP = $newE->ID_EQUIP;
+            $equipGeneration->ID_EQUIP = $newEquip->ID_EQUIP;
             $equipGeneration->ID_ORIG_EQUIP1 = $equipId1;
-            $equipGeneration->ID_ORIG_EQUIP2 = $equipId2;
-            $equipGeneration->AVG_PRODINTEMP = 0;
-            $equipGeneration->TEMP_SETPOINT = $tempSetPoint;
-            $equipGeneration->DWELLING_TIME = $dwellingTime;
+            $equipGeneration->ID_ORIG_EQUIP2 = ($equipId2 != null) ? $equipId2 : 0;
+            $equipGeneration->AVG_PRODINTEMP = $minMaxAvg->DEFAULT_VALUE;
+            $equipGeneration->TEMP_SETPOINT = ($tempSetPoint != null) ? $tempSetPoint : 0;
+            $equipGeneration->DWELLING_TIME = ($dwellingTime > 0) ? $dwellingTime : $minMaxDwell->DEFAULT_VALUE;
             $equipGeneration->MOVING_CHANGE = 0;
             $equipGeneration->MOVING_POS = 0;
             $equipGeneration->ROTATE = 0;
             $equipGeneration->POS_CHANGE = 0;
-            $equipGeneration->NEW_POS = $newPos;
+            $equipGeneration->NEW_POS = ($newPos != null) ? $newPos : 0;
             $equipGeneration->EQP_GEN_STATUS = 0;
             $equipGeneration->EQP_GEN_LOADRATE = 0;
             $equipGeneration->save();
-            Equipment::where('ID_EQUIP', $newE->ID_EQUIP)->update(['ID_EQUIPGENERATION' => $equipGeneration->ID_EQUIPGENERATION]);
+            Equipment::where('ID_EQUIP', $newEquip->ID_EQUIP)->update(['ID_EQUIPGENERATION' => $equipGeneration->ID_EQUIPGENERATION]);
 
-            if (!$this->runEquipmentCalculation($newE->ID_EQUIP)) {
-                return;
+            $this->copyRamps($equipment1->ID_EQUIP, $newEquip->ID_EQUIP);
+            $this->copyConsumptions($equipment1->ID_EQUIP, $newEquip->ID_EQUIP);
+            $this->copyShelves($equipment1->ID_EQUIP, $newEquip->ID_EQUIP);
+            $this->copyEquipCharact($equipment1->ID_EQUIP, $newEquip->ID_EQUIP);
+            $this->duplicateEquipGenZone($equipGeneration->ID_EQUIPGENERATION, $equipment1->NUMBER_OF_ZONES);
+            $this->duplicateEquipZone($equipment1->ID_EQUIP, $newEquip->ID_EQUIP);
+
+            $newEquip->ID_EQUIPGENERATION = $equipGeneration->ID_EQUIPGENERATION;
+            $newEquip->save();
+
+            if ($typeCalculate == 1) {
+                if (!$this->runEquipmentCalculation($newEquip->ID_EQUIP)) {
+                    return;
+                }
             }
             
         }
@@ -368,9 +397,9 @@ class Equipments extends Controller
 
         if (isset($input['idEquip'])) $idEquip = $input['idEquip'];
 
-        $list = DB::select("select ID_CONSUMPTIONS, ID_EQUIP, CONVERT( float(53), convert(varchar(100), DecryptByPassPhrase('3a786565707472', TEMPERATURE))) as TEMPERATURE,
-        CONVERT( float(53), convert(varchar(100), DecryptByPassPhrase('3a786565707472', CONSUMPTION_PERM))) as CONSUMPTION_PERM,
-        CONVERT( float(53), convert(varchar(100), DecryptByPassPhrase('3a786565707472', CONSUMPTION_GETCOLD))) as CONSUMPTION_GETCOLD
+        $list = DB::select("select ID_CONSUMPTIONS, ID_EQUIP, CONVERT( float(53), convert(varchar(100), DecryptByPassPhrase('".ENCRYPT_KEY."', TEMPERATURE))) as TEMPERATURE,
+        CONVERT( float(53), convert(varchar(100), DecryptByPassPhrase('".ENCRYPT_KEY."', CONSUMPTION_PERM))) as CONSUMPTION_PERM,
+        CONVERT( float(53), convert(varchar(100), DecryptByPassPhrase('".ENCRYPT_KEY."', CONSUMPTION_GETCOLD))) as CONSUMPTION_GETCOLD
         from consumptions where ID_EQUIP = " . $idEquip . " ORDER BY TEMPERATURE");
         
         $equip = Equipment::find($idEquip);
@@ -522,14 +551,25 @@ class Equipments extends Controller
     private function copyConsumptions($oldIdEquip, $newIdEquip)
     {
         $oldConsumptions = Consumptions::where('ID_EQUIP', $oldIdEquip)->get();
+        $decrypt = DB::select("select CONVERT( float(53), convert(varchar(100), DecryptByPassPhrase('".ENCRYPT_KEY."', TEMPERATURE))) as TEMPERATURE,
+        CONVERT( float(53), convert(varchar(100), DecryptByPassPhrase('".ENCRYPT_KEY."', CONSUMPTION_PERM))) as PERM,
+        CONVERT( float(53), convert(varchar(100), DecryptByPassPhrase('".ENCRYPT_KEY."', CONSUMPTION_GETCOLD))) as GETCOLD
+        from consumptions where ID_EQUIP = " . $oldIdEquip);
+
         if (count($oldConsumptions) > 0) {
-            foreach ($oldConsumptions as $consumption) {
+            for ($i = 0; $i < count($oldConsumptions); $i++) {
                 $newConsumption = new Consumptions();
                 $newConsumption->ID_EQUIP = $newIdEquip;
-                $newConsumption->TEMPERATURE = $consumption->TEMPERATURE;
-                $newConsumption->CONSUMPTION_PERM = $consumption->CONSUMPTION_PERM;
-                $newConsumption->CONSUMPTION_GETCOLD = $consumption->CONSUMPTION_GETCOLD;
+                // $newConsumption->TEMPERATURE = $consumption->TEMPERATURE;
+                // $newConsumption->CONSUMPTION_PERM = $consumption->CONSUMPTION_PERM;
+                // $newConsumption->CONSUMPTION_GETCOLD = $consumption->CONSUMPTION_GETCOLD;
                 $newConsumption->save();
+
+                $TEMPERATURE = "EncryptByPassPhrase('".ENCRYPT_KEY."', CAST(". $decrypt[$i]->TEMPERATURE ." AS varchar(100)), null)";
+                $PERM = "EncryptByPassPhrase('".ENCRYPT_KEY."', CAST(". $decrypt[$i]->PERM ." AS varchar(100)), null)";
+                $GETCOLD = "EncryptByPassPhrase('".ENCRYPT_KEY."', CAST(". $decrypt[$i]->GETCOLD ." AS varchar(100)), null)";
+
+                DB::update(DB::RAW('update Consumptions set TEMPERATURE = ' .$TEMPERATURE.', CONSUMPTION_PERM = '.$PERM.', CONSUMPTION_GETCOLD = '.$GETCOLD.' where ID_CONSUMPTIONS = ' . $newConsumption->ID_CONSUMPTIONS));
             }
         }
     }
@@ -574,5 +614,93 @@ class Equipments extends Controller
                 $newEquipCharact->save();
             }
         }
+    }
+
+    private function getMinMax($limitItem) 
+    {
+        return MinMax::where('LIMIT_ITEM', $limitItem)->first();
+    }
+
+    private function duplicateEquipGenZone($idEquipGeneration, $numberOfZone)
+    {
+        for ($i = 1; $i <= $numberOfZone; $i++) {
+            $equipGenZone = new EquipGenZone();
+            $equipGenZone->ID_EQUIPGENERATION = $idEquipGeneration;
+            $equipGenZone->ZONE_NUMBER = $i;
+            $equipGenZone->TEMP_SENSOR = 0;
+            $equipGenZone->TOP_ADIABAT = 0;
+            $equipGenZone->BOTTOM_ADIABAT = 0;
+            $equipGenZone->LEFT_ADIABAT = 0;
+            $equipGenZone->RIGHT_ADIABAT = 0;
+            $equipGenZone->FRONT_ADIABAT = 0;
+            $equipGenZone->REAR_ADIABAT = 0;
+            $equipGenZone->TOP_CHANGE = 1;
+            $equipGenZone->TOP_PRM1 = 1.0;
+            $equipGenZone->TOP_PRM2 = 0;
+            $equipGenZone->TOP_PRM3 = 0;
+            $equipGenZone->BOTTOM_CHANGE = 1;
+            $equipGenZone->BOTTOM_PRM1 = 1.0;
+            $equipGenZone->BOTTOM_PRM2 = 0;
+            $equipGenZone->BOTTOM_PRM3 = 0;
+            $equipGenZone->LEFT_CHANGE = 1;
+            $equipGenZone->LEFT_PRM1 = 1.0;
+            $equipGenZone->LEFT_PRM2 = 0;
+            $equipGenZone->LEFT_PRM3 = 0;
+            $equipGenZone->RIGHT_CHANGE = 1;
+            $equipGenZone->RIGHT_PRM1 = 1.0;
+            $equipGenZone->RIGHT_PRM2 = 0;
+            $equipGenZone->RIGHT_PRM3 = 0;
+            $equipGenZone->FRONT_CHANGE = 1;
+            $equipGenZone->FRONT_PRM1 = 1.0;
+            $equipGenZone->FRONT_PRM2 = 0;
+            $equipGenZone->FRONT_PRM3 = 0;
+            $equipGenZone->REAR_CHANGE = 1;
+            $equipGenZone->REAR_PRM1 = 1.0;
+            $equipGenZone->REAR_PRM2 = 0;
+            $equipGenZone->REAR_PRM3 = 0;
+            $equipGenZone->save();
+        }
+    }
+
+    private function duplicateEquipZone($oldIdEquip, $newIdEquip)
+    {
+        $equipZones = EquipZone::where('ID_EQUIP', $oldIdEquip)->get();
+        if (count($equipZones) > 0) {
+            foreach ($equipZones as $equipZone) {
+                $newEquipZone = new EquipZone();
+                $newEquipZone->ID_EQUIP = $newIdEquip;
+                $newEquipZone->EQUIP_ZONE_NUMBER = $equipZone->EQUIP_ZONE_NUMBER;
+                $newEquipZone->EQUIP_ZONE_LENGTH = $equipZone->EQUIP_ZONE_LENGTH;
+                $newEquipZone->EQUIP_ZONE_NAME = $equipZone->EQUIP_ZONE_NAME;
+                $newEquipZone->save();
+            }
+        }
+    }
+
+    public function getDecryptBinary($oldIdEquip, $newIdEquip)
+    {
+        $decrypt = null;
+
+        $decrypt = DB::select("select convert(varchar(100), DecryptByPassPhrase('".ENCRYPT_KEY."', DLL_IDX)) as DLL, convert(varchar(100), DecryptByPassPhrase('".ENCRYPT_KEY."', FATHER_DLL_IDX)) as FATHER_DLL from EQUIPMENT where ID_EQUIP = " . $oldIdEquip);
+
+        $DLL = "EncryptByPassPhrase('".ENCRYPT_KEY."', CAST(". $decrypt[0]->DLL ." AS varchar(100)), null)";
+        $FATHER_DLL = "EncryptByPassPhrase('".ENCRYPT_KEY."', CAST(". $decrypt[0]->FATHER_DLL ." AS varchar(100)), null)";
+
+        DB::update(DB::RAW('update EQUIPMENT set DLL_IDX = ' .$DLL.' where ID_EQUIP = ' . $newIdEquip));
+        DB::update(DB::RAW('update EQUIPMENT set FATHER_DLL_IDX = '  .$FATHER_DLL.'  where ID_EQUIP = ' . $newIdEquip));
+    }
+
+    private function checkNameAndVersion($equipName, $equipVersion)
+    {
+        $equipments = Equipment::all();
+
+        for($i = 0; $i < count($equipments); $i++) {
+            if (strtoupper($equipments[$i]->EQUIP_NAME) == strtoupper($equipName)) {
+                if (intval($equipments[$i]->EQUIP_VERSION) == intval($equipVersion)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }
