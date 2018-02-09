@@ -452,7 +452,7 @@ $router->GET('/api/v1/studies/{id}/getListLine', 'Api1\\Studies@loadPipeline');
  * Notes: 
  * Output-Formats: [application/json]
  */
-$router->PUT('/api/v1/studies/{id}/saveLines', 'Api1\\Studies@savePipelines');
+$router->POST('/api/v1/studies/saveLines', 'Api1\\Studies@savePipelines');
 
 
 

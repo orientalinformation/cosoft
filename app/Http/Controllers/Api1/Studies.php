@@ -1445,6 +1445,7 @@ class Studies extends Controller
                     $non_insulated_valveSub = $this->lineE->getNonLine(5, $lineElmts[0]->ELT_SIZE, $coolingFamily, 0, $lineElmts[0]->INSULATION_TYPE);
                     $teeSub = $this->lineE->getNameComboBoxLarge(3, $lineElmts[0]->ELT_SIZE, $coolingFamily, $lineElmts[0]->INSULATION_TYPE);
                     $elbowsSub = $this->lineE->getNameComboBoxLarge(4, $lineElmts[0]->ELT_SIZE, $coolingFamily, $lineElmts[0]->INSULATION_TYPE);
+                // return $lineElmts[0]->ELT_SIZE;
                 }
                 $arrPipeElmt = [];
                 foreach ($lineElmts as $getIDlineElmt) {
@@ -1501,9 +1502,13 @@ class Studies extends Controller
                 foreach ($storageTankParam as $storageTankParams) {
                     if ($lineElmts[0]->INSULATION_TYPE == 0) {
                         $stLabel[] = $this->lineE->getNameComboBox(2,$storageTankParams->ELT_SIZE, $coolingFamily,$lineElmts[0]->INSULATION_TYPE);
+                        $storageTLabel =[];
+                        $storageTValue =[];
                         foreach ($stLabel as $stLabels) {
-                            $arrLabel['storageTankParam'][] = $stLabels->LABEL . "-" .  $this->lineE->getStatus($stLabels->LINE_RELEASE);
-                            $arrLabel['storageTankValue'][] = $stLabels->ID_PIPELINE_ELMT;
+                            $storageTLabel[] = $stLabels->LABEL . "-" .  $this->lineE->getStatus($stLabels->LINE_RELEASE);
+                            $storageTValue[] = $stLabels->ID_PIPELINE_ELMT;
+                            $arrLabel['storageTankParam'] = $storageTLabel;
+                            $arrLabel['storageTankValue'] = $storageTValue;
                         }
                     } else {
                         $stLabel[] = $this->lineE->getNameComboBoxLarge(2,$storageTankParams->ELT_SIZE, $coolingFamily,$lineElmts[0]->INSULATION_TYPE);
@@ -1515,8 +1520,8 @@ class Studies extends Controller
                             $arrLabel['storageTankParam'] = $storageTLabel;
                             $arrLabel['storageTankValue'] = $storageTValue;
                         }
-                    } 
-                }
+                    }
+                } 
             } else {
                 $lineElmts = LineElmt::distinct()->select('INSULATION_TYPE')->where('ID_COOLING_FAMILY', $coolingFamily)->get();
             }
@@ -1562,15 +1567,15 @@ class Studies extends Controller
         $item = [];
         foreach ($resultFirst as $diameter) {
             
-            $height = 0.0;
-            $pressuer = 0.0;
-            $insulllenght = 0.0;
-            $noninsullenght = 0.0;
-            $elbowsnumber = 0.0;
-            $teenumber = 0.0;
-            $insulvallenght = 0.0;
-            $noninsulatevallenght = 0.0;
-            $gastemp = 0.0;
+            $insulllenght = (float) MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_STUDY_LINE_INSULATEDLINE_LENGHT)->first()->DEFAULT_VALUE;
+            $noninsullenght = (float) MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_STUDY_LINE_NON_INSULATEDLINE_LENGHT)->first()->DEFAULT_VALUE;
+            $insulvallenght = (float) MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_STUDY_LINE_INSULATEDVALVE_NUMBER)->first()->LIMIT_MIN;
+            $noninsulatevallenght = (float) MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_STUDY_LINE_NON_INSULATEDVALVE_NUMBER)->first()->LIMIT_MIN;
+            $teenumber = (float) MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_STUDY_LINE_TEES_NUMBER)->first()->DEFAULT_VALUE;
+            $elbowsnumber = (float) MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_STUDY_LINE_ELBOWS_NUMBER)->first()->LIMIT_MIN;
+            $height = (float) MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_STUDY_LINE_HEIGHT)->first()->DEFAULT_VALUE;
+            $pressuer = (float) MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_STUDY_LINE_PRESSURE)->first()->LIMIT_MIN;
+            $gastemp = (float) MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_STUDY_LINE_GAZ_TEMP)->first()->DEFAULT_VALUE;
             $resStogeTs =[];
             foreach ($storageTanks as $vstorageTank) {
                 $resStogeTs[] = $vstorageTank->ELT_SIZE;
@@ -1676,12 +1681,27 @@ class Studies extends Controller
         return $data;
     }
 
-    public function savePipelines($id) {
+    public function savePipelines() {
         $input = $this->request->all();
-
-        $insulatedLineLength = ($input['insulatedLineLength'] == 0) ? 0 : $this->convert->lineDimension($input['insulatedLineLength']);
-        $insulatedLine = $input['insulatedLine'];
-
+        $id = $input['ID_STUDY'];
+        $insulatedLineLength = ($input['INSULLINE_LENGHT'] == 0) ? 0 : $this->convert->lineDimension($input['INSULLINE_LENGHT']);
+        $insulatedLine = $input['INSULATED_LINE'];
+        $nonInsulatedLine = $input['NON_INSULATED_LINE'];
+        $insulatedValves = $input['INSULATED_VALVES'];
+        $nonInsulatedValves = $input['NON_INSULATED_VALVES'];
+        $tees = $input['TEESVALUE'];
+        $elbows = $input['ELBOWSVALUE'];
+        $storageTank = $input['STORAGE_TANK'];
+        $nonInsulatedLineLength = ($input['NOINSULLINE_LENGHT'] == 0) ? 0 : $this->convert->lineDimension($input['nonInsulatedLineLength']);
+        $insulatedValvesQuantity = $input['INSULLINE_LENGHT'];
+        $nonInsulatedValvesQuantity = $input['NOINSUL_VALVES'];
+        $elbowsQuantity = $input['ELBOWS'];
+        $teesQuantity = $input['TEES'];
+        $height = ($input['HEIGHT'] == 0) ? 0 : $this->convert->materialRise($input['HEIGHT']);
+        $pressure = $input['PRESSURE'];
+        // $storageTankCapacity = $input['storageTankCapacity'];
+        $gasTemperature = ($input['GAS_TEMP'] == 0) ? 0 : $this->convert->exhaustTemperature($input['GAS_TEMP']);
+        
         $study = Study::find($id);
         foreach ($study->studyEquipments as $studyEquip) {
             $pipeGen = $studyEquip->pipeGens->first();
@@ -1689,23 +1709,61 @@ class Studies extends Controller
         }
         if ($pipeGen == null) {
             $pipegen = new PipeGen();
-            $pipegen->ID_STUDY_EQUIPMENTS =  $studyEquip->ID_STUDY_EQUIPMENTS;
-            $pipegen->ELBOWS =  0;
-            $pipegen->FLUID =  $coolingFamily;
-            $pipegen->HEIGHT =  0;
-            $pipegen->GAS_TEMP =  0;
-            $pipegen->INSUL_VALVES =  0;
-            $pipegen->INSULLINE_LENGHT =  0;
-            $pipegen->NOINSUL_VALVES =  0;
-            $pipegen->NOINSULLINE_LENGHT =  0;
-            $pipegen->PRESSURE =  0;
-            $pipegen->TEES =  0;
-            $pipegen->MATHIGHER =  0;
-            $pipegen->save();
-            
-            return $pipegen;
-        } else {
+        }
+        // return $insulatedLineLength;
+        $pipegen->INSULLINE_LENGHT = $insulatedLineLength;
+        $pipegen->INSUL_VALVES = $insulatedValvesQuantity;
+        $pipegen->NOINSULLINE_LENGHT = $nonInsulatedLineLength;
+        $pipegen->NOINSUL_VALVES = $nonInsulatedValvesQuantity;
+        $pipegen->TEES = $teesQuantity;
+        $pipegen->ELBOWS = $elbowsQuantity;
+        $pipegen->HEIGHT = $height;
+        $pipegen->GAS_TEMP = $gasTemperature;
+        $pipegen->FLUID = $coolingFamily;
+        $pipegen->PRESSURE = $pressure;
+        $pipegen->MATHIGHER = 0;
 
+        if ($pipegen->ID_STUDY_EQUIPMENTS == null) {
+            $pipegen->ID_STUDY_EQUIPMENTS =  $studyEquip->ID_STUDY_EQUIPMENTS;
+            $pipegen->save();
+            return 1004534534534;
+        } else {
+            $pipegen->save();
+        }
+        if (($insulatedLine != 0) && ($insulatedLineLength != 0.0)) {
+            $this->lineE->createLineDefinition($pipegen->ID_PIPE_GEN, $insulatedLine, 1);
+        } else if (($insulatedLine == 0) || ($insulatedLineLength == 0.0)) {
+            $this->lineE->deleteLineDefinition($pipegen->ID_PIPE_GEN, 1);
+        }
+        if (($nonInsulatedLine != 0) && ($nonInsulatedLineLength != 0.0)) {
+            $this->lineE->createLineDefinition($pipegen->ID_PIPE_GEN, $nonInsulatedLine, 2);
+        } else if (($nonInsulatedLine == 0) || ($nonInsulatedLineLength == 0.0)) {
+            $this->lineE->deleteLineDefinition($pipegen->ID_PIPE_GEN, 2);
+        }
+        if (($insulatedValves != 0) && ($insulatedValvesQuantity != 0)) {
+            $this->lineE->createLineDefinition($pipegen->ID_PIPE_GEN, $insulatedValves, 5);
+        } else if (($insulatedValves == 0) || ($insulatedValvesQuantity == 0)) {
+            $this->lineE->deleteLineDefinition($pipegen->ID_PIPE_GEN, 5);
+        }
+        if (($nonInsulatedValves != 0) && ($nonInsulatedValvesQuantity != 0)) {
+            $this->lineE->createLineDefinition($pipegen->ID_PIPE_GEN, $nonInsulatedValves, 6);
+        } else if (($nonInsulatedValves == 0) || ($nonInsulatedValvesQuantity == 0)) {
+            $this->lineE->deleteLineDefinition($pipegen->ID_PIPE_GEN, 6);
+        }
+        if (($elbows != 0) && ($elbowsQuantity != 0)) {
+            $this->lineE->createLineDefinition($pipegen->ID_PIPE_GEN, $elbows, 3);
+        } else if (($elbows == 0) || ($elbowsQuantity == 0)) {
+            $this->lineE->deleteLineDefinition($pipegen->ID_PIPE_GEN, 3);
+        }
+        if (($tees != 0) && ($teesQuantity != 0)) {
+            $this->lineE->createLineDefinition($pipegen->ID_PIPE_GEN, $tees, 4);
+        } else if (($tees == 0) || ($teesQuantity == 0)) {
+            $this->lineE->deleteLineDefinition($pipegen->ID_PIPE_GEN, 4);
+        } 
+        if ($storageTank != 0) {
+            $this->lineE->createLineDefinition($pipegen->ID_PIPE_GEN, $storageTank, 7);
+        } else {
+            $this->lineE->deleteLineDefinition($pipegen->ID_PIPE_GEN, 7);
         }
     }
 
