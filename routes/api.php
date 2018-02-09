@@ -438,24 +438,6 @@ $router->POST('/api/v1/studies/{id}/packingLayers', 'Api1\\Studies@savePacking')
  */
 $router->GET('/api/v1/studies/{id}/calculate', 'Api1\\Calculator@startStudyCalculation');
 
-/**
- * GET findLines
- * Summary: 
- * Notes: Get a list of line
- * Output-Formats: [application/json]
- */
-$router->GET('/api/v1/studies/{id}/getListLine', 'Api1\\Studies@loadPipeline');
-
-/**
- * PUT savePipeline
- * Summary: 
- * Notes: 
- * Output-Formats: [application/json]
- */
-$router->POST('/api/v1/studies/saveLines', 'Api1\\Studies@savePipelines');
-
-
-
 include_once("api_ngonc.php");
 include_once("api_dongtp.php");
 include_once("api_thaolt.php");
