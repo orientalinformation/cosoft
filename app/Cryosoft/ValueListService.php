@@ -37,6 +37,7 @@ class ValueListService
     public $W_CARPET_SHELVES = 22;
     public $SLOPES_POSITION = 23;
     public $LINE = 17;
+    public $MATERIAL_RISE = 24;
 
     //brand mode
     public $BRAIN_MODE_ESTIMATION = 1;

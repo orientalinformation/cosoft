@@ -71,7 +71,11 @@ class LineService
         $sname = LineElmt::select('LABEL', 'LINE_VERSION')->where('ID_USER', '!=', $this->auth->user()->ID_USER)
             ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')->where('ID_TRANSLATION', '=', $lineRelease)
             ->where('Translation.TRANS_TYPE', 100)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
-        return $sname->LINE_VERSION. " " .$sname->LABEL;
+        if (!empty($sname)) {
+            return $sname->LINE_VERSION. " " .$sname->LABEL;
+        } else {
+            return '';
+        }
     }
 
     public function getdiameter($coolingFamily, $insulationType) {
@@ -88,8 +92,8 @@ class LineService
         return $storageTank;
     }
 
-    public function createLineDefinition($idLineELMT, $type_elmt, $idPipeGen) {
-        $this->deleteLineDefinition($type_elmt, $idPipeGen);
+    public function createLineDefinition($idPipeGen, $idLineELMT,  $type_elmt) {
+        $this->deleteLineDefinition($idPipeGen, $type_elmt);
         $lineDef = new LineDefinition();
         $lineDef->ID_PIPE_GEN = $idPipeGen;
         $lineDef->ID_PIPELINE_ELMT = $idLineELMT;
@@ -97,7 +101,7 @@ class LineService
         $lineDef->save();
     }
 
-    public function deleteLineDefinition($type_elmt, $idPipeGen) {
+    public function deleteLineDefinition($idPipeGen, $type_elmt) {
         $delLinedef = LineDefinition::where('ID_PIPE_GEN', $idPipeGen)->where('TYPE_ELMT', $type_elmt)->delete();
     }
 }
