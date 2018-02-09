@@ -33,6 +33,14 @@ $router->GET('/api/v1/studies/{id}/meshPoints', 'Api1\\Studies@getMeshPoints');
 $router->GET('/api/v1/studyEquipment/{id}/productChart', 'Api1\\StudyEquipments@getstudyEquipmentProductChart');
 
 /**
+ * GET getstudyEquipmentByStudyId
+ * Summary: 
+ * Notes: get All Study Equipment in Study
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/studyEquipment/{id}/study', 'Api1\\StudyEquipments@getstudyEquipmentByStudyId');
+
+/**
  * GET getRecordPosition
  * Summary: 
  * Notes: get Study Equipment Record Position

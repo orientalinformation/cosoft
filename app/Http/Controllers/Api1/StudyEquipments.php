@@ -69,8 +69,28 @@ class StudyEquipments extends Controller
         }
 
         return $returnStudyEquipments;
+    }
 
+    public function getstudyEquipmentByStudyId($idStudy)
+    {
+        $studyEquipments = \App\Models\StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
+        $returnStudyEquipments = [];
 
+        foreach ($studyEquipments as $studyEquipment) {
+            $equip = [
+                'ID_STUDY_EQUIPMENTS' => $studyEquipment->ID_STUDY_EQUIPMENTS,
+                'EQUIP_NAME' => $studyEquipment->EQUIP_NAME,
+                'ID_EQUIP' => $studyEquipment->ID_EQUIP,
+                'EQP_LENGTH' => $studyEquipment->EQP_LENGTH,
+                'EQP_WIDTH' => $studyEquipment->EQP_WIDTH,
+                'EQUIP_VERSION' => $studyEquipment->EQUIP_VERSION,
+            ];
+            $equip['displayName'] = $this->equip->getSpecificEquipName($studyEquipment->ID_STUDY_EQUIPMENTS);
+            
+            array_push($returnStudyEquipments, $equip);
+        }
+
+        return $returnStudyEquipments;
     }
 
     public function getRecordPosition($id)

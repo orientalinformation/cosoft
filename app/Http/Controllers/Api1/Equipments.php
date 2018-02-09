@@ -311,6 +311,110 @@ class Equipments extends Controller
         return 1;
     }
 
+    public function saveAsEquipment()
+    {
+        $current = Carbon::now('Asia/Ho_Chi_Minh');
+        $idUserLogon = $this->auth->user()->ID_USER;
+        $input = $this->request->all();
+
+        $nameEquipment  = $versionEquipment = $equipmentId = null;
+        
+        if (isset($input['nameEquipment'])) $nameEquipment = $input['nameEquipment'];
+        if (isset($input['versionEquipment'])) $versionEquipment = floatval($input['versionEquipment']);
+        if (isset($input['equipmentId'])) $equipmentId = intval($input['equipmentId']);
+
+        if ($nameEquipment == null) return -1;
+        if (($equipmentId == null) || ($equipmentId == 0)) return -2;
+        if ($versionEquipment == null) return -3;
+        if (!$this->checkNameAndVersion($nameEquipment, $versionEquipment)) return -4;
+
+        $equipmentId = Equipment::find($equipmentId);
+        
+        if ($equipmentId) {
+            $newEquip = new Equipment();
+
+            $newEquip->ID_USER = $idUserLogon;
+            $newEquip->EQUIP_NAME = $nameEquipment;
+            $newEquip->EQUIP_VERSION = $versionEquipment;
+            $newEquip->EQUIP_RELEASE = 2;
+            $newEquip->STD = $equipmentId->STD;
+            $newEquip->OPEN_BY_OWNER = false;
+            $newEquip->CAPABILITIES = $equipmentId->CAPABILITIES;
+
+            if (count($newEquip->EQUIP_COMMENT) == 0) {
+                $comment = 'Create on ' . $current->toDateTimeString() . ' by ' . $this->auth->user()->USERNAM;
+            } else if (count($newEquip->EQUIP_COMMENT) < 2100) {
+                $comment = $newEquip->EQUIP_COMMENT . '. Create on ' . $current->toDateTimeString() . ' by ' . $this->auth->user()->USERNAM;
+            } else {
+                $comment = substr($newEquip->EQUIP_COMMENT, 0, 1999) . '. Create on ' . $current->toDateTimeString() . ' by ' . $this->auth->user()->USERNAM;;
+            }
+
+            $newEquip->EQUIP_COMMENT = $comment;
+            $newEquip->ID_EQUIPSERIES = $equipmentId->ID_EQUIPSERIES;
+            $newEquip->ID_COOLING_FAMILY = $equipmentId->ID_COOLING_FAMILY;
+            $newEquip->ID_EQUIPGENERATION = $equipmentId->ID_EQUIPGENERATION;
+            $newEquip->EQUIPPICT = $equipmentId->EQUIPPICT;
+            $newEquip->EQP_LENGTH = $equipmentId->EQP_LENGTH;
+            $newEquip->EQP_WIDTH = $equipmentId->EQP_WIDTH;
+            $newEquip->EQP_HEIGHT = $equipmentId->EQP_HEIGHT;
+            $newEquip->MODUL_LENGTH = $equipmentId->MODUL_LENGTH;
+            $newEquip->NB_MAX_MODUL = $equipmentId->NB_MAX_MODUL;
+            $newEquip->NB_TR = $equipmentId->NB_TR;
+            $newEquip->NB_TS = $equipmentId->NB_TS;
+            $newEquip->NB_VC = $equipmentId->NB_VC;
+            $newEquip->BUYING_COST = $equipmentId->BUYING_COST;
+            $newEquip->RENTAL_COST = $equipmentId->RENTAL_COST;
+            $newEquip->INSTALL_COST = $equipmentId->INSTALL_COST;
+            $newEquip->MAX_FLOW_RATE = $equipmentId->MAX_FLOW_RATE;
+            $newEquip->MAX_NOZZLES_BY_RAMP = $equipmentId->MAX_NOZZLES_BY_RAMP;
+            $newEquip->MAX_RAMPS = $equipmentId->MAX_RAMPS;
+            $newEquip->NUMBER_OF_ZONES = $equipmentId->NUMBER_OF_ZONES;
+            $newEquip->TMP_REGUL_MIN = $equipmentId->TMP_REGUL_MIN;
+            $newEquip->ITEM_TR = $equipmentId->ITEM_TR;
+            $newEquip->ITEM_TS = $equipmentId->ITEM_TS;
+            $newEquip->ITEM_VC = $equipmentId->ITEM_VC;
+            $newEquip->ITEM_PRECIS = $equipmentId->ITEM_PRECIS;
+            $newEquip->ITEM_TIMESTEP = $equipmentId->ITEM_TIMESTEP;
+            $newEquip->EQP_IMP_ID_STUDY = $equipmentId->EQP_IMP_ID_STUDY;
+            $newEquip->save();
+
+            if ($newEquip->ID_EQUIP) {
+                Equipment::where('ID_EQUIP', $newEquip->ID_EQUIP)->update(['EQUIP_DATE' => $current->toDateTimeString()]);
+                $this->getDecryptBinary($equipmentId->ID_EQUIP, $newEquip->ID_EQUIP);
+            }
+            
+            $this->copyRamps($equipmentId->ID_EQUIP, $newEquip->ID_EQUIP);
+            $this->copyConsumptions($equipmentId->ID_EQUIP, $newEquip->ID_EQUIP);
+            $this->copyShelves($equipmentId->ID_EQUIP, $newEquip->ID_EQUIP);
+            $this->copyEquipCharact($equipmentId->ID_EQUIP, $newEquip->ID_EQUIP);
+
+            $oldGeneration = EquipGeneration::where('ID_EQUIP', $equipmentId->ID_EQUIP)->first();
+            if (count($oldGeneration) > 0) {
+                $equipGeneration = new EquipGeneration();
+                $equipGeneration->ID_EQUIP = $newEquip->ID_EQUIP;
+                $equipGeneration->ID_ORIG_EQUIP1 = $oldGeneration->ID_ORIG_EQUIP1;
+                $equipGeneration->ID_ORIG_EQUIP2 = $oldGeneration->ID_ORIG_EQUIP2;
+                $equipGeneration->AVG_PRODINTEMP = $oldGeneration->AVG_PRODINTEMP;
+                $equipGeneration->TEMP_SETPOINT = $oldGeneration->TEMP_SETPOINT;
+                $equipGeneration->DWELLING_TIME = $oldGeneration->DWELLING_TIME;
+                $equipGeneration->MOVING_CHANGE = $oldGeneration->MOVING_CHANGE;
+                $equipGeneration->MOVING_POS = $oldGeneration->MOVING_POS;
+                $equipGeneration->ROTATE = $oldGeneration->ROTATE;
+                $equipGeneration->POS_CHANGE = $oldGeneration->POS_CHANGE;
+                $equipGeneration->NEW_POS = $oldGeneration->NEW_POS;
+                $equipGeneration->EQP_GEN_STATUS = $oldGeneration->EQP_GEN_STATUS;
+                $equipGeneration->EQP_GEN_LOADRATE = $oldGeneration->EQP_GEN_LOADRATE;
+                $equipGeneration->save();
+                
+                $this->duplicateEquipGenZone($equipGeneration->ID_EQUIPGENERATION, $equipmentId->NUMBER_OF_ZONES);
+            }
+
+            $this->duplicateEquipZone($equipmentId->ID_EQUIP, $newEquip->ID_EQUIP);
+        }
+
+        return 1;
+    }
+
     public function mapToGeneratedEqp($idEquipSeries)
     {
         $idEs = 0;
