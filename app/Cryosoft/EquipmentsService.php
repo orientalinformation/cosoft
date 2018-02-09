@@ -48,7 +48,7 @@ class EquipmentsService
          } else if (($this->getCapability($capabilitie , 1048576)) && ($studyEquipment->STDEQP_LENGTH != -1.0) && ($studyEquipment->STDEQP_WIDTH != -1.0)) {
             $stdEqpLength = $this->unit->equipDimension($studyEquipment->STDEQP_LENGTH);
             $stdeqpWidth = $this->unit->equipDimension($studyEquipment->STDEQP_WIDTH);
-            $sEquipName = $studyEquipment->EQUIP_NAME . " - " . $stdEqpLength . "x" . $stdeqpWidth;
+            $sEquipName = $studyEquipment->EQUIP_NAME . " - (" . $stdEqpLength . "x" . $stdeqpWidth . ")";
         } else {
             $sEquipName = $studyEquipment->EQUIP_NAME;
         }
