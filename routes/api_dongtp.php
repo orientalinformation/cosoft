@@ -167,3 +167,11 @@ $router->GET('/api/v1/referencedata/compenth/{id}', 'Api1\\ReferenceData@getComp
  * Output-Formats: [application/json]
  */
 $router->PUT('/api/v1/referencedata/compenth', 'Api1\\ReferenceData@updateCompenth');
+
+/**
+ * Delete Equipment
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->DELETE('/api/v1/referencedata/equipment/{id}', 'Api1\\Equipments@deleteEquipment');

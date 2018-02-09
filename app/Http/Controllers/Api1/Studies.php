@@ -171,6 +171,7 @@ class Studies extends Controller
             }
 
             foreach ($equip->pipeGens as $pipeGen) {
+                foreach ($pipeGen->lineDefinitions as $lineDef) $lineDef->delete();
                 $pipeGen->delete();
             }
 
@@ -1338,6 +1339,7 @@ class Studies extends Controller
         }
 
         foreach ($equip->pipeGens as $pipeGen) {
+            foreach ($pipeGen->lineDefinitions as $lineDef) $lineDef->delete();
             $pipeGen->delete();
         }
 
@@ -1356,6 +1358,8 @@ class Studies extends Controller
         foreach ($equip->economicResults as $ecoRes) {
             $ecoRes->delete();
         }
+
+        foreach ($equip->dimaResults as $dimaResult) $dimaResult->delete();
 
         foreach ($equip->studEqpPrms as $studEqpPrm) {
             $studEqpPrm->delete();
@@ -1677,6 +1681,11 @@ class Studies extends Controller
     }
 
     public function savePipelines($id) {
+        $input = $this->request->all();
+
+        $insulatedLineLength = ($input['insulatedLineLength'] == 0) ? 0 : $this->convert->lineDimension($input['insulatedLineLength']);
+        $insulatedLine = $input['insulatedLine'];
+
         $study = Study::find($id);
         foreach ($study->studyEquipments as $studyEquip) {
             $pipeGen = $studyEquip->pipeGens->first();
@@ -1697,11 +1706,11 @@ class Studies extends Controller
             $pipegen->TEES =  0;
             $pipegen->MATHIGHER =  0;
             $pipegen->save();
+            
             return $pipegen;
         } else {
-            // $insulationlineSub = $this->lineE->getNameComboBox(1, $lineElmts[0]->ELT_SIZE, $coolingFamily, $lineElmts[0]->INSULATION_TYPE);
+
         }
-        // return $insulationlineSub;
     }
 
     public function getStudyComment($id) {

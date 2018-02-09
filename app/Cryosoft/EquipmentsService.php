@@ -66,13 +66,13 @@ class EquipmentsService
             if (($studyEquipment->STD == 1) && (!($this->getCapability($capabilitie , 32768))) && (!($this->getCapability($capabilitie , 1048576)))) {
                 $seriesName = $studyEquipment->SERIES_NAME;
                 $equipParameter = $studyEquipment->EQP_LENGTH + $studyEquipment->NB_MODUL * $studyEquipment->MODUL_LENGTH;
-                $equipParameterUnit = $this->unit->unitConvert($this->value->EQUIP_DIMENSION, $equipParameter);
-                $eqpWidthUnit = $this->unit->unitConvert($this->value->EQUIP_DIMENSION, $studyEquipment->EQP_WIDTH);
+                $equipParameterUnit = $this->unit->equipDimension($equipParameter);
+                $eqpWidthUnit = $this->unit->equipDimension($studyEquipment->EQP_WIDTH);
                 $equipVestion = $studyEquipment->EQUIP_VERSION;
 
-                $sEquipName = $seriesName . " - ". $equipParameterUnit." x ".$eqpWidthUnit." (v".$equipVestion.")";
+                $sEquipName = $seriesName . " - " . $equipParameterUnit ." x " . $eqpWidthUnit . " (v". $equipVestion. ")";
 
-            } else if (($this->getCapability($capabilitie , 1048576)) && ($studyEquipment->EQP_LENGTH != -1.0) && ($studyEquipment->EQP_WIDTH != -1.0)) {
+            } else if (($this->getCapability($capabilitie , 1048576)) && !($this->getCapability($capabilitie , 2097152)) && ($studyEquipment->EQP_LENGTH != -1.0) && ($studyEquipment->EQP_WIDTH != -1.0)) {
                 $sEquipName = $studyEquipment->EQUIP_NAME . " - " . $this->getSpecificEquipSize($idStudyEquipment);
             } else {
                 $sEquipName = $studyEquipment->EQUIP_NAME;
@@ -90,8 +90,8 @@ class EquipmentsService
 
             if (($this->getCapability($capabilitie , 1048576)) && ($studyEquipment->EQP_LENGTH != -1.0) && ($studyEquipment->EQP_WIDTH != -1.0)) {
 
-                $stdEqpLength = $this->unit->unitConvert($this->value->EQUIP_DIMENSION, $studyEquipment->EQP_LENGTH);
-                $stdeqpWidth = $this->unit->unitConvert($this->value->EQUIP_DIMENSION, $studyEquipment->EQP_WIDTH);
+                $stdEqpLength = $this->unit->equipDimension($studyEquipment->EQP_LENGTH);
+                $stdeqpWidth = $this->unit->equipDimension($studyEquipment->EQP_WIDTH);
 
                 $sEquipName = "(" . $stdEqpLength . "x" . $stdeqpWidth + ")";
             }
