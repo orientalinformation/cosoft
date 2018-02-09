@@ -119,13 +119,16 @@ class Output extends Controller
             $capabilitie = $row->CAPABILITIES;
             $equipStatus = $row->EQUIP_STATUS;
             $brainType = $row->BRAIN_TYPE;
-            $sSpecificSize = "";
             $calculWarning = "";
+
+            $item["id"] = $idStudyEquipment = $row->ID_STUDY_EQUIPMENTS;
+
+            $sSpecificSize = "";
             if ($this->equip->getCapability($capabilitie , 2097152)) {
                 $sSpecificSize = $this->equip->getSpecificEquipSize($idStudyEquipment);
             }
-            $item["id"] = $idStudyEquipment = $row->ID_STUDY_EQUIPMENTS;
-            $item["specificSize"] = $sSpecificSize;
+            $item["specificSize"] = $sSpecificSize;   
+            
             $item["equipName"] = $this->equip->getResultsEquipName($idStudyEquipment);
             $calculate = "";
             $tr = $ts = $vc = $vep = $tfp = $dhp = $conso= $conso_warning = $toc = $precision = "";
@@ -261,7 +264,11 @@ class Output extends Controller
             $brainType = $row->BRAIN_TYPE;
             $calculWarning = "";
             $item["id"] = $idStudyEquipment = $row->ID_STUDY_EQUIPMENTS;
-            $item["specificSize"] = $this->equip->getSpecificEquipSize($idStudyEquipment);
+            $sSpecificSize = "";
+            if ($this->equip->getCapability($capabilitie , 2097152)) {
+                $sSpecificSize = $this->equip->getSpecificEquipSize($idStudyEquipment);
+            }
+            $item["specificSize"] = $sSpecificSize;
             $item["equipName"] = $this->equip->getResultsEquipName($idStudyEquipment);
 
             $dimaResult = DimaResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("DIMA_TYPE", 16)->first();
@@ -707,6 +714,7 @@ class Output extends Controller
 
             $initWidth = $this->unit->equipDimension($studyEquipment->STDEQP_WIDTH);
             $initLength = $this->unit->equipDimension($studyEquipment->STDEQP_LENGTH);
+            $initSurface = $this->unit->equipDimension($initWidth * $initLength);
 
             $minWidth = 0;
             $maxWidth = -1;
@@ -724,12 +732,12 @@ class Output extends Controller
             $minSurf = $minWidth * $minLength;
             $maxSurf = $maxWidth * $maxLength;
 
-            $disabled = "";
-            if (!($this->study->isMyStudy($studyEquipment->ID_STUDY)) && $this->auth->user()->USERPRIO < $this->value->PROFIL_EXPERT) {
-                $disabled = "disabled";
+            $disabled = false;
+            if (!($this->study->isMyStudy($studyEquipment->ID_STUDY)) || ($this->auth->user()->USERPRIO < $this->value->PROFIL_EXPERT)) {
+                $disabled = true;
             }
 
-            return compact("idStudyEquipment", "equipName", "minWidth", "maxWidth", "minLength", "maxLength", "minSurf", "maxSurf", "disabled");
+            return compact("idStudyEquipment", "equipName", "initWidth", "initLength", "initSurface", "minWidth", "maxWidth", "minLength", "maxLength", "minSurf", "maxSurf", "disabled");
         }
     }
 

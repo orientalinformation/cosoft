@@ -45,10 +45,10 @@ class EquipmentsService
             $equipVestion = $studyEquipment->EQUIP_VERSION;
 
             $sEquipName = $seriesName . " - ". $equipParameterUnit." x ".$eqpWidthUnit." (v".$equipVestion.")";
-         } else if (($this->getCapability($capabilitie , 1048576)) && ($studyEquipment->EQP_LENGTH != -1.0) && ($studyEquipment->EQP_WIDTH != -1.0)) {
-            $stdEqpLength = $this->unit->unitConvert($this->value->EQUIP_DIMENSION, $studyEquipment->EQP_LENGTH);
-            $stdeqpWidth = $this->unit->unitConvert($this->value->EQUIP_DIMENSION, $studyEquipment->EQP_WIDTH);
-            $sEquipName = $studyEquipment->EQUIP_NAME . " - " . $stdEqpLength . "x" . $sEquipName;
+         } else if (($this->getCapability($capabilitie , 1048576)) && ($studyEquipment->STDEQP_LENGTH != -1.0) && ($studyEquipment->STDEQP_WIDTH != -1.0)) {
+            $stdEqpLength = $this->unit->equipDimension($studyEquipment->STDEQP_LENGTH);
+            $stdeqpWidth = $this->unit->equipDimension($studyEquipment->STDEQP_WIDTH);
+            $sEquipName = $studyEquipment->EQUIP_NAME . " - " . $stdEqpLength . "x" . $stdeqpWidth;
         } else {
             $sEquipName = $studyEquipment->EQUIP_NAME;
         }
@@ -72,7 +72,7 @@ class EquipmentsService
 
                 $sEquipName = $seriesName . " - " . $equipParameterUnit ." x " . $eqpWidthUnit . " (v". $equipVestion. ")";
 
-            } else if (($this->getCapability($capabilitie , 1048576)) && !($this->getCapability($capabilitie , 2097152)) && ($studyEquipment->EQP_LENGTH != -1.0) && ($studyEquipment->EQP_WIDTH != -1.0)) {
+            } else if (($this->getCapability($capabilitie , 1048576)) && !($this->getCapability($capabilitie , 2097152)) && ($studyEquipment->STDEQP_LENGTH != -1.0) && ($studyEquipment->STDEQP_WIDTH != -1.0)) {
                 $sEquipName = $studyEquipment->EQUIP_NAME . " - " . $this->getSpecificEquipSize($idStudyEquipment);
             } else {
                 $sEquipName = $studyEquipment->EQUIP_NAME;
@@ -88,16 +88,16 @@ class EquipmentsService
         if (!empty($studyEquipment)) {
             $capabilitie = $studyEquipment->CAPABILITIES;
 
-            if (($this->getCapability($capabilitie , 1048576)) && ($studyEquipment->EQP_LENGTH != -1.0) && ($studyEquipment->EQP_WIDTH != -1.0)) {
+            if (($this->getCapability($capabilitie , 1048576)) && ($studyEquipment->STDEQP_LENGTH != -1.0) && ($studyEquipment->STDEQP_WIDTH != -1.0)) {
 
-                $stdEqpLength = $this->unit->equipDimension($studyEquipment->EQP_LENGTH);
-                $stdeqpWidth = $this->unit->equipDimension($studyEquipment->EQP_WIDTH);
+                $stdEqpLength = $this->unit->equipDimension($studyEquipment->STDEQP_LENGTH);
+                $stdeqpWidth = $this->unit->equipDimension($studyEquipment->STDEQP_WIDTH);
 
-                $sEquipName = "(" . $stdEqpLength . "x" . $stdeqpWidth + ")";
+                $sEquipName = "(" . $stdEqpLength . "x" . $stdeqpWidth . ")";
             }
-
-            return $sEquipName;
+            
         } 
+        return $sEquipName;
     }
     
     public function initEnergyDef($idStudy)
