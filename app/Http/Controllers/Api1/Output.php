@@ -927,7 +927,7 @@ class Output extends Controller
             $brainType = $row->BRAIN_TYPE;
             $idCoolingFamily = $row->ID_COOLING_FAMILY;
             $itemGrap["id"] = $idStudyEquipment = $row->ID_STUDY_EQUIPMENTS;
-            $itemGrap["equipName"] = $equipName = $this->equip->getResultsEquipName($idStudyEquipment);
+            $itemGrap["equipName"] = $equipName = $this->equip->getSpecificEquipName($idStudyEquipment);
 
             $dhp = $conso = $dhpMax = $consoMax = "";
 
