@@ -334,3 +334,19 @@ $router->GET('/api/v1/referencedata/consumptions', 'Api1\\Equipments@getConsumpt
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/studies/{id}/report', 'Api1\\Reports@getReport');
+
+/**
+ * GET getMeshAxisPos
+ * Summary:
+ * Notes: get data MeshAxisPos
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/studies/{id}/meshaxispos', 'Api1\\Reports@getMeshAxisPos');
+
+/**
+ * PUT save  report
+ * Summary:
+ * Notes: save report
+ * Output-Formats: [application/json]
+ */
+$router->PUT('/api/v1/studies/{id}/report', 'Api1\\Reports@saveReport');

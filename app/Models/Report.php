@@ -113,6 +113,27 @@ class Report extends Model
      */
     public $timestamps = false;
 
+    protected $casts = [
+        'POINT1_X' => 'double',
+        'POINT1_Y' => 'double',
+        'POINT1_Z' => 'double',
+        'POINT2_X' => 'double',
+        'POINT2_Y' => 'double',
+        'POINT2_Z' => 'double',
+        'POINT3_X' => 'double',
+        'POINT3_Y' => 'double',
+        'POINT3_Z' => 'double',
+        'AXE1_X' => 'double',
+        'AXE1_Y' => 'double',
+        'AXE2_X' => 'double',
+        'AXE2_Z' => 'double',
+        'AXE3_Y' => 'double',
+        'AXE3_Z' => 'double',
+        'PLAN_X' => 'double',
+        'PLAN_Y' => 'double',
+        'PLAN_Z' => 'double',
+    ];
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
