@@ -11,6 +11,7 @@
  ****************************************************************************/
 namespace App\Cryosoft;
 use App\Models\LineElmt;
+use App\Models\LineDefinition;
 
 class LineService
 {
@@ -39,12 +40,20 @@ class LineService
     }
     
 	public function getNameComboBox($elt_type,$insideDiameter, $coolingFamily, $sort) {
-        
-        $sname = LineElmt::select('ID_PIPELINE_ELMT', 'LABEL', 'LINE_RELEASE')->where('ID_USER', '!=', $this->auth->user()->ID_USER)
+        if ($sort > 0) {
+            $sname = LineElmt::select('ID_PIPELINE_ELMT', 'LABEL', 'LINE_RELEASE')->where('ID_USER', '!=', $this->auth->user()->ID_USER)
             ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
             ->where('Translation.TRANS_TYPE', 27)->where('ELT_TYPE', '=', $elt_type)
             ->where('ELT_SIZE','=',$insideDiameter)->where('ID_COOLING_FAMILY', $coolingFamily)
-            ->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->skip($sort)->take($sort)->first();
+            ->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->skip($sort)->take($sort)->get();
+        } else {
+            $sname = LineElmt::select('ID_PIPELINE_ELMT', 'LABEL', 'LINE_RELEASE')->where('ID_USER', '!=', $this->auth->user()->ID_USER)
+                ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
+                ->where('Translation.TRANS_TYPE', 27)->where('ELT_TYPE', '=', $elt_type)
+                ->where('ELT_SIZE','=',$insideDiameter)->where('ID_COOLING_FAMILY', $coolingFamily)
+                ->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->skip($sort)->take($sort)->first();
+
+        }
         return $sname;
 	}
 
@@ -77,5 +86,18 @@ class LineService
             ->where('ID_COOLING_FAMILY ', $coolingFamily)->where('ELT_TYPE', '=', 2)
             ->where('INSULATION_TYPE', $insulationType)->get();
         return $storageTank;
+    }
+
+    public function createLineDefinition($idLineELMT, $type_elmt, $idPipeGen) {
+        $this->deleteLineDefinition($type_elmt, $idPipeGen);
+        $lineDef = new LineDefinition();
+        $lineDef->ID_PIPE_GEN = $idPipeGen;
+        $lineDef->ID_PIPELINE_ELMT = $idLineELMT;
+        $lineDef->TYPE_ELMT = $type_elmt;
+        $lineDef->save();
+    }
+
+    public function deleteLineDefinition($type_elmt, $idPipeGen) {
+        $delLinedef = LineDefinition::where('ID_PIPE_GEN', $idPipeGen)->where('TYPE_ELMT', $type_elmt)->delete();
     }
 }
