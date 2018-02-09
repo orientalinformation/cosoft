@@ -612,7 +612,7 @@ class OutputService
 
     public function getGrideByPlan($idStudy, $idStudyEquipment, $time, $lfTmin, $lfTMax, $tempRecordDataPlan, $selectedPlan, $shape, $orientation)
     {
-        $recordPosition = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("RECORD_TIME", $time)->first();
+        $recordPosition = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("RECORD_TIME", $time)->orderBy("RECORD_TIME", "DESC")->first();
 
         $result = [];
         $tempRecordDatas = [];
@@ -872,7 +872,7 @@ class OutputService
             }
         }
 
-        return $result;
+        return $recordPosition;
     }
 
     public function getRecAxisPos($idRec_Pos, $lfTmin, $lfTMax)
