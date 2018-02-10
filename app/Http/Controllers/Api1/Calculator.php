@@ -344,6 +344,9 @@ class Calculator extends Controller
 					$param = new \Cryosoft\stSKBRParam();
 
 					array_push($results, $this->kernel->getKernelObject('BrainCalculator')->BRTeachCalculation($conf, $param, 10));
+					//add run economic and consumption
+					$this->startEconomic($idStudy, $idStudyEquipment);
+					$this->startConsumptionEconomic($idStudy, $idStudyEquipment);
 				}
 			}
 		}
@@ -556,6 +559,13 @@ class Calculator extends Controller
 	 		$this->runStudyCleaner($idStudy, $idStudyEquipment, 53);
 
  			$runType = $this->startBrainNumericalCalculation($idStudy, $idStudyEquipment, $brainMode);
+ 			
+ 			$study = Study::find($idStudy);
+ 			if ($study->OPTION_ECO == 1) {
+ 				$this->startEconomic($idStudy, $idStudyEquipment);
+			} else {
+				$this->startConsumptionEconomic($idStudy, $idStudyEquipment);
+			}
  		}
 
     	return $runType;
