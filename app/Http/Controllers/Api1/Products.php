@@ -278,17 +278,6 @@ class Products extends Controller
         $meshGeneration = $this->mesh->findGenerationByProduct($product);
         
         $this->mesh->generate($meshGeneration, MeshService::REGULAR_MESH, MeshService::MAILLAGE_MODE_REGULAR);
-        
-        // refresh mesh generation model
-        $meshGeneration = MeshGeneration::where('ID_PROD', $product->ID_PROD)->first();
-
-        $elements = $product->productElmts;
-        $elmtMeshPositions = [];
-
-        foreach ($elements as $elmt) {
-            $meshPositions = \App\Models\MeshPosition::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->get();
-            array_push($elmtMeshPositions, $meshPositions);
-        }
 
         // KernelToolsCalculation kerneltools = new KernelToolsCalculation(
         //     CryosoftDB . CRYOSOFT_DB_ODBCNAME,
@@ -300,8 +289,6 @@ class Products extends Controller
         //     0,
         //     0
         // );
-
-        return compact('meshGeneration', 'elements', 'elmtMeshPositions');
     }
 
     /**
