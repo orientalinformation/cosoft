@@ -187,6 +187,10 @@ class Studies extends Controller
                 $exhRes->delete();
             }
 
+            foreach ($equip->studEquipprofiles as $eqpProfile) {
+                $eqpProfile->delete();
+            }
+
             foreach ($equip->economicResults as $ecoRes) {
                 $ecoRes->delete();
             }
@@ -1357,6 +1361,10 @@ class Studies extends Controller
 
         foreach ($equip->economicResults as $ecoRes) {
             $ecoRes->delete();
+        }
+
+        foreach ($equip->studEquipprofiles as $eqpProfile) {
+            $eqpProfile->delete();
         }
 
         foreach ($equip->dimaResults as $dimaResult) $dimaResult->delete();
