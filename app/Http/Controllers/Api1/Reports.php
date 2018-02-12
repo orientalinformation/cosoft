@@ -12,7 +12,8 @@ use App\Models\Report;
 use App\Models\StudyEquipment;
 use App\Models\ProductElmt;
 use App\Models\MeshPosition;
-
+use App\Http\Requests;
+use PDF;
 
 class Reports extends Controller
 {
@@ -158,5 +159,17 @@ class Reports extends Controller
         // if (isset($input['lenght'])) $lenght = doubleval($input['lenght']);
 
 
+    }
+    public function savePDF()
+    {    
+        $html_content = '<h1>Generate a PDF using TCPDF in laravel </h1>
+        		<h4>by<br/>Learn Infinity</h4>';
+      
+
+        PDF::SetTitle('Sample PDF');
+        PDF::AddPage();
+        PDF::writeHTML($html_content, true, false, true, false, '');
+
+        PDF::Output(public_path(uniqid().'_SamplePDF.pdf'), 'F');
     }
 }
