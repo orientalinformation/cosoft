@@ -224,7 +224,7 @@ class Lines extends Controller
 						$dataResult[$key] = $this->getData($res, $storageTanks, $coolingFamily, $key);
                     }
                 } else {
-					$dataResult[] = $this->getData($res, $storageTanks, $coolingFamily, $i);
+                    $dataResult[] = $this->getData($res, $storageTanks, $coolingFamily, $i);
                 }
                 $i++;
             }
@@ -409,7 +409,20 @@ class Lines extends Controller
         $pipegen->HEIGHT = $height;
         $pipegen->GAS_TEMP = $gasTemperature;
         $pipegen->FLUID = $coolingFamily;
-        $pipegen->PRESSURE = $pressure;
+        if (($pressure != 0)) {
+            $pipegen->PRESSURE = $pressure;
+        } else {
+            return response([
+                'code' => 1005,
+                'message' => 'Value out of range in Tank pressure (0.2 : 150) !'
+            ], 406); // Status code here
+        }
+        if ($storageTank == 0 ) {
+            return response([
+                'code' => 1006,
+                'message' => 'A Storage Tank is Obligatory1'
+            ], 406); // Status code here
+        }
         $pipegen->MATHIGHER = 0;
 
         if ($pipegen->ID_STUDY_EQUIPMENTS == null) {
