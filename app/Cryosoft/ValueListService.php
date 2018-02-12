@@ -38,6 +38,7 @@ class ValueListService
     public $SLOPES_POSITION = 23;
     public $LINE = 17;
     public $MATERIAL_RISE = 24;
+    public $PROD_DIMENSION = 19;
 
     //brand mode
     public $BRAIN_MODE_ESTIMATION = 1;
