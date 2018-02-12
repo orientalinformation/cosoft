@@ -83,6 +83,7 @@ class MeshService
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_STUDY);
         $this->kernel->getKernelObject('MeshBuilder')->MBMeshBuild($conf);
 
+        // clear initial temperature
         $product->PROD_ISO = 1;
         $product->save();
 
