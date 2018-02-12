@@ -51,6 +51,10 @@ class CryosoftServiceProvider extends ServiceProvider
 
         $this->app->singleton(\App\Cryosoft\LineService::class, function ($app) {
             return new \App\Cryosoft\LineService($app);
+        });
+
+        $this->app->singleton(\App\Cryosoft\MeshService::class, function ($app) {
+            return new \App\Cryosoft\MeshService($app);
         }); 
     }
 

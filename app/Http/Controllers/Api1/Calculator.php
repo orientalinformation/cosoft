@@ -106,6 +106,7 @@ class Calculator extends Controller
 		$sdisableCalculate = $this->cal->disableCalculate($idStudy);
 
 		$sdisableOptim = $sdisableNbOptim = $sdisableStorage = $sdisableTimeStep = $sdisablePrecision = $checkOptim = $scheckStorage = $isBrainCalculator = 0;
+		$seValue1 = $seValue2 = $seValue3 = $seValue4 = $seValue5 = $seValue6 = $seValue7 = $seValue8 = 0;
 
 		if ($idStudyEquipment != null) {
 			$isBrainCalculator = 1;
@@ -165,14 +166,31 @@ class Calculator extends Controller
 		$tempPtAvg = $this->cal->getTempPtAvg();
 
 		$select1 = $this->cal->getOption($idStudy, "X", "TOP");
+		$seValue1 = $this->cal->getValueSelected($select1);
+		
 		$select2 = $this->cal->getOption($idStudy, "Y", "TOP");
+		$seValue2 = $this->cal->getValueSelected($select2);
+
         $select3 = $this->cal->getOption($idStudy, "Z", "TOP");
+		$seValue3 = $this->cal->getValueSelected($select3);
+
         $select4 = $this->cal->getOption($idStudy, "X", "INT");
+		$seValue4 = $this->cal->getValueSelected($select4);
+
         $select5 = $this->cal->getOption($idStudy, "Y", "INT");
+		$seValue5 = $this->cal->getValueSelected($select5);
+
         $select6 = $this->cal->getOption($idStudy, "Z", "INT");
+		$seValue6 = $this->cal->getValueSelected($select6);
+
         $select7 = $this->cal->getOption($idStudy, "X", "BOT");
+		$seValue7 = $this->cal->getValueSelected($select7);
+
         $select8 = $this->cal->getOption($idStudy, "Y", "BOT");
+		$seValue8 = $this->cal->getValueSelected($select8);
+
         $select9 = $this->cal->getOption($idStudy, "Z", "BOT");
+		$seValue9 = $this->cal->getValueSelected($select9);
 
 		$array = [
 			'sdisableFields' => $sdisableFields,
@@ -210,6 +228,15 @@ class Calculator extends Controller
 			'select8' => $select8,
 			'select9' => $select9,
 			'isBrainCalculator' => $isBrainCalculator,
+			'seValue1' => $seValue1,
+			'seValue2' => $seValue2,
+			'seValue3' => $seValue3,
+			'seValue4' => $seValue4,
+			'seValue5' => $seValue5,
+			'seValue6' => $seValue6,
+			'seValue7' => $seValue7,
+			'seValue8' => $seValue8,
+			'seValue9' => $seValue9,
 		];
 
 		return $array;
@@ -344,6 +371,9 @@ class Calculator extends Controller
 					$param = new \Cryosoft\stSKBRParam();
 
 					array_push($results, $this->kernel->getKernelObject('BrainCalculator')->BRTeachCalculation($conf, $param, 10));
+					//add run economic and consumption
+					$this->startEconomic($idStudy, $idStudyEquipment);
+					$this->startConsumptionEconomic($idStudy, $idStudyEquipment);
 				}
 			}
 		}
@@ -460,14 +490,31 @@ class Calculator extends Controller
 		$tempPtAvg = $this->brainCal->getTempPtAvg($idStudyEquipment);
 
 		$select1 = $this->cal->getOption($idStudy, "X", "TOP");
+		$seValue1 = $this->cal->getValueSelected($select1);
+		
 		$select2 = $this->cal->getOption($idStudy, "Y", "TOP");
+		$seValue2 = $this->cal->getValueSelected($select2);
+
         $select3 = $this->cal->getOption($idStudy, "Z", "TOP");
+		$seValue3 = $this->cal->getValueSelected($select3);
+
         $select4 = $this->cal->getOption($idStudy, "X", "INT");
+		$seValue4 = $this->cal->getValueSelected($select4);
+
         $select5 = $this->cal->getOption($idStudy, "Y", "INT");
+		$seValue5 = $this->cal->getValueSelected($select5);
+
         $select6 = $this->cal->getOption($idStudy, "Z", "INT");
+		$seValue6 = $this->cal->getValueSelected($select6);
+
         $select7 = $this->cal->getOption($idStudy, "X", "BOT");
+		$seValue7 = $this->cal->getValueSelected($select7);
+
         $select8 = $this->cal->getOption($idStudy, "Y", "BOT");
+		$seValue8 = $this->cal->getValueSelected($select8);
+
         $select9 = $this->cal->getOption($idStudy, "Z", "BOT");
+		$seValue9 = $this->cal->getValueSelected($select9);
 
 		$array = [
 			'dwellingTimes' => $dwellingTimes,
@@ -500,7 +547,16 @@ class Calculator extends Controller
 			'select8' => $select8,
 			'select9' => $select9,
 			'sdisableTOC' => $sdisableTOC,
-			'typeCalculate' => $typeCalculate
+			'typeCalculate' => $typeCalculate,
+			'seValue1' => $seValue1,
+			'seValue2' => $seValue2,
+			'seValue3' => $seValue3,
+			'seValue4' => $seValue4,
+			'seValue5' => $seValue5,
+			'seValue6' => $seValue6,
+			'seValue7' => $seValue7,
+			'seValue8' => $seValue8,
+			'seValue9' => $seValue9,
 		];
 
 		return $array;
@@ -556,6 +612,13 @@ class Calculator extends Controller
 	 		$this->runStudyCleaner($idStudy, $idStudyEquipment, 53);
 
  			$runType = $this->startBrainNumericalCalculation($idStudy, $idStudyEquipment, $brainMode);
+
+ 			$study = Study::find($idStudy);
+ 			if ($study->OPTION_ECO == 1) {
+ 				$this->startEconomic($idStudy, $idStudyEquipment);
+			} else {
+				$this->startConsumptionEconomic($idStudy, $idStudyEquipment);
+			}
  		}
 
     	return $runType;
@@ -805,41 +868,30 @@ class Calculator extends Controller
     {
     	$input = $request->all();
 
-    	$select1 = $select2 = $select3 = $select4 = $select5 = $select6 = $select7 = $select8 = $select9 = array();
-    	$value1 = $value2 = $value3 = $value4 = $value5 = $value6 = $value7 = $value8 = $value9 = 0.0;
+    	$seValue1 = $seValue2 = $seValue3 = $seValue4 = $seValue5 = $seValue6 = $seValue7 = $seValue8 = $seValue9 = 0.0;
 
-    	if (isset($input['select1'])) $select1 = $input['select1'];
-		if (isset($input['select2'])) $select2 = $input['select2'];
-		if (isset($input['select3'])) $select3 = $input['select3'];
-		if (isset($input['select4'])) $select4 = $input['select4'];
-		if (isset($input['select5'])) $select5 = $input['select5'];
-		if (isset($input['select6'])) $select6 = $input['select6'];
-		if (isset($input['select7'])) $select7 = $input['select7'];
-		if (isset($input['select8'])) $select8 = $input['select8'];
-		if (isset($input['select9'])) $select9 = $input['select9'];
-
-		$value1 = $this->cal->getValueSelected($select1);
-		$value2 = $this->cal->getValueSelected($select2);
-		$value3 = $this->cal->getValueSelected($select3);
-		$value4 = $this->cal->getValueSelected($select4);
-		$value5 = $this->cal->getValueSelected($select5);
-		$value6 = $this->cal->getValueSelected($select6);
-		$value7 = $this->cal->getValueSelected($select7);
-		$value8 = $this->cal->getValueSelected($select8);
-		$value9 = $this->cal->getValueSelected($select9);
+    	if (isset($input['seValue1'])) $seValue1 = $input['seValue1'];
+		if (isset($input['seValue2'])) $seValue2 = $input['seValue2'];
+		if (isset($input['seValue3'])) $seValue3 = $input['seValue3'];
+		if (isset($input['seValue4'])) $seValue4 = $input['seValue4'];
+		if (isset($input['seValue5'])) $seValue5 = $input['seValue5'];
+		if (isset($input['seValue6'])) $seValue6 = $input['seValue6'];
+		if (isset($input['seValue7'])) $seValue7 = $input['seValue7'];
+		if (isset($input['seValue8'])) $seValue8 = $input['seValue8'];
+		if (isset($input['seValue9'])) $seValue9 = $input['seValue9'];
 
     	$temRecordPt = TempRecordPts::where('ID_STUDY', $idStudy)->first();
 
 		if ($temRecordPt != null) {
-			$temRecordPt->AXIS1_PT_TOP_SURF = $value1;
-			$temRecordPt->AXIS2_PT_TOP_SURF = $value2;
-			$temRecordPt->AXIS3_PT_TOP_SURF = $value3;
-			$temRecordPt->AXIS1_PT_INT_PT = $value4;
-			$temRecordPt->AXIS2_PT_INT_PT = $value5;
-			$temRecordPt->AXIS3_PT_INT_PT = $value6;
-			$temRecordPt->AXIS1_PT_BOT_SURF = $value7;
-			$temRecordPt->AXIS2_PT_BOT_SURF = $value8;
-			$temRecordPt->AXIS3_PT_BOT_SURF = $value9;
+			$temRecordPt->AXIS1_PT_TOP_SURF = $seValue1;
+			$temRecordPt->AXIS2_PT_TOP_SURF = $seValue2;
+			$temRecordPt->AXIS3_PT_TOP_SURF = $seValue3;
+			$temRecordPt->AXIS1_PT_INT_PT = $seValue4;
+			$temRecordPt->AXIS2_PT_INT_PT = $seValue5;
+			$temRecordPt->AXIS3_PT_INT_PT = $seValue6;
+			$temRecordPt->AXIS1_PT_BOT_SURF = $seValue7;
+			$temRecordPt->AXIS2_PT_BOT_SURF = $seValue8;
+			$temRecordPt->AXIS3_PT_BOT_SURF = $seValue9;
 			$temRecordPt->CONTOUR2D_TEMP_MIN = 0.0;
 			$temRecordPt->CONTOUR2D_TEMP_MAX = 0.0;
 			$temRecordPt->save();

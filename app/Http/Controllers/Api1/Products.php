@@ -12,24 +12,30 @@ use App\Kernel\KernelService;
 use App\Models\Production;
 use App\Models\InitialTemperature;
 use App\Models\Study;
+use App\Cryosoft\MeshService;
 
 class Products extends Controller
 {
 
     /**
-     * @var Illuminate\Http\Request
+     * @var \Illuminate\Http\Request
      */
     protected $request;
 
     /**
-     * @var Illuminate\Contracts\Auth\Factory
+     * @var \Illuminate\Contracts\Auth\Factory
      */
     protected $auth;
 
     /**
-     * @var App\Kernel\KernelService
+     * @var \App\Kernel\KernelService
      */
     protected $kernel;
+
+    /**
+     * @var \App\Cryosoft\MeshService
+     */
+    protected $mesh;
 
     /**
      * Products constructor.
@@ -37,10 +43,11 @@ class Products extends Controller
      * @param Auth $auth
      * @param KernelService $kernel
      */
-    public function __construct(Request $request, Auth $auth, KernelService $kernel)
+    public function __construct(Request $request, Auth $auth, KernelService $kernel, MeshService $mesh)
     {
         $this->request = $request;
         $this->auth = $auth;
+        $this->mesh = $mesh;
         $this->kernel = $kernel;
     }
 
@@ -229,6 +236,29 @@ class Products extends Controller
     }
 
     public function generateMesh($idProd) {
+        /** @var Product $product */
+        $product = Product::findOrFail($idProd);
+
+        if (!$product)
+            throw new \Exception("Error Processing Request. Product ID not found", 1);
+
+        $input = $this->request->json()->all();
+        $mesh_type = intval($input['mesh_type']);
+        // @TODO: implement unit service
+        $size1 = floatval($input['size1']) /1000;
+        $size2 = floatval($input['size2']) /1000;
+        $size3 = floatval($input['size3']) /1000;
+
+        /** @var MeshGeneration $meshGeneration */
+        $meshGeneration = $this->mesh->findGenerationByProduct($product);
+        $mode = MeshService::MAILLAGE_MODE_REGULAR;
+
+        if ($mesh_type != MeshService::REGULAR_MESH){
+            $mode = MeshService::MAILLAGE_MODE_IRREGULAR;
+        }
+        
+        $this->mesh->generate($meshGeneration, $mesh_type, $mode, $size1, $size2, $size3);
+        
         return 0;
     }
 
@@ -245,71 +275,9 @@ class Products extends Controller
             throw new \Exception("Error Processing Request. Product ID not found", 1);
 
         /** @var MeshGeneration $meshGeneration */
-        $meshGeneration = MeshGeneration::where('ID_PROD', $product->ID_PROD)->first();
-
-        if (!$meshGeneration) {
-            $meshGeneration = new MeshGeneration();
-            $meshGeneration->ID_PROD = $product->ID_PROD;
-            $meshGeneration->save();
-        }
-
-        $product->ID_MESH_GENERATION = $meshGeneration->ID_MESH_GENERATION;
-        $product->save();
-
-        // regular mesh
-        $calcultype = 1; //estimation
-
-        $meshGeneration->MESH_1_FIXED = $calcultype;
-        $meshGeneration->MESH_2_FIXED = $calcultype;
-        $meshGeneration->MESH_3_FIXED = $calcultype;
-
-        $meshGeneration->MESH_1_MODE = 0;
-        $meshGeneration->MESH_2_MODE = 0;
-        $meshGeneration->MESH_3_MODE = 0;
-
-        $meshGeneration->MESH_1_SIZE = -1;
-        $meshGeneration->MESH_2_SIZE = -1;
-        $meshGeneration->MESH_3_SIZE = -1;
-        $meshGeneration->save();
-
-//        if( Meshtype.equals("iregular") )
-//        {
-//            byte calcultype = 0;//
-//			mg.setMesh1Fixed(calcultype);
-//			mg.setMesh2Fixed(calcultype);
-//			mg.setMesh3Fixed(calcultype);
-//			short cal = ValuesList.MAILLAGE_MODE_IRREGULAR;
-//			mg.setMesh1Mode(cal);
-//			mg.setMesh2Mode(cal);
-//			mg.setMesh3Mode(cal);
-//			mg.setMesh1Ratio(meshParamDefault.getMeshRatio());
-//			mg.setMesh2Ratio(meshParamDefault.getMeshRatio());
-//			mg.setMesh3Ratio(meshParamDefault.getMeshRatio());
-//			mg.setMesh1Int(meshSize1);
-//			mg.setMesh2Int(meshSize2);
-//			mg.setMesh3Int(meshSize3);
-//			mg.setMesh1Size(calcultype);
-//			mg.setMesh2Size(calcultype);
-//			mg.setMesh3Size(calcultype);
-//		}
-
-        // run study cleaner, mode 51
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_STUDY, -1);
-        $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, SC_CLEAN_OUTPUT_SIZINGCONSO);
-
-
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_STUDY);
-        $this->kernel->getKernelObject('MeshBuilder')->MBMeshBuild($conf);
-
-        $meshGeneration = MeshGeneration::where('ID_PROD', $product->ID_PROD)->first();
-
-        $elements = $product->productElmts;
-        $elmtMeshPositions = [];
-
-        foreach ($elements as $elmt) {
-            $meshPositions = \App\Models\MeshPosition::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->get();
-            array_push($elmtMeshPositions, $meshPositions);
-        }
+        $meshGeneration = $this->mesh->findGenerationByProduct($product);
+        
+        $this->mesh->generate($meshGeneration, MeshService::REGULAR_MESH, MeshService::MAILLAGE_MODE_REGULAR);
 
         // KernelToolsCalculation kerneltools = new KernelToolsCalculation(
         //     CryosoftDB . CRYOSOFT_DB_ODBCNAME,
@@ -321,8 +289,6 @@ class Products extends Controller
         //     0,
         //     0
         // );
-
-        return compact('meshGeneration', 'elements', 'elmtMeshPositions');
     }
 
     /**
