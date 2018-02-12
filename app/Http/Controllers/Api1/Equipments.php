@@ -551,18 +551,18 @@ class Equipments extends Controller
             }
         }
 
-        if ($priceEnergy != 0) $priceEnergy =  $this->convert->monetary($priceEnergy);
+        if ($priceEnergy != 0) $priceEnergy =  $priceEnergy;
 
-        if ($intervalW != 0) $intervalW = $this->convert->prodchartDimension($intervalW);
+        if ($intervalW != 0) $intervalW = $intervalW;
 
-        if ($intervalL != 0) $intervalL = $this->convert->prodchartDimension($intervalL);
+        if ($intervalL != 0) $intervalL =$intervalL;
 
         $res = [
             'Price' => doubleval($priceEnergy),
             'IntervalWidth' => doubleval($intervalW),
             'IntervalLength' => doubleval($intervalL),
             'MonetarySymbol' => $this->convert->monetarySymbol(),
-            'DimensionSymbol' => $this->convert->prodchartDimensionSymbol()
+            'DimensionSymbol' => $this->convert->prodDimensionSymbolUser()
         ];
 
         return $res;
@@ -615,7 +615,7 @@ class Equipments extends Controller
             $study = Study::find($id);
             if ($study) {
                 $precalcLdgRatePrm = PrecalcLdgRatePrm::find($study->ID_PRECALC_LDG_RATE_PRM);
-
+                
                 if ($precalcLdgRatePrm) {
                     $precalcLdgRatePrm->W_INTERVAL = $width;
                     $precalcLdgRatePrm->L_INTERVAL = $lenght;

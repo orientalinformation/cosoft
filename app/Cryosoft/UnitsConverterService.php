@@ -714,6 +714,22 @@ class UnitsConverterService
         return $unit->SYMBOL;
     }
 
+    public function prodDimension($value) {
+        $unit = Unit::where('TYPE_UNIT', $this->value->PROD_DIMENSION)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B);
+    }
+
+    public function prodDimensionSymbolUser() {
+        $user = $this->auth->user();
+        $unit = UserUnit::join('unit', 'user_unit.ID_UNIT', '=', 'unit.ID_UNIT')->where('ID_USER', $user->ID_USER)
+        ->where("unit.TYPE_UNIT", $this->value->PROD_DIMENSION)->first();
+
+        return $unit->SYMBOL;
+    }
+
     public function consumptionUser($value, $energy, $type, $decimal = 2)
     {
         $sValue = "";
@@ -838,9 +854,6 @@ class UnitsConverterService
             }
 
         }
-
-
-
         $user = $this->auth->user();
         $unit = UserUnit::join('unit', 'user_unit.ID_UNIT', '=', 'unit.ID_UNIT')->where('ID_USER', $user->ID_USER)
         ->where("unit.TYPE_UNIT", $sUnitLabel)->first();
