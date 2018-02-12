@@ -25,6 +25,10 @@ class CryosoftServiceProvider extends ServiceProvider
             return new \App\Cryosoft\EquipmentsService($app);
         });
 
+        $this->app->singleton(\App\Cryosoft\StudyEquipmentService::class, function ($app) {
+            return new \App\Cryosoft\StudyEquipmentService($app);
+        });
+
         $this->app->singleton(\App\Cryosoft\DimaResultsService::class, function ($app) {
             return new \App\Cryosoft\DimaResultsService($app);
         });
