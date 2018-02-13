@@ -592,10 +592,10 @@ class Calculator extends Controller
 
 		if ($checkOptim == "true") {
 			$this->setBrainMode(11);
-			$brainMode = $this->brainMode;
+			$brainMode = 11;
 		} else {
 			$this->setBrainMode(12);
-			$brainMode = $this->brainMode;
+			$brainMode = 12;
 		}
 
  		$runType = null;

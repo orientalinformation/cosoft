@@ -90,6 +90,7 @@ class ReferenceData extends Controller
     public function getDataComponent()
     {
         $input = $this->request->all();
+
         $compFamily = null;
 
         if (isset($input['compfamily'])) $compFamily = intval($input['compfamily']);
