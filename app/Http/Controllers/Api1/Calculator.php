@@ -358,6 +358,7 @@ class Calculator extends Controller
 
 		// $confCleaner = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, -1);
 		// $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($confCleaner, 50);
+		$study = Study::find($idStudy);
 
 		$results = [];
 
@@ -372,6 +373,10 @@ class Calculator extends Controller
 
 					array_push($results, $this->kernel->getKernelObject('BrainCalculator')->BRTeachCalculation($conf, $param, 10));
 					//add run economic and consumption
+					if ($study->OPTION_CRYOPIPELINE == 1) {
+						$this->startPipeLine($idStudy, $idStudyEquipment);
+					}
+
 					$this->startEconomic($idStudy, $idStudyEquipment);
 					$this->startConsumptionEconomic($idStudy, $idStudyEquipment);
 				}
@@ -614,6 +619,10 @@ class Calculator extends Controller
  			$runType = $this->startBrainNumericalCalculation($idStudy, $idStudyEquipment, $brainMode);
 
  			$study = Study::find($idStudy);
+ 			if ($study->OPTION_CRYOPIPELINE == 1) {
+				$this->startPipeLine($idStudy, $idStudyEquipment);
+			}
+					
  			if ($study->OPTION_ECO == 1) {
  				$this->startEconomic($idStudy, $idStudyEquipment);
 			} else {
