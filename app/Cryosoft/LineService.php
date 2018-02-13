@@ -99,9 +99,11 @@ class LineService
         $lineDef->ID_PIPELINE_ELMT = $idLineELMT;
         $lineDef->TYPE_ELMT = $type_elmt;
         $lineDef->save();
+        return $lineDef;
     }
 
     public function deleteLineDefinition($idPipeGen, $type_elmt) {
         $delLinedef = LineDefinition::where('ID_PIPE_GEN', $idPipeGen)->where('TYPE_ELMT', $type_elmt)->delete();
+        return $delLinedef;
     }
 }
