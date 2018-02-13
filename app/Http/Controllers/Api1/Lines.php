@@ -408,7 +408,8 @@ class Lines extends Controller
         $pipegen->HEIGHT = $height;
         $pipegen->GAS_TEMP = $gasTemperature;
         $pipegen->FLUID = $coolingFamily;
-        if (($pressure != 0)) {
+        $pipegen->MATHIGHER = 0;
+        if ($pressure != 0) {
             $pipegen->PRESSURE = $pressure;
         } else {
             return response([
@@ -422,7 +423,6 @@ class Lines extends Controller
                 'message' => 'A Storage Tank is Obligatory1'
             ], 406); // Status code here
         }
-        $pipegen->MATHIGHER = 0;
 
         if ($pipegen->ID_STUDY_EQUIPMENTS == null) {
             $pipegen->ID_STUDY_EQUIPMENTS =  $studyEquip->ID_STUDY_EQUIPMENTS;
@@ -431,7 +431,7 @@ class Lines extends Controller
             $pipegen->save();
         }
         if (($insulatedLine != 0) && ($insulatedLineLength != 0.0)) {
-           $this->lineE->createLineDefinition($pipegen->ID_PIPE_GEN, $insulatedLine, 1);
+            $this->lineE->createLineDefinition($pipegen->ID_PIPE_GEN, $insulatedLine, 1);
         } else if (($insulatedLine == 0) || ($insulatedLineLength == 0.0)) {
             $this->lineE->deleteLineDefinition($pipegen->ID_PIPE_GEN, 1);
         }
@@ -465,6 +465,5 @@ class Lines extends Controller
         } else {
             $this->lineE->deleteLineDefinition($pipegen->ID_PIPE_GEN, 7);
         }
-        return $pipeGen;
     }
 }

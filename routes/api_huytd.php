@@ -20,5 +20,4 @@ $router->POST('/api/v1/lines/saveLines', 'Api1\\Lines@savePipelines');
  * Notes: 
  * Output-Formats: [application/json]
  */
-$router->POST('/api/v1/reports/savePDFs', 'Api1\\Reports@savePDF
-s');
+$router->POST('/api/v1/reports/savePDFs', 'Api1\\Reports@savePDFs');
