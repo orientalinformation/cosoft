@@ -9,6 +9,7 @@ use App\Models\Study;
 use App\Models\LineElmt;
 use App\Models\MinMax;
 use App\Models\PipeGen;
+use App\Models\StudyEquipment;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\Auth\Factory as Auth;
 use App\Kernel\KernelService;
@@ -386,85 +387,83 @@ class Lines extends Controller
         $gasTemperature = ($input['GAS_TEMP'] == 0) ? 0 : $this->convert->exhaustTemperature($input['GAS_TEMP']);
         
         $study = Study::find($id);
-        if ($study != null) {
-            foreach ($study->studyEquipments as $studyEquip) {
-                $pipeGen = $studyEquip->pipeGens->first();
-                $coolingFamily = $studyEquip->ID_COOLING_FAMILY;
+        foreach ($study->studyEquipments as $studyEquip) {
+            $pipeGen = $studyEquip->pipeGens->first();
+            $coolingFamily = $studyEquip->ID_COOLING_FAMILY;
+            if ($pipeGen == null) {
+                $pipegen = new PipeGen();
+            } else {
+                $pipegen = PipeGen::where('ID_PIPE_GEN',$pipeGen->ID_PIPE_GEN)->first();
             }
-        } else {
-            return "study null !!";
+            $pipegen->INSULLINE_LENGHT = $insulatedLineLength;
+            $pipegen->INSUL_VALVES = $insulatedValvesQuantity;
+            $pipegen->NOINSULLINE_LENGHT = $nonInsulatedLineLength;
+            $pipegen->NOINSUL_VALVES = $nonInsulatedValvesQuantity;
+            $pipegen->TEES = $teesQuantity;
+            $pipegen->ELBOWS = $elbowsQuantity;
+            $pipegen->HEIGHT = $height;
+            $pipegen->GAS_TEMP = $gasTemperature;
+            $pipegen->FLUID = $coolingFamily;
+            $pipegen->MATHIGHER = 0;
+            if ($pressure != 0) {
+                $pipegen->PRESSURE = $pressure;
+            } else {
+                return response([
+                    'code' => 1005,
+                    'message' => 'Value out of range in Tank pressure (0.2 : 150) !'
+                ], 406); // Status code here
+            }
+            if ($storageTank == 0 ) {
+                return response([
+                    'code' => 1006,
+                    'message' => 'A Storage Tank is Obligatory1'
+                ], 406); // Status code here
+            }
+            
+            if ($pipegen->ID_STUDY_EQUIPMENTS == null) {
+                $pipegen->ID_STUDY_EQUIPMENTS =  $studyEquip->ID_STUDY_EQUIPMENTS;
+                // $studyEquip->ID_PIPE_GEN = $pipegen->ID_PIPE_GEN;
+                $pipegen->save();
+                
+            } else {
+                
+                $pipegen->save();
+            }
+            if (($insulatedLine != 0) && ($insulatedLineLength != 0.0)) {
+                $this->lineE->createLineDefinition($pipegen->ID_PIPE_GEN, $insulatedLine, 1);
+            } else if (($insulatedLine == 0) || ($insulatedLineLength == 0.0)) {
+                $this->lineE->deleteLineDefinition($pipegen->ID_PIPE_GEN, 1);
+            }
+            if (($nonInsulatedLine != 0) && ($nonInsulatedLineLength != 0.0)) {
+                $this->lineE->createLineDefinition($pipegen->ID_PIPE_GEN, $nonInsulatedLine, 2);
+            } else if (($nonInsulatedLine == 0) || ($nonInsulatedLineLength == 0.0)) {
+                $this->lineE->deleteLineDefinition($pipegen->ID_PIPE_GEN, 2);
+            }
+            if (($insulatedValves != 0) && ($insulatedValvesQuantity != 0)) {
+                $this->lineE->createLineDefinition($pipegen->ID_PIPE_GEN, $insulatedValves, 5);
+            } else if (($insulatedValves == 0) || ($insulatedValvesQuantity == 0)) {
+                $this->lineE->deleteLineDefinition($pipegen->ID_PIPE_GEN, 5);
+            }
+            if (($nonInsulatedValves != 0) && ($nonInsulatedValvesQuantity != 0)) {
+                $this->lineE->createLineDefinition($pipegen->ID_PIPE_GEN, $nonInsulatedValves, 6);
+            } else if (($nonInsulatedValves == 0) || ($nonInsulatedValvesQuantity == 0)) {
+                $this->lineE->deleteLineDefinition($pipegen->ID_PIPE_GEN, 6);
+            }
+            if (($elbows != 0) && ($elbowsQuantity != 0)) {
+                $this->lineE->createLineDefinition($pipegen->ID_PIPE_GEN, $elbows, 3);
+            } else if (($elbows == 0) || ($elbowsQuantity == 0)) {
+                $this->lineE->deleteLineDefinition($pipegen->ID_PIPE_GEN, 3);
+            }
+            if (($tees != 0) && ($teesQuantity != 0)) {
+                $this->lineE->createLineDefinition($pipegen->ID_PIPE_GEN, $tees, 4);
+            } else if (($tees == 0) || ($teesQuantity == 0)) {
+                $this->lineE->deleteLineDefinition($pipegen->ID_PIPE_GEN, 4);
+            } 
+            if ($storageTank != 0) {
+                $this->lineE->createLineDefinition($pipegen->ID_PIPE_GEN, $storageTank, 7);
+            } else {
+                $this->lineE->deleteLineDefinition($pipegen->ID_PIPE_GEN, 7);
+            }
         }
-        if ($pipeGen == null) {
-            $pipegen = new PipeGen();
-        } else {
-            $pipegen = PipeGen::where('ID_PIPE_GEN',$pipeGen->ID_PIPE_GEN)->first();
-        }
-        $pipegen->INSULLINE_LENGHT = $insulatedLineLength;
-        $pipegen->INSUL_VALVES = $insulatedValvesQuantity;
-        $pipegen->NOINSULLINE_LENGHT = $nonInsulatedLineLength;
-        $pipegen->NOINSUL_VALVES = $nonInsulatedValvesQuantity;
-        $pipegen->TEES = $teesQuantity;
-        $pipegen->ELBOWS = $elbowsQuantity;
-        $pipegen->HEIGHT = $height;
-        $pipegen->GAS_TEMP = $gasTemperature;
-        $pipegen->FLUID = $coolingFamily;
-        if (($pressure != 0)) {
-            $pipegen->PRESSURE = $pressure;
-        } else {
-            return response([
-                'code' => 1005,
-                'message' => 'Value out of range in Tank pressure (0.2 : 150) !'
-            ], 406); // Status code here
-        }
-        if ($storageTank == 0 ) {
-            return response([
-                'code' => 1006,
-                'message' => 'A Storage Tank is Obligatory1'
-            ], 406); // Status code here
-        }
-        $pipegen->MATHIGHER = 0;
-
-        if ($pipegen->ID_STUDY_EQUIPMENTS == null) {
-            $pipegen->ID_STUDY_EQUIPMENTS =  $studyEquip->ID_STUDY_EQUIPMENTS;
-            $pipegen->save();
-        } else {
-            $pipegen->save();
-        }
-        if (($insulatedLine != 0) && ($insulatedLineLength != 0.0)) {
-           $this->lineE->createLineDefinition($pipegen->ID_PIPE_GEN, $insulatedLine, 1);
-        } else if (($insulatedLine == 0) || ($insulatedLineLength == 0.0)) {
-            $this->lineE->deleteLineDefinition($pipegen->ID_PIPE_GEN, 1);
-        }
-        if (($nonInsulatedLine != 0) && ($nonInsulatedLineLength != 0.0)) {
-            $this->lineE->createLineDefinition($pipegen->ID_PIPE_GEN, $nonInsulatedLine, 2);
-        } else if (($nonInsulatedLine == 0) || ($nonInsulatedLineLength == 0.0)) {
-            $this->lineE->deleteLineDefinition($pipegen->ID_PIPE_GEN, 2);
-        }
-        if (($insulatedValves != 0) && ($insulatedValvesQuantity != 0)) {
-            $this->lineE->createLineDefinition($pipegen->ID_PIPE_GEN, $insulatedValves, 5);
-        } else if (($insulatedValves == 0) || ($insulatedValvesQuantity == 0)) {
-            $this->lineE->deleteLineDefinition($pipegen->ID_PIPE_GEN, 5);
-        }
-        if (($nonInsulatedValves != 0) && ($nonInsulatedValvesQuantity != 0)) {
-            $this->lineE->createLineDefinition($pipegen->ID_PIPE_GEN, $nonInsulatedValves, 6);
-        } else if (($nonInsulatedValves == 0) || ($nonInsulatedValvesQuantity == 0)) {
-            $this->lineE->deleteLineDefinition($pipegen->ID_PIPE_GEN, 6);
-        }
-        if (($elbows != 0) && ($elbowsQuantity != 0)) {
-            $this->lineE->createLineDefinition($pipegen->ID_PIPE_GEN, $elbows, 3);
-        } else if (($elbows == 0) || ($elbowsQuantity == 0)) {
-            $this->lineE->deleteLineDefinition($pipegen->ID_PIPE_GEN, 3);
-        }
-        if (($tees != 0) && ($teesQuantity != 0)) {
-            $this->lineE->createLineDefinition($pipegen->ID_PIPE_GEN, $tees, 4);
-        } else if (($tees == 0) || ($teesQuantity == 0)) {
-            $this->lineE->deleteLineDefinition($pipegen->ID_PIPE_GEN, 4);
-        } 
-        if ($storageTank != 0) {
-            $this->lineE->createLineDefinition($pipegen->ID_PIPE_GEN, $storageTank, 7);
-        } else {
-            $this->lineE->deleteLineDefinition($pipegen->ID_PIPE_GEN, 7);
-        }
-        return $pipeGen;
     }
 }
