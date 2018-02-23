@@ -13,6 +13,8 @@ use App\Models\StudyEquipment;
 use App\Models\ProductElmt;
 use App\Models\MeshPosition;
 use App\Http\Requests;
+use App\Models\TempRecordPts;
+use App\Models\MinMax;
 use PDF;
 
 class Reports extends Controller
@@ -53,34 +55,108 @@ class Reports extends Controller
     public function getReport($id)
     {
         $report = Report::where('ID_STUDY', $id)->first();
-        $report->consumptionSymbol = $this->convert->consumptionSymbolUser(2, 1);
-        $report->isSizingValuesChosen = ($report->SIZING_VALUES & 1);
-        $report->isSizingValuesMax = ($report->SIZING_VALUES & 16);
-        $studyEquip = StudyEquipment::where('ID_STUDY', $id)->where('BRAIN_TYPE', 4)->get();
 
-        if (count($studyEquip) > 0) {
-            $report->isThereCompleteNumericalResults = true;
+        if ($report) {
+            $report->consumptionSymbol = $this->convert->consumptionSymbolUser(2, 1);
+            $report->isSizingValuesChosen = ($report->SIZING_VALUES & 1);
+            $report->isSizingValuesMax = ($report->SIZING_VALUES & 16);
+            $studyEquip = StudyEquipment::where('ID_STUDY', $id)->where('BRAIN_TYPE', 4)->get();
+
+            if (count($studyEquip) > 0) {
+                $report->isThereCompleteNumericalResults = true;
+            } else {
+                $report->isThereCompleteNumericalResults = false;
+            }
+
+            $productElmt = ProductElmt::where('ID_STUDY', $id)->first();
+            $report->productElmt = $productElmt;
+            $report->temperatureSymbol = $this->convert->temperatureSymbolUser();
+            $report->CONTOUR2D_TEMP_STEP = doubleval($report->CONTOUR2D_TEMP_STEP);
+            $report->CONTOUR2D_TEMP_MIN = doubleval($this->convert->prodTemperature($report->CONTOUR2D_TEMP_MIN));
+            $report->CONTOUR2D_TEMP_MAX = doubleval($this->convert->prodTemperature($report->CONTOUR2D_TEMP_MAX));
+            $borne = $this->getReportTemperatureBorne($id); 
+            $report->refContRep2DTempMinRef = $this->convert->prodTemperature($borne[0]->MIN_TEMP);
+            $report->refContRep2DTempMaxRef = $this->convert->prodTemperature($borne[0]->MAX_TEMP);
+
+            $pasTemp = $this->calculatePasTemp($report->refContRep2DTempMinRef, $report->refContRep2DTempMaxRef, true);
+            $report->refContRep2DTempMinRef = doubleval($pasTemp['dTmin']);
+            $report->refContRep2DTempMaxRef = doubleval($pasTemp['dTMax']);
+            $report->refContRep2DTempStepRef = doubleval($pasTemp['dpas']);
+
+            return $report;
         } else {
-            $report->isThereCompleteNumericalResults = false;
+            $minMaxSample = MinMax::where('LIMIT_ITEM', 1116)->first();
+            $report = new Report();
+            $report->ID_STUDY = $id;
+            $report->DEST_NAME = "";
+            $report->DEST_SURNAME = "";
+            $report->DEST_FUNCTION = "";
+            $report->DEST_COORD = "";
+            $report->WRITER_NAME = "";
+            $report->WRITER_SURNAME = "";
+            $report->WRITER_FUNCTION = "";
+            $report->WRITER_COORD = "";
+            $report->CUSTOMER_LOGO = "";
+            $report->PHOTO_PATH = "";
+            $report->REPORT_COMMENT = "";
+            $report->PROD_LIST = 1;
+            $report->PROD_3D = 1;
+            $report->EQUIP_LIST = 1;
+            $report->REP_CUSTOMER = 1;
+            $report->PACKING = 0;
+            $report->PIPELINE = 0;
+            $report->ASSES_CONSUMP = 0;
+            $report->CONS_SPECIFIC = 0;
+            $report->CONS_OVERALL = 0;
+            $report->CONS_TOTAL = 0;
+            $report->CONS_HOUR = 0;
+            $report->CONS_DAY = 0;
+            $report->CONS_WEEK = 0;
+            $report->CONS_MONTH = 0;
+            $report->CONS_YEAR = 0;
+            $report->CONS_EQUIP = 0;
+            $report->CONS_PIPE = 0;
+            $report->CONS_TANK = 0;
+            $report->REP_CONS_PIE = 0;
+            $report->SIZING_VALUES = 0;
+            $report->SIZING_GRAPHE = 0;
+            $report->SIZING_TR = 1;
+            $report->ENTHALPY_G = 0;
+            $report->ENTHALPY_V = 0;
+            $report->ENTHALPY_SAMPLE = intval(round($minMaxSample->DEFAULT_VALUE));
+            $report->ISOCHRONE_G = 0;
+            $report->ISOCHRONE_V = 0;
+            $report->ISOCHRONE_SAMPLE = intval(round($minMaxSample->DEFAULT_VALUE));
+            $report->ISOVALUE_G = 0;
+            $report->ISOVALUE_V = 0;
+            $report->ISOVALUE_SAMPLE = intval(round($minMaxSample->DEFAULT_VALUE));
+            $report->CONTOUR2D_G = 0;
+            $report->CONTOUR2D_TEMP_STEP = 0;
+            $report->CONTOUR2D_TEMP_MIN = 0;
+            $report->CONTOUR2D_TEMP_MAX = 0;
+            $report->POINT1_X = 0;
+            $report->POINT1_Y = 0;
+            $report->POINT1_Z = 0;
+            $report->POINT2_X = 0;
+            $report->POINT2_Y = 0;
+            $report->POINT2_Z = 0;
+            $report->POINT3_X = 0;
+            $report->POINT3_Y = 0;
+            $report->POINT3_Z = 0;
+            $report->AXE1_X = 0;
+            $report->AXE1_Y = 0;
+            $report->AXE2_X = 0;
+            $report->AXE2_Z = 0;
+            $report->AXE3_Y = 0;
+            $report->AXE3_Z = 0;
+            $report->PLAN_X = 0;
+            $report->PLAN_Y = 0;
+            $report->PLAN_Z = 0;
+            $report->ASSES_ECO = 0;
+            $report->save();
+
+            return $report;
         }
-
-        $productElmt = ProductElmt::where('ID_STUDY', $id)->first();
-        $report->productElmt = $productElmt;
-        $report->temperatureSymbol = $this->convert->temperatureSymbolUser();
-        $report->CONTOUR2D_TEMP_STEP = doubleval($report->CONTOUR2D_TEMP_STEP);
-        $report->CONTOUR2D_TEMP_MIN = doubleval($this->convert->prodTemperature($report->CONTOUR2D_TEMP_MIN));
-        $report->CONTOUR2D_TEMP_MAX = doubleval($this->convert->prodTemperature($report->CONTOUR2D_TEMP_MAX));
-        $borne = $this->getReportTemperatureBorne($id); 
-        $report->refContRep2DTempMinRef = $this->convert->prodTemperature($borne[0]->MIN_TEMP);
-        $report->refContRep2DTempMaxRef = $this->convert->prodTemperature($borne[0]->MAX_TEMP);
-        $pasTemp = $this->calculatePasTemp($report->refContRep2DTempMinRef, $report->refContRep2DTempMaxRef, true);
-
-        $report->refContRep2DTempMinRef = doubleval($pasTemp['dTmin']);
-        $report->refContRep2DTempMaxRef = doubleval($pasTemp['dTMax']);
-        $report->refContRep2DTempStepRef = doubleval($pasTemp['dpas']);
-
-
-        return $report;
     }
 
     public function getReportTemperatureBorne($id)
@@ -290,10 +366,9 @@ class Reports extends Controller
 
         if (isset($input['ASSES_ECO'])) $ASSES_ECO = $input['ASSES_ECO'];
 
-        // $report = Report::where('ID_STUDY', $id)->first();
-        $report = new Report();
+        $report = Report::where('ID_STUDY', $id)->first();
 
-        $report->ID_STUDY = $ID_STUDY;
+        // $report->ID_STUDY = $ID_STUDY;
         $report->DEST_NAME = $DEST_NAME;
         $report->DEST_SURNAME = $DEST_SURNAME;
         $report->DEST_FUNCTION = $DEST_FUNCTION;
@@ -360,10 +435,11 @@ class Reports extends Controller
         $report->PLAN_Z = $PLAN_Z;
         $report->ASSES_ECO = $ASSES_ECO;
 
-        $report->save();
+        $report->update();
 
         return 1;
     }
+
     public function savePDF()
     {    
         $html_content = '<h1>Generate a PDF using TCPDF in laravel </h1>
