@@ -14,18 +14,3 @@ $router->GET('/api/v1/lines/{id}/getListLine', 'Api1\\Lines@loadPipeline');
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/lines/saveLines', 'Api1\\Lines@savePipelines');
-/**
-<<<<<<< HEAD
- * PUT savePDF
-=======
- * PUT downloadPDF
->>>>>>> origin/tcpdf
- * Summary: 
- * Notes: 
- * Output-Formats: [application/json]
- */
-<<<<<<< HEAD
-$router->POST('/api/v1/reports/savePDFs', 'Api1\\Reports@savePDFs');
-=======
-$router->GET('/api/v1/reports/downLoadPDF', 'Api1\\Reports@downLoadPDF');
->>>>>>> origin/tcpdf
