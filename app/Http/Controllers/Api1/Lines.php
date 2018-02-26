@@ -163,7 +163,7 @@ class Lines extends Controller
                 }
                 
                 foreach ($diameterParam as $diameterParams) {
-                    $arrLabel['diameterParam'][] = $diameterParams['ELT_SIZE'];
+                    $arrLabel['diameterParam'][] = $diameterParams['ELT_SIZE']; 
                 }
                 foreach ($insulationParams as $insulationParam) {
                     $arrLabel['insulationParam'][] = $insulationParam['INSULATION_TYPE'];
