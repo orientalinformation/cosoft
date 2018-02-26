@@ -1958,6 +1958,27 @@ class Output extends Controller
         $layoutGen = LayoutGeneration::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
         $orientation = $layoutGen->PROD_POSITION;
 
+        //get minMax
+        $minMax = [
+            'minTempStep' => 0,
+            'maxTempStep' => -1,
+            'minTemperature' => 0,
+            'maxTemperature' => -1,
+        ];
+
+        $mmStep = MinMax::where('LIMIT_ITEM', $this->value->MINMAX_REPORT_TEMP_STEP)->first();
+        $mmBounds = MinMax::where('LIMIT_ITEM', $this->value->MINMAX_REPORT_TEMP_BOUNDS)->first();
+
+        if (!empty($mmStep) && !empty($mmBounds)) {
+            $minMax = [
+                'minTempStep' => (int) $mmStep->LIMIT_MIN,
+                'maxTempStep' => (int) $mmStep->LIMIT_MAX,
+                'minTemperature' => (int) $mmBounds->LIMIT_MIN,
+                'maxTemperature' => (int) $mmBounds->LIMIT_MAX,
+            ];
+        }
+        
+
         // get TimeInterva
         $recordPosition = RecordPosition::select('RECORD_TIME')->where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("RECORD_TIME", "ASC")->get();
         $lfDwellingTime = $recordPosition[count($recordPosition) - 1]->RECORD_TIME;
@@ -2013,6 +2034,6 @@ class Output extends Controller
 
         $dataContour = $this->output->getGrideByPlan($idStudy, $idStudyEquipment, $lfDwellingTime, $chartTempInterval[0], $chartTempInterval[1], $planTempRecordData, $selectedPlan - 1, $shape, $orientation);
 
-        return compact("chartTempInterval", "valueRecAxis", "lfDwellingTime", "lftimeInterval", "axisName", "dataContour");
+        return compact("minMax", "chartTempInterval", "valueRecAxis", "lfDwellingTime", "lftimeInterval", "axisName", "dataContour");
     }
 }

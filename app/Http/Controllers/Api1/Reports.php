@@ -12,10 +12,15 @@ use App\Models\Report;
 use App\Models\StudyEquipment;
 use App\Models\ProductElmt;
 use App\Models\MeshPosition;
+<<<<<<< HEAD
 use App\Http\Requests;
 use App\Models\TempRecordPts;
 use App\Models\MinMax;
 use PDF;
+=======
+use PDF;
+
+>>>>>>> origin/tcpdf
 
 class Reports extends Controller
 {
@@ -451,5 +456,14 @@ class Reports extends Controller
         PDF::writeHTML($html_content, true, false, true, false, '');
 
         PDF::Output(public_path(uniqid().'_SamplePDF.pdf'), 'F');
+    }
+
+    function downLoadPDF() {
+        return PDF::SetTitle('Cryosoft download report');
+        // $html_content = '<h1>testing download PDF<h1/>';
+        // PDF::SetTitle('Cryosoft download report');
+        // PDF::AddPage();
+        // PDF::wirteHTML($html_content, true, false, true, false, '');
+        // PDF::Output(uniqid(). '_cryosoftReport', 'D');
     }
 }
