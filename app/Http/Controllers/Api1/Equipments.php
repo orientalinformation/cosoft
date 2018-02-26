@@ -628,6 +628,54 @@ class Equipments extends Controller
         }
     }
 
+    public function saveEquipment()
+    {
+        $input = $this->request->all();
+
+
+        $ID_EQUIP = $EQUIP_NAME = $EQUIP_VERSION = $EQUIP_RELEASE = $EQUIP_COMMENT = $EQP_LENGTH = $EQP_WIDTH = $EQP_HEIGHT = $NB_TR = $NB_TS = $NB_VC = $MAX_FLOW_RATE = $TMP_REGUL_MIN = $MAX_NOZZLES_BY_RAMP = $MAX_RAMPS = $Ramps = $Shelves = $Consumptions = null;
+
+        if (isset($input['ID_EQUIP'])) $ID_EQUIP = intval($input['ID_EQUIP']);
+        if (isset($input['EQUIP_NAME'])) $EQUIP_NAME = $input['EQUIP_NAME'];
+        if (isset($input['EQUIP_VERSION'])) $EQUIP_VERSION = floatval($input['EQUIP_VERSION']);
+        if (isset($input['EQUIP_RELEASE'])) $EQUIP_RELEASE = intval($input['EQUIP_RELEASE']);
+        if (isset($input['EQUIP_COMMENT'])) $EQUIP_COMMENT = $input['EQUIP_COMMENT'];
+        if (isset($input['EQP_LENGTH'])) $EQP_LENGTH = floatval($input['EQP_LENGTH']);
+        if (isset($input['EQP_WIDTH'])) $EQP_WIDTH = floatval($input['EQP_WIDTH']);
+        if (isset($input['EQP_HEIGHT'])) $EQP_HEIGHT = floatval($input['EQP_HEIGHT']);
+        if (isset($input['NB_TR'])) $NB_TR = intval($input['NB_TR']);
+        if (isset($input['NB_TS'])) $NB_TS = intval($input['NB_TS']);
+        if (isset($input['NB_VC'])) $NB_VC = intval($input['NB_VC']);
+        if (isset($input['MAX_FLOW_RATE'])) $MAX_FLOW_RATE = floatval($input['MAX_FLOW_RATE']);
+        if (isset($input['TMP_REGUL_MIN'])) $TMP_REGUL_MIN = floatval($input['TMP_REGUL_MIN']);
+        if (isset($input['MAX_NOZZLES_BY_RAMP'])) $MAX_NOZZLES_BY_RAMP = intval($input['MAX_NOZZLES_BY_RAMP']);
+        if (isset($input['MAX_RAMPS'])) $MAX_RAMPS = intval($input['MAX_RAMPS']);
+        if (isset($input['Ramps'])) $Ramps = $input['Ramps'];
+        if (isset($input['Shelves'])) $Shelves = $input['Shelves'];
+        if (isset($input['Consumptions'])) $Consumptions = $input['Consumptions'];
+
+        $equipment = Equipment::find($ID_EQUIP);
+        if ($equipment) {
+            $equipment->EQUIP_NAME = $EQUIP_NAME;
+            $equipment->EQUIP_VERSION = $EQUIP_VERSION;
+            $equipment->EQUIP_RELEASE = $EQUIP_RELEASE;
+            $equipment->EQUIP_COMMENT = $EQUIP_COMMENT;
+            $equipment->EQP_LENGTH = $EQP_LENGTH;
+            $equipment->EQP_HEIGHT = $EQP_HEIGHT;
+            $equipment->EQP_WIDTH = $EQP_WIDTH;
+            $equipment->NB_TR = $NB_TR;
+            $equipment->NB_TS = $NB_TS;
+            $equipment->NB_VC = $NB_VC;
+            $equipment->MAX_FLOW_RATE = $MAX_FLOW_RATE;
+            $equipment->TMP_REGUL_MIN = $TMP_REGUL_MIN;
+            $equipment->MAX_NOZZLES_BY_RAMP = $MAX_NOZZLES_BY_RAMP;
+            $equipment->MAX_RAMPS = $MAX_RAMPS;
+            $equipment->save();
+        }
+
+        return 1;
+    }
+
     public function deleteEquipment($id)
     {
         $equipment = Equipment::find($id);
