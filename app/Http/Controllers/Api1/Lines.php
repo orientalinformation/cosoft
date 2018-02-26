@@ -126,14 +126,13 @@ class Lines extends Controller
                 }
                 $arrLabel = [];
                 $arrLabel["idPipeELMT"] = $arrPipeElmt;
-                // return $insulationlineSub;
                 $arrLabel["insulationLineSub"] = (!empty($insulationLineSub)) ? $insulationlineSub['LABEL']. "-" .  $this->lineE->getStatus($insulationlineSub['LINE_RELEASE']) : '';
                 $arrLabel["non_insulated_lineSub"] = (!empty($non_insulated_lineSub)) ? $non_insulated_lineSub['LABEL']. "-" .  $this->lineE->getStatus($non_insulated_lineSub['LINE_RELEASE']) : '';
                 $arrLabel["insulatedlinevalSub"] = (!empty($insulatedlinevalSub)) ? $insulatedlinevalSub['LABEL']. "-" .  $this->lineE->getStatus($insulatedlinevalSub['LINE_RELEASE']) : '';
                 $arrLabel["non_insulated_valveSub"] = (!empty($non_insulated_valveSub)) ? $non_insulated_valveSub['LABEL']. "-" .  $this->lineE->getStatus($non_insulated_valveSub['LINE_RELEASE']) : '';
                 $arrLabel["teeSub"] = (!empty($teeSub)) ? $teeSub['LABEL']. "-" .  $this->lineE->getStatus($teeSub['LINE_RELEASE']) : '';
                 $arrLabel["elbowsSub"] = (!empty($elbowsSub)) ? $elbowsSub['LABEL']. "-" .  $this->lineE->getStatus($elbowsSub['LINE_RELEASE']) : '';
-                $arrLabel["insulationLineValue"] = (!empty($insulationLineSub)) ? $insulationlineSub['ID_PIPELINE_ELMT'] : '';
+                $arrLabel["insulationLineValue"] = (!isset($insulationLineSub)) ? $insulationlineSub['ID_PIPELINE_ELMT'] : '';
                 $arrLabel["non_insulated_lineValue"] = (!empty($non_insulated_lineSub)) ? $non_insulated_lineSub['ID_PIPELINE_ELMT'] : '';
                 $arrLabel["insulatedlinevalValue"] = (!empty($insulatedlinevalSub)) ?  $insulatedlinevalSub['ID_PIPELINE_ELMT'] : '';
                 $arrLabel["non_insulated_valValue"] = (!empty($non_insulated_valveSub)) ? $non_insulated_valveSub['ID_PIPELINE_ELMT'] : '';

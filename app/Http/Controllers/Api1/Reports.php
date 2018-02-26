@@ -12,6 +12,7 @@ use App\Models\Report;
 use App\Models\StudyEquipment;
 use App\Models\ProductElmt;
 use App\Models\MeshPosition;
+use PDF;
 
 
 class Reports extends Controller
@@ -158,5 +159,14 @@ class Reports extends Controller
         // if (isset($input['lenght'])) $lenght = doubleval($input['lenght']);
 
 
+    }
+
+    function downLoadPDF() {
+        return PDF::SetTitle('Cryosoft download report');
+        // $html_content = '<h1>testing download PDF<h1/>';
+        // PDF::SetTitle('Cryosoft download report');
+        // PDF::AddPage();
+        // PDF::wirteHTML($html_content, true, false, true, false, '');
+        // PDF::Output(uniqid(). '_cryosoftReport', 'D');
     }
 }
