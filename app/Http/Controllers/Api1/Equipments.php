@@ -671,6 +671,54 @@ class Equipments extends Controller
             $equipment->MAX_NOZZLES_BY_RAMP = $MAX_NOZZLES_BY_RAMP;
             $equipment->MAX_RAMPS = $MAX_RAMPS;
             $equipment->save();
+
+            if (count($Ramps) > 0) {
+                $oldRamps = Ramps::where('ID_EQUIP', $ID_EQUIP)->get();
+                if (count($oldRamps) > 0) {
+                    Ramps::where('ID_EQUIP', $ID_EQUIP)->delete();
+                }
+                
+                for ($i = 0; $i < count($Ramps); $i++) { 
+                    $newRamp = new Ramps();
+                    $newRamp->ID_EQUIP = $ID_EQUIP;
+                    $newRamp->POSITION = $Ramps[$i]['POSITION'];
+                    $newRamp->save();
+                }
+            }
+
+            if (count($Shelves) > 0) {
+                $shelves = Shelves::where('ID_EQUIP', $ID_EQUIP)->get();
+                if (count($shelves) > 0) {
+                    Shelves::where('ID_EQUIP', $ID_EQUIP)->delete();
+                }
+
+                for ($i = 0; $i < count($Shelves); $i++) {
+                    $newShelve = new Shelves();
+                    $newShelve->ID_EQUIP = $ID_EQUIP;
+                    $newShelve->NB = $Shelves[$i]['NB'];
+                    $newShelve->SPACE = $Shelves[$i]['SPACE'];
+                    $newShelve->save();
+                }
+            }
+
+            if (count($Consumptions) > 0) {
+                $consumptions = Consumptions::where('ID_EQUIP', $ID_EQUIP)->get();
+                if (count($consumptions) > 0) {
+                    Consumptions::where('ID_EQUIP', $ID_EQUIP)->delete();
+                }
+
+                for ($i = 0; $i < count($Consumptions); $i++) {
+                    $newConsumption = new Consumptions();
+                    $newConsumption->ID_EQUIP = $ID_EQUIP;
+                    $newConsumption->save();
+
+                    $TEMPERATURE = "EncryptByPassPhrase('".ENCRYPT_KEY."', CAST(". $Consumptions[$i]['TEMPERATURE'] ." AS varchar(100)), null)";
+                    $PERM = "EncryptByPassPhrase('".ENCRYPT_KEY."', CAST(". $Consumptions[$i]['CONSUMPTION_PERM'] ." AS varchar(100)), null)";
+                    $GETCOLD = "EncryptByPassPhrase('".ENCRYPT_KEY."', CAST(". $Consumptions[$i]['CONSUMPTION_GETCOLD'] ." AS varchar(100)), null)";
+
+                    DB::update(DB::RAW('update Consumptions set TEMPERATURE = ' .$TEMPERATURE.', CONSUMPTION_PERM = '.$PERM.', CONSUMPTION_GETCOLD = '.$GETCOLD.' where ID_CONSUMPTIONS = ' . $newConsumption->ID_CONSUMPTIONS));
+                }
+            }
         }
 
         return 1;
