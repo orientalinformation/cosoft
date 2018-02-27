@@ -793,6 +793,15 @@ class OutputService
             
         }
 
+        $sort = array();
+        if (!empty($result)) {
+            foreach ($result as $key => $row)
+            {
+                $sort[$key] = $row['X'];
+            }
+            array_multisort($sort, SORT_ASC, $result);
+        }
+        
 
         return $result;
     }
