@@ -83,24 +83,6 @@ class Equipments extends Controller
     public function getEquipments()
     {
         $input = $this->request->all();
-
-        //path params validation
-
-
-        //not path params validation
-        // $energy = $input['energy'];
-
-        // $manufacturer = $input['manufacturer'];
-
-        // $family = $input['family'];
-
-        // $equip_origin = $input['equip_origin'];
-
-        // $process_type = $input['process_type'];
-
-        // $model = $input['model'];
-
-        // $size = $input['size'];
         
         $equipments = \App\Models\Equipment::all()->toArray();
 
@@ -301,7 +283,7 @@ class Equipments extends Controller
             $newEquip->save();
 
             if ($typeCalculate == 1) {
-                if (!$this->runEquipmentCalculation($newEquip->ID_EQUIP)) {
+                if (!$this->runEquipmentCalculation($newEquip->ID_EQUIPGENERATION)) {
                     $this->deleteEquipment($newEquip->ID_EQUIP);
                     return -5;
                 }
@@ -722,6 +704,16 @@ class Equipments extends Controller
         }
 
         return 1;
+    }
+
+    public function startEquipmentCalculate($id)
+    {
+        $result = null;
+        $equipment = Equipment::find($id);
+        if ($equipment) {
+            $result = $this->runEquipmentCalculation($equipment->ID_EQUIPGENERATION);
+        }
+        return $result;
     }
 
     public function deleteEquipment($id)

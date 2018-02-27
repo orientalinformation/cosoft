@@ -191,3 +191,11 @@ $router->PUT('/api/v1/referencedata/equipment', 'Api1\\Equipments@saveAsEquipmen
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/referencedata/equipment', 'Api1\\Equipments@saveEquipment');
+
+/**
+ * Run calculate Equipment
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->PUT('/api/v1/referencedata/equipment/{id}', 'Api1\\Equipments@startEquipmentCalculate');
