@@ -142,7 +142,10 @@ class PipeLine extends Controller
         $translation->LABEL = $name;
         $translation->save();
 
-        return 1;
+        return LineElmt::where('ID_USER', $this->auth->user()->ID_USER)
+        ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
+        ->where('Translation.TRANS_TYPE', 27)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+        ->where('ID_PIPELINE_ELMT', $idLineElmt)->first();
     }
 
     public function deletePipeLine($idLineElmt)
@@ -229,7 +232,10 @@ class PipeLine extends Controller
             ->update(['LINE_DATE' => $current->toDateTimeString()]);
         }
 
-        return 1;
+        return LineElmt::where('ID_USER', $this->auth->user()->ID_USER)
+        ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
+        ->where('Translation.TRANS_TYPE', 27)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+        ->where('ID_PIPELINE_ELMT', $idPipeLine)->first();
     }
 
     public function saveAsPipeLine($idOldLine)
@@ -277,6 +283,9 @@ class PipeLine extends Controller
         $translation->LABEL = $name;
         $translation->save();
 
-        return 1;
+        return LineElmt::where('ID_USER', $this->auth->user()->ID_USER)
+        ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
+        ->where('Translation.TRANS_TYPE', 27)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+        ->where('ID_PIPELINE_ELMT', $idLineElmt)->first();
     }
 }
