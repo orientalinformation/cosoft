@@ -199,3 +199,11 @@ $router->POST('/api/v1/referencedata/equipment', 'Api1\\Equipments@saveEquipment
  * Output-Formats: [application/json]
  */
 $router->PUT('/api/v1/referencedata/equipment/{id}', 'Api1\\Equipments@startEquipmentCalculate');
+
+/**
+ * GET Data equip charact
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/referencedata/equipcharacts/{idEquip}', 'Api1\\Equipments@getEquipmentCharacts');

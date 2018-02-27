@@ -510,6 +510,29 @@ class Equipments extends Controller
         return $list;
     }
 
+    public function getEquipmentCharacts($idEquip)
+    {
+        $equipCharacts = EquipCharact::where('ID_EQUIP', $idEquip)->orderBy('X_POSITION', 'ASC')->get();
+        if (count($equipCharacts) > 0) {
+            foreach ($equipCharacts as $equipCharact) {
+                $equipCharact->ALPHA_TOP = $this->convert->convectionCoeff($equipCharact->ALPHA_TOP);
+                $equipCharact->ALPHA_BOTTOM = $this->convert->convectionCoeff($equipCharact->ALPHA_BOTTOM);
+                $equipCharact->ALPHA_LEFT = $this->convert->convectionCoeff($equipCharact->ALPHA_LEFT);
+                $equipCharact->ALPHA_RIGHT = $this->convert->convectionCoeff($equipCharact->ALPHA_RIGHT);
+                $equipCharact->ALPHA_FRONT = $this->convert->convectionCoeff($equipCharact->ALPHA_FRONT);
+                $equipCharact->ALPHA_REAR = $this->convert->convectionCoeff($equipCharact->ALPHA_REAR);
+
+                $equipCharact->TEMP_TOP = $this->convert->temperature($equipCharact->TEMP_TOP);
+                $equipCharact->TEMP_BOTTOM = $this->convert->temperature($equipCharact->TEMP_BOTTOM);
+                $equipCharact->TEMP_LEFT = $this->convert->temperature($equipCharact->TEMP_LEFT);
+                $equipCharact->TEMP_RIGHT = $this->convert->temperature($equipCharact->TEMP_RIGHT);
+                $equipCharact->TEMP_FRONT = $this->convert->temperature($equipCharact->TEMP_FRONT);
+                $equipCharact->TEMP_REAR = $this->convert->temperature($equipCharact->TEMP_REAR);
+            }
+        }
+        return $equipCharacts;
+    }
+
     public function getUnitData($id)
     {
         $study = Study::find($id);
