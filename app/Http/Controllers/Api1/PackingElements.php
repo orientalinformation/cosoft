@@ -63,17 +63,21 @@ class PackingElements extends Controller
         $idUserLogon = $this->auth->user()->ID_USER;
         $input = $this->request->all();
 
-        if (!isset($input['name']) || !isset($input['version']) || !isset($input['conductivity']) || !isset($input['comment']) || !isset($input['release']))
-            throw new \Exception("Error Processing Request", 1);
+        // if (!isset($input['name']) || !isset($input['version']) || !isset($input['conductivity']) || !isset($input['comment']) || !isset($input['release']))
+        //     throw new \Exception("Error Processing Request", 1);
         
-        $name = $input['name'];
-        $version = $input['version'];
-        $cond = $input['conductivity'];
-        $comment = $input['comment'];
-        $release = $input['release'];
+        if (isset($input['LABEL'])) $name = $input['LABEL'];
+
+        if (isset($input['PACKING_VERSION'])) $version = $input['PACKING_VERSION'];
+
+        if (isset($input['PACKINGCOND'])) $cond = $input['PACKINGCOND'];
+
+        if (isset($input['PACKING_COMMENT'])) $comment = $input['PACKING_COMMENT'];
+
+        if (isset($input['PACKING_RELEASE'])) $release = $input['PACKING_RELEASE'];
+
         if ($comment == '') $comment =  'Created on ' . $current->toDateTimeString() . ' by '. $this->auth->user()->USERNAM ;
 
-        
         $packingElmts = Translation::where('TRANS_TYPE', 3)->get();
 
         for ($i = 0; $i < count($packingElmts); $i++) { 
@@ -85,7 +89,7 @@ class PackingElements extends Controller
         $packingElmt = new PackingElmt();
         $packingElmt->PACKING_VERSION = $version;
         $packingElmt->PACKINGCOND = $cond;
-        $packingElmt->PACKING_COMMENT = $comment . ' Created on ' . $current->toDateTimeString() . ' by '. $this->auth->user()->USERNAM . '.';
+        $packingElmt->PACKING_COMMENT = $comment;
         $packingElmt->PACKING_RELEASE = $release;
         $packingElmt->PACK_IMP_ID_STUDY = 0;
         $packingElmt->ID_USER = $idUserLogon;
@@ -101,7 +105,10 @@ class PackingElements extends Controller
         $translation->LABEL = $name;
         $translation->save();
 
-        return 1;
+        return PackingElmt::where('ID_USER', $this->auth->user()->ID_USER)
+        ->join('Translation', 'ID_PACKING_ELMT', '=', 'Translation.ID_TRANSLATION')
+        ->where('Translation.TRANS_TYPE', 3)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+        ->where('ID_PACKING_ELMT', $idPackingElmt)->first();
     }
 
     public function deletePacking($idPacking)
