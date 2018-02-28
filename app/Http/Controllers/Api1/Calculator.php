@@ -368,7 +368,7 @@ class Calculator extends Controller
 				$capability = $studyEquipments[$i]->CAPABILITIES;
 
 				if ($this->equipment->getCapability($capability, 128)) {
-					$conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
+					$conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\brain_log'.$i.'.txt');
 					$param = new \Cryosoft\stSKBRParam();
 
 					array_push($results, $this->kernel->getKernelObject('BrainCalculator')->BRTeachCalculation($conf, $param, 10));
@@ -400,10 +400,10 @@ class Calculator extends Controller
 
 		if ($checkOptim == "true") {
 			$this->setBrainMode(11);
-			$brainMode = $this->brainMode;
+			$brainMode = 11;
 		} else {
 			$this->setBrainMode(12);
-			$brainMode = $this->brainMode;
+			$brainMode = 12;
 		}
 
 		$sdisableCalculate 	= $this->cal->disableCalculate($idStudy);
@@ -591,11 +591,11 @@ class Calculator extends Controller
 		$brainMode = $this->brainCal->getBrainMode($idStudy);
 
 		if ($checkOptim == "true") {
-			$this->setBrainMode(11);
-			$brainMode = 11;
-		} else {
 			$this->setBrainMode(12);
 			$brainMode = 12;
+		} else {
+			$this->setBrainMode(11);
+			$brainMode = 11;
 		}
 
  		$runType = null;
@@ -819,6 +819,7 @@ class Calculator extends Controller
             case 1:
             case 2:
                 $studyEquipment->BRAIN_SAVETODB = 1;
+                $studyEquipment->save();
                 break;
 
             case 10:
@@ -827,14 +828,17 @@ class Calculator extends Controller
             case 15:
             case 17:
                 $studyEquipment->BRAIN_SAVETODB = 0;
+                $studyEquipment->save();
                 break;
             case 12:
             case 14:
             case 16:
                 if ($scheckStorage == 1) {
                     $studyEquipment->BRAIN_SAVETODB = 1;
+                    $studyEquipment->save();
                 } else {
                     $studyEquipment->BRAIN_SAVETODB = 0;
+                    $studyEquipment->save();
                 }
                 break;
             case 3:
@@ -846,6 +850,7 @@ class Calculator extends Controller
             case 9:
             default:
                 $studyEquipment->BRAIN_SAVETODB = 0;
+                $studyEquipment->save();
         }
 
         if ($studyEquipment->BRAIN_SAVETODB == 1) {
@@ -979,7 +984,7 @@ class Calculator extends Controller
 		$results = null;
 
 		if (count($studyEquipment) > 0) {
-			$conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
+			$conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\brain_log.txt');
 			$param = new \Cryosoft\stSKBRParam();
 
 			$results = $this->kernel->getKernelObject('BrainCalculator')->BRTeachCalculation($conf, $param, $ldMode);
