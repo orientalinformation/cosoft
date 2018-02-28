@@ -460,7 +460,7 @@ class Reports extends Controller
             PDF::SetTitle('Sample PDF');
             PDF::AddPage();
             PDF::writeHTML($html_content, true, false, true, false, '');
-            PDF::Output(uniqid().'_SamplePDF.pdf', 'D');
+            PDF::Output(uniqid().'_SamplePDF.pdf', 'F');
         // } else {
         //     return "link to download";
         //     // redirect link to download
