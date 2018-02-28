@@ -125,7 +125,7 @@ $router->DELETE('/api/v1/referencedata/pipeline/{id}', 'Api1\\PipeLine@deletePip
  * Notes: update LineElmt
  * Output-Formats: [number]
  */
-$router->POST('/api/v1/referencedata/pipeline/{id}', 'Api1\\PipeLine@updatePipeLine');
+$router->POST('/api/v1/referencedata/pipeline', 'Api1\\PipeLine@updatePipeLine');
 
 /**
  * PUT save as pipe line
@@ -133,7 +133,7 @@ $router->POST('/api/v1/referencedata/pipeline/{id}', 'Api1\\PipeLine@updatePipeL
  * Notes: save as pipe line
  * Output-Formats: [application/json]
  */
-$router->PUT('/api/v1/referencedata/pipeline/{id}', 'Api1\\PipeLine@saveAsPipeLine');
+$router->PUT('/api/v1/referencedata/lineelmt', 'Api1\\PipeLine@saveAsPipeLine');
 
 /**
  * GET getListLineType
