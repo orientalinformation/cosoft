@@ -2034,6 +2034,14 @@ class Output extends Controller
 
         $dataContour = $this->output->getGrideByPlan($idStudy, $idStudyEquipment, $lfDwellingTime, $chartTempInterval[0], $chartTempInterval[1], $planTempRecordData, $selectedPlan - 1, $shape, $orientation);
 
+
+        $f = fopen("/tmp/contour.inp", "w");
+        foreach ($dataContour as $datum) {
+            fputs($f, $datum['X'] . ' ' . $datum['Y'] . ' ' .  $datum['Z'] . "\n" );
+        }
+        fclose($f);
+
+
         return compact("minMax", "chartTempInterval", "valueRecAxis", "lfDwellingTime", "lftimeInterval", "axisName", "dataContour");
     }
 
@@ -2078,6 +2086,12 @@ class Output extends Controller
 
         $chartTempInterval = $this->output->init2DContourTempInterval($idStudyEquipment, $lfDwellingTime, $tempInterval, $pasTemp);
         $dataContour = $this->output->getGrideByPlan($idStudy, $idStudyEquipment, $lfDwellingTime, $chartTempInterval[0], $chartTempInterval[1], $planTempRecordData, $selectedPlan - 1, $shape, $orientation);
+
+        $f = fopen("/tmp/contour.inp", "w");
+        foreach ($dataContour as $datum) {
+            fputs($f, $datum['X'] . ' ' . $datum['Y'] . ' ' .  $datum['Z'] . "\n" );
+        }
+        fclose($f);
 
         return compact("chartTempInterval", "dataContour");
     }
