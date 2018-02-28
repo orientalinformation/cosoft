@@ -1762,9 +1762,12 @@ class Output extends Controller
                 'message' => 'Not a valid number in Curve Number !'
             ], 406);
         }
-        $tempRecordPts =  TempRecordPts::where('ID_STUDY', $idStudy)->first();
-        $tempRecordPts->NB_STEPS = $nbSteps;
-        $tempRecordPts->save();
+
+        if ($this->study->isMyStudy($idStudy)) {
+            $tempRecordPts =  TempRecordPts::where('ID_STUDY', $idStudy)->first();
+            $tempRecordPts->NB_STEPS = $nbSteps;
+            $tempRecordPts->save();
+        }
 
         $productElmt = ProductElmt::where('ID_STUDY', $idStudy)->first();
         $shape = $productElmt->SHAPECODE;
