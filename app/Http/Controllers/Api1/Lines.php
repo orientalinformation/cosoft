@@ -188,6 +188,7 @@ class Lines extends Controller
                             $arrLabel['storageTankValue'] = $storageTValue;
                         }
                     } else {
+                        // return $storageTankParams->ELT_SIZE . $coolingFamily. $lineElmts[0]->INSULATION_TYPE;
                         $stLabel[] = $this->lineE->getNameComboBoxLarge(2,$storageTankParams->ELT_SIZE, $coolingFamily,$lineElmts[0]->INSULATION_TYPE);
                         $storageTLabel =[];
                         $storageTValue =[];
@@ -298,18 +299,18 @@ class Lines extends Controller
                 $tee = $this->lineE->getNameComboBoxLarge(3, $diameter, $coolingFamily, $sort);
 				$elbows = $this->lineE->getNameComboBoxLarge(4, $diameter, $coolingFamily, $sort);
 				if ($insulatedline != null) {
-					$insulatedlineLabel = $insulatedline['LABEL'];
-					$insulationlineValue = $insulatedline['ID_PIPELINE_ELMT'];
-					$non_insulated_lineLabel = $non_insulated_line['LABEL'];
-					$non_insulated_lineValue = $non_insulated_line['ID_PIPELINE_ELMT'];
-					$insulatedlinevalLabel = $insulatedlineval['LABEL'];
-					$insulatedlinevalValue = $insulatedlineval['ID_PIPELINE_ELMT'];
-					$non_insulated_valvesLabel = $non_insulated_valves['LABEL'];
-					$non_insulated_valValue = $non_insulated_valves['ID_PIPELINE_ELMT'];
-					$teeLabel = $tee['LABEL'];
-					$teeValue = $tee['ID_PIPELINE_ELMT'];
-					$elbowsLabel = $elbows['LABEL'];
-					$elbowsValue = $elbows['ID_PIPELINE_ELMT'];
+					$insulatedlineLabel = $insulatedline['LABEL'] ?? '';
+					$insulationlineValue = $insulatedline['ID_PIPELINE_ELMT'] ?? '';
+					$non_insulated_lineLabel = $non_insulated_line['LABEL'] ?? '';
+                    $non_insulated_lineValue = $non_insulated_line['ID_PIPELINE_ELMT'] ?? '';
+					$insulatedlinevalLabel = $insulatedlineval['LABEL'] ?? '';
+					$insulatedlinevalValue = $insulatedlineval['ID_PIPELINE_ELMT'] ?? '';
+					$non_insulated_valvesLabel = $non_insulated_valves['LABEL'] ?? '';
+					$non_insulated_valValue = $non_insulated_valves['ID_PIPELINE_ELMT'] ?? '';
+					$teeLabel = $tee['LABEL'] ?? '';
+					$teeValue = $tee['ID_PIPELINE_ELMT'] ?? '';
+					$elbowsLabel = $elbows['LABEL'] ?? '';
+					$elbowsValue = $elbows['ID_PIPELINE_ELMT'] ?? '';
 				} else {
 					$insulatedlineLabel = '';
 					$insulationlineValue = 0;

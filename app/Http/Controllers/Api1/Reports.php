@@ -12,15 +12,10 @@ use App\Models\Report;
 use App\Models\StudyEquipment;
 use App\Models\ProductElmt;
 use App\Models\MeshPosition;
-<<<<<<< HEAD
 use App\Http\Requests;
 use App\Models\TempRecordPts;
 use App\Models\MinMax;
 use PDF;
-=======
-use PDF;
-
->>>>>>> origin/tcpdf
 
 class Reports extends Controller
 {
