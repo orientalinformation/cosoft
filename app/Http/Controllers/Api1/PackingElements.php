@@ -62,9 +62,6 @@ class PackingElements extends Controller
         $current = Carbon::now('Asia/Ho_Chi_Minh');
         $idUserLogon = $this->auth->user()->ID_USER;
         $input = $this->request->all();
-
-        // if (!isset($input['name']) || !isset($input['version']) || !isset($input['conductivity']) || !isset($input['comment']) || !isset($input['release']))
-        //     throw new \Exception("Error Processing Request", 1);
         
         if (isset($input['LABEL'])) $name = $input['LABEL'];
 
@@ -79,10 +76,21 @@ class PackingElements extends Controller
         if ($comment == '') $comment =  'Created on ' . $current->toDateTimeString() . ' by '. $this->auth->user()->USERNAM ;
 
         $packingElmts = Translation::where('TRANS_TYPE', 3)->get();
+        $idPackExist = 0;
 
         for ($i = 0; $i < count($packingElmts); $i++) { 
+
 			if ($packingElmts[$i]->LABEL == $name) {
-				return 0;
+                $idPackExist = $packingElmts[$i]->ID_TRANSLATION;
+                $packExist = PackingElmt::find(intval($idPackExist));
+
+                if ($packExist) {
+
+                    if (doubleval($packExist->PACKING_VERSION) == doubleval($version)) {
+
+                        return 0;
+                    }
+                }
 			}
         }
         
@@ -135,56 +143,98 @@ class PackingElements extends Controller
         return 1;
     }
 
-    public function updatePacking($idPacking)
+    public function updatePacking()
     {  
         $input = $this->request->all();
-        if (!isset($input['name']) || !isset($input['version']) || !isset($input['conductivity']) || !isset($input['comment']) || !isset($input['release']))
-            throw new \Exception("Error Processing Request", 1);
 
-        $name = $input['name'];
-        $version = $input['version'];
-        $cond = $input['conductivity'];
-        $comment = $input['comment'];
-        $release = $input['release'];
+        if (isset($input['ID_PACKING_ELMT'])) $idPacking = $input['ID_PACKING_ELMT'];
+
+        if (isset($input['LABEL'])) $name = $input['LABEL'];
+
+        if (isset($input['PACKING_VERSION'])) $version = $input['PACKING_VERSION'];
+
+        if (isset($input['PACKINGCOND'])) $cond = $input['PACKINGCOND'];
+
+        if (isset($input['PACKING_COMMENT'])) $comment = $input['PACKING_COMMENT'];
+
+        if (isset($input['PACKING_RELEASE'])) $release = $input['PACKING_RELEASE'];
 
         $packingElmt = PackingElmt::find($idPacking);
 
         if (!$packingElmt) {
             return -1;
         } else {
-            $packingElmtName = Translation::where('TRANS_TYPE', 3)->where('ID_TRANSLATION', $idPacking)->update(['LABEL' => $name]);;
-           
-            $current = Carbon::now('Asia/Ho_Chi_Minh');
-            
-            $packingElmt->PACKING_VERSION = $version;
-            $packingElmt->PACKINGCOND = $cond;
-            $packingElmt->PACKING_COMMENT = $comment;
-            $packingElmt->PACKING_RELEASE = $release;
-            $packingElmt->update();
-            PackingElmt::where('ID_PACKING_ELMT', $idPacking)
-            ->update(['PACKING_DATE' => $current->toDateTimeString()]);
+            $packCurr = Translation::where('TRANS_TYPE', 3)->where('ID_TRANSLATION', $idPacking)->first();
 
-            return 1;
+            if ($packCurr) {
+                if ($packCurr->LABEL != $name) {
+                    $listLabelPacking = Translation::where('TRANS_TYPE', 3)->get();
+                    $idPackExist = 0;
+
+                    for ($i = 0; $i < count($listLabelPacking); $i++) { 
+
+                        if ($listLabelPacking[$i]->LABEL == $name) {
+                            $idPackExist = $listLabelPacking[$i]->ID_TRANSLATION;
+                            $packExist = PackingElmt::find(intval($idPackExist));
+
+                            if ($packExist) {
+
+                                if (doubleval($packExist->PACKING_VERSION) == doubleval($version)) {
+
+                                    return 0;
+                                }
+                            }
+                        }
+                    }
+                }
+                $packingElmtName = Translation::where('TRANS_TYPE', 3)->where('ID_TRANSLATION', $idPacking)
+                ->update(['LABEL' => $name]);
+                $current = Carbon::now('Asia/Ho_Chi_Minh');
+                $packingElmt->PACKING_VERSION = $version;
+                $packingElmt->PACKINGCOND = $cond;
+                $packingElmt->PACKING_COMMENT = $comment;
+                $packingElmt->PACKING_RELEASE = $release;
+                $packingElmt->update();
+                PackingElmt::where('ID_PACKING_ELMT', $idPacking)
+                ->update(['PACKING_DATE' => $current->toDateTimeString()]);
+            }
+
+            return PackingElmt::where('ID_USER', $this->auth->user()->ID_USER)
+            ->join('Translation', 'ID_PACKING_ELMT', '=', 'Translation.ID_TRANSLATION')
+            ->where('Translation.TRANS_TYPE', 3)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+            ->where('ID_PACKING_ELMT', $idPacking)->first();
         }
     }
 
-    public function saveAsPacking($idPackingOld) 
+    public function saveAsPacking() 
     {
         $input = $this->request->all();
 
-        if (!isset($input['name']) || !isset($input['version']))
-            throw new \Exception("Error Processing Request", 1);
+        if (isset($input['ID_PACKING_ELMT'])) $idPackingOld = $input['ID_PACKING_ELMT'];
 
-        $name = $input['name'];
-        $version = $input['version'];
+        if (isset($input['LABEL'])) $name = $input['LABEL'];
+
+        if (isset($input['PACKING_VERSION'])) $version = $input['PACKING_VERSION'];
+
         $packingOld = PackingElmt::find($idPackingOld);
         $cond = $packingOld->PACKINGCOND;
         $comment = $packingOld->PACKING_COMMENT;
-        $packingElmts = Translation::where('TRANS_TYPE', 3)->get();
+        $listLabelPacking = Translation::where('TRANS_TYPE', 3)->get();
+        $idPackExist = 0;
 
-        for ($i = 0; $i < count($packingElmts); $i++) { 
-			if ($packingElmts[$i]->LABEL == $name) {
-				return 0;
+        for ($i = 0; $i < count($listLabelPacking); $i++) { 
+
+			if ($listLabelPacking[$i]->LABEL == $name) {
+                $idPackExist = $listLabelPacking[$i]->ID_TRANSLATION;
+                $packExist = PackingElmt::find(intval($idPackExist));
+
+                if ($packExist) {
+
+                    if (doubleval($packExist->PACKING_VERSION) == doubleval($version)) {
+
+                        return 0;
+                    }
+                }
 			}
         }
         $current = Carbon::now('Asia/Ho_Chi_Minh');
@@ -208,6 +258,9 @@ class PackingElements extends Controller
         $translation->LABEL = $name;
         $translation->save();
 
-        return 1;
+        return PackingElmt::where('ID_USER', $this->auth->user()->ID_USER)
+            ->join('Translation', 'ID_PACKING_ELMT', '=', 'Translation.ID_TRANSLATION')
+            ->where('Translation.TRANS_TYPE', 3)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+            ->where('ID_PACKING_ELMT', $idPackingElmt)->first();
     }   
 }
