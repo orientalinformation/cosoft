@@ -185,6 +185,7 @@ class Lines extends Controller
                         $storageTLabel =[];
                         $storageTValue =[];
                         foreach ($stLabel as $filterLB) {
+                            return $filterLB;
                             $storageTLabel[] = $filterLB['LABEL'] ."-". $this->lineE->getStatus($filterLB['LINE_RELEASE']);
                             $storageTValue[] = $filterLB['ID_PIPELINE_ELMT'];
                             $arrLabel['storageTankParam'] = $storageTLabel;

@@ -12,15 +12,10 @@ use App\Models\Report;
 use App\Models\StudyEquipment;
 use App\Models\ProductElmt;
 use App\Models\MeshPosition;
-<<<<<<< HEAD
 use App\Http\Requests;
 use App\Models\TempRecordPts;
 use App\Models\MinMax;
 use PDF;
-=======
-use PDF;
-
->>>>>>> origin/tcpdf
 
 class Reports extends Controller
 {
@@ -449,8 +444,6 @@ class Reports extends Controller
     {    
         $html_content = '<h1>Generate a PDF using TCPDF in laravel </h1>
         		<h4>by<br/>Learn Infinity</h4>';
-      
-
         PDF::SetTitle('Sample PDF');
         PDF::AddPage();
         PDF::writeHTML($html_content, true, false, true, false, '');
@@ -459,11 +452,19 @@ class Reports extends Controller
     }
 
     function downLoadPDF() {
-        return PDF::SetTitle('Cryosoft download report');
-        // $html_content = '<h1>testing download PDF<h1/>';
-        // PDF::SetTitle('Cryosoft download report');
-        // PDF::AddPage();
-        // PDF::wirteHTML($html_content, true, false, true, false, '');
-        // PDF::Output(uniqid(). '_cryosoftReport', 'D');
+        // if pdf is not generate (check null), we will generate the report go back the server 
+        $abc = '';
+        // if ($abc == null) {
+            $html_content = '<h1>Generate a PDF using TCPDF in laravel </h1>
+                    <h4>by<br/>Learn Infinity</h4>';
+            PDF::SetTitle('Sample PDF');
+            PDF::AddPage();
+            PDF::writeHTML($html_content, true, false, true, false, '');
+            PDF::Output(uniqid().'_SamplePDF.pdf', 'D');
+        // } else {
+        //     return "link to download";
+        //     // redirect link to download
+        // }
     }
+    
 }

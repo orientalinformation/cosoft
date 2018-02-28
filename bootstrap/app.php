@@ -99,8 +99,8 @@ $app->register(Tymon\JWTAuth\Providers\LumenServiceProvider::class);
 
 $app->register(\App\Providers\KernelServiceProvider::class);
 $app->register(\App\Providers\CryosoftServiceProvider::class);
-// $app->register(Elibyy\TCPDF\ServiceProvider::class);
-// class_alias('Elibyy\TCPDF\Facades\TCPDF', 'PDF');
+$app->register(Elibyy\TCPDF\ServiceProvider::class);
+class_alias('\Elibyy\TCPDF\Facades\TCPDF', 'PDF');
 
 if ($app->environment('local')) {
     $app->register(Krlove\EloquentModelGenerator\Provider\GeneratorServiceProvider::class);
@@ -121,10 +121,11 @@ if ($app->environment('local')) {
 
 
 
+
 $app->router->group([
     'namespace' => 'App\Http\Controllers',
 ], function ($router) {
-    // $router->GET('/downLoadPDF');
+    $router->GET('/api/v1/reports/downLoadPDF', 'Api1\\Reports@downLoadPDF');
     require dirname(__DIR__).'/routes/auth.php';
     require dirname(__DIR__).'/routes/translations.php';
 });
