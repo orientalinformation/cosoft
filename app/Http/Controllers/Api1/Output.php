@@ -1955,6 +1955,7 @@ class Output extends Controller
         $idStudy = $this->request->input('idStudy');
         $idStudyEquipment = $this->request->input('idStudyEquipment');
         $selectedPlan = $this->request->input('selectedPlan');
+        $dimension = $this->request->input('dimension');
 
         $productElmt = ProductElmt::where('ID_STUDY', $idStudy)->first();
         $shape = $productElmt->SHAPECODE;
@@ -2037,13 +2038,23 @@ class Output extends Controller
 
         $dataContour = $this->output->getGrideByPlan($idStudy, $idStudyEquipment, $lfDwellingTime, $chartTempInterval[0], $chartTempInterval[1], $planTempRecordData, $selectedPlan - 1, $shape, $orientation);
 
-
+        //export contour to image
         $f = fopen("/tmp/contour.inp", "w");
         foreach ($dataContour as $datum) {
             fputs($f, $datum['X'] . ' ' . $datum['Y'] . ' ' .  $datum['Z'] . "\n" );
         }
         fclose($f);
 
+        $plotFolder = $this->output->public_path('gnuplot');
+        $heatmapFolder = $this->output->public_path('heatmap');
+
+        $userName = $this->auth->user()->username;
+        if (!is_dir($heatmapFolder . '/' . $userName)) {
+            mkdir($heatmapFolder . '/' . $userName, 0777);
+        }
+        $contourFileName = $idStudyEquipment . '-' . $lfDwellingTime;
+
+        system('gnuplot -c '. $plotFolder .'/plot.gnu "'. $dimension .' '. $axisName[0] .'" "'. $dimension .' '. $axisName[1] .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName .'" "'. $contourFileName .'"');
 
         return compact("minMax", "chartTempInterval", "valueRecAxis", "lfDwellingTime", "lftimeInterval", "axisName", "dataContour");
     }
@@ -2058,6 +2069,9 @@ class Output extends Controller
         $temperatureMin = ($input['temperatureMin'] != 0) ? $this->unit->prodTemperature($input['temperatureMin']) : $input['temperatureMin'];
         $temperatureMax = ($input['temperatureMax'] != 0) ? $this->unit->prodTemperature($input['temperatureMax']) : $input['temperatureMax'];
         $lfDwellingTime = $input['timeSelected'];
+        $axisX = $input['axisX'];
+        $axisY = $input['axisY'];
+        $dimension = $input['dimension'];
 
         $productElmt = ProductElmt::where('ID_STUDY', $idStudy)->first();
         $shape = $productElmt->SHAPECODE;
@@ -2095,6 +2109,18 @@ class Output extends Controller
             fputs($f, $datum['X'] . ' ' . $datum['Y'] . ' ' .  $datum['Z'] . "\n" );
         }
         fclose($f);
+        
+        $plotFolder = $this->output->public_path('gnuplot');
+        $heatmapFolder = $this->output->public_path('heatmap');
+
+        $userName = $this->auth->user()->username;
+        if (!is_dir($heatmapFolder . '/' . $userName)) {
+            mkdir($heatmapFolder . '/' . $userName, 0777);
+        }
+        $contourFileName = $idStudyEquipment . '-' . $lfDwellingTime;
+
+        system('gnuplot -c '. $plotFolder .'/plot.gnu "'. $dimension .' '. $axisX .'" "'. $dimension .' '. $axisY .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName .'" "'. $contourFileName .'"');
+
 
         return compact("chartTempInterval", "dataContour");
     }

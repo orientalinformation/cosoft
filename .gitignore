@@ -6,3 +6,4 @@ Homestead.yaml
 /.swagger*
 /lib/*
 /.vscode/*
+/public/heatmap/*
