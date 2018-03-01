@@ -1762,9 +1762,12 @@ class Output extends Controller
                 'message' => 'Not a valid number in Curve Number !'
             ], 406);
         }
-        $tempRecordPts =  TempRecordPts::where('ID_STUDY', $idStudy)->first();
-        $tempRecordPts->NB_STEPS = $nbSteps;
-        $tempRecordPts->save();
+
+        if ($this->study->isMyStudy($idStudy)) {
+            $tempRecordPts =  TempRecordPts::where('ID_STUDY', $idStudy)->first();
+            $tempRecordPts->NB_STEPS = $nbSteps;
+            $tempRecordPts->save();
+        }
 
         $productElmt = ProductElmt::where('ID_STUDY', $idStudy)->first();
         $shape = $productElmt->SHAPECODE;
@@ -2034,6 +2037,65 @@ class Output extends Controller
 
         $dataContour = $this->output->getGrideByPlan($idStudy, $idStudyEquipment, $lfDwellingTime, $chartTempInterval[0], $chartTempInterval[1], $planTempRecordData, $selectedPlan - 1, $shape, $orientation);
 
+
+        $f = fopen("/tmp/contour.inp", "w");
+        foreach ($dataContour as $datum) {
+            fputs($f, $datum['X'] . ' ' . $datum['Y'] . ' ' .  $datum['Z'] . "\n" );
+        }
+        fclose($f);
+
+
         return compact("minMax", "chartTempInterval", "valueRecAxis", "lfDwellingTime", "lftimeInterval", "axisName", "dataContour");
+    }
+
+    public function productChart2DStatic()
+    {
+        $input = $this->request->all();
+        $idStudy = $input['idStudy'];
+        $idStudyEquipment = $input['idStudyEquipment'];
+        $selectedPlan = $input['selectedPlan'];
+        $pasTemp = $input['temperatureStep'];
+        $temperatureMin = ($input['temperatureMin'] != 0) ? $this->unit->prodTemperature($input['temperatureMin']) : $input['temperatureMin'];
+        $temperatureMax = ($input['temperatureMax'] != 0) ? $this->unit->prodTemperature($input['temperatureMax']) : $input['temperatureMax'];
+        $lfDwellingTime = $input['timeSelected'];
+
+        $productElmt = ProductElmt::where('ID_STUDY', $idStudy)->first();
+        $shape = $productElmt->SHAPECODE;
+        $layoutGen = LayoutGeneration::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
+        $orientation = $layoutGen->PROD_POSITION;
+
+        $selPoints = $this->output->getSelectedMeshPoints($idStudy);
+        if (empty($selPoints)) {
+            $selPoints = $this->output->getMeshSelectionDef();
+        }
+
+        $axeTempRecordData = [];
+        $planTempRecordData = [];
+        if (!empty($selPoints)) {
+            $axeTempRecordData = [
+                [-1.0, $selPoints[9], $selPoints[10]],
+                [$selPoints[11], -1.0, $selPoints[12]],
+                [$selPoints[13], $selPoints[14], -1.0]
+            ];
+            $planTempRecordData = [
+                [$selPoints[15], 0.0, 0.0],
+                [0.0, $selPoints[16], 0.0],
+                [0.0, 0.0, $selPoints[17]]
+            ];
+        }
+
+        //contour data
+        $tempInterval = [$temperatureMin, $temperatureMax];
+
+        $chartTempInterval = $this->output->init2DContourTempInterval($idStudyEquipment, $lfDwellingTime, $tempInterval, $pasTemp);
+        $dataContour = $this->output->getGrideByPlan($idStudy, $idStudyEquipment, $lfDwellingTime, $chartTempInterval[0], $chartTempInterval[1], $planTempRecordData, $selectedPlan - 1, $shape, $orientation);
+
+        $f = fopen("/tmp/contour.inp", "w");
+        foreach ($dataContour as $datum) {
+            fputs($f, $datum['X'] . ' ' . $datum['Y'] . ' ' .  $datum['Z'] . "\n" );
+        }
+        fclose($f);
+
+        return compact("chartTempInterval", "dataContour");
     }
 }
