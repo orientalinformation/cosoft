@@ -125,7 +125,7 @@ if ($app->environment('local')) {
 $app->router->group([
     'namespace' => 'App\Http\Controllers',
 ], function ($router) {
-    $router->GET('/api/v1/reports/downLoadPDF', 'Api1\\Reports@downLoadPDF');
+    $router->GET('/api/v1/reports/{id}/downLoadPDF', 'Api1\\Reports@downLoadPDF');
     require dirname(__DIR__).'/routes/auth.php';
     require dirname(__DIR__).'/routes/translations.php';
 });
