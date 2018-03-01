@@ -457,21 +457,15 @@ class Reports extends Controller
         $user = $this->auth->user()->USERNAM;
         $host = 'http://' . $_SERVER['HTTP_HOST'];
         $public_path = rtrim(app()->basePath("public/reports/"), '/');
+        $tcpdf_path = rtrim(app()->basePath("vendor/tecnickcom/tcpdf/examples/"), '/');
         $name_report = "$study->ID_STUDY- $study->STUDY_NAME-Report.pdf";
-        // return $public_path ;
         if (!is_dir($public_path. "/" . $user)) {
             mkdir($public_path. "/" . $user, 0777);
         } 
         // if (!file_exists($public_path. "/" . $user. "/" .$name_report)) {
-            // PDF::SetCreator(PDF_CREATOR);
-            PDF::SetAuthor('Nicola Asuni');
-            PDF::SetTitle('TCPDF Example 045');
-            PDF::SetSubject('TCPDF Tutorial');
-            PDF::SetKeywords('TCPDF, PDF, example, test, guide');
-
+            require_once $tcpdf_path . ('/tcpdf_include.php');
             // set default header data
-            PDF::SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, PDF_HEADER_TITLE.' 045', PDF_HEADER_STRING);
-
+            PDF::SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, PDF_HEADER_TITLE.' 001', PDF_HEADER_STRING, array(0,64,255), array(0,64,128));
             // set header and footer fonts
             PDF::setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
             PDF::setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
@@ -513,7 +507,7 @@ class Reports extends Controller
             // Create a fixed link to the first page using the * character
             $index_link = PDF::AddLink();
             PDF::SetLink($index_link, 0, '*1');
-            PDF::Cell(0, 10, 'Link to INDEX', 0, 1, 'R', false, $index_link);
+            PDF::Cell(0, 10, "Study name: $study->STUDY_NAME", 0, 1, 'R', false, $index_link);
 
             PDF::AddPage();
             PDF::Bookmark('Paragraph 1.1', 1, 0, '', '', array(128,0,0));
