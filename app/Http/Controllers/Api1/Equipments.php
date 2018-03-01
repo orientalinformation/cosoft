@@ -533,6 +533,29 @@ class Equipments extends Controller
         return $equipCharacts;
     }
 
+    public function getDataHighChart()
+    {
+        $profilType = $minMax = null;
+        $input = $this->request->all();
+
+        if (isset($input['profilType'])) $profilType = intval($input['profilType']);
+
+        if ($profilType == 1) {
+            $minMax = $this->getMinMax(1039);
+        } else {
+            $minMax = $this->getMinMax(1040);
+        }
+
+        $array = [
+            'MiniMum' => $minMax->LIMIT_MIN,
+            'MaxiMum' => $minMax->LIMIT_MAX,
+            'minScaleY' => $minMax->LIMIT_MIN,
+            'maxScaleY' =>$minMax->LIMIT_MAX
+        ];
+
+        return $array;
+    }
+
     public function getUnitData($id)
     {
         $study = Study::find($id);

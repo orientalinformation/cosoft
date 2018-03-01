@@ -207,3 +207,11 @@ $router->PUT('/api/v1/referencedata/equipment/{id}', 'Api1\\Equipments@startEqui
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/referencedata/equipcharacts/{idEquip}', 'Api1\\Equipments@getEquipmentCharacts');
+
+/**
+ * GET Data hight charact
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/referencedata/highchart', 'Api1\\Equipments@getDataHighChart');
