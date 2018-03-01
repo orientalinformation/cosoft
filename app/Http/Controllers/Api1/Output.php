@@ -2124,4 +2124,84 @@ class Output extends Controller
 
         return compact("chartTempInterval", "dataContour");
     }
+
+    public function productchart2DAnim()
+    {
+        set_time_limit(1000);
+        $input = $this->request->all();
+        $idStudy = $input['idStudy'];
+        $idStudyEquipment = $input['idStudyEquipment'];
+        $selectedPlan = $input['selectedPlan'];
+        $pasTemp = $input['temperatureStep'];
+        $temperatureMin = ($input['temperatureMin'] != 0) ? $this->unit->prodTemperature($input['temperatureMin']) : $input['temperatureMin'];
+        $temperatureMax = ($input['temperatureMax'] != 0) ? $this->unit->prodTemperature($input['temperatureMax']) : $input['temperatureMax'];
+        $axisX = $input['axisX'];
+        $axisY = $input['axisY'];
+        $dimension = $input['dimension'];
+
+        $productElmt = ProductElmt::where('ID_STUDY', $idStudy)->first();
+        $shape = $productElmt->SHAPECODE;
+        $layoutGen = LayoutGeneration::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
+        $orientation = $layoutGen->PROD_POSITION;
+
+        $recordPosition = RecordPosition::select('RECORD_TIME')->where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("RECORD_TIME", "ASC")->get();
+
+        $selPoints = $this->output->getSelectedMeshPoints($idStudy);
+        if (empty($selPoints)) {
+            $selPoints = $this->output->getMeshSelectionDef();
+        }
+
+        $axeTempRecordData = [];
+        $planTempRecordData = [];
+        if (!empty($selPoints)) {
+            $axeTempRecordData = [
+                [-1.0, $selPoints[9], $selPoints[10]],
+                [$selPoints[11], -1.0, $selPoints[12]],
+                [$selPoints[13], $selPoints[14], -1.0]
+            ];
+            $planTempRecordData = [
+                [$selPoints[15], 0.0, 0.0],
+                [0.0, $selPoints[16], 0.0],
+                [0.0, 0.0, $selPoints[17]]
+            ];
+        }
+
+        //contour data
+        $tempInterval = [$temperatureMin, $temperatureMax];
+        
+        $plotFolder = $this->output->public_path('gnuplot');
+        $heatmapFolder = $this->output->public_path('heatmap');
+
+        $userName = $this->auth->user()->username;
+        if (!is_dir($heatmapFolder . '/' . $userName)) {
+            mkdir($heatmapFolder . '/' . $userName, 0777);
+        }
+
+
+
+        $imageContour = [];
+        $i = 0;
+        foreach ($recordPosition as $record) {
+            $lfDwellingTime = $record->RECORD_TIME;
+
+            $chartTempInterval = $this->output->init2DContourTempInterval($idStudyEquipment, $lfDwellingTime, $tempInterval, $pasTemp);
+
+            $dataContour = $this->output->getGrideByPlan($idStudy, $idStudyEquipment, $lfDwellingTime, $chartTempInterval[0], $chartTempInterval[1], $planTempRecordData, $selectedPlan - 1, $shape, $orientation);
+
+            $f = fopen("/tmp/contour.inp", "w");
+            foreach ($dataContour as $datum) {
+                fputs($f, $datum['X'] . ' ' . $datum['Y'] . ' ' .  $datum['Z'] . "\n" );
+            }
+            fclose($f);
+            
+            $contourFileName = $idStudyEquipment . '-' . $lfDwellingTime;
+
+            system('gnuplot -c '. $plotFolder .'/plot.gnu "'. $dimension .' '. $axisX .'" "'. $dimension .' '. $axisY .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName .'" "'. $contourFileName .'"');
+            $imageContour[] = 'http://'.$_SERVER['HTTP_HOST'] . '/heatmap/' . $userName . '/' . $contourFileName . '.png';
+            // if ($i == 2) break;
+            $i++;
+        }
+
+        return $imageContour;
+    }
 }
