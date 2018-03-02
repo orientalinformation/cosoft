@@ -869,4 +869,32 @@ class UnitsConverterService
         return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 1);
     }
 
+    public function convertIdent($value, $ident)
+    {
+        $sValue = null;
+        switch ($ident) {
+            case 1:
+                $sValue = $this->controlTemperature($value);
+                break;
+            case 2:
+                $sValue = $this->time($value);
+                break;
+            case 3:
+                $sValue = $this->convectionSpeed($value);
+                break;
+            case 5:
+                $sValue = $this->convectionCoeff($value);
+                break;
+            case 10:
+                $sValue = intval($value);
+                break;
+            
+            default:
+                $sValue = $this->none($value);
+                break;
+        }
+
+        return $sValue;
+    }
+
 }
