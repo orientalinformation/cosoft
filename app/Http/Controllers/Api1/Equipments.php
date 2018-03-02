@@ -846,6 +846,68 @@ class Equipments extends Controller
         return 1;
     }
 
+    public function getEquipCharactById($id) 
+    {
+        $equipCharact = EquipCharact::find($id);
+        if ($equipCharact) {
+            $equipCharact->ALPHA_TOP = $this->convert->convectionCoeff($equipCharact->ALPHA_TOP);
+            $equipCharact->ALPHA_BOTTOM = $this->convert->convectionCoeff($equipCharact->ALPHA_BOTTOM);
+            $equipCharact->ALPHA_LEFT = $this->convert->convectionCoeff($equipCharact->ALPHA_LEFT);
+            $equipCharact->ALPHA_RIGHT = $this->convert->convectionCoeff($equipCharact->ALPHA_RIGHT);
+            $equipCharact->ALPHA_FRONT = $this->convert->convectionCoeff($equipCharact->ALPHA_FRONT);
+            $equipCharact->ALPHA_REAR = $this->convert->convectionCoeff($equipCharact->ALPHA_REAR);
+
+            $equipCharact->TEMP_TOP = $this->convert->temperature($equipCharact->TEMP_TOP);
+            $equipCharact->TEMP_BOTTOM = $this->convert->temperature($equipCharact->TEMP_BOTTOM);
+            $equipCharact->TEMP_LEFT = $this->convert->temperature($equipCharact->TEMP_LEFT);
+            $equipCharact->TEMP_RIGHT = $this->convert->temperature($equipCharact->TEMP_RIGHT);
+            $equipCharact->TEMP_FRONT = $this->convert->temperature($equipCharact->TEMP_FRONT);
+            $equipCharact->TEMP_REAR = $this->convert->temperature($equipCharact->TEMP_REAR);
+        }
+        return $equipCharact;
+    }
+
+    public function updateEquipCharact()
+    {
+        $input = $this->request->all();
+
+        $ID_EQUIPCHARAC = $ALPHA_TOP = $ALPHA_BOTTOM = $ALPHA_LEFT = $ALPHA_RIGHT = $ALPHA_FRONT = $ALPHA_REAR = null;
+        $TEMP_TOP = $TEMP_BOTTOM = $TEMP_LEFT = $TEMP_RIGHT = $TEMP_FRONT = $TEMP_REAR = null;
+
+        if (isset($input['ID_EQUIPCHARAC'])) $ID_EQUIPCHARAC = intval($input['ID_EQUIPCHARAC']);
+        if (isset($input['ALPHA_TOP'])) $ALPHA_TOP = floatval($input['ALPHA_TOP']);
+        if (isset($input['ALPHA_BOTTOM'])) $ALPHA_BOTTOM = floatval($input['ALPHA_BOTTOM']);
+        if (isset($input['ALPHA_LEFT'])) $ALPHA_LEFT = floatval($input['ALPHA_LEFT']);
+        if (isset($input['ALPHA_RIGHT'])) $ALPHA_RIGHT = floatval($input['ALPHA_RIGHT']);
+        if (isset($input['ALPHA_FRONT'])) $ALPHA_FRONT = floatval($input['ALPHA_FRONT']);
+        if (isset($input['ALPHA_REAR'])) $ALPHA_REAR = floatval($input['ALPHA_REAR']);
+        if (isset($input['TEMP_TOP'])) $TEMP_TOP = floatval($input['TEMP_TOP']);
+        if (isset($input['TEMP_BOTTOM'])) $TEMP_BOTTOM = floatval($input['TEMP_BOTTOM']);
+        if (isset($input['TEMP_LEFT'])) $TEMP_LEFT = floatval($input['TEMP_LEFT']);
+        if (isset($input['TEMP_RIGHT'])) $TEMP_RIGHT = floatval($input['TEMP_RIGHT']);
+        if (isset($input['TEMP_FRONT'])) $TEMP_FRONT = floatval($input['TEMP_FRONT']);
+        if (isset($input['TEMP_REAR'])) $TEMP_REAR = floatval($input['TEMP_REAR']);
+
+        $equipCharact = EquipCharact::find($ID_EQUIPCHARAC);
+        if ($equipCharact) {
+            $equipCharact->ALPHA_TOP = $ALPHA_TOP;
+            $equipCharact->ALPHA_BOTTOM = $ALPHA_BOTTOM;
+            $equipCharact->ALPHA_LEFT = $ALPHA_LEFT;
+            $equipCharact->ALPHA_RIGHT = $ALPHA_RIGHT;
+            $equipCharact->ALPHA_FRONT = $ALPHA_FRONT;
+            $equipCharact->ALPHA_REAR = $ALPHA_REAR;
+
+            $equipCharact->TEMP_TOP = $TEMP_TOP;
+            $equipCharact->TEMP_BOTTOM = $TEMP_BOTTOM;
+            $equipCharact->TEMP_LEFT = $TEMP_LEFT;
+            $equipCharact->TEMP_RIGHT = $TEMP_RIGHT;
+            $equipCharact->TEMP_FRONT = $TEMP_FRONT;
+            $equipCharact->TEMP_REAR = $TEMP_REAR;
+            $equipCharact->save();
+        }
+        return 1;
+    }
+
     private function runEquipmentCalculation($IdEquipgeneration)
     {
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $IdEquipgeneration);
