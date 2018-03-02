@@ -181,7 +181,7 @@ class Lines extends Controller
                             $arrLabel['storageTankValue'] = $storageTValue;
                         }
                     } else {
-                        // return $storageTankParams->ELT_SIZE . $coolingFamily. $lineElmts[0]->INSULATION_TYPE;
+                        // return $storageTankParams->ELT_SIZE;
                         $stLabel[] = $this->lineE->getNameComboBoxLarge(2,$storageTankParams->ELT_SIZE, $coolingFamily,$lineElmts[0]->INSULATION_TYPE);
                         $storageTLabel =[];
                         $storageTValue =[];
