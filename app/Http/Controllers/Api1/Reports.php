@@ -17,6 +17,7 @@ use App\Models\TempRecordPts;
 use App\Models\MinMax;
 use App\Models\Study;
 use PDF;
+use View;
 
 class Reports extends Controller
 {
@@ -441,17 +442,6 @@ class Reports extends Controller
         return 1;
     }
 
-    public function savePDF()
-    {    
-        $html_content = '<h1>Generate a PDF using TCPDF in laravel </h1>
-        		<h4>by<br/>Learn Infinity</h4>';
-        PDF::SetTitle('Sample PDF');
-        PDF::AddPage();
-        PDF::writeHTML($html_content, true, false, true, false, '');
-
-        PDF::Output(public_path(uniqid().'_SamplePDF.pdf'), 'F');
-    }
-
     function downLoadPDF($id) {
         $study = Study::find($id);
         $user = $this->auth->user()->USERNAM;
@@ -463,109 +453,149 @@ class Reports extends Controller
             mkdir($public_path. "/" . $user, 0777);
         } 
         // if (!file_exists($public_path. "/" . $user. "/" .$name_report)) {
-            require_once $tcpdf_path . ('/tcpdf_include.php');
-            // set default header data
-            PDF::SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, PDF_HEADER_TITLE.' 001', PDF_HEADER_STRING, array(0,64,255), array(0,64,128));
-            // set header and footer fonts
-            PDF::setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
-            PDF::setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
+        require_once $tcpdf_path . ('/tcpdf_include.php');
+        // set document information
+        PDF::SetCreator(PDF_CREATOR);
+        PDF::SetAuthor('');
+        PDF::SetTitle('Cryosoft Report');
+        PDF::SetSubject('UserName - StudyName');
+        PDF::SetKeywords('');
 
-            // set default monospaced font
-            PDF::SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+        // set default header data
+        PDF::SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, PDF_HEADER_TITLE.' 011', PDF_HEADER_STRING);
 
-            // set margins
-            PDF::SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
-            PDF::SetHeaderMargin(PDF_MARGIN_HEADER);
-            PDF::SetFooterMargin(PDF_MARGIN_FOOTER);
+        // set header and footer fonts
+        PDF::setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
+        PDF::setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
 
-            // set auto page breaks
-            PDF::SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+        // set default monospaced font
+        PDF::SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
 
-            // set image scale factor
-            PDF::setImageScale(PDF_IMAGE_SCALE_RATIO);
+        // set margins
+        PDF::SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+        PDF::SetHeaderMargin(0);
+        PDF::SetFooterMargin(10);
 
-            // set some language-dependent strings (optional)
-            if (@file_exists(dirname(__FILE__).'/lang/eng.php')) {
-                require_once(dirname(__FILE__).'/lang/eng.php');
-                PDF::setLanguageArray($l);
-            }
+        // set auto page breaks
+        PDF::SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
 
-            // ---------------------------------------------------------
+        // set image scale factor
+        PDF::setImageScale(PDF_IMAGE_SCALE_RATIO);
 
-            // set font
-            PDF::SetFont('times', 'B', 20);
+        // set some language-dependent strings (optional)
+        if (@file_exists($tcpdf_path.'/lang/eng.php')) {
+            require_once($tcpdf_path.'/lang/eng.php');
+            PDF::setLanguageArray($l);
+        }
+        // ---------------------------------------------------------
 
-            // add a page
+        // set default font subsetting mode
+        PDF::setFontSubsetting(TRUE);
+        PDF::setCellHeightRatio(1.3);
+        // Set font
+        // dejavusans is a UTF-8 Unicode font, if you only need to
+        // print standard ASCII chars, you can use core fonts like
+        // helvetica or times to reduce file size.
+        PDF::SetFont('helvetica', '', 10);
+
+        // Add a page
+        // This method has several options, check the source code documentation for more information.
+        PDF::AddPage();
+
+        // set text shadow effect
+        PDF::setTextShadow(array('enabled'=>true, 'depth_w'=>0.2, 'depth_h'=>0.2, 'color'=>array(196,196,196), 'opacity'=>1, 'blend_mode'=>'Normal'));
+
+        // Set some content to print
+        // if ($a == 1) {
+        // 	$ccc = '<h1>ZZZZ</h1>';
+        // }
+        $view = $this->view_report();
+        $html= $view->render();
+        PDF::writeHTMLCell(0, 0, '', '', $html, 0, 1, 0, true, '', true);
+        // Print text using writeHTMLCell()
+        PDF::AddPage();
+        PDF::Bookmark('Chapter 1', 0, 0, '', 'B', array(0,64,128));
+        // print a line using Cell()
+        PDF::Cell(0, 10, 'Chapter 1', 0, 1, 'L');
+        $view = $this->view_report();
+        $html= $view->render();
+        PDF::writeHTMLCell(0, 0, '', '', $html, 0, 1, 0, true, '', true);
+        PDF::AddPage();
+        PDF::Bookmark('Paragraph 1.1', 1, 0, '', '', array(128,0,0));
+        PDF::Cell(0, 10, 'Paragraph 1.1', 0, 1, 'L');
+
+        PDF::AddPage();
+        PDF::Bookmark('Paragraph 1.2', 1, 0, '', '', array(128,0,0));
+        PDF::Cell(0, 10, 'Paragraph 1.2', 0, 1, 'L');
+
+        PDF::AddPage();
+        PDF::Bookmark('Sub-Paragraph 1.2.1', 2, 0, '', 'I', array(0,128,0));
+        PDF::Cell(0, 10, 'Sub-Paragraph 1.2.1', 0, 1, 'L');
+
+        PDF::AddPage();
+        PDF::Bookmark('Paragraph 1.3', 1, 0, '', '', array(128,0,0));
+        PDF::Cell(0, 10, 'Paragraph 1.3', 0, 1, 'L');
+
+        // add some pages and bookmarks
+        for ($i = 2; $i < 12; $i++) {
             PDF::AddPage();
+            PDF::Bookmark('Chapter '.$i, 0, 0, '', 'B', array(0,64,128));
+            PDF::Cell(0, 10, 'Chapter '.$i, 0, 1, 'L');
+        }
 
-            // set a bookmark for the current position
-            PDF::Bookmark('Chapter 1', 0, 0, '', 'B', array(0,64,128));
+        // add a new page for TOC
+        PDF::addTOCPage();
 
-            // print a line using Cell()
-            PDF::Cell(0, 10, 'Chapter 1', 0, 1, 'L');
+        // write the TOC title and/or other elements on the TOC page
+        PDF::SetFont('times', 'B', 16);
+        PDF::MultiCell(0, 0, 'Table Of Content', 0, 'C', 0, 1, '', '', true, 0);
+        PDF::Ln();
+        PDF::SetFont('helvetica', '', 10);
 
-            // Create a fixed link to the first page using the * character
-            $index_link = PDF::AddLink();
-            PDF::SetLink($index_link, 0, '*1');
-            PDF::Cell(0, 10, "Study name: $study->STUDY_NAME", 0, 1, 'R', false, $index_link);
+        // define styles for various bookmark levels
+        $bookmark_templates = array();
 
-            PDF::AddPage();
-            PDF::Bookmark('Paragraph 1.1', 1, 0, '', '', array(128,0,0));
-            PDF::Cell(0, 10, 'Paragraph 1.1', 0, 1, 'L');
+        $bookmark_templates[0] = '<table border="0" cellpadding="0" cellspacing="0" style="background-color:#EEFAFF"><tr><td width="155mm"><span style="font-family:times;font-weight:bold;font-size:12pt;color:black;">#TOC_DESCRIPTION#</span></td><td width="25mm"><span style="font-family:courier;font-weight:bold;font-size:12pt;color:black;" align="right">#TOC_PAGE_NUMBER#</span></td></tr></table>';
+        $bookmark_templates[1] = '<table border="0" cellpadding="0" cellspacing="0"><tr><td width="5mm">&nbsp;</td><td width="150mm"><span style="font-family:times;font-size:11pt;color:green;">#TOC_DESCRIPTION#</span></td><td width="25mm"><span style="font-family:courier;font-weight:bold;font-size:11pt;color:green;" align="right">#TOC_PAGE_NUMBER#</span></td></tr></table>';
+        $bookmark_templates[2] = '<table border="0" cellpadding="0" cellspacing="0"><tr><td width="10mm">&nbsp;</td><td width="145mm"><span style="font-family:times;font-size:10pt;color:#666666;"><i>#TOC_DESCRIPTION#</i></span></td><td width="25mm"><span style="font-family:courier;font-weight:bold;font-size:10pt;color:#666666;" align="right">#TOC_PAGE_NUMBER#</span></td></tr></table>';
+        // add other bookmark level templates here ...
 
-            PDF::AddPage();
-            PDF::Bookmark('Paragraph 1.2', 1, 0, '', '', array(128,0,0));
-            PDF::Cell(0, 10, 'Paragraph 1.2', 0, 1, 'L');
+        // add table of content at page 1
+        // (check the example n. 45 for a text-only TOC
+        PDF::addHTMLTOC(1, 'INDEX', $bookmark_templates, true, 'B', array(128,0,0));
 
-            PDF::AddPage();
-            PDF::Bookmark('Sub-Paragraph 1.2.1', 2, 0, '', 'I', array(0,128,0));
-            PDF::Cell(0, 10, 'Sub-Paragraph 1.2.1', 0, 1, 'L');
-
-            PDF::AddPage();
-            PDF::Bookmark('Paragraph 1.3', 1, 0, '', '', array(128,0,0));
-            PDF::Cell(0, 10, 'Paragraph 1.3', 0, 1, 'L');
-
-            // fixed link to the first page using the * character
-            $html = '<a href="#*1" style="color:blue;">link to INDEX (page 1)</a>';
-            PDF::writeHTML($html, true, false, true, false, '');
-
-
-            // add some pages and bookmarks
-            for ($i = 2; $i < 5; $i++) {
-                PDF::AddPage();
-                PDF::Bookmark('readBook '.$i, 0, 0, '', 'B', array(0,64,128));
-                PDF::Cell(0, 10, 'readBook '.$i, 0, 1, 'L');
-            }
-
-            // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-            // add a new page for TOC
-            PDF::addTOCPage();
-
-            // write the TOC title
-            PDF::SetFont('times', 'B', 16);
-            PDF::MultiCell(0, 0, 'Table Of Content', 0, 'C', 0, 1, '', '', true, 0);
-            PDF::Ln();
-
-            PDF::SetFont('dejavusans', '', 12);
-
-            // add a simple Table Of Content at first page
-            // (check the example n. 59 for the HTML version)
-            PDF::addTOC(1, 'courier', '.', 'INDEX', 'B', array(128,0,0));
-
-            // end of TOC page
-            PDF::endTOCPage();
-            PDF::SetTitle('Sample PDF');
-            PDF::AddPage();
-            // PDF::writeHTML($html_content, true, false, true, false, '');
-            PDF::Output($public_path. "/" . $user."/" . $name_report, 'F');
+        // end of TOC page
+        PDF::endTOCPage();
+        PDF::Output($public_path. "/" . $user."/" . $name_report, 'F');
             
         // } 
         return ["url" => "$host/reports/$user/$name_report"];
     }
+    
+    public function view_report()  {
+        return view('report.view_report');
+    }
 
-    function viewHtml() {
-
+    public function downLoadHtmlToPDF($id)
+    {   
+        $study = Study::find($id);
+        $user = $this->auth->user()->USERNAM;
+        $host = 'http://' . $_SERVER['HTTP_HOST'];
+        $public_path = rtrim(app()->basePath("public/reports/"), '/');
+        $tcpdf_path = rtrim(app()->basePath("vendor/tecnickcom/tcpdf/examples/"), '/');
+        $name_report = "$study->ID_STUDY- $study->STUDY_NAME-ReportHTML.pdf";
+        if (!is_dir($public_path. "/" . $user)) {
+            mkdir($public_path. "/" . $user, 0777);
+        } 
+        $view = view('report.viewHtmlToPDF');
+        $html_content = $view->render();
+      
+        PDF::SetTitle('Sample PDF');
+        PDF::AddPage();
+        PDF::writeHTML($html_content, true, false, true, false, '');
+ 
+        PDF::Output($public_path. "/" . $user."/" . $name_report, 'F'); 
+        return ["url" => "$host/reports/$user/$name_report"];
     }
     
 }
