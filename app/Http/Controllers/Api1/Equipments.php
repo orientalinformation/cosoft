@@ -533,6 +533,69 @@ class Equipments extends Controller
         return $equipCharacts;
     }
 
+    public function getDataHighChart()
+    {
+        $profileType = $minMax = $minScaleY = $maxScaleY = $minValueY = $maxValueY = $nbFractionDigits = null;
+        $unitIdent = 10;
+
+        $input = $this->request->all();
+
+        if (isset($input['profilType'])) $profileType = intval($input['profilType']);
+
+        if ($profileType == 1) {
+            $minMax = $this->getMinMax(1039);
+            $unitIdent = 5;
+            $nbFractionDigits = 2;
+        } else {
+            $minMax = $this->getMinMax(1040);
+            $unitIdent = 1;
+            $nbFractionDigits = 0;
+        }
+
+        $minScaleY = $minMax->LIMIT_MIN;
+        $maxScaleY = $minMax->LIMIT_MAX;
+        $minValueY = $minMax->LIMIT_MAX;
+        $maxValueY = $minMax->LIMIT_MIN;
+
+        $lfOffset = abs($maxValueY - $minValueY) * 0.15;
+        if ($lfOffset > 0.0) {
+            $minScaleY = $minValueY - $lfOffset;
+            $maxScaleY = $maxValueY + $lfOffset;
+        } else {
+            $lfOffset1 = abs($minMax->LIMIT_MIN - $minValueY) * 0.15;
+            $lfOffset2 = abs($minMax->LIMIT_MAX - $maxValueY) * 0.15;
+            if ($lfOffset1 < $lfOffset2) {
+                $lfOffset = $lfOffset1;
+            } else {
+                $lfOffset = $lfOffset2;
+            }
+
+            $minScaleY = $minValueY - $lfOffset;
+            $maxScaleY = $maxValueY + $lfOffset;
+        }
+
+        $minScaleYtmp = round($this->convert->convertIdent($minScaleY, $unitIdent));
+        $maxScaleYtmp = round($this->convert->convertIdent($maxScaleY, $unitIdent));
+
+        if ($minScaleYtmp != $maxScaleYtmp) {
+            $minScaleY = $minScaleYtmp;
+            $maxScaleY = $maxScaleYtmp;
+        }
+
+        if ($minScaleY < $minMax->LIMIT_MIN) $minScaleY = $minMax->LIMIT_MIN;
+        if ($maxScaleY > $minMax->LIMIT_MAX) $maxScaleY = $minMax->LIMIT_MAX;
+
+        $miniMum = $this->convert->convertIdent($minScaleY, $unitIdent);
+        $maxiMum = $this->convert->convertIdent($maxScaleY, $unitIdent);
+
+        $array = [
+            'MiniMum' => $miniMum,
+            'MaxiMum' => $maxiMum
+        ];
+
+        return $array;
+    }
+
     public function getUnitData($id)
     {
         $study = Study::find($id);

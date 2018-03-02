@@ -2,6 +2,16 @@
 define('ENCRYPT_KEY', '3a786565707472');
 define('SC_CLEAN_TMP_DATA',10);  // clean temporary data
 
+define('TEMPERATURE_PROFILE', 0); // reference equipment
+define('CONVECTION_PROFILE', 1);
+define('PROFILE_TOP', 0);
+define('PROFILE_BOTTOM', 1);
+define('PROFILE_LEFT', 2);
+define('PROFILE_RIGHT', 3);
+define('PROFILE_FRONT', 4);
+define('PROFILE_REAR', 5);
+
+
 define('SC_CLEAN_MODE_ESTIM_2_OPTIM',20);  // estimation -> optimum
 define('SC_CLEAN_MODE_OPTIM_2_ESTIM',21);  // optimum -> estimation
 define('SC_CLEAN_MODE_ESTIM_2_SELECT',22);  // estimation -> selected

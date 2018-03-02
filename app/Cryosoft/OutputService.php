@@ -900,6 +900,11 @@ class OutputService
         return $result;
     }
 
+    function public_path($path=null)
+    {
+            return rtrim(app()->basePath('public/'.$path), '/');
+    }
+
     public function mixRange($color1, $color2, $MIN = 1, $MAX = 10)
     {
         $range = rand($MIN, $MAX);
