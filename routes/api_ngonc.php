@@ -139,7 +139,7 @@ $router->GET('/api/v1/output/productSection', 'Api1\\Output@productSection');
 /**
  * POST saveTempRecordPts
  * Summary: 
- * Notes: get product section based chart data
+ * Notes: save temprecordpts
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/output/saveTempRecordPts', 'Api1\\Output@saveTempRecordPts');
@@ -151,3 +151,19 @@ $router->POST('/api/v1/output/saveTempRecordPts', 'Api1\\Output@saveTempRecordPt
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/output/productchart2D', 'Api1\\Output@productchart2D');
+
+/**
+ * POST productChart2DStatic
+ * Summary: 
+ * Notes: get product chart 2D data record time
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/output/productChart2DStatic', 'Api1\\Output@productChart2DStatic');
+
+/**
+ * POST productchart2DAnim
+ * Summary: 
+ * Notes: get all product chart 2D data record time
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/output/productchart2DAnim', 'Api1\\Output@productchart2DAnim');

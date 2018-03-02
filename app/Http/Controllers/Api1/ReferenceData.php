@@ -159,6 +159,14 @@ class ReferenceData extends Controller
     public function saveDataComponent()
     {
         $result = $this->saveComponent($this->request);
+
+        if ($result > 0) {
+            return Component::where('ID_USER', $this->auth->user()->ID_USER)
+            ->join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')
+            ->where('Translation.TRANS_TYPE', 1)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+            ->where('ID_COMP', $result)->first();
+        }
+
         return $result;
     }
 
