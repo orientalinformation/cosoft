@@ -622,6 +622,37 @@ class Equipments extends Controller
         return $array;
     }
 
+    public function redrawCurves()
+    {
+        $input = $this->request->all();
+
+        $ID_EQUIP = $REGUL_TEMP = $DWELLING_TIME = $PRODTEMP = $LOADINGRATE = $result = null;
+
+        if (isset($input['ID_EQUIP'])) $ID_EQUIP = intval($input['ID_EQUIP']);
+        if (isset($input['REGUL_TEMP'])) $REGUL_TEMP = floatval($input['REGUL_TEMP']);
+        if (isset($input['DWELLING_TIME'])) $DWELLING_TIME = floatval($input['DWELLING_TIME']);
+        if (isset($input['PRODTEMP'])) $PRODTEMP = floatval($input['PRODTEMP']);
+        if (isset($input['LOADINGRATE'])) $LOADINGRATE = floatval($input['LOADINGRATE']);
+
+        $equipment = Equipment::find($ID_EQUIP);
+        if ($equipment) {
+            if ($equipment->STD == 1) {
+                $equipGeneration = EquipGeneration::where('ID_EQUIP', $equipment->ID_EQUIPGENERATION)->first();
+                if ($equipGeneration) {
+                    if ($this->equip->getCapability($equipment->CAPABILITIES, 65536)) {
+                        $equipGeneration->DWELLING_TIME = $DWELLING_TIME;
+                    } else {
+                        $equipGeneration->TEMP_SETPOINT = $REGUL_TEMP;
+                    }
+                    $equipGeneration->AVG_PRODINTEMP = $PRODTEMP;
+                    $equipGeneration->EQP_GEN_LOADRATE = $LOADINGRATE;
+                    $equipGeneration->save();
+                }
+                $this->runEquipmentCalculation($equipment->ID_EQUIPGENERATION);
+            }
+        }
+    }
+
     public function getUnitData($id)
     {
         $study = Study::find($id);

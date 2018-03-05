@@ -239,3 +239,11 @@ $router->PUT('/api/v1/referencedata/equipcharact', 'Api1\\Equipments@updateEquip
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/referencedata/curve/{idEquip}', 'Api1\\Equipments@getDataCurve');
+
+/**
+ * red raw Curves
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->PUT('/api/v1/referencedata/redrawcurves', 'Api1\\Equipments@redrawCurves');
