@@ -533,6 +533,11 @@ class Equipments extends Controller
         return $equipCharacts;
     }
 
+    public function deleteEquipCharacts($idEquip)
+    {
+
+    }
+
     public function getDataHighChart()
     {
         $profileType = $minMax = $minScaleY = $maxScaleY = $minValueY = $maxValueY = $nbFractionDigits = null;
@@ -932,6 +937,11 @@ class Equipments extends Controller
             return 1;
         }
         return 0;
+    }
+
+    public function addOnePoint($id) 
+    {
+        
     }
 
     public function updateEquipCharact()
