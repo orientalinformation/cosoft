@@ -76,7 +76,7 @@ $app->routeMiddleware([
     'auth' => App\Http\Middleware\Authenticate::class,
 ]);
 
-
+class_alias('Illuminate\Support\Facades\Config', 'Config');
 /*
 |--------------------------------------------------------------------------
 | Register Service Providers
