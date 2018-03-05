@@ -2040,6 +2040,9 @@ class Output extends Controller
         $heatmapFolder = $this->output->public_path('heatmap');
 
         $userName = $this->auth->user()->username;
+        if (!is_dir($heatmapFolder)) {
+            mkdir($heatmapFolder, 0777);
+        }
         if (!is_dir($heatmapFolder . '/' . $userName)) {
             mkdir($heatmapFolder . '/' . $userName, 0777);
         }
@@ -2115,6 +2118,9 @@ class Output extends Controller
         $heatmapFolder = $this->output->public_path('heatmap');
 
         $userName = $this->auth->user()->username;
+        if (!is_dir($heatmapFolder)) {
+            mkdir($heatmapFolder, 0777);
+        }
         if (!is_dir($heatmapFolder . '/' . $userName)) {
             mkdir($heatmapFolder . '/' . $userName, 0777);
         }
@@ -2189,6 +2195,9 @@ class Output extends Controller
         $heatmapFolder = $this->output->public_path('heatmap');
 
         $userName = $this->auth->user()->username;
+        if (!is_dir($heatmapFolder)) {
+            mkdir($heatmapFolder, 0777);
+        }
         if (!is_dir($heatmapFolder . '/' . $userName)) {
             mkdir($heatmapFolder . '/' . $userName, 0777);
         }
