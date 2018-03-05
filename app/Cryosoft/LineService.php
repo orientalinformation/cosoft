@@ -30,12 +30,17 @@ class LineService
                 ->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->skip($sort)->take($sort)->get();
         
         $result = [];
-        foreach ($sname as $row) {
-            $result['ID_PIPELINE_ELMT'] = $row->ID_PIPELINE_ELMT;
-            $result['LABEL'] = $row->LABEL;
-            $result['LINE_RELEASE'] = $row->LINE_RELEASE;
+        if (!empty($sname)) {
+            foreach ($sname as $row) {
+            
+                $result['ID_PIPELINE_ELMT'] = $row->ID_PIPELINE_ELMT;
+                $result['LABEL'] = $row->LABEL;
+                $result['LINE_RELEASE'] = $row->LINE_RELEASE;
+            }
+        } else {
+            $sname = '';
+            $result[] = $sname;
         }
-
         return $result;
     }
     
