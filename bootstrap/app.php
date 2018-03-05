@@ -88,6 +88,8 @@ $app->routeMiddleware([
 |
 */
 
+class_alias('Illuminate\Support\Facades\Config', 'Config');
+
 $app->register(App\Providers\AppServiceProvider::class);
 $app->register(App\Providers\EventServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
@@ -100,6 +102,7 @@ $app->register(Tymon\JWTAuth\Providers\LumenServiceProvider::class);
 $app->register(\App\Providers\KernelServiceProvider::class);
 $app->register(\App\Providers\CryosoftServiceProvider::class);
 $app->register(Elibyy\TCPDF\ServiceProvider::class);
+
 class_alias('\Elibyy\TCPDF\Facades\TCPDF', 'PDF');
 
 if ($app->environment('local')) {
