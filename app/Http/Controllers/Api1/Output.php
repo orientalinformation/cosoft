@@ -2132,9 +2132,7 @@ class Output extends Controller
         $idStudy = $input['idStudy'];
         $idStudyEquipment = $input['idStudyEquipment'];
         $selectedPlan = $input['selectedPlan'];
-        $pasTemp = $input['temperatureStep'];
-        $temperatureMin = ($input['temperatureMin'] != 0) ? $this->unit->prodTemperature($input['temperatureMin']) : $input['temperatureMin'];
-        $temperatureMax = ($input['temperatureMax'] != 0) ? $this->unit->prodTemperature($input['temperatureMax']) : $input['temperatureMax'];
+        $timeInterval = $input['timeInterval'];
         $axisX = $input['axisX'];
         $axisY = $input['axisY'];
         $dimension = $input['dimension'];
@@ -2167,7 +2165,8 @@ class Output extends Controller
         }
 
         //contour data
-        $tempInterval = [$temperatureMin, $temperatureMax];
+        $pasTemp = -1.0;
+        $tempInterval = [0.0, 0.0];
         
         $plotFolder = $this->output->public_path('gnuplot');
         $heatmapFolder = $this->output->public_path('heatmap');
@@ -2178,13 +2177,19 @@ class Output extends Controller
         }
 
 
-
         $imageContour = [];
-        $i = 0;
-        foreach ($recordPosition as $record) {
-            $lfDwellingTime = $record->RECORD_TIME;
 
-            $chartTempInterval = $this->output->init2DContourTempInterval($idStudyEquipment, $lfDwellingTime, $tempInterval, $pasTemp);
+        $lfTS = $recordPosition[count($recordPosition) - 1]->RECORD_TIME;
+        $lfStep = $recordPosition[1]->RECORD_TIME - $recordPosition[0]->RECORD_TIME; 
+        
+        $nbContour2d = ($lfTS / $timeInterval) + 1;
+        $lfTheoricStep = $lfTS / ($nbContour2d - 1);
+
+        $chartTempInterval = $this->output->init2DContourTempInterval($idStudyEquipment, -1.0, $tempInterval, $pasTemp);
+        
+        for ($i = 0; $i < $nbContour2d - 1; $i++) { 
+            $pos = round($i * $lfTheoricStep / $lfStep, 0);
+            $lfDwellingTime = $recordPosition[$pos]->RECORD_TIME;
 
             $dataContour = $this->output->getGrideByPlan($idStudy, $idStudyEquipment, $lfDwellingTime, $chartTempInterval[0], $chartTempInterval[1], $planTempRecordData, $selectedPlan - 1, $shape, $orientation);
 
@@ -2198,10 +2203,21 @@ class Output extends Controller
 
             system('gnuplot -c '. $plotFolder .'/plot.gnu "'. $dimension .' '. $axisX .'" "'. $dimension .' '. $axisY .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName .'" "'. $contourFileName .'"');
             $imageContour[] = 'http://'.$_SERVER['HTTP_HOST'] . '/heatmap/' . $userName . '/' . $contourFileName . '.png';
-            // if ($i == 2) break;
-            $i++;
         }
 
-        return $imageContour;
+        $dataContour = $this->output->getGrideByPlan($idStudy, $idStudyEquipment, $lfTS, $chartTempInterval[0], $chartTempInterval[1], $planTempRecordData, $selectedPlan - 1, $shape, $orientation);
+
+        $f = fopen("/tmp/contour.inp", "w");
+        foreach ($dataContour as $datum) {
+            fputs($f, $datum['X'] . ' ' . $datum['Y'] . ' ' .  $datum['Z'] . "\n" );
+        }
+        fclose($f);
+
+        $contourFileName = $idStudyEquipment . '-' . $lfTS;
+        system('gnuplot -c '. $plotFolder .'/plot.gnu "'. $dimension .' '. $axisX .'" "'. $dimension .' '. $axisY .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName .'" "'. $contourFileName .'"');
+
+        $imageContour[] = 'http://'.$_SERVER['HTTP_HOST'] . '/heatmap/' . $userName . '/' . $contourFileName . '.png';
+
+        return compact("chartTempInterval", "imageContour");
     }
 }

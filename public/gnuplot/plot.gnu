@@ -9,23 +9,22 @@ ZMIN = ARG4
 ZMAX = ARG5
 TSTEP  = ARG6
 OUTPUT = ARG7."/".ARG8.".png"
-print OUTPUT
 
 #Find Min/Max of data
-set term png size 700,600
-set output OUTPUT
-splot DATAFILE using 1:2:3
-XMIN = GPVAL_DATA_X_MIN
-XMAX = GPVAL_DATA_X_MAX
-YMIN = GPVAL_DATA_Y_MIN
-YMAX = GPVAL_DATA_Y_MAX
+#set term unknown
+#splot DATAFILE using 1:2:3
+#XMIN = GPVAL_DATA_X_MIN
+#XMAX = GPVAL_DATA_X_MAX
+#YMIN = GPVAL_DATA_Y_MIN
+#YMAX = GPVAL_DATA_Y_MAX
 #ZMIN = floor(GPVAL_DATA_Z_MIN)
 #ZMAX = ceil(GPVAL_DATA_Z_MAX)
+
 #Calculate number of contour
 NCONTOUR = (ZMAX - ZMIN)/TSTEP + 1
+
 #Calculate Step legend
 LEGSTEP = (ZMAX - ZMIN)/(NCONTOUR-1)
-
 
 #Calculate Legend colors
 #array COLOR[9]
@@ -44,20 +43,22 @@ do for [i=0:8] {
 #setting for plotting
 
 reset
-set term png size 700,600
+set term png size 640,600
 set output OUTPUT
 set size square
-set xl "".XLABLE." (".UNIT.")"  tc rgb "red"
-set yl "".YLABLE." (".UNIT.")"  tc rgb "red"
-set xr[XMIN:XMAX]
-set yr[YMIN:YMAX]
+set xl "".XLABLE." (".UNIT.")"  offset char 0, char 1 tc rgb "red"
+set yl "".YLABLE." (".UNIT.")"  offset char 1, char 0 tc rgb "red"
+set autoscale xfix
+set autoscale yfix
+#set xr[XMIN:XMAX]
+#set yr[YMIN:YMAX]
 set cbr[ZMIN:ZMAX]
 
 set tics nomirror
 set xtics out offset 0,0.5
 set ytics out offset 0.5,0
 set cbtics LEGSTEP 
-set cbtics in scale 3.5
+set cbtics in scale 3.9
 set view map
 set dgrid3d 40,40 gauss
 set pm3d interpolate 0,0
@@ -84,11 +85,15 @@ set pm3d interpolate 0,0
 set contour	surface 			
 set cntrparam levels NCONTOUR	
 unset clabel	
-unset key		
+unset key	
+set lmargin at screen 0.1;
+set rmargin at screen 0.88;
+set bmargin at screen 0.05;
+set tmargin at screen 0.98;
 
 splot DATAFILE using 1:2:3 with pm3d
 #replot
-#pause 10
+#pause 20
 
 #End scrip!
 
