@@ -350,3 +350,11 @@ $router->GET('/api/v1/studies/{id}/meshaxispos', 'Api1\\Reports@getMeshAxisPos')
  * Output-Formats: [application/json]
  */
 $router->PUT('/api/v1/studies/{id}/report', 'Api1\\Reports@saveReport');
+
+/**
+ * GET getEquipmentFilter
+ * Summary:
+ * Notes: get data equipment of filter
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/referencedata/equipment/{id}/filter', 'Api1\\ReferenceData@getEquipmentFilter');

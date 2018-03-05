@@ -16,6 +16,9 @@ use App\Models\Language;
 use App\Models\User;
 use App\Kernel\KernelService;
 use App\Models\ProductElmt;
+use App\Models\Equipment;
+use App\Models\EquipGenZone;
+use App\Models\EquipZone;
 
 class ReferenceData extends Controller
 {
@@ -571,5 +574,35 @@ class ReferenceData extends Controller
                 
         }
         return 0;
+    }
+
+    public function getEquipmentFilter($id)
+    {
+        $equipment = Equipment::find($id);
+        
+        if ($equipment) {
+            $listEquipZone = EquipZone::where('ID_EQUIP', $id)->orderBy('EQUIP_ZONE_NUMBER', 'ASC')->get();
+            
+            if (count($listEquipZone) > 0) {
+                $equipment->EquipZone = $listEquipZone;
+            } else {
+                $equipment->EquipZone = null;
+            }
+
+            if ($equipment->ID_EQUIPGENERATION > 0) {
+                $listEquipGenZone = EquipGenZone::where('ID_EQUIPGENERATION', $equipment->ID_EQUIPGENERATION)
+                ->orderBy('ZONE_NUMBER', 'ASC')->get();
+
+                if (count($listEquipGenZone) > 0) {
+                    $equipment->EquipGenZone = $listEquipGenZone;
+                } else {
+                    $equipment->EquipGenZone = null;
+                }
+            } else {
+                $equipment->EquipGenZone = null;
+            }
+        }
+
+        return $equipment;
     }
 }
