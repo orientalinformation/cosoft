@@ -2036,15 +2036,6 @@ class Output extends Controller
         $chartTempInterval = $this->output->init2DContourTempInterval($idStudyEquipment, $lfDwellingTime, $tempInterval, $pasTemp);
         $axisName = $this->output->getAxisName($shape, $orientation, $selectedPlan);
 
-        $dataContour = $this->output->getGrideByPlan($idStudy, $idStudyEquipment, $lfDwellingTime, $chartTempInterval[0], $chartTempInterval[1], $planTempRecordData, $selectedPlan - 1, $shape, $orientation);
-
-        //export contour to image
-        $f = fopen("/tmp/contour.inp", "w");
-        foreach ($dataContour as $datum) {
-            fputs($f, $datum['X'] . ' ' . $datum['Y'] . ' ' .  $datum['Z'] . "\n" );
-        }
-        fclose($f);
-
         $plotFolder = $this->output->public_path('gnuplot');
         $heatmapFolder = $this->output->public_path('heatmap');
 
@@ -2052,9 +2043,21 @@ class Output extends Controller
         if (!is_dir($heatmapFolder . '/' . $userName)) {
             mkdir($heatmapFolder . '/' . $userName, 0777);
         }
-        $contourFileName = $idStudyEquipment . '-' . $lfDwellingTime . $chartTempInterval[0] . '-' . $chartTempInterval[1] . '-' . $chartTempInterval[2];
 
-        system('gnuplot -c '. $plotFolder .'/plot.gnu "'. $dimension .' '. $axisName[0] .'" "'. $dimension .' '. $axisName[1] .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName .'" "'. $contourFileName .'"');
+        $contourFileName = $idStudyEquipment . '-' . $lfDwellingTime . '-' . $chartTempInterval[0] . '-' . $chartTempInterval[1] . '-' . $chartTempInterval[2];
+
+        $dataContour = $this->output->getGrideByPlan($idStudy, $idStudyEquipment, $lfDwellingTime, $chartTempInterval[0], $chartTempInterval[1], $planTempRecordData, $selectedPlan - 1, $shape, $orientation);
+
+        if (!file_exists($heatmapFolder . '/' . $userName . '/' . $contourFileName . '.png')) { 
+            //export contour to image
+            $f = fopen("/tmp/contour.inp", "w");
+            foreach ($dataContour as $datum) {
+                fputs($f, (double) $datum['X'] . ' ' . (double) $datum['Y'] . ' ' .  (double) $datum['Z'] . "\n" );
+            }
+            fclose($f);
+
+            system('gnuplot -c '. $plotFolder .'/plot.gnu "'. $dimension .' '. $axisName[0] .'" "'. $dimension .' '. $axisName[1] .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName .'" "'. $contourFileName .'"');
+        }
 
         $imageContour[] = 'http://'.$_SERVER['HTTP_HOST'] . '/heatmap/' . $userName . '/' . $contourFileName . '.png';
 
@@ -2104,13 +2107,6 @@ class Output extends Controller
         $tempInterval = [$temperatureMin, $temperatureMax];
 
         $chartTempInterval = $this->output->init2DContourTempInterval($idStudyEquipment, $lfDwellingTime, $tempInterval, $pasTemp);
-        $dataContour = $this->output->getGrideByPlan($idStudy, $idStudyEquipment, $lfDwellingTime, $chartTempInterval[0], $chartTempInterval[1], $planTempRecordData, $selectedPlan - 1, $shape, $orientation);
-
-        $f = fopen("/tmp/contour.inp", "w");
-        foreach ($dataContour as $datum) {
-            fputs($f, $datum['X'] . ' ' . $datum['Y'] . ' ' .  $datum['Z'] . "\n" );
-        }
-        fclose($f);
         
         $plotFolder = $this->output->public_path('gnuplot');
         $heatmapFolder = $this->output->public_path('heatmap');
@@ -2119,9 +2115,20 @@ class Output extends Controller
         if (!is_dir($heatmapFolder . '/' . $userName)) {
             mkdir($heatmapFolder . '/' . $userName, 0777);
         }
-        $contourFileName = $idStudyEquipment . '-' . (int) $lfDwellingTime . '-' . (int) $chartTempInterval[0] . '-' . (int) $chartTempInterval[1] . '-' . (int) $chartTempInterval[2];
+        $contourFileName = $idStudyEquipment . '-' . $lfDwellingTime . '-' . $chartTempInterval[0] . '-' . $chartTempInterval[1] . '-' . $chartTempInterval[2];
 
-        system('gnuplot -c '. $plotFolder .'/plot.gnu "'. $dimension .' '. $axisX .'" "'. $dimension .' '. $axisY .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. (int) $chartTempInterval[0] .' '. (int) $chartTempInterval[1] .' '. (int) $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName .'" "'. $contourFileName .'"');
+        $dataContour = $this->output->getGrideByPlan($idStudy, $idStudyEquipment, $lfDwellingTime, $chartTempInterval[0], $chartTempInterval[1], $planTempRecordData, $selectedPlan - 1, $shape, $orientation);
+
+        if (!file_exists($heatmapFolder . '/' . $userName . '/' . $contourFileName . '.png')) {
+            $f = fopen("/tmp/contour.inp", "w");
+            foreach ($dataContour as $datum) {
+                fputs($f, (double) $datum['X'] . ' ' . (double) $datum['Y'] . ' ' .  (double) $datum['Z'] . "\n" );
+            }
+            fclose($f);
+
+            system('gnuplot -c '. $plotFolder .'/plot.gnu "'. $dimension .' '. $axisX .'" "'. $dimension .' '. $axisY .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName .'" "'. $contourFileName .'"');
+        }
+        
 
         $imageContour[] = 'http://'.$_SERVER['HTTP_HOST'] . '/heatmap/' . $userName . '/' . $contourFileName . '.png';
 
@@ -2194,31 +2201,35 @@ class Output extends Controller
         for ($i = 0; $i < $nbContour2d - 1; $i++) { 
             $pos = round($i * $lfTheoricStep / $lfStep, 0);
             $lfDwellingTime = $recordPosition[$pos]->RECORD_TIME;
-
-            $dataContour = $this->output->getGrideByPlan($idStudy, $idStudyEquipment, $lfDwellingTime, $chartTempInterval[0], $chartTempInterval[1], $planTempRecordData, $selectedPlan - 1, $shape, $orientation);
-
-            $f = fopen("/tmp/contour.inp", "w");
-            foreach ($dataContour as $datum) {
-                fputs($f, $datum['X'] . ' ' . $datum['Y'] . ' ' .  $datum['Z'] . "\n" );
-            }
-            fclose($f);
-            
             $contourFileName = $idStudyEquipment . '-' . $lfDwellingTime;
 
-            system('gnuplot -c '. $plotFolder .'/plot.gnu "'. $dimension .' '. $axisX .'" "'. $dimension .' '. $axisY .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName .'" "'. $contourFileName .'"');
+            if (!file_exists($heatmapFolder . '/' . $userName . '/' . $contourFileName . '.png')) {
+                $dataContour = $this->output->getGrideByPlan($idStudy, $idStudyEquipment, $lfDwellingTime, $chartTempInterval[0], $chartTempInterval[1], $planTempRecordData, $selectedPlan - 1, $shape, $orientation);
+
+                $f = fopen("/tmp/contour.inp", "w");
+                foreach ($dataContour as $datum) {
+                    fputs($f, (double) $datum['X'] . ' ' . (double) $datum['Y'] . ' ' .  (double) $datum['Z'] . "\n" );
+                }
+                fclose($f);
+                
+                system('gnuplot -c '. $plotFolder .'/plot.gnu "'. $dimension .' '. $axisX .'" "'. $dimension .' '. $axisY .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName .'" "'. $contourFileName .'"');
+            }
+
             $imageContour[] = 'http://'.$_SERVER['HTTP_HOST'] . '/heatmap/' . $userName . '/' . $contourFileName . '.png';
         }
 
-        $dataContour = $this->output->getGrideByPlan($idStudy, $idStudyEquipment, $lfTS, $chartTempInterval[0], $chartTempInterval[1], $planTempRecordData, $selectedPlan - 1, $shape, $orientation);
-
-        $f = fopen("/tmp/contour.inp", "w");
-        foreach ($dataContour as $datum) {
-            fputs($f, $datum['X'] . ' ' . $datum['Y'] . ' ' .  $datum['Z'] . "\n" );
-        }
-        fclose($f);
-
         $contourFileName = $idStudyEquipment . '-' . $lfTS;
-        system('gnuplot -c '. $plotFolder .'/plot.gnu "'. $dimension .' '. $axisX .'" "'. $dimension .' '. $axisY .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName .'" "'. $contourFileName .'"');
+        if (!file_exists($heatmapFolder . '/' . $userName . '/' . $contourFileName . '.png')) {
+            $dataContour = $this->output->getGrideByPlan($idStudy, $idStudyEquipment, $lfTS, $chartTempInterval[0], $chartTempInterval[1], $planTempRecordData, $selectedPlan - 1, $shape, $orientation);
+
+            $f = fopen("/tmp/contour.inp", "w");
+            foreach ($dataContour as $datum) {
+                fputs($f, (double) $datum['X'] . ' ' . (double) $datum['Y'] . ' ' .  (double) $datum['Z'] . "\n" );
+            }
+            fclose($f);
+
+            system('gnuplot -c '. $plotFolder .'/plot.gnu "'. $dimension .' '. $axisX .'" "'. $dimension .' '. $axisY .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName .'" "'. $contourFileName .'"');
+        }
 
         $imageContour[] = 'http://'.$_SERVER['HTTP_HOST'] . '/heatmap/' . $userName . '/' . $contourFileName . '.png';
 

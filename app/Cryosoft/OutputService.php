@@ -452,7 +452,7 @@ class OutputService
         $rMeshPosition = MeshPosition::where('ID_STUDY', $idStudy)->where('MESH_AXIS', $selectedAxe)->where('MESH_ORDER', $recAxis)->first();
         if (!empty($rMeshPosition)) $result = $this->unit->prodchartDimension($rMeshPosition->MESH_AXIS_POS);
 
-        return (double) $result;
+        return $result;
     }
 
     public function getPositionForAxis2($idStudy, $axis, $meshAxis)
@@ -645,7 +645,7 @@ class OutputService
                                     foreach ($tempRecordDatas as $tempRecordData) {
                                         $item['X'] = $this->getAxisForPosition2($idStudy, $tempRecordData->REC_AXIS_X_POS, 3);
                                         $item['Y'] = $this->getAxisForPosition2($idStudy, $tempRecordData->REC_AXIS_Y_POS, 2);
-                                        $item['Z'] = (double) $this->unit->prodTemperature($tempRecordData->TEMP);
+                                        $item['Z'] = $this->unit->prodTemperature($tempRecordData->TEMP);
                                         $result[] = $item;
                                     }
                                 }
@@ -655,7 +655,7 @@ class OutputService
                                     foreach ($tempRecordDatas as $tempRecordData) {
                                         $item['X'] = $this->getAxisForPosition2($idStudy, $tempRecordData->REC_AXIS_Z_POS, 3);
                                         $item['Y'] = $this->getAxisForPosition2($idStudy, $tempRecordData->REC_AXIS_Y_POS, 2);
-                                        $item['Z'] = (double) $this->unit->prodTemperature($tempRecordData->TEMP);
+                                        $item['Z'] = $this->unit->prodTemperature($tempRecordData->TEMP);
                                         $result[] = $item;
                                     }
                                 }
@@ -668,7 +668,7 @@ class OutputService
                                 foreach ($tempRecordDatas as $tempRecordData) {
                                     $item['X'] = $this->getAxisForPosition2($idStudy, $tempRecordData->REC_AXIS_X_POS, 2);
                                     $item['Y'] = $this->getAxisForPosition2($idStudy, $tempRecordData->REC_AXIS_Z_POS, 3);
-                                    $item['Z'] = (double) $this->unit->prodTemperature($tempRecordData->TEMP);
+                                    $item['Z'] = $this->unit->prodTemperature($tempRecordData->TEMP);
                                     $result[] = $item;
                                 }
                             }
@@ -704,7 +704,7 @@ class OutputService
                                         $item['X'] = $this->getAxisForPosition2($idStudy, $tempRecordData->REC_AXIS_X_POS, 1);
                                         $item['Y'] = $this->getAxisForPosition2($idStudy, $tempRecordData->REC_AXIS_Z_POS, 3);
                                     }
-                                    $item['Z'] = (double) $this->unit->prodTemperature($tempRecordData->TEMP);
+                                    $item['Z'] = $this->unit->prodTemperature($tempRecordData->TEMP);
                                     $result[] = $item;
                                 }
                             }
@@ -716,7 +716,7 @@ class OutputService
                                 foreach ($tempRecordDatas as $tempRecordData) {
                                     $item['X'] = $this->getAxisForPosition2($idStudy, $tempRecordData->REC_AXIS_Z_POS, 3);
                                     $item['Y'] = $this->getAxisForPosition2($idStudy, $tempRecordData->REC_AXIS_Y_POS, 1);
-                                    $item['Z'] = (double) $this->unit->prodTemperature($tempRecordData->TEMP);
+                                    $item['Z'] = $this->unit->prodTemperature($tempRecordData->TEMP);
                                     $result[] = $item;
                                 }
                             }
@@ -744,7 +744,7 @@ class OutputService
                                     foreach ($tempRecordDatas as $tempRecordData) {
                                         $item['X'] = $this->getAxisForPosition2($idStudy, $tempRecordData->REC_AXIS_Z_POS, 1);
                                         $item['Y'] = $this->getAxisForPosition2($idStudy, $tempRecordData->REC_AXIS_Y_POS, 2);
-                                        $item['Z'] = (double) $this->unit->prodTemperature($tempRecordData->TEMP);
+                                        $item['Z'] = $this->unit->prodTemperature($tempRecordData->TEMP);
                                         $result[] = $item;
                                     }
                                 }
@@ -754,7 +754,7 @@ class OutputService
                                     foreach ($tempRecordDatas as $tempRecordData) {
                                         $item['X'] = $this->getAxisForPosition2($idStudy, $tempRecordData->REC_AXIS_X_POS, 1);
                                         $item['Y'] = $this->getAxisForPosition2($idStudy, $tempRecordData->REC_AXIS_Y_POS, 2);
-                                        $item['Z'] = (double) $this->unit->prodTemperature($tempRecordData->TEMP);
+                                        $item['Z'] = $this->unit->prodTemperature($tempRecordData->TEMP);
                                         $result[] = $item;
                                     }
                                 }
@@ -769,7 +769,7 @@ class OutputService
                                 foreach ($tempRecordDatas as $tempRecordData) {
                                     $item['X'] = $this->getAxisForPosition2($idStudy, $tempRecordData->REC_AXIS_X_POS, 2);
                                     $item['Y'] = $this->getAxisForPosition2($idStudy, $tempRecordData->REC_AXIS_Y_POS, 1);
-                                    $item['Z'] = (double) $this->unit->prodTemperature($tempRecordData->TEMP);
+                                    $item['Z'] = $this->unit->prodTemperature($tempRecordData->TEMP);
                                     $result[] = $item;
                                 }
                             }
@@ -782,7 +782,7 @@ class OutputService
                                 foreach ($tempRecordDatas as $tempRecordData) {
                                     $item['X'] = $this->getAxisForPosition2($idStudy, $tempRecordData->REC_AXIS_X_POS, 1);
                                     $item['Y'] = $this->getAxisForPosition2($idStudy, $tempRecordData->REC_AXIS_Y_POS, 2);
-                                    $item['Z'] = (double) $this->unit->prodTemperature($tempRecordData->TEMP);
+                                    $item['Z'] = $this->unit->prodTemperature($tempRecordData->TEMP);
                                     $result[] = $item;
                                 }
                             }
