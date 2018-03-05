@@ -231,3 +231,11 @@ $router->GET('/api/v1/referencedata/equipcharact/{id}', 'Api1\\Equipments@getEqu
  * Output-Formats: [application/json]
  */
 $router->PUT('/api/v1/referencedata/equipcharact', 'Api1\\Equipments@updateEquipCharact');
+
+/**
+ * GET Data curve charact
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/referencedata/curve/{idEquip}', 'Api1\\Equipments@getDataCurve');

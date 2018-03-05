@@ -596,6 +596,32 @@ class Equipments extends Controller
         return $array;
     }
 
+    public function getDataCurve($idEquip) 
+    {
+        $array = [];
+        $isCapabilities = null;
+        $equipment = Equipment::find($idEquip);
+        if ($equipment) {
+            if ($this->equip->getCapability($equipment->CAPABILITIES, REF_CAP_EQP_DEPEND_ON_TS)) {
+                $isCapabilities = 1;
+            } else {
+                $isCapabilities = 0;
+            }
+        }
+        
+        $equipGeneration = EquipGeneration::where('ID_EQUIP', $idEquip)->first();
+        if ($equipGeneration) {
+            $array = [
+                'isCapabilities' => $isCapabilities,
+                'REGUL_TEMP' => $equipGeneration->TEMP_SETPOINT,
+                'DWELLING_TIME' => $equipGeneration->DWELLING_TIME,
+                'PRODTEMP' => $equipGeneration->AVG_PRODINTEMP,
+                'LOADINGRATE' => $equipGeneration->EQP_GEN_LOADRATE
+            ];
+        }
+        return $array;
+    }
+
     public function getUnitData($id)
     {
         $study = Study::find($id);
