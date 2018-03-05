@@ -2052,11 +2052,13 @@ class Output extends Controller
         if (!is_dir($heatmapFolder . '/' . $userName)) {
             mkdir($heatmapFolder . '/' . $userName, 0777);
         }
-        $contourFileName = $idStudyEquipment . '-' . $lfDwellingTime;
+        $contourFileName = $idStudyEquipment . '-' . $lfDwellingTime . $chartTempInterval[0] . '-' . $chartTempInterval[1] . '-' . $chartTempInterval[2];
 
         system('gnuplot -c '. $plotFolder .'/plot.gnu "'. $dimension .' '. $axisName[0] .'" "'. $dimension .' '. $axisName[1] .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName .'" "'. $contourFileName .'"');
 
-        return compact("minMax", "chartTempInterval", "valueRecAxis", "lfDwellingTime", "lftimeInterval", "axisName", "dataContour");
+        $imageContour[] = 'http://'.$_SERVER['HTTP_HOST'] . '/heatmap/' . $userName . '/' . $contourFileName . '.png';
+
+        return compact("minMax", "chartTempInterval", "valueRecAxis", "lfDwellingTime", "lftimeInterval", "axisName", "dataContour", "imageContour");
     }
 
     public function productChart2DStatic()
@@ -2117,12 +2119,14 @@ class Output extends Controller
         if (!is_dir($heatmapFolder . '/' . $userName)) {
             mkdir($heatmapFolder . '/' . $userName, 0777);
         }
-        $contourFileName = $idStudyEquipment . '-' . $lfDwellingTime;
+        $contourFileName = $idStudyEquipment . '-' . (int) $lfDwellingTime . '-' . (int) $chartTempInterval[0] . '-' . (int) $chartTempInterval[1] . '-' . (int) $chartTempInterval[2];
 
-        system('gnuplot -c '. $plotFolder .'/plot.gnu "'. $dimension .' '. $axisX .'" "'. $dimension .' '. $axisY .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName .'" "'. $contourFileName .'"');
+        system('gnuplot -c '. $plotFolder .'/plot.gnu "'. $dimension .' '. $axisX .'" "'. $dimension .' '. $axisY .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. (int) $chartTempInterval[0] .' '. (int) $chartTempInterval[1] .' '. (int) $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName .'" "'. $contourFileName .'"');
+
+        $imageContour[] = 'http://'.$_SERVER['HTTP_HOST'] . '/heatmap/' . $userName . '/' . $contourFileName . '.png';
 
 
-        return compact("chartTempInterval", "dataContour");
+        return compact("chartTempInterval", "dataContour", "imageContour");
     }
 
     public function productchart2DAnim()
