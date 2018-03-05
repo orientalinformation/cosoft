@@ -924,6 +924,16 @@ class Equipments extends Controller
         return $equipCharact;
     }
 
+    public function deleteEquipCharact($id)
+    {
+        $equipCharact = EquipCharact::find($id);
+        if ($equipCharact) {
+            $equipCharact->delete();
+            return 1;
+        }
+        return 0;
+    }
+
     public function updateEquipCharact()
     {
         $input = $this->request->all();

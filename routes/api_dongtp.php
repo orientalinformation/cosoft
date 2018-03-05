@@ -247,3 +247,11 @@ $router->GET('/api/v1/referencedata/curve/{idEquip}', 'Api1\\Equipments@getDataC
  * Output-Formats: [application/json]
  */
 $router->PUT('/api/v1/referencedata/redrawcurves', 'Api1\\Equipments@redrawCurves');
+
+/**
+ * Delete Equip charact
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->DELETE('/api/v1/referencedata/equipcharact/{id}', 'Api1\\Equipments@deleteEquipCharact');
