@@ -533,6 +533,11 @@ class Equipments extends Controller
         return $equipCharacts;
     }
 
+    public function deleteEquipCharacts($idEquip)
+    {
+
+    }
+
     public function getDataHighChart()
     {
         $profileType = $minMax = $minScaleY = $maxScaleY = $minValueY = $maxValueY = $nbFractionDigits = null;
@@ -594,6 +599,63 @@ class Equipments extends Controller
         ];
 
         return $array;
+    }
+
+    public function getDataCurve($idEquip) 
+    {
+        $array = [];
+        $isCapabilities = null;
+        $equipment = Equipment::find($idEquip);
+        if ($equipment) {
+            if ($this->equip->getCapability($equipment->CAPABILITIES, REF_CAP_EQP_DEPEND_ON_TS)) {
+                $isCapabilities = 1;
+            } else {
+                $isCapabilities = 0;
+            }
+        }
+        
+        $equipGeneration = EquipGeneration::where('ID_EQUIP', $idEquip)->first();
+        if ($equipGeneration) {
+            $array = [
+                'isCapabilities' => $isCapabilities,
+                'REGUL_TEMP' => $equipGeneration->TEMP_SETPOINT,
+                'DWELLING_TIME' => $equipGeneration->DWELLING_TIME,
+                'PRODTEMP' => $equipGeneration->AVG_PRODINTEMP,
+                'LOADINGRATE' => $equipGeneration->EQP_GEN_LOADRATE
+            ];
+        }
+        return $array;
+    }
+
+    public function redrawCurves()
+    {
+        $input = $this->request->all();
+
+        $ID_EQUIP = $REGUL_TEMP = $DWELLING_TIME = $PRODTEMP = $LOADINGRATE = $result = null;
+
+        if (isset($input['ID_EQUIP'])) $ID_EQUIP = intval($input['ID_EQUIP']);
+        if (isset($input['REGUL_TEMP'])) $REGUL_TEMP = floatval($input['REGUL_TEMP']);
+        if (isset($input['DWELLING_TIME'])) $DWELLING_TIME = floatval($input['DWELLING_TIME']);
+        if (isset($input['PRODTEMP'])) $PRODTEMP = floatval($input['PRODTEMP']);
+        if (isset($input['LOADINGRATE'])) $LOADINGRATE = floatval($input['LOADINGRATE']);
+
+        $equipment = Equipment::find($ID_EQUIP);
+        if ($equipment) {
+            if ($equipment->STD == 1) {
+                $equipGeneration = EquipGeneration::where('ID_EQUIP', $equipment->ID_EQUIPGENERATION)->first();
+                if ($equipGeneration) {
+                    if ($this->equip->getCapability($equipment->CAPABILITIES, 65536)) {
+                        $equipGeneration->DWELLING_TIME = $DWELLING_TIME;
+                    } else {
+                        $equipGeneration->TEMP_SETPOINT = $REGUL_TEMP;
+                    }
+                    $equipGeneration->AVG_PRODINTEMP = $PRODTEMP;
+                    $equipGeneration->EQP_GEN_LOADRATE = $LOADINGRATE;
+                    $equipGeneration->save();
+                }
+                $this->runEquipmentCalculation($equipment->ID_EQUIPGENERATION);
+            }
+        }
     }
 
     public function getUnitData($id)
@@ -865,6 +927,21 @@ class Equipments extends Controller
             $equipCharact->TEMP_REAR = $this->convert->temperature($equipCharact->TEMP_REAR);
         }
         return $equipCharact;
+    }
+
+    public function deleteEquipCharact($id)
+    {
+        $equipCharact = EquipCharact::find($id);
+        if ($equipCharact) {
+            $equipCharact->delete();
+            return 1;
+        }
+        return 0;
+    }
+
+    public function addOnePoint($id) 
+    {
+        
     }
 
     public function updateEquipCharact()

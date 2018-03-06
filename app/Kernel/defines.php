@@ -10,7 +10,7 @@ define('PROFILE_LEFT', 2);
 define('PROFILE_RIGHT', 3);
 define('PROFILE_FRONT', 4);
 define('PROFILE_REAR', 5);
-
+define('REF_CAP_EQP_DEPEND_ON_TS', 65536);
 
 define('SC_CLEAN_MODE_ESTIM_2_OPTIM',20);  // estimation -> optimum
 define('SC_CLEAN_MODE_OPTIM_2_ESTIM',21);  // optimum -> estimation
