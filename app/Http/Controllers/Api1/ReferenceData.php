@@ -230,7 +230,7 @@ class ReferenceData extends Controller
 
     public function startFCCalculation($idComp)
     {
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idComp);
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idComp, 0, 1, 1, 'c:\\temp\\Freeze_log.txt');
         return $this->kernel->getKernelObject('FreezeCalculator')->FCFreezeCalculation($conf);
     }
 
