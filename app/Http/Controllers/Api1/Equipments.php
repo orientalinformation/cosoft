@@ -535,7 +535,10 @@ class Equipments extends Controller
 
     public function deleteEquipCharacts($idEquip)
     {
-
+        $equipCharact = EquipCharact::where('ID_EQUIP', $idEquip)->get();
+        if (count($equipCharact) > 0) { 
+            EquipCharact::where('ID_EQUIP', $idEquip)->delete();
+        }
     }
 
     public function getDataHighChart()
@@ -941,7 +944,7 @@ class Equipments extends Controller
 
     public function addOnePoint($id) 
     {
-        
+
     }
 
     public function updateEquipCharact()
