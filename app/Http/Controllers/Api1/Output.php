@@ -2074,7 +2074,7 @@ class Output extends Controller
         $dataFile = 'http://'.$_SERVER['HTTP_HOST'] . '/heatmap/' . $userName . '/' . $idStudyEquipment . '/data.json';
         $imageContour[] = 'http://'.$_SERVER['HTTP_HOST'] . '/heatmap/' . $userName . '/' . $idStudyEquipment . '/' . $contourFileName . '.png';
 
-        return compact("minMax", "chartTempInterval", "valueRecAxis", "lfDwellingTime", "lftimeInterval", "axisName", "dataFile", "imageContour");
+        return compact("minMax", "chartTempInterval", "valueRecAxis", "lfDwellingTime", "lftimeInterval", "axisName", "imageContour");
     }
 
     public function productChart2DStatic()
@@ -2153,7 +2153,7 @@ class Output extends Controller
         $imageContour[] = 'http://'.$_SERVER['HTTP_HOST'] . '/heatmap/' . $userName . '/' . $idStudyEquipment . '/' . $contourFileName . '.png';
 
 
-        return compact("chartTempInterval", "dataFile", "imageContour");
+        return compact("chartTempInterval", "imageContour");
     }
 
     public function productchart2DAnim()
@@ -2259,5 +2259,16 @@ class Output extends Controller
         $imageContour[] = 'http://'.$_SERVER['HTTP_HOST'] . '/heatmap/' . $userName . '/' . $idStudyEquipment . '/' . $contourFileName . '.png';
 
         return compact("chartTempInterval", "imageContour");
+    }
+
+    public function readDataContour($idStudyEquipment)
+    {
+        $userName = $this->auth->user()->username;
+        $heatmapFolder = $this->output->public_path('heatmap');
+        $file = $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment . '/data.json';
+        if (file_exists($file)) {
+            $data = file_get_contents($file);
+            return ['valueContour' => $data];
+        }
     }
 }
