@@ -95,6 +95,10 @@ class ReferenceData extends Controller
         $input = $this->request->all();
 
         $compFamily = null;
+        $COMP_COMMENT = $COMP_NAME = '';
+        $LIPID = $GLUCID = $PROTID = $WATER = $FREEZE_TEMP = $COMP_VERSION = $CONDUCT_TYPE = 0;
+        $SALT = $AIR = $NON_FROZEN_WATER = $PRODUCT_TYPE = $SUB_TYPE = $FATTYPE = 0;
+        $release = $NATURE_TYPE = 1;
 
         if (isset($input['compfamily'])) $compFamily = intval($input['compfamily']);
 
@@ -103,16 +107,12 @@ class ReferenceData extends Controller
             $subFamily = $this->getFamilyTranslations(16);
         } else {
             $subFamily = $this->getSubFamilyTranslations(16, intval($compFamily));
+            $PRODUCT_TYPE = $compFamily;
         }
 
         $productNature = $this->getFamilyTranslations(15);
         $conductivity = $this->getFamilyTranslations(9);
         $fatType = $this->getFamilyTranslations(12);
-
-        $COMP_COMMENT = $COMP_NAME = '';
-        $LIPID = $GLUCID = $PROTID = $WATER = $FREEZE_TEMP = $COMP_VERSION = $CONDUCT_TYPE = 0;
-        $SALT = $AIR = $NON_FROZEN_WATER = $PRODUCT_TYPE = $SUB_TYPE = $FATTYPE = 0;
-        $release = $NATURE_TYPE = 1;
 
         $array = [
             'productFamily' => $productFamily,
