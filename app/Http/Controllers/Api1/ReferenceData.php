@@ -150,11 +150,18 @@ class ReferenceData extends Controller
         ->where('Translation.TRANS_TYPE', 1)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
         ->orderBy('LABEL', 'ASC')->get();
 
+        foreach ($mine as $m) {
+            $m->AIR = round(($m->AIR / 0.01205));
+        }
+
         $others = Component::join('Ln2user', 'Ln2user.ID_USER', '=', 'Component.ID_USER')
             ->join('Translation', 'Component.ID_COMP', '=', 'Translation.ID_TRANSLATION')
             ->where('Translation.TRANS_TYPE', 1)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
             ->where('Component.ID_USER', '!=', $this->auth->user()->ID_USER)
             ->orderBy('LABEL', 'ASC')->get();
+        foreach ($others as $other) {
+            $other->AIR = round(($other->AIR / 0.01205));
+        }
 
         return compact('mine', 'others');
     }
@@ -301,7 +308,7 @@ class ReferenceData extends Controller
         $component->CLASS_TYPE = $PRODUCT_TYPE;
         $component->SUB_FAMILY = $SUB_TYPE;
         $component->AIR = $AIR;
-        $component->WATER = $WATER;
+        $component->WATER = $WATER * 0.01205;
         $component->GLUCID = $GLUCID;
         $component->LIPID = $LIPID;
         $component->PROTID = $PROTID;
@@ -415,7 +422,7 @@ class ReferenceData extends Controller
         $component->FAT_TYPE = $FATTYPE;
         $component->CLASS_TYPE = $PRODUCT_TYPE;
         $component->SUB_FAMILY = $SUB_TYPE;
-        $component->AIR = $AIR;
+        $component->AIR = $AIR * 0.01205;
         $component->WATER = $WATER;
         $component->GLUCID = $GLUCID;
         $component->LIPID = $LIPID;
