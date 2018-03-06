@@ -181,8 +181,7 @@ class ReferenceData extends Controller
     public function calculateFreeze()
     {   
         $input = $this->request->all();
-        $idComp = null;
-        $result = null;
+        $idComp = $result = null;
 
         if (isset($input['ID_COMP'])) $idComp = intval($input['ID_COMP']);
 
@@ -194,11 +193,14 @@ class ReferenceData extends Controller
             if ($idComp == -4) return -4;
             $result = $this->startFCCalculation($idComp);
         } else {
-            if ($idComp) {
-               $result = $this->startFCCalculation($idComp);
+            $component = Component::find($idComp);
+
+            if ($component) {
+                if ($component->COMP_RELEASE == 7) $component->COMP_RELEASE = 8;
+                $this->saveCalculate($this->request, $component);
             }
-                
-            // $component->NON_FROZEN_WATER =
+
+            $result = $this->startFCCalculation($idComp);
         }
         return $result;
     }
@@ -350,7 +352,7 @@ class ReferenceData extends Controller
     private function saveCalculate(Request $request, $component)
     {
         $input = $this->request->all();
-
+        
         $COMP_COMMENT = $COMP_NAME = $COMP_NAME_NEW = $COMP_VERSION_NEW = null;
         $LIPID = $GLUCID = $PROTID = $WATER = $FREEZE_TEMP = $COMP_VERSION = $CONDUCT_TYPE = 0;
         $SALT = $AIR = $NON_FROZEN_WATER = $PRODUCT_TYPE = $SUB_TYPE = $FATTYPE = $DENSITY = $HEAT = 0;
@@ -383,11 +385,12 @@ class ReferenceData extends Controller
         if ($PRODUCT_TYPE == 0) return -2;
 
         if ($COMP_VERSION_NEW != null) {
-            if ($this->checkNameAndVersion($COMP_NAME_NEW, $COMP_VERSION_NEW)) return -4;
+            if ($COMP_VERSION_NEW != -2) {
+                if ($this->checkNameAndVersion($COMP_NAME_NEW, $COMP_VERSION_NEW)) return -4;
+            }
         } else {
             if ($this->checkNameAndVersion($COMP_NAME, $COMP_VERSION)) return -4;
         }
-
         $comment = 'Created on ' . $current->toDateTimeString() . ' by '. $this->auth->user()->USERNAM;
         $commentTrue = $COMP_COMMENT . "\n". $comment;
 
