@@ -401,10 +401,12 @@ class ReferenceData extends Controller
         $HEAT = $minMaxHeat->DEFAULT_VALUE;
 
         $component->ID_USER = $this->auth->user()->ID_USER;
-        $component->COMP_COMMENT = ($COMP_COMMENT == '') ? $comment : $commentTrue;
         // $component->COMP_DATE = $current->toDateTimeString();
         if ($COMP_VERSION_NEW != null) {
-            $component->COMP_VERSION = $COMP_VERSION_NEW;
+            if ($COMP_VERSION_NEW != -2) {
+                $component->COMP_COMMENT = ($COMP_COMMENT == '') ? $comment : $commentTrue;
+                $component->COMP_VERSION = $COMP_VERSION_NEW;
+            }
         } else {
             $component->COMP_VERSION = $COMP_VERSION;
         }
