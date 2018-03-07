@@ -85,14 +85,14 @@ class LineService
 
     public function getdiameter($coolingFamily, $insulationType) {
         $diameter = LineElmt::distinct()->select('ELT_SIZE')
-            ->where('ID_COOLING_FAMILY ', $coolingFamily)->where('ELT_TYPE', '<>', 2)
+            ->where('ID_COOLING_FAMILY', $coolingFamily)->where('ELT_TYPE', '<>', 2)
             ->where('INSULATION_TYPE', $insulationType)->get();
         return $diameter;
     }
 
     public function getStorageTank($coolingFamily, $insulationType) {
         $storageTank = LineElmt::distinct()->select('ELT_SIZE')
-            ->where('ID_COOLING_FAMILY ', $coolingFamily)->where('ELT_TYPE', '=', 2)
+            ->where('ID_COOLING_FAMILY', $coolingFamily)->where('ELT_TYPE', '=', 2)
             ->where('INSULATION_TYPE', $insulationType)->get();
         return $storageTank;
     }
