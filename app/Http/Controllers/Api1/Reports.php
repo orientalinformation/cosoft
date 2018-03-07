@@ -16,6 +16,10 @@ use App\Http\Requests;
 use App\Models\TempRecordPts;
 use App\Models\MinMax;
 use App\Models\Study;
+use App\Models\Production;
+use App\Models\Product;
+use App\Models\Translation;
+use App\Models\InitialTemperature;
 use PDF;
 use View;
 
@@ -454,6 +458,12 @@ class Reports extends Controller
         } 
         // if (!file_exists($public_path. "/" . $user. "/" .$name_report)) {
         require_once $tcpdf_path . ('/tcpdf_include.php');
+        $production = Production::Where('ID_STUDY', $id)->first();
+        $product = Product::Where('ID_STUDY', $id)->first();
+        $productElmt = ProductElmt::Where('ID_PROD', $product->ID_PROD)->first();
+        $shapeName = Translation::where('TRANS_TYPE', 4)->where('ID_TRANSLATION', $productElmt->SHAPECODE)->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
+        $initial = InitialTemperature::where('ID_PRODUCTION', $production->ID_PRODUCTION)->first(); 
+        // var_dump($production->INITIAL_T);
         // set document information
         PDF::SetCreator(PDF_CREATOR);
         PDF::SetAuthor('');
@@ -506,10 +516,7 @@ class Reports extends Controller
         PDF::setTextShadow(array('enabled'=>true, 'depth_w'=>0.2, 'depth_h'=>0.2, 'color'=>array(196,196,196), 'opacity'=>1, 'blend_mode'=>'Normal'));
 
         // Set some content to print
-        // if ($a == 1) {
-        // 	$ccc = '<h1>ZZZZ</h1>';
-        // }
-        $view = $this->view_report();
+        $view = $this->viewPDF($production, $product, $productElmt, $shapeName, $initial);
         $html= $view->render();
         PDF::writeHTMLCell(0, 0, '', '', $html, 0, 1, 0, true, '', true);
         // Print text using writeHTMLCell()
@@ -517,8 +524,8 @@ class Reports extends Controller
         PDF::Bookmark('Chapter 1', 0, 0, '', 'B', array(0,64,128));
         // print a line using Cell()
         PDF::Cell(0, 10, 'Chapter 1', 0, 1, 'L');
-        $view = $this->view_report();
-        $html= $view->render();
+        // $view = $this->viewPDF($production);
+        // $html= $view->render();
         PDF::writeHTMLCell(0, 0, '', '', $html, 0, 1, 0, true, '', true);
         PDF::AddPage();
         PDF::Bookmark('Paragraph 1.1', 1, 0, '', '', array(128,0,0));
@@ -572,30 +579,35 @@ class Reports extends Controller
         return ["url" => "$host/reports/$user/$name_report"];
     }
     
-    public function view_report()  {
-        return view('report.view_report');
+    public function viewPDF($production, $product, $productElmt, $shapeName) 
+    {
+        // var_dump($production->ID_PRODUCTION);die;
+        $arrayParam = [
+            'production' => $production,
+            'product' => $product,
+            'productElmt' => $productElmt,
+            'initial' => $initial,
+            'shapeName' => $shapeName
+        ];
+        $param = [
+            'arrayParam' => $arrayParam
+        ];
+        return view('report.view_report', $param);
+    }
+
+    public function viewHtml($id)
+    {
+        $view = view('report.viewHtmlToPDF');
+        return $view;
     }
 
     public function downLoadHtmlToPDF($id)
     {   
-        $study = Study::find($id);
-        $user = $this->auth->user()->USERNAM;
+        $this->viewHtml($id);
         $host = 'http://' . $_SERVER['HTTP_HOST'];
-        $public_path = rtrim(app()->basePath("public/reports/"), '/');
-        $tcpdf_path = rtrim(app()->basePath("vendor/tecnickcom/tcpdf/examples/"), '/');
-        $name_report = "$study->ID_STUDY- $study->STUDY_NAME-ReportHTML.pdf";
-        if (!is_dir($public_path. "/" . $user)) {
-            mkdir($public_path. "/" . $user, 0777);
-        } 
-        $view = view('report.viewHtmlToPDF');
-        $html_content = $view->render();
-      
-        PDF::SetTitle('Sample PDF');
-        PDF::AddPage();
-        PDF::writeHTML($html_content, true, false, true, false, '');
- 
-        PDF::Output($public_path. "/" . $user."/" . $name_report, 'F'); 
-        return ["url" => "$host/reports/$user/$name_report"];
+        $url = ["url" => "$host/api/v1/reports/$id/viewHtml"];
+        return $url;
+        
     }
     
 }
