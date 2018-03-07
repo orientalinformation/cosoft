@@ -713,7 +713,7 @@ class Studies extends Controller
             $packingLayer = new \App\Models\PackingLayer();
             $packingLayer->ID_PACKING = $packing->ID_PACKING;
             $packingLayer->ID_PACKING_ELMT = $value['ID_PACKING_ELMT'];
-            $packingLayer->THICKNESS = $value['THICKNESS'];
+            $packingLayer->THICKNESS = $value['THICKNESS'] / 1000000;
             $packingLayer->PACKING_SIDE_NUMBER = $value['PACKING_SIDE_NUMBER'];
             $packingLayer->PACKING_LAYER_ORDER = $value['PACKING_LAYER_ORDER'];
             $packingLayer->save();
