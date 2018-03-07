@@ -267,8 +267,18 @@ class UnitsConverterService
         return $unit->SYMBOL;
     }
 
-    public function prodchartDimensionSymbol() {
+    public function prodchartDimensionSymbol() 
+    {
         $unit = Unit::where('TYPE_UNIT', $this->value->PRODCHART_DIMENSION)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+        return $unit->SYMBOL;
+    }
+
+    public function prodDimensionSymbol()
+    {
+        $unit = Unit::where('TYPE_UNIT', $this->value->PROD_DIMENSION)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
