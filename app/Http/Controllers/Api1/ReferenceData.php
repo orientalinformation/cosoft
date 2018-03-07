@@ -95,6 +95,10 @@ class ReferenceData extends Controller
         $input = $this->request->all();
 
         $compFamily = null;
+        $COMP_COMMENT = $COMP_NAME = '';
+        $LIPID = $GLUCID = $PROTID = $WATER = $FREEZE_TEMP = $COMP_VERSION = $CONDUCT_TYPE = 0;
+        $SALT = $AIR = $NON_FROZEN_WATER = $PRODUCT_TYPE = $SUB_TYPE = $FATTYPE = 0;
+        $release = $NATURE_TYPE = 1;
 
         if (isset($input['compfamily'])) $compFamily = intval($input['compfamily']);
 
@@ -103,16 +107,12 @@ class ReferenceData extends Controller
             $subFamily = $this->getFamilyTranslations(16);
         } else {
             $subFamily = $this->getSubFamilyTranslations(16, intval($compFamily));
+            $PRODUCT_TYPE = $compFamily;
         }
 
         $productNature = $this->getFamilyTranslations(15);
         $conductivity = $this->getFamilyTranslations(9);
         $fatType = $this->getFamilyTranslations(12);
-
-        $COMP_COMMENT = $COMP_NAME = '';
-        $LIPID = $GLUCID = $PROTID = $WATER = $FREEZE_TEMP = $COMP_VERSION = $CONDUCT_TYPE = 0;
-        $SALT = $AIR = $NON_FROZEN_WATER = $PRODUCT_TYPE = $SUB_TYPE = $FATTYPE = 0;
-        $release = $NATURE_TYPE = 1;
 
         $array = [
             'productFamily' => $productFamily,
@@ -150,11 +150,18 @@ class ReferenceData extends Controller
         ->where('Translation.TRANS_TYPE', 1)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
         ->orderBy('LABEL', 'ASC')->get();
 
+        foreach ($mine as $m) {
+            $m->AIR = round(($m->AIR / 0.01205));
+        }
+
         $others = Component::join('Ln2user', 'Ln2user.ID_USER', '=', 'Component.ID_USER')
             ->join('Translation', 'Component.ID_COMP', '=', 'Translation.ID_TRANSLATION')
             ->where('Translation.TRANS_TYPE', 1)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
             ->where('Component.ID_USER', '!=', $this->auth->user()->ID_USER)
             ->orderBy('LABEL', 'ASC')->get();
+        foreach ($others as $other) {
+            $other->AIR = round(($other->AIR / 0.01205));
+        }
 
         return compact('mine', 'others');
     }
@@ -181,8 +188,7 @@ class ReferenceData extends Controller
     public function calculateFreeze()
     {   
         $input = $this->request->all();
-        $idComp = null;
-        $result = null;
+        $idComp = $result = null;
 
         if (isset($input['ID_COMP'])) $idComp = intval($input['ID_COMP']);
 
@@ -194,11 +200,14 @@ class ReferenceData extends Controller
             if ($idComp == -4) return -4;
             $result = $this->startFCCalculation($idComp);
         } else {
-            if ($idComp) {
-               $result = $this->startFCCalculation($idComp);
+            $component = Component::find($idComp);
+
+            if ($component) {
+                if ($component->COMP_RELEASE == 7) $component->COMP_RELEASE = 8;
+                $this->saveCalculate($this->request, $component);
             }
-                
-            // $component->NON_FROZEN_WATER =
+
+            $result = $this->startFCCalculation($idComp);
         }
         return $result;
     }
@@ -221,7 +230,7 @@ class ReferenceData extends Controller
 
     public function startFCCalculation($idComp)
     {
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idComp);
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idComp, 0, 1, 1, 'c:\\temp\\Freeze_log.txt');
         return $this->kernel->getKernelObject('FreezeCalculator')->FCFreezeCalculation($conf);
     }
 
@@ -299,7 +308,7 @@ class ReferenceData extends Controller
         $component->CLASS_TYPE = $PRODUCT_TYPE;
         $component->SUB_FAMILY = $SUB_TYPE;
         $component->AIR = $AIR;
-        $component->WATER = $WATER;
+        $component->WATER = $WATER * 0.01205;
         $component->GLUCID = $GLUCID;
         $component->LIPID = $LIPID;
         $component->PROTID = $PROTID;
@@ -350,7 +359,7 @@ class ReferenceData extends Controller
     private function saveCalculate(Request $request, $component)
     {
         $input = $this->request->all();
-
+        
         $COMP_COMMENT = $COMP_NAME = $COMP_NAME_NEW = $COMP_VERSION_NEW = null;
         $LIPID = $GLUCID = $PROTID = $WATER = $FREEZE_TEMP = $COMP_VERSION = $CONDUCT_TYPE = 0;
         $SALT = $AIR = $NON_FROZEN_WATER = $PRODUCT_TYPE = $SUB_TYPE = $FATTYPE = $DENSITY = $HEAT = 0;
@@ -383,11 +392,12 @@ class ReferenceData extends Controller
         if ($PRODUCT_TYPE == 0) return -2;
 
         if ($COMP_VERSION_NEW != null) {
-            if ($this->checkNameAndVersion($COMP_NAME_NEW, $COMP_VERSION_NEW)) return -4;
+            if ($COMP_VERSION_NEW != -2) {
+                if ($this->checkNameAndVersion($COMP_NAME_NEW, $COMP_VERSION_NEW)) return -4;
+            }
         } else {
             if ($this->checkNameAndVersion($COMP_NAME, $COMP_VERSION)) return -4;
         }
-
         $comment = 'Created on ' . $current->toDateTimeString() . ' by '. $this->auth->user()->USERNAM;
         $commentTrue = $COMP_COMMENT . "\n". $comment;
 
@@ -398,10 +408,12 @@ class ReferenceData extends Controller
         $HEAT = $minMaxHeat->DEFAULT_VALUE;
 
         $component->ID_USER = $this->auth->user()->ID_USER;
-        $component->COMP_COMMENT = ($COMP_COMMENT == '') ? $comment : $commentTrue;
         // $component->COMP_DATE = $current->toDateTimeString();
         if ($COMP_VERSION_NEW != null) {
-            $component->COMP_VERSION = $COMP_VERSION_NEW;
+            if ($COMP_VERSION_NEW != -2) {
+                $component->COMP_COMMENT = ($COMP_COMMENT == '') ? $comment : $commentTrue;
+                $component->COMP_VERSION = $COMP_VERSION_NEW;
+            }
         } else {
             $component->COMP_VERSION = $COMP_VERSION;
         }
@@ -410,7 +422,7 @@ class ReferenceData extends Controller
         $component->FAT_TYPE = $FATTYPE;
         $component->CLASS_TYPE = $PRODUCT_TYPE;
         $component->SUB_FAMILY = $SUB_TYPE;
-        $component->AIR = $AIR;
+        $component->AIR = $AIR * 0.01205;
         $component->WATER = $WATER;
         $component->GLUCID = $GLUCID;
         $component->LIPID = $LIPID;
@@ -579,6 +591,7 @@ class ReferenceData extends Controller
     public function getEquipmentFilter($id)
     {
         $equipment = Equipment::find($id);
+        $checkGenZone = false;
         
         if ($equipment) {
             $listEquipZone = EquipZone::where('ID_EQUIP', $id)->orderBy('EQUIP_ZONE_NUMBER', 'ASC')->get();
@@ -596,10 +609,56 @@ class ReferenceData extends Controller
                 if (count($listEquipGenZone) > 0) {
                     $equipment->EquipGenZone = $listEquipGenZone;
                 } else {
-                    $equipment->EquipGenZone = null;
+                    $checkGenZone = true;
                 }
             } else {
-                $equipment->EquipGenZone = null;
+                $checkGenZone = true;
+            }
+
+            if ($checkGenZone) {
+                $equipGenZone = new EquipGenZone();
+                $equipGenZone->TEMP_SENSOR = 0;
+                $equipGenZone->TOP_ADIABAT = 0;
+                $equipGenZone->BOTTOM_ADIABAT = 0;
+                $equipGenZone->LEFT_ADIABAT = 0;
+                $equipGenZone->RIGHT_ADIABAT = 0;
+                $equipGenZone->FRONT_ADIABAT = 0;
+                $equipGenZone->REAR_ADIABAT = 0;
+
+                $equipGenZone->TOP_CHANGE = 1;
+                $equipGenZone->BOTTOM_CHANGE = 1;
+                $equipGenZone->LEFT_CHANGE = 1;
+                $equipGenZone->RIGHT_CHANGE = 1;
+                $equipGenZone->FRONT_CHANGE = 1;
+                $equipGenZone->REAR_CHANGE = 1;
+
+                $equipGenZone->TOP_PRM1 = 1;
+                $equipGenZone->BOTTOM_PRM1 = 1;
+                $equipGenZone->LEFT_PRM1 = 1;
+                $equipGenZone->RIGHT_PRM1 = 1;
+                $equipGenZone->FRONT_PRM1 = 1;
+                $equipGenZone->REAR_PRM1 = 1;
+
+                $equipGenZone->TOP_PRM2 = 0;
+                $equipGenZone->BOTTOM_PRM2 = 0;
+                $equipGenZone->LEFT_PRM2 = 0;
+                $equipGenZone->RIGHT_PRM2 = 0;
+                $equipGenZone->FRONT_PRM2 = 0;
+                $equipGenZone->REAR_PRM2 = 0;
+
+                $equipGenZone->TOP_PRM3 = 0;
+                $equipGenZone->BOTTOM_PRM3 = 0;
+                $equipGenZone->LEFT_PRM3 = 0;
+                $equipGenZone->RIGHT_PRM3 = 0;
+                $equipGenZone->FRONT_PRM3 = 0;
+                $equipGenZone->REAR_PRM3 = 0;
+
+                $arr = array();
+                
+                for ($i = 0; $i < intval($equipment->NUMBER_OF_ZONES); $i++ ) {
+                    array_push($arr, $equipGenZone);
+                }
+                $equipment->EquipGenZone = $arr;
             }
         }
 

@@ -255,3 +255,11 @@ $router->PUT('/api/v1/referencedata/redrawcurves', 'Api1\\Equipments@redrawCurve
  * Output-Formats: [application/json]
  */
 $router->DELETE('/api/v1/referencedata/equipcharact/{id}', 'Api1\\Equipments@deleteEquipCharact');
+
+/**
+ * Delete all Equip charact
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->DELETE('/api/v1/referencedata/equipcharacts/{idEquip}', 'Api1\\Equipments@deleteEquipCharacts');

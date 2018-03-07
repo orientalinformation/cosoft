@@ -358,12 +358,8 @@ class UnitsConverterService
     
     public function convertCalculator($value, $coeffA, $coeffB, $decimal = 2)
     {
-        if ($decimal > 0)
-            $number =  round(($value * $coeffA + $coeffB), $decimal, PHP_ROUND_HALF_DOWN);
-        else
-            $number =  round(($value * $coeffA + $coeffB), $decimal);
-
-        return number_format((float)$number, $decimal, '.', '');
+        $number = $value * $coeffA + $coeffB;
+        return floor($number * pow(10, $decimal)) / pow(10, $decimal);
     }
 
     public function uNone()
