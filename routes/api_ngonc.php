@@ -167,3 +167,12 @@ $router->POST('/api/v1/output/productChart2DStatic', 'Api1\\Output@productChart2
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/output/productchart2DAnim', 'Api1\\Output@productchart2DAnim');
+
+/**
+ * GET readDataContour
+ * Summary: 
+ * Notes: get data contour file
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/output/readDataContour/{idStudyEquipment}', 'Api1\\Output@readDataContour');
+
