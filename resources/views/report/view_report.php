@@ -73,6 +73,32 @@
                 </table>
             </div>
         </div>
+        <div class="pro-components">
+            <div class="table table-bordered">
+                <table border="0.5">
+                    <tr>
+                        <th align="center">Product name</th>
+                        <th align="center">Shape</th>
+                        <th align="center">Height (cm)</th>
+                        <th align="center">Length (cm)</th>
+                        <th align="center">Width (cm)</th>
+                        <th align="center">Real product mass per unit (kg)</th>
+                        <th align="center">Same temperature throughout product.</th>
+                        <th align="center">Initial temperature (°C)</th>
+                    </tr>
+                    <tr>
+                        <td align="center"><?php echo $arrayParam['product']->PRODNAME ?></td>
+                        <td align="center"><?php echo $arrayParam['shapeName']->LABEL ?></td>
+                        <td align="center"><?php echo $arrayParam['productElmt']->SHAPE_PARAM1 ?></td>
+                        <td align="center"><?php echo $arrayParam['productElmt']->SHAPE_PARAM2 ?></td>
+                        <td align="center"><?php echo $arrayParam['productElmt']->SHAPE_PARAM3 ?></td>
+                        <td align="center"><?php echo $arrayParam['product']->PROD_REALWEIGHT ?></td>
+                        <td align="center"><?php echo $arrayParam['product']->PROD_ISO == 1 ? "YES" : "NO" ?></td>
+                        <td align="center"><?php echo $arrayParam['initial']->INITIAL_T ?></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
 
         <div class="info-company">
             <div align="center">
