@@ -539,6 +539,7 @@ class Equipments extends Controller
         if (count($equipCharact) > 0) { 
             EquipCharact::where('ID_EQUIP', $idEquip)->delete();
         }
+        return 1;
     }
 
     public function getDataHighChart()
