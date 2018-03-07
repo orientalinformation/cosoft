@@ -359,11 +359,11 @@ class ReferenceData extends Controller
     private function saveCalculate(Request $request, $component)
     {
         $input = $this->request->all();
-        
+
         $COMP_COMMENT = $COMP_NAME = $COMP_NAME_NEW = $COMP_VERSION_NEW = null;
         $LIPID = $GLUCID = $PROTID = $WATER = $FREEZE_TEMP = $COMP_VERSION = $CONDUCT_TYPE = 0;
         $SALT = $AIR = $NON_FROZEN_WATER = $PRODUCT_TYPE = $SUB_TYPE = $FATTYPE = $DENSITY = $HEAT = 0;
-        $release = $NATURE_TYPE = 1;
+        $COMP_RELEASE = $NATURE_TYPE = 1;
         $tempertures = array();
         $current = Carbon::now('Asia/Ho_Chi_Minh');
 
