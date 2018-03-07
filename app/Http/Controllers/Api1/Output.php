@@ -80,12 +80,13 @@ class Output extends Controller
         $convectionCoeffSymbol = $this->unit->convectionCoeffSymbol();
         $timePositionSymbol = $this->unit->timePositionSymbol();
         $prodchartDimensionSymbol = $this->unit->prodchartDimensionSymbol();
+        $prodDimensionSymbol = $this->unit->prodDimensionSymbol();
         $percentSymbol = "%";
         $consumSymbol = $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1);
         $consumMaintienSymbol = $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 2);
         $mefSymbol = $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 3);
 
-        $ret = compact("productFlowSymbol", "massSymbol", "temperatureSymbol", "percentSymbol", "timeSymbol", "perUnitOfMassSymbol", "enthalpySymbol", "monetarySymbol", "equipDimensionSymbol", "convectionSpeedSymbol", "convectionCoeffSymbol", "timePositionSymbol", "prodchartDimensionSymbol", "consumSymbol", "consumMaintienSymbol", "mefSymbol");
+        $ret = compact("productFlowSymbol", "massSymbol", "temperatureSymbol", "percentSymbol", "timeSymbol", "perUnitOfMassSymbol", "enthalpySymbol", "monetarySymbol", "equipDimensionSymbol", "convectionSpeedSymbol", "convectionCoeffSymbol", "timePositionSymbol", "prodDimensionSymbol", "prodchartDimensionSymbol", "consumSymbol", "consumMaintienSymbol", "mefSymbol");
         // var_dump($ret);
         return $ret;
     }
