@@ -989,6 +989,8 @@ class Output extends Controller
         }
 
         if (!empty($selectedEquipment)) {
+            $f = fopen("/tmp/sizing.inp", "w");
+            fputs($f, '"Equip Name" "Product flowrate" "Maximum product flowrate" "Cryogen consumption (product + equipment heat losses)" "Maximum cryogen consumption (product + equipment heat losses)"' . "\n");
             foreach ($selectedEquipment as $row) {
                 $itemChart["id"] = $row["id"];
                 $itemChart["equipName"] = $row["equipName"];
@@ -1022,8 +1024,11 @@ class Output extends Controller
                 }
 
             
-                $dataGrapChart[] =  $itemChart;    
+                $dataGrapChart[] =  $itemChart;   
+
+                fputs($f, '"' . trim($itemChart["equipName"]) . '"' . ' ' . (double) $itemChart["dhp"] . ' ' . (double) $itemChart["dhpMax"] . ' ' . (double) $itemChart["conso"] . ' ' . (double) $itemChart["consoMax"] . "\n" ); 
             }
+            fclose($f);
         }
 
         return compact("result", "selectedEquipment", "availableEquipment", "dataGrapChart", "productFlowRate");
@@ -1383,66 +1388,20 @@ class Output extends Controller
         }
     }
     
-    public function location()
+    public function getlocationAxisSelected()
     {
         $idStudy = $this->request->input('idStudy');
-        $idStudyEquipment = $this->request->input('idStudyEquipment');
 
-        $tfMesh = [];
-        for ($i = 0; $i < 3; $i++) {
-            $meshPoints = MeshPosition::distinct()->select('MESH_AXIS_POS')->where('ID_STUDY', $idStudy)->where('MESH_AXIS', $i+1)->orderBy('MESH_AXIS_POS')->get();
-            $itemName = [];
-            foreach ($meshPoints as $row) {
-                $item['value'] = $row->MESH_AXIS_POS;
-                $item['name'] = $this->unit->meshesUnit($row->MESH_AXIS_POS);
-                $itemName[] = $item;
-            }
-            $tfMesh[$i] = array_reverse($itemName);
-        }
-        $meshAxisPos = [];
-        if (!empty($tfMesh)) {
-            $meshAxisPos = $tfMesh;
-        }
+        $tempRecordPts = TempRecordPts::where("ID_STUDY", $idStudy)->first();
 
-        $productElmt = ProductElmt::where('ID_STUDY', $idStudy)->first();
-        $shape = $productElmt->SHAPECODE;
-        $layoutGen = LayoutGeneration::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
-        $parallel = $layoutGen->PROD_POSITION;
-        $v3fSelectedPoints = [];
+        $axisTemp["top"] = [$this->unit->meshesUnit($tempRecordPts->AXIS1_PT_TOP_SURF), $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_TOP_SURF), $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_TOP_SURF)];
 
-        $tfMesh = $this->output->convertMeshForAppletDim($shape, $parallel, $tfMesh);
+        $axisTemp["int"] = [$this->unit->meshesUnit($tempRecordPts->AXIS1_PT_INT_PT), $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_INT_PT), $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_INT_PT)];
 
-        $tfCoord = $this->output->convertPointForAppletDim($shape, $parallel, $tfMesh); 
-        $v3fSelectedPoints[0][0] = $tfCoord;
-
-        $tfCoord = $this->output->convertPointForAppletDim($shape, $parallel, $tfMesh); 
-        $v3fSelectedPoints[0][1] = $tfCoord;
-
-        $tfCoord = $this->output->convertPointForAppletDim($shape, $parallel, $tfMesh); 
-        $v3fSelectedPoints[0][2] = $tfCoord;
-
-        $tfCoord[0] = 0.0;
-        $tfCoord[1] = $tfMesh[0];
-        $tfCoord[2] = $tfMesh[1];
-
-        $v3fSelectedPoints[1][0] = $tfCoord;
-
-        $tfCoord[0] = $tfMesh[0];
-        $tfCoord[1] = 0.0;
-        $tfCoord[2] = $tfMesh[1];
-        
-        $v3fSelectedPoints[1][1] = $tfCoord;
-
-        $tfCoord[0] = $tfMesh[0];
-        $tfCoord[1] = $tfMesh[1];
-        $tfCoord[2] = 0.0;
-        
-        $v3fSelectedPoints[1][2] = $tfCoord;
-
-        $v3fSelectedPoints[1] = $this->output->convertAxisForAppletDim($shape, $parallel, $v3fSelectedPoints[1]);
+        $axisTemp["bot"] = [$this->unit->meshesUnit($tempRecordPts->AXIS1_PT_BOT_SURF), $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_BOT_SURF), $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_BOT_SURF)];
 
 
-        return $meshAxisPos;
+        return compact("axisTemp");
     }
 
     public function heatExchange() 

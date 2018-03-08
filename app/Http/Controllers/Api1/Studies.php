@@ -1282,9 +1282,7 @@ class Studies extends Controller
             $meshPoints = MeshPosition::distinct()->select('MESH_AXIS_POS')->where('ID_STUDY', $id)->where('MESH_AXIS', $i+1)->orderBy('MESH_AXIS_POS')->get();
             $itemName = [];
             foreach ($meshPoints as $row) {
-                $item['value'] = $row->MESH_AXIS_POS;
-                $item['name'] = $this->convert->meshesUnit($row->MESH_AXIS_POS);
-                $itemName[] = $item;
+                $itemName[] = $this->convert->meshesUnit($row->MESH_AXIS_POS);
             }
             $tfMesh[$i] = array_reverse($itemName);
         }
@@ -1357,6 +1355,21 @@ class Studies extends Controller
 
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id), $sEquip->ID_STUDY_EQUIPMENTS);
         return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 43);
+    }
+
+    public function getlocationAxisSelected($id)
+    {
+
+        $tempRecordPts = TempRecordPts::where("ID_STUDY", $id)->first();
+
+        $axisTemp["top"] = [$this->convert->meshesUnit($tempRecordPts->AXIS1_PT_TOP_SURF), $this->convert->meshesUnit($tempRecordPts->AXIS2_PT_TOP_SURF), $this->convert->meshesUnit($tempRecordPts->AXIS3_PT_TOP_SURF)];
+
+        $axisTemp["int"] = [$this->convert->meshesUnit($tempRecordPts->AXIS1_PT_INT_PT), $this->convert->meshesUnit($tempRecordPts->AXIS2_PT_INT_PT), $this->convert->meshesUnit($tempRecordPts->AXIS3_PT_INT_PT)];
+
+        $axisTemp["bot"] = [$this->convert->meshesUnit($tempRecordPts->AXIS1_PT_BOT_SURF), $this->convert->meshesUnit($tempRecordPts->AXIS2_PT_BOT_SURF), $this->convert->meshesUnit($tempRecordPts->AXIS3_PT_BOT_SURF)];
+
+
+        return $axisTemp;
     }
 }
     
