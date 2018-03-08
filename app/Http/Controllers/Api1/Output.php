@@ -89,7 +89,7 @@ class Output extends Controller
         $consumMaintienSymbol = $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 2);
         $mefSymbol = $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 3);
 
-        $ret = compact("productFlowSymbol", "massSymbol", "temperatureSymbol", "percentSymbol", "timeSymbol", "perUnitOfMassSymbol", "enthalpySymbol", "monetarySymbol", "equipDimensionSymbol", "convectionSpeedSymbol", "convectionCoeffSymbol", "timePositionSymbol", "prodDimensionSymbol", "meshesSymbol", "packingThicknessSymbol", "shelvesWidthSymbol", "prodchartDimensionSymbol", "consumSymbol", "consumMaintienSymbol", "mefSymbol");
+         $ret = compact("productFlowSymbol", "massSymbol", "temperatureSymbol", "percentSymbol", "timeSymbol", "perUnitOfMassSymbol", "enthalpySymbol", "monetarySymbol", "equipDimensionSymbol", "convectionSpeedSymbol", "convectionCoeffSymbol", "timePositionSymbol", "prodDimensionSymbol", "prodchartDimensionSymbol", "consumSymbol", "consumMaintienSymbol", "mefSymbol", "meshesSymbol", "packingThicknessSymbol", "shelvesWidthSymbol");
         // var_dump($ret);
         return $ret;
     }
@@ -992,6 +992,8 @@ class Output extends Controller
         }
 
         if (!empty($selectedEquipment)) {
+            $f = fopen("/tmp/sizing.inp", "w");
+            fputs($f, '"Equip Name" "Product flowrate" "Maximum product flowrate" "Cryogen consumption (product + equipment heat losses)" "Maximum cryogen consumption (product + equipment heat losses)"' . "\n");
             foreach ($selectedEquipment as $row) {
                 $itemChart["id"] = $row["id"];
                 $itemChart["equipName"] = $row["equipName"];
@@ -1025,8 +1027,11 @@ class Output extends Controller
                 }
 
             
-                $dataGrapChart[] =  $itemChart;    
+                $dataGrapChart[] =  $itemChart;   
+
+                fputs($f, '"' . trim($itemChart["equipName"]) . '"' . ' ' . (double) $itemChart["dhp"] . ' ' . (double) $itemChart["dhpMax"] . ' ' . (double) $itemChart["conso"] . ' ' . (double) $itemChart["consoMax"] . "\n" ); 
             }
+            fclose($f);
         }
 
         return compact("result", "selectedEquipment", "availableEquipment", "dataGrapChart", "productFlowRate");
@@ -1385,68 +1390,7 @@ class Output extends Controller
 
         }
     }
-    
-    public function location()
-    {
-        $idStudy = $this->request->input('idStudy');
-        $idStudyEquipment = $this->request->input('idStudyEquipment');
 
-        $tfMesh = [];
-        for ($i = 0; $i < 3; $i++) {
-            $meshPoints = MeshPosition::distinct()->select('MESH_AXIS_POS')->where('ID_STUDY', $idStudy)->where('MESH_AXIS', $i+1)->orderBy('MESH_AXIS_POS')->get();
-            $itemName = [];
-            foreach ($meshPoints as $row) {
-                $item['value'] = $row->MESH_AXIS_POS;
-                $item['name'] = $this->unit->meshesUnit($row->MESH_AXIS_POS);
-                $itemName[] = $item;
-            }
-            $tfMesh[$i] = array_reverse($itemName);
-        }
-        $meshAxisPos = [];
-        if (!empty($tfMesh)) {
-            $meshAxisPos = $tfMesh;
-        }
-
-        $productElmt = ProductElmt::where('ID_STUDY', $idStudy)->first();
-        $shape = $productElmt->SHAPECODE;
-        $layoutGen = LayoutGeneration::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
-        $parallel = $layoutGen->PROD_POSITION;
-        $v3fSelectedPoints = [];
-
-        $tfMesh = $this->output->convertMeshForAppletDim($shape, $parallel, $tfMesh);
-
-        $tfCoord = $this->output->convertPointForAppletDim($shape, $parallel, $tfMesh); 
-        $v3fSelectedPoints[0][0] = $tfCoord;
-
-        $tfCoord = $this->output->convertPointForAppletDim($shape, $parallel, $tfMesh); 
-        $v3fSelectedPoints[0][1] = $tfCoord;
-
-        $tfCoord = $this->output->convertPointForAppletDim($shape, $parallel, $tfMesh); 
-        $v3fSelectedPoints[0][2] = $tfCoord;
-
-        $tfCoord[0] = 0.0;
-        $tfCoord[1] = $tfMesh[0];
-        $tfCoord[2] = $tfMesh[1];
-
-        $v3fSelectedPoints[1][0] = $tfCoord;
-
-        $tfCoord[0] = $tfMesh[0];
-        $tfCoord[1] = 0.0;
-        $tfCoord[2] = $tfMesh[1];
-        
-        $v3fSelectedPoints[1][1] = $tfCoord;
-
-        $tfCoord[0] = $tfMesh[0];
-        $tfCoord[1] = $tfMesh[1];
-        $tfCoord[2] = 0.0;
-        
-        $v3fSelectedPoints[1][2] = $tfCoord;
-
-        $v3fSelectedPoints[1] = $this->output->convertAxisForAppletDim($shape, $parallel, $v3fSelectedPoints[1]);
-
-
-        return $meshAxisPos;
-    }
 
     public function heatExchange() 
     {
@@ -1739,6 +1683,29 @@ class Output extends Controller
                 $resultValue[$key][] = $value;
             }
         }
+
+        $f = fopen("/tmp/productSection.inp", "w");
+
+        $txt = '';
+        foreach ($resultLabel as $row) {
+            $txt .= '"Temperature T' . $row . '(' . $this->unit->timeSymbol() . ')' . '"' . ' ';
+        } 
+
+        
+
+        fputs($f, $txt);
+        fputs($f, "\n");
+
+        foreach ($resultValue as $row) {
+            $txt1 = '';
+            foreach ($row as $value) {
+                $txt1 .= $value . ' ';
+            }
+            fputs($f, $txt1);
+            fputs($f, "\n");
+        }
+        fclose($f);
+
         $result["recAxis"] = $recAxis;
         $result["mesAxis"] = $mesAxis;
         $result["resultValue"] = $resultValue;

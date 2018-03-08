@@ -402,7 +402,6 @@ class UnitsConverterService
             $number =  round(($value * $coeffA + $coeffB), $decimal);
             return number_format((float)$number, $decimal, '.', '');
         }
-        
     }
 
     public function uNone()
