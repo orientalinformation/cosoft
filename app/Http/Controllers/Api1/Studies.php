@@ -1358,5 +1358,57 @@ class Studies extends Controller
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id), $sEquip->ID_STUDY_EQUIPMENTS);
         return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 43);
     }
+
+    public function getChainingModel($id) {
+        /** @var \App\Models\Study */
+        $study = Study::findOrFail($id);
+        
+        // $chaining = [
+        //     'studyName' => '',
+        //     'parent' => [
+        //         'name' => '',
+        //         'equipName' => ''
+        //     ],
+        //     'children' => [
+        //         [
+        //             'name' => '',
+        //             'equipName' => ''
+        //         ]
+        //     ]
+        // ];
+
+        $chaining = [];
+        $chaining['studyName'] = $study->STUDY_NAME;
+        $chaining['parent'] = null;
+        $parent = null;
+
+        if ($study->PARENT_ID != 0) {
+            $parent = Study::findOrFail($study->PARENT_ID);
+            $chaining['parent'] = [];
+            $chaining['parent']['id'] = $parent->ID_STUDY;
+            $chaining['parent']['name'] = $parent->STUDY_NAME;
+            $parentStdEquip = StudyEquipment::findOrFail($study->PARENT_STUD_EQP_ID);
+            $chaining['parent']['equipName'] = $parentStdEquip->EQUIP_NAME;
+        }
+
+        $children = null;
+        if ($study->HAS_CHILD != 0) {
+            $children = Study::where('PARENT_ID', $study->ID_STUDY)->get();
+            if (count($children) > 0) {
+                $chaining['children'] = [];
+                foreach ($children as $child) {
+                    $equip = StudyEquipment::findOrFail($child->PARENT_STUD_EQP_ID);
+                    array_push($chaining['children'], [
+                        'id' => $child->ID_STUDY,
+                        'name' => $child->STUDY_NAME,
+                        'equipName' => $equip->EQUIP_NAME
+                    ]);
+                }
+            }
+        }
+
+
+        return $chaining;
+    }
 }
     
