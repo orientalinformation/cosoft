@@ -1684,19 +1684,27 @@ class Output extends Controller
             }
         }
 
-        /*$f = fopen("/tmp/productSection.inp", "w");
+        $f = fopen("/tmp/productSection.inp", "w");
 
-        fputs($f, 
-            foreach ($resultLabel as $row) {
-                '"Temperature T' . $row . '(' . $this->unit->timeSymbol() . ')' . '"' . ' '
-            }
-            
-        );
+        $txt = '';
+        foreach ($resultLabel as $row) {
+            $txt .= '"Temperature T' . $row . '(' . $this->unit->timeSymbol() . ')' . '"' . ' ';
+        } 
+
+        
+
+        fputs($f, $txt);
+        fputs($f, "\n");
 
         foreach ($resultValue as $row) {
-            fputs($f, (double) $row . "\n" );
+            $txt1 = '';
+            foreach ($row as $value) {
+                $txt1 .= $value . ' ';
+            }
+            fputs($f, $txt1);
+            fputs($f, "\n");
         }
-        fclose($f);*/
+        fclose($f);
 
         $result["recAxis"] = $recAxis;
         $result["mesAxis"] = $mesAxis;
