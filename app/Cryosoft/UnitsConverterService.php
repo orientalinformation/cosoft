@@ -267,8 +267,45 @@ class UnitsConverterService
         return $unit->SYMBOL;
     }
 
-    public function prodchartDimensionSymbol() {
+    public function prodchartDimensionSymbol() 
+    {
         $unit = Unit::where('TYPE_UNIT', $this->value->PRODCHART_DIMENSION)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+        return $unit->SYMBOL;
+    }
+
+    public function prodDimensionSymbol()
+    {
+        $unit = Unit::where('TYPE_UNIT', $this->value->PROD_DIMENSION)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+        return $unit->SYMBOL;
+    }
+
+    public function meshesSymbol()
+    {
+        $unit = Unit::where('TYPE_UNIT', $this->value->MESH_CUT)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+        return $unit->SYMBOL;
+    }
+
+    public function packingThicknessSymbol()
+    {
+        $unit = Unit::where('TYPE_UNIT', $this->value->THICKNESS_PACKING)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+        return $unit->SYMBOL;
+    }
+
+    public function shelvesWidthSymbol()
+    {
+        $unit = Unit::where('TYPE_UNIT', $this->value->W_CARPET_SHELVES)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
@@ -359,7 +396,13 @@ class UnitsConverterService
     public function convertCalculator($value, $coeffA, $coeffB, $decimal = 2)
     {
         $number = $value * $coeffA + $coeffB;
-        return floor($number * pow(10, $decimal)) / pow(10, $decimal);
+        if (is_numeric( $value ) && floor( $value ) != $value) {
+            return floor($number * pow(10, $decimal)) / pow(10, $decimal);
+        } else {
+            $number =  round(($value * $coeffA + $coeffB), $decimal);
+            return number_format((float)$number, $decimal, '.', '');
+        }
+        
     }
 
     public function uNone()
@@ -642,14 +685,6 @@ class UnitsConverterService
         ->where("unit.TYPE_UNIT", $this->value->TEMPERATURE)->get();
 
         return $userUnit[0]->SYMBOL;
-    }
-
-    public function shelvesWidthSymbol() {
-        $user = $this->auth->user();
-        $unit = UserUnit::join('unit', 'user_unit.ID_UNIT', '=', 'unit.ID_UNIT')->where('ID_USER', $user->ID_USER)
-        ->where("unit.TYPE_UNIT", $this->value->W_CARPET_SHELVES)->first();
-
-        return $unit->SYMBOL;
     }
 
     public function shelvesWidthUser($value) {

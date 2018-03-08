@@ -168,7 +168,7 @@ class ReferenceData extends Controller
 
     public function saveDataComponent()
     {
-        $result = $this->saveComponent($this->request);
+        $result = $this->saveComponent($this->request, 0);
 
         if ($result > 0) {
             return Component::where('ID_USER', $this->auth->user()->ID_USER)
@@ -193,18 +193,24 @@ class ReferenceData extends Controller
         if (isset($input['ID_COMP'])) $idComp = intval($input['ID_COMP']);
 
         if ($idComp == null) {
-            $idComp = $this->saveComponent($this->request);
+            $idComp = $this->saveComponent($this->request, 1);
 
             if ($idComp == -3) return -3;
             if ($idComp == -2) return -2;
             if ($idComp == -4) return -4;
+            if ($idComp == -5) return -5;
             $result = $this->startFCCalculation($idComp);
         } else {
             $component = Component::find($idComp);
 
             if ($component) {
                 if ($component->COMP_RELEASE == 7) $component->COMP_RELEASE = 8;
-                $this->saveCalculate($this->request, $component);
+                $idComp = $this->saveCalculate($this->request, $component, 1);
+
+                if ($idComp == -3) return -3;
+                if ($idComp == -2) return -2;
+                if ($idComp == -4) return -4;
+                if ($idComp == -5) return -5;
             }
 
             $result = $this->startFCCalculation($idComp);
@@ -222,7 +228,7 @@ class ReferenceData extends Controller
         $component = Component::find($idComp);
         if ($component) {
             if ($component->COMP_RELEASE == 7) $component->COMP_RELEASE = 8;
-            $this->saveCalculate($this->request, $component);
+            $this->saveCalculate($this->request, $component, 0);
         }
 
         return $this->startCBCalculation($idComp);
@@ -240,12 +246,12 @@ class ReferenceData extends Controller
         return $this->kernel->getKernelObject('ComponentBuilder')->CBComponentCalculation($conf);
     }
 
-    private function saveComponent(Request $request)
+    private function saveComponent(Request $request, $freeze = 0)
     {
         $input = $this->request->all();
 
         $COMP_COMMENT = $COMP_NAME = $COMP_NAME_NEW = $COMP_VERSION_NEW = $TYPE_COMP = null;
-        $LIPID = $GLUCID = $PROTID = $WATER = $FREEZE_TEMP = $COMP_VERSION = $CONDUCT_TYPE = 0;
+        $LIPID = $GLUCID = $PROTID = $WATER = $FREEZE_TEMP = $COMP_VERSION = $CONDUCT_TYPE = $compositionTotal = 0;
         $SALT = $AIR = $NON_FROZEN_WATER = $PRODUCT_TYPE = $SUB_TYPE = $FATTYPE = $DENSITY = $HEAT = 0;
         $release = $NATURE_TYPE = 1;
         $tempertures = array();
@@ -272,6 +278,13 @@ class ReferenceData extends Controller
         if (isset($input['Temperatures'])) $temperatures = $input['Temperatures'];
         if (isset($input['release'])) $release = intval($input['release']);
         if (isset($input['TYPE_COMP'])) $TYPE_COMP = intval($input['TYPE_COMP']);
+
+        if ($freeze == 1) {
+            $compositionTotal = ($AIR *0.01205) + $WATER + $SALT + $PROTID + $GLUCID + $LIPID;
+            if ($compositionTotal < 90 || $compositionTotal > 110) {
+                return -5;
+            }
+        }
 
         if ($COMP_NAME == null) return -3;
         if ($PRODUCT_TYPE == 0) return -2;
@@ -307,8 +320,8 @@ class ReferenceData extends Controller
         $component->FAT_TYPE = $FATTYPE;
         $component->CLASS_TYPE = $PRODUCT_TYPE;
         $component->SUB_FAMILY = $SUB_TYPE;
-        $component->AIR = $AIR;
-        $component->WATER = $WATER * 0.01205;
+        $component->AIR = $AIR * 0.01205;
+        $component->WATER = $WATER;
         $component->GLUCID = $GLUCID;
         $component->LIPID = $LIPID;
         $component->PROTID = $PROTID;
@@ -356,14 +369,14 @@ class ReferenceData extends Controller
         return $component->ID_COMP;
     }
 
-    private function saveCalculate(Request $request, $component)
+    private function saveCalculate(Request $request, $component, $freeze = 0)
     {
         $input = $this->request->all();
-        
+
         $COMP_COMMENT = $COMP_NAME = $COMP_NAME_NEW = $COMP_VERSION_NEW = null;
-        $LIPID = $GLUCID = $PROTID = $WATER = $FREEZE_TEMP = $COMP_VERSION = $CONDUCT_TYPE = 0;
+        $LIPID = $GLUCID = $PROTID = $WATER = $FREEZE_TEMP = $COMP_VERSION = $CONDUCT_TYPE = $compositionTotal = 0;
         $SALT = $AIR = $NON_FROZEN_WATER = $PRODUCT_TYPE = $SUB_TYPE = $FATTYPE = $DENSITY = $HEAT = 0;
-        $release = $NATURE_TYPE = 1;
+        $COMP_RELEASE = $NATURE_TYPE = 1;
         $tempertures = array();
         $current = Carbon::now('Asia/Ho_Chi_Minh');
 
@@ -387,6 +400,13 @@ class ReferenceData extends Controller
         if (isset($input['SUB_TYPE'])) $SUB_TYPE = intval($input['SUB_TYPE']);
         if (isset($input['Temperatures'])) $temperatures = $input['Temperatures'];
         if (isset($input['COMP_RELEASE'])) $COMP_RELEASE = intval($input['COMP_RELEASE']);
+
+        if ($freeze == 1) {
+            $compositionTotal = ($AIR *0.01205) + $WATER + $SALT + $PROTID + $GLUCID + $LIPID;
+            if ($compositionTotal < 90 || $compositionTotal > 110) {
+                return -5;
+            }
+        }
 
         if ($COMP_NAME == null) return -3;
         if ($PRODUCT_TYPE == 0) return -2;

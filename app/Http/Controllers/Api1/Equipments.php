@@ -542,6 +542,81 @@ class Equipments extends Controller
         return 1;
     }
 
+    public function addEquipCharact()
+    {
+        $input = $this->request->all();
+
+        $ID_EQUIP = $X_POSITION = $ecPrevious = $ecNext = null;
+        $bAbort = false;
+
+        if (isset($input['ID_EQUIP'])) $ID_EQUIP = $input['ID_EQUIP'];
+        if (isset($input['X_POSITION'])) $X_POSITION = doubleval($input['X_POSITION']);
+
+        $equipCharacts = EquipCharact::where('ID_EQUIP', $ID_EQUIP)->get();
+
+        if (count($equipCharacts) >= 120) {
+            $bAbort = true;
+        }
+
+        if ((count($equipCharacts) > 0) && (!$bAbort)) {
+            foreach ($equipCharacts as $equipCharact) {
+                if (doubleval($equipCharact->X_POSITION) < $X_POSITION) {
+                    $ecPrevious = $equipCharact;
+                }
+
+                if (doubleval($equipCharact->X_POSITION) == $X_POSITION) {
+                    $bAbort = true;
+                }
+
+                if ((doubleval($equipCharact->X_POSITION) > $X_POSITION) && ($ecNext == null)) {
+                    $ecNext = $equipCharact;
+                }
+            }
+        }
+
+        $ec = new EquipCharact();
+
+        if (!$bAbort) {
+            if (($ecNext != null) && ($ecPrevious != null)) {
+                $ec->ID_EQUIP = $ecPrevious->ID_EQUIP;
+                $ec->X_POSITION = round($X_POSITION, 1);
+                $ec->TEMP_REGUL = $ecPrevious->TEMP_REGUL;
+                $ec->ALPHA_TOP = $this->interpolate($ecPrevious->X_POSITION, $ecNext->X_POSITION, $ecPrevious->ALPHA_TOP, $ecNext->ALPHA_TOP, $X_POSITION);
+                $ec->ALPHA_BOTTOM = $this->interpolate($ecPrevious->X_POSITION, $ecNext->X_POSITION, $ecPrevious->ALPHA_BOTTOM, $ecNext->ALPHA_BOTTOM, $X_POSITION);
+                $ec->ALPHA_LEFT = $this->interpolate($ecPrevious->X_POSITION, $ecNext->X_POSITION, $ecPrevious->ALPHA_LEFT, $ecNext->ALPHA_LEFT, $X_POSITION);
+                $ec->ALPHA_RIGHT = $this->interpolate($ecPrevious->X_POSITION, $ecNext->X_POSITION, $ecPrevious->ALPHA_RIGHT, $ecNext->ALPHA_RIGHT, $X_POSITION);
+                $ec->ALPHA_FRONT = $this->interpolate($ecPrevious->X_POSITION, $ecNext->X_POSITION, $ecPrevious->ALPHA_FRONT, $ecNext->ALPHA_FRONT, $X_POSITION);
+                $ec->ALPHA_REAR = $this->interpolate($ecPrevious->X_POSITION, $ecNext->X_POSITION, $ecPrevious->ALPHA_REAR, $ecNext->ALPHA_REAR, $X_POSITION);
+                $ec->TEMP_TOP = $this->interpolate($ecPrevious->X_POSITION, $ecNext->X_POSITION, $ecPrevious->TEMP_TOP, $ecNext->TEMP_TOP, $X_POSITION);
+                $ec->TEMP_BOTTOM = $this->interpolate($ecPrevious->X_POSITION, $ecNext->X_POSITION, $ecPrevious->TEMP_BOTTOM, $ecNext->TEMP_BOTTOM, $X_POSITION);
+                $ec->TEMP_LEFT = $this->interpolate($ecPrevious->X_POSITION, $ecNext->X_POSITION, $ecPrevious->TEMP_LEFT, $ecNext->TEMP_LEFT, $X_POSITION);
+                $ec->TEMP_RIGHT = $this->interpolate($ecPrevious->X_POSITION, $ecNext->X_POSITION, $ecPrevious->TEMP_RIGHT, $ecNext->TEMP_RIGHT, $X_POSITION);
+                $ec->TEMP_FRONT = $this->interpolate($ecPrevious->X_POSITION, $ecNext->X_POSITION, $ecPrevious->TEMP_FRONT, $ecNext->TEMP_FRONT, $X_POSITION);
+                $ec->TEMP_REAR = $this->interpolate($ecPrevious->X_POSITION, $ecNext->X_POSITION, $ecPrevious->TEMP_REAR, $ecNext->TEMP_REAR, $X_POSITION);
+                $ec->save();
+            } else if ($ecNext != null) {
+                $ec->X_POSITION = round($X_POSITION, 1);
+                $ec->ID_EQUIP = $ecNext->ID_EQUIP;
+                $ec->TEMP_REGUL = $ecNext->TEMP_REGUL;
+                $ec->save();
+            } else if ($ecPrevious != null) {
+                $ec->X_POSITION = round($X_POSITION, 1);
+                $ec->ID_EQUIP = $ecPrevious->ID_EQUIP;
+                $ec->TEMP_REGUL = $ecPrevious->TEMP_REGUL;
+                $ec->save();
+            }
+        }
+        return $ec;
+
+    }
+
+    private function interpolate($x1, $x2, $y1, $y2, $x) 
+    {
+        $y = ($y2 - $y1) * ($x - $x1) / ($x2 - $x1) + $y1;
+
+        return $y;
+    }
+
     public function getDataHighChart()
     {
         $profileType = $minMax = $minScaleY = $maxScaleY = $minValueY = $maxValueY = $nbFractionDigits = null;
