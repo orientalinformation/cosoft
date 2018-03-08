@@ -7,3 +7,5 @@ Homestead.yaml
 /lib/*
 /.vscode/*
 /public/heatmap/*
+/public/reports/*
+
