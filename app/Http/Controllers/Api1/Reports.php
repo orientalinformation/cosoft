@@ -20,6 +20,7 @@ use App\Models\Production;
 use App\Models\Product;
 use App\Models\Translation;
 use App\Models\InitialTemperature;
+use App\Cryosoft\StudyEquipmentService;
 use PDF;
 use View;
 
@@ -46,16 +47,22 @@ class Reports extends Controller
     protected $value;
 
     /**
+     * @var \App\Cryosoft\StudyEquipmentService
+     */
+    protected $stdeqp;
+
+    /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth, UnitsConverterService $convert, ValueListService $value)
+    public function __construct(Request $request, Auth $auth, UnitsConverterService $convert, ValueListService $value, StudyEquipmentService $stdeqp)
     {
         $this->request = $request;
         $this->auth = $auth;
         $this->convert = $convert;
         $this->value = $value;
+        $this->stdeqp = $stdeqp;
     }
 
     public function getReport($id)
@@ -449,6 +456,9 @@ class Reports extends Controller
     function downLoadPDF($id) {
         $study = Study::find($id);
         $user = $this->auth->user()->USERNAM;
+        if ($user == null) {
+            die('user null!!');
+        }
         $host = 'http://' . $_SERVER['HTTP_HOST'];
         $public_path = rtrim(app()->basePath("public/reports/"), '/');
         $tcpdf_path = rtrim(app()->basePath("vendor/tecnickcom/tcpdf/examples/"), '/');
@@ -460,10 +470,29 @@ class Reports extends Controller
         require_once $tcpdf_path . ('/tcpdf_include.php');
         $production = Production::Where('ID_STUDY', $id)->first();
         $product = Product::Where('ID_STUDY', $id)->first();
-        $productElmt = ProductElmt::Where('ID_PROD', $product->ID_PROD)->first();
-        $shapeName = Translation::where('TRANS_TYPE', 4)->where('ID_TRANSLATION', $productElmt->SHAPECODE)->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
-        $initial = InitialTemperature::where('ID_PRODUCTION', $production->ID_PRODUCTION)->first(); 
-        // var_dump($production->INITIAL_T);
+        $proElmt = ProductElmt::Where('ID_PROD', $product->ID_PROD)->first();
+        $idComArr = [];
+        $comprelease = [];
+        foreach ($product->productElmts as $productElmt) {
+            $shapeCode = $productElmt->shape->SHAPECODE;
+            $idComArr[] = $productElmt->ID_COMP;
+            $idElmArr[] = $productElmt->ID_PRODUCT_ELMT;
+            $comprelease[] = $productElmt->component->COMP_RELEASE;
+        }
+        $componentName = ProductElmt::select('LABEL','ID_COMP', 'ID_PRODUCT_ELMT', 'PROD_ELMT_ISO', 'PROD_ELMT_NAME', 'PROD_ELMT_REALWEIGHT', 'SHAPE_PARAM2')
+        ->join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')->whereIn('ID_PRODUCT_ELMT', $idElmArr)
+        ->where('TRANS_TYPE', 1)->whereIn('ID_TRANSLATION', $idComArr)
+        ->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'DESC')->get();
+        $equipData = $this->stdeqp->findStudyEquipmentsByStudy($study);
+        // return $equipData;
+        $productComps = [];
+        foreach ($componentName as $key => $value) {
+            $componentStatus = Translation::select('LABEL')->where('TRANS_TYPE', 100)->whereIn('ID_TRANSLATION', $comprelease)->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
+            $productComps[] = $value;
+            $productComps[$key]['display_name'] = $value->LABEL . ' - ' . $productElmt->component->COMP_VERSION . '(' . $componentStatus->LABEL . ' )';
+        }
+        // return $productComps;
+        $shapeName = Translation::where('TRANS_TYPE', 4)->where('ID_TRANSLATION', $shapeCode)->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
         // set document information
         PDF::SetCreator(PDF_CREATOR);
         PDF::SetAuthor('');
@@ -498,34 +527,13 @@ class Reports extends Controller
             PDF::setLanguageArray($l);
         }
         // ---------------------------------------------------------
-
-        // set default font subsetting mode
-        PDF::setFontSubsetting(TRUE);
-        PDF::setCellHeightRatio(1.3);
-        // Set font
-        // dejavusans is a UTF-8 Unicode font, if you only need to
-        // print standard ASCII chars, you can use core fonts like
-        // helvetica or times to reduce file size.
-        PDF::SetFont('helvetica', '', 10);
-
-        // Add a page
-        // This method has several options, check the source code documentation for more information.
-        PDF::AddPage();
-
-        // set text shadow effect
-        PDF::setTextShadow(array('enabled'=>true, 'depth_w'=>0.2, 'depth_h'=>0.2, 'color'=>array(196,196,196), 'opacity'=>1, 'blend_mode'=>'Normal'));
-
-        // Set some content to print
-        $view = $this->viewPDF($production, $product, $productElmt, $shapeName, $initial);
-        $html= $view->render();
-        PDF::writeHTMLCell(0, 0, '', '', $html, 0, 1, 0, true, '', true);
-        // Print text using writeHTMLCell()
         PDF::AddPage();
         PDF::Bookmark('Chapter 1', 0, 0, '', 'B', array(0,64,128));
         // print a line using Cell()
         PDF::Cell(0, 10, 'Chapter 1', 0, 1, 'L');
-        // $view = $this->viewPDF($production);
-        // $html= $view->render();
+        $view = $this->viewPDF($production, $product, $proElmt, $shapeName, $productComps, $equipData);
+        $html= $view->render();
+        PDF::SetFont('helvetica', '', 6);
         PDF::writeHTMLCell(0, 0, '', '', $html, 0, 1, 0, true, '', true);
         PDF::AddPage();
         PDF::Bookmark('Paragraph 1.1', 1, 0, '', '', array(128,0,0));
@@ -554,10 +562,9 @@ class Reports extends Controller
         PDF::addTOCPage();
 
         // write the TOC title and/or other elements on the TOC page
-        PDF::SetFont('times', 'B', 16);
+        // PDF::SetFont('times', 'B', 6);
         PDF::MultiCell(0, 0, 'Table Of Content', 0, 'C', 0, 1, '', '', true, 0);
         PDF::Ln();
-        PDF::SetFont('helvetica', '', 10);
 
         // define styles for various bookmark levels
         $bookmark_templates = array();
@@ -579,18 +586,18 @@ class Reports extends Controller
         return ["url" => "$host/reports/$user/$name_report"];
     }
     
-    public function viewPDF($production, $product, $productElmt, $shapeName) 
+    public function viewPDF($production, $product, $proElmt, $shapeName, $productComps, $equipData) 
     {
-        // var_dump($production->ID_PRODUCTION);die;
         $arrayParam = [
             'production' => $production,
             'product' => $product,
-            'productElmt' => $productElmt,
-            'initial' => $initial,
-            'shapeName' => $shapeName
+            'proElmt' => $proElmt,
+            'shapeName' => $shapeName,
         ];
         $param = [
-            'arrayParam' => $arrayParam
+            'arrayParam' => $arrayParam,
+            'productComps' => $productComps,
+            'equipData' => $equipData
         ];
         return view('report.view_report', $param);
     }
