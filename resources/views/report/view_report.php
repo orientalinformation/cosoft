@@ -138,7 +138,7 @@
                 <tr>
                     <td align="center"><?php echo $key+1 ?></td>
                     <td align="center"><?php echo $resequipDatas['displayName'] ?></td>
-                    <td align="center"><?php echo $resequipDatas['ORIENTATION'] ? 'dfds' : 'dfdsf' ?></td>
+                    <td align="center"><?php echo $resequipDatas['ORIENTATION'] == 1 ? 'Parallel' : 'Perpendicular' ?></td>
                     <td align="center"><?php echo $resequipDatas['tr'][0] ?></td>
                     <td align="center"><?php echo $resequipDatas['ts'][0] ?></td>
                     <td align="center"><?php echo $resequipDatas['vc'][0] ?></td>
@@ -149,7 +149,8 @@
             </div>
         </div>
         <h3>Belt or shelves layout</h3>
-        <!-- get first name Equipment  -->
+        <?php foreach($equipData as $key => $resequipDatas) { ?>
+        <h4><?php echo $resequipDatas['displayName'] ?></h4>
         <div class="layout">
             <div class = "row">
                 <div class="md-col-6">
@@ -160,15 +161,15 @@
                         </tr>
                         <tr>
                             <td>Space (length) (cm)</td>
-                            <td align="center"></td>
+                            <td align="center"><?php echo "User not define" ?></td>
                         </tr>
                         <tr>
                             <td>Space (width) (cm)</td>
-                            <td align="center"></td>
+                            <td align="center"><?php echo "User not define" ?></td>
                         </tr>
                         <tr>
                             <td>Orientation</td>
-                            <td align="center"></td>
+                            <td align="center"><?php echo $resequipDatas['ORIENTATION'] == 1 ? 'Parallel' : 'Perpendicular' ?></td>
                         </tr>
                         <tr>
                             <td colspan="2" align="center">Outputs</td>
@@ -187,7 +188,7 @@
                         </tr>
                         <tr>
                             <td>Conveyor coverage or quantity of product per batch</td>
-                            <td align="center"></td>
+                            <td align="center"><?php echo $resequipDatas['top_or_QperBatch'] ?></td>
                         </tr>
                     </table>
                     </div>
@@ -195,6 +196,60 @@
                 <div class="md-col-6">
                     image
                 </div>
+            </div>
+        </div>
+        <?php } ?>
+        
+        <h3>Cryogenic Pipeline</h3>
+        <div class="consum-esti">
+            <div class="table table-bordered">
+            <table border="0.5">
+            <tr>
+                <th colspan="2"></th>
+                <th colspan="4"></th>
+                <th colspan="2"></th>
+            </tr>
+            <tr>
+                <td colspan="2"></td>
+                <td colspan="4"></td>
+                <td colspan="2"></td>
+            </tr>
+            <tr>
+                <td colspan="2"></td>
+                <td colspan="4"></td>
+                <td colspan="2"></td>
+            </tr>
+            <tr>
+                <td colspan="2"></td>
+                <td colspan="4"></td>
+                <td colspan="2"></td>
+            </tr>
+            <tr>
+                <td colspan="2"></td>
+                <td colspan="4"></td>
+                <td colspan="2"></td>
+            </tr>
+            <tr>
+                <td colspan="2"></td>
+                <td colspan="4"></td>
+                <td colspan="2"></td>
+            </tr>
+            <tr>
+                <td colspan="2"></td>
+                <td colspan="4"></td>
+                <td colspan="2"></td>
+            </tr>
+            <tr>
+                <td colspan="2"></td>
+                <td colspan="4"></td>
+                <td colspan="2"></td>
+            </tr>
+            <tr>
+                <td colspan="2"></td>
+                <td colspan="4"></td>
+                <td colspan="2"></td>
+            </tr>
+            </table>
             </div>
         </div>
         <h3>Consumptions / Economics assessments</h3>
