@@ -125,12 +125,20 @@ class Equipments extends Controller
 
         foreach ($others as $key) {
             $key->capabilitiesCalc = $this->equip->getCapability($key->CAPABILITIES, 65536);
+            $key->capabilitiesCalc256 = $this->equip->getCapability($key->CAPABILITIES, 256);
             $key->timeSymbol = $this->convert->timeSymbolUser();
             $key->temperatureSymbol = $this->convert->temperatureSymbolUser();
             $key->dimensionSymbol = $this->convert->equipDimensionSymbolUser();
+            $key->consumptionSymbol1 = $this->convert->consumptionSymbolUser($key->ID_COOLING_FAMILY, 1);
+            $key->consumptionSymbol2 = $this->convert->consumptionSymbolUser($key->ID_COOLING_FAMILY, 2);
+            $key->consumptionSymbol3 = $this->convert->consumptionSymbolUser($key->ID_COOLING_FAMILY, 3);
+            $key->shelvesWidthSymbol = $this->convert->shelvesWidthSymbol();
+            $key->rampsPositionSymbol = $this->convert->rampsPositionSymbol();
+
             $key->EQP_LENGTH = $this->convert->equipDimensionUser($key->EQP_LENGTH);
             $key->EQP_WIDTH = $this->convert->equipDimensionUser($key->EQP_WIDTH);
             $key->EQP_HEIGHT = $this->convert->equipDimensionUser($key->EQP_HEIGHT);
+            $key->MAX_FLOW_RATE = $this->convert->consumptionUser($key->MAX_FLOW_RATE, $key->ID_COOLING_FAMILY, 1);
             $key->TMP_REGUL_MIN = $this->convert->controlTemperatureUser($key->TMP_REGUL_MIN);
 
             $equipGener = EquipGeneration::find($key->ID_EQUIPGENERATION);
