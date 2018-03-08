@@ -1387,22 +1387,7 @@ class Output extends Controller
 
         }
     }
-    
-    public function getlocationAxisSelected()
-    {
-        $idStudy = $this->request->input('idStudy');
 
-        $tempRecordPts = TempRecordPts::where("ID_STUDY", $idStudy)->first();
-
-        $axisTemp["top"] = [$this->unit->meshesUnit($tempRecordPts->AXIS1_PT_TOP_SURF), $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_TOP_SURF), $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_TOP_SURF)];
-
-        $axisTemp["int"] = [$this->unit->meshesUnit($tempRecordPts->AXIS1_PT_INT_PT), $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_INT_PT), $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_INT_PT)];
-
-        $axisTemp["bot"] = [$this->unit->meshesUnit($tempRecordPts->AXIS1_PT_BOT_SURF), $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_BOT_SURF), $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_BOT_SURF)];
-
-
-        return compact("axisTemp");
-    }
 
     public function heatExchange() 
     {
@@ -1695,9 +1680,24 @@ class Output extends Controller
                 $resultValue[$key][] = $value;
             }
         }
+
+        /*$f = fopen("/tmp/productSection.inp", "w");
+
+        fputs($f, 
+            foreach ($resultLabel as $row) {
+                '"Temperature T' . $row . '(' . $this->unit->timeSymbol() . ')' . '"' . ' '
+            }
+            
+        );
+
+        foreach ($resultValue as $row) {
+            fputs($f, (double) $row . "\n" );
+        }
+        fclose($f);
+
         $result["recAxis"] = $recAxis;
         $result["mesAxis"] = $mesAxis;
-        $result["resultValue"] = $resultValue;
+        $result["resultValue"] = $resultValue;*/
 
 
         return compact("axeTemp", "dataChart", "resultLabel", "result");
