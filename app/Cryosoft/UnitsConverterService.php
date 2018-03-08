@@ -284,6 +284,33 @@ class UnitsConverterService
         ->first();
         return $unit->SYMBOL;
     }
+
+    public function meshesSymbol()
+    {
+        $unit = Unit::where('TYPE_UNIT', $this->value->MESH_CUT)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+        return $unit->SYMBOL;
+    }
+
+    public function packingThicknessSymbol()
+    {
+        $unit = Unit::where('TYPE_UNIT', $this->value->THICKNESS_PACKING)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+        return $unit->SYMBOL;
+    }
+
+    public function shelvesWidthSymbol()
+    {
+        $unit = Unit::where('TYPE_UNIT', $this->value->W_CARPET_SHELVES)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+        return $unit->SYMBOL;
+    }
     
     public function monetarySymbol() 
     {
@@ -657,14 +684,6 @@ class UnitsConverterService
         ->where("unit.TYPE_UNIT", $this->value->TEMPERATURE)->get();
 
         return $userUnit[0]->SYMBOL;
-    }
-
-    public function shelvesWidthSymbol() {
-        $user = $this->auth->user();
-        $unit = UserUnit::join('unit', 'user_unit.ID_UNIT', '=', 'unit.ID_UNIT')->where('ID_USER', $user->ID_USER)
-        ->where("unit.TYPE_UNIT", $this->value->W_CARPET_SHELVES)->first();
-
-        return $unit->SYMBOL;
     }
 
     public function shelvesWidthUser($value) {
