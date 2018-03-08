@@ -263,3 +263,11 @@ $router->DELETE('/api/v1/referencedata/equipcharact/{id}', 'Api1\\Equipments@del
  * Output-Formats: [application/json]
  */
 $router->DELETE('/api/v1/referencedata/equipcharacts/{idEquip}', 'Api1\\Equipments@deleteEquipCharacts');
+
+/**
+ * add equip charact
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/referencedata/equipcharact', 'Api1\\Equipments@addEquipCharact');
