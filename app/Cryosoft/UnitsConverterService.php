@@ -396,12 +396,14 @@ class UnitsConverterService
     public function convertCalculator($value, $coeffA, $coeffB, $decimal = 2)
     {
         $number = $value * $coeffA + $coeffB;
-        if (is_numeric( $value ) && floor( $value ) != $value) {
-            return floor($number * pow(10, $decimal)) / pow(10, $decimal);
+        if (floor( $value ) != $value) {
+            $number = round(($number), $decimal, PHP_ROUND_HALF_UP);
+            $number = floor($number * pow(10, $decimal)) / pow(10, $decimal);
         } else {
-            $number =  round(($value * $coeffA + $coeffB), $decimal);
-            return number_format((float)$number, $decimal, '.', '');
+            $number = round(($value * $coeffA + $coeffB), $decimal);
         }
+
+        return number_format((float)$number, $decimal, '.', '');
     }
 
     public function uNone()

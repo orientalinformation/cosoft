@@ -13,6 +13,7 @@ use App\Models\Production;
 use App\Models\InitialTemperature;
 use App\Models\Study;
 use App\Cryosoft\MeshService;
+use App\Cryosoft\UnitsConverterService;
 
 class Products extends Controller
 {
@@ -43,12 +44,13 @@ class Products extends Controller
      * @param Auth $auth
      * @param KernelService $kernel
      */
-    public function __construct(Request $request, Auth $auth, KernelService $kernel, MeshService $mesh)
+    public function __construct(Request $request, Auth $auth, KernelService $kernel, MeshService $mesh, UnitsConverterService $unit)
     {
         $this->request = $request;
         $this->auth = $auth;
         $this->mesh = $mesh;
         $this->kernel = $kernel;
+        $this->unit = $unit;
     }
 
     /**
@@ -158,12 +160,25 @@ class Products extends Controller
 
     public function getProductViewModel($id) {
         $product = Product::find($id);
-        $elements = \App\Models\ProductElmt::where('ID_PROD', $id)->orderBy('SHAPE_POS2', 'DESC')->get();
+        $product->PROD_WEIGHT = $this->unit->mass($product->PROD_WEIGHT);
+        $product->PROD_REALWEIGHT = $this->unit->mass($product->PROD_REALWEIGHT);
+
+
+        $products = \App\Models\ProductElmt::where('ID_PROD', $id)->orderBy('SHAPE_POS2', 'DESC')->get();
         $specificDimension = 0.0;
 
-        foreach ($elements as $elmt) {
-            $specificDimension += $elmt->SHAPE_PARAM2;
+        $elements = [];
+        foreach ($products as $key => $pr) {
+            $elements[$key] = $pr;
+            $specificDimension += $pr->SHAPE_PARAM2;
+            $elements[$key]['SHAPE_PARAM1'] = $this->unit->prodDimension($pr->SHAPE_PARAM1);
+            $elements[$key]['SHAPE_PARAM2'] = $this->unit->prodDimension($pr->SHAPE_PARAM2);
+            $elements[$key]['SHAPE_PARAM3'] = $this->unit->prodDimension($pr->SHAPE_PARAM3);
+            $elements[$key]['PROD_ELMT_WEIGHT'] = $this->unit->mass($pr->PROD_ELMT_WEIGHT);
+            $elements[$key]['PROD_ELMT_REALWEIGHT'] = $this->unit->mass($pr->PROD_ELMT_REALWEIGHT);
         }
+
+        $specificDimension = $this->unit->prodDimension($specificDimension);
 
         return compact('product', 'elements', 'specificDimension');
     }
