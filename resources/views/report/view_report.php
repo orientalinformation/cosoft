@@ -204,54 +204,52 @@
         <div class="consum-esti">
             <div class="table table-bordered">
             <table border="0.5">
-            <tr>
-                <th colspan="2"></th>
-                <th colspan="4"></th>
-                <th colspan="2"></th>
-            </tr>
-            <tr>
-                <td colspan="2"></td>
-                <td colspan="4"></td>
-                <td colspan="2"></td>
-            </tr>
-            <tr>
-                <td colspan="2"></td>
-                <td colspan="4"></td>
-                <td colspan="2"></td>
-            </tr>
-            <tr>
-                <td colspan="2"></td>
-                <td colspan="4"></td>
-                <td colspan="2"></td>
-            </tr>
-            <tr>
-                <td colspan="2"></td>
-                <td colspan="4"></td>
-                <td colspan="2"></td>
-            </tr>
-            <tr>
-                <td colspan="2"></td>
-                <td colspan="4"></td>
-                <td colspan="2"></td>
-            </tr>
-            <tr>
-                <td colspan="2"></td>
-                <td colspan="4"></td>
-                <td colspan="2"></td>
-            </tr>
-            <tr>
-                <td colspan="2"></td>
-                <td colspan="4"></td>
-                <td colspan="2"></td>
-            </tr>
-            <tr>
-                <td colspan="2"></td>
-                <td colspan="4"></td>
-                <td colspan="2"></td>
-            </tr>
+                <tr>
+                    <th colspan="2" align="center">Type</th>
+                    <th colspan="4" align="center">Name</th>
+                    <th colspan="2" align="center">Number</th>
+                </tr>
+                <tr>
+                    <td colspan="2">Insulated line</td>
+                    <td colspan="4" align="center"><?php echo $cryogenPipeline['insulatedline'] ?? "" ?></td>
+                    <td colspan="2" align="center"><?php echo $cryogenPipeline['insulllenght'] ?? "" ?></td>
+                </tr>
+                <tr>
+                    <td colspan="2">Insulated valves</td>
+                    <td colspan="4" align="center"><?php echo $cryogenPipeline['insulatedlineval'] ?? "" ?></td>
+                    <td colspan="2" align="center"><?php echo $cryogenPipeline['insulvallenght'] ?? "" ?></td>
+                </tr>
+                <tr>
+                    <td colspan="2">Elbows</td>
+                    <td colspan="4" align="center"><?php echo $cryogenPipeline['elbows'] ?? "" ?></td>
+                    <td colspan="2" align="center"><?php echo $cryogenPipeline['elbowsnumber'] ?? "" ?></td>
+                </tr>
+                <tr>
+                    <td colspan="2">Tees</td>
+                    <td colspan="4" align="center"><?php echo $cryogenPipeline['tee'] ?? "" ?></td>
+                    <td colspan="2" align="center"><?php echo $cryogenPipeline['teenumber'] ?? "" ?></td>
+                </tr>
+                <tr>
+                    <td colspan="2">Non-insulated line</td>
+                    <td colspan="4" align="center"><?php echo $cryogenPipeline['non_insulated_line'] ?? "" ?></td>
+                    <td colspan="2" align="center"><?php echo $cryogenPipeline['noninsullenght'] ?? "" ?></td>
+                </tr>
+                <tr>
+                    <td colspan="2">Non-insulated valves</td>
+                    <td colspan="4" align="center"><?php echo $cryogenPipeline['non_insulated_valves'] ?? "" ?></td>
+                    <td colspan="2"align="center"><?php echo $cryogenPipeline['noninsulatevallenght'] ?? "" ?></td>
+                </tr>
+                <tr>
+                    <td colspan="2">Storage tank</td>
+                    <td colspan="4" align="center"><?php echo $cryogenPipeline['storageTankName'] ?? "" ?></td>
+                    <td colspan="2" align="center"><?php echo "" ?></td>
+                </tr>
             </table>
+            <div id="pressuer"><strong>Tank pressure :</strong> <?php echo $cryogenPipeline['pressuer'] ?? "" ?> (Bar)</div>
+            <div id="height"><strong>Equipment elevation above tank outlet. :</strong><?php echo $cryogenPipeline['height'] ?? "" ?> (m)</div>
             </div>
         </div>
+        
         <h3>Consumptions / Economics assessments</h3>
         <h4>Values</h4>
         <div class="consum-esti">
@@ -277,39 +275,41 @@
                     <td align="center">Heat losses per hour(UC/h)</td>
                     <td align="center">Cooldown(UC)</td>
                 </tr>
+                <?php foreach($consumptions as $resconsumptions) { ?>
                 <tr>
-                    <td colspan="2" rowspan="2"></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <td colspan="2" rowspan="2"><?php echo $resconsumptions['equipName'] ?></td>
+                    <td align="center">(l)</td>
+                    <td align="center"><?php echo $resconsumptions['tc'] ?></td>
+                    <td align="center"><?php echo $resconsumptions['kgProduct'] ?></td>
+                    <td align="center"><?php echo $resconsumptions['product'] ?></td>
+                    <td align="center"><?php echo $resconsumptions['hour'] ?></td>
+                    <td align="center"><?php echo $resconsumptions['day'] ?></td>
+                    <td align="center"><?php echo $resconsumptions['week'] ?></td>
+                    <td align="center"><?php echo $resconsumptions['month'] ?></td>
+                    <td align="center"><?php echo $resconsumptions['year'] ?></td>
+                    <td align="center"><?php echo $resconsumptions['eqptPerm'] ?></td>
+                    <td align="center"><?php echo $resconsumptions['eqptCold'] ?></td>
+                    <td align="center"><?php echo $resconsumptions['linePerm'] ?></td>
+                    <td align="center"><?php echo $resconsumptions['lineCold'] ?></td>
+                    <td align="center"><?php echo $resconsumptions['tank'] ?></td>
                 </tr>
                 <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <td align="center">(€)</td>
+                    <td align="center"><?php echo "--" ?></td>
+                    <td align="center"><?php echo "--" ?></td>
+                    <td align="center"><?php echo "--" ?></td>
+                    <td align="center"><?php echo "--" ?></td>
+                    <td align="center"><?php echo "--" ?></td>
+                    <td align="center"><?php echo "--" ?></td>
+                    <td align="center"><?php echo "--" ?></td>
+                    <td align="center"><?php echo "--" ?></td>
+                    <td align="center"><?php echo "--" ?></td>
+                    <td align="center"><?php echo "--" ?></td>
+                    <td align="center"><?php echo "--" ?></td>
+                    <td align="center"><?php echo "--" ?></td>
+                    <td align="center"><?php echo "--" ?></td>
                 </tr>
+                <?php } ?>
             </table>
             </div>
         </div>
@@ -333,19 +333,20 @@
                     <td colspan="2" align="center">Cryogen consumption (product + equipment heat load) (l/kg)</td>
                     <td align="center">Conveyor coverage or quantity of product per batch</td>
                 </tr>
+                <?php foreach($optimumHeadBalance as $resoptHeads) { ?>
                 <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td colspan="2"></td>
-                    <td></td>
-                    <td></td>
+                    <td align="center" colspan="2"><?php echo $resoptHeads['equipName'] ?></td>
+                    <td align="center"><?php echo $arrayParam['proInfoStudy']['avgTInitial'] ?></td>
+                    <td align="center"><?php echo $resoptHeads['tfp'] ?></td>
+                    <td align="center"><?php echo $resoptHeads['tr'] ?></td>
+                    <td align="center"><?php echo $resoptHeads['ts'] ?></td>
+                    <td align="center"><?php echo $resoptHeads['vep'] ?></td>
+                    <td align="center"><?php echo $resoptHeads['dhp'] ?></td>
+                    <td align="center"><?php echo $resoptHeads['conso'] ?></td>
+                    <td align="center" colspan="2"><?php echo $resoptHeads['toc'] ?></td>
+                    <td align="center"><?php echo $resoptHeads['precision'] ?></td>
                 </tr>
+                <?php } ?>
             </table>
             </div>
         </div>
@@ -368,19 +369,20 @@
                     <td colspan="2">Cryogen consumption (product + equipment heat load) (l/kg)</td>
                     <td>Conveyor coverage or quantity of product per batch</td>
                 </tr>
+                <?php foreach($optimumHbMax  as $resoptimumHbMax) { ?>
                 <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td colspan="2"></td>
-                    <td></td>
-                    <td></td>
+                    <td align="center" colspan="2"><?php echo $resoptimumHbMax['equipName'] ?></td>
+                    <td align="center" ><?php echo $arrayParam['proInfoStudy']['avgTInitial'] ?></td>
+                    <td align="center"><?php echo $resoptimumHbMax['tfp'] ?></td>
+                    <td align="center"><?php echo $resoptimumHbMax['tr'] ?></td>
+                    <td align="center"><?php echo $resoptimumHbMax['ts'] ?></td>
+                    <td align="center"><?php echo $resoptimumHbMax['vep'] ?></td>
+                    <td align="center"><?php echo $resoptimumHbMax['dhp'] ?></td>
+                    <td align="center"><?php echo $resoptimumHbMax['conso'] ?></td>
+                    <td align="center" colspan="2"><?php echo $resoptimumHbMax['toc'] ?></td>
+                    <td align="center"><?php echo $resoptimumHbMax['precision'] ?></td>
                 </tr>
+                <?php } ?>
             </table>
             </div>
         </div>
@@ -391,37 +393,43 @@
 
         <h3>Heat Exchange</h3>
         <!-- <h4>get first Equipment </h4> -->
+        <?php foreach($consumptions as $resconsumptions) { ?>
         <div class="heat-exchange">
             <div class="table table-bordered">
             <table border="0.5">
                 <tr>
                     <th colspan="2">Equipment</th>
-                    <th>0.0 s</th>
-                    <th>2.0 s</th>
-                    <th>4.0 s</th>
-                    <th>6.0 s</th>
-                    <th>8.0 s</th>
-                    <th>9.0 s</th>
-                    <th>11.0 s</th>
-                    <th>13.0 s</th>
-                    <th>15.0 s</th>
-                    <th>17.0 s</th>
+                    <th align="center"> <?php echo $heatexchange[0]['x']?></th>
+                    <th align="center"> <?php echo $heatexchange[1]['x'] ?></th>
+                    <th align="center"> <?php echo $heatexchange[2]['x'] ?></th>
+                    <th align="center"> <?php echo $heatexchange[3]['x'] ?></th>
+                    <th align="center"> <?php echo $heatexchange[4]['x'] ?></th>
+                    <th align="center"> <?php echo $heatexchange[5]['x'] ?></th>
+                    <th align="center"> <?php echo $heatexchange[6]['x'] ?></th>
+                    <th align="center"> <?php echo $heatexchange[7]['x'] ?></th>
+                    <th align="center"> <?php echo $heatexchange[8]['x'] ?></th>
+                    <th align="center"> <?php echo $heatexchange[9]['x'] ?></th>
                 </tr>
                 <tr>
-                    <td colspan="2"></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <td colspan="2"><?php echo $resconsumptions['equipName'] . "- (kj/kg)" ?></td>
+                    <td align="center"><?php echo $heatexchange[0]['y'] ?></td>
+                    <td align="center"><?php echo $heatexchange[1]['y'] ?></td>
+                    <td align="center"><?php echo $heatexchange[2]['y'] ?></td>
+                    <td align="center"><?php echo $heatexchange[3]['y'] ?></td>
+                    <td align="center"><?php echo $heatexchange[4]['y'] ?></td>
+                    <td align="center"><?php echo $heatexchange[5]['y'] ?></td>
+                    <td align="center"><?php echo $heatexchange[6]['y'] ?></td>
+                    <td align="center"><?php echo $heatexchange[7]['y'] ?></td>
+                    <td align="center"><?php echo $heatexchange[8]['y'] ?></td>
+                    <td align="center"><?php echo $heatexchange[9]['y'] ?></td>
                 </tr>
             </table>
             </div>
+
+            <div id="hexchGraphic">
+            Graphic Heat Exchange
+            </div>
+            <?php } ?>
         </div>
 
         <h3>Product Section</h3>

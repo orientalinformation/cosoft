@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Contracts\Auth\Factory as Auth;
 use App\Cryosoft\UnitsConverterService;
 use App\Cryosoft\ValueListService;
+use App\Http\Controllers\Api1\Lines;
+use App\Cryosoft\ReportService;
 use App\Models\Report;
 use App\Models\StudyEquipment;
 use App\Models\ProductElmt;
@@ -50,19 +52,30 @@ class Reports extends Controller
      * @var \App\Cryosoft\StudyEquipmentService
      */
     protected $stdeqp;
+    /**
+     * @var \App\Http\Controllers\Api1\Lines
+     */
+    protected $pipelines;
+    /**
+     * @var \App\CryoSoft\ReportService
+     */
+    protected $reportserv;
 
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth, UnitsConverterService $convert, ValueListService $value, StudyEquipmentService $stdeqp)
+    public function __construct(Request $request, Auth $auth, UnitsConverterService $convert, 
+    ValueListService $value, StudyEquipmentService $stdeqp, Lines $pipelines, ReportService $reportserv)
     {
         $this->request = $request;
         $this->auth = $auth;
         $this->convert = $convert;
         $this->value = $value;
         $this->stdeqp = $stdeqp;
+        $this->pipelines = $pipelines;
+        $this->reportserv = $reportserv;
     }
 
     public function getReport($id)
@@ -456,9 +469,6 @@ class Reports extends Controller
     function downLoadPDF($id) {
         $study = Study::find($id);
         $user = $this->auth->user()->USERNAM;
-        if ($user == null) {
-            die('user null!!');
-        }
         $host = 'http://' . $_SERVER['HTTP_HOST'];
         $public_path = rtrim(app()->basePath("public/reports/"), '/');
         $tcpdf_path = rtrim(app()->basePath("vendor/tecnickcom/tcpdf/examples/"), '/');
@@ -484,14 +494,28 @@ class Reports extends Controller
         ->where('TRANS_TYPE', 1)->whereIn('ID_TRANSLATION', $idComArr)
         ->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'DESC')->get();
         $equipData = $this->stdeqp->findStudyEquipmentsByStudy($study);
-        // return $equipData;
+        $cryogenPipeline = $this->pipelines->loadPipeline($study->ID_STUDY);
+        $consumptions = $this->reportserv->getAnalyticalConsumption($study->ID_STUDY);
+        $optimumHeadBalance = $this->reportserv->getOptimumHeadBalance($study->ID_STUDY);
+        $proInfoStudy = $this->reportserv->getProInfoStudy($study->ID_STUDY);
+        $optimumHbMax = $this->reportserv->getOptimumHeadBalanceMax($study->ID_STUDY);
+        $heatexchange = $this->reportserv->heatExchange($study->ID_STUDY);
+
+
+
+        return $heatexchange; // show array heat exchange
+        
+        
+        
+        
+        
+        
         $productComps = [];
         foreach ($componentName as $key => $value) {
             $componentStatus = Translation::select('LABEL')->where('TRANS_TYPE', 100)->whereIn('ID_TRANSLATION', $comprelease)->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
             $productComps[] = $value;
             $productComps[$key]['display_name'] = $value->LABEL . ' - ' . $productElmt->component->COMP_VERSION . '(' . $componentStatus->LABEL . ' )';
         }
-        // return $productComps;
         $shapeName = Translation::where('TRANS_TYPE', 4)->where('ID_TRANSLATION', $shapeCode)->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
         // set document information
         PDF::SetCreator(PDF_CREATOR);
@@ -531,14 +555,17 @@ class Reports extends Controller
         PDF::Bookmark('Chapter 1', 0, 0, '', 'B', array(0,64,128));
         // print a line using Cell()
         PDF::Cell(0, 10, 'Chapter 1', 0, 1, 'L');
-        $view = $this->viewPDF($production, $product, $proElmt, $shapeName, $productComps, $equipData);
+        $view = $this->viewPDF($production, $product, $proElmt, $shapeName, 
+        $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
+        $optimumHbMax, $optimumHeadBalance, $heatexchange);
         $html= $view->render();
+        // return $html;
         PDF::SetFont('helvetica', '', 6);
-        PDF::writeHTMLCell(0, 0, '', '', $html, 0, 1, 0, true, '', true);
+        PDF::writeHTML($html, true, false, true, false, '');
+        // return 10000;
         PDF::AddPage();
         PDF::Bookmark('Paragraph 1.1', 1, 0, '', '', array(128,0,0));
         PDF::Cell(0, 10, 'Paragraph 1.1', 0, 1, 'L');
-
         PDF::AddPage();
         PDF::Bookmark('Paragraph 1.2', 1, 0, '', '', array(128,0,0));
         PDF::Cell(0, 10, 'Paragraph 1.2', 0, 1, 'L');
@@ -586,18 +613,26 @@ class Reports extends Controller
         return ["url" => "$host/reports/$user/$name_report"];
     }
     
-    public function viewPDF($production, $product, $proElmt, $shapeName, $productComps, $equipData) 
+    public function viewPDF($production, $product, $proElmt, $shapeName, 
+    $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
+    $optimumHbMax, $optimumHeadBalance, $heatexchange) 
     {
         $arrayParam = [
             'production' => $production,
             'product' => $product,
             'proElmt' => $proElmt,
             'shapeName' => $shapeName,
+            'proInfoStudy' => $proInfoStudy
         ];
         $param = [
             'arrayParam' => $arrayParam,
             'productComps' => $productComps,
-            'equipData' => $equipData
+            'equipData' => $equipData,
+            'cryogenPipeline' => $cryogenPipeline['dataResultExist'],
+            'consumptions' => $consumptions,
+            'optimumHeadBalance' => $optimumHeadBalance,
+            'optimumHbMax' => $optimumHbMax,
+            'heatexchange' => $heatexchange['result']
         ];
         return view('report.view_report', $param);
     }
