@@ -25,6 +25,14 @@ $router->GET('/api/v1/studies/{id}/productElmt', 'Api1\\Studies@getProductElmt')
 $router->GET('/api/v1/studies/{id}/meshPoints', 'Api1\\Studies@getMeshPoints');
 
 /**
+ * GET getlocationAxisSelected
+ * Summary: 
+ * Notes: get axis selected number
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/studies/{id}/locationAxisSelected', 'Api1\\Studies@getlocationAxisSelected');
+
+/**
  * GET getstudyEquipmentProductChart
  * Summary: 
  * Notes: get Study Equipment Product Chart
@@ -102,15 +110,6 @@ $router->GET('/api/v1/monetaryCurrency/{id}', 'Api1\\MonetaryCurrencies@getMonet
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/output/sizingresult/estimation', 'Api1\\Output@sizingEstimationResult');
-
-
-/**
- * GET location
- * Summary: 
- * Notes: product chart location
- * Output-Formats: [application/json]
- */
-$router->GET('/api/v1/output/location', 'Api1\\Output@location');
 
 /**
  * GET heatExchange

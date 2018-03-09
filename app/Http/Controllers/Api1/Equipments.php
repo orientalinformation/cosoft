@@ -125,12 +125,20 @@ class Equipments extends Controller
 
         foreach ($others as $key) {
             $key->capabilitiesCalc = $this->equip->getCapability($key->CAPABILITIES, 65536);
+            $key->capabilitiesCalc256 = $this->equip->getCapability($key->CAPABILITIES, 256);
             $key->timeSymbol = $this->convert->timeSymbolUser();
             $key->temperatureSymbol = $this->convert->temperatureSymbolUser();
             $key->dimensionSymbol = $this->convert->equipDimensionSymbolUser();
+            $key->consumptionSymbol1 = $this->convert->consumptionSymbolUser($key->ID_COOLING_FAMILY, 1);
+            $key->consumptionSymbol2 = $this->convert->consumptionSymbolUser($key->ID_COOLING_FAMILY, 2);
+            $key->consumptionSymbol3 = $this->convert->consumptionSymbolUser($key->ID_COOLING_FAMILY, 3);
+            $key->shelvesWidthSymbol = $this->convert->shelvesWidthSymbol();
+            $key->rampsPositionSymbol = $this->convert->rampsPositionSymbol();
+
             $key->EQP_LENGTH = $this->convert->equipDimensionUser($key->EQP_LENGTH);
             $key->EQP_WIDTH = $this->convert->equipDimensionUser($key->EQP_WIDTH);
             $key->EQP_HEIGHT = $this->convert->equipDimensionUser($key->EQP_HEIGHT);
+            $key->MAX_FLOW_RATE = $this->convert->consumptionUser($key->MAX_FLOW_RATE, $key->ID_COOLING_FAMILY, 1);
             $key->TMP_REGUL_MIN = $this->convert->controlTemperatureUser($key->TMP_REGUL_MIN);
 
             $equipGener = EquipGeneration::find($key->ID_EQUIPGENERATION);
@@ -515,6 +523,7 @@ class Equipments extends Controller
         $equipCharacts = EquipCharact::where('ID_EQUIP', $idEquip)->orderBy('X_POSITION', 'ASC')->get();
         if (count($equipCharacts) > 0) {
             foreach ($equipCharacts as $equipCharact) {
+                $equipCharact->X_POSITION = floatval($equipCharact->X_POSITION);
                 $equipCharact->ALPHA_TOP = $this->convert->convectionCoeff($equipCharact->ALPHA_TOP);
                 $equipCharact->ALPHA_BOTTOM = $this->convert->convectionCoeff($equipCharact->ALPHA_BOTTOM);
                 $equipCharact->ALPHA_LEFT = $this->convert->convectionCoeff($equipCharact->ALPHA_LEFT);
@@ -548,35 +557,36 @@ class Equipments extends Controller
 
         $ID_EQUIP = $X_POSITION = $ecPrevious = $ecNext = null;
         $bAbort = false;
+        $result = -1;
 
-        if (isset($input['ID_EQUIP'])) $ID_EQUIP = $input['ID_EQUIP'];
-        if (isset($input['X_POSITION'])) $X_POSITION = doubleval($input['X_POSITION']);
+        if (isset($input['ID_EQUIP'])) $ID_EQUIP = intval($input['ID_EQUIP']);
+        if (isset($input['X_POSITION'])) $X_POSITION = floatval($input['X_POSITION']);
 
         $equipCharacts = EquipCharact::where('ID_EQUIP', $ID_EQUIP)->get();
 
         if (count($equipCharacts) >= 120) {
             $bAbort = true;
+            return -2;
         }
 
         if ((count($equipCharacts) > 0) && (!$bAbort)) {
             foreach ($equipCharacts as $equipCharact) {
-                if (doubleval($equipCharact->X_POSITION) < $X_POSITION) {
+                if (floatval($equipCharact->X_POSITION) < $X_POSITION) {
                     $ecPrevious = $equipCharact;
                 }
 
-                if (doubleval($equipCharact->X_POSITION) == $X_POSITION) {
+                if (floatval($equipCharact->X_POSITION) == $X_POSITION) {
                     $bAbort = true;
                 }
 
-                if ((doubleval($equipCharact->X_POSITION) > $X_POSITION) && ($ecNext == null)) {
+                if ((floatval($equipCharact->X_POSITION) > $X_POSITION) && ($ecNext == null)) {
                     $ecNext = $equipCharact;
                 }
             }
         }
 
-        $ec = new EquipCharact();
-
         if (!$bAbort) {
+            $ec = new EquipCharact();
             if (($ecNext != null) && ($ecPrevious != null)) {
                 $ec->ID_EQUIP = $ecPrevious->ID_EQUIP;
                 $ec->X_POSITION = round($X_POSITION, 1);
@@ -605,9 +615,26 @@ class Equipments extends Controller
                 $ec->TEMP_REGUL = $ecPrevious->TEMP_REGUL;
                 $ec->save();
             }
-        }
-        return $ec;
 
+            if ($ec) {
+                $ec->ALPHA_TOP = $this->convert->convectionCoeff($ec->ALPHA_TOP);
+                $ec->ALPHA_BOTTOM = $this->convert->convectionCoeff($ec->ALPHA_BOTTOM);
+                $ec->ALPHA_LEFT = $this->convert->convectionCoeff($ec->ALPHA_LEFT);
+                $ec->ALPHA_RIGHT = $this->convert->convectionCoeff($ec->ALPHA_RIGHT);
+                $ec->ALPHA_FRONT = $this->convert->convectionCoeff($ec->ALPHA_FRONT);
+                $ec->ALPHA_REAR = $this->convert->convectionCoeff($ec->ALPHA_REAR);
+
+                $ec->TEMP_TOP = $this->convert->temperature($ec->TEMP_TOP);
+                $ec->TEMP_BOTTOM = $this->convert->temperature($ec->TEMP_BOTTOM);
+                $ec->TEMP_LEFT = $this->convert->temperature($ec->TEMP_LEFT);
+                $ec->TEMP_RIGHT = $this->convert->temperature($ec->TEMP_RIGHT);
+                $ec->TEMP_FRONT = $this->convert->temperature($ec->TEMP_FRONT);
+                $ec->TEMP_REAR = $this->convert->temperature($ec->TEMP_REAR);
+                $result = $ec;
+            }
+        }
+
+        return $result;
     }
 
     private function interpolate($x1, $x2, $y1, $y2, $x) 
@@ -1016,11 +1043,6 @@ class Equipments extends Controller
             return 1;
         }
         return 0;
-    }
-
-    public function addOnePoint($id) 
-    {
-
     }
 
     public function updateEquipCharact()
