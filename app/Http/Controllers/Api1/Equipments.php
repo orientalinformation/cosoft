@@ -648,6 +648,7 @@ class Equipments extends Controller
     {
         $profileType = $minMax = $minScaleY = $maxScaleY = $minValueY = $maxValueY = $nbFractionDigits = null;
         $unitIdent = 10;
+        $YAxis = $XAxis = null;
 
         $input = $this->request->all();
 
@@ -701,9 +702,11 @@ class Equipments extends Controller
 
         $array = [
             'MiniMum' => $miniMum,
-            'MaxiMum' => $maxiMum
+            'MaxiMum' => $maxiMum,
+            'YAxis' => $YAxis,
+            'XAxis' => $XAxis,
         ];
-
+        
         return $array;
     }
 
