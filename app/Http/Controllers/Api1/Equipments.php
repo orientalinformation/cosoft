@@ -1048,6 +1048,26 @@ class Equipments extends Controller
         return 0;
     }
 
+    public function getTempSetPoint($idEquip)
+    {
+        $tr_current = $tr_new = $arr = null;
+        $equipment = Equipment::find($idEquip);
+        if ($equipment) {
+            $equipGeneration = EquipGeneration::where('ID_EQUIP', $equipment->ID_EQUIP)->first();
+            if ($equipGeneration) {
+                $tr_current = $equipGeneration->TEMP_SETPOINT;
+                $tr_new = $equipGeneration->TEMP_SETPOINT;
+            }
+        }
+
+        $arr = [
+            'tr_current' => $tr_current,
+            'tr_new' => $tr_new
+        ];
+
+        return $arr;
+    }
+
     public function updateEquipCharact()
     {
         $input = $this->request->all();

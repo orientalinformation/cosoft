@@ -271,3 +271,11 @@ $router->DELETE('/api/v1/referencedata/equipcharacts/{idEquip}', 'Api1\\Equipmen
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/referencedata/equipcharact', 'Api1\\Equipments@addEquipCharact');
+
+/**
+ * GET tempset point
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/referencedata/tempsetpoint/{idEquip}', 'Api1\\Equipments@getTempSetPoint');
