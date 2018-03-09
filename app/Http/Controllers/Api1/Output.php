@@ -1499,6 +1499,20 @@ class Output extends Controller
             $label["bot"] = $this->unit->meshesUnit($tempRecordPts->AXIS1_PT_BOT_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_BOT_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_BOT_SURF);
         }
 
+        $f = fopen("/tmp/timeBased.inp", "w");
+
+        $dataLabel = '';
+        fputs($f, '"X" ');
+        fputs($f, '"Top('. $label['top'] .')" ');
+        fputs($f, '"Internal('. $label['int'] .')" ');
+        fputs($f, '"Bottom('. $label['bot'] .')" ');
+        fputs($f, '"Average temperature"'. "\n");
+        
+        foreach ($curve['top'] as $key => $row) {
+            fputs($f, (double) $row['x'] . ' ' . (double) $row['y'] . ' ' . (double) $curve['bot'][$key]['y'] . ' ' . (double) $curve['int'][$key]['y'] . ' ' . (double) $curve['average'][$key]['y'] . "\n");
+        } 
+        fclose($f);
+
         return compact("label", "curve", "result");
     }
 
@@ -1686,22 +1700,22 @@ class Output extends Controller
 
         $f = fopen("/tmp/productSection.inp", "w");
 
-        $txt = '';
+        $dataLabel = '';
+        fputs($f, '"X" ');
         foreach ($resultLabel as $row) {
-            $txt .= '"Temperature T' . $row . '(' . $this->unit->timeSymbol() . ')' . '"' . ' ';
+            $dataLabel .= '"Temperature T' . $row . '(' . $this->unit->timeSymbol() . ')' . '"' . ' ';
         } 
 
-        
-
-        fputs($f, $txt);
+        fputs($f, $dataLabel);
         fputs($f, "\n");
 
-        foreach ($resultValue as $row) {
-            $txt1 = '';
+        foreach ($resultValue as $key => $row) {
+            $dataValue = '';
+            $dataValue = $recAxis[$key] . ' ';
             foreach ($row as $value) {
-                $txt1 .= $value . ' ';
+                $dataValue .= $value . ' ';
             }
-            fputs($f, $txt1);
+            fputs($f, $dataValue);
             fputs($f, "\n");
         }
         fclose($f);
