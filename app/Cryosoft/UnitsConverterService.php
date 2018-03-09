@@ -396,12 +396,14 @@ class UnitsConverterService
     public function convertCalculator($value, $coeffA, $coeffB, $decimal = 2)
     {
         $number = $value * $coeffA + $coeffB;
-        if (is_numeric( $value ) && floor( $value ) != $value) {
-            return floor($number * pow(10, $decimal)) / pow(10, $decimal);
+        if (floor( $value ) != $value) {
+            $number = round(($number), $decimal, PHP_ROUND_HALF_UP);
+            $number = floor($number * pow(10, $decimal)) / pow(10, $decimal);
         } else {
-            $number =  round(($value * $coeffA + $coeffB), $decimal);
-            return number_format((float)$number, $decimal, '.', '');
+            $number = round(($value * $coeffA + $coeffB), $decimal);
         }
+
+        return number_format((float)$number, $decimal, '.', '');
     }
 
     public function uNone()
@@ -590,6 +592,13 @@ class UnitsConverterService
     }
     public function exhaustTemperature($value) {
         $unit = Unit::where('TYPE_UNIT', $this->value->TEMPERATURE)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B);
+    }
+    public function packingThickness($value) {
+        $unit = Unit::where('TYPE_UNIT', $this->value->THICKNESS_PACKING)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
