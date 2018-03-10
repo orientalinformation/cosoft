@@ -83,10 +83,10 @@ class Products extends Controller
         $elmt->SHAPE_PARAM2 = 0.01; //default 1cm
 
         if (isset($input['dim1']))
-            $elmt->SHAPE_PARAM1 = $input['dim1'];
+            $elmt->SHAPE_PARAM1 = $this->unit->prodDimensionSave($input['dim1']);
 
         if (isset($input['dim3']))
-            $elmt->SHAPE_PARAM3 = $input['dim3'];
+            $elmt->SHAPE_PARAM3 = $this->unit->prodDimensionSave($input['dim3']);
 
         $elmt->PROD_ELMT_NAME = "";
 
@@ -137,9 +137,9 @@ class Products extends Controller
         $oldDim2 = round(doubleval($nElements->SHAPE_PARAM2), 4);
 
         $nElements->PROD_ELMT_NAME = $description;
-        $nElements->SHAPE_PARAM2 = $dim2;
-        $nElements->PROD_ELMT_WEIGHT = $computedmass;
-        $nElements->PROD_ELMT_REALWEIGHT = $realmass;
+        $nElements->SHAPE_PARAM2 = $this->unit->prodDimensionSave($dim2);
+        $nElements->PROD_ELMT_WEIGHT = $this->unit->massSave($computedmass);
+        $nElements->PROD_ELMT_REALWEIGHT = $this->unit->massSave($realmass);
         $nElements->save();
 
         $ok1 = $ok2 = 0;
@@ -227,12 +227,12 @@ class Products extends Controller
             throw new \Exception("Error Processing Request. Product ID not found", 1);
 
         $meshGeneration = $product->meshGenerations->first();
-        $meshGeneration->MESH_1_SIZE = $this->unit->meshesUnit($meshGeneration->MESH_1_SIZE);
-        $meshGeneration->MESH_2_SIZE = $this->unit->meshesUnit($meshGeneration->MESH_2_SIZE);
-        $meshGeneration->MESH_3_SIZE = $this->unit->meshesUnit($meshGeneration->MESH_3_SIZE);
-        $meshGeneration->MESH_1_INT = $this->unit->meshesUnit($meshGeneration->MESH_1_INT);
-        $meshGeneration->MESH_2_INT = $this->unit->meshesUnit($meshGeneration->MESH_2_INT);
-        $meshGeneration->MESH_3_INT = $this->unit->meshesUnit($meshGeneration->MESH_3_INT);
+        if ($meshGeneration) $meshGeneration->MESH_1_SIZE = $this->unit->meshesUnit($meshGeneration->MESH_1_SIZE);
+        if ($meshGeneration) $meshGeneration->MESH_2_SIZE = $this->unit->meshesUnit($meshGeneration->MESH_2_SIZE);
+        if ($meshGeneration) $meshGeneration->MESH_3_SIZE = $this->unit->meshesUnit($meshGeneration->MESH_3_SIZE);
+        if ($meshGeneration) $meshGeneration->MESH_1_INT = $this->unit->meshesUnit($meshGeneration->MESH_1_INT);
+        if ($meshGeneration) $meshGeneration->MESH_2_INT = $this->unit->meshesUnit($meshGeneration->MESH_2_INT);
+        if ($meshGeneration) $meshGeneration->MESH_3_INT = $this->unit->meshesUnit($meshGeneration->MESH_3_INT);
 
         $elements = $product->productElmts;
         $elmtMeshPositions = [];

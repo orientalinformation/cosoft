@@ -659,9 +659,9 @@ class Studies extends Controller
             $elements = $product->productElmts;
             if ($elements->count() > 0) {
                 foreach ($elements as $elmt) {
-                    if (isset($input['dim1'])) $elmt->SHAPE_PARAM1 = floatval($input['dim1']);
-                    if (isset($input['dim2'])) $elmt->SHAPE_PARAM2 = floatval($input['dim2']);
-                    if (isset($input['dim3'])) $elmt->SHAPE_PARAM3 = floatval($input['dim3']);
+                    if (isset($input['dim1'])) $elmt->SHAPE_PARAM1 = $this->convert->prodDimensionSave(floatval($input['dim1']));
+                    if (isset($input['dim2'])) $elmt->SHAPE_PARAM2 = $this->convert->prodDimensionSave(floatval($input['dim2']));
+                    if (isset($input['dim3'])) $elmt->SHAPE_PARAM3 = $this->convert->prodDimensionSave(floatval($input['dim3']));
                     $elmt->save();
                     $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_PROD, intval($elmt->ID_PRODUCT_ELMT));
                     $ok = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($id, $conf, 2);
