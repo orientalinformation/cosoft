@@ -393,35 +393,35 @@
 
         <h3>Heat Exchange</h3>
         <!-- <h4>get first Equipment </h4> -->
-        <?php foreach($consumptions as $resconsumptions) { ?>
+        <?php foreach($heatexchange as $key=> $resheatexchanges) { ?>
         <div class="heat-exchange">
             <div class="table table-bordered">
             <table border="0.5">
                 <tr>
                     <th colspan="2">Equipment</th>
-                    <th align="center"> <?php echo $heatexchange[0]['x']?></th>
-                    <th align="center"> <?php echo $heatexchange[1]['x'] ?></th>
-                    <th align="center"> <?php echo $heatexchange[2]['x'] ?></th>
-                    <th align="center"> <?php echo $heatexchange[3]['x'] ?></th>
-                    <th align="center"> <?php echo $heatexchange[4]['x'] ?></th>
-                    <th align="center"> <?php echo $heatexchange[5]['x'] ?></th>
-                    <th align="center"> <?php echo $heatexchange[6]['x'] ?></th>
-                    <th align="center"> <?php echo $heatexchange[7]['x'] ?></th>
-                    <th align="center"> <?php echo $heatexchange[8]['x'] ?></th>
-                    <th align="center"> <?php echo $heatexchange[9]['x'] ?></th>
+                    <th align="center"> <?php echo $resheatexchanges['result'][0]['x']?></th>
+                    <th align="center"> <?php echo $resheatexchanges['result'][1]['x'] ?></th>
+                    <th align="center"> <?php echo $resheatexchanges['result'][2]['x'] ?></th>
+                    <th align="center"> <?php echo $resheatexchanges['result'][3]['x'] ?></th>
+                    <th align="center"> <?php echo $resheatexchanges['result'][4]['x'] ?></th>
+                    <th align="center"> <?php echo $resheatexchanges['result'][5]['x'] ?></th>
+                    <th align="center"> <?php echo $resheatexchanges['result'][6]['x'] ?></th>
+                    <th align="center"> <?php echo $resheatexchanges['result'][7]['x'] ?></th>
+                    <th align="center"> <?php echo $resheatexchanges['result'][8]['x'] ?></th>
+                    <th align="center"> <?php echo $resheatexchanges['result'][9]['x'] ?></th>
                 </tr>
                 <tr>
-                    <td colspan="2"><?php echo $resconsumptions['equipName'] . "- (kj/kg)" ?></td>
-                    <td align="center"><?php echo $heatexchange[0]['y'] ?></td>
-                    <td align="center"><?php echo $heatexchange[1]['y'] ?></td>
-                    <td align="center"><?php echo $heatexchange[2]['y'] ?></td>
-                    <td align="center"><?php echo $heatexchange[3]['y'] ?></td>
-                    <td align="center"><?php echo $heatexchange[4]['y'] ?></td>
-                    <td align="center"><?php echo $heatexchange[5]['y'] ?></td>
-                    <td align="center"><?php echo $heatexchange[6]['y'] ?></td>
-                    <td align="center"><?php echo $heatexchange[7]['y'] ?></td>
-                    <td align="center"><?php echo $heatexchange[8]['y'] ?></td>
-                    <td align="center"><?php echo $heatexchange[9]['y'] ?></td>
+                    <td colspan="2"><?php echo $consumptions[$key]['equipName'] . "- (kj/kg)" ?></td>
+                    <td align="center"><?php echo $resheatexchanges['result'][0]['y'] ?></td>
+                    <td align="center"><?php echo $resheatexchanges['result'][1]['y'] ?></td>
+                    <td align="center"><?php echo $resheatexchanges['result'][2]['y'] ?></td>
+                    <td align="center"><?php echo $resheatexchanges['result'][3]['y'] ?></td>
+                    <td align="center"><?php echo $resheatexchanges['result'][4]['y'] ?></td>
+                    <td align="center"><?php echo $resheatexchanges['result'][5]['y'] ?></td>
+                    <td align="center"><?php echo $resheatexchanges['result'][6]['y'] ?></td>
+                    <td align="center"><?php echo $resheatexchanges['result'][7]['y'] ?></td>
+                    <td align="center"><?php echo $resheatexchanges['result'][8]['y'] ?></td>
+                    <td align="center"><?php echo $resheatexchanges['result'][9]['y'] ?></td>
                 </tr>
             </table>
             </div>
@@ -434,113 +434,97 @@
 
         <h3>Product Section</h3>
         <!-- <h4>get first Equipment </h4> -->
-        Values - Dimension 2 (6.50,*,6.50) (mm)
+        <?php foreach ($proSections as $resproSections) {?>
+        <h4><?php echo $resproSections['equipName'] ?></h4>
+        <?php if ($resproSections['selectedAxe'] == 1) {?> 
+        Values - Dimension <?php echo $resproSections['selectedAxe'] . "(" . "*," . $resproSections['axeTemp'][0] . "," . $resproSections['axeTemp'][0] . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?>  
+        <?php } else if ($resproSections['selectedAxe'] == 2) { ?>
+        Values - Dimension <?php echo $resproSections['selectedAxe'] . "(" . $resproSections['axeTemp'][0] . ",*," . $resproSections['axeTemp'][0] . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?>  
+        <?php } else if ($resproSections['selectedAxe'] == 3) {?>
+        Values - Dimension <?php echo $resproSections['selectedAxe'] . "(" . $resproSections['axeTemp'][0] . "," . $resproSections['axeTemp'][0] . ",*" . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?>  
+        <?php } ?>
         <div class="values-dim2">
             <div class="table table-bordered">
             <table border="0.5">
                 <tr>
-                    <th>Node number</th>
-                    <th>Position Axis 2 (mm)</th>
-                    <th>T° at 0.0 s (°C)</th>
-                    <th>T° at 2.0 s (°C)</th>
-                    <th>T° at 4.0 s (°C)</th>
-                    <th>T° at 6.0 s (°C)</th>
-                    <th>T° at 8.0 s (°C)</th>
-                    <th>T° at 9.0 s (°C)</th>
-                    <th>T° at 11.0 s (°C)</th>
-                    <th>T° at 13.0 s (°C)</th>
-                    <th>T° at 15.0 s (°C)</th>
-                    <th>T° at 17.0 s (°C)</th>
+                    <th align="center">Node number</th>
+                    <th align="center">Position Axis 1 <?php echo "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?></th>
+                    <?php foreach ($resproSections['resultLabel'] as $index => $labelTemp) { ?>
+                        <th align="center">T° at <?php echo $resproSections['resultLabel'][$index] . $resproSections['timeSymbol'] . "(" . $resproSections['temperatureSymbol'] . ")" ?></th>
+                    <?php }?>
                 </tr>
+                <?php foreach ($resproSections['result']['recAxis'] as $key=> $node) {?>
                 <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <td align="center"> <?php echo $key?></td>
+                    <td align="center"> <?php echo $resproSections['dataChart'][0][$key]['y']?></td>
+                    <?php foreach ($resproSections['dataChart'] as $index => $dbchart) { ?>
+                    <td align="center"> <?php echo $resproSections['dataChart'][$index][$key]['x'] ?></td>
+                    <?php }?>
                 </tr>
+                <?php }?>
             </table>
             </div>
         </div>
+        
         <div class="graphic-dim2"> 
-        Graphic - Dimension 2 (6.50,*,6.50) (mm)
+        <?php if ($resproSections['selectedAxe'] == 1) {?> 
+        Graphic - Dimension <?php echo $resproSections['selectedAxe'] . "(" . "*," . $resproSections['axeTemp'][0] . "," . $resproSections['axeTemp'][0] . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?>  
+        <?php } else if ($resproSections['selectedAxe'] == 2) { ?>
+        Graphic - Dimension <?php echo $resproSections['selectedAxe'] . "(" . $resproSections['axeTemp'][0] . ",*," . $resproSections['axeTemp'][0] . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?>  
+        <?php } else if ($resproSections['selectedAxe'] == 3) {?>
+        Graphic - Dimension <?php echo $resproSections['selectedAxe'] . "(" . $resproSections['axeTemp'][0] . "," . $resproSections['axeTemp'][0] . ",*" . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?>  
+        <?php } ?>
         </div>
-        <div class="values-dim3"> 
-        <div class="table table-bordered">
-            <table border="0.5">
-            <tr>
-                    <th>Node number</th>
-                    <th>Position Axis 3 (mm)</th>
-                    <th>T° at 0.0 s (°C)</th>
-                    <th>T° at 2.0 s (°C)</th>
-                    <th>T° at 4.0 s (°C)</th>
-                    <th>T° at 6.0 s (°C)</th>
-                    <th>T° at 8.0 s (°C)</th>
-                    <th>T° at 9.0 s (°C)</th>
-                    <th>T° at 11.0 s (°C)</th>
-                    <th>T° at 13.0 s (°C)</th>
-                    <th>T° at 15.0 s (°C)</th>
-                    <th>T° at 17.0 s (°C)</th>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-            </table>
-            </div>
-        </div>
-        <div class="graphic-dim3"> 
-        Graphic - Dimension 3 (6.50,6.14,*) (mm)
-        </div>
-
+        <?php } ?>
+        
         <h3>Product Graph - Time Based</h3>
-        <!-- <h4>get first name equipment</h4> -->
+        <?php foreach ($timeBase as $key => $timeBases) { ?>
+        <h4><?php echo $consumptions[$key]['equipName'] ?></h4>
         <div class="values-graphic"> 
             <div class="table table-bordered">
             <table border="0.5">
                 <tr>
-                    <th>Points</th>
-                    <th>(s)</th>
+                    <th align="center">Points</th>
+                    <th align="center"><?php echo "(" . $timeBases['timeSymbol'] . " )" ?></th>
+                    <?php foreach ($timeBases['result'] as $key => $points) { ?>
+                    <th align="center"><?php echo $timeBases['result'][$key]['points']?></th>
+                    <?php } ?>
                 </tr>
                 <tr>
-                    <td>Top<br>()</td>
-                    <td>(°C)</td>
+                    <td align="center">Top<br>()</td>
+                    <td align="center"><?php echo "(" . $timeBases['temperatureSymbol'] . " )" ?></td>
+                    <?php foreach ($timeBases['result'] as $key => $tops) { ?>
+                    <td align="center"><?php echo $timeBases['result'][$key]['top']?></td>
+                    <?php } ?>
                 </tr>
                 <tr>
-                    <td>Internal</td>
-                    <td>(°C)</td>
+                    <td align="center">Internal</td>
+                    <td align="center"><?php echo "(" . $timeBases['temperatureSymbol'] . " )" ?></td>
+                    <?php foreach ($timeBases['result'] as $key => $internals) { ?>
+                    <td align="center"><?php echo $timeBases['result'][$key]['int']?></td>
+                    <?php } ?>
                 </tr>
                 <tr>
-                    <td>Bottom</td>
-                    <td>(°C)</td>
+                    <td align="center">Bottom</td>
+                    <td align="center"><?php echo "(" . $timeBases['temperatureSymbol'] . " )" ?></td>
+                    <?php foreach ($timeBases['result'] as $key => $bottoms) { ?>
+                    <td align="center"><?php echo $timeBases['result'][$key]['bot']?></td>
+                    <?php } ?>
                 </tr>
                 <tr>
-                    <td>Avg. Temp.</td>
-                    <td>(°C)</td>
+                    <td align="center">Avg. Temp.</td>
+                    <td align="center"><?php echo "(" . $timeBases['temperatureSymbol'] . " )" ?></td>
+                    <?php foreach ($timeBases['result'] as $key => $avgs) { ?>
+                    <td align="center"><?php echo $timeBases['result'][$key]['average']?></td>
+                    <?php } ?>
                 </tr>
             </table>
             </div>
         </div>
         <div class="pro-graphic">
-        Graphic
+        Graphic Time Based
         </div>
+        <?php } ?>
 
         <h3>2D Outlines</h3>
         <!-- <h4>Graphic get name equipment - ..</h4> -->

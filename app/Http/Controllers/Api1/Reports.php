@@ -499,17 +499,33 @@ class Reports extends Controller
         $optimumHeadBalance = $this->reportserv->getOptimumHeadBalance($study->ID_STUDY);
         $proInfoStudy = $this->reportserv->getProInfoStudy($study->ID_STUDY);
         $optimumHbMax = $this->reportserv->getOptimumHeadBalanceMax($study->ID_STUDY);
-        $heatexchange = $this->reportserv->heatExchange($study->ID_STUDY);
+        $proSections = [];
 
+        foreach ($study->studyEquipments as $key=> $idstudyequips) {
+            $heatexchange[] = $this->reportserv->heatExchange($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
+            if ($shapeCode == 1) { 
+                $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+            } else if ($shapeCode == 2) {
+                if ($equipData[$key]['ORIENTATION'] == 1) {
+                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                } else {
+                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                }
+            } else if (($shapeCode == 3) && ($shapeCode == 4) && ($shapeCode == 7) && ($shapeCode == 8) && ($shapeCode == 5)) {
+                $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+            } else if ($shapeCode == 6) {
+                $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+            } else if ($shapeCode == 9) {
+                $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+            } 
+            $timeBase[] = $this->reportserv->timeBased($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
+        }
 
-
-        return $heatexchange; // show array heat exchange
-        
-        
-        
-        
-        
-        
+        // return $timeBase;
         $productComps = [];
         foreach ($componentName as $key => $value) {
             $componentStatus = Translation::select('LABEL')->where('TRANS_TYPE', 100)->whereIn('ID_TRANSLATION', $comprelease)->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
@@ -557,7 +573,7 @@ class Reports extends Controller
         PDF::Cell(0, 10, 'Chapter 1', 0, 1, 'L');
         $view = $this->viewPDF($production, $product, $proElmt, $shapeName, 
         $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
-        $optimumHbMax, $optimumHeadBalance, $heatexchange);
+        $optimumHbMax, $optimumHeadBalance, $heatexchange, $proSections, $timeBase);
         $html= $view->render();
         // return $html;
         PDF::SetFont('helvetica', '', 6);
@@ -615,7 +631,7 @@ class Reports extends Controller
     
     public function viewPDF($production, $product, $proElmt, $shapeName, 
     $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
-    $optimumHbMax, $optimumHeadBalance, $heatexchange) 
+    $optimumHbMax, $optimumHeadBalance, $heatexchange, $proSections, $timeBase) 
     {
         $arrayParam = [
             'production' => $production,
@@ -632,7 +648,9 @@ class Reports extends Controller
             'consumptions' => $consumptions,
             'optimumHeadBalance' => $optimumHeadBalance,
             'optimumHbMax' => $optimumHbMax,
-            'heatexchange' => $heatexchange['result']
+            'heatexchange' => $heatexchange,
+            'proSections' => $proSections,
+            'timeBase' => $timeBase
         ];
         return view('report.view_report', $param);
     }
