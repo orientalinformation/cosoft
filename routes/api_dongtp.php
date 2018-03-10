@@ -279,3 +279,11 @@ $router->POST('/api/v1/referencedata/equipcharact', 'Api1\\Equipments@addEquipCh
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/referencedata/tempsetpoint/{idEquip}', 'Api1\\Equipments@getTempSetPoint');
+
+/**
+ * Build For new TR
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->PUT('/api/v1/referencedata/tempsetpoint', 'Api1\\Equipments@buildForNewTR');
