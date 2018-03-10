@@ -83,10 +83,10 @@ class Products extends Controller
         $elmt->SHAPE_PARAM2 = 0.01; //default 1cm
 
         if (isset($input['dim1']))
-            $elmt->SHAPE_PARAM1 = $input['dim1'];
+            $elmt->SHAPE_PARAM1 = $this->unit->prodDimensionSave($input['dim1']);
 
         if (isset($input['dim3']))
-            $elmt->SHAPE_PARAM3 = $input['dim3'];
+            $elmt->SHAPE_PARAM3 = $this->unit->prodDimensionSave($input['dim3']);
 
         $elmt->PROD_ELMT_NAME = "";
 
@@ -137,9 +137,9 @@ class Products extends Controller
         $oldDim2 = round(doubleval($nElements->SHAPE_PARAM2), 4);
 
         $nElements->PROD_ELMT_NAME = $description;
-        $nElements->SHAPE_PARAM2 = $dim2;
-        $nElements->PROD_ELMT_WEIGHT = $computedmass;
-        $nElements->PROD_ELMT_REALWEIGHT = $realmass;
+        $nElements->SHAPE_PARAM2 = $this->unit->prodDimensionSave($dim2);
+        $nElements->PROD_ELMT_WEIGHT = $this->unit->massSave($computedmass);
+        $nElements->PROD_ELMT_REALWEIGHT = $this->unit->massSave($realmass);
         $nElements->save();
 
         $ok1 = $ok2 = 0;
