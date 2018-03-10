@@ -85,12 +85,14 @@ class Output extends Controller
         $packingThicknessSymbol = $this->unit->packingThicknessSymbol();
         $shelvesWidthSymbol = $this->unit->shelvesWidthSymbol();
         $lineDimensionSymbol = $this->unit->lineDimensionSymbol();
+        $pressureSymbol = $this->unit->pressureSymbol();
+        $materialRiseSymbol = $this->unit->materialRiseSymbol();
         $percentSymbol = "%";
         $consumSymbol = $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1);
         $consumMaintienSymbol = $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 2);
         $mefSymbol = $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 3);
 
-         $ret = compact("productFlowSymbol", "massSymbol", "temperatureSymbol", "percentSymbol", "timeSymbol", "perUnitOfMassSymbol", "enthalpySymbol", "monetarySymbol", "equipDimensionSymbol", "convectionSpeedSymbol", "convectionCoeffSymbol", "timePositionSymbol", "prodDimensionSymbol", "prodchartDimensionSymbol", "consumSymbol", "consumMaintienSymbol", "mefSymbol", "meshesSymbol", "packingThicknessSymbol", "shelvesWidthSymbol", "lineDimensionSymbol");
+         $ret = compact("productFlowSymbol", "massSymbol", "temperatureSymbol", "percentSymbol", "timeSymbol", "perUnitOfMassSymbol", "enthalpySymbol", "monetarySymbol", "equipDimensionSymbol", "convectionSpeedSymbol", "convectionCoeffSymbol", "timePositionSymbol", "prodDimensionSymbol", "prodchartDimensionSymbol", "consumSymbol", "consumMaintienSymbol", "mefSymbol", "meshesSymbol", "packingThicknessSymbol", "shelvesWidthSymbol", "lineDimensionSymbol", "pressureSymbol", "materialRiseSymbol");
         return $ret;
     }
 
