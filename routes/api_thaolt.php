@@ -107,7 +107,7 @@ $router->PATCH('/api/v1/studies/{id}/comment', 'Api1\\Studies@postStudyComment')
 
 
 /**
- * PATCH postStudyComment
+ * POST postStudyComment
  * Summary: 
  * Notes: 
  * Output-Formats: [application/json]
@@ -115,9 +115,10 @@ $router->PATCH('/api/v1/studies/{id}/comment', 'Api1\\Studies@postStudyComment')
 $router->POST('/api/v1/studyEquipment/{id}/layout', 'Api1\\Studies@updateStudyEquipmentLayout');
 
 /**
- * PATCH getChainingModel
+ * GET getChainingModel
  * Summary: 
  * Notes: 
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/studies/{id}/chaining', 'Api1\\Studies@getChainingModel');
+
