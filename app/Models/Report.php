@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Plank\Mediable\Mediable;
 
 /**
  * @property int $ID_REPORT
@@ -89,6 +90,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Report extends Model
 {
+    use Mediable;
+
     /**
      * The table associated with the model.
      * 
