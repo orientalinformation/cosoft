@@ -64,6 +64,7 @@ class Output extends Controller
         $this->eco = $eco;
         $this->study = $study;
         $this->output = $output;
+        $this->plotFolder = $this->output->base_path('scripts');
     }
 
     public function getSymbol($idStudy)
@@ -1034,6 +1035,18 @@ class Output extends Controller
                 fputs($f, '"' . trim($itemChart["equipName"]) . '"' . ' ' . (double) $itemChart["dhp"] . ' ' . (double) $itemChart["dhpMax"] . ' ' . (double) $itemChart["conso"] . ' ' . (double) $itemChart["consoMax"] . "\n" ); 
             }
             fclose($f);
+
+            $sizingFolder = $this->output->storage_path('sizing');
+
+            $userName = $study->USERNAM;
+            if (!is_dir($sizingFolder)) {
+                mkdir($sizingFolder, 0777);
+            }
+            if (!is_dir($sizingFolder . '/' . $userName)) {
+                mkdir($sizingFolder . '/' . $userName, 0777);
+            }
+
+            system('gnuplot -c '. $this->plotFolder .'/sizing.plot "Flowrate '. $this->unit->productFlowSymbol() .'" "Conso '. $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1) .'/'. $this->unit->perUnitOfMassSymbol() .'" "'. $sizingFolder . '/' . $userName . '" '. $idStudyEquipment .' '. $productFlowRate .' "Custom Flowrate"');
         }
 
         return compact("result", "selectedEquipment", "availableEquipment", "dataGrapChart", "productFlowRate");
@@ -1429,93 +1442,27 @@ class Output extends Controller
             $result[] = $itemResult;
         }
 
-        return compact("result", "curve");
-    }
-
-    public function timeBased()
-    {
-        $idStudy = $this->request->input('idStudy');
-        $idStudyEquipment = $this->request->input('idStudyEquipment');
-
-        $listRecordPos = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->get();
-        $result = array();
-        $label = array();
-        $curve = array();
-
-        if (count($listRecordPos) > 0) {
-            foreach ($listRecordPos as $row) {
-                $termRecordDataTop = $this->output->getTemperaturePosition($row->ID_REC_POS, (int) $row->AXIS1_PT_TOP_SURF, (int) $row->AXIS2_PT_TOP_SURF);
-                $termRecordDataInt = $this->output->getTemperaturePosition($row->ID_REC_POS, (int) $row->AXIS1_PT_INT_PT, (int) $row->AXIS2_PT_INT_PT);
-                $termRecordDataBot = $this->output->getTemperaturePosition($row->ID_REC_POS, (int) $row->AXIS1_PT_BOT_SURF, (int) $row->AXIS2_PT_BOT_SURF);
-
-                $itemCurveTop["x"] = $this->unit->time($row->RECORD_TIME);
-                $itemCurveTop["y"] = $this->unit->prodTemperature($termRecordDataTop->TEMP);
-
-                $itemCurveInt["x"] = $this->unit->time($row->RECORD_TIME);
-                $itemCurveInt["y"] = $this->unit->prodTemperature($termRecordDataInt->TEMP);
-
-                $itemCurveBotom["x"] = $this->unit->time($row->RECORD_TIME);
-                $itemCurveBotom["y"] = $this->unit->prodTemperature($termRecordDataBot->TEMP);
-
-                $itemCurveAverage["x"] = $this->unit->time($row->RECORD_TIME);
-                $itemCurveAverage["y"] = $this->unit->prodTemperature($row->AVERAGE_TEMP);
-
-                $curve["top"][] = $itemCurveTop;
-                $curve["int"][] = $itemCurveInt;
-                $curve["bot"][] = $itemCurveBotom;
-                $curve["average"][] = $itemCurveAverage;
-            }
-            $tempRecordPts = TempRecordPts::where("ID_STUDY", $idStudy)->first();
-            $nbSample = $tempRecordPts->NB_STEPS;
-
-            $nbRecord = count($listRecordPos);
-
-            $lfTS = $listRecordPos[$nbRecord - 1]->RECORD_TIME;
-            $lfStep = $listRecordPos[1]->RECORD_TIME - $listRecordPos[0]->RECORD_TIME;
-            $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
-
-            foreach ($lEchantillon as $row) {
-                $recordPos = $listRecordPos[$row];
-                $item["points"] = $this->unit->time($recordPos->RECORD_TIME);
-
-                //top
-                $termRecordDataTop = $this->output->getTemperaturePosition($recordPos->ID_REC_POS, (int) $tempRecordPts->AXIS1_PT_TOP_SURF, (int) $tempRecordPts->AXIS2_PT_TOP_SURF);
-                $item["top"] =  $this->unit->prodTemperature($termRecordDataTop->TEMP);
-                
-                //int
-                $termRecordDataInt = $this->output->getTemperaturePosition($recordPos->ID_REC_POS, (int) $tempRecordPts->AXIS1_PT_INT_PT, (int) $tempRecordPts->AXIS2_PT_INT_PT);
-                $item["int"] = $this->unit->prodTemperature($termRecordDataInt->TEMP);
-
-                //bot
-                $termRecordDataBot = $this->output->getTemperaturePosition($recordPos->ID_REC_POS, (int) $tempRecordPts->AXIS1_PT_BOT_SURF, (int) $tempRecordPts->AXIS2_PT_BOT_SURF);
-                $item["bot"] = $this->unit->prodTemperature($termRecordDataBot->TEMP);
-
-                $item["average"] = $this->unit->prodTemperature($recordPos->AVERAGE_TEMP);
-                $result[] = $item; 
-            }
-
-            $label["top"] = $this->unit->meshesUnit($tempRecordPts->AXIS1_PT_TOP_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_TOP_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_TOP_SURF);
-
-            $label["int"] = $this->unit->meshesUnit($tempRecordPts->AXIS1_PT_INT_PT) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_INT_PT) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_INT_PT);
-
-            $label["bot"] = $this->unit->meshesUnit($tempRecordPts->AXIS1_PT_BOT_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_BOT_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_BOT_SURF);
+        $f = fopen("/tmp/heatExchange.inp", "w");
+        fputs($f, '"X" "Y"' . "\n");
+        foreach ($curve as $row) {
+            fputs($f, (double) $row['x'] . ' ' . (double) $row['y'] . "\n");
         }
-
-        $f = fopen("/tmp/timeBased.inp", "w");
-
-        $dataLabel = '';
-        fputs($f, '"X" ');
-        fputs($f, '"Top('. $label['top'] .')" ');
-        fputs($f, '"Internal('. $label['int'] .')" ');
-        fputs($f, '"Bottom('. $label['bot'] .')" ');
-        fputs($f, '"Average temperature"'. "\n");
-        
-        foreach ($curve['top'] as $key => $row) {
-            fputs($f, (double) $row['x'] . ' ' . (double) $row['y'] . ' ' . (double) $curve['bot'][$key]['y'] . ' ' . (double) $curve['int'][$key]['y'] . ' ' . (double) $curve['average'][$key]['y'] . "\n");
-        } 
         fclose($f);
 
-        return compact("label", "curve", "result");
+        $study = Study::find($idStudy);
+        $userName = $study->USERNAM;
+        $heatExchangeFolder = $this->output->storage_path('heatExchange');
+
+        if (!is_dir($heatExchangeFolder)) {
+            mkdir($heatExchangeFolder, 0777);
+        }
+        if (!is_dir($heatExchangeFolder . '/' . $userName)) {
+            mkdir($heatExchangeFolder . '/' . $userName, 0777);
+        }
+
+        system('gnuplot -c '. $this->plotFolder . '/heatExchange.plot "('. $this->unit->timeSymbol() .')" "('. $this->unit->enthalpySymbol() .')" "'. $heatExchangeFolder . '/' . $userName .'" "heatxchange" "Enthapy"');
+
+        return compact("result", "curve");
     }
 
     public function productSection(){
@@ -1572,7 +1519,6 @@ class Output extends Controller
         $lfStep = $listRecordPos[1]->RECORD_TIME - $listRecordPos[0]->RECORD_TIME;
         $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
         $dataChart = [];
-        // return $axeTempRecordData;
 
         foreach ($lEchantillon as $row) {
 
@@ -1722,12 +1668,115 @@ class Output extends Controller
         }
         fclose($f);
 
+        $study = Study::find($idStudy);
+        $userName = $study->USERNAM;
+        $productSectionFolder = $this->output->storage_path('productSection');
+
+        if (!is_dir($productSectionFolder)) {
+            mkdir($productSectionFolder, 0777);
+        }
+        if (!is_dir($productSectionFolder . '/' . $userName)) {
+            mkdir($productSectionFolder . '/' . $userName, 0777);
+        }
+
+        $fileName = $idStudyEquipment . '-' . $selectedAxe;
+
+        /*system('gnuplot -c '. $this->plotFolder .'/productSection.plot "('. $this->unit->prodchartDimensionSymbol() .')" "('. $this->unit->temperatureSymbol() .')" "'. $productSectionFolder . '/' . $userName .'" "'. $fileName .'"');*/
+
+        // system('gnuplot -c '. $this->plotFolder .'/productSection.plot "(oC)" "(mm)" "/home/ngonc/Downloads" "profile"');
+
         $result["recAxis"] = $recAxis;
         $result["mesAxis"] = $mesAxis;
         $result["resultValue"] = $resultValue;
 
 
         return compact("axeTemp", "dataChart", "resultLabel", "result");
+    }
+
+    public function timeBased()
+    {
+        $idStudy = $this->request->input('idStudy');
+        $idStudyEquipment = $this->request->input('idStudyEquipment');
+
+        $listRecordPos = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->get();
+        $result = array();
+        $label = array();
+        $curve = array();
+
+        if (count($listRecordPos) > 0) {
+            foreach ($listRecordPos as $row) {
+                $termRecordDataTop = $this->output->getTemperaturePosition($row->ID_REC_POS, (int) $row->AXIS1_PT_TOP_SURF, (int) $row->AXIS2_PT_TOP_SURF);
+                $termRecordDataInt = $this->output->getTemperaturePosition($row->ID_REC_POS, (int) $row->AXIS1_PT_INT_PT, (int) $row->AXIS2_PT_INT_PT);
+                $termRecordDataBot = $this->output->getTemperaturePosition($row->ID_REC_POS, (int) $row->AXIS1_PT_BOT_SURF, (int) $row->AXIS2_PT_BOT_SURF);
+
+                $itemCurveTop["x"] = $this->unit->time($row->RECORD_TIME);
+                $itemCurveTop["y"] = $this->unit->prodTemperature($termRecordDataTop->TEMP);
+
+                $itemCurveInt["x"] = $this->unit->time($row->RECORD_TIME);
+                $itemCurveInt["y"] = $this->unit->prodTemperature($termRecordDataInt->TEMP);
+
+                $itemCurveBotom["x"] = $this->unit->time($row->RECORD_TIME);
+                $itemCurveBotom["y"] = $this->unit->prodTemperature($termRecordDataBot->TEMP);
+
+                $itemCurveAverage["x"] = $this->unit->time($row->RECORD_TIME);
+                $itemCurveAverage["y"] = $this->unit->prodTemperature($row->AVERAGE_TEMP);
+
+                $curve["top"][] = $itemCurveTop;
+                $curve["int"][] = $itemCurveInt;
+                $curve["bot"][] = $itemCurveBotom;
+                $curve["average"][] = $itemCurveAverage;
+            }
+            $tempRecordPts = TempRecordPts::where("ID_STUDY", $idStudy)->first();
+            $nbSample = $tempRecordPts->NB_STEPS;
+
+            $nbRecord = count($listRecordPos);
+
+            $lfTS = $listRecordPos[$nbRecord - 1]->RECORD_TIME;
+            $lfStep = $listRecordPos[1]->RECORD_TIME - $listRecordPos[0]->RECORD_TIME;
+            $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
+
+            foreach ($lEchantillon as $row) {
+                $recordPos = $listRecordPos[$row];
+                $item["points"] = $this->unit->time($recordPos->RECORD_TIME);
+
+                //top
+                $termRecordDataTop = $this->output->getTemperaturePosition($recordPos->ID_REC_POS, (int) $tempRecordPts->AXIS1_PT_TOP_SURF, (int) $tempRecordPts->AXIS2_PT_TOP_SURF);
+                $item["top"] =  $this->unit->prodTemperature($termRecordDataTop->TEMP);
+                
+                //int
+                $termRecordDataInt = $this->output->getTemperaturePosition($recordPos->ID_REC_POS, (int) $tempRecordPts->AXIS1_PT_INT_PT, (int) $tempRecordPts->AXIS2_PT_INT_PT);
+                $item["int"] = $this->unit->prodTemperature($termRecordDataInt->TEMP);
+
+                //bot
+                $termRecordDataBot = $this->output->getTemperaturePosition($recordPos->ID_REC_POS, (int) $tempRecordPts->AXIS1_PT_BOT_SURF, (int) $tempRecordPts->AXIS2_PT_BOT_SURF);
+                $item["bot"] = $this->unit->prodTemperature($termRecordDataBot->TEMP);
+
+                $item["average"] = $this->unit->prodTemperature($recordPos->AVERAGE_TEMP);
+                $result[] = $item; 
+            }
+
+            $label["top"] = $this->unit->meshesUnit($tempRecordPts->AXIS1_PT_TOP_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_TOP_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_TOP_SURF);
+
+            $label["int"] = $this->unit->meshesUnit($tempRecordPts->AXIS1_PT_INT_PT) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_INT_PT) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_INT_PT);
+
+            $label["bot"] = $this->unit->meshesUnit($tempRecordPts->AXIS1_PT_BOT_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_BOT_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_BOT_SURF);
+        }
+
+        $f = fopen("/tmp/timeBased.inp", "w");
+
+        $dataLabel = '';
+        fputs($f, '"X" ');
+        fputs($f, '"Top('. $label['top'] .')" ');
+        fputs($f, '"Internal('. $label['int'] .')" ');
+        fputs($f, '"Bottom('. $label['bot'] .')" ');
+        fputs($f, '"Average temperature"'. "\n");
+        
+        foreach ($curve['top'] as $key => $row) {
+            fputs($f, (double) $row['x'] . ' ' . (double) $row['y'] . ' ' . (double) $curve['bot'][$key]['y'] . ' ' . (double) $curve['int'][$key]['y'] . ' ' . (double) $curve['average'][$key]['y'] . "\n");
+        } 
+        fclose($f);
+
+        return compact("label", "curve", "result");
     }
 
     public function saveTempRecordPts()
@@ -2023,10 +2072,9 @@ class Output extends Controller
         $chartTempInterval = $this->output->init2DContourTempInterval($idStudyEquipment, $lfDwellingTime, $tempInterval, $pasTemp);
         $axisName = $this->output->getAxisName($shape, $orientation, $selectedPlan);
 
-        $plotFolder = $this->output->base_path('scripts');
         $heatmapFolder = $this->output->public_path('heatmap');
-
-        $userName = $this->auth->user()->username;
+        $study = Study::find($idStudy);
+        $userName = $study->USERNAM;
         if (!is_dir($heatmapFolder)) {
             mkdir($heatmapFolder, 0777);
         }
@@ -2055,7 +2103,7 @@ class Output extends Controller
 
             file_put_contents($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment . '/data.json', json_encode($dataContour));
 
-            system('gnuplot -c '. $plotFolder .'/contour.plot "'. $dimension .' '. $axisName[0] .'" "'. $dimension .' '. $axisName[1] .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment .'" "'. $contourFileName .'"');
+            system('gnuplot -c '. $this->plotFolder .'/contour.plot "'. $dimension .' '. $axisName[0] .'" "'. $dimension .' '. $axisName[1] .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment .'" "'. $contourFileName .'"');
         }
 
         $dataFile = 'http://'.$_SERVER['HTTP_HOST'] . '/heatmap/' . $userName . '/' . $idStudyEquipment . '/data.json';
@@ -2107,11 +2155,10 @@ class Output extends Controller
         $tempInterval = [$temperatureMin, $temperatureMax];
 
         $chartTempInterval = $this->output->init2DContourTempInterval($idStudyEquipment, $lfDwellingTime, $tempInterval, $pasTemp);
-        
-        $plotFolder = $this->output->base_path('scripts');
-        $heatmapFolder = $this->output->public_path('heatmap');
 
-        $userName = $this->auth->user()->username;
+        $heatmapFolder = $this->output->public_path('heatmap');
+        $study = Study::find($idStudy);
+        $userName = $study->USERNAM;
         if (!is_dir($heatmapFolder)) {
             mkdir($heatmapFolder, 0777);
         }
@@ -2132,7 +2179,7 @@ class Output extends Controller
             }
             fclose($f);
 
-            system('gnuplot -c '. $plotFolder .'/contour.plot "'. $dimension .' '. $axisX .'" "'. $dimension .' '. $axisY .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment .'" "'. $contourFileName .'"');
+            system('gnuplot -c '. $this->plotFolder .'/contour.plot "'. $dimension .' '. $axisX .'" "'. $dimension .' '. $axisY .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment .'" "'. $contourFileName .'"');
             file_put_contents($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment . '/data.json', json_encode($dataContour));
         }
         
@@ -2186,10 +2233,9 @@ class Output extends Controller
         $pasTemp = -1.0;
         $tempInterval = [0.0, 0.0];
         
-        $plotFolder = $this->output->base_path('scripts');
         $heatmapFolder = $this->output->public_path('heatmap');
-
-        $userName = $this->auth->user()->username;
+        $study = Study::find($idStudy);
+        $userName = $study->USERNAM;
         if (!is_dir($heatmapFolder)) {
             mkdir($heatmapFolder, 0777);
         }
@@ -2224,7 +2270,7 @@ class Output extends Controller
                 }
                 fclose($f);
                 
-                system('gnuplot -c '. $plotFolder .'/contour.plot "'. $dimension .' '. $axisX .'" "'. $dimension .' '. $axisY .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment .'" "'. $contourFileName .'"');
+                system('gnuplot -c '. $this->plotFolder .'/contour.plot "'. $dimension .' '. $axisX .'" "'. $dimension .' '. $axisY .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment .'" "'. $contourFileName .'"');
             }
 
             $imageContour[] = 'http://'.$_SERVER['HTTP_HOST'] . '/heatmap/' . $userName . '/' . $idStudyEquipment . '/' . $contourFileName . '.png';
@@ -2240,7 +2286,7 @@ class Output extends Controller
             }
             fclose($f);
 
-            system('gnuplot -c '. $plotFolder .'/contour.plot "'. $dimension .' '. $axisX .'" "'. $dimension .' '. $axisY .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment .'" "'. $contourFileName .'"');
+            system('gnuplot -c '. $this->plotFolder .'/contour.plot "'. $dimension .' '. $axisX .'" "'. $dimension .' '. $axisY .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment .'" "'. $contourFileName .'"');
         }
 
         $imageContour[] = 'http://'.$_SERVER['HTTP_HOST'] . '/heatmap/' . $userName . '/' . $idStudyEquipment . '/' . $contourFileName . '.png';
@@ -2250,7 +2296,8 @@ class Output extends Controller
 
     public function readDataContour($idStudyEquipment)
     {
-        $userName = $this->auth->user()->username;
+        $studyEquipment = StudyEquipment::find($idStudyEquipment);
+        $userName = $studyEquipment->USERNAM;
         $heatmapFolder = $this->output->public_path('heatmap');
         $file = $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment . '/data.json';
         if (file_exists($file)) {

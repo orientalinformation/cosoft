@@ -900,15 +900,26 @@ class OutputService
         return $result;
     }
 
-    function base_path($path=null)
+    public function base_path($path=null)
     {
         return rtrim(app()->basePath($path), '/');
     }
 
-    function public_path($path=null)
+    public function public_path($path=null)
     {
         return rtrim(app()->basePath('public/'.$path), '/');
     }
+
+    public function storage_path($path=null)
+    {
+        return app()->storagePath($path);
+    }
+
+    public function asset($path, $secure = null)
+    {
+        return app('url')->asset($path, $secure);
+    }
+
 
     public function mixRange($color1, $color2, $MIN = 1, $MAX = 10)
     {
