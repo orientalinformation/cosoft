@@ -63,7 +63,8 @@ class CalculStatus extends Controller
 		foreach ($arr as $key => $row) {
 		    $STUDY_CURRENT[$key] = $row['IS_STUDY_CURRENT'];
 		}
-		array_multisort($arr, SORT_DESC, $STUDY_CURRENT);//SORT_DESC SORT_ASC
+
+		array_multisort(array_column($arr, 'IS_STUDY_CURRENT'), SORT_DESC, $arr); //SORT_DESC SORT_ASC
 
 		return $arr;
 	}
