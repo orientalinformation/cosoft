@@ -26,6 +26,7 @@ use App\Models\EquipCharact;
 use App\Models\EquipGenZone;
 use App\Models\EquipZone;
 use App\Models\MinMax;
+use App\Models\StudyEquipment;
 
 class Equipments extends Controller
 {
@@ -648,6 +649,7 @@ class Equipments extends Controller
     {
         $profileType = $minMax = $minScaleY = $maxScaleY = $minValueY = $maxValueY = $nbFractionDigits = null;
         $unitIdent = 10;
+        $YAxis = $XAxis = null;
 
         $input = $this->request->all();
 
@@ -701,9 +703,11 @@ class Equipments extends Controller
 
         $array = [
             'MiniMum' => $miniMum,
-            'MaxiMum' => $maxiMum
+            'MaxiMum' => $maxiMum,
+            'YAxis' => $YAxis,
+            'XAxis' => $XAxis,
         ];
-
+        
         return $array;
     }
 
@@ -1045,6 +1049,26 @@ class Equipments extends Controller
         return 0;
     }
 
+    public function getTempSetPoint($idEquip)
+    {
+        $tr_current = $tr_new = $arr = null;
+        $equipment = Equipment::find($idEquip);
+        if ($equipment) {
+            $equipGeneration = EquipGeneration::where('ID_EQUIP', $equipment->ID_EQUIP)->first();
+            if ($equipGeneration) {
+                $tr_current = $equipGeneration->TEMP_SETPOINT;
+                $tr_new = $equipGeneration->TEMP_SETPOINT;
+            }
+        }
+
+        $arr = [
+            'tr_current' => $tr_current,
+            'tr_new' => $tr_new
+        ];
+
+        return $arr;
+    }
+
     public function updateEquipCharact()
     {
         $input = $this->request->all();
@@ -1084,6 +1108,129 @@ class Equipments extends Controller
             $equipCharact->save();
         }
         return 1;
+    }
+
+    public function buildForNewTR()
+    {
+        $input = $this->request->all();
+
+        $lfOldTR = $lfNewTR = $ID_STUDY = $ID_EQUIP = $equipment = $equipGeneration = $result = null;
+        $nbStudies = $lastIdStudy = $id_equip = 0;
+
+        if (isset($input['ID_EQUIP'])) $ID_EQUIP = intval($input['ID_EQUIP']);
+        if (isset($input['ID_STUDY'])) $ID_STUDY = intval($input['ID_STUDY']);
+        if (isset($input['tr_current'])) $lfOldTR = floatval($input['tr_current']);
+        if (isset($input['tr_new'])) $lfNewTR = floatval($input['tr_new']);
+
+        $equipment = Equipment::find($ID_EQUIP);
+        if ($equipment) {
+            $equipGeneration = EquipGeneration::where('ID_EQUIP', $equipment->ID_EQUIP)->first();
+
+            if (abs($lfOldTR - $lfNewTR) > 0.01) {
+                $id_equip = $ID_EQUIP;
+                $studyEquipments = null;
+
+                // if ($this->isComefromStudy()) {
+                //     $studyEquipments = StudyEquipment::where('ID_EQUIP', $ID_EQUIP)
+                //                         ->where('ID_STUDY', $ID_EQUIP)->get();
+                // } else {
+                //     $studyEquipments = StudyEquipment::where('ID_EQUIP', $ID_EQUIP)->get();
+                // }
+
+                // if (count($studyEquipments) > 0) {
+                //     for ($i = 0; $i < count($studyEquipments); $i++) {
+                //         if ($ID_STUDY != $lastIdStudy) {
+                //             $nbStudies++;
+                //             $lastIdStudy = $ID_STUDY;
+                //         }
+                //     }
+                // }
+
+                // if ($nbStudies > 0) {
+                //     $equipment->OPEN_BY_OWNER = 0;
+                //     $this->changeNameAndVersionForNewTR($equipment, $lfNewTR, true);
+                //     $equipment->ID_EQUIP = 0;
+                //     $equipment->ID_USER = $this->auth->user()->ID_USER;
+                //     // some code new equipment
+                // } else {
+                //     $this->changeNameAndVersionForNewTR($equipment, $lfNewTR, false);
+                //     if ($equipGeneration) {
+                //         $equipGeneration->MOVING_POS = $lfOldTR;
+                //         $equipGeneration->TEMP_SETPOINT = $lfNewTR;
+                //         $equipGeneration->MOVING_CHANGE = 2;
+                //         $equipGeneration->save();
+                //     }
+                // }
+
+                // code have study;
+
+                if ($equipGeneration) {
+                    $equipGeneration->MOVING_POS = $lfOldTR;
+                    $equipGeneration->TEMP_SETPOINT = $lfNewTR;
+                    $equipGeneration->MOVING_CHANGE = 2;
+                    $equipGeneration->save();
+
+                    $result = $this->runEquipmentCalculation($equipGeneration->ID_EQUIPGENERATION);
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    public function isComefromStudy()
+    {
+        //some code here (if exist ID_EQUIP in study load)
+        return false;
+    }
+
+    private function changeNameAndVersionForNewTR($equipment, $lfNewTR, $bDuplicate)
+    {
+        $bRet = false;
+        $strName = $AppendStr = "";
+        $IdxTemp = -1;
+
+        $strName = $equipment->EQUIP_NAME;
+        $IdxTemp = strrpos($strName, "-(@"); // Find the position of the last occurrence of a substring in a string
+        if ($IdxTemp == -1) {
+            echo ("No temp in the name");
+        } else {
+            $strName = substr($strName, 0, $IdxTemp);
+            echo ("Name contains temp : we will replace it");
+        }
+
+        if (($IdxTemp > 0) || ($bDuplicate)) {
+            $AppendStr = "-(@". $this->convert->temperature($lfNewTR) . ")";
+            $strName = $strName . $AppendStr;
+            $equipment->EQUIP_NAME = $strName;
+            if (!$this->checkNameAndVersion($equipment->EQUIP_NAME, $equipment->EQUIP_VERSION)) {
+                $lfVersion = $this->getMaxVersion($equipment);
+                if ($lfVersion > 0.0) {
+                    $lfVersion = $lfVersion + 0.1;
+                    $equipment->EQUIP_VERSION = $lfVersion;
+                }
+            }
+            $equipment->save();
+            $bRet = true;
+        }
+        return $bRet;
+    }
+
+    private function getMaxVersion($equipment)
+    {
+        $maxVersion = $equipment->EQUIP_VERSION;
+        $equipments = Equipment::select('EQUIP_VERSION')
+                    ->where('EQUIP_NAME', '=', $equipment->EQUIP_NAME)
+                    ->orderBy('EQUIP_VERSION')->get();
+
+        if (count($equipments) > 0) {
+            foreach ($equipments as $equip) {
+                if (floatval($equip->EQUIP_VERSION) > floatval($maxVersion)) {
+                    $maxVersion = floatval($equip->EQUIP_VERSION);
+                }
+            }
+        }
+        return $maxVersion;
     }
 
     private function runEquipmentCalculation($IdEquipgeneration)

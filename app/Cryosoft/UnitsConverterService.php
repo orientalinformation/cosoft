@@ -303,9 +303,36 @@ class UnitsConverterService
         return $unit->SYMBOL;
     }
 
+    public function lineDimensionSymbol()
+    {
+        $unit = Unit::where('TYPE_UNIT', $this->value->LINE)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+        return $unit->SYMBOL;
+    }
+
     public function shelvesWidthSymbol()
     {
         $unit = Unit::where('TYPE_UNIT', $this->value->W_CARPET_SHELVES)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+        return $unit->SYMBOL;
+    }
+
+    public function pressureSymbol()
+    {
+        $unit = Unit::where('TYPE_UNIT', $this->value->PRESSURE)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+        return $unit->SYMBOL;
+    }
+
+    public function materialRiseSymbol()
+    {
+        $unit = Unit::where('TYPE_UNIT', $this->value->MATERIAL_RISE)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
@@ -396,12 +423,21 @@ class UnitsConverterService
     public function convertCalculator($value, $coeffA, $coeffB, $decimal = 2)
     {
         $number = $value * $coeffA + $coeffB;
-        if (is_numeric( $value ) && floor( $value ) != $value) {
-            return floor($number * pow(10, $decimal)) / pow(10, $decimal);
+        if (floor( $value ) != $value) {
+            $number = round(($number), $decimal, PHP_ROUND_HALF_UP);
+            $number = floor($number * pow(10, $decimal)) / pow(10, $decimal);
         } else {
-            $number =  round(($value * $coeffA + $coeffB), $decimal);
-            return number_format((float)$number, $decimal, '.', '');
+            $number = round(($value * $coeffA + $coeffB), $decimal);
         }
+
+        return number_format((float)$number, $decimal, '.', '');
+    }
+
+    public function convertUnitSave($value, $coeffA, $coeffB)
+    {
+        $number = ($value - $coeffB) / $coeffA;
+
+        return $number;
     }
 
     public function uNone()
@@ -466,6 +502,15 @@ class UnitsConverterService
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
         return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 3);
+    }
+
+    public function massSave($value) 
+    {
+        $unit = Unit::where('TYPE_UNIT', $this->value->MASS)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+        return $this->convertUnitSave($value, $unit->COEFF_A, $unit->COEFF_B, 3);
     }
 
     public function controlTemperature($value) {
@@ -581,6 +626,13 @@ class UnitsConverterService
         ->first();
         return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 3);
     }
+    public function lineDimensionSave($value) {
+        $unit = Unit::where('TYPE_UNIT', $this->value->LINE)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+        return $this->convertUnitSave($value, $unit->COEFF_A, $unit->COEFF_B, 3);
+    }
     public function materialRise($value) {
         $unit = Unit::where('TYPE_UNIT', $this->value->MATERIAL_RISE)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
@@ -588,12 +640,40 @@ class UnitsConverterService
         ->first();
         return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B);
     }
+    public function materialRiseSave($value) {
+        $unit = Unit::where('TYPE_UNIT', $this->value->MATERIAL_RISE)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+        return $this->convertUnitSave($value, $unit->COEFF_A, $unit->COEFF_B);
+    }
     public function exhaustTemperature($value) {
         $unit = Unit::where('TYPE_UNIT', $this->value->TEMPERATURE)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
         return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B);
+    }
+    public function packingThickness($value) {
+        $unit = Unit::where('TYPE_UNIT', $this->value->THICKNESS_PACKING)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B);
+    }
+    public function pressure($value) {
+        $unit = Unit::where('TYPE_UNIT', $this->value->PRESSURE)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B);
+    }
+    public function pressureSave($value) {
+        $unit = Unit::where('TYPE_UNIT', $this->value->PRESSURE)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+        return $this->convertUnitSave($value, $unit->COEFF_A, $unit->COEFF_B);
     }
     public function none($value)
     {
@@ -744,12 +824,23 @@ class UnitsConverterService
         return $unit->SYMBOL;
     }
 
-    public function prodDimension($value) {
+    public function prodDimension($value) 
+    {
         $unit = Unit::where('TYPE_UNIT', $this->value->PROD_DIMENSION)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
         return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B);
+    }
+
+    public function prodDimensionSave($value)
+    {
+        $unit = Unit::where('TYPE_UNIT', $this->value->PROD_DIMENSION)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+        return $this->convertUnitSave($value, $unit->COEFF_A, $unit->COEFF_B);
+
     }
 
     public function prodDimensionSymbolUser() {

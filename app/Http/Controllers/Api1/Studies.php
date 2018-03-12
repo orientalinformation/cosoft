@@ -12,6 +12,7 @@ use App\Cryosoft\UnitsConverterService;
 use App\Cryosoft\ValueListService;
 use App\Cryosoft\LineService;
 use App\Cryosoft\StudyEquipmentService;
+use App\Cryosoft\PackingService;
 use App\Models\MeshGeneration;
 use App\Models\Product;
 use App\Models\ProductElmt;
@@ -75,11 +76,17 @@ class Studies extends Controller
     protected $stdeqp;
 
     /**
+     * @var \App\Cryosoft\PackingService
+     */
+    protected $packing;
+
+    /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth, KernelService $kernel, UnitsConverterService $convert, ValueListService $value, LineService $lineE, StudyEquipmentService $stdeqp)
+    public function __construct(Request $request, Auth $auth, KernelService $kernel, UnitsConverterService $convert,
+        ValueListService $value, LineService $lineE, StudyEquipmentService $stdeqp, PackingService $packing)
     {
         $this->request = $request;
         $this->auth = $auth;
@@ -88,6 +95,7 @@ class Studies extends Controller
         $this->value = $value;
         $this->lineE = $lineE;
         $this->stdeqp = $stdeqp;
+        $this->packing = $packing;
     }
 
     public function findStudies()
@@ -659,9 +667,9 @@ class Studies extends Controller
             $elements = $product->productElmts;
             if ($elements->count() > 0) {
                 foreach ($elements as $elmt) {
-                    if (isset($input['dim1'])) $elmt->SHAPE_PARAM1 = floatval($input['dim1']);
-                    if (isset($input['dim2'])) $elmt->SHAPE_PARAM2 = floatval($input['dim2']);
-                    if (isset($input['dim3'])) $elmt->SHAPE_PARAM3 = floatval($input['dim3']);
+                    if (isset($input['dim1'])) $elmt->SHAPE_PARAM1 = $this->convert->prodDimensionSave(floatval($input['dim1']));
+                    if (isset($input['dim2'])) $elmt->SHAPE_PARAM2 = $this->convert->prodDimensionSave(floatval($input['dim2']));
+                    if (isset($input['dim3'])) $elmt->SHAPE_PARAM3 = $this->convert->prodDimensionSave(floatval($input['dim3']));
                     $elmt->save();
                     $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_PROD, intval($elmt->ID_PRODUCT_ELMT));
                     $ok = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($id, $conf, 2);
@@ -1373,7 +1381,8 @@ class Studies extends Controller
         //             'name' => '',
         //             'equipName' => ''
         //         ]
-        //     ]
+        //     ],
+        //     'packingPreventChildComp' => true/false
         // ];
 
         $chaining = [];
@@ -1402,6 +1411,51 @@ class Studies extends Controller
                         'name' => $child->STUDY_NAME,
                         'equipName' => $equip->EQUIP_NAME
                     ]);
+                }
+            }
+        }
+
+        $chaining['packingPreventChildComp'] = false;
+
+        if ($study->PARENT_ID != 0) {
+
+            $productShape = $study->products->first()->productElmts->first()->ID_SHAPE;
+
+            if ($this->packing->isTopPackInParent($study)) {
+                $chaining['packingPreventChildComp'] = true;
+            }
+
+            if ($this->packing->isSidePackInParent($study)) {
+                switch ($productShape) {
+                    case SLAB:
+                    case PARALLELEPIPED_LAYING:
+                    case CYLINDER_LAYING:
+                    case CYLINDER_CONCENTRIC_STANDING:
+                    case CYLINDER_CONCENTRIC_LAYING:
+                    case PARALLELEPIPED_BREADED:
+                    case SPHERE:
+                        $chaining['packingPreventChildComp'] = true;
+                        break;
+                    case PARALLELEPIPED_STANDING:
+                    case CYLINDER_STANDING:
+                        break;
+                }
+            }
+
+            if ($this->packing->isBottomPackInParent($study)) {
+                switch ($productShape) {
+                    case PARALLELEPIPED_LAYING:
+                    case CYLINDER_LAYING:
+                    case CYLINDER_CONCENTRIC_LAYING:
+                    case PARALLELEPIPED_BREADED:
+                    case SPHERE:
+                        $chaining['packingPreventChildComp'] = true;
+                        break;
+                    case SLAB:
+                    case PARALLELEPIPED_STANDING:
+                    case CYLINDER_STANDING:
+                    case CYLINDER_CONCENTRIC_STANDING:
+                        break;
                 }
             }
         }

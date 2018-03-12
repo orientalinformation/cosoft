@@ -140,10 +140,10 @@ class Lines extends Controller
                 $arrLabel["teeValue"] =$teeSub['ID_PIPELINE_ELMT'] ?? '' ;
                 $arrLabel["elbowsValue"] =   $elbowsSub['ID_PIPELINE_ELMT'] ?? '' ;
                 $arrLabel["insulationType"] = $lineElmts[0]->INSULATION_TYPE;
-                $arrLabel["height"] = $pipeGen->HEIGHT;
-                $arrLabel["pressuer"] = $pipeGen->PRESSURE;
-                $arrLabel["insulllenght"] = $pipeGen->INSULLINE_LENGHT;
-                $arrLabel["noninsullenght"] = $pipeGen->NOINSULLINE_LENGHT;
+                $arrLabel["height"] = $this->convert->materialRise($pipeGen->HEIGHT);
+                $arrLabel["pressuer"] = $this->convert->pressure($pipeGen->PRESSURE);
+                $arrLabel["insulllenght"] = $this->convert->lineDimension($pipeGen->INSULLINE_LENGHT);
+                $arrLabel["noninsullenght"] = $this->convert->lineDimension($pipeGen->NOINSULLINE_LENGHT);
                 $arrLabel["insulvallenght"] = $pipeGen->INSUL_VALVES;
                 $arrLabel["noninsulatevallenght"] = $pipeGen->NOINSUL_VALVES;
                 $arrLabel["gastemp"] = $pipeGen->GAS_TEMP;
@@ -336,7 +336,7 @@ class Lines extends Controller
                 $storageTankValue = $getValue;
             }
            
-            $item['diameter'] = $diameter;
+            $item['diameter'] = $this->convert->lineDimension($diameter);
             $item['insulationType'] = $sort;
             $item['insulatedline'] = $insulatedlineLabel;
             $item['non_insulated_line'] = $non_insulated_lineLabel;
@@ -377,14 +377,14 @@ class Lines extends Controller
         $tees = $input['TEESVALUE'];
         $elbows = $input['ELBOWSVALUE'];
         $storageTank = $input['STORAGE_TANK'];
-        $insulatedLineLength = ($input['INSULLINE_LENGHT'] == 0) ? 0 : $this->convert->lineDimension($input['INSULLINE_LENGHT']);
-        $nonInsulatedLineLength = ($input['NOINSULLINE_LENGHT'] == 0) ? 0 : $this->convert->lineDimension($input['NOINSULLINE_LENGHT']);
+        $insulatedLineLength = ($input['INSULLINE_LENGHT'] == 0) ? 0 : $this->convert->lineDimensionSave($input['INSULLINE_LENGHT']);
+        $nonInsulatedLineLength = ($input['NOINSULLINE_LENGHT'] == 0) ? 0 : $this->convert->lineDimensionSave($input['NOINSULLINE_LENGHT']);
         $insulatedValvesQuantity = $input['INSUL_VALVES'];
         $nonInsulatedValvesQuantity = $input['NOINSUL_VALVES'];
         $elbowsQuantity = $input['ELBOWS'];
         $teesQuantity = $input['TEES'];
-        $height = ($input['HEIGHT'] == 0) ? 0 : $this->convert->materialRise($input['HEIGHT']);
-        $pressure = $input['PRESSURE'];
+        $height = ($input['HEIGHT'] == 0) ? 0 : $this->convert->materialRiseSave($input['HEIGHT']);
+        $pressure = ($input['PRESSURE'] == 0) ? 0 :$this->convert->pressureSave($input['PRESSURE']);
         // $storageTankCapacity = $input['storageTankCapacity'];
         $gasTemperature = ($input['GAS_TEMP'] == 0) ? 0 : $this->convert->exhaustTemperature($input['GAS_TEMP']);
         
