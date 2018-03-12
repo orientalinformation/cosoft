@@ -1,4 +1,4 @@
-<h2>HTML TABLE:</h2>
+<h2>HTML TABLE:<?php echo $arrayParam['study']['STUDY_NAME'] ?></h2>
 <table border="1" cellspacing="3" cellpadding="4">
     <tr>
         <th>#</th>

@@ -336,7 +336,7 @@ class ReportService
         return $result;
     }
 
-    public function getEstimationHeadBalance($idStudy, $trSelect = 1)
+    public function getEstimationHeadBalance($idStudy, $trSelect)
     {
         // $idStudy = $this->request->input('idStudy');
         $idUser = $this->auth->user()->ID_USER;
@@ -903,5 +903,37 @@ class ReportService
         }
 
         return compact("label", "curve", "result", "timeSymbol", "temperatureSymbol");
+    }
+
+    public function getSymbol($idStudy)
+    {
+        $productFlowSymbol = $this->unit->productFlowSymbol();
+        $massSymbol = $this->unit->massSymbol();
+        $temperatureSymbol = $this->unit->temperatureSymbol();
+        $timeSymbol = $this->unit->timeSymbol();
+        $perUnitOfMassSymbol = $this->unit->perUnitOfMassSymbol();
+        $enthalpySymbol = $this->unit->enthalpySymbol();
+        $monetarySymbol = $this->unit->monetarySymbol();
+        $equipDimensionSymbol = $this->unit->equipDimensionSymbol();
+        $convectionSpeedSymbol = $this->unit->convectionSpeedSymbol();
+        $convectionCoeffSymbol = $this->unit->convectionCoeffSymbol();
+        $timePositionSymbol = $this->unit->timePositionSymbol();
+        $prodchartDimensionSymbol = $this->unit->prodchartDimensionSymbol();
+        $prodDimensionSymbol = $this->unit->prodDimensionSymbol();
+        $meshesSymbol = $this->unit->meshesSymbol();
+        $packingThicknessSymbol = $this->unit->packingThicknessSymbol();
+        $shelvesWidthSymbol = $this->unit->shelvesWidthSymbol();
+        $percentSymbol = "%";
+        $consumSymbol = $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1);
+        $consumMaintienSymbol = $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 2);
+        $mefSymbol = $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 3);
+
+        $ret = compact("productFlowSymbol", "massSymbol", "temperatureSymbol", 
+        "percentSymbol", "timeSymbol", "perUnitOfMassSymbol", "enthalpySymbol", 
+        "monetarySymbol", "equipDimensionSymbol", "convectionSpeedSymbol", "convectionCoeffSymbol", 
+        "timePositionSymbol", "prodDimensionSymbol", "meshesSymbol", "packingThicknessSymbol", 
+        "shelvesWidthSymbol", "prodchartDimensionSymbol", "consumSymbol", "consumMaintienSymbol", "mefSymbol");
+        // var_dump($ret);
+        return $ret;
     }
 }

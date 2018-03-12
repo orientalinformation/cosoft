@@ -468,15 +468,14 @@ class Reports extends Controller
 
     function downLoadPDF($id) {
         $study = Study::find($id);
-        $user = $this->auth->user()->USERNAM;
         $host = 'http://' . $_SERVER['HTTP_HOST'];
         $public_path = rtrim(app()->basePath("public/reports/"), '/');
         $tcpdf_path = rtrim(app()->basePath("vendor/tecnickcom/tcpdf/examples/"), '/');
         $name_report = "$study->ID_STUDY- $study->STUDY_NAME-Report.pdf";
-        if (!is_dir($public_path. "/" . $user)) {
-            mkdir($public_path. "/" . $user, 0777);
+        if (!is_dir($public_path. "/" . $study->USERNAM)) {
+            mkdir($public_path. "/" . $study->USERNAM, 0777);
         } 
-        // if (!file_exists($public_path. "/" . $user. "/" .$name_report)) {
+        // if (!file_exists($public_path. "/" . $study->USERNAM. "/" .$name_report)) {
         require_once $tcpdf_path . ('/tcpdf_include.php');
         $production = Production::Where('ID_STUDY', $id)->first();
         $product = Product::Where('ID_STUDY', $id)->first();
@@ -492,47 +491,62 @@ class Reports extends Controller
         $componentName = ProductElmt::select('LABEL','ID_COMP', 'ID_PRODUCT_ELMT', 'PROD_ELMT_ISO', 'PROD_ELMT_NAME', 'PROD_ELMT_REALWEIGHT', 'SHAPE_PARAM2')
         ->join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')->whereIn('ID_PRODUCT_ELMT', $idElmArr)
         ->where('TRANS_TYPE', 1)->whereIn('ID_TRANSLATION', $idComArr)
-        ->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'DESC')->get();
+        ->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'DESC')->get();
         $equipData = $this->stdeqp->findStudyEquipmentsByStudy($study);
-        $cryogenPipeline = $this->pipelines->loadPipeline($study->ID_STUDY);
+        $shapeName = Translation::where('TRANS_TYPE', 4)->where('ID_TRANSLATION', $shapeCode)->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
+        $symbol = $this->reportserv->getSymbol($study->ID_STUDY);
+        $infoReport = $study->reports;
+        // return $study;
+        if ($study->OPTION_CRYOPIPELINE == 1) {
+            $cryogenPipeline = $this->pipelines->loadPipeline($study->ID_STUDY);
+        } else {
+            $cryogenPipeline = "";
+        }
         $consumptions = $this->reportserv->getAnalyticalConsumption($study->ID_STUDY);
-        $optimumHeadBalance = $this->reportserv->getOptimumHeadBalance($study->ID_STUDY);
+        if ($study->CALCULATION_MODE == 3) {
+            $calModeHeadBalance = $this->reportserv->getOptimumHeadBalance($study->ID_STUDY);
+            $calModeHbMax = $this->reportserv->getOptimumHeadBalanceMax($study->ID_STUDY);
+        } else if ($study->CALCULATION_MODE == 1) {
+            $calModeHeadBalance = $this->reportserv->getEstimationHeadBalance($study->ID_STUDY, 1);
+            $calModeHbMax = "";
+        }
         $proInfoStudy = $this->reportserv->getProInfoStudy($study->ID_STUDY);
-        $optimumHbMax = $this->reportserv->getOptimumHeadBalanceMax($study->ID_STUDY);
         $proSections = [];
 
         foreach ($study->studyEquipments as $key=> $idstudyequips) {
             $heatexchange[] = $this->reportserv->heatExchange($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
-            if ($shapeCode == 1) { 
-                $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
-            } else if ($shapeCode == 2) {
-                if ($equipData[$key]['ORIENTATION'] == 1) {
+            if ($idstudyequips->BRAIN_TYPE == 4) {
+                if ($shapeCode == 1) { 
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
-                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
-                } else {
+                } else if ($shapeCode == 2) {
+                    if ($equipData[$key]['ORIENTATION'] == 1) {
+                        $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                        $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                    } else {
+                        $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                        $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                    }
+                } else if (($shapeCode == 3) && ($shapeCode == 4) && ($shapeCode == 7) && ($shapeCode == 8) && ($shapeCode == 5)) {
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
-                }
-            } else if (($shapeCode == 3) && ($shapeCode == 4) && ($shapeCode == 7) && ($shapeCode == 8) && ($shapeCode == 5)) {
-                $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
-                $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
-            } else if ($shapeCode == 6) {
-                $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
-            } else if ($shapeCode == 9) {
-                $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
-                $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
-            } 
-            $timeBase[] = $this->reportserv->timeBased($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
+                } else if ($shapeCode == 6) {
+                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                } else if ($shapeCode == 9) {
+                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                } 
+            } else {
+                $proSections = [];
+            }
+                $timeBase[] = $this->reportserv->timeBased($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
         }
 
-        // return $timeBase;
         $productComps = [];
         foreach ($componentName as $key => $value) {
             $componentStatus = Translation::select('LABEL')->where('TRANS_TYPE', 100)->whereIn('ID_TRANSLATION', $comprelease)->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
             $productComps[] = $value;
             $productComps[$key]['display_name'] = $value->LABEL . ' - ' . $productElmt->component->COMP_VERSION . '(' . $componentStatus->LABEL . ' )';
         }
-        $shapeName = Translation::where('TRANS_TYPE', 4)->where('ID_TRANSLATION', $shapeCode)->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
         // set document information
         PDF::SetCreator(PDF_CREATOR);
         PDF::SetAuthor('');
@@ -571,9 +585,9 @@ class Reports extends Controller
         PDF::Bookmark('Chapter 1', 0, 0, '', 'B', array(0,64,128));
         // print a line using Cell()
         PDF::Cell(0, 10, 'Chapter 1', 0, 1, 'L');
-        $view = $this->viewPDF($production, $product, $proElmt, $shapeName, 
+        $view = $this->viewPDF($study, $production, $product, $proElmt, $shapeName, 
         $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
-        $optimumHbMax, $optimumHeadBalance, $heatexchange, $proSections, $timeBase);
+        $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase, $tcpdf_path, $symbol);
         $html= $view->render();
         // return $html;
         PDF::SetFont('helvetica', '', 6);
@@ -623,51 +637,153 @@ class Reports extends Controller
 
         // end of TOC page
         PDF::endTOCPage();
-        PDF::Output($public_path. "/" . $user."/" . $name_report, 'F');
+        PDF::Output($public_path. "/" . $study->USERNAM."/" . $name_report, 'F');
             
         // } 
-        return ["url" => "$host/reports/$user/$name_report"];
+        return ["url" => "$host/reports/$study->USERNAM/$name_report"];
     }
     
-    public function viewPDF($production, $product, $proElmt, $shapeName, 
+    public function viewPDF($study ,$production, $product, $proElmt, $shapeName, 
     $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
-    $optimumHbMax, $optimumHeadBalance, $heatexchange, $proSections, $timeBase) 
+    $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase ,$tcpdf_path, $symbol) 
     {
         $arrayParam = [
+            'study' => $study,
             'production' => $production,
             'product' => $product,
             'proElmt' => $proElmt,
             'shapeName' => $shapeName,
-            'proInfoStudy' => $proInfoStudy
+            'proInfoStudy' => $proInfoStudy,
+            'tcpdf_path' => $tcpdf_path,
+            'symbol' => $symbol
         ];
         $param = [
             'arrayParam' => $arrayParam,
             'productComps' => $productComps,
             'equipData' => $equipData,
-            'cryogenPipeline' => $cryogenPipeline['dataResultExist'],
+            'cryogenPipeline' => $cryogenPipeline,
             'consumptions' => $consumptions,
-            'optimumHeadBalance' => $optimumHeadBalance,
-            'optimumHbMax' => $optimumHbMax,
+            'calModeHeadBalance' => $calModeHeadBalance,
+            'calModeHbMax' => $calModeHbMax,
             'heatexchange' => $heatexchange,
             'proSections' => $proSections,
-            'timeBase' => $timeBase
+            'timeBase' => $timeBase,
         ];
         return view('report.view_report', $param);
     }
 
     public function viewHtml($id)
     {
-        $view = view('report.viewHtmlToPDF');
+        $study = Study::find($id);
+        $tcpdf_path = rtrim(app()->basePath("vendor/tecnickcom/tcpdf/examples/"), '/');
+        $name_report = "$study->ID_STUDY- $study->STUDY_NAME-Report.html";
+        if (!is_dir($public_path. "/" . $study->USERNAM)) {
+            mkdir($public_path. "/" . $study->USERNAM, 0777);
+        } 
+        // if (!file_exists($public_path. "/" . $study->USERNAM. "/" .$name_report)) {
+        $production = Production::Where('ID_STUDY', $id)->first();
+        $product = Product::Where('ID_STUDY', $id)->first();
+        $proElmt = ProductElmt::Where('ID_PROD', $product->ID_PROD)->first();
+        $idComArr = [];
+        $comprelease = [];
+        foreach ($product->productElmts as $productElmt) {
+            $shapeCode = $productElmt->shape->SHAPECODE;
+            $idComArr[] = $productElmt->ID_COMP;
+            $idElmArr[] = $productElmt->ID_PRODUCT_ELMT;
+            $comprelease[] = $productElmt->component->COMP_RELEASE;
+        }
+        $componentName = ProductElmt::select('LABEL','ID_COMP', 'ID_PRODUCT_ELMT', 'PROD_ELMT_ISO', 'PROD_ELMT_NAME', 'PROD_ELMT_REALWEIGHT', 'SHAPE_PARAM2')
+        ->join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')->whereIn('ID_PRODUCT_ELMT', $idElmArr)
+        ->where('TRANS_TYPE', 1)->whereIn('ID_TRANSLATION', $idComArr)
+        ->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'DESC')->get();
+        $equipData = $this->stdeqp->findStudyEquipmentsByStudy($study);
+        $shapeName = Translation::where('TRANS_TYPE', 4)->where('ID_TRANSLATION', $shapeCode)->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
+        $symbol = $this->reportserv->getSymbol($study->ID_STUDY);
+        $infoReport = $study->reports;
+        // return $study;
+        if ($study->OPTION_CRYOPIPELINE == 1) {
+            $cryogenPipeline = $this->pipelines->loadPipeline($study->ID_STUDY);
+        } else {
+            $cryogenPipeline = "";
+        }
+        $consumptions = $this->reportserv->getAnalyticalConsumption($study->ID_STUDY);
+        if ($study->CALCULATION_MODE == 3) {
+            $calModeHeadBalance = $this->reportserv->getOptimumHeadBalance($study->ID_STUDY);
+            $calModeHbMax = $this->reportserv->getOptimumHeadBalanceMax($study->ID_STUDY);
+        } else if ($study->CALCULATION_MODE == 1) {
+            $calModeHeadBalance = $this->reportserv->getEstimationHeadBalance($study->ID_STUDY, 1);
+            $calModeHbMax = "";
+        }
+        $proInfoStudy = $this->reportserv->getProInfoStudy($study->ID_STUDY);
+        $proSections = [];
+
+        foreach ($study->studyEquipments as $key=> $idstudyequips) {
+            $heatexchange[] = $this->reportserv->heatExchange($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
+            if ($idstudyequips->BRAIN_TYPE == 4) {
+                if ($shapeCode == 1) { 
+                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                } else if ($shapeCode == 2) {
+                    if ($equipData[$key]['ORIENTATION'] == 1) {
+                        $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                        $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                    } else {
+                        $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                        $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                    }
+                } else if (($shapeCode == 3) && ($shapeCode == 4) && ($shapeCode == 7) && ($shapeCode == 8) && ($shapeCode == 5)) {
+                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                } else if ($shapeCode == 6) {
+                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                } else if ($shapeCode == 9) {
+                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                } 
+            } else {
+                $proSections = [];
+            }
+                $timeBase[] = $this->reportserv->timeBased($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
+        }
+
+        $productComps = [];
+        foreach ($componentName as $key => $value) {
+            $componentStatus = Translation::select('LABEL')->where('TRANS_TYPE', 100)->whereIn('ID_TRANSLATION', $comprelease)->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
+            $productComps[] = $value;
+            $productComps[$key]['display_name'] = $value->LABEL . ' - ' . $productElmt->component->COMP_VERSION . '(' . $componentStatus->LABEL . ' )';
+        }
+        $arrayParam = [
+            'study' => $study,
+            'production' => $production,
+            'product' => $product,
+            'proElmt' => $proElmt,
+            'shapeName' => $shapeName,
+            'proInfoStudy' => $proInfoStudy,
+            'tcpdf_path' => $tcpdf_path,
+            'symbol' => $symbol
+        ];
+        $param = [
+            'arrayParam' => $arrayParam,
+            'productComps' => $productComps,
+            'equipData' => $equipData,
+            'cryogenPipeline' => $cryogenPipeline,
+            'consumptions' => $consumptions,
+            'calModeHeadBalance' => $calModeHeadBalance,
+            'calModeHbMax' => $calModeHbMax,
+            'heatexchange' => $heatexchange,
+            'proSections' => $proSections,
+            'timeBase' => $timeBase,
+        ];
+        $view = view('report.viewHtmlToPDF', $param);
         return $view;
     }
 
     public function downLoadHtmlToPDF($id)
     {   
+        $study = Study::find($id);
         $this->viewHtml($id);
         $host = 'http://' . $_SERVER['HTTP_HOST'];
         $url = ["url" => "$host/api/v1/reports/$id/viewHtml"];
         return $url;
-        
     }
     
 }
