@@ -658,7 +658,7 @@ class Reports extends Controller
     
     public function viewPDF($study ,$production, $product, $proElmt, $shapeName, 
     $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
-    $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase ,$tcpdf_path, $symbol, 
+    $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase , $symbol, 
     $images_path, $public_path, $pro2Dchart) 
     {
         $arrayParam = [
@@ -668,7 +668,6 @@ class Reports extends Controller
             'proElmt' => $proElmt,
             'shapeName' => $shapeName,
             'proInfoStudy' => $proInfoStudy,
-            'tcpdf_path' => $tcpdf_path,
             'symbol' => $symbol,
             'images_path' => $images_path,
             'public_path' => $public_path,
@@ -785,7 +784,7 @@ class Reports extends Controller
         $myfile = fopen( $public_path. "/reports/" . "/" . $study->USERNAM."/" . $name_report, "w") or die("Unable to open file!");
         $html = $this->viewHtml($study ,$production, $product, $proElmt, $shapeName, 
         $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
-        $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase ,$tcpdf_path, 
+        $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase, 
         $symbol, $images_path, $public_path, $pro2Dchart);
         fwrite($myfile, $html);
         fclose($myfile);
@@ -795,7 +794,7 @@ class Reports extends Controller
 
     public function viewHtml($study ,$production, $product, $proElmt, $shapeName, 
     $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
-    $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase ,$tcpdf_path, 
+    $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase , 
     $symbol, $images_path, $public_path, $pro2Dchart)
     {
         $arrayParam = [
@@ -805,7 +804,6 @@ class Reports extends Controller
             'proElmt' => $proElmt,
             'shapeName' => $shapeName,
             'proInfoStudy' => $proInfoStudy,
-            'tcpdf_path' => $tcpdf_path,
             'symbol' => $symbol,
             'images_path' => $images_path,
             'public_path' => $public_path,
