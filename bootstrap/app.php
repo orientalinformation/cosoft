@@ -55,7 +55,17 @@ $app->singleton(
     App\Console\Kernel::class
 );
 
+$app->singleton('filesystem', function ($app) {
+    return $app->loadComponent(
+        'filesystems',
+        Illuminate\Filesystem\FilesystemServiceProvider::class,
+        'filesystem'
+    );
+});
+
 $app->configure('cors');
+
+$app->configure('filesystems');
 
 /*
 |--------------------------------------------------------------------------
@@ -75,6 +85,7 @@ $app->middleware([
 $app->routeMiddleware([
     'auth' => App\Http\Middleware\Authenticate::class,
 ]);
+
 /*
 |--------------------------------------------------------------------------
 | Register Service Providers
@@ -102,6 +113,9 @@ $app->register(\App\Providers\CryosoftServiceProvider::class);
 $app->register(Elibyy\TCPDF\ServiceProvider::class);
 
 class_alias('\Elibyy\TCPDF\Facades\TCPDF', 'PDF');
+
+$app->register(Plank\Mediable\MediableServiceProvider::class);
+class_alias(Plank\Mediable\MediaUploaderFacade::class, 'MediaUploader');
 
 if ($app->environment('local')) {
     $app->register(Krlove\EloquentModelGenerator\Provider\GeneratorServiceProvider::class);

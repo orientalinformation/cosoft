@@ -358,3 +358,11 @@ $router->PUT('/api/v1/studies/{id}/report', 'Api1\\Reports@saveReport');
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/referencedata/equipment/{id}/filter', 'Api1\\ReferenceData@getEquipmentFilter');
+
+/**
+ * POST postFile
+ * Summary:
+ * Notes: upload file 
+ * Output-Formats: [string]
+ */
+$router->POST('/api/v1/upload', 'Api1\\Reports@postFile');
