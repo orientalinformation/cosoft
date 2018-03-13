@@ -538,7 +538,6 @@ class Output extends Controller
 
                     $consoToDisplay = $this->eco->isConsoToDisplay($dimaStatus, $equipStatus);
                     if (!$consoToDisplay) {
-                        $equipName = "****";
                         $tc = "****";
                         $kgProduct = "****";
                         $product = "****";
@@ -655,7 +654,6 @@ class Output extends Controller
 
                     $consoToDisplay = $this->eco->isConsoToDisplay($dimaStatus, $equipStatus);
                     if (!$consoToDisplay) {
-                        $equipName = "****";
                         $tc = "****";
                         $kgProduct = "****";
                         $product = "****";
@@ -1036,7 +1034,7 @@ class Output extends Controller
             }
             fclose($f);
 
-            $sizingFolder = $this->output->storage_path('sizing');
+            $sizingFolder = $this->output->public_path('sizing');
 
             $userName = $study->USERNAM;
             if (!is_dir($sizingFolder)) {
@@ -1057,6 +1055,7 @@ class Output extends Controller
         $idStudy = $this->request->input('idStudy');
         $trSelect = ($this->request->input('tr') != "") ? $this->request->input('tr') : 1;
 
+        $study = Study::find($idStudy);
         $production = Production::where("ID_STUDY", $idStudy)->first();
         $productFlowRate = (double) $production->PROD_FLOW_RATE;
 
@@ -1172,6 +1171,8 @@ class Output extends Controller
             $result[] = $item;
         }
 
+        $f = fopen("/tmp/sizing.inp", "w");
+        fputs($f, '"Equip Name" "Product flowrate" "Maximum product flowrate" "Cryogen consumption (product + equipment heat losses)" "Maximum cryogen consumption (product + equipment heat losses)"' . "\n");
         foreach ($studyEquipments as $row) {
             $capabilitie = $row->CAPABILITIES;
             $equipStatus = $row->EQUIP_STATUS;
@@ -1191,6 +1192,20 @@ class Output extends Controller
                     } else {
                         $dhp = 0;
                     }
+                }
+
+                switch ($key) {
+                    case 0:
+                       $trName = 'TR-10°C';
+                        break;
+                    
+                    case 1:
+                       $trName = 'TR';
+                        break;
+
+                    case 2:
+                       $trName = 'TR+10°C';
+                        break;
                 }
 
                 $dhpMax = $this->unit->productFlow($dimaR->HOURLYOUTPUTMAX);
@@ -1218,10 +1233,23 @@ class Output extends Controller
                 $itemGrap["data"][$key]["conso"] = (double) $conso;
                 $itemGrap["data"][$key]["dhpMax"] = (double) $dhpMax;
                 $itemGrap["data"][$key]["consoMax"] = (double) $consoMax;
+                fputs($f, '"'. $trName .'"' . ' ' . (double) $dhp . ' ' . (double) $dhpMax . ' ' . (double) $conso . ' ' . (double) $consoMax . "\n" );
             } 
 
-
             $dataGraphChart[] =  $itemGrap;
+            fclose($f);
+
+            $sizingFolder = $this->output->public_path('sizing');
+
+            $userName = $study->USERNAM;
+            if (!is_dir($sizingFolder)) {
+                mkdir($sizingFolder, 0777);
+            }
+            if (!is_dir($sizingFolder . '/' . $userName)) {
+                mkdir($sizingFolder . '/' . $userName, 0777);
+            }
+
+            system('gnuplot -c '. $this->plotFolder .'/sizing.plot "Flowrate '. $this->unit->productFlowSymbol() .'" "Conso '. $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1) .'/'. $this->unit->perUnitOfMassSymbol() .'" "'. $sizingFolder . '/' . $userName . '" '. $idStudy .' '. $productFlowRate .' "Custom Flowrate"');
         }
 
         return compact("result", "dataGraphChart", "productFlowRate");
@@ -1451,7 +1479,7 @@ class Output extends Controller
 
         $study = Study::find($idStudy);
         $userName = $study->USERNAM;
-        $heatExchangeFolder = $this->output->storage_path('heatExchange');
+        $heatExchangeFolder = $this->output->public_path('heatExchange');
 
         if (!is_dir($heatExchangeFolder)) {
             mkdir($heatExchangeFolder, 0777);
@@ -1672,7 +1700,7 @@ class Output extends Controller
 
         $study = Study::find($idStudy);
         $userName = $study->USERNAM;
-        $productSectionFolder = $this->output->storage_path('productSection');
+        $productSectionFolder = $this->output->public_path('productSection');
 
         if (!is_dir($productSectionFolder)) {
             mkdir($productSectionFolder, 0777);
@@ -1769,11 +1797,24 @@ class Output extends Controller
         fputs($f, '"Internal('. $label['int'] .')" ');
         fputs($f, '"Bottom('. $label['bot'] .')" ');
         fputs($f, '"Average temperature"'. "\n");
-        
+
+        $study = Study::find($idStudy);
+        $userName = $study->USERNAM;
+        $timeBasedFolder = $this->output->public_path('timeBased');
+
+        if (!is_dir($timeBasedFolder)) {
+            mkdir($timeBasedFolder, 0777);
+        }
+        if (!is_dir($timeBasedFolder . '/' . $userName)) {
+            mkdir($timeBasedFolder . '/' . $userName, 0777);
+        }
+
         foreach ($curve['top'] as $key => $row) {
             fputs($f, (double) $row['x'] . ' ' . (double) $row['y'] . ' ' . (double) $curve['bot'][$key]['y'] . ' ' . (double) $curve['int'][$key]['y'] . ' ' . (double) $curve['average'][$key]['y'] . "\n");
         } 
         fclose($f);
+
+        system('gnuplot -c '. $this->plotFolder .'/timeBased.plot "('. $this->unit->timeSymbol() .')" "('. $this->unit->temperatureSymbol() .')" "'. $timeBasedFolder . '/' . $userName .'" "'. $idStudyEquipment .'"');
 
         return compact("label", "curve", "result");
     }
