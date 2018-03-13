@@ -471,14 +471,12 @@ class Reports extends Controller
         $host = 'http://' . $_SERVER['HTTP_HOST'];
         $public_path = rtrim(app()->basePath("public/"), '/');
         $images_path = rtrim(app()->basePath("storage/"), '/');
-        $tcpdf_path = rtrim(app()->basePath("vendor/tecnickcom/tcpdf/examples/"), '/');
         $name_report = "$study->ID_STUDY- $study->STUDY_NAME-Report.pdf";
 
         if (!is_dir($public_path . "/reports/" . $study->USERNAM)) {
             mkdir($public_path . "/reports/" . $study->USERNAM, 0777, true);
         } 
         // if (!file_exists($public_path. "/" . $study->USERNAM. "/" .$name_report)) {
-        require_once $tcpdf_path . ('/tcpdf_include.php');
         $production = Production::Where('ID_STUDY', $id)->first();
         $product = Product::Where('ID_STUDY', $id)->first();
         $proElmt = ProductElmt::Where('ID_PROD', $product->ID_PROD)->first();
@@ -698,7 +696,6 @@ class Reports extends Controller
         $host = 'http://' . $_SERVER['HTTP_HOST'];
         $public_path = rtrim(app()->basePath("public/"), '/');
         $images_path = rtrim(app()->basePath("public/storage/"), '/');
-        $tcpdf_path = rtrim(app()->basePath("vendor/tecnickcom/tcpdf/examples/"), '/');
         $name_report = "$study->ID_STUDY- $study->STUDY_NAME-Report.html";
         if (!is_dir( $public_path. "/reports/"  . $study->USERNAM)) {
             mkdir( $public_path. "/reports/" . $study->USERNAM, 0777, true);

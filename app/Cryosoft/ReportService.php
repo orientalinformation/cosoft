@@ -88,7 +88,8 @@ class ReportService
 		$this->dima = $app['App\\Cryosoft\\DimaResultsService'];
 		$this->eco = $app['App\\Cryosoft\\EconomicResultsService'];
 		$this->stu = $app['App\\Cryosoft\\StudyService'];
-		$this->output = $app['App\\Cryosoft\\OutputService'];
+        $this->output = $app['App\\Cryosoft\\OutputService'];
+        $this->plotFolder = $this->output->base_path('scripts');
 	}
 
     public function getOptimumHeadBalance($idStudy)
