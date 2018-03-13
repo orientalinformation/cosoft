@@ -40,6 +40,7 @@ class ValueListService
     public $MATERIAL_RISE = 24;
     public $PROD_DIMENSION = 19;
     public $THICKNESS_PACKING = 16;
+    public $PRESSURE = 15;
 
     //brand mode
     public $BRAIN_MODE_ESTIMATION = 1;

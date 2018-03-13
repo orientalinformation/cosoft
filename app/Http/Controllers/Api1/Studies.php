@@ -12,6 +12,7 @@ use App\Cryosoft\UnitsConverterService;
 use App\Cryosoft\ValueListService;
 use App\Cryosoft\LineService;
 use App\Cryosoft\StudyEquipmentService;
+use App\Cryosoft\PackingService;
 use App\Models\MeshGeneration;
 use App\Models\Product;
 use App\Models\ProductElmt;
@@ -75,11 +76,17 @@ class Studies extends Controller
     protected $stdeqp;
 
     /**
+     * @var \App\Cryosoft\PackingService
+     */
+    protected $packing;
+
+    /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth, KernelService $kernel, UnitsConverterService $convert, ValueListService $value, LineService $lineE, StudyEquipmentService $stdeqp)
+    public function __construct(Request $request, Auth $auth, KernelService $kernel, UnitsConverterService $convert,
+        ValueListService $value, LineService $lineE, StudyEquipmentService $stdeqp, PackingService $packing)
     {
         $this->request = $request;
         $this->auth = $auth;
@@ -88,6 +95,7 @@ class Studies extends Controller
         $this->value = $value;
         $this->lineE = $lineE;
         $this->stdeqp = $stdeqp;
+        $this->packing = $packing;
     }
 
     public function findStudies()
@@ -659,9 +667,9 @@ class Studies extends Controller
             $elements = $product->productElmts;
             if ($elements->count() > 0) {
                 foreach ($elements as $elmt) {
-                    if (isset($input['dim1'])) $elmt->SHAPE_PARAM1 = floatval($input['dim1']);
-                    if (isset($input['dim2'])) $elmt->SHAPE_PARAM2 = floatval($input['dim2']);
-                    if (isset($input['dim3'])) $elmt->SHAPE_PARAM3 = floatval($input['dim3']);
+                    if (isset($input['dim1'])) $elmt->SHAPE_PARAM1 = $this->convert->prodDimensionSave(floatval($input['dim1']));
+                    if (isset($input['dim2'])) $elmt->SHAPE_PARAM2 = $this->convert->prodDimensionSave(floatval($input['dim2']));
+                    if (isset($input['dim3'])) $elmt->SHAPE_PARAM3 = $this->convert->prodDimensionSave(floatval($input['dim3']));
                     $elmt->save();
                     $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_PROD, intval($elmt->ID_PRODUCT_ELMT));
                     $ok = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($id, $conf, 2);
@@ -1282,9 +1290,7 @@ class Studies extends Controller
             $meshPoints = MeshPosition::distinct()->select('MESH_AXIS_POS')->where('ID_STUDY', $id)->where('MESH_AXIS', $i+1)->orderBy('MESH_AXIS_POS')->get();
             $itemName = [];
             foreach ($meshPoints as $row) {
-                $item['value'] = $row->MESH_AXIS_POS;
-                $item['name'] = $this->convert->meshesUnit($row->MESH_AXIS_POS);
-                $itemName[] = $item;
+                $itemName[] = $this->convert->meshesUnit($row->MESH_AXIS_POS);
             }
             $tfMesh[$i] = array_reverse($itemName);
         }
@@ -1359,7 +1365,8 @@ class Studies extends Controller
         return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 43);
     }
 
-    public function getChainingModel($id) {
+    public function getChainingModel($id) 
+    {
         /** @var \App\Models\Study */
         $study = Study::findOrFail($id);
         
@@ -1374,7 +1381,8 @@ class Studies extends Controller
         //             'name' => '',
         //             'equipName' => ''
         //         ]
-        //     ]
+        //     ],
+        //     'packingPreventChildComp' => true/false
         // ];
 
         $chaining = [];
@@ -1407,8 +1415,66 @@ class Studies extends Controller
             }
         }
 
+        $chaining['packingPreventChildComp'] = false;
+
+        if ($study->PARENT_ID != 0) {
+
+            $productShape = $study->products->first()->productElmts->first()->ID_SHAPE;
+
+            if ($this->packing->isTopPackInParent($study)) {
+                $chaining['packingPreventChildComp'] = true;
+            }
+
+            if ($this->packing->isSidePackInParent($study)) {
+                switch ($productShape) {
+                    case SLAB:
+                    case PARALLELEPIPED_LAYING:
+                    case CYLINDER_LAYING:
+                    case CYLINDER_CONCENTRIC_STANDING:
+                    case CYLINDER_CONCENTRIC_LAYING:
+                    case PARALLELEPIPED_BREADED:
+                    case SPHERE:
+                        $chaining['packingPreventChildComp'] = true;
+                        break;
+                    case PARALLELEPIPED_STANDING:
+                    case CYLINDER_STANDING:
+                        break;
+                }
+            }
+
+            if ($this->packing->isBottomPackInParent($study)) {
+                switch ($productShape) {
+                    case PARALLELEPIPED_LAYING:
+                    case CYLINDER_LAYING:
+                    case CYLINDER_CONCENTRIC_LAYING:
+                    case PARALLELEPIPED_BREADED:
+                    case SPHERE:
+                        $chaining['packingPreventChildComp'] = true;
+                        break;
+                    case SLAB:
+                    case PARALLELEPIPED_STANDING:
+                    case CYLINDER_STANDING:
+                    case CYLINDER_CONCENTRIC_STANDING:
+                        break;
+                }
+            }
+        }
 
         return $chaining;
+    }
+
+    public function getlocationAxisSelected($id)
+    {
+        $tempRecordPts = TempRecordPts::where("ID_STUDY", $id)->first();
+
+        $axisTemp["top"] = [$this->convert->meshesUnit($tempRecordPts->AXIS1_PT_TOP_SURF), $this->convert->meshesUnit($tempRecordPts->AXIS2_PT_TOP_SURF), $this->convert->meshesUnit($tempRecordPts->AXIS3_PT_TOP_SURF)];
+
+        $axisTemp["int"] = [$this->convert->meshesUnit($tempRecordPts->AXIS1_PT_INT_PT), $this->convert->meshesUnit($tempRecordPts->AXIS2_PT_INT_PT), $this->convert->meshesUnit($tempRecordPts->AXIS3_PT_INT_PT)];
+
+        $axisTemp["bot"] = [$this->convert->meshesUnit($tempRecordPts->AXIS1_PT_BOT_SURF), $this->convert->meshesUnit($tempRecordPts->AXIS2_PT_BOT_SURF), $this->convert->meshesUnit($tempRecordPts->AXIS3_PT_BOT_SURF)];
+
+
+        return $axisTemp;
     }
 }
     
