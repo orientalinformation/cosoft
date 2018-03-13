@@ -1,5 +1,31 @@
 <html>
     <body>
+        <div class="chaining">
+            <div class="table table-bordered">
+            <table border="0.5">
+                <tr>
+                    <th colspan="2">Study Name</th>
+                    <th colspan="2">Equipment</th>
+                    <th>Control temperature (C)</th>
+                    <th>Residence/ Dwell time (s)</th>
+                    <th>Convection Setting (Hz)</th>
+                    <th>Initial Average Product tempeture (C) </th>
+                    <th>Final Average Product temperature (C)</th>
+                    <th>Product Heat Load (kj/kg)</th>
+                </tr>
+                <tr>
+                    <td colspan="2"></td>
+                    <td colspan="2"></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                </table>
+            </div>
+        </div>
         <div class="production">
             <div class="table table-bordered">
                 <table border="0.5">
@@ -389,7 +415,7 @@
         </div>
         <h4>Graphic</h4>
         <div class ="graphic">
-            <img src="<?php echo $arrayParam['images_path'] . "/sizing/" . $arrayParam['study']['USERNAM'] . "/" .  $arrayParam['study']['ID_STUDY'] . ".png" ?>">
+            <img src="<?php echo $arrayParam['public_path'] . "/sizing/" . $arrayParam['study']['USERNAM'] . "/" .  $arrayParam['study']['ID_STUDY'] . ".png" ?>">
         </div>
         <?php } ?>
         
@@ -430,7 +456,7 @@
             </div>
 
             <div id="hexchGraphic">
-                <img src="<?php echo $arrayParam['images_path'] . "/heatExchange/" . $arrayParam['study']['USERNAM'] . "/" .  $resheatexchanges['idStudyEquipment'] . ".png" ?>">
+                <img src="<?php echo $arrayParam['public_path'] . "/heatExchange/" . $arrayParam['study']['USERNAM'] . "/" .  $resheatexchanges['idStudyEquipment'] . ".png" ?>">
             </div>
             <?php } ?>
         </div>
@@ -473,13 +499,13 @@
                 <div class="graphic-dim2"> 
                 <?php if ($resproSections['selectedAxe'] == 1) {?> 
                 Graphic - Dimension <?php echo $resproSections['selectedAxe'] . "(" . "*," . $resproSections['axeTemp'][0] . "," . $resproSections['axeTemp'][0] . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?>  
-                <img src="<?php echo $arrayParam['images_path'] . "/productSection/" . $arrayParam['study']['USERNAM'] . "/" .  $resproSections['idStudyEquipment'] . "-" . $resproSections['selectedAxe'] . ".png" ?>">
+                <img src="<?php echo $arrayParam['public_path'] . "/productSection/" . $arrayParam['study']['USERNAM'] . "/" .  $resproSections['idStudyEquipment'] . "-" . $resproSections['selectedAxe'] . ".png" ?>">
                 <?php } else if ($resproSections['selectedAxe'] == 2) { ?>
                 Graphic - Dimension <?php echo $resproSections['selectedAxe'] . "(" . $resproSections['axeTemp'][0] . ",*," . $resproSections['axeTemp'][0] . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?>  
-                <img src="<?php echo $arrayParam['images_path'] . "/productSection/" . $arrayParam['study']['USERNAM'] . "/" .  $resproSections['idStudyEquipment'] . "-" . $resproSections['selectedAxe'] . ".png" ?>">
+                <img src="<?php echo $arrayParam['public_path'] . "/productSection/" . $arrayParam['study']['USERNAM'] . "/" .  $resproSections['idStudyEquipment'] . "-" . $resproSections['selectedAxe'] . ".png" ?>">
                 <?php } else if ($resproSections['selectedAxe'] == 3) {?>
                 Graphic - Dimension <?php echo $resproSections['selectedAxe'] . "(" . $resproSections['axeTemp'][0] . "," . $resproSections['axeTemp'][0] . ",*" . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?>  
-                <img src="<?php echo $arrayParam['images_path'] . "/productSection/" . $arrayParam['study']['USERNAM'] . "/" .  $resproSections['idStudyEquipment'] . "-" . $resproSections['selectedAxe'] . ".png" ?>">
+                <img src="<?php echo $arrayParam['public_path'] . "/productSection/" . $arrayParam['study']['USERNAM'] . "/" .  $resproSections['idStudyEquipment'] . "-" . $resproSections['selectedAxe'] . ".png" ?>">
                 <?php } ?>
                 </div>
             <?php } ?>
