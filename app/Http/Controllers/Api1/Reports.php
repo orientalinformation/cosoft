@@ -472,6 +472,7 @@ class Reports extends Controller
         $public_path = rtrim(app()->basePath("public/reports/"), '/');
         $tcpdf_path = rtrim(app()->basePath("vendor/tecnickcom/tcpdf/examples/"), '/');
         $name_report = "$study->ID_STUDY- $study->STUDY_NAME-Report.pdf";
+
         if (!is_dir($public_path. "/" . $study->USERNAM)) {
             mkdir($public_path. "/" . $study->USERNAM, 0777);
         } 
@@ -482,12 +483,14 @@ class Reports extends Controller
         $proElmt = ProductElmt::Where('ID_PROD', $product->ID_PROD)->first();
         $idComArr = [];
         $comprelease = [];
+
         foreach ($product->productElmts as $productElmt) {
             $shapeCode = $productElmt->shape->SHAPECODE;
             $idComArr[] = $productElmt->ID_COMP;
             $idElmArr[] = $productElmt->ID_PRODUCT_ELMT;
             $comprelease[] = $productElmt->component->COMP_RELEASE;
         }
+
         $componentName = ProductElmt::select('LABEL','ID_COMP', 'ID_PRODUCT_ELMT', 'PROD_ELMT_ISO', 'PROD_ELMT_NAME', 'PROD_ELMT_REALWEIGHT', 'SHAPE_PARAM2')
         ->join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')->whereIn('ID_PRODUCT_ELMT', $idElmArr)
         ->where('TRANS_TYPE', 1)->whereIn('ID_TRANSLATION', $idComArr)
@@ -496,6 +499,7 @@ class Reports extends Controller
         $shapeName = Translation::where('TRANS_TYPE', 4)->where('ID_TRANSLATION', $shapeCode)->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
         $symbol = $this->reportserv->getSymbol($study->ID_STUDY);
         $infoReport = $study->reports;
+        $studyequip = $study->studyEquipments;
         // return $study;
         if ($study->OPTION_CRYOPIPELINE == 1) {
             $cryogenPipeline = $this->pipelines->loadPipeline($study->ID_STUDY);
@@ -512,10 +516,11 @@ class Reports extends Controller
         }
         $proInfoStudy = $this->reportserv->getProInfoStudy($study->ID_STUDY);
         $proSections = [];
-
+        
         foreach ($study->studyEquipments as $key=> $idstudyequips) {
-            $heatexchange[] = $this->reportserv->heatExchange($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
             if ($idstudyequips->BRAIN_TYPE == 4) {
+                $heatexchange[] = $this->reportserv->heatExchange($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
+                $timeBase[] = $this->reportserv->timeBased($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
                 if ($shapeCode == 1) { 
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                 } else if ($shapeCode == 2) {
@@ -537,8 +542,9 @@ class Reports extends Controller
                 } 
             } else {
                 $proSections = [];
+                $heatexchange = [];
+                $timeBase = [];
             }
-                $timeBase[] = $this->reportserv->timeBased($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
         }
 
         $productComps = [];
@@ -622,7 +628,6 @@ class Reports extends Controller
         // PDF::SetFont('times', 'B', 6);
         PDF::MultiCell(0, 0, 'Table Of Content', 0, 'C', 0, 1, '', '', true, 0);
         PDF::Ln();
-
         // define styles for various bookmark levels
         $bookmark_templates = array();
 
@@ -672,15 +677,19 @@ class Reports extends Controller
         return view('report.view_report', $param);
     }
 
-    public function viewHtml($id)
-    {
+    
+    public function downLoadHtmlToPDF($id)
+    {   
         $study = Study::find($id);
+        $host = 'http://' . $_SERVER['HTTP_HOST'];
+        $public_path = rtrim(app()->basePath("public/reports/"), '/');
         $tcpdf_path = rtrim(app()->basePath("vendor/tecnickcom/tcpdf/examples/"), '/');
         $name_report = "$study->ID_STUDY- $study->STUDY_NAME-Report.html";
         if (!is_dir($public_path. "/" . $study->USERNAM)) {
             mkdir($public_path. "/" . $study->USERNAM, 0777);
         } 
         // if (!file_exists($public_path. "/" . $study->USERNAM. "/" .$name_report)) {
+        require_once $tcpdf_path . ('/tcpdf_include.php');
         $production = Production::Where('ID_STUDY', $id)->first();
         $product = Product::Where('ID_STUDY', $id)->first();
         $proElmt = ProductElmt::Where('ID_PROD', $product->ID_PROD)->first();
@@ -716,10 +725,11 @@ class Reports extends Controller
         }
         $proInfoStudy = $this->reportserv->getProInfoStudy($study->ID_STUDY);
         $proSections = [];
-
+        
         foreach ($study->studyEquipments as $key=> $idstudyequips) {
-            $heatexchange[] = $this->reportserv->heatExchange($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
             if ($idstudyequips->BRAIN_TYPE == 4) {
+                $heatexchange[] = $this->reportserv->heatExchange($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
+                $timeBase[] = $this->reportserv->timeBased($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
                 if ($shapeCode == 1) { 
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                 } else if ($shapeCode == 2) {
@@ -741,16 +751,32 @@ class Reports extends Controller
                 } 
             } else {
                 $proSections = [];
+                $heatexchange = [];
+                $timeBase = [];
             }
-                $timeBase[] = $this->reportserv->timeBased($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
         }
 
         $productComps = [];
         foreach ($componentName as $key => $value) {
-            $componentStatus = Translation::select('LABEL')->where('TRANS_TYPE', 100)->whereIn('ID_TRANSLATION', $comprelease)->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
+            $componentStatus = Translation::select('LABEL')->where('TRANS_TYPE', 100)->whereIn('ID_TRANSLATION', $comprelease)
+            ->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
             $productComps[] = $value;
             $productComps[$key]['display_name'] = $value->LABEL . ' - ' . $productElmt->component->COMP_VERSION . '(' . $componentStatus->LABEL . ' )';
         }
+        $myfile = fopen( $public_path. "/" . $study->USERNAM."/" . $name_report, "w") or die("Unable to open file!");
+        $html = $this->viewHtml($study ,$production, $product, $proElmt, $shapeName, 
+        $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
+        $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase ,$tcpdf_path, $symbol);
+        fwrite($myfile, $html);
+        fclose($myfile);
+        $url = ["url" => "$host/reports/$study->USERNAM/$name_report"];
+        return $url;
+    }
+
+    public function viewHtml($study ,$production, $product, $proElmt, $shapeName, 
+    $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
+    $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase ,$tcpdf_path, $symbol)
+    {
         $arrayParam = [
             'study' => $study,
             'production' => $production,
@@ -773,17 +799,7 @@ class Reports extends Controller
             'proSections' => $proSections,
             'timeBase' => $timeBase,
         ];
-        $view = view('report.viewHtmlToPDF', $param);
-        return $view;
-    }
-
-    public function downLoadHtmlToPDF($id)
-    {   
-        $study = Study::find($id);
-        $this->viewHtml($id);
-        $host = 'http://' . $_SERVER['HTTP_HOST'];
-        $url = ["url" => "$host/api/v1/reports/$id/viewHtml"];
-        return $url;
+        return view('report.viewHtmlToPDF', $param);
     }
     
 }

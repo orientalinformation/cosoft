@@ -392,7 +392,8 @@
         Graphic
         </div>
         <?php } ?>
-
+        
+        <?php if (!empty($heatexchange)) { ?>
         <h3>Heat Exchange</h3>
         <!-- <h4>get first Equipment </h4> -->
         <?php foreach($heatexchange as $key=> $resheatexchanges) { ?>
@@ -413,7 +414,7 @@
                     <th align="center"> <?php echo $resheatexchanges['result'][9]['x'] ?></th>
                 </tr>
                 <tr>
-                    <td colspan="2"><?php echo $consumptions[$key]['equipName'] . " - (v1.0)"  ?></td>
+                    <td colspan="2"><?php echo $resheatexchanges['equipName'] . " - (v1.0)"  ?></td>
                     <td align="center"><?php echo $resheatexchanges['result'][0]['y'] ?></td>
                     <td align="center"><?php echo $resheatexchanges['result'][1]['y'] ?></td>
                     <td align="center"><?php echo $resheatexchanges['result'][2]['y'] ?></td>
@@ -433,6 +434,8 @@
             </div>
             <?php } ?>
         </div>
+        <?php } ?> 
+
         <?php if (!empty($proSections)) { ?>
         <h3>Product Section</h3>
         <!-- <h4>get first Equipment </h4> -->
@@ -479,9 +482,10 @@
             <?php } ?>
         <?php } ?>   
         
+        <?php if (!empty($timeBase)) { ?>
         <h3>Product Graph - Time Based</h3>
         <?php foreach ($timeBase as $key => $timeBases) { ?>
-        <h4><?php echo $consumptions[$key]['equipName'] ?></h4>
+        <h4><?php echo $timeBases['equipName'] ?></h4>
         <div class="values-graphic"> 
             <div class="table table-bordered">
             <table border="0.5">
@@ -526,6 +530,7 @@
         <div class="pro-graphic">
         Graphic Time Based
         </div>
+        <?php } ?>
         <?php } ?>
 
         <h3>2D Outlines</h3>

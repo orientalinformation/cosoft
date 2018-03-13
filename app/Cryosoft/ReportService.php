@@ -624,6 +624,7 @@ class ReportService
         $nbSample = $nbSteps->NB_STEPS;
 
         $nbRecord = count($listRecordPos);
+        $equipName = $this->equip->getResultsEquipName($idStudyEquipment);
 
         $lfTS = $listRecordPos[$nbRecord - 1]->RECORD_TIME;
         $lfStep = $listRecordPos[1]->RECORD_TIME - $listRecordPos[0]->RECORD_TIME;
@@ -638,7 +639,7 @@ class ReportService
 
             $result[] = $itemResult;
         }
-        return compact("result", "curve");
+        return compact("result", "curve", "equipName");
     }
 
     public function productSection($idStudy, $idStudyEquipment, $selectedAxe){
@@ -865,7 +866,8 @@ class ReportService
             }
             $tempRecordPts = TempRecordPts::where("ID_STUDY", $idStudy)->first();
             $nbSample = $tempRecordPts->NB_STEPS;
-            
+            $equipName = $this->equip->getResultsEquipName($idStudyEquipment);
+
             $timeSymbol = $this->unit->timeSymbol();
             $temperatureSymbol = $this->unit->temperatureSymbol();
 
@@ -902,7 +904,7 @@ class ReportService
             $label["bot"] = $this->unit->meshesUnit($tempRecordPts->AXIS1_PT_BOT_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_BOT_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_BOT_SURF);
         }
 
-        return compact("label", "curve", "result", "timeSymbol", "temperatureSymbol");
+        return compact("label", "curve", "result", "timeSymbol", "temperatureSymbol", "equipName");
     }
 
     public function getSymbol($idStudy)
