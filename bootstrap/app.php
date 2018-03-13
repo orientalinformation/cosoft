@@ -114,9 +114,6 @@ $app->register(Elibyy\TCPDF\ServiceProvider::class);
 
 class_alias('\Elibyy\TCPDF\Facades\TCPDF', 'PDF');
 
-$app->register(Plank\Mediable\MediableServiceProvider::class);
-class_alias(Plank\Mediable\MediaUploaderFacade::class, 'MediaUploader');
-
 if ($app->environment('local')) {
     $app->register(Krlove\EloquentModelGenerator\Provider\GeneratorServiceProvider::class);
     $app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
