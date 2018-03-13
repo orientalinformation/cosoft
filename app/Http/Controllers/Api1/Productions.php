@@ -64,7 +64,6 @@ class Productions extends Controller
         $production->AMBIENT_HUM            = $update->AMBIENT_HUM;
         $production->AVG_T_DESIRED          = $update->AVG_T_DESIRED;
         $production->AVG_T_INITIAL          = $update->AVG_T_INITIAL;
-        $production->APPROX_DWELLING_TIME   = $update->APPROX_DWELLING_TIME;
 
         return (int) $production->save();
     }
