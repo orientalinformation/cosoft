@@ -1,6 +1,7 @@
 reset
-DATAFILE = '/tmp/Product_section.inp'
+DATAFILE = '/tmp/productSection.inp'
 OUTPUT = ARG3."/".ARG4.".png"
+set key autotitle columnheader
 stats DATAFILE nooutput
 NCOL = STATS_columns
 STEP = NCOL - 1.0
