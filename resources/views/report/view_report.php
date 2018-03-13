@@ -555,7 +555,7 @@
         </div>
         <div class="info-company">
             <div align="center">
-                <img align="center" src="<?php echo $arrayParam['tcpdf_path'] . '/images/banner_cryosoft.png' ?>" height="400" width="4200">
+                banner
             </div>
             <div><strong><u>Customer:</u></strong></div>
                 <div><strong>Company name : <?php echo $arrayParam['study']['reports'][0]['DEST_SURNAME'] ?> </strong></div>
@@ -564,7 +564,7 @@
                 <div><strong>Contact : <?php echo $arrayParam['study']['reports'][0]['DEST_COORD'] ?></strong></div>
                 <div><strong>Date of the redivort generation : <?php echo date("d/m/y") ?> </strong></div>
             <div align="center">
-                <img src="<?php echo $arrayParam['tcpdf_path'] . '/images/image_cryosoft.png'?>" height="200" width="200">
+                logo
             </div>
             <div class="table table-bordered">
                 <table border="1">
