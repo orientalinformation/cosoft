@@ -96,7 +96,7 @@ class Lines extends Controller
                     $lineElmt = $lineDef->lineElmt;
                     $lineElmts[] = $lineElmt;
                 }
-                $diameterParam = $this->lineE->getdiameter($coolingFamily, $lineElmts[0]->INSULATION_TYPE);
+                $diameterParam = $this->lineE->getdiameter($coolingFamily, $lineElmts[0]->INSULATION_TYPE) ?? '';
                 $storageTankParam = $this->lineE->getStorageTank($coolingFamily, $lineElmts[0]->INSULATION_TYPE);
                 $insulationParams = LineElmt::distinct()->select('INSULATION_TYPE')->where('ID_COOLING_FAMILY', $coolingFamily)->get();
                 if ($lineElmts[0]->INSULATION_TYPE == 0 ) {
@@ -155,6 +155,7 @@ class Lines extends Controller
                             $arrLabel[$this->eltTypeString($getLabelName[0]['ELT_TYPE'],$getLabelName[0]['INSULATION_TYPE'] )] = $getLabelName[0]['LABEL'] ."-". $this->lineE->getStatus($getLabelName[0]['LINE_RELEASE']);
                         } else {
                             $arrLabel[$this->eltTypeString($getLabelName[0]['ELT_TYPE'],$getLabelName[0]['INSULATION_TYPE'])] = $getLabelName[0]['ID_PIPELINE_ELMT'];
+                            $arrLabel['storageTankName'] = $getLabelName[0]['LABEL'] ."-". $this->lineE->getStatus($getLabelName[0]['LINE_RELEASE']);
                         }
                         if ($lineElmts[0]->ELT_TYPE != 2) {
                             $arrLabel["diameter"] = $lineElmts[0]->ELT_SIZE;

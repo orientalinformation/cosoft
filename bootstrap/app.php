@@ -127,7 +127,6 @@ $app->router->group([
     'namespace' => 'App\Http\Controllers',
 ], function ($router) {
     $router->GET('/api/v1/reports/{id}/downLoadPDF', 'Api1\\Reports@downLoadPDF');
-    $router->GET('/api/v1/reports/{id}/viewHtml', 'Api1\\Reports@viewHtml');
     $router->GET('/api/v1/reports/{id}/downLoadHtmlToPDF', 'Api1\\Reports@downLoadHtmlToPDF');
     require dirname(__DIR__).'/routes/auth.php';
     require dirname(__DIR__).'/routes/translations.php';
