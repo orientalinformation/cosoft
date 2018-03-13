@@ -561,31 +561,32 @@ class Reports extends Controller
         }
         // set document information
         // PDF::SetCreator(PDF_CREATOR);
+        PDF::setPageOrientation('L');
         PDF::SetAuthor('');
         PDF::SetTitle('Cryosoft Report');
         PDF::SetSubject('UserName - StudyName');
         PDF::SetKeywords('');
 
         // set default header data
-        // PDF::SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, PDF_HEADER_TITLE.' 011', PDF_HEADER_STRING);
+        PDF::SetHeaderData($public_path . "/reports/" . 'air-liquide-logo.png', 30, $study->STUDY_NAME,'Report');
 
         // set header and footer fonts
-        // PDF::setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
+        PDF::setHeaderFont(Array('helvetica', '', 10));
         // PDF::setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
 
         // set default monospaced font
         // PDF::SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
 
         // set margins
-        // PDF::SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
-        PDF::SetHeaderMargin(0);
+        PDF::SetMargins(15, 27, 15);
+        PDF::SetHeaderMargin(5);
         PDF::SetFooterMargin(10);
 
         // set auto page breaks
-        // PDF::SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+        PDF::SetAutoPageBreak(TRUE, 25);
 
         // set image scale factor
-        // PDF::setImageScale(PDF_IMAGE_SCALE_RATIO);
+        PDF::setImageScale(1.25);
 
         // set some language-dependent strings (optional)
         if (@file_exists($tcpdf_path.'/lang/eng.php')) {

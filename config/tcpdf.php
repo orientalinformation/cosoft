@@ -1,7 +1,7 @@
 <?php
 return [
 	'page_format'           => 'A4',
-	'page_orientation'      => 'P',
+	'page_orientation'      => 'L',
 	'page_units'            => 'mm',
 	'unicode'               => true,
 	'encoding'              => 'UTF-8',
