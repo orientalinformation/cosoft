@@ -470,7 +470,6 @@ class Reports extends Controller
         $study = Study::find($id);
         $host = 'http://' . $_SERVER['HTTP_HOST'];
         $public_path = rtrim(app()->basePath("public/"), '/');
-        $images_path = rtrim(app()->basePath("storage/"), '/');
         $name_report = "$study->ID_STUDY- $study->STUDY_NAME-Report.pdf";
 
         if (!is_dir($public_path . "/reports/" . $study->USERNAM)) {
@@ -561,32 +560,32 @@ class Reports extends Controller
             $productComps[$key]['display_name'] = $value->LABEL . ' - ' . $productElmt->component->COMP_VERSION . '(' . $componentStatus->LABEL . ' )';
         }
         // set document information
-        PDF::SetCreator(PDF_CREATOR);
+        // PDF::SetCreator(PDF_CREATOR);
         PDF::SetAuthor('');
         PDF::SetTitle('Cryosoft Report');
         PDF::SetSubject('UserName - StudyName');
         PDF::SetKeywords('');
 
         // set default header data
-        PDF::SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, PDF_HEADER_TITLE.' 011', PDF_HEADER_STRING);
+        // PDF::SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, PDF_HEADER_TITLE.' 011', PDF_HEADER_STRING);
 
         // set header and footer fonts
-        PDF::setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
-        PDF::setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
+        // PDF::setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
+        // PDF::setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
 
         // set default monospaced font
-        PDF::SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+        // PDF::SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
 
         // set margins
-        PDF::SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+        // PDF::SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
         PDF::SetHeaderMargin(0);
         PDF::SetFooterMargin(10);
 
         // set auto page breaks
-        PDF::SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+        // PDF::SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
 
         // set image scale factor
-        PDF::setImageScale(PDF_IMAGE_SCALE_RATIO);
+        // PDF::setImageScale(PDF_IMAGE_SCALE_RATIO);
 
         // set some language-dependent strings (optional)
         if (@file_exists($tcpdf_path.'/lang/eng.php')) {
@@ -600,8 +599,8 @@ class Reports extends Controller
         PDF::Cell(0, 10, 'Chapter 1', 0, 1, 'L');
         $view = $this->viewPDF($study, $production, $product, $proElmt, $shapeName, 
         $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
-        $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase, $tcpdf_path, 
-        $symbol, $images_path, $public_path, $pro2Dchart);
+        $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase, 
+        $symbol, $public_path, $pro2Dchart);
         $html= $view->render();
         // return $html;
         PDF::SetFont('helvetica', '', 6);
@@ -659,7 +658,7 @@ class Reports extends Controller
     public function viewPDF($study ,$production, $product, $proElmt, $shapeName, 
     $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
     $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase , $symbol, 
-    $images_path, $public_path, $pro2Dchart) 
+    $public_path, $pro2Dchart) 
     {
         $arrayParam = [
             'study' => $study,
@@ -669,7 +668,6 @@ class Reports extends Controller
             'shapeName' => $shapeName,
             'proInfoStudy' => $proInfoStudy,
             'symbol' => $symbol,
-            'images_path' => $images_path,
             'public_path' => $public_path,
         ];
         $param = [
@@ -694,7 +692,6 @@ class Reports extends Controller
         $study = Study::find($id);
         $host = 'http://' . $_SERVER['HTTP_HOST'];
         $public_path = rtrim(app()->basePath("public/"), '/');
-        $images_path = rtrim(app()->basePath("public/storage/"), '/');
         $name_report = "$study->ID_STUDY- $study->STUDY_NAME-Report.html";
         if (!is_dir( $public_path. "/reports/"  . $study->USERNAM)) {
             mkdir( $public_path. "/reports/" . $study->USERNAM, 0777, true);
@@ -785,7 +782,7 @@ class Reports extends Controller
         $html = $this->viewHtml($study ,$production, $product, $proElmt, $shapeName, 
         $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
         $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase, 
-        $symbol, $images_path, $public_path, $pro2Dchart);
+        $symbol, $host, $pro2Dchart);
         fwrite($myfile, $html);
         fclose($myfile);
         $url = ["url" => "$host/reports/$study->USERNAM/$name_report"];
@@ -795,7 +792,7 @@ class Reports extends Controller
     public function viewHtml($study ,$production, $product, $proElmt, $shapeName, 
     $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
     $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase , 
-    $symbol, $images_path, $public_path, $pro2Dchart)
+    $symbol, $host, $pro2Dchart)
     {
         $arrayParam = [
             'study' => $study,
@@ -805,8 +802,7 @@ class Reports extends Controller
             'shapeName' => $shapeName,
             'proInfoStudy' => $proInfoStudy,
             'symbol' => $symbol,
-            'images_path' => $images_path,
-            'public_path' => $public_path,
+            'host' => $host,
         ];
         $param = [
             'arrayParam' => $arrayParam,
