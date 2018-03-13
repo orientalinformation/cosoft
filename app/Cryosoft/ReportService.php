@@ -943,7 +943,7 @@ class ReportService
 
     public function productchart2D($idStudy, $idStudyEquipment, $selectedPlan)
     {
-
+        $dimension = 'Dimenstions';
         $productElmt = ProductElmt::where('ID_STUDY', $idStudy)->first();
         $shape = $productElmt->SHAPECODE;
         $layoutGen = LayoutGeneration::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
