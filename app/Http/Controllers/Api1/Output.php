@@ -1046,7 +1046,7 @@ class Output extends Controller
                 mkdir($sizingFolder . '/' . $userName, 0777);
             }
 
-            system('gnuplot -c '. $this->plotFolder .'/sizing.plot "Flowrate '. $this->unit->productFlowSymbol() .'" "Conso '. $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1) .'/'. $this->unit->perUnitOfMassSymbol() .'" "'. $sizingFolder . '/' . $userName . '" '. $idStudyEquipment .' '. $productFlowRate .' "Custom Flowrate"');
+            system('gnuplot -c '. $this->plotFolder .'/sizing.plot "Flowrate '. $this->unit->productFlowSymbol() .'" "Conso '. $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1) .'/'. $this->unit->perUnitOfMassSymbol() .'" "'. $sizingFolder . '/' . $userName . '" '. $idStudy .' '. $productFlowRate .' "Custom Flowrate"');
         }
 
         return compact("result", "selectedEquipment", "availableEquipment", "dataGrapChart", "productFlowRate");
@@ -1657,14 +1657,16 @@ class Output extends Controller
         fputs($f, $dataLabel);
         fputs($f, "\n");
 
+        $i = 0;
         foreach ($resultValue as $key => $row) {
             $dataValue = '';
-            $dataValue = $recAxis[$key] . ' ';
+            $dataValue = $i . ' ';
             foreach ($row as $value) {
                 $dataValue .= $value . ' ';
             }
             fputs($f, $dataValue);
             fputs($f, "\n");
+            $i++;
         }
         fclose($f);
 
@@ -1681,10 +1683,7 @@ class Output extends Controller
 
         $fileName = $idStudyEquipment . '-' . $selectedAxe;
 
-        /*system('gnuplot -c '. $this->plotFolder .'/productSection.plot "('. $this->unit->prodchartDimensionSymbol() .')" "('. $this->unit->temperatureSymbol() .')" "'. $productSectionFolder . '/' . $userName .'" "'. $fileName .'"');*/
-
-        // system('gnuplot -c '. $this->plotFolder .'/productSection.plot "(oC)" "(mm)" "/home/ngonc/Downloads" "profile"');
-
+        system('gnuplot -c '. $this->plotFolder .'/productSection.plot "('. $this->unit->prodchartDimensionSymbol() .')" "('. $this->unit->temperatureSymbol() .')" "'. $productSectionFolder . '/' . $userName .'" "'. $fileName .'"');
         $result["recAxis"] = $recAxis;
         $result["mesAxis"] = $mesAxis;
         $result["resultValue"] = $resultValue;
