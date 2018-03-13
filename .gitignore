@@ -8,5 +8,5 @@ Homestead.yaml
 /.vscode/*
 /public/heatmap/*
 /public/reports/*
-/storage/*
+/storage/app/*
 
