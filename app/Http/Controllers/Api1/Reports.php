@@ -26,6 +26,14 @@ use App\Cryosoft\StudyEquipmentService;
 use PDF;
 use View;
 
+// HAIDT
+use MediaUploader;
+use Symfony\Component\HttpFoundation\UploadedFile;
+use Symfony\Component\HttpFoundation\File;
+use Psr\Http\Message\StreamInterface;
+use  Illuminate\Database\Query\Builder;
+// end HAIDT
+
 class Reports extends Controller
 {
      /**
@@ -109,7 +117,6 @@ class Reports extends Controller
             $report->refContRep2DTempMaxRef = doubleval($pasTemp['dTMax']);
             $report->refContRep2DTempStepRef = doubleval($pasTemp['dpas']);
 
-            return $report;
         } else {
             $minMaxSample = MinMax::where('LIMIT_ITEM', 1116)->first();
             $report = new Report();
@@ -180,9 +187,12 @@ class Reports extends Controller
             $report->PLAN_Z = 0;
             $report->ASSES_ECO = 0;
             $report->save();
-
-            return $report;
         }
+        // HAIDT
+        $report->ip = 'http://'.$_SERVER['HTTP_HOST'];
+        // end HAIDT
+        
+        return $report;
     }
 
     public function getReportTemperatureBorne($id)
@@ -820,5 +830,46 @@ class Reports extends Controller
         ];
         return view('report.viewHtmlToPDF', $param);
     }
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // HAIDT
+    public function postFile() 
+    {  
+        $input = $this->request->all();
+        $file = $input['fileKey'];
+
+        $media = MediaUploader::fromSource($file)
+        ->useFilename(date('Y-m-d H:i:s'))
+        ->useHashForFilename()
+        ->setMaximumSize(99999)
+        ->setStrictTypeChecking(true)
+        ->setAllowUnrecognizedTypes(true)
+        ->setAllowedAggregateTypes(['image'])
+        ->onDuplicateReplace()
+        ->upload();
+
+        $url = 'http://'.$_SERVER['HTTP_HOST'].'/uploads/'.$media->filename.'.'.$media->extension;
+        
+        return $url;
+    }
+    // end HAIDT
 }
