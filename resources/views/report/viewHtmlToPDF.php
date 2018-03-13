@@ -401,7 +401,7 @@
         </div>
         <h4>Graphic</h4>
         <div class ="graphic">
-        Graphic
+            <img src="<?php echo $arrayParam['images_path'] . "/sizing/" . $arrayParam['study']['USERNAM'] . "/" .  $arrayParam['study']['ID_STUDY'] . ".png" ?>">
         </div>
         <?php } ?>
 
@@ -442,7 +442,7 @@
                 </div>
     
                 <div id="hexchGraphic">
-                Graphic Heat Exchange
+                    <img src="<?php echo $arrayParam['images_path'] . "/heatExchange/" . $arrayParam['study']['USERNAM'] . "/" .  $resheatexchanges['idStudyEquipment'] . ".png" ?>">
                 </div>
                 <?php } ?>
             </div>
@@ -485,10 +485,13 @@
                 <div class="graphic-dim2"> 
                 <?php if ($resproSections['selectedAxe'] == 1) {?> 
                 Graphic - Dimension <?php echo $resproSections['selectedAxe'] . "(" . "*," . $resproSections['axeTemp'][0] . "," . $resproSections['axeTemp'][0] . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?>  
+                <img src="<?php echo $arrayParam['images_path'] . "/productSection/" . $arrayParam['study']['USERNAM'] . "/" .  $resproSections['idStudyEquipment'] . "-" . $resproSections['selectedAxe'] . ".png" ?>">
                 <?php } else if ($resproSections['selectedAxe'] == 2) { ?>
                 Graphic - Dimension <?php echo $resproSections['selectedAxe'] . "(" . $resproSections['axeTemp'][0] . ",*," . $resproSections['axeTemp'][0] . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?>  
+                <img src="<?php echo $arrayParam['images_path'] . "/productSection/" . $arrayParam['study']['USERNAM'] . "/" .  $resproSections['idStudyEquipment'] . "-" . $resproSections['selectedAxe'] . ".png" ?>">
                 <?php } else if ($resproSections['selectedAxe'] == 3) {?>
                 Graphic - Dimension <?php echo $resproSections['selectedAxe'] . "(" . $resproSections['axeTemp'][0] . "," . $resproSections['axeTemp'][0] . ",*" . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?>  
+                <img src="<?php echo $arrayParam['images_path'] . "/productSection/" . $arrayParam['study']['USERNAM'] . "/" .  $resproSections['idStudyEquipment'] . "-" . $resproSections['selectedAxe'] . ".png" ?>">
                 <?php } ?>
                 </div>
             <?php } ?>
@@ -545,11 +548,16 @@
             <?php } ?>
         <?php } ?>
 
-        <h3>2D Outlines</h3>
-        <!-- <h4>Graphic get name equipment - ..</h4> -->
-        <div class="outlines"> 
-            Graphic
-        </div>
+        <?php if (!empty($pro2Dchart)) { ?>
+            <h3>2D Outlines</h3>
+                <?php foreach ($pro2Dchart as $pro2Dcharts) {?>
+                <h3><?php echo $pro2Dcharts['equipName'] ?></h3>
+                    <div class="outlines"> 
+                    <img src="<?php echo $arrayParam['public_path'] . "/heatmap/" . $arrayParam['study']['USERNAM'] . "/" .  $pro2Dcharts['idStudyEquipment'] . "/" . $pro2Dcharts['lfDwellingTime'] . "-" 
+                    . $pro2Dcharts['chartTempInterval'][0] . "-" . $pro2Dcharts['chartTempInterval'][1] . "-" . $pro2Dcharts['chartTempInterval'][2] . ".png" ?>">
+                    </div>
+                <?php } ?>
+        <?php } ?>
 
         <h3>Comments</h3>
         

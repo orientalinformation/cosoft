@@ -469,12 +469,13 @@ class Reports extends Controller
     function downLoadPDF($id) {
         $study = Study::find($id);
         $host = 'http://' . $_SERVER['HTTP_HOST'];
-        $public_path = rtrim(app()->basePath("public/reports/"), '/');
+        $public_path = rtrim(app()->basePath("public/"), '/');
+        $images_path = rtrim(app()->basePath("storage/"), '/');
         $tcpdf_path = rtrim(app()->basePath("vendor/tecnickcom/tcpdf/examples/"), '/');
         $name_report = "$study->ID_STUDY- $study->STUDY_NAME-Report.pdf";
 
-        if (!is_dir($public_path. "/" . $study->USERNAM)) {
-            mkdir($public_path. "/" . $study->USERNAM, 0777);
+        if (!is_dir($public_path . "/reports/" . $study->USERNAM)) {
+            mkdir($public_path . "/reports/" . $study->USERNAM, 0777);
         } 
         // if (!file_exists($public_path. "/" . $study->USERNAM. "/" .$name_report)) {
         require_once $tcpdf_path . ('/tcpdf_include.php');
@@ -516,6 +517,7 @@ class Reports extends Controller
         }
         $proInfoStudy = $this->reportserv->getProInfoStudy($study->ID_STUDY);
         $proSections = [];
+        $pro2Dchart = [];
         
         foreach ($study->studyEquipments as $key=> $idstudyequips) {
             if ($idstudyequips->BRAIN_TYPE == 4) {
@@ -531,7 +533,8 @@ class Reports extends Controller
                         $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
                         $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                     }
-                } else if (($shapeCode == 3) && ($shapeCode == 4) && ($shapeCode == 7) && ($shapeCode == 8) && ($shapeCode == 5)) {
+                    $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                } else if (($shapeCode == 4) && ($shapeCode == 7) && ($shapeCode == 8) && ($shapeCode == 5)) {
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                 } else if ($shapeCode == 6) {
@@ -539,12 +542,18 @@ class Reports extends Controller
                 } else if ($shapeCode == 9) {
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
-                } 
+                    $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                } else if ($shapeCode == 3) {
+                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                    $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                }
             } else {
                 $proSections = [];
                 $heatexchange = [];
                 $timeBase = [];
             }
+            // return $pro2Dchart;
         }
 
         $productComps = [];
@@ -593,7 +602,8 @@ class Reports extends Controller
         PDF::Cell(0, 10, 'Chapter 1', 0, 1, 'L');
         $view = $this->viewPDF($study, $production, $product, $proElmt, $shapeName, 
         $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
-        $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase, $tcpdf_path, $symbol);
+        $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase, $tcpdf_path, 
+        $symbol, $images_path, $public_path, $pro2Dchart);
         $html= $view->render();
         // return $html;
         PDF::SetFont('helvetica', '', 6);
@@ -642,7 +652,7 @@ class Reports extends Controller
 
         // end of TOC page
         PDF::endTOCPage();
-        PDF::Output($public_path. "/" . $study->USERNAM."/" . $name_report, 'F');
+        PDF::Output( $public_path. "/reports/" . $study->USERNAM."/" . $name_report, 'F');
             
         // } 
         return ["url" => "$host/reports/$study->USERNAM/$name_report"];
@@ -650,7 +660,8 @@ class Reports extends Controller
     
     public function viewPDF($study ,$production, $product, $proElmt, $shapeName, 
     $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
-    $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase ,$tcpdf_path, $symbol) 
+    $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase ,$tcpdf_path, $symbol, 
+    $images_path, $public_path, $pro2Dchart) 
     {
         $arrayParam = [
             'study' => $study,
@@ -660,7 +671,9 @@ class Reports extends Controller
             'shapeName' => $shapeName,
             'proInfoStudy' => $proInfoStudy,
             'tcpdf_path' => $tcpdf_path,
-            'symbol' => $symbol
+            'symbol' => $symbol,
+            'images_path' => $images_path,
+            'public_path' => $public_path,
         ];
         $param = [
             'arrayParam' => $arrayParam,
@@ -673,6 +686,7 @@ class Reports extends Controller
             'heatexchange' => $heatexchange,
             'proSections' => $proSections,
             'timeBase' => $timeBase,
+            'pro2Dchart' => $pro2Dchart
         ];
         return view('report.view_report', $param);
     }
@@ -682,11 +696,12 @@ class Reports extends Controller
     {   
         $study = Study::find($id);
         $host = 'http://' . $_SERVER['HTTP_HOST'];
-        $public_path = rtrim(app()->basePath("public/reports/"), '/');
+        $public_path = rtrim(app()->basePath("public/"), '/');
+        $images_path = rtrim(app()->basePath("public/storage/"), '/');
         $tcpdf_path = rtrim(app()->basePath("vendor/tecnickcom/tcpdf/examples/"), '/');
         $name_report = "$study->ID_STUDY- $study->STUDY_NAME-Report.html";
-        if (!is_dir($public_path. "/" . $study->USERNAM)) {
-            mkdir($public_path. "/" . $study->USERNAM, 0777);
+        if (!is_dir( $public_path. "/reports/"  . $study->USERNAM)) {
+            mkdir( $public_path. "/reports/" . $study->USERNAM, 0777);
         } 
         // if (!file_exists($public_path. "/" . $study->USERNAM. "/" .$name_report)) {
         require_once $tcpdf_path . ('/tcpdf_include.php');
@@ -723,8 +738,10 @@ class Reports extends Controller
             $calModeHeadBalance = $this->reportserv->getEstimationHeadBalance($study->ID_STUDY, 1);
             $calModeHbMax = "";
         }
+        // return compact("consumptions", "calModeHeadBalance", "calModeHbMax");
         $proInfoStudy = $this->reportserv->getProInfoStudy($study->ID_STUDY);
         $proSections = [];
+        $pro2Dchart = [];
         
         foreach ($study->studyEquipments as $key=> $idstudyequips) {
             if ($idstudyequips->BRAIN_TYPE == 4) {
@@ -740,7 +757,8 @@ class Reports extends Controller
                         $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
                         $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                     }
-                } else if (($shapeCode == 3) && ($shapeCode == 4) && ($shapeCode == 7) && ($shapeCode == 8) && ($shapeCode == 5)) {
+                    $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                } else if (($shapeCode == 4) && ($shapeCode == 7) && ($shapeCode == 8) && ($shapeCode == 5)) {
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                 } else if ($shapeCode == 6) {
@@ -748,7 +766,12 @@ class Reports extends Controller
                 } else if ($shapeCode == 9) {
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
-                } 
+                    $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                } else if ($shapeCode == 3) {
+                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                    $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                }
             } else {
                 $proSections = [];
                 $heatexchange = [];
@@ -763,10 +786,11 @@ class Reports extends Controller
             $productComps[] = $value;
             $productComps[$key]['display_name'] = $value->LABEL . ' - ' . $productElmt->component->COMP_VERSION . '(' . $componentStatus->LABEL . ' )';
         }
-        $myfile = fopen( $public_path. "/" . $study->USERNAM."/" . $name_report, "w") or die("Unable to open file!");
+        $myfile = fopen( $public_path. "/reports/" . "/" . $study->USERNAM."/" . $name_report, "w") or die("Unable to open file!");
         $html = $this->viewHtml($study ,$production, $product, $proElmt, $shapeName, 
         $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
-        $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase ,$tcpdf_path, $symbol);
+        $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase ,$tcpdf_path, 
+        $symbol, $images_path, $public_path, $pro2Dchart);
         fwrite($myfile, $html);
         fclose($myfile);
         $url = ["url" => "$host/reports/$study->USERNAM/$name_report"];
@@ -775,7 +799,8 @@ class Reports extends Controller
 
     public function viewHtml($study ,$production, $product, $proElmt, $shapeName, 
     $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
-    $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase ,$tcpdf_path, $symbol)
+    $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase ,$tcpdf_path, 
+    $symbol, $images_path, $public_path, $pro2Dchart)
     {
         $arrayParam = [
             'study' => $study,
@@ -785,7 +810,9 @@ class Reports extends Controller
             'shapeName' => $shapeName,
             'proInfoStudy' => $proInfoStudy,
             'tcpdf_path' => $tcpdf_path,
-            'symbol' => $symbol
+            'symbol' => $symbol,
+            'images_path' => $images_path,
+            'public_path' => $public_path,
         ];
         $param = [
             'arrayParam' => $arrayParam,
@@ -798,6 +825,7 @@ class Reports extends Controller
             'heatexchange' => $heatexchange,
             'proSections' => $proSections,
             'timeBase' => $timeBase,
+            'pro2Dchart' => $pro2Dchart,
         ];
         return view('report.viewHtmlToPDF', $param);
     }
