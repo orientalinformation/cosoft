@@ -538,7 +538,6 @@ class Output extends Controller
 
                     $consoToDisplay = $this->eco->isConsoToDisplay($dimaStatus, $equipStatus);
                     if (!$consoToDisplay) {
-                        $equipName = "****";
                         $tc = "****";
                         $kgProduct = "****";
                         $product = "****";
@@ -655,7 +654,6 @@ class Output extends Controller
 
                     $consoToDisplay = $this->eco->isConsoToDisplay($dimaStatus, $equipStatus);
                     if (!$consoToDisplay) {
-                        $equipName = "****";
                         $tc = "****";
                         $kgProduct = "****";
                         $product = "****";
