@@ -14,9 +14,7 @@
         "sofa/eloquence-mappable": "^5.5",
         "phpsysinfo/phpsysinfo": "^3.2",
         "sofa/eloquence-mutable": "^5.5",
-        "elibyy/tcpdf-laravel": "5.5.3",
-        "plank/laravel-mediable": "^2.6",
-        "league/flysystem-aws-s3-v3": "~1.0"
+        "elibyy/tcpdf-laravel": "5.5.3"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
