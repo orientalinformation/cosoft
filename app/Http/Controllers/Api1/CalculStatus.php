@@ -75,7 +75,7 @@ class CalculStatus extends Controller
 		return $studyEquipments;
 	}
 
-	public function getEquipmentByIdStudy($idStudy)
+	private function getEquipmentByIdStudy($idStudy)
 	{
 		$arr = $item = array();
 		$studyEquipments = StudyEquipment::where('ID_STUDY', $idStudy)->get();

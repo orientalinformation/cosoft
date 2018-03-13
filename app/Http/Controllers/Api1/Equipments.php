@@ -647,13 +647,15 @@ class Equipments extends Controller
 
     public function getDataHighChart()
     {
-        $profileType = $minMax = $minScaleY = $maxScaleY = $minValueY = $maxValueY = $nbFractionDigits = null;
-        $unitIdent = 10;
-        $YAxis = $XAxis = null;
+        $minMax = $minScaleY = $maxScaleY = $minValueY = $maxValueY = $nbFractionDigits = $maxiMum = null;
+        $unitIdent = $miniMum = 10;
+        $YAxis = $XAxis = $ID_EQUIP = $profileType = $profileFace = $listOfPoints = null;
 
         $input = $this->request->all();
 
         if (isset($input['profilType'])) $profileType = intval($input['profilType']);
+        if (isset($input['profilFace'])) $profileFace = intval($input['profilFace']);
+        if (isset($input['ID_EQUIP'])) $ID_EQUIP = intval($input['ID_EQUIP']);
 
         if ($profileType == 1) {
             $minMax = $this->getMinMax(1039);
@@ -665,10 +667,23 @@ class Equipments extends Controller
             $nbFractionDigits = 0;
         }
 
-        $minScaleY = $minMax->LIMIT_MIN;
-        $maxScaleY = $minMax->LIMIT_MAX;
-        $minValueY = $minMax->LIMIT_MAX;
-        $maxValueY = $minMax->LIMIT_MIN;
+        $minScaleY = doubleval($minMax->LIMIT_MIN);
+        $maxScaleY = doubleval($minMax->LIMIT_MAX);
+        $minValueY = doubleval($minMax->LIMIT_MAX);
+        $maxValueY = doubleval($minMax->LIMIT_MIN);
+
+        $listOfPoints = $this->getSelectedProfile($ID_EQUIP, $profileType, $profileFace);
+        if (count($listOfPoints) > 0) {
+            for($i = 0; $i < count($listOfPoints); $i++) {
+                if (doubleval($listOfPoints[$i]['Y_POINT']) < $minValueY) {
+                    $minValueY = doubleval($listOfPoints[$i]['Y_POINT']);
+                }
+
+                if (doubleval($listOfPoints[$i]['Y_POINT']) > $maxValueY) {
+                    $maxValueY = doubleval($listOfPoints[$i]['Y_POINT']);
+                }
+            }
+        }
 
         $lfOffset = abs($maxValueY - $minValueY) * 0.15;
         if ($lfOffset > 0.0) {
@@ -709,6 +724,68 @@ class Equipments extends Controller
         ];
         
         return $array;
+    }
+
+    private function getSelectedProfile($ID_EQUIP, $profileType, $profileFace)
+    {   
+        $listOfPoints = $item = array();
+        $equipCharacts = EquipCharact::where('ID_EQUIP', $ID_EQUIP)->get();
+        if ($equipCharacts) {
+            foreach ($equipCharacts as $equipCharact) {
+                if ($profileType == 1) {
+                    $item['X_POSITION'] = $equipCharact->X_POSITION;
+                    switch ($profileFace) {
+                        case 0:
+                            $item['Y_POINT'] = $equipCharact->ALPHA_TOP;
+                            break;
+                        case 1:
+                            $item['Y_POINT'] = $equipCharact->ALPHA_BOTTOM;
+                            break;
+                        case 2:
+                            $item['Y_POINT'] = $equipCharact->ALPHA_LEFT;
+                            break;
+                        case 3:
+                            $item['Y_POINT'] = $equipCharact->ALPHA_RIGHT;
+                            break;
+                        case 4:
+                            $item['Y_POINT'] = $equipCharact->ALPHA_FRONT;
+                            break;
+                        case 5:
+                            $item['Y_POINT'] = $equipCharact->ALPHA_REAR;
+                            break;
+                        default:
+                            # code...
+                            break;
+                    }
+                } else {
+                    switch ($profileFace) {
+                        case 0:
+                            $item['Y_POINT'] = $equipCharact->TEMP_TOP;
+                            break;
+                        case 1:
+                            $item['Y_POINT'] = $equipCharact->TEMP_BOTTOM;
+                            break;
+                        case 2:
+                            $item['Y_POINT'] = $equipCharact->TEMP_LEFT;
+                            break;
+                        case 3:
+                            $item['Y_POINT'] = $equipCharact->TEMP_RIGHT;
+                            break;
+                        case 4:
+                            $item['Y_POINT'] = $equipCharact->TEMP_FRONT;
+                            break;
+                        case 5:
+                            $item['Y_POINT'] = $equipCharact->TEMP_REAR;
+                            break;
+                        default:
+                            # code...
+                            break;
+                    }
+                }
+                array_push($listOfPoints, $item);
+            }
+        }
+        return $listOfPoints;
     }
 
     public function getDataCurve($idEquip) 
