@@ -1095,6 +1095,11 @@ class Equipments extends Controller
                 EquipGeneration::where('ID_EQUIPGENERATION', $equipment->ID_EQUIPGENERATION)->delete();
             }
 
+            // $eGeneration = EquipGeneration::where('ID_EQUIP', $equipment->ID_EQUIP)->get();
+            // if (count($eGeneration) > 0) {
+            //     EquipGeneration::where('ID_EQUIP', $id)->delete();
+            // }
+
             $equipCharact = EquipCharact::where('ID_EQUIP', $equipment->ID_EQUIP)->get();
             if (count($equipCharact) > 0) { 
                 EquipCharact::where('ID_EQUIP', $equipment->ID_EQUIP)->delete();
