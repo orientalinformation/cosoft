@@ -1,5 +1,7 @@
 <html>
     <body>
+    <?php if (($arrayParam['study']['CHAINING_CONTROLS'] == 1) && ($arrayParam['study']['HAS_CHILD'] != 0) && ($arrayParam['study']['PARENT_ID'] != 0)) { ?>
+    <h4>Chaining synthesis</h4>
         <div class="chaining">
             <div class="table table-bordered">
             <table border="0.5">
@@ -26,6 +28,7 @@
                 </table>
             </div>
         </div>
+    <?php } ?>
         <div class="production">
             <div class="table table-bordered">
                 <table border="0.5">
@@ -612,6 +615,7 @@
                 <tr>
                     <td >Chaining :</td>
                     <td align="center"><?php echo $arrayParam['study']['CHAINING_CONTROLS'] == 1 ? "YES" : "NO" ?></td>
+                    <td align="center"><?php echo ($arrayParam['study']['CHAINING_CONTROLS'] == 1) && ($arrayParam['study']['HAS_CHILD'] != 0) && ($arrayParam['study']['PARENT_ID'] != 0) ? "This study is a child" : "" ?></td>
                 </tr>
                 </table>
             </div>

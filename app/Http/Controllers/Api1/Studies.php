@@ -41,6 +41,7 @@ use App\Models\PipeGen;
 use App\Models\PipeRes;
 use App\Models\LineElmt;
 use App\Models\LineDefinition;
+// use DB;
 
 class Studies extends Controller
 {
@@ -283,7 +284,9 @@ class Studies extends Controller
                 $study->CHAINING_CONTROLS = $studyCurrent->CHAINING_CONTROLS;
                 $study->CHAINING_ADD_COMP_ENABLE = $studyCurrent->CHAINING_ADD_COMP_ENABLE;
                 $study->CHAINING_NODE_DECIM_ENABLE = $studyCurrent->CHAINING_NODE_DECIM_ENABLE;
-                $study->HAS_CHILD = $studyCurrent->HAS_CHILD;
+                $study->HAS_CHILD = 0;
+                $study->PARENT_ID = $studyCurrent->PARENT_ID;
+                $study->PARENT_STUD_EQP_ID = $studyCurrent->PARENT_STUD_EQP_ID;
                 $study->CALCULATION_STATUS = $studyCurrent->CALCULATION_STATUS;
                 $study->TO_RECALCULATE = $studyCurrent->TO_RECALCULATE;
                 $study->save();
@@ -308,17 +311,18 @@ class Studies extends Controller
 
                 //duplicate initial_Temp already exsits
                 // @class: \App\Models\InitialTemperature
-                $initialtempCurr = InitialTemperature::where('ID_PRODUCTION', $productionCurr->ID_PRODUCTION)->get();
-                if (count($initialtempCurr) > 0) {
+                // $initialtempCurr = InitialTemperature::where('ID_PRODUCTION', $productionCurr->ID_PRODUCTION)->get();
+                DB::insert(DB::RAW('insert into INITIAL_TEMPERATURE (ID_PRODUCTION, INITIAL_T, MESH_1_ORDER, MESH_2_ORDER, MESH_3_ORDER) SELECT '
+                . $production->ID_PRODUCTION . ',I.INITIAL_T, I.MESH_1_ORDER, I.MESH_2_ORDER, I.MESH_3_ORDER FROM INITIAL_TEMPERATURE AS I WHERE ID_PRODUCTION = ' . $productionCurr->ID_PRODUCTION ));
+                // if (count($initialtempCurr) > 0) {
                     
-                    foreach ($initialtempCurr as $ins) { 
-                        $initialtemp = new InitialTemperature();
-                        $initialtemp = $ins->replicate();
-                        $initialtemp->ID_PRODUCTION = $production->ID_PRODUCTION ;
-                        unset($initialtemp->ID_INITIAL_TEMP);
-                        $initialtemp->save();
-                    }
-                }
+                //     foreach ($initialtempCurr as $ins) { 
+                //         $initialtemp = new InitialTemperature();
+                //         $initialtemp = $ins->replicate();
+                //         $initialtemp->ID_PRODUCTION = $production->ID_PRODUCTION ;
+                //         unset($initialtemp->ID_INITIAL_TEMP);
+                //     }
+                // }
 
                 //duplicate Product already exsits
                 if ((count($productCurr)>0)) {

@@ -10,6 +10,35 @@
     <!-- Bootstrap -->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
     <body>
+        <?php if (($arrayParam['study']['CHAINING_CONTROLS'] == 1) && ($arrayParam['study']['HAS_CHILD'] != 0) && ($arrayParam['study']['PARENT_ID'] != 0)) { ?>
+        <h4>Chaining synthesis</h4>
+            <div class="chaining">
+                <div class="table table-bordered">
+                <table border="0.5">
+                    <tr>
+                        <th colspan="2">Study Name</th>
+                        <th colspan="2">Equipment</th>
+                        <th>Control temperature (C)</th>
+                        <th>Residence/ Dwell time (s)</th>
+                        <th>Convection Setting (Hz)</th>
+                        <th>Initial Average Product tempeture (C) </th>
+                        <th>Final Average Product temperature (C)</th>
+                        <th>Product Heat Load (kj/kg)</th>
+                    </tr>
+                    <tr>
+                        <td colspan="2"></td>
+                        <td colspan="2"></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    </table>
+                </div>
+            </div>
+        <?php } ?>
         <div class="production">
             <div class="table table-responsive">
                 <table class ="table table-bordered" border="1">
@@ -602,6 +631,7 @@
                 <tr>
                     <td >Chaining :</td>
                     <td align="center"><?php echo $arrayParam['study']['CHAINING_CONTROLS'] == 1 ? "YES" : "NO" ?></td>
+                    <td align="center"><?php echo ($arrayParam['study']['CHAINING_CONTROLS'] == 1) && ($arrayParam['study']['HAS_CHILD'] != 0) && ($arrayParam['study']['PARENT_ID'] != 0) ? "This study is a child" : "" ?></td>
                 </tr>
                 </table>
             </div>

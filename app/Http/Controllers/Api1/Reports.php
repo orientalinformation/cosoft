@@ -621,16 +621,6 @@ class Reports extends Controller
         PDF::Bookmark('Paragraph 1.1', 1, 0, '', '', array(128,0,0));
         PDF::Cell(0, 10, 'Paragraph 1.1', 0, 1, 'L');
         PDF::AddPage();
-        PDF::Bookmark('Paragraph 1.2', 1, 0, '', '', array(128,0,0));
-        PDF::Cell(0, 10, 'Paragraph 1.2', 0, 1, 'L');
-
-        PDF::AddPage();
-        PDF::Bookmark('Sub-Paragraph 1.2.1', 2, 0, '', 'I', array(0,128,0));
-        PDF::Cell(0, 10, 'Sub-Paragraph 1.2.1', 0, 1, 'L');
-
-        PDF::AddPage();
-        PDF::Bookmark('Paragraph 1.3', 1, 0, '', '', array(128,0,0));
-        PDF::Cell(0, 10, 'Paragraph 1.3', 0, 1, 'L');
 
         // add some pages and bookmarks
         for ($i = 2; $i < 12; $i++) {
