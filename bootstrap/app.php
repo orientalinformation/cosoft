@@ -114,9 +114,6 @@ $app->register(Elibyy\TCPDF\ServiceProvider::class);
 
 class_alias('\Elibyy\TCPDF\Facades\TCPDF', 'PDF');
 
-$app->register(Plank\Mediable\MediableServiceProvider::class);
-class_alias(Plank\Mediable\MediaUploaderFacade::class, 'MediaUploader');
-
 if ($app->environment('local')) {
     $app->register(Krlove\EloquentModelGenerator\Provider\GeneratorServiceProvider::class);
     $app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
@@ -141,7 +138,6 @@ $app->router->group([
     'namespace' => 'App\Http\Controllers',
 ], function ($router) {
     $router->GET('/api/v1/reports/{id}/downLoadPDF', 'Api1\\Reports@downLoadPDF');
-    $router->GET('/api/v1/reports/{id}/viewHtml', 'Api1\\Reports@viewHtml');
     $router->GET('/api/v1/reports/{id}/downLoadHtmlToPDF', 'Api1\\Reports@downLoadHtmlToPDF');
     require dirname(__DIR__).'/routes/auth.php';
     require dirname(__DIR__).'/routes/translations.php';
