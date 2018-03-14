@@ -5,6 +5,7 @@ namespace App\Cryosoft;
 use App\Models\StudyEquipment;
 use App\Models\LayoutGeneration;
 use App\Models\StudEqpPrm;
+use App\Models\LayoutResults;
 
 class StudyEquipmentService
 {
@@ -21,6 +22,10 @@ class StudyEquipmentService
         $this->value = $app['App\\Cryosoft\\ValueListService'];
         $this->convert = $app['App\\Cryosoft\\UnitsConverterService'];
         $this->kernel = $app['App\\Kernel\\KernelService'];
+    }
+
+    public function calculateEquipmentParams(StudyEquipment &$stdEquip) {
+        
     }
 
     /**
@@ -75,6 +80,16 @@ class StudyEquipmentService
         $equip['ORIENTATION'] = $layoutGen->PROD_POSITION;
         $equip['displayName'] = 'EQUIP_NAME_NOT_FOUND';
         $equip['layoutGen'] = $layoutGen;
+        $layoutResults = LayoutResults::where('ID_STUDY_EQUIPMENTS', $studyEquipment->ID_STUDY_EQUIPMENTS)->first();
+        if ($layoutResults) {
+            $layoutResults->QUANTITY_PER_BATCH = $this->convert->mass($layoutResults->QUANTITY_PER_BATCH);
+            $layoutResults->LOADING_RATE = $this->convert->toc($layoutResults->LOADING_RATE);
+            $layoutResults->LEFT_RIGHT_INTERVAL = $this->convert->prodDimension($layoutResults->LEFT_RIGHT_INTERVAL);
+            $layoutResults->NUMBER_PER_M = $this->convert->none($layoutResults->NUMBER_PER_M);
+            $layoutResults->NUMBER_IN_WIDTH = $this->convert->none($layoutResults->NUMBER_IN_WIDTH);
+        }
+        
+        $equip['layoutResults'] = $layoutResults;
 
             // determine study equipment name
         if ($studyEquipment->equipment->STD
