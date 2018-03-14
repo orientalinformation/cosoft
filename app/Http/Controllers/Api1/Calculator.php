@@ -96,10 +96,15 @@ class Calculator extends Controller
 	public function getOptimumCalculator() 
 	{
 		$input = $this->request->all();
-		$idStudy = $idStudyEquipment = null;
+		$idStudy = $idStudyEquipment = $ID_USER_STUDY = null;
 
 		if (isset($input['idStudyEquipment'])) $idStudyEquipment = intval($input['idStudyEquipment']);
 		if (isset($input['idStudy'])) $idStudy = intval($input['idStudy']);
+
+		$study = Study::find($idStudy);
+		if ($study) {
+			$ID_USER_STUDY = $study->ID_USER;
+		}
 
 		$calMode = $this->cal->getCalculationMode($idStudy);
 		$sdisableFields = $this->cal->disableFields($idStudy);
@@ -237,6 +242,8 @@ class Calculator extends Controller
 			'seValue7' => $seValue7,
 			'seValue8' => $seValue8,
 			'seValue9' => $seValue9,
+			'ID_USER_STUDY' => $ID_USER_STUDY,
+			'ID_USER_CURRENT' => $this->auth->user()->ID_USER,
 		];
 
 		return $array;
@@ -388,7 +395,7 @@ class Calculator extends Controller
 	public function getStudyEquipmentCalculation()
 	{
 		$input = $this->request->all();
-		$idStudy = $idStudyEquipment = $typeCalculate =  null;
+		$idStudy = $idStudyEquipment = $typeCalculate = $ID_USER_STUDY = null;
 		$checkOptim = false;
 
 		if (isset($input['idStudy'])) $idStudy = intval($input['idStudy']);
@@ -397,6 +404,10 @@ class Calculator extends Controller
 		if (isset($input['type'])) $typeCalculate = intval($input['type']);
 
 		$brainMode = $this->brainCal->getBrainMode($idStudy);
+		$study = Study::find($idStudy);
+		if ($study) {
+			$ID_USER_STUDY = $study->ID_USER;
+		}
 
 		if ($checkOptim == "true") {
 			$this->setBrainMode(11);
@@ -562,6 +573,8 @@ class Calculator extends Controller
 			'seValue7' => $seValue7,
 			'seValue8' => $seValue8,
 			'seValue9' => $seValue9,
+			'ID_USER_STUDY' => $ID_USER_STUDY,
+			'ID_USER_CURRENT' => $this->auth->user()->ID_USER,
 		];
 
 		return $array;
