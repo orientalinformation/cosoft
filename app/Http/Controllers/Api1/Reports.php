@@ -884,14 +884,14 @@ class Reports extends Controller
         $file = $input['fileKey'];
 
         $media = MediaUploader::fromSource($file)
-        ->useFilename(date('Y-m-d H:i:s'))
-        ->useHashForFilename()
+        ->useFilename(rand(1,100000).'029'.rand(1,100000))
+        ->onDuplicateIncrement()
         ->setMaximumSize(9999999)
         ->setStrictTypeChecking(true)
         ->setAllowUnrecognizedTypes(true)
         ->setAllowedAggregateTypes(['image'])
-        ->onDuplicateReplace()
         ->upload();
+
 
         $url = 'http://'.$_SERVER['HTTP_HOST'].'/uploads/'.$media->filename.'.'.$media->extension;
         

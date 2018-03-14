@@ -130,6 +130,9 @@ class Studies extends Controller
             }
 
             foreach ($product->productElmts as $productElmt) {
+                foreach ($productElmt->meshPositions as $meshPst) {
+                    $meshPst->delete();
+                } 
                 $productElmt->delete();
             }
 
@@ -340,6 +343,7 @@ class Studies extends Controller
                             $productemlt = new ProductElmt();
                             $productemlt = $prodelmtCurr->replicate();
                             $productemlt->ID_PROD = $product->ID_PROD;
+                            $productemlt->INSERT_LINE_ORDER = $study->ID_STUDY;
                             unset($productemlt->ID_PRODUCT_ELMT);
                             $productemlt->save();
                             foreach ($prodelmtCurr->meshPositions as $meshPositionCurr) {
