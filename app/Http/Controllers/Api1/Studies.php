@@ -130,6 +130,9 @@ class Studies extends Controller
             }
 
             foreach ($product->productElmts as $productElmt) {
+                foreach ($productElmt->meshPositions as $meshPst) {
+                    $meshPst->delete();
+                } 
                 $productElmt->delete();
             }
 
