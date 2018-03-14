@@ -860,7 +860,7 @@ class Reports extends Controller
         $media = MediaUploader::fromSource($file)
         ->useFilename(date('Y-m-d H:i:s'))
         ->useHashForFilename()
-        ->setMaximumSize(99999)
+        ->setMaximumSize(9999999)
         ->setStrictTypeChecking(true)
         ->setAllowUnrecognizedTypes(true)
         ->setAllowedAggregateTypes(['image'])
