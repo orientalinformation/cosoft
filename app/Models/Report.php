@@ -90,7 +90,7 @@ use Plank\Mediable\Mediable;
  */
 class Report extends Model
 {
-
+    use Mediable;
     /**
      * The table associated with the model.
      * 
