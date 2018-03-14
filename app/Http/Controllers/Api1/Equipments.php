@@ -298,7 +298,35 @@ class Equipments extends Controller
             }
         }
 
-        return 1;
+        $equipRs =  Equipment::find($newEquip->ID_EQUIP);
+
+        $equipRs->capabilitiesCalc = $this->equip->getCapability($equipRs->CAPABILITIES, 65536);
+        $equipRs->capabilitiesCalc256 = $this->equip->getCapability($equipRs->CAPABILITIES, 256);
+        $equipRs->timeSymbol = $this->convert->timeSymbolUser();
+        $equipRs->temperatureSymbol = $this->convert->temperatureSymbolUser();
+        $equipRs->dimensionSymbol = $this->convert->equipDimensionSymbolUser();
+        $equipRs->consumptionSymbol1 = $this->convert->consumptionSymbolUser($equipRs->ID_COOLING_FAMILY, 1);
+        $equipRs->consumptionSymbol2 = $this->convert->consumptionSymbolUser($equipRs->ID_COOLING_FAMILY, 2);
+        $equipRs->consumptionSymbol3 = $this->convert->consumptionSymbolUser($equipRs->ID_COOLING_FAMILY, 3);
+        $equipRs->shelvesWidthSymbol = $this->convert->shelvesWidthSymbol();
+        $equipRs->rampsPositionSymbol = $this->convert->rampsPositionSymbol();
+
+        $equipRs->EQP_LENGTH = $this->convert->equipDimensionUser($equipRs->EQP_LENGTH);
+        $equipRs->EQP_WIDTH = $this->convert->equipDimensionUser($equipRs->EQP_WIDTH);
+        $equipRs->EQP_HEIGHT = $this->convert->equipDimensionUser($equipRs->EQP_HEIGHT);
+        $equipRs->MAX_FLOW_RATE = $this->convert->consumptionUser($equipRs->MAX_FLOW_RATE, $equipRs->ID_COOLING_FAMILY, 1);
+        $equipRs->TMP_REGUL_MIN = $this->convert->controlTemperatureUser($equipRs->TMP_REGUL_MIN);
+
+        $equipGenerRs = EquipGeneration::find($equipRs->ID_EQUIPGENERATION);
+    
+        if ($equipGenerRs) { 
+            $equipGenerRs->TEMP_SETPOINT = doubleval($this->convert->controlTemperatureUser($equipGenerRs->TEMP_SETPOINT));
+            $equipGenerRs->DWELLING_TIME = doubleval($this->convert->timeUser($equipGenerRs->DWELLING_TIME));
+            $equipGenerRs->NEW_POS = doubleval($this->convert->timeUser($equipGenerRs->NEW_POS));
+        }
+        $equipRs->equipGeneration = $equipGenerRs;
+
+        return $equipRs;
     }
 
     public function saveAsEquipment()
@@ -319,7 +347,7 @@ class Equipments extends Controller
         if (!$this->checkNameAndVersion($nameEquipment, $versionEquipment)) return -4;
 
         $equipmentId = Equipment::find($idEquip);
-        
+
         if ($equipmentId) {
             $newEquip = new Equipment();
 
@@ -379,6 +407,7 @@ class Equipments extends Controller
             $this->copyEquipCharact($equipmentId->ID_EQUIP, $newEquip->ID_EQUIP);
 
             $oldGeneration = EquipGeneration::where('ID_EQUIP', $equipmentId->ID_EQUIP)->first();
+
             if (count($oldGeneration) > 0) {
                 $equipGeneration = new EquipGeneration();
                 $equipGeneration->ID_EQUIP = $newEquip->ID_EQUIP;
@@ -397,14 +426,7 @@ class Equipments extends Controller
                 $equipGeneration->save();
                 
                 $equipGenZone = $this->getEquipmentFilter($idEquip);
-
-                var_dump($equipGenZone);die;
-
                 $this->duplicateEquipGenZone($equipGeneration->ID_EQUIPGENERATION, $equipGenZone, $equipmentId->NUMBER_OF_ZONES);
-            
-            
-            
-            
             }
 
             $this->duplicateEquipZone($equipmentId->ID_EQUIP, $newEquip->ID_EQUIP);
@@ -1463,7 +1485,7 @@ class Equipments extends Controller
                 $equipGenZone->save();
             }
         } else {
-            for ($i = 1; $i <= $numberOfZone; $i++) {
+            for ($i = 1; $i <= intval($numberOfZone); $i++) {
                 $equipGenZone = new EquipGenZone();	
                 $equipGenZone->ID_EQUIPGENERATION = $idEquipGeneration;
                 $equipGenZone->ZONE_NUMBER = $i;
