@@ -159,7 +159,7 @@ class Products extends Controller
     }
 
     public function getProductViewModel($id) {
-        $product = Product::find($id);
+        $product = Product::findOrFail($id);
         $product->PROD_WEIGHT = $this->unit->mass($product->PROD_WEIGHT);
         $product->PROD_REALWEIGHT = $this->unit->mass($product->PROD_REALWEIGHT);
 
