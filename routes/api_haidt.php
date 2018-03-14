@@ -357,7 +357,7 @@ $router->PUT('/api/v1/studies/{id}/report', 'Api1\\Reports@saveReport');
  * Notes: get data equipment of filter
  * Output-Formats: [application/json]
  */
-$router->GET('/api/v1/referencedata/equipment/{id}/filter', 'Api1\\ReferenceData@getEquipmentFilter');
+$router->GET('/api/v1/referencedata/equipment/{id}/filter', 'Api1\\Equipments@getEquipmentFilter');
 
 /**
  * POST postFile

@@ -189,7 +189,7 @@ class Equipments extends Controller
             if (isset($input['equipmentId2'])) $equipId2 = intval($input['equipmentId2']);
             if (isset($input['tempSetPoint'])) $tempSetPoint = floatval($input['tempSetPoint']);
         }
-        if (isset($input['equipGenZone'])) $equipGenZone = $input['equipGenZone'];
+        $equipGenZone = $input['equipGenZone'];
 
         if ($nameE == null) return -1;
         if (($equipId1 == null) || ($equipId1 == 0)) return -2;
@@ -200,16 +200,15 @@ class Equipments extends Controller
         
         if ($equipment1) {
             $newEquip = new Equipment();
-
             $newEquip->ID_USER = $idUserLogon;
             $newEquip->EQUIP_NAME = $nameE;
             $newEquip->EQUIP_VERSION = $versionE;
             $newEquip->EQUIP_RELEASE = 2;
             $newEquip->STD = 0;
             $newEquip->OPEN_BY_OWNER = false;
-
             $mask = 1096;
             $capabilities = $equipment1->CAPABILITIES;
+
             if ($this->equip->getCapability($capabilities, 65536)) {
                 $mask |= 0x40002;
             } else {
@@ -286,9 +285,8 @@ class Equipments extends Controller
             $this->copyConsumptions($equipment1->ID_EQUIP, $newEquip->ID_EQUIP);
             $this->copyShelves($equipment1->ID_EQUIP, $newEquip->ID_EQUIP);
             $this->copyEquipCharact($equipment1->ID_EQUIP, $newEquip->ID_EQUIP);
-            $this->duplicateEquipGenZone($equipGeneration->ID_EQUIPGENERATION, $equipGenZone);
+            $this->duplicateEquipGenZone($equipGeneration->ID_EQUIPGENERATION, $equipGenZone, $equipment1->NUMBER_OF_ZONES);
             $this->duplicateEquipZone($equipment1->ID_EQUIP, $newEquip->ID_EQUIP);
-
             $newEquip->ID_EQUIPGENERATION = $equipGeneration->ID_EQUIPGENERATION;
             $newEquip->save();
 
@@ -309,18 +307,18 @@ class Equipments extends Controller
         $idUserLogon = $this->auth->user()->ID_USER;
         $input = $this->request->all();
 
-        $nameEquipment  = $versionEquipment = $equipmentId = null;
+        $nameEquipment  = $versionEquipment = $idEquip = null;
         
         if (isset($input['nameEquipment'])) $nameEquipment = $input['nameEquipment'];
         if (isset($input['versionEquipment'])) $versionEquipment = floatval($input['versionEquipment']);
-        if (isset($input['equipmentId'])) $equipmentId = intval($input['equipmentId']);
+        if (isset($input['equipmentId'])) $idEquip = intval($input['equipmentId']);
 
         if ($nameEquipment == null) return -1;
-        if (($equipmentId == null) || ($equipmentId == 0)) return -2;
+        if (($idEquip == null) || ($idEquip == 0)) return -2;
         if ($versionEquipment == null) return -3;
         if (!$this->checkNameAndVersion($nameEquipment, $versionEquipment)) return -4;
 
-        $equipmentId = Equipment::find($equipmentId);
+        $equipmentId = Equipment::find($idEquip);
         
         if ($equipmentId) {
             $newEquip = new Equipment();
@@ -398,7 +396,15 @@ class Equipments extends Controller
                 $equipGeneration->EQP_GEN_LOADRATE = $oldGeneration->EQP_GEN_LOADRATE;
                 $equipGeneration->save();
                 
-                $this->duplicateEquipGenZone($equipGeneration->ID_EQUIPGENERATION, $equipmentId->NUMBER_OF_ZONES);
+                $equipGenZone = $this->getEquipmentFilter($idEquip);
+
+                var_dump($equipGenZone);die;
+
+                $this->duplicateEquipGenZone($equipGeneration->ID_EQUIPGENERATION, $equipGenZone, $equipmentId->NUMBER_OF_ZONES);
+            
+            
+            
+            
             }
 
             $this->duplicateEquipZone($equipmentId->ID_EQUIP, $newEquip->ID_EQUIP);
@@ -1062,7 +1068,8 @@ class Equipments extends Controller
             }
 
             $equipGeneration = EquipGeneration::find($equipment->ID_EQUIPGENERATION);
-            if (count($equipGeneration) > 0) {
+
+            if ((count($equipGeneration) > 0) || ($equipGeneration != null)) {
                 EquipGeneration::where('ID_EQUIPGENERATION', $equipment->ID_EQUIPGENERATION)->delete();
             }
 
@@ -1090,7 +1097,7 @@ class Equipments extends Controller
             if (count($equipZones) > 0) {
                 EquipZone::where('ID_EQUIP', $equipment->ID_EQUIP)->delete();
             }
-
+            
             $equipment->delete();
         }
         return 1;
@@ -1414,46 +1421,88 @@ class Equipments extends Controller
         return MinMax::where('LIMIT_ITEM', $limitItem)->first();
     }
 
-    private function duplicateEquipGenZone($idEquipGeneration, $listEquipGenZone)
+    private function duplicateEquipGenZone($idEquipGeneration, $listEquipGenZone, $numberOfZone)
     {
-        for ($i = 0; $i < count($listEquipGenZone); $i++) {
-            $equipGenZone = new EquipGenZone();
-            $equipGenZone->ID_EQUIPGENERATION = $idEquipGeneration;
-            $equipGenZone->ZONE_NUMBER = $i + 1;
-            $equipGenZone->TEMP_SENSOR = $listEquipGenZone[$i]['TEMP_SENSOR'];
-            $equipGenZone->TOP_ADIABAT = $listEquipGenZone[$i]['TOP_ADIABAT'];
-            $equipGenZone->BOTTOM_ADIABAT = $listEquipGenZone[$i]['BOTTOM_ADIABAT'];
-            $equipGenZone->LEFT_ADIABAT = $listEquipGenZone[$i]['LEFT_ADIABAT'];
-            $equipGenZone->RIGHT_ADIABAT = $listEquipGenZone[$i]['RIGHT_ADIABAT'];
-            $equipGenZone->FRONT_ADIABAT = $listEquipGenZone[$i]['FRONT_ADIABAT'];
-            $equipGenZone->REAR_ADIABAT = $listEquipGenZone[$i]['REAR_ADIABAT'];
-            $equipGenZone->TOP_CHANGE = $listEquipGenZone[$i]['TOP_CHANGE'];
-            $equipGenZone->TOP_PRM1 = $listEquipGenZone[$i]['TOP_PRM1'];
-            $equipGenZone->TOP_PRM2 = $listEquipGenZone[$i]['TOP_PRM2'];
-            $equipGenZone->TOP_PRM3 = $listEquipGenZone[$i]['TOP_PRM3'];
-            $equipGenZone->BOTTOM_CHANGE = $listEquipGenZone[$i]['BOTTOM_CHANGE'];
-            $equipGenZone->BOTTOM_PRM1 = $listEquipGenZone[$i]['BOTTOM_PRM1'];
-            $equipGenZone->BOTTOM_PRM2 = $listEquipGenZone[$i]['BOTTOM_PRM2'];
-            $equipGenZone->BOTTOM_PRM3 = $listEquipGenZone[$i]['BOTTOM_PRM3'];
-            $equipGenZone->LEFT_CHANGE = $listEquipGenZone[$i]['LEFT_CHANGE'];
-            $equipGenZone->LEFT_PRM1 = $listEquipGenZone[$i]['LEFT_PRM1'];
-            $equipGenZone->LEFT_PRM2 = $listEquipGenZone[$i]['LEFT_PRM2'];
-            $equipGenZone->LEFT_PRM3 = $listEquipGenZone[$i]['LEFT_PRM3'];
-            $equipGenZone->RIGHT_CHANGE = $listEquipGenZone[$i]['RIGHT_CHANGE'];
-            $equipGenZone->RIGHT_PRM1 = $listEquipGenZone[$i]['RIGHT_PRM1'];
-            $equipGenZone->RIGHT_PRM2 = $listEquipGenZone[$i]['RIGHT_PRM2'];
-            $equipGenZone->RIGHT_PRM3 = $listEquipGenZone[$i]['RIGHT_PRM3'];
-            $equipGenZone->FRONT_CHANGE = $listEquipGenZone[$i]['FRONT_CHANGE'];
-            $equipGenZone->FRONT_PRM1 = $listEquipGenZone[$i]['FRONT_PRM1'];
-            $equipGenZone->FRONT_PRM2 = $listEquipGenZone[$i]['FRONT_PRM2'];
-            $equipGenZone->FRONT_PRM3 = $listEquipGenZone[$i]['FRONT_PRM3'];
-            $equipGenZone->REAR_CHANGE = $listEquipGenZone[$i]['REAR_CHANGE'];
-            $equipGenZone->REAR_PRM1 = $listEquipGenZone[$i]['REAR_PRM1'];
-            $equipGenZone->REAR_PRM2 = $listEquipGenZone[$i]['REAR_PRM2'];
-            $equipGenZone->REAR_PRM3 = $listEquipGenZone[$i]['REAR_PRM3'];
+        if ($listEquipGenZone != null) {
+            for ($i = 0; $i < count($listEquipGenZone); $i++) {
+                $equipGenZone = new EquipGenZone();
+                $equipGenZone->ID_EQUIPGENERATION = $idEquipGeneration;
+                $equipGenZone->ZONE_NUMBER = $i + 1;
+                $equipGenZone->TEMP_SENSOR = $listEquipGenZone[$i]['TEMP_SENSOR'];
+                $equipGenZone->TOP_ADIABAT = $listEquipGenZone[$i]['TOP_ADIABAT'];
+                $equipGenZone->BOTTOM_ADIABAT = $listEquipGenZone[$i]['BOTTOM_ADIABAT'];
+                $equipGenZone->LEFT_ADIABAT = $listEquipGenZone[$i]['LEFT_ADIABAT'];
+                $equipGenZone->RIGHT_ADIABAT = $listEquipGenZone[$i]['RIGHT_ADIABAT'];
+                $equipGenZone->FRONT_ADIABAT = $listEquipGenZone[$i]['FRONT_ADIABAT'];
+                $equipGenZone->REAR_ADIABAT = $listEquipGenZone[$i]['REAR_ADIABAT'];
+                $equipGenZone->TOP_CHANGE = $listEquipGenZone[$i]['TOP_CHANGE'];
+                $equipGenZone->TOP_PRM1 = $listEquipGenZone[$i]['TOP_PRM1'];
+                $equipGenZone->TOP_PRM2 = $listEquipGenZone[$i]['TOP_PRM2'];
+                $equipGenZone->TOP_PRM3 = $listEquipGenZone[$i]['TOP_PRM3'];
+                $equipGenZone->BOTTOM_CHANGE = $listEquipGenZone[$i]['BOTTOM_CHANGE'];
+                $equipGenZone->BOTTOM_PRM1 = $listEquipGenZone[$i]['BOTTOM_PRM1'];
+                $equipGenZone->BOTTOM_PRM2 = $listEquipGenZone[$i]['BOTTOM_PRM2'];
+                $equipGenZone->BOTTOM_PRM3 = $listEquipGenZone[$i]['BOTTOM_PRM3'];
+                $equipGenZone->LEFT_CHANGE = $listEquipGenZone[$i]['LEFT_CHANGE'];
+                $equipGenZone->LEFT_PRM1 = $listEquipGenZone[$i]['LEFT_PRM1'];
+                $equipGenZone->LEFT_PRM2 = $listEquipGenZone[$i]['LEFT_PRM2'];
+                $equipGenZone->LEFT_PRM3 = $listEquipGenZone[$i]['LEFT_PRM3'];
+                $equipGenZone->RIGHT_CHANGE = $listEquipGenZone[$i]['RIGHT_CHANGE'];
+                $equipGenZone->RIGHT_PRM1 = $listEquipGenZone[$i]['RIGHT_PRM1'];
+                $equipGenZone->RIGHT_PRM2 = $listEquipGenZone[$i]['RIGHT_PRM2'];
+                $equipGenZone->RIGHT_PRM3 = $listEquipGenZone[$i]['RIGHT_PRM3'];
+                $equipGenZone->FRONT_CHANGE = $listEquipGenZone[$i]['FRONT_CHANGE'];
+                $equipGenZone->FRONT_PRM1 = $listEquipGenZone[$i]['FRONT_PRM1'];
+                $equipGenZone->FRONT_PRM2 = $listEquipGenZone[$i]['FRONT_PRM2'];
+                $equipGenZone->FRONT_PRM3 = $listEquipGenZone[$i]['FRONT_PRM3'];
+                $equipGenZone->REAR_CHANGE = $listEquipGenZone[$i]['REAR_CHANGE'];
+                $equipGenZone->REAR_PRM1 = $listEquipGenZone[$i]['REAR_PRM1'];
+                $equipGenZone->REAR_PRM2 = $listEquipGenZone[$i]['REAR_PRM2'];
+                $equipGenZone->REAR_PRM3 = $listEquipGenZone[$i]['REAR_PRM3'];
+    
+                $equipGenZone->save();
+            }
+        } else {
+            for ($i = 1; $i <= $numberOfZone; $i++) {
+                $equipGenZone = new EquipGenZone();	
+                $equipGenZone->ID_EQUIPGENERATION = $idEquipGeneration;
+                $equipGenZone->ZONE_NUMBER = $i;
+                $equipGenZone->TEMP_SENSOR = 0;
+                $equipGenZone->TOP_ADIABAT = 0;
+                $equipGenZone->BOTTOM_ADIABAT = 0;
+                $equipGenZone->LEFT_ADIABAT = 0;
+                $equipGenZone->RIGHT_ADIABAT = 0;
+                $equipGenZone->FRONT_ADIABAT = 0;
+                $equipGenZone->REAR_ADIABAT = 0;
+                $equipGenZone->TOP_CHANGE = 1;
+                $equipGenZone->TOP_PRM1 = 1.0;
+                $equipGenZone->TOP_PRM2 = 0;
+                $equipGenZone->TOP_PRM3 = 0;
+                $equipGenZone->BOTTOM_CHANGE = 1;
+                $equipGenZone->BOTTOM_PRM1 = 1.0;
+                $equipGenZone->BOTTOM_PRM2 = 0;
+                $equipGenZone->BOTTOM_PRM3 = 0;
+                $equipGenZone->LEFT_CHANGE = 1;
+                $equipGenZone->LEFT_PRM1 = 1.0;
+                $equipGenZone->LEFT_PRM2 = 0;
+                $equipGenZone->LEFT_PRM3 = 0;
+                $equipGenZone->RIGHT_CHANGE = 1;
+                $equipGenZone->RIGHT_PRM1 = 1.0;
+                $equipGenZone->RIGHT_PRM2 = 0;
+                $equipGenZone->RIGHT_PRM3 = 0;
+                $equipGenZone->FRONT_CHANGE = 1;
+                $equipGenZone->FRONT_PRM1 = 1.0;
+                $equipGenZone->FRONT_PRM2 = 0;
+                $equipGenZone->FRONT_PRM3 = 0;
+                $equipGenZone->REAR_CHANGE = 1;
+                $equipGenZone->REAR_PRM1 = 1.0;
+                $equipGenZone->REAR_PRM2 = 0;
+                $equipGenZone->REAR_PRM3 = 0;
 
-            $equipGenZone->save();
+                $equipGenZone->save();
+            }
         }
+        
     }
 
     private function duplicateEquipZone($oldIdEquip, $newIdEquip)
@@ -1497,4 +1546,84 @@ class Equipments extends Controller
         }
         return true;
     }
+
+    // HAIDT
+    public function getEquipmentFilter($id)
+    {
+        $equipment = Equipment::find($id);
+        $checkGenZone = false;
+        
+        if ($equipment) {
+            $listEquipZone = EquipZone::where('ID_EQUIP', $id)->orderBy('EQUIP_ZONE_NUMBER', 'ASC')->get();
+            
+            if (count($listEquipZone) > 0) {
+                $equipment->EquipZone = $listEquipZone;
+            } else {
+                $equipment->EquipZone = null;
+            }
+
+            if ($equipment->ID_EQUIPGENERATION > 0) {
+                $listEquipGenZone = EquipGenZone::where('ID_EQUIPGENERATION', $equipment->ID_EQUIPGENERATION)
+                ->orderBy('ZONE_NUMBER', 'ASC')->get();
+
+                if (count($listEquipGenZone) > 0) {
+                    $equipment->EquipGenZone = $listEquipGenZone;
+                } else {
+                    $checkGenZone = true;
+                }
+            } else {
+                $checkGenZone = true;
+            }
+
+            if ($checkGenZone) {
+                $equipGenZone = new EquipGenZone();
+                $equipGenZone->TEMP_SENSOR = 0;
+                $equipGenZone->TOP_ADIABAT = 0;
+                $equipGenZone->BOTTOM_ADIABAT = 0;
+                $equipGenZone->LEFT_ADIABAT = 0;
+                $equipGenZone->RIGHT_ADIABAT = 0;
+                $equipGenZone->FRONT_ADIABAT = 0;
+                $equipGenZone->REAR_ADIABAT = 0;
+
+                $equipGenZone->TOP_CHANGE = 1;
+                $equipGenZone->BOTTOM_CHANGE = 1;
+                $equipGenZone->LEFT_CHANGE = 1;
+                $equipGenZone->RIGHT_CHANGE = 1;
+                $equipGenZone->FRONT_CHANGE = 1;
+                $equipGenZone->REAR_CHANGE = 1;
+
+                $equipGenZone->TOP_PRM1 = 1;
+                $equipGenZone->BOTTOM_PRM1 = 1;
+                $equipGenZone->LEFT_PRM1 = 1;
+                $equipGenZone->RIGHT_PRM1 = 1;
+                $equipGenZone->FRONT_PRM1 = 1;
+                $equipGenZone->REAR_PRM1 = 1;
+
+                $equipGenZone->TOP_PRM2 = 0;
+                $equipGenZone->BOTTOM_PRM2 = 0;
+                $equipGenZone->LEFT_PRM2 = 0;
+                $equipGenZone->RIGHT_PRM2 = 0;
+                $equipGenZone->FRONT_PRM2 = 0;
+                $equipGenZone->REAR_PRM2 = 0;
+
+                $equipGenZone->TOP_PRM3 = 0;
+                $equipGenZone->BOTTOM_PRM3 = 0;
+                $equipGenZone->LEFT_PRM3 = 0;
+                $equipGenZone->RIGHT_PRM3 = 0;
+                $equipGenZone->FRONT_PRM3 = 0;
+                $equipGenZone->REAR_PRM3 = 0;
+
+                $arr = array();
+                
+                for ($i = 0; $i < intval($equipment->NUMBER_OF_ZONES); $i++ ) {
+                    array_push($arr, $equipGenZone);
+                }
+                $equipment->EquipGenZone = $arr;
+            }
+        }
+
+        return $equipment;
+    }
+
+    // end HAIDT
 }
