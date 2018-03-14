@@ -310,19 +310,9 @@ class Studies extends Controller
                 }
 
                 //duplicate initial_Temp already exsits
-                // @class: \App\Models\InitialTemperature
-                // $initialtempCurr = InitialTemperature::where('ID_PRODUCTION', $productionCurr->ID_PRODUCTION)->get();
-                DB::insert(DB::RAW('insert into INITIAL_TEMPERATURE (ID_PRODUCTION, INITIAL_T, MESH_1_ORDER, MESH_2_ORDER, MESH_3_ORDER) SELECT '
+                    DB::insert(DB::RAW('insert into INITIAL_TEMPERATURE (ID_PRODUCTION, INITIAL_T, MESH_1_ORDER, MESH_2_ORDER, MESH_3_ORDER) SELECT '
                 . $production->ID_PRODUCTION . ',I.INITIAL_T, I.MESH_1_ORDER, I.MESH_2_ORDER, I.MESH_3_ORDER FROM INITIAL_TEMPERATURE AS I WHERE ID_PRODUCTION = ' . $productionCurr->ID_PRODUCTION ));
-                // if (count($initialtempCurr) > 0) {
-                    
-                //     foreach ($initialtempCurr as $ins) { 
-                //         $initialtemp = new InitialTemperature();
-                //         $initialtemp = $ins->replicate();
-                //         $initialtemp->ID_PRODUCTION = $production->ID_PRODUCTION ;
-                //         unset($initialtemp->ID_INITIAL_TEMP);
-                //     }
-                // }
+                
 
                 //duplicate Product already exsits
                 if ((count($productCurr)>0)) {
@@ -352,9 +342,17 @@ class Studies extends Controller
                             $productemlt->ID_PROD = $product->ID_PROD;
                             unset($productemlt->ID_PRODUCT_ELMT);
                             $productemlt->save();
+                            foreach ($prodelmtCurr->meshPositions as $meshPositionCurr) {
+                                $meshPos = new MeshPosition();
+                                $meshPos = $meshPositionCurr->replicate();
+                                $meshPos->ID_PRODUCT_ELMT = $productemlt->ID_PRODUCT_ELMT;
+                                unset($meshPos->ID_MESH_POSITION);
+                                $meshPos->save();
+                            }
                         }
                     }
                 }
+                    
                 
                 //duplicate Price already exsits
                 if (count($priceCurr) > 0) {
