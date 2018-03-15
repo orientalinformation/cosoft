@@ -27,8 +27,43 @@ class StudyEquipmentService
         $this->kernel = $app['App\\Kernel\\KernelService'];
     }
 
-    public function calculateEquipmentParams(StudyEquipment &$stdEquip) {
-        
+    public function calculateEquipmentParams(StudyEquipment &$sEquip) {
+        // runLayoutCalculator(sEquip, username, password);
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $sEquip->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\layout-trace.txt');
+        $lcRunResult = $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, 1);
+
+        $lcTSRunResult = -1;
+
+        if (($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TS != 0) && ($sEquip->equipment->CAPABILITIES & CAP_TS_FROM_TOC != 0)) {
+            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $sEquip->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\layout-ts-trace.txt');
+            $lcTSRunResult = $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, 2);
+        }
+
+        $doTR = false;
+
+        if (($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TR != 0)
+            && ($sEquip->equipment->CAPABILITIES & CAP_TR_FROM_TS != 0)
+            && ($sEquip->equipment->CAPABILITIES & CAP_PHAMCAST_ENABLE != 0)) {
+            $doTR = true;
+            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $sEquip->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
+            $lcRunResult = $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, !$doTR);
+        }
+
+        if (!$doTR
+            && ($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TS != 0)
+            && ($sEquip->equipment->CAPABILITIES & CAP_TS_FROM_TR != 0)
+            && ($sEquip->equipment->CAPABILITIES & CAP_PHAMCAST_ENABLE != 0)) {
+            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $sEquip->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
+            $lcRunResult = $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, !$doTR);
+        }
+
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $sEquip->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
+        $lcRunResult = $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 1);
+
+        $sEquip->fresh();
+
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($sEquip->ID_STUDY), $sEquip->ID_STUDY_EQUIPMENTS);
+        return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 43);
     }
 
     /**
@@ -61,6 +96,9 @@ class StudyEquipmentService
             $layoutGen->WIDTH_INTERVAL = INTERVAL_UNDEFINED;
 
             $layoutGen->save();
+        } else {
+            $layoutGen->LENGTH_INTERVAL = $this->convert->prodDimension(doubleval($layoutGen->LENGTH_INTERVAL));
+            $layoutGen->WIDTH_INTERVAL = $this->convert->prodDimension(doubleval($layoutGen->WIDTH_INTERVAL));
         }
         return $layoutGen;
     }
@@ -168,7 +206,32 @@ class StudyEquipmentService
         }
         $studyEquipParams = StudEqpPrm::where('ID_STUDY_EQUIPMENTS', $studyEquip->ID_STUDY_EQUIPMENTS)
             ->where('VALUE_TYPE', '>=', $dataType)->where('VALUE_TYPE', '<', $dataType + 100)->pluck('VALUE')->toArray();
-        return array_map('doubleval', $studyEquipParams);
+        
+        $result = array_map('doubleval', $studyEquipParams);
+
+        $data = [];
+        foreach ($result as $row) {
+            switch ($dataType) {
+                case CONVECTION_SPEED:
+                    $data[] = $this->convert->convectionSpeed($row);
+                    break;
+
+                case DWELLING_TIME:
+                    $data[] = $this->convert->time($row);
+                    break;
+                
+                case REGULATION_TEMP:
+                case EXHAUST_TEMP:
+                    $data[] = $this->convert->temperature($row);
+                    break;
+
+                case ENTHALPY_VAR:
+                    $data[] = $this->convert->enthalpy($row);
+                    break;
+            }
+        }
+
+        return $data;
     }
 
     public function topOrQperBatch(StudyEquipment &$se)
