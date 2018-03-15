@@ -10,10 +10,66 @@
     <!-- Bootstrap -->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
     <body>
-        <?php if (($arrayParam['study']['CHAINING_CONTROLS'] == 1) && ($arrayParam['study']['HAS_CHILD'] != 0) && ($arrayParam['study']['PARENT_ID'] != 0)) { ?>
+        <div class="logo">
+            <div class="row">
+                <div class="col-md-6">
+                    <?php if (!empty($arrayParam['study']['reports'][0]['CUSTOMER_PATH'])) { ?>
+                    <p>
+                        <img src="<?php echo $arrayParam['study']['reports'][0]['CUSTOMER_PATH']?>">
+                    </p>
+                    <?php } ?>
+                </div>
+                <div class="col-md-6">
+                    <div class="pull-right">
+                        <img src="<?php echo  $arrayParam['host'] . "/uploads/logo_cryosoft.png"?>">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="info-company">
+            <div align="center">
+                <img src="<?php echo  $arrayParam['host'] . "/uploads/banner_cryosoft.png"?>">
+            </div>
+            <div><b><u>Customer:</u></b></div>
+                <div><b>Company name : <u style="margin-left: 40px"><?php echo $arrayParam['study']['reports'][0]['DEST_SURNAME'] ?></u> </b></div>
+                <div><b>Surname / Name : <u style="margin-left: 40px"> <?php echo $arrayParam['study']['reports'][0]['DEST_NAME'] ?></u> </b></div>
+                <div><b>Function : <u style="margin-left: 40px"> <?php echo $arrayParam['study']['reports'][0]['DEST_FUNCTION'] ?></u> </b></div>
+                <div><b>Contact : <u style="margin-left: 40px"> <?php echo $arrayParam['study']['reports'][0]['DEST_COORD'] ?></u> </b></div>
+                <div><b>Date of the redivort generation : <u style="margin-left: 40px"> <?php echo date("d/m/Y") ?></u>  </b></div>
+            <div align="center">
+                    <p>
+                        <img src="<?php echo !empty($arrayParam['study']['reports'][0]['PHOTO_PATH']) ? $arrayParam['study']['reports'][0]['PHOTO_PATH'] : $arrayParam['host'] . "/uploads/globe_food.gif"?>">
+                    </p>
+            </div>
+            <div class="table-responsive" style="color:red">
+                <table class ="table table-bordered" border="1">
+                <tr>
+                    <th align="center" colspan="3"><h3>Study of the product:</h3> <?php echo $arrayParam['study']['STUDY_NAME'] ?></th>
+                </tr>
+                <tr>
+                    <td >Calculation mode :</td>
+                    <td align="center" colspan="2"><?php echo $arrayParam['study']['CALCULATION_MODE'] == 3 ? "Optimum equipment" : "Estimation" ?></td>
+                </tr>
+                <tr>
+                    <td >Economic :</td>
+                    <td align="center" colspan="2"><?php echo $arrayParam['study']['OPTION_ECONO'] == 1 ? "YES" : "NO" ?></td>
+                </tr>
+                <tr>
+                    <td >Cryogenic Pipeline :</td>
+                    <td align="center" colspan="2"><?php echo !empty($cryogenPipeline) ? "YES" : "NO" ?></td>
+                </tr>
+                <tr>
+                    <td >Chaining :</td>
+                    <td align="center"><?php echo $arrayParam['study']['CHAINING_CONTROLS'] == 1 ? "YES" : "NO" ?></td>
+                    <td align="center"><?php echo ($arrayParam['study']['CHAINING_CONTROLS'] == 1) && ($arrayParam['study']['HAS_CHILD'] != 0) && ($arrayParam['study']['PARENT_ID'] != 0) ? "This study is a child" : "" ?></td>
+                </tr>
+                </table>
+            </div>
+        </div>
+        <?php if (($arrayParam['study']['CHAINING_CONTROLS'] == 1) && ($arrayParam['study']['PARENT_ID'] != 0)) { ?>
         <h4>Chaining synthesis</h4>
-            <div class="chaining">
-                <div class="table table-bordered">
+        <div class="table-responsive">
+            <table class ="table table-bordered" border="1">
                 <table border="0.5">
                     <tr>
                         <th colspan="2">Study Name</th>
@@ -44,42 +100,42 @@
                 <table class ="table table-bordered" border="1">
                 <tr>
                     <th>Daily production</th>
-                    <th align="center"><?php echo $arrayParam['production']->DAILY_PROD ?></th>
+                    <th><?php echo $arrayParam['production']->DAILY_PROD ?></th>
                     <th>Hours/Day</th>
                 </tr>
                 <tr>
                     <td>Weekly production</td>
-                    <td align="center"><?php echo $arrayParam['production']->WEEKLY_PROD ?></td>
+                    <td><?php echo $arrayParam['production']->WEEKLY_PROD ?></td>
                     <td>Days/Week</td>
                 </tr>
                 <tr style="height: 10px;">
                     <td>Annual production</td>
-                    <td align="center"><?php echo $arrayParam['production']->NB_PROD_WEEK_PER_YEAR ?></td>
+                    <td><?php echo $arrayParam['production']->NB_PROD_WEEK_PER_YEAR ?></td>
                     <td>Weeks/Year</td>
                 </tr>
                 <tr>
                     <td>Number of equipment cooldowns</td>
-                    <td align="center"><?php echo $arrayParam['production']->DAILY_STARTUP ?></td>
+                    <td><?php echo $arrayParam['production']->DAILY_STARTUP ?></td>
                     <td>per day</td>
                 </tr>
                 <tr>
                     <td>Factory Air temperature</td>
-                    <td align="center"><?php echo $arrayParam['production']->AMBIENT_TEMP ?></td>
+                    <td><?php echo $arrayParam['production']->AMBIENT_TEMP ?></td>
                     <td><?php echo "(" . $arrayParam['symbol']['temperatureSymbol'] . " )" ?></td>
                 </tr>
                 <tr>
                     <td>Relative Humidity of Factory Air</td>
-                    <td align="center"><?php echo $arrayParam['production']->AMBIENT_HUM ?></td>
+                    <td><?php echo $arrayParam['production']->AMBIENT_HUM ?></td>
                     <td>(%)</td>
                 </tr>
                 <tr>
                     <td>Required Average temperature</td>
-                    <td align="center"><?php echo $arrayParam['production']->AVG_T_INITIAL ?></td>
+                    <td ><?php echo $arrayParam['production']->AVG_T_INITIAL ?></td>
                     <td><?php echo "(" . $arrayParam['symbol']['temperatureSymbol'] . " )" ?></td>
                 </tr>
                 <tr>
                     <td>Required Production Rate</td>
-                    <td align="center"><?php echo $arrayParam['production']->PROD_FLOW_RATE ?></td>
+                    <td ><?php echo $arrayParam['production']->PROD_FLOW_RATE ?></td>
                     <td><?php echo "(" . $arrayParam['symbol']['productFlowSymbol'] . " )" ?></td>
                 </tr>
                 </table>
@@ -286,8 +342,8 @@
                     <td colspan="2" align="center"><?php echo "" ?></td>
                 </tr>
             </table>
-            <div id="pressuer"><strong>Tank pressure :</strong> <?php echo $cryogenPipeline['dataResultExist']['pressuer'] ?? "" ?> (Bar)</div>
-            <div id="height"><strong>Equipment elevation above tank outlet. :</strong><?php echo $cryogenPipeline['dataResultExist']['height'] ?? "" ?> (m)</div>
+            <div id="pressuer"><b>Tank pressure :</b> <?php echo $cryogenPipeline['dataResultExist']['pressuer'] ?? "" ?> (Bar)</div>
+            <div id="height"><b>Equipment elevation above tank outlet. :</b><?php echo $cryogenPipeline['dataResultExist']['height'] ?? "" ?> (m)</div>
             </div>
         </div>
         <?php } ?>
@@ -572,7 +628,7 @@
                 </div>
             </div>
             <div class="pro-graphic">
-            Graphic Time Based
+            <img src="<?php echo $arrayParam['host'] . "/timeBased/" . $arrayParam['study']['USERNAM'] . "/" .  $timeBases['idStudyEquipment'] . ".png" ?>">
             </div>
             <?php } ?>
         <?php } ?>
@@ -592,49 +648,21 @@
         
         <div class="comment">
             <p>
-                <textarea class="form-control" rows="5"><?php echo $arrayParam['study']['reports'][0]['REPORT_COMMENT'] ?></textarea>
+                <textarea disabled class="form-control" rows="5"><?php echo $arrayParam['study']['reports'][0]['REPORT_COMMENT'] ?></textarea>
             </p>
         </div>
 
         <div class="info-company">
             <div align="center">
-               Banner
+                    <p>
+                        <img src="<?php echo !empty($arrayParam['study']['reports'][0]['PHOTO_PATH']) ? $arrayParam['study']['reports'][0]['PHOTO_PATH'] : $arrayParam['host'] . "/uploads/globe_food.gif"?>">
+                    </p>
             </div>
-            <div><strong><u>Customer:</u></strong></div>
-                <div><strong>Company name : <?php echo $arrayParam['study']['reports'][0]['DEST_SURNAME'] ?> </strong></div>
-                <div><strong>Surname / Name : <?php echo $arrayParam['study']['reports'][0]['DEST_NAME'] ?></strong></div>
-                <div><strong>Function : <?php echo $arrayParam['study']['reports'][0]['WRITER_FUNCTION'] ?></strong></div>
-                <div><strong>Contact : <?php echo $arrayParam['study']['reports'][0]['DEST_COORD'] ?></strong></div>
-                <div><strong>Date of the redivort generation : <?php echo date("d/m/Y") ?> </strong></div>
-            <div align="center">
-                <p>
-                    Logo
-                </p>
-            </div>
-            <div class="table-responsive">
-                <table class ="table table-bordered" border="1">
-                <tr>
-                    <th align="center" colspan="2">Study of the product: <?php echo $arrayParam['study']['STUDY_NAME'] ?></th>
-                </tr>
-                <tr>
-                    <td >Calculation mode :</td>
-                    <td align="center"><?php echo $arrayParam['study']['CALCULATION_MODE'] == 3 ? "Optimum equipment" : "Estimation" ?></td>
-                </tr>
-                <tr>
-                    <td >Economic :</td>
-                    <td align="center"><?php echo $arrayParam['study']['OPTION_ECONO'] == 1 ? "YES" : "NO" ?></td>
-                </tr>
-                <tr>
-                    <td >Cryogenic Pipeline :</td>
-                    <td align="center"><?php echo !empty($cryogenPipeline) ? "YES" : "NO" ?></td>
-                </tr>
-                <tr>
-                    <td >Chaining :</td>
-                    <td align="center"><?php echo $arrayParam['study']['CHAINING_CONTROLS'] == 1 ? "YES" : "NO" ?></td>
-                    <td align="center"><?php echo ($arrayParam['study']['CHAINING_CONTROLS'] == 1) && ($arrayParam['study']['HAS_CHILD'] != 0) && ($arrayParam['study']['PARENT_ID'] != 0) ? "This study is a child" : "" ?></td>
-                </tr>
-                </table>
-            </div>
+            <div><b><u>Study realized by :</u></b></div>
+                <div><b>Company name : <u style="margin-left: 40px"><?php echo $arrayParam['study']['reports'][0]['WRITER_SURNAME'] ?></u> </b></div>
+                <div><b>Surname / Name : <u style="margin-left: 40px"><?php echo $arrayParam['study']['reports'][0]['WRITER_NAME'] ?></u></b></div>
+                <div><b>Function : <u style="margin-left: 40px"><?php echo $arrayParam['study']['reports'][0]['WRITER_FUNCTION'] ?></u></b></div>
+                <div><b>Contact : <u style="margin-left: 40px"><?php echo $arrayParam['study']['reports'][0]['WRITER_COORD'] ?></u></b></div>
         </div>
     </body>
 </html>
