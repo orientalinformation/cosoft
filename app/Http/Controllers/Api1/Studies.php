@@ -1110,86 +1110,7 @@ class Studies extends Controller
         $sEquip->ID_LAYOUT_RESULTS = $lr->ID_LAYOUT_RESULTS;
         $sEquip->save();
 
-        // runLayoutCalculator(sEquip, username, password);
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\layout-trace.txt');
-        $lcRunResult = $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, 1);
-
-        $lcTSRunResult = -1;
-
-        if ( ($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TS != 0) &&
-            ($sEquip->equipment->CAPABILITIES & CAP_TS_FROM_TOC !=0) ) {
-            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\layout-ts-trace.txt');
-            $lcTSRunResult = $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, 2);
-        }
-
-        //calculate TR = f( TS )
-        $doTR = false;
-
-        if (($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TR != 0)
-            && ($sEquip->equipment->CAPABILITIES & CAP_TR_FROM_TS != 0)
-            && ($sEquip->equipment->CAPABILITIES & CAP_PHAMCAST_ENABLE !=0)) {
-            // log . debug("starting TR=f(TS) calculation");
-            $doTR = true;
-			//PhamCast: run automatic
-            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
-            $lcRunResult = $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, !$doTR);
-
-            // if (calc . GetPCCError() != ValuesList . KERNEL_OK) {
-            //     log . warn("automatic run of PhamCast failed");
-            //     throw new OXException("ERROR_KERNEL_PHAMCAST");
-            // } else {
-				// Read result (i.e. tr) data from the DB
-            // $tr = dbdata . loadEquipmentData(sEquip, StudEqpPrm . REGULATION_TEMP);
-            // for (int i = 0; i < tr . length; i ++) {
-            //     tr[i] = new Double(Math . floor(tr[i] . doubleValue()));
-            // }
-            // sEquip . setTr(tr);
-            // }
-            // $sEquip->fresh();
-        }
-
-        if (!$doTR
-            && ($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TS != 0)
-            && ($sEquip->equipment->CAPABILITIES & CAP_TS_FROM_TR != 0)
-            && ($sEquip->equipment->CAPABILITIES & CAP_PHAMCAST_ENABLE != 0)) {
-            // log . debug("starting TS=f(TR) calculation");
-			//PhamCast: run automatic
-            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
-            $lcRunResult = $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, !$doTR);
-
-            // if (calc . GetPCCError() != ValuesList . KERNEL_OK) {
-            //     log . warn("automatic run of PhamCast failed");
-            //     throw new OXException("ERROR_KERNEL_PHAMCAST");
-            // } else {
-			// 	// Read result (i.e. ts) data from the DB
-            //     Double[] ts = dbdata . loadEquipmentData(sequip, StudEqpPrm . DWELLING_TIME);
-            //     for (int i = 0; i < ts . length; i ++) {
-            //         ts[i] = new Double(Math . floor(ts[i] . doubleValue()));
-            //     }
-            // $sEquip->fresh();
-            // }
-        }
-
-        //run automatic calculation of exhaust gas temp
-        // KernelToolsCalculation kerneltools = new KernelToolsCalculation(
-        //     CryosoftDB . CRYOSOFT_DB_ODBCNAME,
-        //     username,
-        //     password,
-        //     Ln2Servlet . getLogsDirectory() + "\\" + study . getStudyName() + "\\KT_ExhaustGasTempTr.txt",
-        //     getUserID(),
-        //     sequip . getStudy() . getIdStudy(),
-        //     sequip . getIdStudyEquipments(),
-        //     0
-        // );
-
-        // kerneltools . StartKTCalculation(true, KernelToolsCalculation . EXHAUST_GAS_TEMPERATURE);
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
-        $lcRunResult = $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 1);
-
-        $sEquip->fresh();
-
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id), $sEquip->ID_STUDY_EQUIPMENTS);
-        return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 43);
+        $this->stdeqp->calculateEquipmentParams($sEquip);
 
         return $sEquip;
     }
@@ -1335,46 +1256,11 @@ class Studies extends Controller
         $layoutGen = $this->stdeqp->getStudyEquipmentLayoutGen($sEquip);
         // $layoutGen->ORI
         $layoutGen->PROD_POSITION = $input['orientation'];
-        $layoutGen->WIDTH_INTERVAL = $input['widthInterval'];
-        $layoutGen->LENGTH_INTERVAL = $input['lengthInterval'];
+        $layoutGen->WIDTH_INTERVAL = $this->convert->prodDimensionSave($input['widthInterval']);
+        $layoutGen->LENGTH_INTERVAL = $this->convert->prodDimensionSave($input['lengthInterval']);
         $layoutGen->save();
 
-        // runLayoutCalculator(sEquip, username, password);
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $sEquip->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\layout-trace.txt');
-        $lcRunResult = $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, 1);
-
-        $lcTSRunResult = -1;
-
-        if (($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TS != 0) && ($sEquip->equipment->CAPABILITIES & CAP_TS_FROM_TOC != 0)) {
-            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $sEquip->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\layout-ts-trace.txt');
-            $lcTSRunResult = $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, 2);
-        }
-
-        $doTR = false;
-
-        if (($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TR != 0)
-            && ($sEquip->equipment->CAPABILITIES & CAP_TR_FROM_TS != 0)
-            && ($sEquip->equipment->CAPABILITIES & CAP_PHAMCAST_ENABLE != 0)) {
-            $doTR = true;
-            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $sEquip->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
-            $lcRunResult = $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, !$doTR);
-        }
-
-        if (!$doTR
-            && ($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TS != 0)
-            && ($sEquip->equipment->CAPABILITIES & CAP_TS_FROM_TR != 0)
-            && ($sEquip->equipment->CAPABILITIES & CAP_PHAMCAST_ENABLE != 0)) {
-            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $sEquip->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
-            $lcRunResult = $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, !$doTR);
-        }
-
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $sEquip->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
-        $lcRunResult = $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 1);
-
-        $sEquip->fresh();
-
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id), $sEquip->ID_STUDY_EQUIPMENTS);
-        return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 43);
+        $this->stdeqp->calculateEquipmentParams($sEquip);
     }
 
     public function getChainingModel($id) 
