@@ -34,6 +34,8 @@ use Psr\Http\Message\StreamInterface;
 use  Illuminate\Database\Query\Builder;
 // end HAIDT
 
+
+
 class Reports extends Controller
 {
      /**
@@ -476,20 +478,19 @@ class Reports extends Controller
         return 1;
     }
 
-    function downLoadPDF($id) {
+    function backgroundGeneration($id) {
         $study = Study::find($id);
         $host = 'http://' . $_SERVER['HTTP_HOST'];
-        echo "{'processing':true}";
-        ob_end_flush();
         $public_path = rtrim(app()->basePath("public/"), '/');
-        $progressFile = "$study->ID_STUDY- $study->STUDY_NAME-Report.progess";
-        $name_report = "$study->ID_STUDY- $study->STUDY_NAME-Report.pdf";
+        $progressFile = $public_path. "/reports/" . $study->USERNAM. "/" ."$study->ID_STUDY-$study->STUDY_NAME-Report.progess";
+        $name_report = "$study->ID_STUDY-$study->STUDY_NAME-Report.pdf";
         
         if (!is_dir($public_path . "/reports/" . $study->USERNAM)) {
             mkdir($public_path . "/reports/" . $study->USERNAM, 0777, true);
         } 
         $production = Production::Where('ID_STUDY', $id)->first();
         $progress = "Production";
+        file_put_contents($progressFile, $progress);
         
         $product = Product::Where('ID_STUDY', $id)->first();
         $proElmt = ProductElmt::Where('ID_PROD', $product->ID_PROD)->first();
@@ -510,10 +511,12 @@ class Reports extends Controller
         ->where('TRANS_TYPE', 1)->whereIn('ID_TRANSLATION', $idComArr)
         ->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'DESC')->get();
         $progress .= "\nProduct";
+        file_put_contents($progressFile, $progress);
         
 
         $equipData = $this->stdeqp->findStudyEquipmentsByStudy($study);
         $progress .= "\nEquiment";
+        file_put_contents($progressFile, $progress);
         
         
         $symbol = $this->reportserv->getSymbol($study->ID_STUDY);
@@ -522,6 +525,7 @@ class Reports extends Controller
         if ($study->OPTION_CRYOPIPELINE == 1) {
             $cryogenPipeline = $this->pipelines->loadPipeline($study->ID_STUDY);
             $progress .= "\nPipeline Elements";
+            file_put_contents($progressFile, $progress);
             
         } else {
             $cryogenPipeline = "";
@@ -530,11 +534,14 @@ class Reports extends Controller
         $consumptions = $this->reportserv->getAnalyticalConsumption($study->ID_STUDY);
         
         $progress .= "\nConsumptions Results";
+        file_put_contents($progressFile, $progress);
         
         if ($study->CALCULATION_MODE == 3) {
             $calModeHeadBalance = $this->reportserv->getOptimumHeadBalance($study->ID_STUDY);
             $calModeHbMax = $this->reportserv->getOptimumHeadBalanceMax($study->ID_STUDY);
             $progress .= "\nConsumptions Pies";
+            file_put_contents($progressFile, $progress);
+            
         } else if ($study->CALCULATION_MODE == 1) {
             $calModeHeadBalance = $this->reportserv->getEstimationHeadBalance($study->ID_STUDY, 1);
             $calModeHbMax = "";
@@ -585,8 +592,12 @@ class Reports extends Controller
             $progress .= "\nEnthpies";
             $progress .= "\nTime Based";
             $progress .= "\nProduct Section";
+            file_put_contents($progressFile, $progress);
+            
             if (($shapeCode == 3) || ($shapeCode == 2) || ($shapeCode == 9)) {
                 $progress .= "\nContour";
+                file_put_contents($progressFile, $progress);
+                
             }
         }
         
@@ -596,7 +607,7 @@ class Reports extends Controller
             $productComps[] = $value;
             $productComps[$key]['display_name'] = $value->LABEL . ' - ' . $productElmt->component->COMP_VERSION . '(' . $componentStatus->LABEL . ' )';
         }
-        file_put_contents($public_path. "/reports/" . $study->USERNAM. "/" .$progressFile, $progress);
+        file_put_contents($progressFile, $progress);
         // set document information
         // PDF::SetCreator(PDF_CREATOR);
         PDF::setPageOrientation('L');
@@ -682,6 +693,25 @@ class Reports extends Controller
             
         // } 
         return ["url" => "$host/reports/$study->USERNAM/$name_report"];
+    }
+
+    function downLoadPDF($studyId) {
+        ignore_user_abort(true);
+        set_time_limit(300);
+        $bgProcess = function($obj, $fn, $id) {
+            // ob_flush();
+            flush();
+            call_user_func_array([$obj, $fn], [$id]);
+        };
+        // register_shutdown_function([$this,'backgroundGeneration'],$id);
+        register_shutdown_function($bgProcess, $this, 'backgroundGeneration', $studyId);
+        header('Connection: close');
+        header('Content-length: 19');
+        // header('Access-Control-Allow-Origin: *'); 
+        header('Content-type: application/json');
+        
+        exit("{'processing':true}");
+        return ['processing' => true];        
     }
     
     public function viewPDF($study ,$production, $product, $proElmt, $shapeName, 
