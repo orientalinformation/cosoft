@@ -222,9 +222,11 @@ class Studies extends Controller
         }
 
         if ($study->CHAINING_CONTROLS!=0 && $study->PARENT_ID != 0) {
-            $parent = Study::findOrFail($study->PARENT_ID);
-            $parent->HAS_CHILD = count(Study::where('PARENT_ID', $study->ID_STUDY)->get()) - 1 > 0;
-            $parent->save();
+            $parent = Study::find($study->PARENT_ID);
+            if ($parent) {
+                $parent->HAS_CHILD = count(Study::where('PARENT_ID', $parent->ID_STUDY)->get()) - 1 > 0 ? 1 : 0;
+                $parent->save();
+            }
         }
 
         return (int) $study->delete();
