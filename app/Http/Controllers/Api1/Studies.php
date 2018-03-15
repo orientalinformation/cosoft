@@ -1484,5 +1484,15 @@ class Studies extends Controller
 
         return $axisTemp;
     }
+
+    public function createChildStudy($id) {
+        $input = $this->request->all();
+        $childStudyName = $input['studyName'];
+        $stdEqpId = $input['stdEqpId'];
+        
+            
+
+        return 0;
+    }
 }
     
