@@ -143,6 +143,21 @@ class ReferenceData extends Controller
         return $array;
     }
 
+    public function getDataSubFamily() 
+    {
+        $input = $this->request->all();
+        $compFamily = null;
+        if (isset($input['compfamily'])) $compFamily = intval($input['compfamily']);
+
+        if ($compFamily == 0) {
+            $subFamily = $this->getFamilyTranslations(16);
+        } else {
+            $subFamily = $this->getSubFamilyTranslations(16, intval($compFamily));
+        }
+
+        return $subFamily;
+    }
+
     public function getMyComponent()
     {
         $mine = Component::where('ID_USER', $this->auth->user()->ID_USER)
@@ -215,7 +230,16 @@ class ReferenceData extends Controller
 
             $result = $this->startFCCalculation($idComp);
         }
-        return $result;
+
+        $comp = Component::where('ID_USER', $this->auth->user()->ID_USER)
+        ->join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')
+        ->where('Translation.TRANS_TYPE', 1)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+        ->where('ID_COMP', $idComp)->first();
+
+        return [
+            "CheckCalculate" => $result,
+            "VComponent" => $comp
+        ];
     }
 
     public function startFCCalculate()
