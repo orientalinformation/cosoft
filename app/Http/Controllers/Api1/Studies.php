@@ -221,6 +221,12 @@ class Studies extends Controller
             $equip->delete();
         }
 
+        if ($study->CHAINING_CONTROLS!=0 && $study->PARENT_ID != 0) {
+            $parent = Study::findOrFail($study->PARENT_ID);
+            $parent->HAS_CHILD = count(Study::where('PARENT_ID', $study->ID_STUDY)->get()) - 1 > 0;
+            $parent->save();
+        }
+
         return (int) $study->delete();
     }
 
@@ -1487,8 +1493,197 @@ class Studies extends Controller
         $input = $this->request->all();
         $childStudyName = $input['studyName'];
         $stdEqpId = $input['stdEqpId'];
+
+        $study = new Study();
+        $temprecordpst = new TempRecordPts();
+        $production = new Production();
+        $product = new Product();
+        $meshgeneration = new MeshGeneration();
+        $price = new Price();
+        $report = new Report();
+        $precalcLdgRatePrm = new PrecalcLdgRatePrm();
+        $packing = new Packing();
         
+        // @class: \App\Models\Study
+        $studyCurrent = Study::findOrFail($id);
+        $studyCurrent->HAS_CHILD = 1;
+        $studyCurrent->save();
+        $input = $this->request->all();
+
+        $duplicateStudy = Study::where('STUDY_NAME', '=', $childStudyName)->count();
+        if ($duplicateStudy) {
+
+            return response([
+                'code' => 1002,
+                'message' => 'Duplicate Study Name!'
+            ], 406);
+        }
+
+        if ($studyCurrent != null) {
+
+            // @class: \App\Models\TempRecordPts
+            $temprecordpstCurr = TempRecordPts::where('ID_STUDY', $studyCurrent->ID_STUDY)->first();
+            // @class: \App\Models\Production
+            $productionCurr = Production::where('ID_STUDY', $studyCurrent->ID_STUDY)->first(); 
+            // @class: \App\Models\Product
+            $productCurr = Product::where('ID_STUDY', $studyCurrent->ID_STUDY)->first();
+            // @class: \App\Models\Price
+            $priceCurr = Price::where('ID_STUDY', $studyCurrent->ID_STUDY)->first(); 
+            // @class: \App\Models\Price
+            $reportCurr = Report::where('ID_STUDY', $studyCurrent->ID_STUDY)->first(); 
+            // @class: \App\Models\PrecalcLdgRatePrm
+            $precalcLdgRatePrmCurr = PrecalcLdgRatePrm::where('ID_STUDY', $studyCurrent->ID_STUDY)->first();
+            // @class: \App\Models\Packing
+            $packingCurr = Packing::where('ID_STUDY', $studyCurrent->ID_STUDY)->first(); 
             
+
+            if (!empty($childStudyName)) {
+
+                //duplicate study already exsits
+                $study->STUDY_NAME = $childStudyName;
+                $study->ID_USER = $this->auth->user()->ID_USER;
+                $study->OPTION_ECO = $studyCurrent->OPTION_ECO;
+                $study->CALCULATION_MODE = $studyCurrent->CALCULATION_MODE;
+                $study->COMMENT_TXT = $studyCurrent->COMMENT_TXT;
+                $study->OPTION_CRYOPIPELINE = $studyCurrent->OPTION_CRYOPIPELINE;
+                $study->OPTION_EXHAUSTPIPELINE = $studyCurrent->OPTION_EXHAUSTPIPELINE;
+                $study->CHAINING_CONTROLS = $studyCurrent->CHAINING_CONTROLS;
+                $study->CHAINING_ADD_COMP_ENABLE = $studyCurrent->CHAINING_ADD_COMP_ENABLE;
+                $study->CHAINING_NODE_DECIM_ENABLE = $studyCurrent->CHAINING_NODE_DECIM_ENABLE;
+                $study->HAS_CHILD = 0;
+                $study->PARENT_ID = $id;
+                $study->PARENT_STUD_EQP_ID = $stdEqpId;
+                $study->CALCULATION_STATUS = $studyCurrent->CALCULATION_STATUS;
+                $study->TO_RECALCULATE = $studyCurrent->TO_RECALCULATE;
+                $study->save();
+
+                //duplicate TempRecordPts already exsits
+                if (count($temprecordpstCurr) > 0) {
+                    $temprecordpst = $temprecordpstCurr->replicate();
+                    $temprecordpst->ID_STUDY = $study->ID_STUDY;
+                    unset($temprecordpst->ID_TEMP_RECORD_PTS);
+                    $temprecordpst->save();
+
+                }
+
+                //duplicate Production already exsits
+                if (count($productionCurr) > 0) {
+
+                    $production = $productionCurr->replicate();
+                    $production->ID_STUDY = $study->ID_STUDY;
+                    unset($production->ID_PRODUCTION);
+                    $production->save();
+                }
+
+                //duplicate initial_Temp already exsits
+                DB::insert(DB::RAW('insert into INITIAL_TEMPERATURE (ID_PRODUCTION, INITIAL_T, MESH_1_ORDER, MESH_2_ORDER, MESH_3_ORDER) SELECT '
+                    . $production->ID_PRODUCTION . ',I.INITIAL_T, I.MESH_1_ORDER, I.MESH_2_ORDER, I.MESH_3_ORDER FROM INITIAL_TEMPERATURE AS I WHERE ID_PRODUCTION = ' . $productionCurr->ID_PRODUCTION));
+                
+
+                //duplicate Product already exsits
+                if ((count($productCurr) > 0)) {
+                    $product = $productCurr->replicate();
+                    $product->ID_STUDY = $study->ID_STUDY;
+                    $product->PROD_ISO = 0; //non-iso thermal
+                    unset($product->ID_PROD);
+                    $product->save();
+
+                    // @class: \App\Models\MeshGeneration
+                    $meshgenerationCurr = MeshGeneration::where('ID_PROD', $productCurr->ID_PROD)->first(); 
+                    // @class: \App\Models\ProductEmlt
+                    $productemltCurr = ProductElmt::where('ID_PROD', $productCurr->ID_PROD)->get(); 
+                    //duplicate MeshGeneration already exsits
+                    if (count($meshgenerationCurr) > 0) {
+                        $meshgeneration = $meshgenerationCurr->replicate();
+                        $meshgeneration->ID_PROD = $product->ID_PROD;
+                        unset($meshgeneration->ID_MESH_GENERATION);
+                        $meshgeneration->save();
+                        $product->ID_MESH_GENERATION = $meshgeneration->ID_MESH_GENERATION;
+                        $product->save();
+                    }
+
+                    if (count($productemltCurr) > 0) {
+                        foreach ($productemltCurr as $prodelmtCurr) {
+                            $productemlt = new ProductElmt();
+                            $productemlt = $prodelmtCurr->replicate();
+                            $productemlt->ID_PROD = $product->ID_PROD;
+                            unset($productemlt->ID_PRODUCT_ELMT);
+                            $productemlt->save();
+                            foreach ($prodelmtCurr->meshPositions as $meshPositionCurr) {
+                                $meshPos = new MeshPosition();
+                                $meshPos = $meshPositionCurr->replicate();
+                                unset($meshPos->ID_MESH_POSITION);
+                                $meshPos->save();
+                            }
+                        }
+                    }
+                }
+                    
+                
+                //duplicate Price already exsits
+                if (count($priceCurr) > 0) {
+                    $price = $priceCurr->replicate();
+                    $price->ID_STUDY = $study->ID_STUDY;
+                    unset($price->ID_PRICE);
+                    $price->save();
+                }
+
+                //duplicate Report already exsits
+                if (count($reportCurr) > 0) {
+                    $report = $reportCurr->replicate();
+                    $report->ID_STUDY = $study->ID_STUDY;
+                    unset($report->ID_REPORT);
+                    $report->save();
+                }
+
+                if (count($precalcLdgRatePrmCurr) > 0) {
+                    $precalcLdgRatePrm = $precalcLdgRatePrmCurr->replicate();
+                    $precalcLdgRatePrm->ID_STUDY = $study->ID_STUDY;
+                    unset($precalcLdgRatePrm->ID_PRECALC_LDG_RATE_PRM);
+                    $precalcLdgRatePrm->save();
+                }
+
+                if (count($packingCurr) > 0) {
+                    $packing = $packingCurr->replicate();
+                    $packing->ID_STUDY = $study->ID_STUDY;
+                    unset($packing->ID_PACKING);
+                    $packing->save();
+                    // @class: \App\Models\PackingLayer
+                    $packingLayerCurr = PackingLayer::where('ID_PACKING', $packingCurr->ID_PACKING)->get();
+                    if (count($packingLayerCurr) > 0) {
+                        foreach ($packingLayerCurr as $pLayer) {
+                            $packingLayer = new PackingLayer();
+                            $packingLayer = $pLayer->replicate();
+                            $packingLayer->ID_PACKING = $packing->ID_PACKING;
+                            unset($packingLayer->ID_PACKING_LAYER);
+                            $packingLayer->save();
+                        }
+                    }
+                }
+
+                $study->ID_TEMP_RECORD_PTS = $temprecordpst->ID_TEMP_RECORD_PTS;
+                $study->ID_PRODUCTION = $production->ID_PRODUCTION;
+                $study->ID_PROD = $product->ID_PROD;
+                $study->ID_PRICE = $price->ID_PRICE;
+                $study->ID_REPORT = $report->ID_REPORT;
+                $study->ID_PRECALC_LDG_RATE_PRM = $precalcLdgRatePrm->ID_PRECALC_LDG_RATE_PRM;
+                $study->ID_PACKING = $packing->ID_PACKING;
+                $study->save();
+
+                return $study;
+
+            } else {
+                return response([
+                    'code' => 1001,
+                    'message' => 'Unknown error!'
+                ], 406); // Status code here
+            }
+        } else {
+            return response([
+                'code' => 1003,
+                'message' => 'Study id not found'
+            ], 406); // Status code here
+        }    
 
         return 0;
     }
