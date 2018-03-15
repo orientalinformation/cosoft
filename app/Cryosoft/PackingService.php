@@ -4,7 +4,7 @@ namespace App\Cryosoft;
 
 use App\Models\Study;
 use App\Models\Packing;
-use App\Models\PackingElmt;
+use App\Models\PackingLayer;
 use App\Models\Product;
 
 class PackingService
@@ -26,7 +26,7 @@ class PackingService
         $parentStudy = Study::find($study->PARENT_ID);
         if (!$parentStudy) return false;
 
-        return count(PackingElmt::where('ID_PACKING', $parentStudy->ID_PACKING)->where('PACKING_SIDE_NUMBER', '1')->get()) > 0;
+        return count(PackingLayer::where('ID_PACKING', $parentStudy->ID_PACKING)->where('PACKING_SIDE_NUMBER', '1')->get()) > 0;
     }
 
     public function isSidePackInParent(Study &$study)
@@ -35,7 +35,7 @@ class PackingService
         $parentStudy = Study::find($study->PARENT_ID);
         if (!$parentStudy) return false;
 
-        return count(PackingElmt::where('ID_PACKING', $parentStudy->ID_PACKING)->where('PACKING_SIDE_NUMBER', '3')->get()) > 0;
+        return count(PackingLayer::where('ID_PACKING', $parentStudy->ID_PACKING)->where('PACKING_SIDE_NUMBER', '3')->get()) > 0;
     }
 
     public function isBottomPackInParent(Study &$study)
@@ -44,6 +44,6 @@ class PackingService
         $parentStudy = Study::find($study->PARENT_ID);
         if (!$parentStudy) return false;
 
-        return count(PackingElmt::where('ID_PACKING', $parentStudy->ID_PACKING)->where('PACKING_SIDE_NUMBER', '2')->get()) > 0;
+        return count(PackingLayer::where('ID_PACKING', $parentStudy->ID_PACKING)->where('PACKING_SIDE_NUMBER', '2')->get()) > 0;
     }
 }

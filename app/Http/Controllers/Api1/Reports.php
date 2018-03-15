@@ -479,52 +479,71 @@ class Reports extends Controller
     function downLoadPDF($id) {
         $study = Study::find($id);
         $host = 'http://' . $_SERVER['HTTP_HOST'];
+        echo "{'processing':true}";
+        ob_end_flush();
         $public_path = rtrim(app()->basePath("public/"), '/');
+        $progressFile = "$study->ID_STUDY- $study->STUDY_NAME-Report.progess";
         $name_report = "$study->ID_STUDY- $study->STUDY_NAME-Report.pdf";
-
+        
         if (!is_dir($public_path . "/reports/" . $study->USERNAM)) {
             mkdir($public_path . "/reports/" . $study->USERNAM, 0777, true);
         } 
-        // if (!file_exists($public_path. "/" . $study->USERNAM. "/" .$name_report)) {
         $production = Production::Where('ID_STUDY', $id)->first();
+        $progress = "Production";
+        
         $product = Product::Where('ID_STUDY', $id)->first();
         $proElmt = ProductElmt::Where('ID_PROD', $product->ID_PROD)->first();
+        
         $idComArr = [];
         $comprelease = [];
-
+        
         foreach ($product->productElmts as $productElmt) {
             $shapeCode = $productElmt->shape->SHAPECODE;
             $idComArr[] = $productElmt->ID_COMP;
             $idElmArr[] = $productElmt->ID_PRODUCT_ELMT;
             $comprelease[] = $productElmt->component->COMP_RELEASE;
         }
-
+        
+        $shapeName = Translation::where('TRANS_TYPE', 4)->where('ID_TRANSLATION', $shapeCode)->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
         $componentName = ProductElmt::select('LABEL','ID_COMP', 'ID_PRODUCT_ELMT', 'PROD_ELMT_ISO', 'PROD_ELMT_NAME', 'PROD_ELMT_REALWEIGHT', 'SHAPE_PARAM2')
         ->join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')->whereIn('ID_PRODUCT_ELMT', $idElmArr)
         ->where('TRANS_TYPE', 1)->whereIn('ID_TRANSLATION', $idComArr)
         ->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'DESC')->get();
+        $progress .= "\nProduct";
+        
+
         $equipData = $this->stdeqp->findStudyEquipmentsByStudy($study);
-        $shapeName = Translation::where('TRANS_TYPE', 4)->where('ID_TRANSLATION', $shapeCode)->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
+        $progress .= "\nEquiment";
+        
+        
         $symbol = $this->reportserv->getSymbol($study->ID_STUDY);
         $infoReport = $study->reports;
-        $studyequip = $study->studyEquipments;
         // return $study;
         if ($study->OPTION_CRYOPIPELINE == 1) {
             $cryogenPipeline = $this->pipelines->loadPipeline($study->ID_STUDY);
+            $progress .= "\nPipeline Elements";
+            
         } else {
             $cryogenPipeline = "";
         }
+        
         $consumptions = $this->reportserv->getAnalyticalConsumption($study->ID_STUDY);
+        
+        $progress .= "\nConsumptions Results";
+        
         if ($study->CALCULATION_MODE == 3) {
             $calModeHeadBalance = $this->reportserv->getOptimumHeadBalance($study->ID_STUDY);
             $calModeHbMax = $this->reportserv->getOptimumHeadBalanceMax($study->ID_STUDY);
+            $progress .= "\nConsumptions Pies";
         } else if ($study->CALCULATION_MODE == 1) {
             $calModeHeadBalance = $this->reportserv->getEstimationHeadBalance($study->ID_STUDY, 1);
             $calModeHbMax = "";
         }
+        
         $proInfoStudy = $this->reportserv->getProInfoStudy($study->ID_STUDY);
         $proSections = [];
         $pro2Dchart = [];
+        $progress .= "\nSizing";
         
         foreach ($study->studyEquipments as $key=> $idstudyequips) {
             if ($idstudyequips->BRAIN_TYPE == 4) {
@@ -562,13 +581,22 @@ class Reports extends Controller
             }
             // return $pro2Dchart;
         }
-
+        if ($idstudyequips->BRAIN_TYPE == 4) {
+            $progress .= "\nEnthpies";
+            $progress .= "\nTime Based";
+            $progress .= "\nProduct Section";
+            if (($shapeCode == 3) || ($shapeCode == 2) || ($shapeCode == 9)) {
+                $progress .= "\nContour";
+            }
+        }
+        
         $productComps = [];
         foreach ($componentName as $key => $value) {
             $componentStatus = Translation::select('LABEL')->where('TRANS_TYPE', 100)->whereIn('ID_TRANSLATION', $comprelease)->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
             $productComps[] = $value;
             $productComps[$key]['display_name'] = $value->LABEL . ' - ' . $productElmt->component->COMP_VERSION . '(' . $componentStatus->LABEL . ' )';
         }
+        file_put_contents($public_path. "/reports/" . $study->USERNAM. "/" .$progressFile, $progress);
         // set document information
         // PDF::SetCreator(PDF_CREATOR);
         PDF::setPageOrientation('L');
@@ -593,7 +621,7 @@ class Reports extends Controller
         PDF::SetFooterMargin(10);
 
         // set auto page breaks
-        PDF::SetAutoPageBreak(TRUE, 25);
+        PDF::SetAutoPageBreak(TRUE, 15);
 
         // set image scale factor
         PDF::setImageScale(1.25);
@@ -621,16 +649,6 @@ class Reports extends Controller
         PDF::Bookmark('Paragraph 1.1', 1, 0, '', '', array(128,0,0));
         PDF::Cell(0, 10, 'Paragraph 1.1', 0, 1, 'L');
         PDF::AddPage();
-        PDF::Bookmark('Paragraph 1.2', 1, 0, '', '', array(128,0,0));
-        PDF::Cell(0, 10, 'Paragraph 1.2', 0, 1, 'L');
-
-        PDF::AddPage();
-        PDF::Bookmark('Sub-Paragraph 1.2.1', 2, 0, '', 'I', array(0,128,0));
-        PDF::Cell(0, 10, 'Sub-Paragraph 1.2.1', 0, 1, 'L');
-
-        PDF::AddPage();
-        PDF::Bookmark('Paragraph 1.3', 1, 0, '', '', array(128,0,0));
-        PDF::Cell(0, 10, 'Paragraph 1.3', 0, 1, 'L');
 
         // add some pages and bookmarks
         for ($i = 2; $i < 12; $i++) {
@@ -830,6 +848,35 @@ class Reports extends Controller
         ];
         return view('report.viewHtmlToPDF', $param);
     }
+
+    function processingReport($id) {
+        $study = Study::find($id);
+        $public_path = rtrim(app()->basePath("public/"), '/');
+        $progressFile = "$study->ID_STUDY- $study->STUDY_NAME-Report.progess";
+        $file = file_get_contents($public_path. "/reports/" . $study->USERNAM. "/" .$progressFile);
+        $array = explode("\n",$file);
+        return $array;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // HAIDT
     public function postFile() 
     {  

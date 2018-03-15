@@ -122,3 +122,11 @@ $router->POST('/api/v1/studyEquipment/{id}/layout', 'Api1\\Studies@updateStudyEq
  */
 $router->GET('/api/v1/studies/{id}/chaining', 'Api1\\Studies@getChainingModel');
 
+/**
+ * GET getChainingModel
+ * Summary: 
+ * Notes: 
+ * Output-Formats: [application/json]
+ */
+$router->PUT('/api/v1/studies/{id}/chaining', 'Api1\\Studies@createChildStudy');
+
