@@ -1495,6 +1495,7 @@ class Studies extends Controller
         $input = $this->request->all();
         $childStudyName = $input['studyName'];
         $stdEqpId = $input['stdEqpId'];
+        $stdEqp = StudyEquipment::find($stdEqpId);
 
         $study = new Study();
         $temprecordpst = new TempRecordPts();
@@ -1505,6 +1506,16 @@ class Studies extends Controller
         $report = new Report();
         $precalcLdgRatePrm = new PrecalcLdgRatePrm();
         $packing = new Packing();
+
+        $isNumberical = ($stdEqp->BRAIN_TYPE == $this->value->BRAIN_RUN_FULL_YES) ? true : false;
+        $isAnalogical = false;
+        if ($study->CALCULATION_MODE == $this->value->STUDY_ESTIMATION_MODE) {
+            // estimation
+            $isAnalogical = $this->stdeqp->isAnalogicResults($stdEqp);
+        } else {
+            // selected or optimum
+            $isAnalogical = $stdEqp->BRAIN_TYPE == $this->value->BRAIN_RUN_NONE ? true : false;
+        }
         
         // @class: \App\Models\Study
         $studyCurrent = Study::findOrFail($id);
@@ -1540,7 +1551,6 @@ class Studies extends Controller
             
 
             if (!empty($childStudyName)) {
-
                 //duplicate study already exsits
                 $study->STUDY_NAME = $childStudyName;
                 $study->ID_USER = $this->auth->user()->ID_USER;
@@ -1581,7 +1591,7 @@ class Studies extends Controller
                 DB::insert(DB::RAW('insert into INITIAL_TEMPERATURE (ID_PRODUCTION, INITIAL_T, MESH_1_ORDER, MESH_2_ORDER, MESH_3_ORDER) SELECT '
                     . $production->ID_PRODUCTION . ',I.INITIAL_T, I.MESH_1_ORDER, I.MESH_2_ORDER, I.MESH_3_ORDER FROM INITIAL_TEMPERATURE AS I WHERE ID_PRODUCTION = ' . $productionCurr->ID_PRODUCTION));
                 
-
+                $shapeId = 0;
                 //duplicate Product already exsits
                 if ((count($productCurr) > 0)) {
                     $product = $productCurr->replicate();
@@ -1609,6 +1619,7 @@ class Studies extends Controller
                             $productemlt = new ProductElmt();
                             $productemlt = $prodelmtCurr->replicate();
                             $productemlt->ID_PROD = $product->ID_PROD;
+                            $shapeId = $productemlt->ID_SHAPE;
                             unset($productemlt->ID_PRODUCT_ELMT);
                             $productemlt->save();
                             foreach ($prodelmtCurr->meshPositions as $meshPositionCurr) {
@@ -1660,6 +1671,22 @@ class Studies extends Controller
                             unset($packingLayer->ID_PACKING_LAYER);
                             $packingLayer->save();
                         }
+                    }
+                }
+
+                //INITIAL TEMPERATURE
+                if ($isNumerical) {
+                    // just duplicate => child product = parent product
+                    $this->stdeqp->setInitialTempFromNumericalResults($stdEqp, $shapeId, $product, $production);
+                } else if ($isAnalogical) {
+                    if ($study->CALCULATION_MODE == $this->values->STUDY_ESTIMATION_MODE) {
+                        // estimation
+                        // just duplicate => child product = parent product
+                        $this->stdeqp->setInitialTempFromAnalogicalResults($stdEqp, $shapeId, $product, $production);
+                    } else {
+                        // selected or optimum
+                        // just duplicate => child product = parent product
+                        $this->stdeqp->setInitialTempFromSimpleNumericalResults($stdEqp, $shapeId, $product, $production);
                     }
                 }
 
