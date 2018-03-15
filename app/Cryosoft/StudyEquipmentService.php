@@ -165,7 +165,32 @@ class StudyEquipmentService
         }
         $studyEquipParams = StudEqpPrm::where('ID_STUDY_EQUIPMENTS', $studyEquip->ID_STUDY_EQUIPMENTS)
             ->where('VALUE_TYPE', '>=', $dataType)->where('VALUE_TYPE', '<', $dataType + 100)->pluck('VALUE')->toArray();
-        return array_map('doubleval', $studyEquipParams);
+        
+        $result = array_map('doubleval', $studyEquipParams);
+
+        $data = [];
+        foreach ($result as $row) {
+            switch ($dataType) {
+                case CONVECTION_SPEED:
+                    $data[] = $this->convert->convectionSpeed($row);
+                    break;
+
+                case DWELLING_TIME:
+                    $data[] = $this->convert->time($row);
+                    break;
+                
+                case REGULATION_TEMP:
+                case EXHAUST_TEMP:
+                    $data[] = $this->convert->temperature($row);
+                    break;
+
+                case ENTHALPY_VAR:
+                    $data[] = $this->convert->enthalpy($row);
+                    break;
+            }
+        }
+
+        return $data;
     }
 
     public function topOrQperBatch(StudyEquipment &$se)
