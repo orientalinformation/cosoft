@@ -906,12 +906,14 @@ class Equipments extends Controller
 
         if ($priceEnergy != 0) $priceEnergy =  $priceEnergy;
 
+        $energy = $this->equip->initEnergyDef($id);
+
         if ($intervalW != 0) $intervalW = $intervalW;
 
         if ($intervalL != 0) $intervalL =$intervalL;
 
         $res = [
-            'Price' => doubleval($priceEnergy),
+            'Price' => $this->equip->cryogenPrice($priceEnergy, $energy),
             'IntervalWidth' => $this->convert->prodDimension(doubleval($intervalW)),
             'IntervalLength' => $this->convert->prodDimension(doubleval($intervalL)),
             'MonetarySymbol' => $this->convert->monetarySymbol(),
@@ -928,10 +930,12 @@ class Equipments extends Controller
         if (!isset($input['price']))
             throw new \Exception("Error Processing Request", 1);
 
-        if (isset($input['price'])) $priceEnergy = doubleval($input['price']); 
+        $study = Study::find($id);
+        $energy = $this->equip->initEnergyDef($id);
 
-        if ($priceEnergy) {
-            $study = Study::find($id);
+        if (isset($input['price'])) $priceEnergy = $this->equip->cryogenPriceSave($input['price'], $energy); 
+
+        if ($priceEnergy >= 0) {
 
             if ($study) {
                 $price = Price::find($study->ID_PRICE);
