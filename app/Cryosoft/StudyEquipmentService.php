@@ -58,6 +58,9 @@ class StudyEquipmentService
             $layoutGen->WIDTH_INTERVAL = INTERVAL_UNDEFINED;
 
             $layoutGen->save();
+        } else {
+            $layoutGen->LENGTH_INTERVAL = $this->convert->prodDimension(doubleval($layoutGen->LENGTH_INTERVAL));
+            $layoutGen->WIDTH_INTERVAL = $this->convert->prodDimension(doubleval($layoutGen->WIDTH_INTERVAL));
         }
         return $layoutGen;
     }

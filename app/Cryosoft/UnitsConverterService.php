@@ -652,7 +652,7 @@ class UnitsConverterService
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
-        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B);
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 0);
     }
     public function packingThickness($value) {
         $unit = Unit::where('TYPE_UNIT', $this->value->THICKNESS_PACKING)
@@ -830,7 +830,7 @@ class UnitsConverterService
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
-        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B);
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 2);
     }
 
     public function prodDimensionSave($value)

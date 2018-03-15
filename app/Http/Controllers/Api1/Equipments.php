@@ -905,8 +905,8 @@ class Equipments extends Controller
 
         $res = [
             'Price' => doubleval($priceEnergy),
-            'IntervalWidth' => doubleval($intervalW),
-            'IntervalLength' => doubleval($intervalL),
+            'IntervalWidth' => $this->convert->prodDimension(doubleval($intervalW)),
+            'IntervalLength' => $this->convert->prodDimension(doubleval($intervalL)),
             'MonetarySymbol' => $this->convert->monetarySymbol(),
             'DimensionSymbol' => $this->convert->prodDimensionSymbolUser()
         ];
