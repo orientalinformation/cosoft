@@ -295,3 +295,12 @@ $router->PUT('/api/v1/referencedata/tempsetpoint', 'Api1\\Equipments@buildForNew
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/calculator/calculatestatus/{idStudy}', 'Api1\\CalculStatus@getMyStudies');
+
+
+/**
+ * PUT initial 
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->PUT('/api/v1/input/meshinitial/{idStudy}', 'Api1\\InputInitial@initTempRecordPts');

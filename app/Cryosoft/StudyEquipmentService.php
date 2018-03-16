@@ -74,7 +74,7 @@ class StudyEquipmentService
         if (!$layoutGen) {
             $layoutGen = new LayoutGeneration();
             $layoutGen->ID_STUDY_EQUIPMENTS = $sEquip->ID_STUDY_EQUIPMENTS;
-            $layoutGen->PROD_POSITION = $position;
+            $layoutGen->PROD_POSITION = 0;
 
             $equipWithSpecificSize = ($sEquip->STDEQP_WIDTH != NO_SPECIFIC_SIZE) && ($sEquip->STDEQP_LENGTH != NO_SPECIFIC_SIZE);
 
