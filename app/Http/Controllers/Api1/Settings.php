@@ -189,7 +189,7 @@ class Settings extends Controller
             if (isset($input['isStudyAlphaLeftFixedDef'])) $calculationparametersdef->STUDY_ALPHA_LEFT_FIXED_DEF = $isStudyAlphaLeftFixedDef;
             if (isset($input['isStudyAlphaRightFixedDef'])) $calculationparametersdef->STUDY_ALPHA_RIGHT_FIXED_DEF = $isStudyAlphaRightFixedDef;
             if (isset($input['isStudyAlphaFrontFixedDef'])) $calculationparametersdef->STUDY_ALPHA_FRONT_FIXED_DEF = $isStudyAlphaFrontFixedDef;
-            if (isset($input['isStudyAlphaRearFixedDef'])) $calculationparametersdef->STUDY_ALPHA_FRONT_FIXED_DEF = $isStudyAlphaRearFixedDef;
+            if (isset($input['isStudyAlphaRearFixedDef'])) $calculationparametersdef->STUDY_ALPHA_REAR_FIXED_DEF = $isStudyAlphaRearFixedDef;
 
             if (isset($input['studyAlphaTopDef'])) $calculationparametersdef->STUDY_ALPHA_TOP_DEF = $studyAlphaTopDef;
             if (isset($input['studyAlphaBottomDef'])) $calculationparametersdef->STUDY_ALPHA_BOTTOM_DEF = $studyAlphaBottomDef;

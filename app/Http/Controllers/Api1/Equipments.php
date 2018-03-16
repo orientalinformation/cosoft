@@ -685,7 +685,8 @@ class Equipments extends Controller
     {
         $minMax = $minScaleY = $maxScaleY = $minValueY = $maxValueY = $nbFractionDigits = $maxiMum = null;
         $unitIdent = $miniMum = 10;
-        $YAxis = $XAxis = $ID_EQUIP = $profileType = $profileFace = $listOfPoints = null;
+        $ID_EQUIP = $profileType = $profileFace = $listOfPoints = null;
+        $YAxis = $XAxis = 0;
 
         $input = $this->request->all();
 
