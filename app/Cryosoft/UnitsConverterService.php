@@ -921,6 +921,18 @@ class UnitsConverterService
             return $value;
     }
 
+    public function unitConvertUserSave($unitType, $value)
+    {
+        $user = $this->auth->user();
+        $unit = UserUnit::join('unit', 'user_unit.ID_UNIT', '=', 'unit.ID_UNIT')->where('ID_USER', $user->ID_USER)
+        ->where("unit.TYPE_UNIT", $unitType)->first();
+
+        if (!empty($unit)) 
+            return $this->convertUnitSave($value, $unit->COEFF_A, $unit->COEFF_B);
+        else 
+            return $value;
+    }
+
     public function consumptionSymbolUser($energy, $type) 
     {
         $sValue = "";
