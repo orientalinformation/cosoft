@@ -57,9 +57,6 @@ class ValueListService
     //Value list
     public $VALUE_N_A = "N.A.";
     public $EQUIP_NOT_STANDARD = 0;
-    public $STUDY_OPTIMUM_MODE = 3;
-    public $STUDY_SELECTED_MODE = 2;
-    public $SLAB = 1;
     public $NO_SPECIFIC_SIZE = -1.0;
     public $CAP_DIMMAT_ENABLE = 16;
     public $CAP_VARIABLE_TR = 1;
@@ -218,5 +215,29 @@ class ValueListService
     public $SLEEPING_COPY = 7;
     public $ACTIVE_FROM_SLEEPING = 8;
     public $OBSOLETE = 9;
+
+    public $BRAIN_RUN_NONE			= 0;			// brain never runs
+	public $BRAIN_RUN_SIMPLIFIED	= 1;			// come from calculate popup => simplified run
+	public $BRAIN_RUN_REFINE		= 2;			// come from refine popup => simplified run
+	public $BRAIN_RUN_FULL_NO		= 3;			// come from full request popup with no access to product chart
+    public $BRAIN_RUN_FULL_YES		= 4;			// come from full request popup with access to product chart
+    
+    public $STUDY_ESTIMATION_MODE	= 1;		// budget Estimation
+	public $STUDY_OPTIMUM_MODE		= 3;		// Optimum Equipement
+    public $STUDY_SELECTED_MODE		= 2;		// Selected Equipement
+    
+    // shapes
+	public $SLAB 							= 1;
+	public $PARALLELEPIPED_STANDING 		= 2;
+	public $PARALLELEPIPED_LAYING 			= 3;
+	public $CYLINDER_STANDING 				= 4;
+	public $CYLINDER_LAYING 				= 5;
+	public $SPHERE 							= 6;
+	public $CYLINDER_CONCENTRIC_STANDING	= 7;
+	public $CYLINDER_CONCENTRIC_LAYING		= 8;
+    public $PARALLELEPIPED_BREADED			= 9;
+    
+    public $POSITION_PARALLEL = 1;
+	public $POSITION_NOT_PARALLEL = 0;
 
 }

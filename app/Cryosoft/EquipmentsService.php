@@ -158,5 +158,29 @@ class EquipmentsService
 
         return $std;
     }
+
+    public function cryogenPrice($value, $energy) {
+        if ($energy == 2) {
+            $snrjUnitLabel = CONSUMPTION_UNIT_LN2;
+        } else if ($energy == 3) {
+            $snrjUnitLabel = CONSUMPTION_UNIT_CO2;
+        } else {
+            $snrjUnitLabel = CONSUMPTION_UNIT;
+        }
+
+        return $this->unit->unitConvertUser($snrjUnitLabel, $value, 3);
+    }
     
+
+    public function cryogenPriceSave($value, $energy) {
+        if ($energy == 2) {
+            $snrjUnitLabel = CONSUMPTION_UNIT_LN2;
+        } else if ($energy == 3) {
+            $snrjUnitLabel = CONSUMPTION_UNIT_CO2;
+        } else {
+            $snrjUnitLabel = CONSUMPTION_UNIT;
+        }
+
+        return $this->unit->unitConvertUserSave($snrjUnitLabel, $value);
+    }
 }

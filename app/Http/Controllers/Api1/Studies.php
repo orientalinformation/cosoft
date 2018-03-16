@@ -222,9 +222,11 @@ class Studies extends Controller
         }
 
         if ($study->CHAINING_CONTROLS!=0 && $study->PARENT_ID != 0) {
-            $parent = Study::findOrFail($study->PARENT_ID);
-            $parent->HAS_CHILD = count(Study::where('PARENT_ID', $study->ID_STUDY)->get()) - 1 > 0;
-            $parent->save();
+            $parent = Study::find($study->PARENT_ID);
+            if ($parent) {
+                $parent->HAS_CHILD = count(Study::where('PARENT_ID', $parent->ID_STUDY)->get()) - 1 > 0 ? 1 : 0;
+                $parent->save();
+            }
         }
 
         return (int) $study->delete();
@@ -1110,86 +1112,7 @@ class Studies extends Controller
         $sEquip->ID_LAYOUT_RESULTS = $lr->ID_LAYOUT_RESULTS;
         $sEquip->save();
 
-        // runLayoutCalculator(sEquip, username, password);
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\layout-trace.txt');
-        $lcRunResult = $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, 1);
-
-        $lcTSRunResult = -1;
-
-        if ( ($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TS != 0) &&
-            ($sEquip->equipment->CAPABILITIES & CAP_TS_FROM_TOC !=0) ) {
-            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\layout-ts-trace.txt');
-            $lcTSRunResult = $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, 2);
-        }
-
-        //calculate TR = f( TS )
-        $doTR = false;
-
-        if (($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TR != 0)
-            && ($sEquip->equipment->CAPABILITIES & CAP_TR_FROM_TS != 0)
-            && ($sEquip->equipment->CAPABILITIES & CAP_PHAMCAST_ENABLE !=0)) {
-            // log . debug("starting TR=f(TS) calculation");
-            $doTR = true;
-			//PhamCast: run automatic
-            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
-            $lcRunResult = $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, !$doTR);
-
-            // if (calc . GetPCCError() != ValuesList . KERNEL_OK) {
-            //     log . warn("automatic run of PhamCast failed");
-            //     throw new OXException("ERROR_KERNEL_PHAMCAST");
-            // } else {
-				// Read result (i.e. tr) data from the DB
-            // $tr = dbdata . loadEquipmentData(sEquip, StudEqpPrm . REGULATION_TEMP);
-            // for (int i = 0; i < tr . length; i ++) {
-            //     tr[i] = new Double(Math . floor(tr[i] . doubleValue()));
-            // }
-            // sEquip . setTr(tr);
-            // }
-            // $sEquip->fresh();
-        }
-
-        if (!$doTR
-            && ($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TS != 0)
-            && ($sEquip->equipment->CAPABILITIES & CAP_TS_FROM_TR != 0)
-            && ($sEquip->equipment->CAPABILITIES & CAP_PHAMCAST_ENABLE != 0)) {
-            // log . debug("starting TS=f(TR) calculation");
-			//PhamCast: run automatic
-            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
-            $lcRunResult = $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, !$doTR);
-
-            // if (calc . GetPCCError() != ValuesList . KERNEL_OK) {
-            //     log . warn("automatic run of PhamCast failed");
-            //     throw new OXException("ERROR_KERNEL_PHAMCAST");
-            // } else {
-			// 	// Read result (i.e. ts) data from the DB
-            //     Double[] ts = dbdata . loadEquipmentData(sequip, StudEqpPrm . DWELLING_TIME);
-            //     for (int i = 0; i < ts . length; i ++) {
-            //         ts[i] = new Double(Math . floor(ts[i] . doubleValue()));
-            //     }
-            // $sEquip->fresh();
-            // }
-        }
-
-        //run automatic calculation of exhaust gas temp
-        // KernelToolsCalculation kerneltools = new KernelToolsCalculation(
-        //     CryosoftDB . CRYOSOFT_DB_ODBCNAME,
-        //     username,
-        //     password,
-        //     Ln2Servlet . getLogsDirectory() + "\\" + study . getStudyName() + "\\KT_ExhaustGasTempTr.txt",
-        //     getUserID(),
-        //     sequip . getStudy() . getIdStudy(),
-        //     sequip . getIdStudyEquipments(),
-        //     0
-        // );
-
-        // kerneltools . StartKTCalculation(true, KernelToolsCalculation . EXHAUST_GAS_TEMPERATURE);
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
-        $lcRunResult = $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 1);
-
-        $sEquip->fresh();
-
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id), $sEquip->ID_STUDY_EQUIPMENTS);
-        return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 43);
+        $this->stdeqp->calculateEquipmentParams($sEquip);
 
         return $sEquip;
     }
@@ -1335,46 +1258,11 @@ class Studies extends Controller
         $layoutGen = $this->stdeqp->getStudyEquipmentLayoutGen($sEquip);
         // $layoutGen->ORI
         $layoutGen->PROD_POSITION = $input['orientation'];
-        $layoutGen->WIDTH_INTERVAL = $input['widthInterval'];
-        $layoutGen->LENGTH_INTERVAL = $input['lengthInterval'];
+        $layoutGen->WIDTH_INTERVAL = $this->convert->prodDimensionSave($input['widthInterval']);
+        $layoutGen->LENGTH_INTERVAL = $this->convert->prodDimensionSave($input['lengthInterval']);
         $layoutGen->save();
 
-        // runLayoutCalculator(sEquip, username, password);
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $sEquip->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\layout-trace.txt');
-        $lcRunResult = $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, 1);
-
-        $lcTSRunResult = -1;
-
-        if (($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TS != 0) && ($sEquip->equipment->CAPABILITIES & CAP_TS_FROM_TOC != 0)) {
-            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $sEquip->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\layout-ts-trace.txt');
-            $lcTSRunResult = $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, 2);
-        }
-
-        $doTR = false;
-
-        if (($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TR != 0)
-            && ($sEquip->equipment->CAPABILITIES & CAP_TR_FROM_TS != 0)
-            && ($sEquip->equipment->CAPABILITIES & CAP_PHAMCAST_ENABLE != 0)) {
-            $doTR = true;
-            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $sEquip->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
-            $lcRunResult = $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, !$doTR);
-        }
-
-        if (!$doTR
-            && ($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TS != 0)
-            && ($sEquip->equipment->CAPABILITIES & CAP_TS_FROM_TR != 0)
-            && ($sEquip->equipment->CAPABILITIES & CAP_PHAMCAST_ENABLE != 0)) {
-            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $sEquip->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
-            $lcRunResult = $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, !$doTR);
-        }
-
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $sEquip->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
-        $lcRunResult = $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 1);
-
-        $sEquip->fresh();
-
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id), $sEquip->ID_STUDY_EQUIPMENTS);
-        return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 43);
+        $this->stdeqp->calculateEquipmentParams($sEquip);
     }
 
     public function getChainingModel($id) 
@@ -1493,6 +1381,7 @@ class Studies extends Controller
         $input = $this->request->all();
         $childStudyName = $input['studyName'];
         $stdEqpId = $input['stdEqpId'];
+        $stdEqp = StudyEquipment::find($stdEqpId);
 
         $study = new Study();
         $temprecordpst = new TempRecordPts();
@@ -1503,6 +1392,16 @@ class Studies extends Controller
         $report = new Report();
         $precalcLdgRatePrm = new PrecalcLdgRatePrm();
         $packing = new Packing();
+
+        $isNumberical = ($stdEqp->BRAIN_TYPE == $this->value->BRAIN_RUN_FULL_YES) ? true : false;
+        $isAnalogical = false;
+        if ($study->CALCULATION_MODE == $this->value->STUDY_ESTIMATION_MODE) {
+            // estimation
+            $isAnalogical = $this->stdeqp->isAnalogicResults($stdEqp);
+        } else {
+            // selected or optimum
+            $isAnalogical = $stdEqp->BRAIN_TYPE == $this->value->BRAIN_RUN_NONE ? true : false;
+        }
         
         // @class: \App\Models\Study
         $studyCurrent = Study::findOrFail($id);
@@ -1538,7 +1437,6 @@ class Studies extends Controller
             
 
             if (!empty($childStudyName)) {
-
                 //duplicate study already exsits
                 $study->STUDY_NAME = $childStudyName;
                 $study->ID_USER = $this->auth->user()->ID_USER;
@@ -1579,7 +1477,7 @@ class Studies extends Controller
                 DB::insert(DB::RAW('insert into INITIAL_TEMPERATURE (ID_PRODUCTION, INITIAL_T, MESH_1_ORDER, MESH_2_ORDER, MESH_3_ORDER) SELECT '
                     . $production->ID_PRODUCTION . ',I.INITIAL_T, I.MESH_1_ORDER, I.MESH_2_ORDER, I.MESH_3_ORDER FROM INITIAL_TEMPERATURE AS I WHERE ID_PRODUCTION = ' . $productionCurr->ID_PRODUCTION));
                 
-
+                $shapeId = 0;
                 //duplicate Product already exsits
                 if ((count($productCurr) > 0)) {
                     $product = $productCurr->replicate();
@@ -1607,6 +1505,7 @@ class Studies extends Controller
                             $productemlt = new ProductElmt();
                             $productemlt = $prodelmtCurr->replicate();
                             $productemlt->ID_PROD = $product->ID_PROD;
+                            $shapeId = $productemlt->ID_SHAPE;
                             unset($productemlt->ID_PRODUCT_ELMT);
                             $productemlt->save();
                             foreach ($prodelmtCurr->meshPositions as $meshPositionCurr) {
@@ -1658,6 +1557,22 @@ class Studies extends Controller
                             unset($packingLayer->ID_PACKING_LAYER);
                             $packingLayer->save();
                         }
+                    }
+                }
+
+                //INITIAL TEMPERATURE
+                if ($isNumerical) {
+                    // just duplicate => child product = parent product
+                    $this->stdeqp->setInitialTempFromNumericalResults($stdEqp, $shapeId, $product, $production);
+                } else if ($isAnalogical) {
+                    if ($study->CALCULATION_MODE == $this->values->STUDY_ESTIMATION_MODE) {
+                        // estimation
+                        // just duplicate => child product = parent product
+                        $this->stdeqp->setInitialTempFromAnalogicalResults($stdEqp, $shapeId, $product, $production);
+                    } else {
+                        // selected or optimum
+                        // just duplicate => child product = parent product
+                        $this->stdeqp->setInitialTempFromSimpleNumericalResults($stdEqp, $shapeId, $product, $production);
                     }
                 }
 
