@@ -33,6 +33,14 @@ $router->GET('/api/v1/studies/{id}/meshPoints', 'Api1\\Studies@getMeshPoints');
 $router->GET('/api/v1/studies/{id}/locationAxisSelected', 'Api1\\Studies@getlocationAxisSelected');
 
 /**
+ * GET reCalculate
+ * Summary: 
+ * Notes: re calculate all study equipment in a study
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/equipments/{id}/reCalculate', 'Api1\\Equipments@reCalculate');
+
+/**
  * GET getstudyEquipmentProductChart
  * Summary: 
  * Notes: get Study Equipment Product Chart
