@@ -5,6 +5,10 @@ namespace App\Cryosoft;
 use App\Models\StudyEquipment;
 use App\Models\LayoutGeneration;
 use App\Models\StudEqpPrm;
+use App\Models\LayoutResults;
+use App\Models\DimaResults;
+use App\Models\RecordPosition;
+use App\Models\InitialTemperature;
 
 class StudyEquipmentService
 {
@@ -21,6 +25,45 @@ class StudyEquipmentService
         $this->value = $app['App\\Cryosoft\\ValueListService'];
         $this->convert = $app['App\\Cryosoft\\UnitsConverterService'];
         $this->kernel = $app['App\\Kernel\\KernelService'];
+    }
+
+    public function calculateEquipmentParams(StudyEquipment &$sEquip) {
+        // runLayoutCalculator(sEquip, username, password);
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $sEquip->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\layout-trace.txt');
+        $lcRunResult = $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, 1);
+
+        $lcTSRunResult = -1;
+
+        if (($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TS != 0) && ($sEquip->equipment->CAPABILITIES & CAP_TS_FROM_TOC != 0)) {
+            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $sEquip->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\layout-ts-trace.txt');
+            $lcTSRunResult = $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, 2);
+        }
+
+        $doTR = false;
+
+        if (($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TR != 0)
+            && ($sEquip->equipment->CAPABILITIES & CAP_TR_FROM_TS != 0)
+            && ($sEquip->equipment->CAPABILITIES & CAP_PHAMCAST_ENABLE != 0)) {
+            $doTR = true;
+            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $sEquip->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
+            $lcRunResult = $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, !$doTR);
+        }
+
+        if (!$doTR
+            && ($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TS != 0)
+            && ($sEquip->equipment->CAPABILITIES & CAP_TS_FROM_TR != 0)
+            && ($sEquip->equipment->CAPABILITIES & CAP_PHAMCAST_ENABLE != 0)) {
+            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $sEquip->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
+            $lcRunResult = $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, !$doTR);
+        }
+
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $sEquip->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
+        $lcRunResult = $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 1);
+
+        $sEquip->fresh();
+
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($sEquip->ID_STUDY), $sEquip->ID_STUDY_EQUIPMENTS);
+        return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 43);
     }
 
     /**
@@ -53,6 +96,9 @@ class StudyEquipmentService
             $layoutGen->WIDTH_INTERVAL = INTERVAL_UNDEFINED;
 
             $layoutGen->save();
+        } else {
+            $layoutGen->LENGTH_INTERVAL = $this->convert->prodDimension(doubleval($layoutGen->LENGTH_INTERVAL));
+            $layoutGen->WIDTH_INTERVAL = $this->convert->prodDimension(doubleval($layoutGen->WIDTH_INTERVAL));
         }
         return $layoutGen;
     }
@@ -75,6 +121,16 @@ class StudyEquipmentService
         $equip['ORIENTATION'] = $layoutGen->PROD_POSITION;
         $equip['displayName'] = 'EQUIP_NAME_NOT_FOUND';
         $equip['layoutGen'] = $layoutGen;
+        $layoutResults = LayoutResults::where('ID_STUDY_EQUIPMENTS', $studyEquipment->ID_STUDY_EQUIPMENTS)->first();
+        if ($layoutResults) {
+            $layoutResults->QUANTITY_PER_BATCH = $this->convert->mass($layoutResults->QUANTITY_PER_BATCH);
+            $layoutResults->LOADING_RATE = $this->convert->toc($layoutResults->LOADING_RATE);
+            $layoutResults->LEFT_RIGHT_INTERVAL = $this->convert->prodDimension($layoutResults->LEFT_RIGHT_INTERVAL);
+            $layoutResults->NUMBER_PER_M = $this->convert->none($layoutResults->NUMBER_PER_M);
+            $layoutResults->NUMBER_IN_WIDTH = $this->convert->none($layoutResults->NUMBER_IN_WIDTH);
+        }
+        
+        $equip['layoutResults'] = $layoutResults;
 
             // determine study equipment name
         if ($studyEquipment->equipment->STD
@@ -150,7 +206,32 @@ class StudyEquipmentService
         }
         $studyEquipParams = StudEqpPrm::where('ID_STUDY_EQUIPMENTS', $studyEquip->ID_STUDY_EQUIPMENTS)
             ->where('VALUE_TYPE', '>=', $dataType)->where('VALUE_TYPE', '<', $dataType + 100)->pluck('VALUE')->toArray();
-        return array_map('doubleval', $studyEquipParams);
+        
+        $result = array_map('doubleval', $studyEquipParams);
+
+        $data = [];
+        foreach ($result as $row) {
+            switch ($dataType) {
+                case CONVECTION_SPEED:
+                    $data[] = $this->convert->convectionSpeed($row);
+                    break;
+
+                case DWELLING_TIME:
+                    $data[] = $this->convert->time($row);
+                    break;
+                
+                case REGULATION_TEMP:
+                case EXHAUST_TEMP:
+                    $data[] = $this->convert->temperature($row);
+                    break;
+
+                case ENTHALPY_VAR:
+                    $data[] = $this->convert->enthalpy($row);
+                    break;
+            }
+        }
+
+        return $data;
     }
 
     public function topOrQperBatch(StudyEquipment &$se)
@@ -169,11 +250,147 @@ class StudyEquipmentService
                 "" : $this->convert->toc($lr->LOADING_RATE) . " %";
         }
 
-        // if ((lg . getWidthInterval() != ValuesList . INTERVAL_UNDEFINED)
-        //     || (lg . getLengthInterval() != ValuesList . INTERVAL_UNDEFINED)) {
+        // if ((lg . getWidthInterval() != $this->value->INTERVAL_UNDEFINED)
+        //     || (lg . getLengthInterval() != $this->value->INTERVAL_UNDEFINED)) {
         //     String simg = "<br><img src=\"/cryosoft/jspPages/img/icon_info.gif\" alt=\"\" border=\"0\">";
         //     out . println(simg);
         // }
         return $returnStr;
+    }
+
+    public function isAnalogicResults(StudyEquipment &$se) {
+        $results = DimaResults::where('ID_STUDY_EQUIPMENTS',$se->ID_STUDY_EQUIPMENTS)->get();
+
+        return count($results)>0;
+    }
+
+	public function setInitialTempFromNumericalResults (StudyEquipments &$sequip, $shape, Product &$product, Production &$production)
+    {
+        // $offset = [0,0,0];
+        // $bret = true;
+        // $counter = 0;
+        // $NB_TEMP_FOR_NEXTSTATUS = 25;
+		
+        // try {
+        //      $recPos = RecordPosition::where('ID_STUDY_EQUIPMENTS', $sequip->ID_STUDY_EQUIPMENTS)
+        //         ->orderBy('RECORD_TIME', 'DESC')->first();
+        //     if ($recPos) {
+		// 		// get temp record data
+        //         //	SFE : 26/05/2005 : axe z n'est plus enregistré => on lit que l'axe 0 par sécurité
+        //         $tempRecordData = TempRecordData::where([
+        //             ['ID_REC_POS', $recPos->ID_REC_POS],
+        //             ['REC_AXIS_Z_POS', '0']
+        //         ])->orderBy('REC_AXIS_X_POS')->orderBy('REC_AXIS_Y_POS')->get();
+        //         if ($tempRecordData) {
+        //             $orientation = $sequip->layoutGeneration->first()->PROD_POSITION;
+		// 			//	SFE : 26/05/2005 : axe z n'est plus enregistré => il faut propager les valeurs
+        //             $NbNodesZ = 0;
+        //             switch ($shape) {
+        //                 case $this->value->SLAB:
+        //                 case $this->value->CYLINDER_STANDING:
+        //                 case $this->value->CYLINDER_CONCENTRIC_LAYING:
+        //                 case $this->value->CYLINDER_LAYING:
+        //                 case $this->value->CYLINDER_CONCENTRIC_STANDING:
+        //                 case $this->value->SPHERE:
+        //                     $NbNodesZ = 1;
+        //                     break;
+        //                 case $this->value->PARALLELEPIPED_STANDING:
+        //                 case $this->value->PARALLELEPIPED_BREADED:
+        //                     if ($orientation == $this->value->POSITION_PARALLEL) {
+        //                         $NbNodesZ = $product->meshGenerations()->first()->MESH_1_NB;
+        //                     } else {
+        //                         $NbNodesZ = $product->meshGenerations()->first()->MESH_3_NB;
+                                
+        //                     }
+        //                     break;
+        //                 case $this->value->PARALLELEPIPED_LAYING:
+		// 					//tjs calculer comme s'il était en position perpendiculaire
+        //                     $NbNodesZ = $product->meshGenerations()->first()->MESH_3_NB;
+        //                     break;
+        //             }
+	
+		// 			// Increase value to show still alive
+        //             // cryoRun . nextCRRStatus(true);
+
+        //             foreach ($tempRecordData as $trd) {
+        //                 $initTemp = new InitialTemperature();
+        //                 $initTemp->ID_PRODUCTION  = $production->ID_PRODUCTION;
+        //                 $initTemp->INITIAL_T = $trd->TEMP;
+						
+		// 				// SFE : 26/05/2005 : propagation temperature axe Z
+        //                 for ($i = 0; $i < $NbNodesZ; $i++) {
+        //                     switch ($shape) {
+        //                         case $this->value->SLAB:
+        //                             $initTemp->MESH_1_ORDER = pack('s', $i);
+        //                             $initTemp->MESH_2_ORDER = pack('s',($trd->REC_AXIS_Y_POS +$offset[1]));
+        //                             $initTemp->MESH_3_ORDER = pack('s', $trd->REC_AXIS_X_POS);
+        //                             break;
+        //                         case $this->value->PARALLELEPIPED_STANDING:
+        //                         case $this->value->PARALLELEPIPED_BREADED:
+        //                             if ($orientation == $this->value->POSITION_PARALLEL) {
+        //                                 $initTemp->MESH_1_ORDER = pack('s',($i +$offset[0]));
+        //                                 $initTemp->MESH_2_ORDER = pack('s',($trd->REC_AXIS_Y_POS +$offset[1]));
+        //                                 $initTemp->MESH_3_ORDER = pack('s',($trd->REC_AXIS_X_POS +$offset[2]));
+        //                             } else {
+        //                                 $initTemp->MESH_1_ORDER = pack('s',($trd->REC_AXIS_X_POS +$offset[0]));
+        //                                 $initTemp->MESH_2_ORDER = pack('s',($trd->REC_AXIS_Y_POS +$offset[1]));
+        //                                 $initTemp->MESH_3_ORDER = pack('s',($i +$offset[2]));
+        //                             }
+        //                             break;
+        //                         case $this->value->PARALLELEPIPED_LAYING:
+        //                             $initTemp->MESH_1_ORDER = pack('s', $trd->REC_AXIS_Y_POS);
+        //                             $initTemp->MESH_2_ORDER = pack('s',($trd->REC_AXIS_X_POS +$offset[1]));
+        //                             $initTemp->MESH_3_ORDER = pack('s', $i);
+        //                             break;
+        //                         case $this->value->CYLINDER_STANDING:
+        //                         case $this->value->CYLINDER_CONCENTRIC_LAYING:
+        //                             $initTemp->MESH_1_ORDER = pack('s', $trd->REC_AXIS_X_POS);
+        //                             $initTemp->MESH_2_ORDER = pack('s',($trd->REC_AXIS_Y_POS +$offset[1]));
+        //                             $initTemp->MESH_3_ORDER = pack('s', $i);
+        //                             break;
+
+        //                         case $this->value->CYLINDER_LAYING:
+        //                         case $this->value->CYLINDER_CONCENTRIC_STANDING:
+        //                             $initTemp->MESH_1_ORDER = pack('s', $trd->REC_AXIS_Y_POS);
+        //                             $initTemp->MESH_2_ORDER = pack('s',($trd->REC_AXIS_X_POS +$offset[1]));
+        //                             $initTemp->MESH_3_ORDER = pack('s', $i);
+        //                             break;
+
+        //                         case $this->value->SPHERE:
+        //                             $initTemp->MESH_1_ORDER = pack('s', $trd->REC_AXIS_X_POS);
+        //                             $initTemp->MESH_2_ORDER = pack('s',($trd->REC_AXIS_Y_POS +$offset[1]));
+        //                             $initTemp->MESH_3_ORDER = pack('s', $i);
+        //                             break;
+        //                     }
+							
+		// 					//create initial temperature
+        //                     CryosoftDB . create(initTemp, connection);
+
+        //                     if ((++$counter % $NB_TEMP_FOR_NEXTSTATUS) == 0) {
+		// 						// Increase value to show still alive
+        //                         cryoRun . nextCRRStatus(true);
+        //                     }
+        //                 }//for
+        //             }//while
+					
+		// 			// update production to set avg initial temp
+        //             // LOG . debug("update avg initial temperature (id_production=" + production . getIdProduction() + ") "
+        //             //     + "temp init = " + sequip . getAverageProductTemp());
+        //             // production . setAvgTInitial(sequip . getAverageProductTemp());
+        //             // tx . update(production);
+					
+		// 			// Increase value to show still alive
+        //             // cryoRun . nextCRRStatus(true);
+        //         } else {
+        //             // bret = false;
+        //         }
+        //     } else {
+        //         // bret = false;
+        //     }
+        // } catch (Exception $e) {
+        //     throw new Exception("Error while writing initial temp from numerical results");
+        // }
+
+        // return $bret;
     }
 }

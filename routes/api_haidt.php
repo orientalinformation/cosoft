@@ -366,3 +366,11 @@ $router->GET('/api/v1/referencedata/equipment/{id}/filter', 'Api1\\Equipments@ge
  * Output-Formats: [string]
  */
 $router->POST('/api/v1/upload', 'Api1\\Reports@postFile');
+
+/**
+ * GET getDataSubFamily
+ * Summary:
+ * Notes: get data sub family
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/referencedata/subfamily', 'Api1\\ReferenceData@getDataSubFamily');

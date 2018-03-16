@@ -592,7 +592,7 @@ class UnitsConverterService
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
-        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B);
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 0);
     }
 
     public function convectionCoeff($value) {
@@ -652,7 +652,7 @@ class UnitsConverterService
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
-        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B);
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 0);
     }
     public function packingThickness($value) {
         $unit = Unit::where('TYPE_UNIT', $this->value->THICKNESS_PACKING)
@@ -830,7 +830,7 @@ class UnitsConverterService
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
-        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B);
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 2);
     }
 
     public function prodDimensionSave($value)
@@ -917,6 +917,18 @@ class UnitsConverterService
 
         if (!empty($unit)) 
             return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B,  $decimal);
+        else 
+            return $value;
+    }
+
+    public function unitConvertUserSave($unitType, $value)
+    {
+        $user = $this->auth->user();
+        $unit = UserUnit::join('unit', 'user_unit.ID_UNIT', '=', 'unit.ID_UNIT')->where('ID_USER', $user->ID_USER)
+        ->where("unit.TYPE_UNIT", $unitType)->first();
+
+        if (!empty($unit)) 
+            return $this->convertUnitSave($value, $unit->COEFF_A, $unit->COEFF_B);
         else 
             return $value;
     }

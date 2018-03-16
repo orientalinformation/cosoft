@@ -221,6 +221,14 @@ class Studies extends Controller
             $equip->delete();
         }
 
+        if ($study->CHAINING_CONTROLS!=0 && $study->PARENT_ID != 0) {
+            $parent = Study::find($study->PARENT_ID);
+            if ($parent) {
+                $parent->HAS_CHILD = count(Study::where('PARENT_ID', $parent->ID_STUDY)->get()) - 1 > 0 ? 1 : 0;
+                $parent->save();
+            }
+        }
+
         return (int) $study->delete();
     }
 
@@ -1104,86 +1112,7 @@ class Studies extends Controller
         $sEquip->ID_LAYOUT_RESULTS = $lr->ID_LAYOUT_RESULTS;
         $sEquip->save();
 
-        // runLayoutCalculator(sEquip, username, password);
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\layout-trace.txt');
-        $lcRunResult = $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, 1);
-
-        $lcTSRunResult = -1;
-
-        if ( ($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TS != 0) &&
-            ($sEquip->equipment->CAPABILITIES & CAP_TS_FROM_TOC !=0) ) {
-            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\layout-ts-trace.txt');
-            $lcTSRunResult = $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, 2);
-        }
-
-        //calculate TR = f( TS )
-        $doTR = false;
-
-        if (($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TR != 0)
-            && ($sEquip->equipment->CAPABILITIES & CAP_TR_FROM_TS != 0)
-            && ($sEquip->equipment->CAPABILITIES & CAP_PHAMCAST_ENABLE !=0)) {
-            // log . debug("starting TR=f(TS) calculation");
-            $doTR = true;
-			//PhamCast: run automatic
-            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
-            $lcRunResult = $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, !$doTR);
-
-            // if (calc . GetPCCError() != ValuesList . KERNEL_OK) {
-            //     log . warn("automatic run of PhamCast failed");
-            //     throw new OXException("ERROR_KERNEL_PHAMCAST");
-            // } else {
-				// Read result (i.e. tr) data from the DB
-            // $tr = dbdata . loadEquipmentData(sEquip, StudEqpPrm . REGULATION_TEMP);
-            // for (int i = 0; i < tr . length; i ++) {
-            //     tr[i] = new Double(Math . floor(tr[i] . doubleValue()));
-            // }
-            // sEquip . setTr(tr);
-            // }
-            // $sEquip->fresh();
-        }
-
-        if (!$doTR
-            && ($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TS != 0)
-            && ($sEquip->equipment->CAPABILITIES & CAP_TS_FROM_TR != 0)
-            && ($sEquip->equipment->CAPABILITIES & CAP_PHAMCAST_ENABLE != 0)) {
-            // log . debug("starting TS=f(TR) calculation");
-			//PhamCast: run automatic
-            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
-            $lcRunResult = $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, !$doTR);
-
-            // if (calc . GetPCCError() != ValuesList . KERNEL_OK) {
-            //     log . warn("automatic run of PhamCast failed");
-            //     throw new OXException("ERROR_KERNEL_PHAMCAST");
-            // } else {
-			// 	// Read result (i.e. ts) data from the DB
-            //     Double[] ts = dbdata . loadEquipmentData(sequip, StudEqpPrm . DWELLING_TIME);
-            //     for (int i = 0; i < ts . length; i ++) {
-            //         ts[i] = new Double(Math . floor(ts[i] . doubleValue()));
-            //     }
-            // $sEquip->fresh();
-            // }
-        }
-
-        //run automatic calculation of exhaust gas temp
-        // KernelToolsCalculation kerneltools = new KernelToolsCalculation(
-        //     CryosoftDB . CRYOSOFT_DB_ODBCNAME,
-        //     username,
-        //     password,
-        //     Ln2Servlet . getLogsDirectory() + "\\" + study . getStudyName() + "\\KT_ExhaustGasTempTr.txt",
-        //     getUserID(),
-        //     sequip . getStudy() . getIdStudy(),
-        //     sequip . getIdStudyEquipments(),
-        //     0
-        // );
-
-        // kerneltools . StartKTCalculation(true, KernelToolsCalculation . EXHAUST_GAS_TEMPERATURE);
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
-        $lcRunResult = $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 1);
-
-        $sEquip->fresh();
-
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id), $sEquip->ID_STUDY_EQUIPMENTS);
-        return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 43);
+        $this->stdeqp->calculateEquipmentParams($sEquip);
 
         return $sEquip;
     }
@@ -1329,46 +1258,11 @@ class Studies extends Controller
         $layoutGen = $this->stdeqp->getStudyEquipmentLayoutGen($sEquip);
         // $layoutGen->ORI
         $layoutGen->PROD_POSITION = $input['orientation'];
-        $layoutGen->WIDTH_INTERVAL = $input['widthInterval'];
-        $layoutGen->LENGTH_INTERVAL = $input['lengthInterval'];
+        $layoutGen->WIDTH_INTERVAL = $this->convert->prodDimensionSave($input['widthInterval']);
+        $layoutGen->LENGTH_INTERVAL = $this->convert->prodDimensionSave($input['lengthInterval']);
         $layoutGen->save();
 
-        // runLayoutCalculator(sEquip, username, password);
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $sEquip->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\layout-trace.txt');
-        $lcRunResult = $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, 1);
-
-        $lcTSRunResult = -1;
-
-        if (($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TS != 0) && ($sEquip->equipment->CAPABILITIES & CAP_TS_FROM_TOC != 0)) {
-            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $sEquip->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\layout-ts-trace.txt');
-            $lcTSRunResult = $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, 2);
-        }
-
-        $doTR = false;
-
-        if (($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TR != 0)
-            && ($sEquip->equipment->CAPABILITIES & CAP_TR_FROM_TS != 0)
-            && ($sEquip->equipment->CAPABILITIES & CAP_PHAMCAST_ENABLE != 0)) {
-            $doTR = true;
-            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $sEquip->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
-            $lcRunResult = $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, !$doTR);
-        }
-
-        if (!$doTR
-            && ($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TS != 0)
-            && ($sEquip->equipment->CAPABILITIES & CAP_TS_FROM_TR != 0)
-            && ($sEquip->equipment->CAPABILITIES & CAP_PHAMCAST_ENABLE != 0)) {
-            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $sEquip->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
-            $lcRunResult = $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, !$doTR);
-        }
-
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $sEquip->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
-        $lcRunResult = $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 1);
-
-        $sEquip->fresh();
-
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id), $sEquip->ID_STUDY_EQUIPMENTS);
-        return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 43);
+        $this->stdeqp->calculateEquipmentParams($sEquip);
     }
 
     public function getChainingModel($id) 
@@ -1481,6 +1375,232 @@ class Studies extends Controller
 
 
         return $axisTemp;
+    }
+
+    public function createChildStudy($id) {
+        $input = $this->request->all();
+        $childStudyName = $input['studyName'];
+        $stdEqpId = $input['stdEqpId'];
+        $stdEqp = StudyEquipment::find($stdEqpId);
+
+        $study = new Study();
+        $temprecordpst = new TempRecordPts();
+        $production = new Production();
+        $product = new Product();
+        $meshgeneration = new MeshGeneration();
+        $price = new Price();
+        $report = new Report();
+        $precalcLdgRatePrm = new PrecalcLdgRatePrm();
+        $packing = new Packing();
+
+        $isNumberical = ($stdEqp->BRAIN_TYPE == $this->value->BRAIN_RUN_FULL_YES) ? true : false;
+        $isAnalogical = false;
+        if ($study->CALCULATION_MODE == $this->value->STUDY_ESTIMATION_MODE) {
+            // estimation
+            $isAnalogical = $this->stdeqp->isAnalogicResults($stdEqp);
+        } else {
+            // selected or optimum
+            $isAnalogical = $stdEqp->BRAIN_TYPE == $this->value->BRAIN_RUN_NONE ? true : false;
+        }
+        
+        // @class: \App\Models\Study
+        $studyCurrent = Study::findOrFail($id);
+        $studyCurrent->HAS_CHILD = 1;
+        $studyCurrent->save();
+        $input = $this->request->all();
+
+        $duplicateStudy = Study::where('STUDY_NAME', '=', $childStudyName)->count();
+        if ($duplicateStudy) {
+
+            return response([
+                'code' => 1002,
+                'message' => 'Duplicate Study Name!'
+            ], 406);
+        }
+
+        if ($studyCurrent != null) {
+
+            // @class: \App\Models\TempRecordPts
+            $temprecordpstCurr = TempRecordPts::where('ID_STUDY', $studyCurrent->ID_STUDY)->first();
+            // @class: \App\Models\Production
+            $productionCurr = Production::where('ID_STUDY', $studyCurrent->ID_STUDY)->first(); 
+            // @class: \App\Models\Product
+            $productCurr = Product::where('ID_STUDY', $studyCurrent->ID_STUDY)->first();
+            // @class: \App\Models\Price
+            $priceCurr = Price::where('ID_STUDY', $studyCurrent->ID_STUDY)->first(); 
+            // @class: \App\Models\Price
+            $reportCurr = Report::where('ID_STUDY', $studyCurrent->ID_STUDY)->first(); 
+            // @class: \App\Models\PrecalcLdgRatePrm
+            $precalcLdgRatePrmCurr = PrecalcLdgRatePrm::where('ID_STUDY', $studyCurrent->ID_STUDY)->first();
+            // @class: \App\Models\Packing
+            $packingCurr = Packing::where('ID_STUDY', $studyCurrent->ID_STUDY)->first(); 
+            
+
+            if (!empty($childStudyName)) {
+                //duplicate study already exsits
+                $study->STUDY_NAME = $childStudyName;
+                $study->ID_USER = $this->auth->user()->ID_USER;
+                $study->OPTION_ECO = $studyCurrent->OPTION_ECO;
+                $study->CALCULATION_MODE = $studyCurrent->CALCULATION_MODE;
+                $study->COMMENT_TXT = $studyCurrent->COMMENT_TXT;
+                $study->OPTION_CRYOPIPELINE = $studyCurrent->OPTION_CRYOPIPELINE;
+                $study->OPTION_EXHAUSTPIPELINE = $studyCurrent->OPTION_EXHAUSTPIPELINE;
+                $study->CHAINING_CONTROLS = $studyCurrent->CHAINING_CONTROLS;
+                $study->CHAINING_ADD_COMP_ENABLE = $studyCurrent->CHAINING_ADD_COMP_ENABLE;
+                $study->CHAINING_NODE_DECIM_ENABLE = $studyCurrent->CHAINING_NODE_DECIM_ENABLE;
+                $study->HAS_CHILD = 0;
+                $study->PARENT_ID = $id;
+                $study->PARENT_STUD_EQP_ID = $stdEqpId;
+                $study->CALCULATION_STATUS = $studyCurrent->CALCULATION_STATUS;
+                $study->TO_RECALCULATE = $studyCurrent->TO_RECALCULATE;
+                $study->save();
+
+                //duplicate TempRecordPts already exsits
+                if (count($temprecordpstCurr) > 0) {
+                    $temprecordpst = $temprecordpstCurr->replicate();
+                    $temprecordpst->ID_STUDY = $study->ID_STUDY;
+                    unset($temprecordpst->ID_TEMP_RECORD_PTS);
+                    $temprecordpst->save();
+
+                }
+
+                //duplicate Production already exsits
+                if (count($productionCurr) > 0) {
+
+                    $production = $productionCurr->replicate();
+                    $production->ID_STUDY = $study->ID_STUDY;
+                    unset($production->ID_PRODUCTION);
+                    $production->save();
+                }
+
+                //duplicate initial_Temp already exsits
+                DB::insert(DB::RAW('insert into INITIAL_TEMPERATURE (ID_PRODUCTION, INITIAL_T, MESH_1_ORDER, MESH_2_ORDER, MESH_3_ORDER) SELECT '
+                    . $production->ID_PRODUCTION . ',I.INITIAL_T, I.MESH_1_ORDER, I.MESH_2_ORDER, I.MESH_3_ORDER FROM INITIAL_TEMPERATURE AS I WHERE ID_PRODUCTION = ' . $productionCurr->ID_PRODUCTION));
+                
+                $shapeId = 0;
+                //duplicate Product already exsits
+                if ((count($productCurr) > 0)) {
+                    $product = $productCurr->replicate();
+                    $product->ID_STUDY = $study->ID_STUDY;
+                    $product->PROD_ISO = 0; //non-iso thermal
+                    unset($product->ID_PROD);
+                    $product->save();
+
+                    // @class: \App\Models\MeshGeneration
+                    $meshgenerationCurr = MeshGeneration::where('ID_PROD', $productCurr->ID_PROD)->first(); 
+                    // @class: \App\Models\ProductEmlt
+                    $productemltCurr = ProductElmt::where('ID_PROD', $productCurr->ID_PROD)->get(); 
+                    //duplicate MeshGeneration already exsits
+                    if (count($meshgenerationCurr) > 0) {
+                        $meshgeneration = $meshgenerationCurr->replicate();
+                        $meshgeneration->ID_PROD = $product->ID_PROD;
+                        unset($meshgeneration->ID_MESH_GENERATION);
+                        $meshgeneration->save();
+                        $product->ID_MESH_GENERATION = $meshgeneration->ID_MESH_GENERATION;
+                        $product->save();
+                    }
+
+                    if (count($productemltCurr) > 0) {
+                        foreach ($productemltCurr as $prodelmtCurr) {
+                            $productemlt = new ProductElmt();
+                            $productemlt = $prodelmtCurr->replicate();
+                            $productemlt->ID_PROD = $product->ID_PROD;
+                            $shapeId = $productemlt->ID_SHAPE;
+                            unset($productemlt->ID_PRODUCT_ELMT);
+                            $productemlt->save();
+                            foreach ($prodelmtCurr->meshPositions as $meshPositionCurr) {
+                                $meshPos = new MeshPosition();
+                                $meshPos = $meshPositionCurr->replicate();
+                                unset($meshPos->ID_MESH_POSITION);
+                                $meshPos->save();
+                            }
+                        }
+                    }
+                }
+                    
+                
+                //duplicate Price already exsits
+                if (count($priceCurr) > 0) {
+                    $price = $priceCurr->replicate();
+                    $price->ID_STUDY = $study->ID_STUDY;
+                    unset($price->ID_PRICE);
+                    $price->save();
+                }
+
+                //duplicate Report already exsits
+                if (count($reportCurr) > 0) {
+                    $report = $reportCurr->replicate();
+                    $report->ID_STUDY = $study->ID_STUDY;
+                    unset($report->ID_REPORT);
+                    $report->save();
+                }
+
+                if (count($precalcLdgRatePrmCurr) > 0) {
+                    $precalcLdgRatePrm = $precalcLdgRatePrmCurr->replicate();
+                    $precalcLdgRatePrm->ID_STUDY = $study->ID_STUDY;
+                    unset($precalcLdgRatePrm->ID_PRECALC_LDG_RATE_PRM);
+                    $precalcLdgRatePrm->save();
+                }
+
+                if (count($packingCurr) > 0) {
+                    $packing = $packingCurr->replicate();
+                    $packing->ID_STUDY = $study->ID_STUDY;
+                    unset($packing->ID_PACKING);
+                    $packing->save();
+                    // @class: \App\Models\PackingLayer
+                    $packingLayerCurr = PackingLayer::where('ID_PACKING', $packingCurr->ID_PACKING)->get();
+                    if (count($packingLayerCurr) > 0) {
+                        foreach ($packingLayerCurr as $pLayer) {
+                            $packingLayer = new PackingLayer();
+                            $packingLayer = $pLayer->replicate();
+                            $packingLayer->ID_PACKING = $packing->ID_PACKING;
+                            unset($packingLayer->ID_PACKING_LAYER);
+                            $packingLayer->save();
+                        }
+                    }
+                }
+
+                //INITIAL TEMPERATURE
+                if ($isNumerical) {
+                    // just duplicate => child product = parent product
+                    $this->stdeqp->setInitialTempFromNumericalResults($stdEqp, $shapeId, $product, $production);
+                } else if ($isAnalogical) {
+                    if ($study->CALCULATION_MODE == $this->values->STUDY_ESTIMATION_MODE) {
+                        // estimation
+                        // just duplicate => child product = parent product
+                        $this->stdeqp->setInitialTempFromAnalogicalResults($stdEqp, $shapeId, $product, $production);
+                    } else {
+                        // selected or optimum
+                        // just duplicate => child product = parent product
+                        $this->stdeqp->setInitialTempFromSimpleNumericalResults($stdEqp, $shapeId, $product, $production);
+                    }
+                }
+
+                $study->ID_TEMP_RECORD_PTS = $temprecordpst->ID_TEMP_RECORD_PTS;
+                $study->ID_PRODUCTION = $production->ID_PRODUCTION;
+                $study->ID_PROD = $product->ID_PROD;
+                $study->ID_PRICE = $price->ID_PRICE;
+                $study->ID_REPORT = $report->ID_REPORT;
+                $study->ID_PRECALC_LDG_RATE_PRM = $precalcLdgRatePrm->ID_PRECALC_LDG_RATE_PRM;
+                $study->ID_PACKING = $packing->ID_PACKING;
+                $study->save();
+
+                return $study;
+
+            } else {
+                return response([
+                    'code' => 1001,
+                    'message' => 'Unknown error!'
+                ], 406); // Status code here
+            }
+        } else {
+            return response([
+                'code' => 1003,
+                'message' => 'Study id not found'
+            ], 406); // Status code here
+        }    
+
+        return 0;
     }
 }
     

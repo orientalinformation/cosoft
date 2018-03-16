@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Cryosoft\UnitsConverterService;
 use App\Cryosoft\EquipmentsService;
 use App\Cryosoft\StudyService;
+use App\Cryosoft\StudyEquipmentService;
 use App\Models\Equipment;
 use App\Models\Study;
 use App\Models\Price;
@@ -66,12 +67,17 @@ class Equipments extends Controller
     protected $studies;
 
     /**
+     * @var \App\Cryosoft\StudyEquipmentService
+     */
+    protected $stdeqp;
+
+    /**
      * Create a new controller instance.
      *
      * @return void
      */
     public function __construct(Request $request, Auth $auth, UnitsConverterService $convert, EquipmentsService $equip
-    , KernelService $kernel, StudyService $studies)
+    , KernelService $kernel, StudyService $studies, StudyEquipmentService $stdeqp)
     {
         $this->request = $request;
         $this->auth = $auth;
@@ -79,6 +85,7 @@ class Equipments extends Controller
         $this->equip = $equip;
         $this->kernel = $kernel;
         $this->studies = $studies;
+        $this->stdeqp = $stdeqp;
     }
 
     public function getEquipments()
@@ -899,14 +906,16 @@ class Equipments extends Controller
 
         if ($priceEnergy != 0) $priceEnergy =  $priceEnergy;
 
+        $energy = $this->equip->initEnergyDef($id);
+
         if ($intervalW != 0) $intervalW = $intervalW;
 
         if ($intervalL != 0) $intervalL =$intervalL;
 
         $res = [
-            'Price' => doubleval($priceEnergy),
-            'IntervalWidth' => doubleval($intervalW),
-            'IntervalLength' => doubleval($intervalL),
+            'Price' => $this->equip->cryogenPrice($priceEnergy, $energy),
+            'IntervalWidth' => $this->convert->prodDimension(doubleval($intervalW)),
+            'IntervalLength' => $this->convert->prodDimension(doubleval($intervalL)),
             'MonetarySymbol' => $this->convert->monetarySymbol(),
             'DimensionSymbol' => $this->convert->prodDimensionSymbolUser()
         ];
@@ -921,10 +930,12 @@ class Equipments extends Controller
         if (!isset($input['price']))
             throw new \Exception("Error Processing Request", 1);
 
-        if (isset($input['price'])) $priceEnergy = doubleval($input['price']); 
+        $study = Study::find($id);
+        $energy = $this->equip->initEnergyDef($id);
 
-        if ($priceEnergy) {
-            $study = Study::find($id);
+        if (isset($input['price'])) $priceEnergy = $this->equip->cryogenPriceSave($input['price'], $energy); 
+
+        if ($priceEnergy >= 0) {
 
             if ($study) {
                 $price = Price::find($study->ID_PRICE);
@@ -953,9 +964,9 @@ class Equipments extends Controller
         if (!isset($input['lenght']) || !isset($input['width']))
             throw new \Exception("Error Processing Request", 1);
 
-        if (isset($input['lenght'])) $lenght = doubleval($input['lenght']); 
+        if (isset($input['lenght'])) $lenght = $this->convert->prodDimensionSave(doubleval($input['lenght'])); 
 
-        if (isset($input['width'])) $width = doubleval($input['width']);
+        if (isset($input['width'])) $width = $this->convert->prodDimensionSave(doubleval($input['width']));
 
         if ($lenght && $width) {
             $study = Study::find($id);
@@ -966,6 +977,17 @@ class Equipments extends Controller
                     $precalcLdgRatePrm->W_INTERVAL = $width;
                     $precalcLdgRatePrm->L_INTERVAL = $lenght;
                     $precalcLdgRatePrm->update();
+                }
+                $studyEquipments = $study->studyEquipments;
+                if (count($studyEquipments) > 0) {
+                    foreach ($studyEquipments as $sEquip) {
+                        $layoutGen = $this->stdeqp->getStudyEquipmentLayoutGen($sEquip);
+                        // $layoutGen->ORI
+                        $layoutGen->WIDTH_INTERVAL = $width;
+                        $layoutGen->LENGTH_INTERVAL = $lenght;
+                        $layoutGen->save();
+                        $this->stdeqp->calculateEquipmentParams($sEquip);
+                    }
                 }
             }
             return 1;
@@ -1286,8 +1308,38 @@ class Equipments extends Controller
                 }
             }
         }
+        $equipRs =  Equipment::find($ID_EQUIP);
+        
+        $equipRs->capabilitiesCalc = $this->equip->getCapability($equipRs->CAPABILITIES, 65536);
+        $equipRs->capabilitiesCalc256 = $this->equip->getCapability($equipRs->CAPABILITIES, 256);
+        $equipRs->timeSymbol = $this->convert->timeSymbolUser();
+        $equipRs->temperatureSymbol = $this->convert->temperatureSymbolUser();
+        $equipRs->dimensionSymbol = $this->convert->equipDimensionSymbolUser();
+        $equipRs->consumptionSymbol1 = $this->convert->consumptionSymbolUser($equipRs->ID_COOLING_FAMILY, 1);
+        $equipRs->consumptionSymbol2 = $this->convert->consumptionSymbolUser($equipRs->ID_COOLING_FAMILY, 2);
+        $equipRs->consumptionSymbol3 = $this->convert->consumptionSymbolUser($equipRs->ID_COOLING_FAMILY, 3);
+        $equipRs->shelvesWidthSymbol = $this->convert->shelvesWidthSymbol();
+        $equipRs->rampsPositionSymbol = $this->convert->rampsPositionSymbol();
 
-        return $result;
+        $equipRs->EQP_LENGTH = $this->convert->equipDimensionUser($equipRs->EQP_LENGTH);
+        $equipRs->EQP_WIDTH = $this->convert->equipDimensionUser($equipRs->EQP_WIDTH);
+        $equipRs->EQP_HEIGHT = $this->convert->equipDimensionUser($equipRs->EQP_HEIGHT);
+        $equipRs->MAX_FLOW_RATE = $this->convert->consumptionUser($equipRs->MAX_FLOW_RATE, $equipRs->ID_COOLING_FAMILY, 1);
+        $equipRs->TMP_REGUL_MIN = $this->convert->controlTemperatureUser($equipRs->TMP_REGUL_MIN);
+
+        $equipGenerRs = EquipGeneration::find($equipRs->ID_EQUIPGENERATION);
+    
+        if ($equipGenerRs) { 
+            $equipGenerRs->TEMP_SETPOINT = doubleval($this->convert->controlTemperatureUser($equipGenerRs->TEMP_SETPOINT));
+            $equipGenerRs->DWELLING_TIME = doubleval($this->convert->timeUser($equipGenerRs->DWELLING_TIME));
+            $equipGenerRs->NEW_POS = doubleval($this->convert->timeUser($equipGenerRs->NEW_POS));
+        }
+        $equipRs->equipGeneration = $equipGenerRs;
+        
+        return [
+            "RefEquipment" => $equipRs,
+            "CheckKernel" => $result
+        ];
     }
 
     public function isComefromStudy()
