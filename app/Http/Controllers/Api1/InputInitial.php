@@ -321,6 +321,10 @@ class InputInitial extends Controller
         $productElmt = $meshPositions = null;
         $results = array();
 
+        // MeshPosition::join('product_elmt', 'mesh_position.ID_PRODUCT_ELMT', '=', 'product_elmt.ID_PRODUCT_ELMT')
+        // ->join('product', 'product_elmt.ID_PROD' , '=', 'product.ID_PROD')
+        // ->where('product.ID_STUDY', $id)->where('MESH_AXIS', $axe)->distinct()->orderBy('MESH_AXIS_POS', 'ASC')->get();
+
         if ($product) {
             $idProd = $product->ID_PROD;
             $productElmt = ProductElmt::where('ID_PROD', $idProd)->first();
