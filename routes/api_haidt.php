@@ -374,3 +374,11 @@ $router->POST('/api/v1/upload', 'Api1\\Reports@postFile');
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/referencedata/subfamily', 'Api1\\ReferenceData@getDataSubFamily');
+
+/**
+ * GET getMinMax
+ * Summary:
+ * Notes: get data min max 
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/minmax', 'Api1\\CheckMinMax@getMinMax');
