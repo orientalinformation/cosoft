@@ -710,6 +710,7 @@ class Equipments extends Controller
         $maxValueY = doubleval($minMax->LIMIT_MIN);
 
         $listOfPoints = $this->getSelectedProfile($ID_EQUIP, $profileType, $profileFace);
+ 
         if (count($listOfPoints) > 0) {
             for($i = 0; $i < count($listOfPoints); $i++) {
                 if (doubleval($listOfPoints[$i]['Y_POINT']) < $minValueY) {
