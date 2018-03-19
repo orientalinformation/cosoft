@@ -563,8 +563,10 @@ class Reports extends Controller
             if ($idstudyequips->BRAIN_TYPE == 4) {
                 $heatexchange[] = $this->reportserv->heatExchange($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
                 $timeBase[] = $this->reportserv->timeBased($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
+                
                 if ($shapeCode == 1) { 
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                
                 } else if ($shapeCode == 2) {
                     if ($equipData[$key]['ORIENTATION'] == 1) {
                         $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
@@ -574,20 +576,25 @@ class Reports extends Controller
                         $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                     }
                     $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                
                 } else if (($shapeCode == 4) && ($shapeCode == 7) && ($shapeCode == 8) && ($shapeCode == 5)) {
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                
                 } else if ($shapeCode == 6) {
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                
                 } else if ($shapeCode == 9) {
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
                     $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                
                 } else if ($shapeCode == 3) {
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                     $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
                 }
+
             } else {
                 $proSections = [];
                 $heatexchange = [];
@@ -647,6 +654,7 @@ class Reports extends Controller
         PDF::Bookmark('Chapter 1', 0, 0, '', 'B', array(0,64,128));
         // print a line using Cell()
         PDF::Cell(0, 10, 'Chapter 1', 0, 1, 'L');
+        
         $view = $this->viewPDF($study, $production, $product, $proElmt, $shapeName, 
         $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
         $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase, 
@@ -660,42 +668,42 @@ class Reports extends Controller
         PDF::Bookmark('Paragraph 1.1', 1, 0, '', '', array(128,0,0));
         PDF::Cell(0, 10, 'Paragraph 1.1', 0, 1, 'L');
         PDF::AddPage();
-
+        
         // add some pages and bookmarks
         for ($i = 2; $i < 3; $i++) {
             PDF::AddPage();
             PDF::Bookmark('Chapter '.$i, 0, 0, '', 'B', array(0,64,128));
             PDF::Cell(0, 10, 'Chapter '.$i, 0, 1, 'L');
         }
-
+        
         // add a new page for TOC
         PDF::addTOCPage();
-
+        
         // write the TOC title and/or other elements on the TOC page
         // PDF::SetFont('times', 'B', 6);
         PDF::MultiCell(0, 0, 'Table Of Content', 0, 'C', 0, 1, '', '', true, 0);
         PDF::Ln();
         // define styles for various bookmark levels
         $bookmark_templates = array();
-
+        
         $bookmark_templates[0] = '<table border="0" cellpadding="0" cellspacing="0" style="background-color:#EEFAFF"><tr><td width="155mm"><span style="font-family:times;font-weight:bold;font-size:12pt;color:black;">#TOC_DESCRIPTION#</span></td><td width="25mm"><span style="font-family:courier;font-weight:bold;font-size:12pt;color:black;" align="right">#TOC_PAGE_NUMBER#</span></td></tr></table>';
         $bookmark_templates[1] = '<table border="0" cellpadding="0" cellspacing="0"><tr><td width="5mm">&nbsp;</td><td width="150mm"><span style="font-family:times;font-size:11pt;color:green;">#TOC_DESCRIPTION#</span></td><td width="25mm"><span style="font-family:courier;font-weight:bold;font-size:11pt;color:green;" align="right">#TOC_PAGE_NUMBER#</span></td></tr></table>';
         $bookmark_templates[2] = '<table border="0" cellpadding="0" cellspacing="0"><tr><td width="10mm">&nbsp;</td><td width="145mm"><span style="font-family:times;font-size:10pt;color:#666666;"><i>#TOC_DESCRIPTION#</i></span></td><td width="25mm"><span style="font-family:courier;font-weight:bold;font-size:10pt;color:#666666;" align="right">#TOC_PAGE_NUMBER#</span></td></tr></table>';
         // add other bookmark level templates here ...
-
+        
         // add table of content at page 1
         // (check the example n. 45 for a text-only TOC
         PDF::addHTMLTOC(1, 'INDEX', $bookmark_templates, true, 'B', array(128,0,0));
-
+        
         // end of TOC page
         PDF::endTOCPage();
         PDF::Output( $public_path. "/reports/" . $study->USERNAM."/" . $name_report, 'F');
-            
+        
         $progress .= "\nFINISH";
         flie_push_content($progressFile, $progress);
         return ["url" => "$host/reports/$study->USERNAM/$name_report"];
     }
-
+    
     function backgroundGenerationHTML($id) {
         $study = Study::find($id);
         $host = 'http://' . $_SERVER['HTTP_HOST'];
@@ -725,20 +733,24 @@ class Reports extends Controller
         ->where('TRANS_TYPE', 1)->whereIn('ID_TRANSLATION', $idComArr)
         ->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'DESC')->get();
         $productComps = [];
+
         foreach ($componentName as $key => $value) {
             $componentStatus = Translation::select('LABEL')->where('TRANS_TYPE', 100)->whereIn('ID_TRANSLATION', $comprelease)
             ->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
             $productComps[] = $value;
             $productComps[$key]['display_name'] = $value->LABEL . ' - ' . $productElmt->component->COMP_VERSION . '(' . $componentStatus->LABEL . ' )';
         }
+
         $progress .= "\nProduct";
         file_put_contents($progressFile, $progress);
+
         $equipData = $this->stdeqp->findStudyEquipmentsByStudy($study);
         $progress .= "\nEquiment";
+
         file_put_contents($progressFile, $progress);
         $symbol = $this->reportserv->getSymbol($study->ID_STUDY);
         $infoReport = $study->reports;
-        // return $study;
+
         if ($study->OPTION_CRYOPIPELINE == 1) {
             $cryogenPipeline = $this->pipelines->loadPipeline($study->ID_STUDY);
             $progress .= "\nPipeline Elements";
@@ -746,9 +758,11 @@ class Reports extends Controller
         } else {
             $cryogenPipeline = "";
         }
+
         $consumptions = $this->reportserv->getAnalyticalConsumption($study->ID_STUDY);
         $progress .= "\nConsumptions Results";
         file_put_contents($progressFile, $progress);
+
         if ($study->CALCULATION_MODE == 3) {
             $calModeHeadBalance = $this->reportserv->getOptimumHeadBalance($study->ID_STUDY);
             $calModeHbMax = $this->reportserv->getOptimumHeadBalanceMax($study->ID_STUDY);
@@ -756,6 +770,7 @@ class Reports extends Controller
             $calModeHeadBalance = $this->reportserv->getEstimationHeadBalance($study->ID_STUDY, 1);
             $calModeHbMax = "";
         }
+
         $progress .= "\nConsumptions Pies";
         file_put_contents($progressFile, $progress);
 
@@ -770,26 +785,33 @@ class Reports extends Controller
             if ($idstudyequips->BRAIN_TYPE == 4) {
                 $heatexchange[] = $this->reportserv->heatExchange($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
                 $timeBase[] = $this->reportserv->timeBased($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
+
                 if ($shapeCode == 1) { 
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                
                 } else if ($shapeCode == 2) {
                     if ($equipData[$key]['ORIENTATION'] == 1) {
                         $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                         $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                    
                     } else {
                         $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
                         $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                     }
                     $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                
                 } else if (($shapeCode == 4) && ($shapeCode == 7) && ($shapeCode == 8) && ($shapeCode == 5)) {
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                
                 } else if ($shapeCode == 6) {
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                
                 } else if ($shapeCode == 9) {
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
                     $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                
                 } else if ($shapeCode == 3) {
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);

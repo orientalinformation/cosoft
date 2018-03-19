@@ -271,15 +271,15 @@
                         </tr>
                         <tr>
                             <td>Space in width <?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . " )" ?></td>
-                            <td align="center"></td>
+                            <td align="center"><?php echo $resequipDatas['layoutResults']['LEFT_RIGHT_INTERVAL'] ?></td>
                         </tr>
                         <tr>
                             <td>Number per meter</td>
-                            <td align="center"></td>
+                            <td align="center"><?php echo $resequipDatas['layoutResults']['NUMBER_PER_M'] ?></td>
                         </tr>
                         <tr>
                             <td>Number in width</td>
-                            <td align="center"> </td>
+                            <td align="center"><?php echo $resequipDatas['layoutResults']['NUMBER_IN_WIDTH'] ?></td>
                         </tr>
                         <tr>
                             <td>Conveyor coverage or quantity of product per batch</td>
