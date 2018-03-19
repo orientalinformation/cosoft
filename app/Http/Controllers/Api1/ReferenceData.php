@@ -203,8 +203,8 @@ class ReferenceData extends Controller
     public function calculateFreeze()
     {   
         $input = $this->request->all();
-        $idComp = $result = null;
-
+        $idComp = $result = $comp = null;
+        
         if (isset($input['ID_COMP'])) $idComp = intval($input['ID_COMP']);
 
         if ($idComp == null) {
@@ -214,27 +214,33 @@ class ReferenceData extends Controller
             if ($idComp == -2) return -2;
             if ($idComp == -4) return -4;
             if ($idComp == -5) return -5;
+
             $result = $this->startFCCalculation($idComp);
+
+            $comp = Component::where('ID_USER', $this->auth->user()->ID_USER)
+            ->join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')
+            ->where('Translation.TRANS_TYPE', 1)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+            ->where('ID_COMP', $idComp)->first();
         } else {
             $component = Component::find($idComp);
 
             if ($component) {
                 if ($component->COMP_RELEASE == 7) $component->COMP_RELEASE = 8;
-                $idComp = $this->saveCalculate($this->request, $component, 1);
 
-                if ($idComp == -3) return -3;
-                if ($idComp == -2) return -2;
-                if ($idComp == -4) return -4;
-                if ($idComp == -5) return -5;
+                $rsIdComp = $this->saveCalculate($this->request, $component, 1);
+
+                if ($rsIdComp == -3) return -3;
+                if ($rsIdComp == -2) return -2;
+                if ($rsIdComp == -4) return -4;
+                if ($rsIdComp == -5) return -5;    
             }
-
-            $result = $this->startFCCalculation($idComp);
+            $result = $this->startFCCalculation($idComp); 
+                
+            $comp = Component::where('ID_USER', $this->auth->user()->ID_USER)
+            ->join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')
+            ->where('Translation.TRANS_TYPE', 1)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+            ->where('ID_COMP', $idComp)->first();
         }
-
-        $comp = Component::where('ID_USER', $this->auth->user()->ID_USER)
-        ->join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')
-        ->where('Translation.TRANS_TYPE', 1)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
-        ->where('ID_COMP', $idComp)->first();
 
         return [
             "CheckCalculate" => $result,
@@ -404,7 +410,9 @@ class ReferenceData extends Controller
         $tempertures = array();
         $current = Carbon::now('Asia/Ho_Chi_Minh');
 
-        if (isset($FREEZE_TEMP)) $FREEZE_TEMP = (float) $this->convert->unitConvert($this->value->TEMPERATURE, floatval($input['FREEZE_TEMP']));
+        // if (isset($FREEZE_TEMP)) $FREEZE_TEMP = (float) $this->convert->unitConvert($this->value->TEMPERATURE, floatval($input['FREEZE_TEMP']));
+                
+        if (isset($input['FREEZE_TEMP'])) $FREEZE_TEMP = (float) $this->convert->unitConvert($this->value->TEMPERATURE, floatval($input['FREEZE_TEMP']));
         if (isset($input['COMP_COMMENT'])) $COMP_COMMENT = $input['COMP_COMMENT'];
         if (isset($input['COMP_NAME'])) $COMP_NAME = $input['COMP_NAME'];
         if (isset($input['COMP_NAME_NEW'])) $COMP_NAME_NEW = $input['COMP_NAME_NEW'];
@@ -481,6 +489,7 @@ class ReferenceData extends Controller
         $component->COMP_IMP_ID_STUDY = 0;
         $component->OPEN_BY_OWNER = 0;
         $component->BLS_CODE = '';
+
         $component->save();
 
         Component::where('ID_COMP', $component->ID_COMP)->update(['COMP_DATE' => $current->toDateTimeString()]);

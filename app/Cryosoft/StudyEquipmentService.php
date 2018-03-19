@@ -74,7 +74,7 @@ class StudyEquipmentService
         if (!$layoutGen) {
             $layoutGen = new LayoutGeneration();
             $layoutGen->ID_STUDY_EQUIPMENTS = $sEquip->ID_STUDY_EQUIPMENTS;
-            $layoutGen->PROD_POSITION = $position;
+            $layoutGen->PROD_POSITION = 0;
 
             $equipWithSpecificSize = ($sEquip->STDEQP_WIDTH != NO_SPECIFIC_SIZE) && ($sEquip->STDEQP_LENGTH != NO_SPECIFIC_SIZE);
 
@@ -155,7 +155,7 @@ class StudyEquipmentService
         $equip['ts'] = $this->loadEquipmentData($studyEquipment, DWELLING_TIME);
         $equip['vc'] = $this->loadEquipmentData($studyEquipment, CONVECTION_SPEED);
         $equip['dh'] = $this->loadEquipmentData($studyEquipment, ENTHALPY_VAR);
-        $equip['TExt'] = $this->loadEquipmentData($studyEquipment, EXHAUST_TEMP)[0];
+        $equip['TExt'] = (count($this->loadEquipmentData($studyEquipment, EXHAUST_TEMP)) > 0) ? $this->loadEquipmentData($studyEquipment, EXHAUST_TEMP)[0] : '';
 
         $equip['top_or_QperBatch'] = $this->topOrQperBatch($studyEquipment);
         return $equip;

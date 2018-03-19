@@ -19,6 +19,9 @@ use Illuminate\Contracts\Auth\Factory as Auth;
 use App\Models\StudyEquipment;
 use App\Models\TempRecordPts;
 use App\Models\TempRecordPtsDef;
+use App\Models\Product;
+use App\Models\ProductElmt;
+use App\Models\MeshPosition;
 
 class InputInitial extends Controller 
 {
@@ -72,8 +75,8 @@ class InputInitial extends Controller
 			$sizeList3 = count($listAxis3);
 		}
 
-		if (($tempRecordPtsDef != null) && ($tempRecordPts != null) && 
-			$sizeList1 > 0 && $sizeList2 > 0 && $sizeList3 > 0) {
+		if (($tempRecordPtsDef) && ($tempRecordPts) && 
+			($sizeList1 > 0) && ($sizeList2 > 0) && ($sizeList3 > 0)) {
 			if ($idShape == 7) {
 			  $temp2 = 0;
 	          $temp = $tempRecordPtsDef->AXIS1_PT_TOP_SURF_DEF;
@@ -91,7 +94,7 @@ class InputInitial extends Controller
 	          $temp = $tempRecordPtsDef->AXIS2_AX_1_DEF;
 	          $temp2 = $tempRecordPtsDef->AXIS3_AX_1_DEF;
 	          $tempRecordPtsDef->AXIS2_AX_1_DEF = $tempRecordPtsDef->AXIS1_AX_2_DEF;
-	          $tempRecordPtsDef->AXIS3_AX_1_DEF = $tempRecordPtsDef->AXIS3_AX_2_DEF);
+	          $tempRecordPtsDef->AXIS3_AX_1_DEF = $tempRecordPtsDef->AXIS3_AX_2_DEF;
 	          $tempRecordPtsDef->AXIS1_AX_2_DEF = $temp;
 	          $tempRecordPtsDef->AXIS3_AX_2_DEF = $temp2;
 	          
@@ -307,28 +310,40 @@ class InputInitial extends Controller
 			if ($tempRecordPtsDef->AXIS3_PL_1_2_DEF == 0) {
 				$tempRecordPts->AXIS3_PL_1_2 = $listAxis3[$this->getIndex($sizeList3, $tempRecordPtsDef->AXIS3_PL_1_2_DEF)];
 			}
+			$tempRecordPts->save();
+
 		}
 	}
 
 	private function initListPoints($idStudy, $axe)
 	{
 		$product = Product::where('ID_STUDY', $idStudy)->first();
-        $productElmt = null;
-        $meshPositions = null;
+        $productElmt = $meshPositions = null;
+        $results = array();
 
-        if ($product != null) {
+        // MeshPosition::join('product_elmt', 'mesh_position.ID_PRODUCT_ELMT', '=', 'product_elmt.ID_PRODUCT_ELMT')
+        // ->join('product', 'product_elmt.ID_PROD' , '=', 'product.ID_PROD')
+        // ->where('product.ID_STUDY', $id)->where('MESH_AXIS', $axe)->distinct()->orderBy('MESH_AXIS_POS', 'ASC')->get();
+
+        if ($product) {
             $idProd = $product->ID_PROD;
             $productElmt = ProductElmt::where('ID_PROD', $idProd)->first();
-            if ($productElmt != null) {
+            if ($productElmt) {
                 $idProductElmt = $productElmt->ID_PRODUCT_ELMT;
                 $meshPositions = MeshPosition::select('MESH_AXIS_POS')
                     ->where('MESH_AXIS', '=', $axe)
                     ->where('ID_PRODUCT_ELMT', '=', $idProductElmt)
-                    ->orderBy("MESH_AXIS_POS", "ASC")->distinct()->get();
+                    ->orderBy('MESH_AXIS_POS', 'ASC')->distinct()->get();
             }
         }
 
-       return $meshPositions;
+        if (count($meshPositions) > 0) {
+        	foreach ($meshPositions as $mesh) {
+        		array_push($results, floatval($mesh->MESH_AXIS_POS));
+        	}
+        }
+
+       	return $results;
 	}
 
 	private function getIndex($size, $value) 

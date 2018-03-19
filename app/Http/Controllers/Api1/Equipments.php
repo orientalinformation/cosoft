@@ -685,7 +685,8 @@ class Equipments extends Controller
     {
         $minMax = $minScaleY = $maxScaleY = $minValueY = $maxValueY = $nbFractionDigits = $maxiMum = null;
         $unitIdent = $miniMum = 10;
-        $YAxis = $XAxis = $ID_EQUIP = $profileType = $profileFace = $listOfPoints = null;
+        $ID_EQUIP = $profileType = $profileFace = $listOfPoints = null;
+        $YAxis = $XAxis = 0;
 
         $input = $this->request->all();
 
@@ -1181,6 +1182,29 @@ class Equipments extends Controller
             return 1;
         }
         return 0;
+    }
+
+    public function reCalculate($id)
+    {
+        $study = Study::find($id);
+
+        $studyEquipments = $study->studyEquipments;
+
+        if (count($studyEquipments) > 0) {
+            foreach ($studyEquipments as $sEquip) {
+                $sEquip->BRAIN_SAVETODB = 0;
+                $sEquip->BRAIN_TYPE = 0;
+                $sEquip->EQUIP_STATUS = 0;
+                $sEquip->AVERAGE_PRODUCT_ENTHALPY = 0;
+                $sEquip->AVERAGE_PRODUCT_TEMP = 0;
+                $sEquip->ENTHALPY_VARIATION = 0;
+                $sEquip->PRECIS = 0;
+                $sEquip->RUN_CALCULATE = 1;
+                $sEquip->save();
+            }
+        }
+
+        return 1;
     }
 
     public function getTempSetPoint($idEquip)
