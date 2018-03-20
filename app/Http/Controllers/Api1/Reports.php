@@ -484,7 +484,6 @@ class Reports extends Controller
         $public_path = rtrim(app()->basePath("public/"), '/');
         $progressFile = $public_path. "/reports/" . $study->USERNAM. "/" ."$study->ID_STUDY-$study->STUDY_NAME-Report.progess";
         $name_report = "$study->ID_STUDY-$study->STUDY_NAME-Report.pdf";
-        
         if (!is_dir($public_path . "/reports/" . $study->USERNAM)) {
             mkdir($public_path . "/reports/" . $study->USERNAM, 0777, true);
         } 
@@ -527,7 +526,7 @@ class Reports extends Controller
         
         $symbol = $this->reportserv->getSymbol($study->ID_STUDY);
         $infoReport = $study->reports;
-        // return $study;
+
         if ($study->OPTION_CRYOPIPELINE == 1) {
             $cryogenPipeline = $this->pipelines->loadPipeline($study->ID_STUDY);
             $progress .= "\nPipeline Elements";
@@ -616,20 +615,16 @@ class Reports extends Controller
         }
         
         // set document information
-        // PDF::SetCreator(PDF_CREATOR);
         PDF::setPageOrientation('L');
-        PDF::SetAuthor('');
         PDF::SetTitle('Cryosoft Report');
         PDF::SetSubject('UserName - StudyName');
-        PDF::SetKeywords('');
 
         // set default header data
-        PDF::SetHeaderData($public_path . "/reports/" . 'air-liquide-logo.png', 30, $study->STUDY_NAME,'Report');
-
+        PDF::SetHeaderData($host . "/" . $public_path . "/uploads/" . 'logo_cryosoft.png', 30, $study->STUDY_NAME,'Report', array(0,64,128), array(0,64,128));
+        PDF::setFooterData(array(0,64,255), array(0,64,128));
+        
         // set header and footer fonts
         PDF::setHeaderFont(Array('helvetica', '', 10));
-        // PDF::setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
-
         // set default monospaced font
         // PDF::SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
 
@@ -645,10 +640,6 @@ class Reports extends Controller
         PDF::setImageScale(1.25);
 
         // set some language-dependent strings (optional)
-        if (@file_exists($tcpdf_path.'/lang/eng.php')) {
-            require_once($tcpdf_path.'/lang/eng.php');
-            PDF::setLanguageArray($l);
-        }
         // ---------------------------------------------------------
         PDF::AddPage();
         PDF::Bookmark('Chapter 1', 0, 0, '', 'B', array(0,64,128));
@@ -713,7 +704,6 @@ class Reports extends Controller
         if (!is_dir( $public_path. "/reports/"  . $study->USERNAM)) {
             mkdir( $public_path. "/reports/" . $study->USERNAM, 0777, true);
         } 
-        // if (!file_exists($public_path. "/" . $study->USERNAM. "/" .$name_report)) {
         $production = Production::Where('ID_STUDY', $id)->first();
         $progress = "Production";
         file_put_contents($progressFile, $progress);
