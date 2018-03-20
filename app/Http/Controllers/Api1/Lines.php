@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api1;
 
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Response;
 use App\Models\Study;
 use App\Models\LineElmt;
 use App\Models\MinMax;
@@ -261,7 +260,7 @@ class Lines extends Controller
                 $non_insulated_valves = $this->lineE->getNonLine(5, $diameter, $coolingFamily, 0, $sort);
                 $tee = $this->lineE->getNameComboBox(3, $diameter, $coolingFamily, $sort);
                 $elbows = $this->lineE->getNameComboBox(4, $diameter, $coolingFamily, $sort);
-                $insulatedlineLabel = $insulatedline->LABEL ."-". $this->lineE->getStatus($insulatedline->LINE_RELEASE);
+                $insulatedlineLabel = $insulatedline->LABEL ."-". $this->lineE->getStatus($insulatedline->LINE_RELEASE) ?? '';
                 $non_insulated_lineLabel = $non_insulated_line->LABEL ."-". $this->lineE->getStatus($non_insulated_line->LINE_RELEASE);
                 $insulatedlinevalLabel = $insulatedlineval->LABEL ."-". $this->lineE->getStatus($insulatedlineval->LINE_RELEASE);
                 $non_insulated_valvesLabel = $non_insulated_valves->LABEL ."-". $this->lineE->getStatus($non_insulated_valves->LINE_RELEASE);
@@ -297,7 +296,6 @@ class Lines extends Controller
 					$insulationlineValue = $insulatedline['ID_PIPELINE_ELMT']  ?? '';
 					$non_insulated_lineLabel = $non_insulated_line['LABEL'] ."-". $this->lineE->getStatus($non_insulated_line['LINE_RELEASE'])  ?? '';
                     $non_insulated_lineValue = $non_insulated_line['ID_PIPELINE_ELMT'] ?? '';
-                    // return $insulatedlineval;
 					$insulatedlinevalLabel = $insulatedlineval['LABEL'] ."-". $this->lineE->getStatus($insulatedlineval['LINE_RELEASE']) ?? '';
 					$insulatedlinevalValue = $insulatedlineval['ID_PIPELINE_ELMT'] ?? '';
 					$non_insulated_valvesLabel = $non_insulated_valves['LABEL'] ."-". $this->lineE->getStatus($non_insulated_valves['LINE_RELEASE']) ?? '';
@@ -411,21 +409,15 @@ class Lines extends Controller
             if ($pressure != 0) {
                 $pipegen->PRESSURE = $pressure;
             } else {
-                return response([
-                    'code' => 1005,
-                    'message' => 'Value out of range in Tank pressure (0.2 : 150) !'
-                ], 406); // Status code here
+                return response("Value out of range in Tank pressure (0.2 : 150) !" , 406); // Status code here
             }
+            
             if ($storageTank == 0 ) {
-                return response([
-                    'code' => 1006,
-                    'message' => 'A Storage Tank is Obligatory1'
-                ], 406); // Status code here
+                return response("A Storage Tank is Obligatory1", 406); // Status code here
             }
             
             if ($pipegen->ID_STUDY_EQUIPMENTS == null) {
                 $pipegen->ID_STUDY_EQUIPMENTS =  $studyEquip->ID_STUDY_EQUIPMENTS;
-                // $studyEquip->ID_PIPE_GEN = $pipegen->ID_PIPE_GEN;
                 $pipegen->save();
                 
             } else {
