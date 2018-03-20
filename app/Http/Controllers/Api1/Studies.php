@@ -1373,9 +1373,18 @@ class Studies extends Controller
 
         $axisTemp["bot"] = [$this->convert->meshesUnit($tempRecordPts->AXIS1_PT_BOT_SURF), $this->convert->meshesUnit($tempRecordPts->AXIS2_PT_BOT_SURF), $this->convert->meshesUnit($tempRecordPts->AXIS3_PT_BOT_SURF)];
 
+        $axisTemp["axe1"] = [0.0, $this->convert->meshesUnit($tempRecordPts->AXIS2_AX_1), $this->convert->meshesUnit($tempRecordPts->AXIS3_AX_1)];
+
+        $axisTemp["axe2"] = [$this->convert->meshesUnit($tempRecordPts->AXIS1_AX_2), 0.0, $this->convert->meshesUnit($tempRecordPts->AXIS3_AX_2)];
+
+        $axisTemp["axe3"] = [$this->convert->meshesUnit($tempRecordPts->AXIS1_AX_3), $this->convert->meshesUnit($tempRecordPts->AXIS2_AX_3), 0.0];
+
+        $axisTemp["plan"] = [$this->convert->meshesUnit($tempRecordPts->AXIS1_PL_2_3), $this->convert->meshesUnit($tempRecordPts->AXIS2_PL_1_3), $this->convert->meshesUnit($tempRecordPts->AXIS3_PL_1_2)];
+
 
         return $axisTemp;
     }
+
 
     public function createChildStudy($id) {
         $input = $this->request->all();
