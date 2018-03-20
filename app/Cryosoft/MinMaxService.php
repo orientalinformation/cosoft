@@ -35,7 +35,7 @@ class MinMaxService
         $this->units = $app['App\\Cryosoft\\UnitsService'];
     }
 
-    public function getMinMaxOfLimitItem($limitItem)
+    public function getMinMaxMesh($limitItem)
     {  
         $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
         $minMax->LIMIT_MAX = $this->units->meshes($minMax->LIMIT_MAX, 1);
@@ -49,7 +49,7 @@ class MinMaxService
     {
         $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
 
-        if (doubleval($value) < $minMax->LIMIT_MIN || doubleval($value) > $minMax->LIMIT_MAX) {
+        if (doubleval($value) < round($minMax->LIMIT_MIN, 2) || doubleval($value) > round($minMax->LIMIT_MAX, 2)) {
             return false;
         } else {
             return true;

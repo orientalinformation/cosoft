@@ -77,19 +77,19 @@ class Settings extends Controller
         $checkValue3 = $this->minmax->checkMinMaxValue($dimension3, 1);
 
         if ( !$checkValue1 || !$checkValue1 ) {
-            $mm = $this->minmax->getMinMaxOfLimitItem(1);
+            $mm = $this->minmax->getMinMaxMesh(1);
             return  [
                 "Message" => "Value out of range in Dimension 1 (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ")"
             ];
         }
         if ( !$checkValue2 || !$checkValue2 ) {
-            $mm = $this->minmax->getMinMaxOfLimitItem(1);
+            $mm = $this->minmax->getMinMaxMesh(1);
             return  [
                 "Message" => "Value out of range in Dimension 2 (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ")"
             ];
         }
         if ( !$checkValue3 || !$checkValue3 ) {
-            $mm = $this->minmax->getMinMaxOfLimitItem(1);
+            $mm = $this->minmax->getMinMaxMesh(1);
             return  [
                 "Message" => "Value out of range in Dimension 3 (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ")"
             ];
