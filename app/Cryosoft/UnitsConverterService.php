@@ -611,6 +611,14 @@ class UnitsConverterService
         return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B);
     }
 
+    public function meshesUnitSave($value) {
+        $unit = Unit::where('TYPE_UNIT', $this->value->MESH_CUT)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+        return $this->convertUnitSave($value, $unit->COEFF_A, $unit->COEFF_B);
+    }
+
     public function prodchartDimension($value) {
         $unit = Unit::where('TYPE_UNIT', $this->value->PRODCHART_DIMENSION)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
@@ -631,7 +639,7 @@ class UnitsConverterService
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
-        return $this->convertUnitSave($value, $unit->COEFF_A, $unit->COEFF_B, 3);
+        return $this->convertUnitSave($value, $unit->COEFF_A, $unit->COEFF_B);
     }
     public function materialRise($value) {
         $unit = Unit::where('TYPE_UNIT', $this->value->MATERIAL_RISE)

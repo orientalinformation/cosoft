@@ -12,10 +12,9 @@
 namespace App\Cryosoft;
 
 use Illuminate\Contracts\Auth\Factory as Auth;
-use App\Models\Unit;
-use App\Models\UserUnit;
+use App\Models\MinMax;
 
-class UnitsService
+class MinMaxService
 {
     /**
     * @var Illuminate\Contracts\Auth\Factory
@@ -25,31 +24,35 @@ class UnitsService
     protected $app;
 
     protected $value;
+
+    protected $units;
     
     public function __construct(\Laravel\Lumen\Application $app)
     {
         $this->app = $app;
         $this->auth = $app['Illuminate\\Contracts\\Auth\\Factory'];
         $this->value = $app['App\\Cryosoft\\ValueListService'];
+        $this->units = $app['App\\Cryosoft\\UnitsService'];
     }
 
-    public function meshes($sValue, $status) 
-    {
-        $unit = Unit::where('TYPE_UNIT', $this->value->MESH_CUT)
-        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
-        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
-        ->first();
-        $value = doubleval($sValue);
-        $coeffA = $unit->COEFF_A;
-        $coeffB = $unit->COEFF_B;
-        if (intval($status) == 1) {
-            if ($value != null) $value = ($value - $coeffB) * $coeffA;
+    public function getMinMaxMesh($limitItem)
+    {  
+        $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
+        $minMax->LIMIT_MAX = $this->units->meshes($minMax->LIMIT_MAX, 1);
+        $minMax->LIMIT_MIN = $this->units->meshes($minMax->LIMIT_MIN, 1);
+        $minMax->DEFAULT_VALUE = $this->units->meshes($minMax->DEFAULT_VALUE, 1);
 
-            return round($value, 2);
+        return $minMax; 
+    }
+
+    public function checkMinMaxValue($value, $limitItem)
+    {
+        $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
+
+        if (doubleval($value) < round($minMax->LIMIT_MIN, 2) || doubleval($value) > round($minMax->LIMIT_MAX, 2)) {
+            return false;
         } else {
-            if ($value != null) $value = ($value + $coeffB) / $coeffA;
-            
-            return $value;
+            return true;
         }
     }
 }

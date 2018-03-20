@@ -15,6 +15,10 @@ namespace App\Http\Controllers\Api1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\Auth\Factory as Auth;
+use App\Cryosoft\UnitsService;
+use App\Cryosoft\MinMaxService;
+use App\Models\MinMax;
+
 
 class Settings extends Controller
 {
@@ -29,19 +33,35 @@ class Settings extends Controller
     protected $auth;
 
     /**
+	 * @var App\Cryosoft\UnitsService
+	 */
+    protected $units;
+    
+        /**
+	 * @var App\Cryosoft\MinMaxService
+	 */
+	protected $minmax;
+
+    /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth)
+    public function __construct(Request $request, Auth $auth, UnitsService $units, MinMaxService $minmax)
     {
         $this->request = $request;
         $this->auth = $auth;
+        $this->units = $units;
+        $this->minmax = $minmax;
     }
 
     public function getMyMeshParamDef()
     {
         $meshParamDef = \App\Models\MeshParamDef::find($this->auth->user()->ID_USER);
+        $meshParamDef->MESH_1_SIZE = $this->units->meshes($meshParamDef->MESH_1_SIZE, 1);
+        $meshParamDef->MESH_2_SIZE = $this->units->meshes($meshParamDef->MESH_2_SIZE, 1);
+        $meshParamDef->MESH_3_SIZE = $this->units->meshes($meshParamDef->MESH_3_SIZE, 1);
+
         return $meshParamDef;
     }
 
@@ -52,15 +72,39 @@ class Settings extends Controller
         $dimension2 = floatval($input['dim2']);
         $dimension3 = floatval($input['dim3']);
 
+        $checkValue1 = $this->minmax->checkMinMaxValue($dimension1, 1);
+        $checkValue2 = $this->minmax->checkMinMaxValue($dimension2, 1);
+        $checkValue3 = $this->minmax->checkMinMaxValue($dimension3, 1);
+
+        if ( !$checkValue1 || !$checkValue1 ) {
+            $mm = $this->minmax->getMinMaxMesh(1);
+            return  [
+                "Message" => "Value out of range in Dimension 1 (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ")"
+            ];
+        }
+        if ( !$checkValue2 || !$checkValue2 ) {
+            $mm = $this->minmax->getMinMaxMesh(1);
+            return  [
+                "Message" => "Value out of range in Dimension 2 (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ")"
+            ];
+        }
+        if ( !$checkValue3 || !$checkValue3 ) {
+            $mm = $this->minmax->getMinMaxMesh(1);
+            return  [
+                "Message" => "Value out of range in Dimension 3 (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ")"
+            ];
+        }
+
         $meshParamDef = \App\Models\MeshParamDef::find($this->auth->user()->ID_USER);
 
         if ($meshParamDef != null) {
-            if (isset($input['dim1'])) $meshParamDef->MESH_1_SIZE = $dimension1;
-            if (isset($input['dim2'])) $meshParamDef->MESH_2_SIZE = $dimension2;
-            if (isset($input['dim3'])) $meshParamDef->MESH_3_SIZE = $dimension3;
-
+            if (isset($input['dim1'])) $meshParamDef->MESH_1_SIZE = $this->units->meshes($dimension1, 0);
+            if (isset($input['dim2'])) $meshParamDef->MESH_2_SIZE = $this->units->meshes($dimension2, 0);
+            if (isset($input['dim3'])) $meshParamDef->MESH_3_SIZE = $this->units->meshes($dimension3, 0);
             $meshParamDef->save();
         }
+
+        return 1;
     }
 
     public function getMyTempRecordPtsDef()

@@ -258,7 +258,7 @@ class Users extends Controller
             $userUnit->save();
         }
 
-        return 1;
+        return $this->getUnits($id);
     }
 
     public function getUser($id)
