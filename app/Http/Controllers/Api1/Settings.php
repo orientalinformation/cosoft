@@ -79,19 +79,19 @@ class Settings extends Controller
         if ( !$checkValue1 || !$checkValue1 ) {
             $mm = $this->minmax->getMinMaxMesh(1);
             return  [
-                "Message" => "Value out of range in Dimension 1 (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ")"
+                "Message" => "Value out of range in Dimension 1 (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
         }
         if ( !$checkValue2 || !$checkValue2 ) {
             $mm = $this->minmax->getMinMaxMesh(1);
             return  [
-                "Message" => "Value out of range in Dimension 2 (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ")"
+                "Message" => "Value out of range in Dimension 2 (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
         }
         if ( !$checkValue3 || !$checkValue3 ) {
             $mm = $this->minmax->getMinMaxMesh(1);
             return  [
-                "Message" => "Value out of range in Dimension 3 (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ")"
+                "Message" => "Value out of range in Dimension 3 (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
         }
 
@@ -178,19 +178,26 @@ class Settings extends Controller
     public function getMyCalculationParametersDef()
     {
         $calculationparametersdef = \App\Models\CalculationParametersDef::find($this->auth->user()->ID_USER);
+        $calculationparametersdef->STOP_TOP_SURF_DEF = $this->units->prodTemperature($calculationparametersdef->STOP_TOP_SURF_DEF, 1);
+        $calculationparametersdef->STOP_INT_DEF = $this->units->prodTemperature($calculationparametersdef->STOP_INT_DEF, 1);
+        $calculationparametersdef->STOP_BOTTOM_SURF_DEF = $this->units->prodTemperature($calculationparametersdef->STOP_BOTTOM_SURF_DEF, 1);
+        $calculationparametersdef->STOP_AVG_DEF = $this->units->prodTemperature($calculationparametersdef->STOP_AVG_DEF, 1);
+        $calculationparametersdef->TIME_STEP_DEF = $this->units->time($calculationparametersdef->TIME_STEP_DEF, 1);
+
         return $calculationparametersdef;
     }
 
     public function saveMyCalculationParametersDef()
     {
         $input = $this->request->all();
-
         $ishorizScanDef = intval($input['ishorizScanDef']);
+
         $maxIter = intval($input['maxIter']);
         $relaxCoef = intval($input['relaxCoef']);
         $precision = intval($input['precision']);
 
         $isVertScanDef = intval($input['isVertScanDef']);
+
         $stopTopSurfDef = intval($input['stopTopSurfDef']);
         $stopIntDef = intval($input['stopIntDef']);
         $stopBottomSurfDef = intval($input['stopBottomSurfDef']);
@@ -214,19 +221,52 @@ class Settings extends Controller
         $precisionLogStepDef = floatval($input['precisionLogStepDef']);
         $timeStepDef = intval($input['timeStepDef']);
 
+
+
+        $checkMaxIter = $this->minmax->checkMinMaxValue($maxIter, 1010);
+        if ( !$checkMaxIter || !$checkMaxIter ) {
+            $mm = $this->minmax->getMinMaxProdTemperature(1010);
+            return  [
+                "Message" => "Value out of range in Max of iterations (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+            ];
+        }
+        $checkRelaxCoef = $this->minmax->checkMinMaxValue($relaxCoef, 1012);
+        if ( !$checkRelaxCoef || !$checkRelaxCoef ) {
+            $mm = $this->minmax->getMinMaxProdTemperature(1012);
+            return  [
+                "Message" => "Value out of range in Coef. of relaxation (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+            ];
+        }
+        $checkPrecision = $this->minmax->checkMinMaxValue($precision, 1019);
+        if ( !$checkPrecision || !$checkPrecision ) {
+            $mm = $this->minmax->getMinMaxProdTemperature(1019);
+            return  [
+                "Message" => "Value out of range in Precision of numerical modelling (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+            ];
+        }
+
+        $checkTopSurfDef = $this->minmax->checkMinMaxValue($stopTopSurfDef, 1014);
+        $checkIntDef = $this->minmax->checkMinMaxValue($stopIntDef, 1015);
+        $checkBottomSurfDef = $this->minmax->checkMinMaxValue($stopBottomSurfDef, 1016);
+        $checkAvgDef = $this->minmax->checkMinMaxValue($stopAvgDef, 1017);
+        $checkTimeStepDef = $this->minmax->checkMinMaxValue($timeStepDef, 1013);
+
+
+
         $calculationparametersdef = \App\Models\CalculationParametersDef::find($this->auth->user()->ID_USER);
 
         if ($calculationparametersdef != null) {
             if (isset($input['ishorizScanDef'])) $calculationparametersdef->HORIZ_SCAN_DEF = $ishorizScanDef;
             if (isset($input['maxIter'])) $calculationparametersdef->MAX_IT_NB_DEF = $maxIter;
+
             if (isset($input['relaxCoef'])) $calculationparametersdef->RELAX_COEFF_DEF = $relaxCoef;
             if (isset($input['precision'])) $calculationparametersdef->PRECISION_REQUEST_DEF = $precision;
-
             if (isset($input['isVertScanDef'])) $calculationparametersdef->VERT_SCAN_DEF = $isVertScanDef;
-            if (isset($input['stopTopSurfDef'])) $calculationparametersdef->STOP_TOP_SURF_DEF = $stopTopSurfDef;
-            if (isset($input['stopIntDef'])) $calculationparametersdef->STOP_INT_DEF = $stopIntDef;
-            if (isset($input['stopBottomSurfDef'])) $calculationparametersdef->STOP_BOTTOM_SURF_DEF = $stopBottomSurfDef;
-            if (isset($input['stopAvgDef'])) $calculationparametersdef->STOP_AVG_DEF = $stopAvgDef;
+
+            if (isset($input['stopTopSurfDef'])) $calculationparametersdef->STOP_TOP_SURF_DEF = $this->units->prodTemperature($stopTopSurfDef, 0);
+            if (isset($input['stopIntDef'])) $calculationparametersdef->STOP_INT_DEF = $this->units->prodTemperature($stopIntDef, 0);
+            if (isset($input['stopBottomSurfDef'])) $calculationparametersdef->STOP_BOTTOM_SURF_DEF = $this->units->prodTemperature($stopBottomSurfDef, 0);
+            if (isset($input['stopAvgDef'])) $calculationparametersdef->STOP_AVG_DEF = $this->units->prodTemperature($stopAvgDef, 0);
 
             if (isset($input['isStudyAlphaTopFixedDef'])) $calculationparametersdef->STUDY_ALPHA_TOP_FIXED_DEF = $isStudyAlphaTopFixedDef;
             if (isset($input['isStudyAlphaBottomFixedDef'])) $calculationparametersdef->STUDY_ALPHA_BOTTOM_FIXED_DEF = $isStudyAlphaBottomFixedDef;
@@ -244,7 +284,8 @@ class Settings extends Controller
 
             if (isset($input['storageStepDef'])) $calculationparametersdef->STORAGE_STEP_DEF = $storageStepDef;
             if (isset($input['precisionLogStepDef'])) $calculationparametersdef->PRECISION_LOG_STEP_DEF = $precisionLogStepDef;
-            if (isset($input['timeStepDef'])) $calculationparametersdef->TIME_STEP_DEF = $timeStepDef;
+
+            if (isset($input['timeStepDef'])) $calculationparametersdef->TIME_STEP_DEF = $this->units->time($timeStepDef->TIME_STEP_DEF, 0);
 
             $calculationparametersdef->save();
         }
