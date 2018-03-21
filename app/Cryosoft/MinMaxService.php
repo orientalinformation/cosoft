@@ -52,9 +52,9 @@ class MinMaxService
     public function getMinMaxMesh($limitItem)
     {  
         $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
-        $minMax->LIMIT_MAX = $this->units->meshes($minMax->LIMIT_MAX, 1);
-        $minMax->LIMIT_MIN = $this->units->meshes($minMax->LIMIT_MIN, 1);
-        $minMax->DEFAULT_VALUE = $this->units->meshes($minMax->DEFAULT_VALUE, 1);
+        $minMax->LIMIT_MAX = $this->units->meshes($minMax->LIMIT_MAX, 2, 1);
+        $minMax->LIMIT_MIN = $this->units->meshes($minMax->LIMIT_MIN, 2, 1);
+        $minMax->DEFAULT_VALUE = $this->units->meshes($minMax->DEFAULT_VALUE, 2, 1);
 
         return $minMax; 
     }
@@ -102,10 +102,24 @@ class MinMaxService
     public function getMinMaxProdTemperature($limitItem)
     {  
         $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
-        $minMax->LIMIT_MAX = $this->units->prodTemperature($minMax->LIMIT_MAX, 1);
-        $minMax->LIMIT_MIN = $this->units->prodTemperature($minMax->LIMIT_MIN, 1);
-        $minMax->DEFAULT_VALUE = $this->units->prodTemperature($minMax->DEFAULT_VALUE, 1);
+        $minMax->LIMIT_MAX = $this->units->prodTemperature($minMax->LIMIT_MAX, 2, 1);
+        $minMax->LIMIT_MIN = $this->units->prodTemperature($minMax->LIMIT_MIN, 2, 1);
+        $minMax->DEFAULT_VALUE = $this->units->prodTemperature($minMax->DEFAULT_VALUE, 2, 1);
 
         return $minMax; 
     }
+
+    // HAIDT
+    public function getMinMaxTime($limitItem)
+    {  
+        $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
+        $minMax->LIMIT_MAX = $this->units->time($minMax->LIMIT_MAX, 3, 1);
+        $minMax->LIMIT_MIN = $this->units->time($minMax->LIMIT_MIN, 3, 1);
+        $minMax->DEFAULT_VALUE = $this->units->time($minMax->DEFAULT_VALUE, 3,1);
+
+        return $minMax; 
+    }
+
+
+    // end HAIDT
 }
