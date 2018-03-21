@@ -67,7 +67,8 @@ class UnitsService
         }
     }
 
-    public function time($value, $decimal, $status) {
+    public function time($value, $decimal, $status) 
+    {
         $unit = Unit::where('TYPE_UNIT', $this->value->TIME)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
@@ -80,7 +81,8 @@ class UnitsService
         }
     }
 
-    public function convectionCoeff($value, $decimal, $status) {
+    public function convectionCoeff($value, $decimal, $status) 
+    {
         $unit = Unit::where('TYPE_UNIT', $this->value->CONV_COEFF)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
@@ -110,7 +112,5 @@ class UnitsService
         
         return number_format((float)$number, $decimal, '.', '');
     }
-
     // HAIDT
-
 }
