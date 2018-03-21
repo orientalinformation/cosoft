@@ -479,7 +479,9 @@ class Reports extends Controller
     }
 
     function backgroundGenerationPDF($id) {
+        $input = $this->request->all();
         $study = Study::find($id);
+        var_dump($input);
         $host = 'http://' . $_SERVER['HTTP_HOST'];
         $public_path = rtrim(app()->basePath("public/"), '/');
         $progressFile = $public_path. "/reports/" . $study->USERNAM. "/" ."$study->ID_STUDY-$study->STUDY_NAME-Report.progess";
@@ -840,10 +842,10 @@ class Reports extends Controller
     }
 
     function downLoadPDF($studyId) {
+        // $this->backgroundGenerationPDF($studyId);
         ignore_user_abort(true);
         set_time_limit(300);
         $bgProcess = function($obj, $fn, $id) {
-            // ob_flush();
             flush();
             call_user_func_array([$obj, $fn], [$id]);
         };
