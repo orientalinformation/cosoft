@@ -38,6 +38,17 @@ class MinMaxService
         $this->convert = $app['App\\Cryosoft\\UnitsConverterService'];
     }
 
+    public function checkMinMaxValue($value, $limitItem)
+    {
+        $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
+
+        if (doubleval($value) < round($minMax->LIMIT_MIN, 2) || doubleval($value) > round($minMax->LIMIT_MAX, 2)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     public function getMinMaxMesh($limitItem)
     {  
         $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
@@ -88,14 +99,13 @@ class MinMaxService
         return $minMax; 
     }
 
-    public function checkMinMaxValue($value, $limitItem)
-    {
+    public function getMinMaxProdTemperature($limitItem)
+    {  
         $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
+        $minMax->LIMIT_MAX = $this->units->prodTemperature($minMax->LIMIT_MAX, 1);
+        $minMax->LIMIT_MIN = $this->units->prodTemperature($minMax->LIMIT_MIN, 1);
+        $minMax->DEFAULT_VALUE = $this->units->prodTemperature($minMax->DEFAULT_VALUE, 1);
 
-        if (doubleval($value) < round($minMax->LIMIT_MIN, 2) || doubleval($value) > round($minMax->LIMIT_MAX, 2)) {
-            return false;
-        } else {
-            return true;
-        }
+        return $minMax; 
     }
 }
