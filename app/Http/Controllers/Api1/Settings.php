@@ -82,12 +82,14 @@ class Settings extends Controller
                 "Message" => "Value out of range in Dimension 1 (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
         }
+
         if ( !$checkValue2 ) {
             $mm = $this->minmax->getMinMaxMesh(1);
             return  [
                 "Message" => "Value out of range in Dimension 2 (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
         }
+
         if ( !$checkValue3 ) {
             $mm = $this->minmax->getMinMaxMesh(1);
             return  [
@@ -97,7 +99,7 @@ class Settings extends Controller
 
         $meshParamDef = \App\Models\MeshParamDef::find($this->auth->user()->ID_USER);
 
-        if ($meshParamDef != null) {
+        if ($meshParamDef) {
             if (isset($input['dim1'])) $meshParamDef->MESH_1_SIZE = $this->units->meshes($dimension1, 2, 0);
             if (isset($input['dim2'])) $meshParamDef->MESH_2_SIZE = $this->units->meshes($dimension2, 2, 0);
             if (isset($input['dim3'])) $meshParamDef->MESH_3_SIZE = $this->units->meshes($dimension3, 2, 0);
@@ -149,6 +151,7 @@ class Settings extends Controller
                 "Message" => "Value out of range in Top- X (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
         }
+
         $checkAxis2TopSurf = $this->minmax->checkMinMaxValue($axis2TopSurf, 1089);
         if ( !$checkAxis2TopSurf ) {
             $mm = $this->minmax->getMinMaxLimitItem(1089);
@@ -156,6 +159,7 @@ class Settings extends Controller
                 "Message" => "Value out of range in Top- Y (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
         }
+
         $checkAxis3TopSurf = $this->minmax->checkMinMaxValue($axis3TopSurf, 1089);
         if ( !$checkAxis3TopSurf ) {
             $mm = $this->minmax->getMinMaxLimitItem(1089);
@@ -171,6 +175,7 @@ class Settings extends Controller
                 "Message" => "Value out of range in Inside- X (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
         }
+
         $checkAxis2IntPt = $this->minmax->checkMinMaxValue($axis2IntPt, 1089);
         if ( !$checkAxis2IntPt ) {
             $mm = $this->minmax->getMinMaxLimitItem(1089);
@@ -178,6 +183,7 @@ class Settings extends Controller
                 "Message" => "Value out of range in Inside- Y (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
         }
+
         $checkAxis3IntPt = $this->minmax->checkMinMaxValue($axis3IntPt, 1089);
         if ( !$checkAxis3IntPt ) {
             $mm = $this->minmax->getMinMaxLimitItem(1089);
@@ -193,6 +199,7 @@ class Settings extends Controller
                 "Message" => "Value out of range in Bottom- X (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
         }
+
         $checkAxis2BotSurf = $this->minmax->checkMinMaxValue($axis2BotSurf, 1089);
         if ( !$checkAxis2BotSurf ) {
             $mm = $this->minmax->getMinMaxLimitItem(1089);
@@ -200,6 +207,7 @@ class Settings extends Controller
                 "Message" => "Value out of range in Bottom- Y (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
         }
+
         $checkAxis3BotSurf = $this->minmax->checkMinMaxValue($axis3BotSurf, 1089);
         if ( !$checkAxis3BotSurf ) {
             $mm = $this->minmax->getMinMaxLimitItem(1089);
@@ -215,6 +223,7 @@ class Settings extends Controller
                 "Message" => "Value out of range in Plan 12- Y (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
         }
+
         $checkAxis2PL13 = $this->minmax->checkMinMaxValue($axis2PL13, 1089);
         if ( !$checkAxis2PL13 ) {
             $mm = $this->minmax->getMinMaxLimitItem(1089);
@@ -222,6 +231,7 @@ class Settings extends Controller
                 "Message" => "Value out of range in Plan 13- Z (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
         }
+
         $checkAxis1PL23 = $this->minmax->checkMinMaxValue($axis1PL23, 1089);
         if ( !$checkAxis1PL23 ) {
             $mm = $this->minmax->getMinMaxLimitItem(1089);
@@ -229,6 +239,7 @@ class Settings extends Controller
                 "Message" => "Value out of range in Plan 23- X (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
         }
+
         $checkAxis2Axe1 = $this->minmax->checkMinMaxValue($axis2Axe1, 1089);
         if ( !$checkAxis2Axe1 ) {
             $mm = $this->minmax->getMinMaxLimitItem(1089);
@@ -236,6 +247,7 @@ class Settings extends Controller
                 "Message" => "Value out of range in Axis 1- Y (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
         }
+
         $checkAxis3Axe1 = $this->minmax->checkMinMaxValue($axis3Axe1, 1089);
         if ( !$checkAxis3Axe1 ) {
             $mm = $this->minmax->getMinMaxLimitItem(1089);
@@ -243,6 +255,7 @@ class Settings extends Controller
                 "Message" => "Value out of range in Axis 1- Z (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
         }
+
         $checkAxis1Axe2 = $this->minmax->checkMinMaxValue($axis1Axe2, 1089);
         if ( !$checkAxis1Axe2 ) {
             $mm = $this->minmax->getMinMaxLimitItem(1089);
@@ -250,6 +263,7 @@ class Settings extends Controller
                 "Message" => "Value out of range in Axis 2- X (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
         }
+
         $checkAxis3Axe2 = $this->minmax->checkMinMaxValue($axis3Axe2, 1089);
         if ( !$checkAxis3Axe2 ) {
             $mm = $this->minmax->getMinMaxLimitItem(1089);
@@ -257,6 +271,7 @@ class Settings extends Controller
                 "Message" => "Value out of range in Axis 2- Z (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
         }
+
         $checkAxis1Axe3 = $this->minmax->checkMinMaxValue($axis1Axe3, 1089);
         if ( !$checkAxis1Axe3 ) {
             $mm = $this->minmax->getMinMaxLimitItem(1089);
@@ -264,6 +279,7 @@ class Settings extends Controller
                 "Message" => "Value out of range in Axis 3- X (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
         }
+
         $checkAxis2Axe3 = $this->minmax->checkMinMaxValue($axis2Axe3, 1089);
         if ( !$checkAxis2Axe3 ) {
             $mm = $this->minmax->getMinMaxLimitItem(1089);
@@ -368,6 +384,7 @@ class Settings extends Controller
                 "Message" => "Value out of range in Max of iterations (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
         }
+
         $checkRelaxCoef = $this->minmax->checkMinMaxValue($relaxCoef, 1012);
         if ( !$checkRelaxCoef ) {
             $mm = $this->minmax->getMinMaxProdTemperature(1012);
@@ -375,6 +392,7 @@ class Settings extends Controller
                 "Message" => "Value out of range in Coef. of relaxation (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
         }
+
         $checkPrecision = $this->minmax->checkMinMaxValue($precision, 1019);
         if ( !$checkPrecision ) {
             $mm = $this->minmax->getMinMaxProdTemperature(1019);
@@ -398,6 +416,7 @@ class Settings extends Controller
                 "Message" => "Value out of range in Internal (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
         }
+
         $checkBottomSurfDef = $this->minmax->checkMinMaxValue($stopBottomSurfDef, 1016);
         if (!$checkBottomSurfDef) {
             $mm = $this->minmax->getMinMaxProdTemperature(1016);
@@ -405,6 +424,7 @@ class Settings extends Controller
                 "Message" => "Value out of range in Bottom (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
         }
+
         $checkAvgDef = $this->minmax->checkMinMaxValue($stopAvgDef, 1017);
         if (!$checkAvgDef) {
             $mm = $this->minmax->getMinMaxProdTemperature(1017);
@@ -412,6 +432,7 @@ class Settings extends Controller
                 "Message" => "Value out of range in Average (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
         }
+
         $checkTimeStepDef = $this->minmax->checkMinMaxValue($timeStepDef, 1013);
         if (!$checkTimeStepDef) {
             $mm = $this->minmax->getMinMaxTime(1013);
@@ -427,6 +448,7 @@ class Settings extends Controller
                 "Message" => "Value out of range in Alpha top (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
         }
+
         $checkAlphaBottomDef = $this->minmax->checkMinMaxValue($studyAlphaTopDef, 1018);
         if (!$checkAlphaBottomDef) {
             $mm = $this->minmax->getMinMaxTime(1018);
@@ -434,6 +456,7 @@ class Settings extends Controller
                 "Message" => "Value out of range in Alpha bottom (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
         }
+
         $checkAlphaLeftDef = $this->minmax->checkMinMaxValue($studyAlphaTopDef, 1018);
         if (!$checkAlphaLeftDef) {
             $mm = $this->minmax->getMinMaxTime(1018);
@@ -441,6 +464,7 @@ class Settings extends Controller
                 "Message" => "Value out of range in Alpha left (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
         }
+
         $checkAlphaRightDef = $this->minmax->checkMinMaxValue($studyAlphaTopDef, 1018);
         if (!$checkAlphaRightDef) {
             $mm = $this->minmax->getMinMaxTime(1018);
@@ -448,6 +472,7 @@ class Settings extends Controller
                 "Message" => "Value out of range in Alpha right (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
         }
+
         $checkAlphaFrontDef = $this->minmax->checkMinMaxValue($studyAlphaTopDef, 1018);
         if (!$checkAlphaFrontDef) {
             $mm = $this->minmax->getMinMaxTime(1018);
@@ -455,6 +480,7 @@ class Settings extends Controller
                 "Message" => "Value out of range in Alpha front (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
         }
+        
         $checkAlphaRearDef = $this->minmax->checkMinMaxValue($studyAlphaTopDef, 1018);
         if (!$checkAlphaRearDef) {
             $mm = $this->minmax->getMinMaxTime(1018);
