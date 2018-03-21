@@ -32,8 +32,8 @@ class UnitsService
         $this->auth = $app['Illuminate\\Contracts\\Auth\\Factory'];
         $this->value = $app['App\\Cryosoft\\ValueListService'];
     }
-
-    public function meshes($value, $status) 
+    // HAIDT
+    public function meshes($value, $decimal, $status) 
     {
         $unit = Unit::where('TYPE_UNIT', $this->value->MESH_CUT)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
@@ -45,7 +45,7 @@ class UnitsService
         if (intval($status) == 1) {
             if ($value != null) $value = ($value - $coeffB) * $coeffA;
 
-            return round($value, 2);
+            return round($value, $decimal);
         } else {
             if ($value != null) $value = ($value + $coeffB) / $coeffA;
 
@@ -53,7 +53,7 @@ class UnitsService
         }
     }
 
-    public function prodTemperature($value, $status)
+    public function prodTemperature($value, $decimal, $status)
     {
         $unit = Unit::where('TYPE_UNIT', $this->value->TEMPERATURE)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
@@ -61,41 +61,56 @@ class UnitsService
         ->first();
         
         if ($status == 1) {
-            return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 1);
+            return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, $decimal, 1);
         } else {
-            return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 0);
+            return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, $decimal, 0);
         }
     }
 
-    public function time($value, $status) {
+    public function time($value, $decimal, $status) {
         $unit = Unit::where('TYPE_UNIT', $this->value->TIME)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
 
         if ($status == 1) {
-            return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 1);
+            return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, $decimal, 1);
         } else {
-            return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 0);
+            return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, $decimal, 0);
         }
     }
 
-    public function convertCalculator($value, $coeffA, $coeffB, $status)
+    public function convectionCoeff($value, $decimal, $status) {
+        $unit = Unit::where('TYPE_UNIT', $this->value->CONV_COEFF)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+
+        if ($status == 1) {
+            return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, $decimal, 1);
+        } else {
+            return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, $decimal, 0);
+        }
+    }
+
+    public function convertCalculator($value, $coeffA, $coeffB, $decimal, $status)
     {
         if ($status == 1) {
             $number = $value * $coeffA + $coeffB;
         } else {
-            $number = $value / $coeffA - $coeffB;
+            $number = ($value - $coeffB) / $coeffA ;
         }
         
         if (floor( $value ) != $value) {
-            $number = round(($number), 2, PHP_ROUND_HALF_UP);
-            $number = floor($number * pow(10, 2)) / pow(10, 2);
+            $number = round(($number), $decimal, PHP_ROUND_HALF_UP);
+            $number = floor($number * pow(10, $decimal)) / pow(10, $decimal);
         } else {
-            $number = round(($value * $coeffA + $coeffB), 2);
+            $number = round(($value * $coeffA + $coeffB), $decimal);
         }
-
-        return number_format((float)$number, 2, '.', '');
+        
+        return number_format((float)$number, $decimal, '.', '');
     }
+
+    // HAIDT
 
 }

@@ -420,7 +420,7 @@ class UnitsConverterService
             return $value;
     }
     
-    public function convertCalculator($value, $coeffA, $coeffB, $decimal = 2)
+    public function convertCalculator($value, $coeffA, $coeffB, $decimal = 2, $options = null)
     {
         $number = $value * $coeffA + $coeffB;
         if (floor( $value ) != $value) {
@@ -430,7 +430,12 @@ class UnitsConverterService
             $number = round(($value * $coeffA + $coeffB), $decimal);
         }
 
-        return number_format((float)$number, $decimal, '.', '');
+        if (!empty($options) && $options['format'] == false) {
+            return $number;
+        } else {
+            return number_format((float)$number, $decimal, '.', '');
+        }
+        
     }
 
     public function convertUnitSave($value, $coeffA, $coeffB)
@@ -627,12 +632,12 @@ class UnitsConverterService
         return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B);
     }
 
-    public function lineDimension($value) {
+    public function lineDimension($value, $options = null) {
         $unit = Unit::where('TYPE_UNIT', $this->value->LINE)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
-        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 3);
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 3, $options);
     }
     public function lineDimensionSave($value) {
         $unit = Unit::where('TYPE_UNIT', $this->value->LINE)
