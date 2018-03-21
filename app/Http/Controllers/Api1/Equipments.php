@@ -686,7 +686,9 @@ class Equipments extends Controller
         $minMax = $minScaleY = $maxScaleY = $minValueY = $maxValueY = $nbFractionDigits = $maxiMum = null;
         $unitIdent = $miniMum = 10;
         $ID_EQUIP = $profileType = $profileFace = $listOfPoints = null;
-        $YAxis = $XAxis = 0;
+        $YAxis = $XAxis = $pos = 0;
+        $X = $Y = array();
+        $textX = 75;
 
         $input = $this->request->all();
 
@@ -710,7 +712,7 @@ class Equipments extends Controller
         $maxValueY = doubleval($minMax->LIMIT_MIN);
 
         $listOfPoints = $this->getSelectedProfile($ID_EQUIP, $profileType, $profileFace);
- 
+        
         if (count($listOfPoints) > 0) {
             for($i = 0; $i < count($listOfPoints); $i++) {
                 if (doubleval($listOfPoints[$i]['Y_POINT']) < $minValueY) {
@@ -719,6 +721,21 @@ class Equipments extends Controller
 
                 if (doubleval($listOfPoints[$i]['Y_POINT']) > $maxValueY) {
                     $maxValueY = doubleval($listOfPoints[$i]['Y_POINT']);
+                }
+
+
+                if ($i == 0) {
+                    $item['position'] = $pos;
+                    $item['textX'] = $textX;
+                    array_push($X, $item);
+                }
+
+                if (($i > 0) && ($i % 10 == 0) && $i <= 100) {
+                    $pos = $pos + 10;
+                    $textX = $textX + 80;
+                    $item['textX'] = $textX;
+                    $item['position'] = $pos;
+                    array_push($X, $item);
                 }
             }
         }
@@ -754,11 +771,16 @@ class Equipments extends Controller
         $miniMum = $this->convert->convertIdent($minScaleY, $unitIdent);
         $maxiMum = $this->convert->convertIdent($maxScaleY, $unitIdent);
 
+        $Y = $this->getYPosition($miniMum, $maxiMum, $profileType, $listOfPoints);
+
         $array = [
             'MiniMum' => $miniMum,
             'MaxiMum' => $maxiMum,
             'YAxis' => $YAxis,
             'XAxis' => $XAxis,
+            'X' => $X,
+            'Y' =>  $Y,
+            'ListOfPoints' => $listOfPoints
         ];
         
         return $array;
@@ -770,26 +792,26 @@ class Equipments extends Controller
         $equipCharacts = EquipCharact::where('ID_EQUIP', $ID_EQUIP)->get();
         if ($equipCharacts) {
             foreach ($equipCharacts as $equipCharact) {
+                $item['X_POSITION'] = $equipCharact->X_POSITION;
                 if ($profileType == 1) {
-                    $item['X_POSITION'] = $equipCharact->X_POSITION;
                     switch ($profileFace) {
                         case 0:
-                            $item['Y_POINT'] = $equipCharact->ALPHA_TOP;
+                            $item['Y_POINT'] = $this->convert->convectionCoeff($equipCharact->ALPHA_TOP);
                             break;
                         case 1:
-                            $item['Y_POINT'] = $equipCharact->ALPHA_BOTTOM;
+                            $item['Y_POINT'] = $this->convert->convectionCoeff($equipCharact->ALPHA_BOTTOM);
                             break;
                         case 2:
-                            $item['Y_POINT'] = $equipCharact->ALPHA_LEFT;
+                            $item['Y_POINT'] = $this->convert->convectionCoeff($equipCharact->ALPHA_LEFT);
                             break;
                         case 3:
-                            $item['Y_POINT'] = $equipCharact->ALPHA_RIGHT;
+                            $item['Y_POINT'] = $this->convert->convectionCoeff($equipCharact->ALPHA_RIGHT);
                             break;
                         case 4:
-                            $item['Y_POINT'] = $equipCharact->ALPHA_FRONT;
+                            $item['Y_POINT'] = $this->convert->convectionCoeff($equipCharact->ALPHA_FRONT);
                             break;
                         case 5:
-                            $item['Y_POINT'] = $equipCharact->ALPHA_REAR;
+                            $item['Y_POINT'] = $this->convert->convectionCoeff($equipCharact->ALPHA_REAR);
                             break;
                         default:
                             # code...
@@ -798,22 +820,22 @@ class Equipments extends Controller
                 } else {
                     switch ($profileFace) {
                         case 0:
-                            $item['Y_POINT'] = $equipCharact->TEMP_TOP;
+                            $item['Y_POINT'] = $this->convert->temperature($equipCharact->TEMP_TOP);
                             break;
                         case 1:
-                            $item['Y_POINT'] = $equipCharact->TEMP_BOTTOM;
+                            $item['Y_POINT'] = $this->convert->temperature($equipCharact->TEMP_BOTTOM);
                             break;
                         case 2:
-                            $item['Y_POINT'] = $equipCharact->TEMP_LEFT;
+                            $item['Y_POINT'] = $this->convert->temperature($equipCharact->TEMP_LEFT);
                             break;
                         case 3:
-                            $item['Y_POINT'] = $equipCharact->TEMP_RIGHT;
+                            $item['Y_POINT'] = $this->convert->temperature($equipCharact->TEMP_RIGHT);
                             break;
                         case 4:
-                            $item['Y_POINT'] = $equipCharact->TEMP_FRONT;
+                            $item['Y_POINT'] = $this->convert->temperature($equipCharact->TEMP_FRONT);
                             break;
                         case 5:
-                            $item['Y_POINT'] = $equipCharact->TEMP_REAR;
+                            $item['Y_POINT'] = $this->convert->temperature($equipCharact->TEMP_REAR);
                             break;
                         default:
                             # code...
@@ -824,6 +846,75 @@ class Equipments extends Controller
             }
         }
         return $listOfPoints;
+    }
+
+    private function getYPosition($min, $max, $profileType, $listOfPoints)
+    {   
+        array_multisort(array_column($listOfPoints, 'Y_POINT'), SORT_ASC, $listOfPoints);
+
+        $result = $Y = $listPoints = array();
+        $textX = 300;
+
+        if ($min != null) {
+            array_push($Y, $min);
+        }
+
+        for($i = 0; $i < count($listOfPoints); $i++) {
+            if ($profileType == 1) {
+                 if (!in_array($this->convert->convectionCoeff($listOfPoints[$i]['Y_POINT']), $Y)) {
+                    array_push($Y, $this->convert->convectionCoeff($listOfPoints[$i]['Y_POINT'])); 
+                 }
+            } else {
+                if (!in_array($this->convert->temperature($listOfPoints[$i]['Y_POINT']), $Y)) {
+                    array_push($Y, $this->convert->temperature($listOfPoints[$i]['Y_POINT'])); 
+                }
+            }
+        }
+
+        if ($max != null) {
+            array_push($Y, $max);
+        }
+
+        if (count($Y) > 12) {
+            $newList = array();
+            $count = 0;
+            for ($i = 0; $i < count($Y); $i++) {
+                $count++;
+                if ($i == 0) {
+                    array_push($newList, $Y[$i]);
+                }
+
+                if ($count == 4) {
+                    array_push($newList, $Y[$i]);
+                    $count = 0;
+                }
+            }
+            $Y = $newList;
+        }
+
+        if (count($Y) > 0) {
+            for($i = 0; $i < count($Y); $i++) {
+                $item['position'] = floatval($Y[$i]);
+                if ($i == 0) {
+                    $item['textX'] = $textX;
+                } else {
+                    if (count($Y) == 8 || count($Y) == 9 || count($Y) == 10) {
+                        $textX = $textX - 25;
+                    } else if (count($Y) == 2) {
+                        $textX = $textX - 250;
+                    } else if (count($Y) > 10) {
+                        $textX = $textX - 20;
+                    }else {
+                        $textX = $textX - 31;
+                    }
+
+                    $item['textX'] = $textX;
+                }
+                array_push($result, $item);
+            }
+        }
+
+        return $result;
     }
 
     public function getDataCurve($idEquip) 
