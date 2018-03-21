@@ -478,8 +478,72 @@ class Reports extends Controller
         return 1;
     }
 
-    function backgroundGenerationPDF($id) {
+    function backgroundGenerationPDF($params) {
+        $id = $params['studyId'];
+        $input = $params['input'];
+        $DEST_SURNAME = $input['DEST_SURNAME'];
+        $DEST_NAME = $input['DEST_NAME'];
+        $DEST_FUNCTION = $input['DEST_FUNCTION'];
+        $DEST_COORD = $input['DEST_COORD'];
+        $PHOTO_PATH = $input['PHOTO_PATH'];
+        $CUSTOMER_LOGO = $input['CUSTOMER_LOGO'];
+        $REPORT_COMMENT = $input['REPORT_COMMENT'];
+        $WRITER_SURNAME = $input['WRITER_SURNAME'];
+        $WRITER_NAME = $input['WRITER_NAME'];
+        $WRITER_FUNCTION = $input['WRITER_FUNCTION'];
+        $WRITER_COORD = $input['WRITER_COORD'];
+        $PROD_LIST = $input['PROD_LIST'];
+        $PROD_3D = $input['PROD_3D'];
+        $EQUIP_LIST = $input['EQUIP_LIST'];
+        $REP_CUSTOMER = $input['REP_CUSTOMER'];
+        $PACKING = $input['PACKING'];
+        $ASSES_ECO = $input['ASSES_ECO'];
+        $PIPELINE = $input['PIPELINE'];
+        $CONS_OVERALL = $input['CONS_OVERALL'];
+        $CONS_TOTAL = $input['CONS_TOTAL'];
+        $CONS_SPECIFIC = $input['CONS_SPECIFIC'];
+        $CONS_HOUR = $input['CONS_HOUR'];
+        $CONS_DAY = $input['CONS_DAY'];
+        $CONS_WEEK = $input['CONS_WEEK'];
+        $CONS_MONTH = $input['CONS_MONTH'];
+        $CONS_YEAR = $input['CONS_YEAR'];
+        $CONS_EQUIP = $input['CONS_EQUIP'];
+        $CONS_PIPE = $input['CONS_PIPE'];
+        $CONS_TANK = $input['CONS_TANK'];
+        $REP_CONS_PIE = $input['REP_CONS_PIE'];
+        $isSizingValuesChosen = $input['isSizingValuesChosen'];
+        $isSizingValuesMax = $input['isSizingValuesMax'];
+        $SIZING_GRAPHE = $input['SIZING_GRAPHE'];
+        $ENTHALPY_V = $input['ENTHALPY_V'];
+        $ENTHALPY_G = $input['ENTHALPY_G'];
+        $ENTHALPY_SAMPLE = $input['ENTHALPY_SAMPLE'];
+        $ISOCHRONE_V = $input['ISOCHRONE_V'];
+        $ISOCHRONE_G = $input['ISOCHRONE_G'];
+        $ISOCHRONE_SAMPLE = $input['ISOCHRONE_SAMPLE'];
+        $ISOVALUE_V = $input['ISOVALUE_V'];
+        $ISOVALUE_G = $input['ISOVALUE_G'];
+        $ISOVALUE_SAMPLE = $input['ISOVALUE_SAMPLE'];
+        $CONTOUR2D_G = $input['CONTOUR2D_G'];
+        $POINT1_X = $input['POINT1_X'];
+        $POINT1_Y = $input['POINT1_Y'];
+        $POINT1_Z = $input['POINT1_Z'];
+        $POINT2_X = $input['POINT2_X'];
+        $POINT2_Y = $input['POINT2_Y'];
+        $POINT2_Z = $input['POINT2_Z'];
+        $POINT3_X = $input['POINT3_X'];
+        $POINT3_Y = $input['POINT3_Y'];
+        $POINT3_Z = $input['POINT3_Z'];
+        $AXE3_Y = $input['AXE3_Y'];
+        $AXE3_Z = $input['AXE3_Z'];
+        $AXE2_X = $input['AXE2_X'];
+        $AXE2_Z = $input['AXE2_Z'];
+        $AXE1_X = $input['AXE1_X'];
+        $AXE1_Y = $input['AXE1_Y'];
+        $PLAN_X = $input['PLAN_X'];
+        $PLAN_Y = $input['PLAN_Y'];
+        $PLAN_Z = $input['PLAN_Z'];
         $study = Study::find($id);
+        
         $host = 'http://' . $_SERVER['HTTP_HOST'];
         $public_path = rtrim(app()->basePath("public/"), '/');
         $progressFile = $public_path. "/reports/" . $study->USERNAM. "/" ."$study->ID_STUDY-$study->STUDY_NAME-Report.progess";
@@ -840,14 +904,17 @@ class Reports extends Controller
     }
 
     function downLoadPDF($studyId) {
+        $input = $this->request->all();
+        $params['studyId'] = $studyId;
+        $params['input'] = $input;
+        // $this->backgroundGenerationPDF($studyId);
         ignore_user_abort(true);
         set_time_limit(300);
         $bgProcess = function($obj, $fn, $id) {
-            // ob_flush();
             flush();
             call_user_func_array([$obj, $fn], [$id]);
         };
-        register_shutdown_function($bgProcess, $this, 'backgroundGenerationPDF', $studyId);
+        register_shutdown_function($bgProcess, $this, 'backgroundGenerationPDF', $params);
         header('Connection: close');
         header('Content-length: 19');
         // header('Access-Control-Allow-Origin: *'); 
