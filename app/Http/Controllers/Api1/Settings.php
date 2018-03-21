@@ -135,12 +135,142 @@ class Settings extends Controller
 
         $axis2Axe1 = intval($input['axis2Axe1']);
         $axis3Axe1 = intval($input['axis3Axe1']);
-
         $axis1Axe2 = intval($input['axis1Axe2']);
         $axis3Axe2 = intval($input['axis3Axe2']);
-
         $axis1Axe3 = intval($input['axis1Axe3']);
         $axis2Axe3 = intval($input['axis2Axe3']);
+
+
+
+        $checkAxis1TopSurf = $this->minmax->checkMinMaxValue($axis1TopSurf, 1089);
+        if ( !$checkAxis1TopSurf ) {
+            $mm = $this->minmax->getMinMaxLimitItem(1089);
+            return  [
+                "Message" => "Value out of range in Top- X (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+            ];
+        }
+        $checkAxis2TopSurf = $this->minmax->checkMinMaxValue($axis2TopSurf, 1089);
+        if ( !$checkAxis2TopSurf ) {
+            $mm = $this->minmax->getMinMaxLimitItem(1089);
+            return  [
+                "Message" => "Value out of range in Top- Y (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+            ];
+        }
+        $checkAxis3TopSurf = $this->minmax->checkMinMaxValue($axis3TopSurf, 1089);
+        if ( !$checkAxis3TopSurf ) {
+            $mm = $this->minmax->getMinMaxLimitItem(1089);
+            return  [
+                "Message" => "Value out of range in Top- Z (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+            ];
+        }
+
+        $checkAxis1IntPt = $this->minmax->checkMinMaxValue($axis1IntPt, 1089);
+        if ( !$checkAxis1IntPt ) {
+            $mm = $this->minmax->getMinMaxLimitItem(1089);
+            return  [
+                "Message" => "Value out of range in Inside- X (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+            ];
+        }
+        $checkAxis2IntPt = $this->minmax->checkMinMaxValue($axis2IntPt, 1089);
+        if ( !$checkAxis2IntPt ) {
+            $mm = $this->minmax->getMinMaxLimitItem(1089);
+            return  [
+                "Message" => "Value out of range in Inside- Y (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+            ];
+        }
+        $checkAxis3IntPt = $this->minmax->checkMinMaxValue($axis3IntPt, 1089);
+        if ( !$checkAxis3IntPt ) {
+            $mm = $this->minmax->getMinMaxLimitItem(1089);
+            return  [
+                "Message" => "Value out of range in Inside- Z (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+            ];
+        }
+
+        $checkAxis1BotSurf = $this->minmax->checkMinMaxValue($axis1BotSurf, 1089);
+        if ( !$checkAxis1BotSurf ) {
+            $mm = $this->minmax->getMinMaxLimitItem(1089);
+            return  [
+                "Message" => "Value out of range in Bottom- X (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+            ];
+        }
+        $checkAxis2BotSurf = $this->minmax->checkMinMaxValue($axis2BotSurf, 1089);
+        if ( !$checkAxis2BotSurf ) {
+            $mm = $this->minmax->getMinMaxLimitItem(1089);
+            return  [
+                "Message" => "Value out of range in Bottom- Y (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+            ];
+        }
+        $checkAxis3BotSurf = $this->minmax->checkMinMaxValue($axis3BotSurf, 1089);
+        if ( !$checkAxis3BotSurf ) {
+            $mm = $this->minmax->getMinMaxLimitItem(1089);
+            return  [
+                "Message" => "Value out of range in Bottom- Z (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+            ];
+        }
+
+        $checkAxis3PL12 = $this->minmax->checkMinMaxValue($axis3PL12, 1089);
+        if ( !$checkAxis3PL12 ) {
+            $mm = $this->minmax->getMinMaxLimitItem(1089);
+            return  [
+                "Message" => "Value out of range in Plan 12- Y (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+            ];
+        }
+        $checkAxis2PL13 = $this->minmax->checkMinMaxValue($axis2PL13, 1089);
+        if ( !$checkAxis2PL13 ) {
+            $mm = $this->minmax->getMinMaxLimitItem(1089);
+            return  [
+                "Message" => "Value out of range in Plan 13- Z (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+            ];
+        }
+        $checkAxis1PL23 = $this->minmax->checkMinMaxValue($axis1PL23, 1089);
+        if ( !$checkAxis1PL23 ) {
+            $mm = $this->minmax->getMinMaxLimitItem(1089);
+            return  [
+                "Message" => "Value out of range in Plan 23- X (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+            ];
+        }
+        $checkAxis2Axe1 = $this->minmax->checkMinMaxValue($axis2Axe1, 1089);
+        if ( !$checkAxis2Axe1 ) {
+            $mm = $this->minmax->getMinMaxLimitItem(1089);
+            return  [
+                "Message" => "Value out of range in Axis 1- Y (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+            ];
+        }
+        $checkAxis3Axe1 = $this->minmax->checkMinMaxValue($axis3Axe1, 1089);
+        if ( !$checkAxis3Axe1 ) {
+            $mm = $this->minmax->getMinMaxLimitItem(1089);
+            return  [
+                "Message" => "Value out of range in Axis 1- Z (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+            ];
+        }
+        $checkAxis1Axe2 = $this->minmax->checkMinMaxValue($axis1Axe2, 1089);
+        if ( !$checkAxis1Axe2 ) {
+            $mm = $this->minmax->getMinMaxLimitItem(1089);
+            return  [
+                "Message" => "Value out of range in Axis 2- X (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+            ];
+        }
+        $checkAxis3Axe2 = $this->minmax->checkMinMaxValue($axis3Axe2, 1089);
+        if ( !$checkAxis3Axe2 ) {
+            $mm = $this->minmax->getMinMaxLimitItem(1089);
+            return  [
+                "Message" => "Value out of range in Axis 2- Z (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+            ];
+        }
+        $checkAxis1Axe3 = $this->minmax->checkMinMaxValue($axis1Axe3, 1089);
+        if ( !$checkAxis1Axe3 ) {
+            $mm = $this->minmax->getMinMaxLimitItem(1089);
+            return  [
+                "Message" => "Value out of range in Axis 3- X (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+            ];
+        }
+        $checkAxis2Axe3 = $this->minmax->checkMinMaxValue($axis2Axe3, 1089);
+        if ( !$checkAxis2Axe3 ) {
+            $mm = $this->minmax->getMinMaxLimitItem(1089);
+            return  [
+                "Message" => "Value out of range in Axis 3- Y (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+            ];
+        }
 
         $tempRecordPtsDef = \App\Models\TempRecordPtsDef::find($this->auth->user()->ID_USER);
 
@@ -172,6 +302,8 @@ class Settings extends Controller
             if (isset($input['axis2Axe3'])) $tempRecordPtsDef->AXIS2_AX_3_DEF = $axis2Axe3;
 
             $tempRecordPtsDef->save();
+            
+            return 1;
         }
     }
 
