@@ -82,8 +82,8 @@ class MinMaxService
     public function getMinMaxLineDimention($limitItem)
     {  
         $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
-        $minMax->LIMIT_MAX = $this->convert->lineDimension($minMax->LIMIT_MAX);
-        $minMax->LIMIT_MIN = $this->convert->lineDimension($minMax->LIMIT_MIN);
+        $minMax->LIMIT_MAX = $this->convert->lineDimension($minMax->LIMIT_MAX, ['format' => false]);
+        $minMax->LIMIT_MIN = $this->convert->lineDimension($minMax->LIMIT_MIN, ['format' => false]);
         $minMax->DEFAULT_VALUE = $this->convert->lineDimension($minMax->DEFAULT_VALUE);
 
         return $minMax; 
