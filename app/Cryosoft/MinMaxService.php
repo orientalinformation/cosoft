@@ -120,6 +120,12 @@ class MinMaxService
         return $minMax; 
     }
 
+    public function getMinMaxLimitItem($limitItem)
+    {  
+        $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
+
+        return $minMax; 
+    }
 
     // end HAIDT
 }
