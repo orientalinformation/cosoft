@@ -271,15 +271,15 @@
                         </tr>
                         <tr>
                             <td>Space in width <?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . " )" ?></td>
-                            <td align="center"></td>
+                            <td align="center"><?php echo $resequipDatas['layoutResults']['LEFT_RIGHT_INTERVAL'] ?></td>
                         </tr>
                         <tr>
                             <td>Number per meter</td>
-                            <td align="center"></td>
+                            <td align="center"><?php echo $resequipDatas['layoutResults']['NUMBER_PER_M'] ?></td>
                         </tr>
                         <tr>
                             <td>Number in width</td>
-                            <td align="center"> </td>
+                            <td align="center"><?php echo $resequipDatas['layoutResults']['NUMBER_IN_WIDTH'] ?></td>
                         </tr>
                         <tr>
                             <td>Conveyor coverage or quantity of product per batch</td>
@@ -485,8 +485,8 @@
             </div>
         </div>
         <h4>Graphic</h4>
-        <div class ="graphic">
-            <img src="<?php echo $arrayParam['host'] . "/sizing/" . $arrayParam['study']['USERNAM'] . "/" .  $arrayParam['study']['ID_STUDY'] . ".png" ?>">
+        <div class ="graphic" align="center">
+            <img src="<?php echo $arrayParam['host'] . "/sizing/" . $arrayParam['study']['USERNAM'] . "/" .  $arrayParam['study']['ID_STUDY'] . ".png" ?>" style="max-width: 640px">
         </div>
         <?php } ?>
 
@@ -526,8 +526,8 @@
                 </table>
                 </div>
     
-                <div id="hexchGraphic">
-                    <img src="<?php echo $arrayParam['host'] . "/heatExchange/" . $arrayParam['study']['USERNAM'] . "/" .  $resheatexchanges['idStudyEquipment'] . ".png" ?>">
+                <div id="hexchGraphic" align="center">
+                    <img src="<?php echo $arrayParam['host'] . "/heatExchange/" . $arrayParam['study']['USERNAM'] . "/" .  $resheatexchanges['idStudyEquipment'] . ".png" ?>" style="max-width :640px">
                 </div>
                 <?php } ?>
             </div>
@@ -567,17 +567,23 @@
                     </table>
                     </div>
                 </div>
-                <div class="graphic-dim2"> 
+                <div class="graphic-dim2" align="center"> 
                 <?php if ($resproSections['selectedAxe'] == 1) {?> 
-                Graphic - Dimension <?php echo $resproSections['selectedAxe'] . "(" . "*," . $resproSections['axeTemp'][0] . "," . $resproSections['axeTemp'][0] . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?>  
-                <img src="<?php echo $arrayParam['host'] . "/productSection/" . $arrayParam['study']['USERNAM'] . "/" .  $resproSections['idStudyEquipment'] . "-" . $resproSections['selectedAxe'] . ".png" ?>">
-                <?php } else if ($resproSections['selectedAxe'] == 2) { ?>
+                Graphic - Dimension <?php echo $resproSections['selectedAxe'] . "(" . "*," . $resproSections['axeTemp'][0] . "," . $resproSections['axeTemp'][0] . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?> 
+                <p> 
+                    <img src="<?php echo $arrayParam['host'] . "/productSection/" . $arrayParam['study']['USERNAM'] . "/" .  $resproSections['idStudyEquipment'] . "-" . $resproSections['selectedAxe'] . ".png" ?>" style="max-width: 640px">
+                    <?php } else if ($resproSections['selectedAxe'] == 2) { ?>
+                </p>
                 Graphic - Dimension <?php echo $resproSections['selectedAxe'] . "(" . $resproSections['axeTemp'][0] . ",*," . $resproSections['axeTemp'][0] . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?>  
-                <img src="<?php echo $arrayParam['host'] . "/productSection/" . $arrayParam['study']['USERNAM'] . "/" .  $resproSections['idStudyEquipment'] . "-" . $resproSections['selectedAxe'] . ".png" ?>">
-                <?php } else if ($resproSections['selectedAxe'] == 3) {?>
+                <p>
+                    <img src="<?php echo $arrayParam['host'] . "/productSection/" . $arrayParam['study']['USERNAM'] . "/" .  $resproSections['idStudyEquipment'] . "-" . $resproSections['selectedAxe'] . ".png" ?>" style="max-width: 640px">
+                    <?php } else if ($resproSections['selectedAxe'] == 3) {?>
+                </p>
                 Graphic - Dimension <?php echo $resproSections['selectedAxe'] . "(" . $resproSections['axeTemp'][0] . "," . $resproSections['axeTemp'][0] . ",*" . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?>  
-                <img src="<?php echo $arrayParam['host'] . "/productSection/" . $arrayParam['study']['USERNAM'] . "/" .  $resproSections['idStudyEquipment'] . "-" . $resproSections['selectedAxe'] . ".png" ?>">
-                <?php } ?>
+                <p>
+                    <img src="<?php echo $arrayParam['host'] . "/productSection/" . $arrayParam['study']['USERNAM'] . "/" .  $resproSections['idStudyEquipment'] . "-" . $resproSections['selectedAxe'] . ".png" ?>" style="max-width: 640px">
+                    <?php } ?>
+                </p>
                 </div>
             <?php } ?>
         <?php } ?>   
@@ -627,8 +633,8 @@
                 </table>
                 </div>
             </div>
-            <div class="pro-graphic">
-            <img src="<?php echo $arrayParam['host'] . "/timeBased/" . $arrayParam['study']['USERNAM'] . "/" .  $timeBases['idStudyEquipment'] . ".png" ?>">
+            <div class="pro-graphic" align="center">
+            <img src="<?php echo $arrayParam['host'] . "/timeBased/" . $arrayParam['study']['USERNAM'] . "/" .  $timeBases['idStudyEquipment'] . ".png" ?>" style="max-width: 640px">
             </div>
             <?php } ?>
         <?php } ?>
@@ -637,9 +643,9 @@
             <h3>2D Outlines</h3>
                 <?php foreach ($pro2Dchart as $pro2Dcharts) {?>
                 <h3><?php echo $pro2Dcharts['equipName'] ?></h3>
-                    <div class="outlines"> 
+                    <div class="outlines" align="center"> 
                     <img src="<?php echo $arrayParam['host'] . "/heatmap/" . $arrayParam['study']['USERNAM'] . "/" .  $pro2Dcharts['idStudyEquipment'] . "/" . $pro2Dcharts['lfDwellingTime'] . "-" 
-                    . $pro2Dcharts['chartTempInterval'][0] . "-" . $pro2Dcharts['chartTempInterval'][1] . "-" . $pro2Dcharts['chartTempInterval'][2] . ".png" ?>">
+                    . $pro2Dcharts['chartTempInterval'][0] . "-" . $pro2Dcharts['chartTempInterval'][1] . "-" . $pro2Dcharts['chartTempInterval'][2] . ".png" ?>" style="max-width: 640px">
                     </div>
                 <?php } ?>
         <?php } ?>

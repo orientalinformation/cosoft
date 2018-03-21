@@ -34,6 +34,8 @@ use Psr\Http\Message\StreamInterface;
 use  Illuminate\Database\Query\Builder;
 // end HAIDT
 
+
+
 class Reports extends Controller
 {
      /**
@@ -476,20 +478,18 @@ class Reports extends Controller
         return 1;
     }
 
-    function downLoadPDF($id) {
+    function backgroundGenerationPDF($id) {
         $study = Study::find($id);
         $host = 'http://' . $_SERVER['HTTP_HOST'];
-        echo "{'processing':true}";
-        ob_end_flush();
         $public_path = rtrim(app()->basePath("public/"), '/');
-        $progressFile = "$study->ID_STUDY- $study->STUDY_NAME-Report.progess";
-        $name_report = "$study->ID_STUDY- $study->STUDY_NAME-Report.pdf";
-        
+        $progressFile = $public_path. "/reports/" . $study->USERNAM. "/" ."$study->ID_STUDY-$study->STUDY_NAME-Report.progess";
+        $name_report = "$study->ID_STUDY-$study->STUDY_NAME-Report.pdf";
         if (!is_dir($public_path . "/reports/" . $study->USERNAM)) {
             mkdir($public_path . "/reports/" . $study->USERNAM, 0777, true);
         } 
         $production = Production::Where('ID_STUDY', $id)->first();
         $progress = "Production";
+        file_put_contents($progressFile, $progress);
         
         $product = Product::Where('ID_STUDY', $id)->first();
         $proElmt = ProductElmt::Where('ID_PROD', $product->ID_PROD)->first();
@@ -509,19 +509,28 @@ class Reports extends Controller
         ->join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')->whereIn('ID_PRODUCT_ELMT', $idElmArr)
         ->where('TRANS_TYPE', 1)->whereIn('ID_TRANSLATION', $idComArr)
         ->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'DESC')->get();
+        $productComps = [];
+        foreach ($componentName as $key => $value) {
+            $componentStatus = Translation::select('LABEL')->where('TRANS_TYPE', 100)->whereIn('ID_TRANSLATION', $comprelease)->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
+            $productComps[] = $value;
+            $productComps[$key]['display_name'] = $value->LABEL . ' - ' . $productElmt->component->COMP_VERSION . '(' . $componentStatus->LABEL . ' )';
+        }
         $progress .= "\nProduct";
+        file_put_contents($progressFile, $progress);
         
 
         $equipData = $this->stdeqp->findStudyEquipmentsByStudy($study);
         $progress .= "\nEquiment";
+        file_put_contents($progressFile, $progress);
         
         
         $symbol = $this->reportserv->getSymbol($study->ID_STUDY);
         $infoReport = $study->reports;
-        // return $study;
+
         if ($study->OPTION_CRYOPIPELINE == 1) {
             $cryogenPipeline = $this->pipelines->loadPipeline($study->ID_STUDY);
             $progress .= "\nPipeline Elements";
+            file_put_contents($progressFile, $progress);
             
         } else {
             $cryogenPipeline = "";
@@ -530,27 +539,33 @@ class Reports extends Controller
         $consumptions = $this->reportserv->getAnalyticalConsumption($study->ID_STUDY);
         
         $progress .= "\nConsumptions Results";
+        file_put_contents($progressFile, $progress);
         
         if ($study->CALCULATION_MODE == 3) {
             $calModeHeadBalance = $this->reportserv->getOptimumHeadBalance($study->ID_STUDY);
             $calModeHbMax = $this->reportserv->getOptimumHeadBalanceMax($study->ID_STUDY);
-            $progress .= "\nConsumptions Pies";
+            
         } else if ($study->CALCULATION_MODE == 1) {
             $calModeHeadBalance = $this->reportserv->getEstimationHeadBalance($study->ID_STUDY, 1);
             $calModeHbMax = "";
         }
+        $progress .= "\nConsumptions Pies";
+        file_put_contents($progressFile, $progress);
         
         $proInfoStudy = $this->reportserv->getProInfoStudy($study->ID_STUDY);
         $proSections = [];
         $pro2Dchart = [];
         $progress .= "\nSizing";
+        file_put_contents($progressFile, $progress);
         
         foreach ($study->studyEquipments as $key=> $idstudyequips) {
             if ($idstudyequips->BRAIN_TYPE == 4) {
                 $heatexchange[] = $this->reportserv->heatExchange($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
                 $timeBase[] = $this->reportserv->timeBased($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
+                
                 if ($shapeCode == 1) { 
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                
                 } else if ($shapeCode == 2) {
                     if ($equipData[$key]['ORIENTATION'] == 1) {
                         $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
@@ -560,20 +575,25 @@ class Reports extends Controller
                         $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                     }
                     $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                
                 } else if (($shapeCode == 4) && ($shapeCode == 7) && ($shapeCode == 8) && ($shapeCode == 5)) {
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                
                 } else if ($shapeCode == 6) {
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                
                 } else if ($shapeCode == 9) {
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
                     $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                
                 } else if ($shapeCode == 3) {
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
                     $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                     $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
                 }
+
             } else {
                 $proSections = [];
                 $heatexchange = [];
@@ -585,33 +605,26 @@ class Reports extends Controller
             $progress .= "\nEnthpies";
             $progress .= "\nTime Based";
             $progress .= "\nProduct Section";
+            file_put_contents($progressFile, $progress);
+            
             if (($shapeCode == 3) || ($shapeCode == 2) || ($shapeCode == 9)) {
                 $progress .= "\nContour";
+                file_put_contents($progressFile, $progress);
+                
             }
         }
         
-        $productComps = [];
-        foreach ($componentName as $key => $value) {
-            $componentStatus = Translation::select('LABEL')->where('TRANS_TYPE', 100)->whereIn('ID_TRANSLATION', $comprelease)->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
-            $productComps[] = $value;
-            $productComps[$key]['display_name'] = $value->LABEL . ' - ' . $productElmt->component->COMP_VERSION . '(' . $componentStatus->LABEL . ' )';
-        }
-        file_put_contents($public_path. "/reports/" . $study->USERNAM. "/" .$progressFile, $progress);
         // set document information
-        // PDF::SetCreator(PDF_CREATOR);
         PDF::setPageOrientation('L');
-        PDF::SetAuthor('');
         PDF::SetTitle('Cryosoft Report');
         PDF::SetSubject('UserName - StudyName');
-        PDF::SetKeywords('');
 
         // set default header data
-        PDF::SetHeaderData($public_path . "/reports/" . 'air-liquide-logo.png', 30, $study->STUDY_NAME,'Report');
-
+        PDF::SetHeaderData($host . "/" . $public_path . "/uploads/" . 'logo_cryosoft.png', 30, $study->STUDY_NAME,'Report', array(0,64,128), array(0,64,128));
+        PDF::setFooterData(array(0,64,255), array(0,64,128));
+        
         // set header and footer fonts
         PDF::setHeaderFont(Array('helvetica', '', 10));
-        // PDF::setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
-
         // set default monospaced font
         // PDF::SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
 
@@ -627,15 +640,12 @@ class Reports extends Controller
         PDF::setImageScale(1.25);
 
         // set some language-dependent strings (optional)
-        if (@file_exists($tcpdf_path.'/lang/eng.php')) {
-            require_once($tcpdf_path.'/lang/eng.php');
-            PDF::setLanguageArray($l);
-        }
         // ---------------------------------------------------------
         PDF::AddPage();
         PDF::Bookmark('Chapter 1', 0, 0, '', 'B', array(0,64,128));
         // print a line using Cell()
         PDF::Cell(0, 10, 'Chapter 1', 0, 1, 'L');
+        
         $view = $this->viewPDF($study, $production, $product, $proElmt, $shapeName, 
         $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
         $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase, 
@@ -649,39 +659,221 @@ class Reports extends Controller
         PDF::Bookmark('Paragraph 1.1', 1, 0, '', '', array(128,0,0));
         PDF::Cell(0, 10, 'Paragraph 1.1', 0, 1, 'L');
         PDF::AddPage();
-
+        
         // add some pages and bookmarks
-        for ($i = 2; $i < 12; $i++) {
+        for ($i = 2; $i < 3; $i++) {
             PDF::AddPage();
             PDF::Bookmark('Chapter '.$i, 0, 0, '', 'B', array(0,64,128));
             PDF::Cell(0, 10, 'Chapter '.$i, 0, 1, 'L');
         }
-
+        
         // add a new page for TOC
         PDF::addTOCPage();
-
+        
         // write the TOC title and/or other elements on the TOC page
         // PDF::SetFont('times', 'B', 6);
         PDF::MultiCell(0, 0, 'Table Of Content', 0, 'C', 0, 1, '', '', true, 0);
         PDF::Ln();
         // define styles for various bookmark levels
         $bookmark_templates = array();
-
+        
         $bookmark_templates[0] = '<table border="0" cellpadding="0" cellspacing="0" style="background-color:#EEFAFF"><tr><td width="155mm"><span style="font-family:times;font-weight:bold;font-size:12pt;color:black;">#TOC_DESCRIPTION#</span></td><td width="25mm"><span style="font-family:courier;font-weight:bold;font-size:12pt;color:black;" align="right">#TOC_PAGE_NUMBER#</span></td></tr></table>';
         $bookmark_templates[1] = '<table border="0" cellpadding="0" cellspacing="0"><tr><td width="5mm">&nbsp;</td><td width="150mm"><span style="font-family:times;font-size:11pt;color:green;">#TOC_DESCRIPTION#</span></td><td width="25mm"><span style="font-family:courier;font-weight:bold;font-size:11pt;color:green;" align="right">#TOC_PAGE_NUMBER#</span></td></tr></table>';
         $bookmark_templates[2] = '<table border="0" cellpadding="0" cellspacing="0"><tr><td width="10mm">&nbsp;</td><td width="145mm"><span style="font-family:times;font-size:10pt;color:#666666;"><i>#TOC_DESCRIPTION#</i></span></td><td width="25mm"><span style="font-family:courier;font-weight:bold;font-size:10pt;color:#666666;" align="right">#TOC_PAGE_NUMBER#</span></td></tr></table>';
         // add other bookmark level templates here ...
-
+        
         // add table of content at page 1
         // (check the example n. 45 for a text-only TOC
         PDF::addHTMLTOC(1, 'INDEX', $bookmark_templates, true, 'B', array(128,0,0));
-
+        
         // end of TOC page
         PDF::endTOCPage();
         PDF::Output( $public_path. "/reports/" . $study->USERNAM."/" . $name_report, 'F');
-            
-        // } 
+        
+        $progress .= "\nFINISH";
+        flie_push_content($progressFile, $progress);
         return ["url" => "$host/reports/$study->USERNAM/$name_report"];
+    }
+    
+    function backgroundGenerationHTML($id) {
+        $study = Study::find($id);
+        $host = 'http://' . $_SERVER['HTTP_HOST'];
+        $public_path = rtrim(app()->basePath("public/"), '/');
+        $name_report = "$study->ID_STUDY-$study->STUDY_NAME-Report.html";
+        $progressFile = $public_path. "/reports/" . $study->USERNAM. "/" ."$study->ID_STUDY-$study->STUDY_NAME-Report.progess";
+        if (!is_dir( $public_path. "/reports/"  . $study->USERNAM)) {
+            mkdir( $public_path. "/reports/" . $study->USERNAM, 0777, true);
+        } 
+        $production = Production::Where('ID_STUDY', $id)->first();
+        $progress = "Production";
+        file_put_contents($progressFile, $progress);
+        $product = Product::Where('ID_STUDY', $id)->first();
+        $proElmt = ProductElmt::Where('ID_PROD', $product->ID_PROD)->first();
+        $idComArr = [];
+        $comprelease = [];
+        foreach ($product->productElmts as $productElmt) {
+            $shapeCode = $productElmt->shape->SHAPECODE;
+            $idComArr[] = $productElmt->ID_COMP;
+            $idElmArr[] = $productElmt->ID_PRODUCT_ELMT;
+            $comprelease[] = $productElmt->component->COMP_RELEASE;
+        }
+        $shapeName = Translation::where('TRANS_TYPE', 4)->where('ID_TRANSLATION', $shapeCode)->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
+        $componentName = ProductElmt::select('LABEL','ID_COMP', 'ID_PRODUCT_ELMT', 'PROD_ELMT_ISO', 'PROD_ELMT_NAME', 'PROD_ELMT_REALWEIGHT', 'SHAPE_PARAM2')
+        ->join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')->whereIn('ID_PRODUCT_ELMT', $idElmArr)
+        ->where('TRANS_TYPE', 1)->whereIn('ID_TRANSLATION', $idComArr)
+        ->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'DESC')->get();
+        $productComps = [];
+
+        foreach ($componentName as $key => $value) {
+            $componentStatus = Translation::select('LABEL')->where('TRANS_TYPE', 100)->whereIn('ID_TRANSLATION', $comprelease)
+            ->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
+            $productComps[] = $value;
+            $productComps[$key]['display_name'] = $value->LABEL . ' - ' . $productElmt->component->COMP_VERSION . '(' . $componentStatus->LABEL . ' )';
+        }
+
+        $progress .= "\nProduct";
+        file_put_contents($progressFile, $progress);
+
+        $equipData = $this->stdeqp->findStudyEquipmentsByStudy($study);
+        $progress .= "\nEquiment";
+
+        file_put_contents($progressFile, $progress);
+        $symbol = $this->reportserv->getSymbol($study->ID_STUDY);
+        $infoReport = $study->reports;
+
+        if ($study->OPTION_CRYOPIPELINE == 1) {
+            $cryogenPipeline = $this->pipelines->loadPipeline($study->ID_STUDY);
+            $progress .= "\nPipeline Elements";
+            file_put_contents($progressFile, $progress);
+        } else {
+            $cryogenPipeline = "";
+        }
+
+        $consumptions = $this->reportserv->getAnalyticalConsumption($study->ID_STUDY);
+        $progress .= "\nConsumptions Results";
+        file_put_contents($progressFile, $progress);
+
+        if ($study->CALCULATION_MODE == 3) {
+            $calModeHeadBalance = $this->reportserv->getOptimumHeadBalance($study->ID_STUDY);
+            $calModeHbMax = $this->reportserv->getOptimumHeadBalanceMax($study->ID_STUDY);
+        } else if ($study->CALCULATION_MODE == 1) {
+            $calModeHeadBalance = $this->reportserv->getEstimationHeadBalance($study->ID_STUDY, 1);
+            $calModeHbMax = "";
+        }
+
+        $progress .= "\nConsumptions Pies";
+        file_put_contents($progressFile, $progress);
+
+        $proInfoStudy = $this->reportserv->getProInfoStudy($study->ID_STUDY);
+        $proSections = [];
+        $pro2Dchart = [];
+
+        $progress .= "\nSizing";
+        file_put_contents($progressFile, $progress);
+
+        foreach ($study->studyEquipments as $key=> $idstudyequips) {
+            if ($idstudyequips->BRAIN_TYPE == 4) {
+                $heatexchange[] = $this->reportserv->heatExchange($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
+                $timeBase[] = $this->reportserv->timeBased($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
+
+                if ($shapeCode == 1) { 
+                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                
+                } else if ($shapeCode == 2) {
+                    if ($equipData[$key]['ORIENTATION'] == 1) {
+                        $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                        $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                    
+                    } else {
+                        $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                        $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                    }
+                    $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                
+                } else if (($shapeCode == 4) && ($shapeCode == 7) && ($shapeCode == 8) && ($shapeCode == 5)) {
+                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                
+                } else if ($shapeCode == 6) {
+                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                
+                } else if ($shapeCode == 9) {
+                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                    $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                
+                } else if ($shapeCode == 3) {
+                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                    $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                }
+            } else {
+                $proSections = [];
+                $heatexchange = [];
+                $timeBase = [];
+            }
+        }
+        if ($idstudyequips->BRAIN_TYPE == 4) {
+            $progress .= "\nEnthpies";
+            $progress .= "\nTime Based";
+            $progress .= "\nProduct Section";
+            file_put_contents($progressFile, $progress);
+            
+            if (($shapeCode == 3) || ($shapeCode == 2) || ($shapeCode == 9)) {
+                $progress .= "\nContour";
+                file_put_contents($progressFile, $progress);
+                
+            }
+        }
+        
+        $myfile = fopen( $public_path. "/reports/" . "/" . $study->USERNAM."/" . $name_report, "w") or die("Unable to open file!");
+        $html = $this->viewHtml($study ,$production, $product, $proElmt, $shapeName, 
+        $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
+        $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase, 
+        $symbol, $host, $pro2Dchart);
+        fwrite($myfile, $html);
+        fclose($myfile);
+        $progress .= "\nFINISH";
+        flie_push_content($progressFile, $progress);
+        $url = ["url" => "$host/reports/$study->USERNAM/$name_report"];
+        return $url;
+    }
+
+    function downLoadPDF($studyId) {
+        ignore_user_abort(true);
+        set_time_limit(300);
+        $bgProcess = function($obj, $fn, $id) {
+            // ob_flush();
+            flush();
+            call_user_func_array([$obj, $fn], [$id]);
+        };
+        register_shutdown_function($bgProcess, $this, 'backgroundGenerationPDF', $studyId);
+        header('Connection: close');
+        header('Content-length: 19');
+        // header('Access-Control-Allow-Origin: *'); 
+        header('Content-type: application/json');
+        
+        exit("{'processing':true}");
+        return ['processing' => true];        
+    }
+    
+    public function downLoadHtmlToPDF($studyId)
+    {   
+        ignore_user_abort(true);
+        set_time_limit(300);
+        $bgProcess = function($obj, $fn, $id) {
+            // ob_flush();
+            flush();
+            call_user_func_array([$obj, $fn], [$id]);
+        };
+        register_shutdown_function($bgProcess, $this, 'backgroundGenerationHTML', $studyId);
+        header('Connection: close');
+        header('Content-length: 19');
+        // header('Access-Control-Allow-Origin: *'); 
+        header('Content-type: application/json');
+        
+        exit("{'processing':true}");
+        return ['processing' => true];  
     }
     
     public function viewPDF($study ,$production, $product, $proElmt, $shapeName, 
@@ -716,107 +908,6 @@ class Reports extends Controller
     }
 
     
-    public function downLoadHtmlToPDF($id)
-    {   
-        $study = Study::find($id);
-        $host = 'http://' . $_SERVER['HTTP_HOST'];
-        $public_path = rtrim(app()->basePath("public/"), '/');
-        $name_report = "$study->ID_STUDY- $study->STUDY_NAME-Report.html";
-        if (!is_dir( $public_path. "/reports/"  . $study->USERNAM)) {
-            mkdir( $public_path. "/reports/" . $study->USERNAM, 0777, true);
-        } 
-        // if (!file_exists($public_path. "/" . $study->USERNAM. "/" .$name_report)) {
-        $production = Production::Where('ID_STUDY', $id)->first();
-        $product = Product::Where('ID_STUDY', $id)->first();
-        $proElmt = ProductElmt::Where('ID_PROD', $product->ID_PROD)->first();
-        $idComArr = [];
-        $comprelease = [];
-        foreach ($product->productElmts as $productElmt) {
-            $shapeCode = $productElmt->shape->SHAPECODE;
-            $idComArr[] = $productElmt->ID_COMP;
-            $idElmArr[] = $productElmt->ID_PRODUCT_ELMT;
-            $comprelease[] = $productElmt->component->COMP_RELEASE;
-        }
-        $componentName = ProductElmt::select('LABEL','ID_COMP', 'ID_PRODUCT_ELMT', 'PROD_ELMT_ISO', 'PROD_ELMT_NAME', 'PROD_ELMT_REALWEIGHT', 'SHAPE_PARAM2')
-        ->join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')->whereIn('ID_PRODUCT_ELMT', $idElmArr)
-        ->where('TRANS_TYPE', 1)->whereIn('ID_TRANSLATION', $idComArr)
-        ->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'DESC')->get();
-        $equipData = $this->stdeqp->findStudyEquipmentsByStudy($study);
-        $shapeName = Translation::where('TRANS_TYPE', 4)->where('ID_TRANSLATION', $shapeCode)->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
-        $symbol = $this->reportserv->getSymbol($study->ID_STUDY);
-        $infoReport = $study->reports;
-        // return $study;
-        if ($study->OPTION_CRYOPIPELINE == 1) {
-            $cryogenPipeline = $this->pipelines->loadPipeline($study->ID_STUDY);
-        } else {
-            $cryogenPipeline = "";
-        }
-        $consumptions = $this->reportserv->getAnalyticalConsumption($study->ID_STUDY);
-        if ($study->CALCULATION_MODE == 3) {
-            $calModeHeadBalance = $this->reportserv->getOptimumHeadBalance($study->ID_STUDY);
-            $calModeHbMax = $this->reportserv->getOptimumHeadBalanceMax($study->ID_STUDY);
-        } else if ($study->CALCULATION_MODE == 1) {
-            $calModeHeadBalance = $this->reportserv->getEstimationHeadBalance($study->ID_STUDY, 1);
-            $calModeHbMax = "";
-        }
-        // return compact("consumptions", "calModeHeadBalance", "calModeHbMax");
-        $proInfoStudy = $this->reportserv->getProInfoStudy($study->ID_STUDY);
-        $proSections = [];
-        $pro2Dchart = [];
-        
-        foreach ($study->studyEquipments as $key=> $idstudyequips) {
-            if ($idstudyequips->BRAIN_TYPE == 4) {
-                $heatexchange[] = $this->reportserv->heatExchange($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
-                $timeBase[] = $this->reportserv->timeBased($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
-                if ($shapeCode == 1) { 
-                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
-                } else if ($shapeCode == 2) {
-                    if ($equipData[$key]['ORIENTATION'] == 1) {
-                        $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
-                        $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
-                    } else {
-                        $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
-                        $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
-                    }
-                    $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
-                } else if (($shapeCode == 4) && ($shapeCode == 7) && ($shapeCode == 8) && ($shapeCode == 5)) {
-                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
-                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
-                } else if ($shapeCode == 6) {
-                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
-                } else if ($shapeCode == 9) {
-                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
-                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
-                    $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
-                } else if ($shapeCode == 3) {
-                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
-                    $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
-                    $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
-                }
-            } else {
-                $proSections = [];
-                $heatexchange = [];
-                $timeBase = [];
-            }
-        }
-
-        $productComps = [];
-        foreach ($componentName as $key => $value) {
-            $componentStatus = Translation::select('LABEL')->where('TRANS_TYPE', 100)->whereIn('ID_TRANSLATION', $comprelease)
-            ->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
-            $productComps[] = $value;
-            $productComps[$key]['display_name'] = $value->LABEL . ' - ' . $productElmt->component->COMP_VERSION . '(' . $componentStatus->LABEL . ' )';
-        }
-        $myfile = fopen( $public_path. "/reports/" . "/" . $study->USERNAM."/" . $name_report, "w") or die("Unable to open file!");
-        $html = $this->viewHtml($study ,$production, $product, $proElmt, $shapeName, 
-        $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
-        $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase, 
-        $symbol, $host, $pro2Dchart);
-        fwrite($myfile, $html);
-        fclose($myfile);
-        $url = ["url" => "$host/reports/$study->USERNAM/$name_report"];
-        return $url;
-    }
 
     public function viewHtml($study ,$production, $product, $proElmt, $shapeName, 
     $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,

@@ -62,12 +62,12 @@
                     <tr>
                         <th colspan="2">Study Name</th>
                         <th colspan="2">Equipment</th>
-                        <th>Control temperature (C)</th>
-                        <th>Residence/ Dwell time (s)</th>
+                        <th>Control temperature <?php echo "(" . $arrayParam['symbol']['temperatureSymbol'] . " )" ?></th>
+                        <th>Residence/ Dwell time <?php echo "(" . $arrayParam['symbol']['timeSymbol'] . " )" ?></th>
                         <th>Convection Setting (Hz)</th>
-                        <th>Initial Average Product tempeture (C) </th>
-                        <th>Final Average Product temperature (C)</th>
-                        <th>Product Heat Load (kj/kg)</th>
+                        <th>Initial Average Product tempeture <?php echo "(" . $arrayParam['symbol']['temperatureSymbol'] . " )" ?> </th>
+                        <th>Final Average Product temperature <?php echo "(" . $arrayParam['symbol']['temperatureSymbol'] . " )" ?></th>
+                        <th>Product Heat Load <?php echo "(" . $arrayParam['symbol']['enthalpySymbol'] . " )" ?></th>
                     </tr>
                     <tr>
                         <td colspan="2"></td>
@@ -259,15 +259,15 @@
                         </tr>
                         <tr>
                             <td>Space in width <?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . " )" ?></td>
-                            <td align="center"></td>
+                            <td align="center"><?php echo $resequipDatas['layoutResults']['LEFT_RIGHT_INTERVAL'] ?></td>
                         </tr>
                         <tr>
                             <td>Number per meter</td>
-                            <td align="center"></td>
+                            <td align="center"><?php echo $resequipDatas['layoutResults']['NUMBER_PER_M'] ?></td>
                         </tr>
                         <tr>
                             <td>Number in width</td>
-                            <td align="center"> </td>
+                            <td align="center"><?php echo $resequipDatas['layoutResults']['NUMBER_IN_WIDTH'] ?></td>
                         </tr>
                         <tr>
                             <td>Conveyor coverage or quantity of product per batch</td>
