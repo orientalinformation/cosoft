@@ -164,7 +164,7 @@ class Lines extends Controller
                             $arrLabel['storageTankName'] = $getLabelName[0]['LABEL'] ."-". $this->lineE->getStatus($getLabelName[0]['LINE_RELEASE']);
                         }
                         if ($lineElmts[0]->ELT_TYPE != 2) {
-                            $arrLabel["diameter"] = $lineElmts[0]->ELT_SIZE;
+                            $arrLabel["diameter"] = $this->convert->lineDimension($lineElmts[0]->ELT_SIZE);
                         } 
                     }
                 }
