@@ -420,7 +420,7 @@ class UnitsConverterService
             return $value;
     }
     
-    public function convertCalculator($value, $coeffA, $coeffB, $decimal = 2)
+    public function convertCalculator($value, $coeffA, $coeffB, $decimal = 2, $options = null)
     {
         $number = $value * $coeffA + $coeffB;
         if (floor( $value ) != $value) {
@@ -430,7 +430,12 @@ class UnitsConverterService
             $number = round(($value * $coeffA + $coeffB), $decimal);
         }
 
-        return number_format((float)$number, $decimal, '.', '');
+        if (!empty($options) && $options['format'] == false) {
+            return $number;
+        } else {
+            return number_format((float)$number, $decimal, '.', '');
+        }
+        
     }
 
     public function convertUnitSave($value, $coeffA, $coeffB)
