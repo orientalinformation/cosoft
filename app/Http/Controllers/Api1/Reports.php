@@ -552,7 +552,8 @@ class Reports extends Controller
             mkdir($public_path . "/reports/" . $study->USERNAM, 0777, true);
         } 
         $production = Production::Where('ID_STUDY', $id)->first();
-        $progress = "Production";
+        $progress = $REPORT_COMMENT;
+        $progress = "\n$PROD_3D";
         file_put_contents($progressFile, $progress);
         
         $product = Product::Where('ID_STUDY', $id)->first();
@@ -677,7 +678,8 @@ class Reports extends Controller
                 
             }
         }
-        
+        // $progress .= "\nFINISH";
+        // flie_push_content($progressFile, $progress);
         // set document information
         PDF::setPageOrientation('L');
         PDF::SetTitle('Cryosoft Report');
@@ -753,9 +755,6 @@ class Reports extends Controller
         // end of TOC page
         PDF::endTOCPage();
         PDF::Output( $public_path. "/reports/" . $study->USERNAM."/" . $name_report, 'F');
-        
-        $progress .= "\nFINISH";
-        flie_push_content($progressFile, $progress);
         return ["url" => "$host/reports/$study->USERNAM/$name_report"];
     }
     
