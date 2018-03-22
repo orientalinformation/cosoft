@@ -897,7 +897,7 @@ class Reports extends Controller
         fwrite($myfile, $html);
         fclose($myfile);
         $progress .= "\nFINISH";
-        flie_push_content($progressFile, $progress);
+        file_put_contents($progressFile, $progress);
         $url = ["url" => "$host/reports/$study->USERNAM/$name_report"];
         return $url;
     }
