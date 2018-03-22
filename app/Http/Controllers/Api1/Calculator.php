@@ -26,6 +26,9 @@ use App\Models\TempRecordPts;
 use App\Kernel\KernelService;
 use App\Models\Equipment;
 use App\Models\Study;
+use App\Cryosoft\UnitsService;
+use App\Cryosoft\MinMaxService;
+use App\Models\MinMax;
 
 
 class Calculator extends Controller 
@@ -75,13 +78,24 @@ class Calculator extends Controller
      */
     protected $brainMode;
 
+	/**
+	 * @var App\Cryosoft\UnitsService
+	 */
+    protected $units;
+    
+        /**
+	 * @var App\Cryosoft\MinMaxService
+	 */
+	protected $minmax;
 
 	/**
 	 * Create a new controller instance.
 	 *
 	 * @return void
 	 */
-	public function __construct(Request $request, Auth $auth, CalculateService $cal, ValueListService $value, KernelService $kernel, EquipmentsService $equipment, UnitsConverterService $convert, BrainCalculateService $brainCal) 
+	public function __construct(Request $request, Auth $auth, CalculateService $cal, ValueListService $value, 
+	KernelService $kernel, EquipmentsService $equipment, UnitsConverterService $convert, BrainCalculateService $brainCal,
+	UnitsService $units, MinMaxService $minmax) 
 	{
 		$this->request = $request;
 		$this->auth = $auth;
@@ -91,6 +105,8 @@ class Calculator extends Controller
 		$this->equipment = $equipment;
 		$this->convert = $convert;
 		$this->brainCal = $brainCal;
+		$this->units = $units;
+        $this->minmax = $minmax;
 	}
 
 	public function getOptimumCalculator() 
@@ -156,17 +172,23 @@ class Calculator extends Controller
 		$epsilonTemp = $this->cal->getOptimErrorT();
 		$epsilonEnth = $this->cal->getOptimErrorH();
 		$nbOptimIter = $this->cal->getNbOptim();
+		
 		$timeStep = $this->cal->getTimeStep($idStudy);
 		$precision = $this->cal->getPrecision($idStudy);
 		$storagestep = $this->cal->getStorageStep();
+
 		$hRadioOn = $this->cal->getHradioOn();
 		$hRadioOff = $this->cal->getHradioOff();
+
 		$maxIter = $this->cal->getMaxIter();
 		$relaxCoef = $this->cal->getRelaxCoef();
+
 		$vRadioOn = $this->cal->getVradioOn();
 		$vRadioOff = $this->cal->getVradioOff();
+
 		$tempPtSurf = $this->cal->getTempPtSurf();
 		$tempPtIn = $this->cal->getTempPtIn();
+
 		$tempPtBot = $this->cal->getTempPtBot();
 		$tempPtAvg = $this->cal->getTempPtAvg();
 
