@@ -1062,4 +1062,20 @@ class ReportService
 
         return compact("chartTempInterval", "lfDwellingTime", "lftimeInterval", "equipName", "idStudyEquipment");
     }
+    
+    public function getStudyPackingLayers($id)
+    {
+        $packing = \App\Models\Packing::where('ID_STUDY', $id)->first();
+        $packingLayers = null;
+
+        if ($packing != null) {
+            $packingLayers = \App\Models\PackingLayer::where('ID_PACKING', $packing->ID_PACKING)->get();
+            for ($i = 0; $i < count($packingLayers); $i++) { 
+                $value = $this->unit->unitConvert(16, $packingLayers[$i]->THICKNESS);
+                $packingLayers[$i]->THICKNESS = $value;
+            }
+        }
+
+        return compact('packing', 'packingLayers');
+    }
 }
