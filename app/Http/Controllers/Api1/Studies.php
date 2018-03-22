@@ -1385,6 +1385,14 @@ class Studies extends Controller
         return $axisTemp;
     }
 
+    public function saveLocationAxis($id)
+    {
+        $input = $this->request->all();
+        var_dump($input);die;
+
+        return 1;
+    }
+
 
     public function createChildStudy($id) {
         $input = $this->request->all();
