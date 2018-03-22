@@ -661,7 +661,7 @@
         <div class="info-company">
             <div align="center">
                     <p>
-                        <img src="<?php echo !empty($arrayParam['study']['reports'][0]['PHOTO_PATH']) ? $arrayParam['study']['reports'][0]['PHOTO_PATH'] : $arrayParam['host'] . "/uploads/globe_food.gif"?>">
+                        <img src="<?php echo (!empty($arrayParam['study']['reports'][0]['PHOTO_PATH'])) ? $arrayParam['study']['reports'][0]['PHOTO_PATH'] : $arrayParam['host'] . "/uploads/globe_food.gif"?>">
                     </p>
             </div>
             <div><b><u>Study realized by :</u></b></div>
