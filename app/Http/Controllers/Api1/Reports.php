@@ -23,6 +23,7 @@ use App\Models\Product;
 use App\Models\Translation;
 use App\Models\InitialTemperature;
 use App\Cryosoft\StudyEquipmentService;
+use App\Cryosoft\MinMaxService;
 use PDF;
 use View;
 
@@ -70,6 +71,10 @@ class Reports extends Controller
      * @var \App\CryoSoft\ReportService
      */
     protected $reportserv;
+    /**
+     * @var \App\CryoSoft\MinMaxService
+     */
+    protected $minmax;
 
     /**
      * Create a new controller instance.
@@ -77,7 +82,8 @@ class Reports extends Controller
      * @return void
      */
     public function __construct(Request $request, Auth $auth, UnitsConverterService $convert, 
-    ValueListService $value, StudyEquipmentService $stdeqp, Lines $pipelines, ReportService $reportserv)
+    ValueListService $value, StudyEquipmentService $stdeqp, Lines $pipelines, 
+    ReportService $reportserv, MinMaxService $minmax)
     {
         $this->request = $request;
         $this->auth = $auth;
@@ -86,6 +92,7 @@ class Reports extends Controller
         $this->stdeqp = $stdeqp;
         $this->pipelines = $pipelines;
         $this->reportserv = $reportserv;
+        $this->minmax = $minmax;
     }
 
     public function getReport($id)
@@ -404,6 +411,12 @@ class Reports extends Controller
 
         if (isset($input['ASSES_ECO'])) $ASSES_ECO = $input['ASSES_ECO'];
 
+        $mmNbSample1 = $this->minmax->checkMinMaxValue($ENTHALPY_SAMPLE, $this->value->MINMAX_REPORT_NBSAMPLE); 
+        $mmNbSample2 = $this->minmax->checkMinMaxValue($ISOCHRONE_SAMPLE, $this->value->MINMAX_REPORT_NBSAMPLE); 
+        $mmNbSample3 = $this->minmax->checkMinMaxValue($ISOVALUE_SAMPLE, $this->value->MINMAX_REPORT_NBSAMPLE); 
+        $mmTempStep1 = $this->minmax->checkMinMaxValue($CONTOUR2D_TEMP_STEP, $this->value->MINMAX_REPORT_TEMP_STEP); 
+        $mmTempMin = $this->minmax->checkMinMaxValue($CONTOUR2D_TEMP_MIN, $this->value->MINMAX_REPORT_TEMP_BOUNDS); 
+        $mmTempMax = $this->minmax->checkMinMaxValue($CONTOUR2D_TEMP_MAX, $this->value->MINMAX_REPORT_TEMP_BOUNDS); 
         $report = Report::where('ID_STUDY', $id)->first();
 
         // $report->ID_STUDY = $ID_STUDY;
@@ -442,17 +455,54 @@ class Reports extends Controller
         $report->SIZING_TR = $SIZING_TR;
         $report->ENTHALPY_G = $ENTHALPY_G;
         $report->ENTHALPY_V = $ENTHALPY_V;
-        $report->ENTHALPY_SAMPLE = $ENTHALPY_SAMPLE;
+
+        if ($mmNbSample1) {
+            $report->ENTHALPY_SAMPLE = $ENTHALPY_SAMPLE;
+        } else {
+            $mm = $this->minmax->getMinMaxNoneLine($this->value->MINMAX_REPORT_NBSAMPLE);
+            return response("Value out of range in Number of samples (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ") !" , 406); // Status code here
+        }
         $report->ISOCHRONE_G = $ISOCHRONE_G;
         $report->ISOCHRONE_V = $ISOCHRONE_V;
-        $report->ISOCHRONE_SAMPLE = $ISOCHRONE_SAMPLE;
+
+        if ($mmNbSample2) {
+            $report->ISOCHRONE_SAMPLE = $ISOCHRONE_SAMPLE;
+        } else {
+            $mm = $this->minmax->getMinMaxNoneLine($this->value->MINMAX_REPORT_NBSAMPLE);
+            return response("Value out of range in Number of samples (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ") !" , 406); // Status code here
+        }
         $report->ISOVALUE_G = $ISOVALUE_G;
         $report->ISOVALUE_V = $ISOVALUE_V;
-        $report->ISOVALUE_SAMPLE = $ISOVALUE_SAMPLE;
+
+        if ($mmNbSample3) {
+            $report->ISOVALUE_SAMPLE = $ISOVALUE_SAMPLE;
+        } else {
+            $mm = $this->minmax->getMinMaxNoneLine($this->value->MINMAX_REPORT_NBSAMPLE);
+            return response("Value out of range in Number of samples (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ") !" , 406); // Status code here
+        }
         $report->CONTOUR2D_G = $CONTOUR2D_G;
-        $report->CONTOUR2D_TEMP_STEP = $CONTOUR2D_TEMP_STEP;
-        $report->CONTOUR2D_TEMP_MIN = $CONTOUR2D_TEMP_MIN;
-        $report->CONTOUR2D_TEMP_MAX = $CONTOUR2D_TEMP_MAX;
+        
+        if ($mmTempStep1) {
+            $report->CONTOUR2D_TEMP_STEP = $CONTOUR2D_TEMP_STEP;
+        } else {
+            $mm = $this->minmax->getMinMaxNoneLine($this->value->MINMAX_REPORT_TEMP_STEP);
+            return response("Value out of range in Number of samples (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ") !" , 406); // Status code here
+        }
+
+        if ($mmTempMin) {
+            $report->CONTOUR2D_TEMP_MIN = $CONTOUR2D_TEMP_MIN;
+        } else {
+            $mm = $this->minmax->getMinMaxNoneLine($this->value->MINMAX_REPORT_TEMP_BOUNDS);
+            return response("Value out of range in Number of samples (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ") !" , 406); // Status code here
+        }
+
+        if ($mmTempMax) {
+            $report->CONTOUR2D_TEMP_MAX = $CONTOUR2D_TEMP_MAX;
+        } else {
+            $mm = $this->minmax->getMinMaxNoneLine($this->value->MINMAX_REPORT_TEMP_BOUNDS);
+            return response("Value out of range in Number of samples (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ") !" , 406); // Status code here
+        }
+
         $report->POINT1_X = $POINT1_X;
         $report->POINT1_Y = $POINT1_Y;
         $report->POINT1_Z = $POINT1_Z;
@@ -558,6 +608,7 @@ class Reports extends Controller
             file_put_contents($progressFile, $progress);
         }
         
+        
         $product = Product::Where('ID_STUDY', $id)->first();
         $proElmt = ProductElmt::Where('ID_PROD', $product->ID_PROD)->first();
         $idComArr = [];
@@ -609,9 +660,10 @@ class Reports extends Controller
         } else {
             $cryogenPipeline = "";
         }
+        
+        $consumptions = $this->reportserv->getAnalyticalConsumption($study->ID_STUDY);
         if ($CONS_OVERALL == 1 || $CONS_TOTAL ==1 || $CONS_SPECIFIC  == 1 || $CONS_HOUR ==1 || $CONS_DAY == 1||
-        $CONS_WEEK == 1 || $CONS_MONTH == 1 || $CONS_YEAR ==1 || $CONS_EQUIP ==1 || $CONS_PIPE == 1 || $CONS_TANK ==1) {
-            $consumptions = $this->reportserv->getAnalyticalConsumption($study->ID_STUDY);
+            $CONS_WEEK == 1 || $CONS_MONTH == 1 || $CONS_YEAR ==1 || $CONS_EQUIP ==1 || $CONS_PIPE == 1 || $CONS_TANK ==1) {
             $progress .= "\nConsumptions Results";
             file_put_contents($progressFile, $progress);
         }
@@ -903,7 +955,8 @@ class Reports extends Controller
         $progressFile = $public_path. "/reports/" . $study->USERNAM. "/" ."$study->ID_STUDY-$study->STUDY_NAME-Report.progess";
         if (!is_dir( $public_path. "/reports/"  . $study->USERNAM)) {
             mkdir( $public_path. "/reports/" . $study->USERNAM, 0777, true);
-        } 
+        }
+        
         
         $progress = "";
         $production = Production::Where('ID_STUDY', $id)->first();
@@ -947,7 +1000,6 @@ class Reports extends Controller
             file_put_contents($progressFile, $progress);
         }
         
-        
         $symbol = $this->reportserv->getSymbol($study->ID_STUDY);
         $infoReport = $study->reports;
 
@@ -964,9 +1016,9 @@ class Reports extends Controller
         } else {
             $cryogenPipeline = "";
         }
+        $consumptions = $this->reportserv->getAnalyticalConsumption($study->ID_STUDY);
         if ($CONS_OVERALL == 1 || $CONS_TOTAL ==1 || $CONS_SPECIFIC  == 1 || $CONS_HOUR ==1 || $CONS_DAY == 1||
-        $CONS_WEEK == 1 || $CONS_MONTH == 1 || $CONS_YEAR ==1 || $CONS_EQUIP ==1 || $CONS_PIPE == 1 || $CONS_TANK ==1) {
-            $consumptions = $this->reportserv->getAnalyticalConsumption($study->ID_STUDY);
+            $CONS_WEEK == 1 || $CONS_MONTH == 1 || $CONS_YEAR ==1 || $CONS_EQUIP ==1 || $CONS_PIPE == 1 || $CONS_TANK ==1) {
             $progress .= "\nConsumptions Results";
             file_put_contents($progressFile, $progress);
         }
@@ -1116,11 +1168,6 @@ class Reports extends Controller
         $symbol, $host, $pro2Dchart, $params);
         fwrite($myfile, $html);
         fclose($myfile);
-<<<<<<< HEAD
-=======
-        $progress .= "\nFINISH";
-        file_put_contents($progressFile, $progress);
->>>>>>> origin/dev
         $url = ["url" => "$host/reports/$study->USERNAM/$name_report"];
         return $url;
     }

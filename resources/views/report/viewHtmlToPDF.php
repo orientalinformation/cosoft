@@ -765,7 +765,7 @@
         <h3>Product Graph - Time Based</h3>
         <?php } ?>   
             <?php if ($arrayParam['params']['ISOVALUE_V'] == 1) { ?> 
-            <?php foreach ($timeBase as $key => $timeBases) { ?>
+            <?php foreach ($timeBase as $timeBases) { ?>
             <h4><?php echo $timeBases['equipName'] ?></h4>
             <div class="values-graphic"> 
                 <div class="table-responsive">
@@ -773,36 +773,36 @@
                     <tr>
                         <th align="center">Points</th>
                         <th align="center"><?php echo "(" . $timeBases['timeSymbol'] . " )" ?></th>
-                        <?php foreach ($timeBases['result'] as $key => $points) { ?>
-                        <th align="center"><?php echo $timeBases['result'][$key]['points']?></th>
+                        <?php foreach ($timeBases['result'] as $points) { ?>
+                        <th align="center"><?php echo $points['points']?></th>
                         <?php } ?>
                     </tr>
                     <tr>
                         <td align="center"><?php echo "Top" . "(" . $timeBases['label']['top'] . ")" ?> </td>
                         <td align="center"><?php echo "(" . $timeBases['temperatureSymbol'] . " )" ?></td>
-                        <?php foreach ($timeBases['result'] as $key => $tops) { ?>
-                        <td align="center"><?php echo $timeBases['result'][$key]['top']?></td>
+                        <?php foreach ($timeBases['result'] as $tops) { ?>
+                        <td align="center"><?php echo $tops['top']?></td>
                         <?php } ?>
                     </tr>
                     <tr>
                         <td align="center"><?php echo "Internal" . "(" . $timeBases['label']['int'] . ")" ?></td>
                         <td align="center"><?php echo "(" . $timeBases['temperatureSymbol'] . " )" ?></td>
-                        <?php foreach ($timeBases['result'] as $key => $internals) { ?>
-                        <td align="center"><?php echo $timeBases['result'][$key]['int']?></td>
+                        <?php foreach ($timeBases['result'] as $internals) { ?>
+                        <td align="center"><?php echo $internals['int']?></td>
                         <?php } ?>
                     </tr>
                     <tr>
                         <td align="center"><?php echo "Bottom" . "(" . $timeBases['label']['bot'] . ")" ?></td>
                         <td align="center"><?php echo "(" . $timeBases['temperatureSymbol'] . " )" ?></td>
-                        <?php foreach ($timeBases['result'] as $key => $bottoms) { ?>
-                        <td align="center"><?php echo $timeBases['result'][$key]['bot']?></td>
+                        <?php foreach ($timeBases['result'] as $bottoms) { ?>
+                        <td align="center"><?php echo $bottoms['bot']?></td>
                         <?php } ?>
                     </tr>
                     <tr>
                         <td align="center">Avg. Temp.</td>
                         <td align="center"><?php echo "(" . $timeBases['temperatureSymbol'] . " )" ?></td>
-                        <?php foreach ($timeBases['result'] as $key => $avgs) { ?>
-                        <td align="center"><?php echo $timeBases['result'][$key]['average']?></td>
+                        <?php foreach ($timeBases['result'] as $avgs) { ?>
+                        <td align="center"><?php echo $avgs['average']?></td>
                         <?php } ?>
                     </tr>
                 </table>
