@@ -72,6 +72,10 @@ class CryosoftServiceProvider extends ServiceProvider
         $this->app->singleton(\App\Cryosoft\MinMaxService::class, function ($app) {
             return new \App\Cryosoft\MinMaxService($app);
         });
+
+        $this->app->singleton(\App\Cryosoft\SVGService::class, function ($app) {
+            return new \App\Cryosoft\SVGService($app);
+        });
     }
 
 }

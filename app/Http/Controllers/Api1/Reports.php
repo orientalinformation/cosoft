@@ -1116,6 +1116,11 @@ class Reports extends Controller
         $symbol, $host, $pro2Dchart, $params);
         fwrite($myfile, $html);
         fclose($myfile);
+<<<<<<< HEAD
+=======
+        $progress .= "\nFINISH";
+        file_put_contents($progressFile, $progress);
+>>>>>>> origin/dev
         $url = ["url" => "$host/reports/$study->USERNAM/$name_report"];
         return $url;
     }

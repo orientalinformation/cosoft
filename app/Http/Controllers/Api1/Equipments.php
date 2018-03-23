@@ -28,6 +28,7 @@ use App\Models\EquipGenZone;
 use App\Models\EquipZone;
 use App\Models\MinMax;
 use App\Models\StudyEquipment;
+use App\Cryosoft\SVGService;
 
 class Equipments extends Controller
 {
@@ -67,6 +68,11 @@ class Equipments extends Controller
     protected $studies;
 
     /**
+     * @var App\Cryosoft\SVGService
+     */
+    protected $svg;
+
+    /**
      * @var \App\Cryosoft\StudyEquipmentService
      */
     protected $stdeqp;
@@ -77,7 +83,7 @@ class Equipments extends Controller
      * @return void
      */
     public function __construct(Request $request, Auth $auth, UnitsConverterService $convert, EquipmentsService $equip
-    , KernelService $kernel, StudyService $studies, StudyEquipmentService $stdeqp)
+    , KernelService $kernel, StudyService $studies, StudyEquipmentService $stdeqp, SVGService $svg)
     {
         $this->request = $request;
         $this->auth = $auth;
@@ -86,6 +92,7 @@ class Equipments extends Controller
         $this->kernel = $kernel;
         $this->studies = $studies;
         $this->stdeqp = $stdeqp;
+        $this->svg = $svg;
     }
 
     public function getEquipments()
@@ -687,7 +694,7 @@ class Equipments extends Controller
         $unitIdent = $miniMum = 10;
         $ID_EQUIP = $profileType = $profileFace = $listOfPoints = null;
         $YAxis = $XAxis = $pos = 0;
-        $X = $Y = array();
+        $X = $Y = $resultPoint = array();
         $textX = 75;
 
         $input = $this->request->all();
@@ -773,11 +780,20 @@ class Equipments extends Controller
 
         $Y = $this->getYPosition($miniMum, $maxiMum, $profileType, $listOfPoints);
 
+        for($i = 0; $i < count($listOfPoints); $i++) {
+            $listOfPoints[$i]['X_POSITION'] = $this->svg->getAxisXPos($listOfPoints[$i]['X_POSITION'], $miniMum, $maxiMum);
+            $listOfPoints[$i]['Y_POINT'] = $this->svg->getAxisYPos($listOfPoints[$i]['Y_POINT'], $miniMum, $maxiMum);
+        }
+
         $array = [
             'MiniMum' => $miniMum,
             'MaxiMum' => $maxiMum,
             'YAxis' => $YAxis,
             'XAxis' => $XAxis,
+            'imageWidth' => PROFILE_CHARTS_WIDTH,
+            'imageHeight' => PROFILE_CHARTS_HEIGHT, 
+            'imageMargeWidth' => PROFILE_CHARTS_MARGIN_WIDTH,
+            'imageMargeHeight' => PROFILE_CHARTS_MARGIN_HEIGHT,
             'X' => $X,
             'Y' =>  $Y,
             'ListOfPoints' => $listOfPoints

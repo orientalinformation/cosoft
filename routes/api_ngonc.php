@@ -33,6 +33,14 @@ $router->GET('/api/v1/studies/{id}/meshPoints', 'Api1\\Studies@getMeshPoints');
 $router->GET('/api/v1/studies/{id}/locationAxisSelected', 'Api1\\Studies@getlocationAxisSelected');
 
 /**
+ * POST saveLocationAxis
+ * Summary: 
+ * Notes: save mesh axis product chart
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/studies/{id}/saveLocationAxis', 'Api1\\Studies@saveLocationAxis');
+
+/**
  * GET reCalculate
  * Summary: 
  * Notes: re calculate all study equipment in a study
