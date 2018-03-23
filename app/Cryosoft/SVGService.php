@@ -43,9 +43,11 @@ class SVGService
     	return $point;
     }
 
-	public function getAxisXPos($lfVal, $minScaleX, $maxScaleX)
+	public function getAxisXPos($lfVal)
 	{
-		$pos = 0;
+		$pos = $minScaleX = 0;
+		$maxScaleX = 100;
+
 		if ($lfVal < $minScaleX) {
 		  $lfVal = $minScaleX;
 		} else if ($lfVal > $maxScaleX) {
@@ -59,20 +61,38 @@ class SVGService
 		return $pos;
 	}
 
-	public function getAxisYPos($lfVal, $minScaleX, $maxScaleX)
+	public function getAxisYPos($lfVal, $minScaleY, $maxScaleY)
 	{
 		$pos = 0;
-		if ($lfVal < $minScaleX) {
-		  $lfVal = $minScaleX;
-		} else if ($lfVal > $maxScaleX) {
-		  $lfVal = $minScaleX;
+		if ($lfVal < $minScaleY) {
+		  $lfVal = $minScaleY;
+		} else if ($lfVal > $maxScaleY) {
+		  $lfVal = $maxScaleY;
 		}
 
-		$axisYLength = (PROFILE_CHARTS_HEIGHT - 2 * PROFILE_CHARTS_MARGIN_HEIGHT);
+		$axisYLength = PROFILE_CHARTS_HEIGHT - (2 * PROFILE_CHARTS_MARGIN_HEIGHT);
 
-		$pos = PROFILE_CHARTS_MARGIN_WIDTH + round((float)(($lfVal - $minScaleX) / ($maxScaleX - $minScaleX)) * $axisYLength);
+		if ($minScaleY == $maxScaleY) {
+			$pos = (PROFILE_CHARTS_HEIGHT - PROFILE_CHARTS_MARGIN_HEIGHT - 125);
+		} else {
+			$pos = (PROFILE_CHARTS_HEIGHT - PROFILE_CHARTS_MARGIN_HEIGHT) - round((float)(($lfVal - $minScaleY) / ($maxScaleY - $minScaleY)) * $axisYLength);
+		}
 
 		return $pos;
 	}
 
+	public function getAxisX()
+	{
+		$unitIdent = 10;
+		$minScaleX = 0;
+		$maxScaleX = 100;
+    	$axisLength = (PROFILE_CHARTS_WIDTH - (2 * PROFILE_CHARTS_MARGIN_WIDTH)) + 20;
+    	$nbFractionDigits = 0;
+    	$axisOriginX = PROFILE_CHARTS_MARGIN_WIDTH;
+    	$axisOriginY = PROFILE_CHARTS_HEIGHT - PROFILE_CHARTS_MARGIN_HEIGHT;
+    	$nbOfGraduation = 11;
+    	$axisMaxValue = 0.0;
+    	$axisMinValue = 0.0;
+    	$axisType = 0;
+	}
 }

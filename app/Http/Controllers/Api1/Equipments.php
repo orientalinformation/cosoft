@@ -780,9 +780,11 @@ class Equipments extends Controller
 
         $Y = $this->getYPosition($miniMum, $maxiMum, $profileType, $listOfPoints);
 
+
         for($i = 0; $i < count($listOfPoints); $i++) {
-            $listOfPoints[$i]['X_POSITION'] = $this->svg->getAxisXPos($listOfPoints[$i]['X_POSITION'], $miniMum, $maxiMum);
-            $listOfPoints[$i]['Y_POINT'] = $this->svg->getAxisYPos($listOfPoints[$i]['Y_POINT'], $miniMum, $maxiMum);
+    
+            $listOfPoints[$i]['X_POSITION'] = $this->svg->getAxisXPos(doubleval($listOfPoints[$i]['X_POSITION']));
+            $listOfPoints[$i]['Y_POINT'] = $this->svg->getAxisYPos(doubleval($listOfPoints[$i]['Y_POINT']), $miniMum, $maxiMum);
         }
 
         $array = [
@@ -808,50 +810,50 @@ class Equipments extends Controller
         $equipCharacts = EquipCharact::where('ID_EQUIP', $ID_EQUIP)->get();
         if ($equipCharacts) {
             foreach ($equipCharacts as $equipCharact) {
-                $item['X_POSITION'] = $equipCharact->X_POSITION;
+                $item['X_POSITION'] = doubleval($equipCharact->X_POSITION);
                 if ($profileType == 1) {
                     switch ($profileFace) {
                         case 0:
-                            $item['Y_POINT'] = $this->convert->convectionCoeff($equipCharact->ALPHA_TOP);
+                            $item['Y_POINT'] = doubleval($equipCharact->ALPHA_TOP);
                             break;
                         case 1:
-                            $item['Y_POINT'] = $this->convert->convectionCoeff($equipCharact->ALPHA_BOTTOM);
+                            $item['Y_POINT'] = doubleval($equipCharact->ALPHA_BOTTOM);
                             break;
                         case 2:
-                            $item['Y_POINT'] = $this->convert->convectionCoeff($equipCharact->ALPHA_LEFT);
+                            $item['Y_POINT'] = doubleval($equipCharact->ALPHA_LEFT);
                             break;
                         case 3:
-                            $item['Y_POINT'] = $this->convert->convectionCoeff($equipCharact->ALPHA_RIGHT);
+                            $item['Y_POINT'] = doubleval($equipCharact->ALPHA_RIGHT);
                             break;
                         case 4:
-                            $item['Y_POINT'] = $this->convert->convectionCoeff($equipCharact->ALPHA_FRONT);
+                            $item['Y_POINT'] = doubleval($equipCharact->ALPHA_FRONT);
                             break;
                         case 5:
-                            $item['Y_POINT'] = $this->convert->convectionCoeff($equipCharact->ALPHA_REAR);
+                            $item['Y_POINT'] = doubleval($equipCharact->ALPHA_REAR);
                             break;
                         default:
-                            # code...
+                            # code..
                             break;
                     }
                 } else {
                     switch ($profileFace) {
                         case 0:
-                            $item['Y_POINT'] = $this->convert->temperature($equipCharact->TEMP_TOP);
+                            $item['Y_POINT'] = doubleval($equipCharact->TEMP_TOP);
                             break;
                         case 1:
-                            $item['Y_POINT'] = $this->convert->temperature($equipCharact->TEMP_BOTTOM);
+                            $item['Y_POINT'] = doubleval($equipCharact->TEMP_BOTTOM);
                             break;
                         case 2:
-                            $item['Y_POINT'] = $this->convert->temperature($equipCharact->TEMP_LEFT);
+                            $item['Y_POINT'] = doubleval($equipCharact->TEMP_LEFT);
                             break;
                         case 3:
-                            $item['Y_POINT'] = $this->convert->temperature($equipCharact->TEMP_RIGHT);
+                            $item['Y_POINT'] = doubleval($equipCharact->TEMP_RIGHT);
                             break;
                         case 4:
-                            $item['Y_POINT'] = $this->convert->temperature($equipCharact->TEMP_FRONT);
+                            $item['Y_POINT'] = doubleval($equipCharact->TEMP_FRONT);
                             break;
                         case 5:
-                            $item['Y_POINT'] = $this->convert->temperature($equipCharact->TEMP_REAR);
+                            $item['Y_POINT'] = doubleval($equipCharact->TEMP_REAR);
                             break;
                         default:
                             # code...
@@ -861,6 +863,7 @@ class Equipments extends Controller
                 array_push($listOfPoints, $item);
             }
         }
+
         return $listOfPoints;
     }
 
