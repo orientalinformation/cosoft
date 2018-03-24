@@ -88,7 +88,7 @@ class SVGService
 
 	public function getAxisX()
 	{
-		$listOfGraduation = array();
+		$listOfGraduation = $axisline = array();
 		$unitIdent = 10;
 		$minScaleX = 0;
 		$maxScaleX = 100.0;
@@ -101,14 +101,31 @@ class SVGService
     	$maxValueX = 100.0;
     	$axisType = 0;
 
-    	$firstPoint = [$axisOriginX, $axisOriginY];
-    	$lastPoint = [$axisOriginX, $axisOriginY];
+    	// first point
+    	// $firstPoint = [$axisOriginX, $axisOriginY]; // 75 300
+    	$x1 = $axisOriginX;
+    	$y1 = $axisOriginY;
+
+    	// last point
+    	// $lastPoint = [$axisOriginX, $axisOriginY]; // 75 300
+    	$x2 = $axisOriginX;
+    	$y2 = $axisOriginY; 
 
     	if ($axisType == 0) {
-	      $lastPoint = $this->translate($axisLength, 0);
+	      // $lastPoint = $this->translate($axisLength, 0);
+	      $x2 = $x2 + $axisLength;
+	      $y2 = $y2 + 0;
 	    } else {
-	      $lastPoint = $this->translate(0, -$axisLength);
+	      // $lastPoint = $this->translate(0, -$axisLength);
+	      $x2 = $x2 + 0;
+	      $y2 = $y2 + (-$axisLength);
 	    }
+
+	    $item['x1'] = $x1;
+	    $item['y1'] = $y1;
+	    $item['x2'] = $x2;
+	    $item['y2'] = $y2;
+	    array_push($axisline, $item);
 
 	    //axisLine new axisLine ($fistPoint, $lastPoint, $unitIdent);
 	    $offset = ($maxScaleX - $minScaleX) / ($nbOfGraduation - 1);
@@ -116,26 +133,45 @@ class SVGService
     
     	$lfValue = $minScaleX;
     	for ($i = 0; $i < $nbOfGraduation; $i++) {
+    		// first point
+    		$x1 = $axisOriginX;
+    		$y1 = $axisOriginY;
+
     		if ($axisType == 0) {
-    			$firstPoint = $this->translate($i*$offsetpix, 0);
-    			$lastPoint = $this->translate(0, 10);
+    			// $firstPoint = $this->translate($i*$offsetpix, 0);
+    			$x1 = $x1 + $i*$offsetpix;
+    			$y1 = $y1 + 0;
+
+    			// $lastPoint = $this->translate(0, 10);
+    			$x2 = $x1 + 0;
+	      		$y2 = $y1 + 10;
     		} else {
-    			$firstPoint = $this->translate(0, -$i*$offsetpix);
-    			$lastPoint = $this->translate(-10, 0);
+    			// $firstPoint = $this->translate(0, -$i*$offsetpix);
+    			$x1 = $x1 + 0;
+    			$y1 = $y1 + (-$i*$offsetpix);
+
+    			// $lastPoint = $this->translate(-10, 0);
+    			$x2 = $x1 - 10;
+	      		$y2 = $y1 + 0;
     		}
 
     		// new EPLine
-    		$item['x1'] = $firstPoint[0];
-    		$item['y1'] = $firstPoint[1];
-    		$item['x2'] = $lastPoint[0];
-    		$item['y2'] = $lastPoint[1];
+    		$item['x1'] = $x1;
+    		$item['y1'] = $y1;
+    		$item['x2'] = $x2;
+    		$item['y2'] = $y2;
     		$item['position'] = $this->convert->convertIdent($lfValue, $unitIdent);
     		array_push($listOfGraduation, $item);
 
     		$lfValue += $offset;
     	}
 
-    	return $listOfGraduation;
+    	$array = [
+    		'axisline' => $axisline,
+    		'listOfGraduation' => $listOfGraduation
+    	];
+
+    	return $array;
 	}
 
 	public function getSelectedProfile($ID_EQUIP, $profileType, $profileFace)
@@ -201,94 +237,43 @@ class SVGService
         return $listOfPoints;
     }
 
-    public function getYPosition($min, $max, $profileType, $listOfPoints)
-    {   
-        array_multisort(array_column($listOfPoints, 'Y_POINT'), SORT_ASC, $listOfPoints);
-
-        $result = $Y = $listPoints = array();
-        $textX = 300;
-
-        if ($min != null) {
-            array_push($Y, $min);
-        }
-
-        for($i = 0; $i < count($listOfPoints); $i++) {
-            if ($profileType == 1) {
-                 if (!in_array($this->convert->convectionCoeff($listOfPoints[$i]['Y_POINT']), $Y)) {
-                    array_push($Y, $this->convert->convectionCoeff($listOfPoints[$i]['Y_POINT'])); 
-                 }
-            } else {
-                if (!in_array($this->convert->temperature($listOfPoints[$i]['Y_POINT']), $Y)) {
-                    array_push($Y, $this->convert->temperature($listOfPoints[$i]['Y_POINT'])); 
-                }
-            }
-        }
-
-        if ($max != null) {
-            array_push($Y, $max);
-        }
-
-        if (count($Y) > 12) {
-            $newList = array();
-            $count = 0;
-            for ($i = 0; $i < count($Y); $i++) {
-                $count++;
-                if ($i == 0) {
-                    array_push($newList, $Y[$i]);
-                }
-
-                if ($count == 4) {
-                    array_push($newList, $Y[$i]);
-                    $count = 0;
-                }
-            }
-            $Y = $newList;
-        }
-
-        if (count($Y) > 0) {
-            for($i = 0; $i < count($Y); $i++) {
-                $item['position'] = floatval($Y[$i]);
-                if ($i == 0) {
-                    $item['textX'] = $textX;
-                } else {
-                    if (count($Y) == 8 || count($Y) == 9 || count($Y) == 10) {
-                        $textX = $textX - 25;
-                    } else if (count($Y) == 2) {
-                        $textX = $textX - 250;
-                    } else if (count($Y) > 10) {
-                        $textX = $textX - 20;
-                    }else {
-                        $textX = $textX - 31;
-                    }
-
-                    $item['textX'] = $textX;
-                }
-                array_push($result, $item);
-            }
-        }
-
-        return $result;
-    }
-
     public function getAxisY($minScaleY, $maxScaleY, $minValueY, $maxValueY, $nbFractionDigits, $unitIdent)
     {
-    	$listOfGraduation = $y = array();
-    	$axisLength = (PROFILE_CHARTS_HEIGHT - (2 * PROFILE_CHARTS_MARGIN_HEIGHT)) + 20;
-    	$axisOriginX = PROFILE_CHARTS_MARGIN_WIDTH;
-    	$axisOriginY = PROFILE_CHARTS_HEIGHT - PROFILE_CHARTS_MARGIN_HEIGHT;
+    	$listOfGraduation = $axisline = array();
+    	$axisLength = (PROFILE_CHARTS_HEIGHT - (2 * PROFILE_CHARTS_MARGIN_HEIGHT)) + 20; //270
+    	$axisOriginX = $x1 = $x2 = PROFILE_CHARTS_MARGIN_WIDTH;
+    	$axisOriginY = $y1 = $y2 = PROFILE_CHARTS_HEIGHT - PROFILE_CHARTS_MARGIN_HEIGHT;
     	$nbOfGraduation = $this->getBestGraduation($minScaleY, $maxScaleY, $nbFractionDigits);
     	$axisMaxValue = 0.0;
     	$axisMinValue = 0.0;
     	$axisType = 1; // 0
+    	$textX = $textY = 0;
 
-    	$firstPoint = [$axisOriginX, $axisOriginY];
-    	$lastPoint = [$axisOriginX, $axisOriginY];
+    	// first point
+    	// $firstPoint = [$axisOriginX, $axisOriginY]; // 75 300
+    	$x1 = $axisOriginX;
+    	$y1 = $axisOriginY;
+
+    	// last point
+    	// $lastPoint = [$axisOriginX, $axisOriginY]; // 75 300
+    	$x2 = $axisOriginX;
+    	$y2 = $axisOriginY; 
 
     	if ($axisType == 0) {
-	      $lastPoint = $this->translate($axisLength, 0);
+	      // $lastPoint = $this->translate($axisLength, 0);
+	      $x2 = $x2 + $axisLength;
+	      $y2 = $y2 + 0;
 	    } else {
-	      $lastPoint = $this->translate(0, -$axisLength);
+	      // $lastPoint = $this->translate(0, -$axisLength);
+	      $x2 = $x2 + 0;
+	      $y2 = $y2 + (-$axisLength);
 	    }
+
+	    $item['x1'] = $x1;
+	    $item['y1'] = $y1;
+	    $item['x2'] = $x2;
+	    $item['y2'] = $y2;
+	    array_push($axisline, $item);
 
 	    //axisLine new axisLine ($fistPoint, $lastPoint, $unitIdent);
 	    $offset = ($maxScaleY - $minScaleY) / ($nbOfGraduation - 1);
@@ -296,26 +281,55 @@ class SVGService
     
     	$lfValue = $minScaleY;
     	for ($i = 0; $i < $nbOfGraduation; $i++) {
+    		// first point
+    		$x1 = $axisOriginX;
+    		$y1 = $axisOriginY;
+
     		if ($axisType == 0) {
-    			$firstPoint = $this->translate($i*$offsetpix, 0);
-    			$lastPoint = $this->translate(0, 10);
+    			// $firstPoint = $this->translate($i*$offsetpix, 0);
+    			$x1 = $x1 + $i*$offsetpix;
+    			$y1 = $y1 + 0;
+
+    			// $lastPoint = $this->translate(0, 10);
+    			$x2 = $x1 + 0;
+	      		$y2 = $y1 + 10;
+
+	      		// add text
+	      		$textX = $x2 + 0;
+	      		$textY = $y2 + 10;
     		} else {
-    			$firstPoint = $this->translate(0, -$i*$offsetpix);
-    			$lastPoint = $this->translate(-10, 0);
+    			// $firstPoint = $this->translate(0, -$i*$offsetpix);
+    			$x1 = $x1 + 0;
+    			$y1 = $y1 + (-$i*$offsetpix);
+
+    			// $lastPoint = $this->translate(-10, 0);
+    			$x2 = $x1 - 10;
+	      		$y2 = $y1 + 0;
+
+	      		// add text
+	      		$textX = $x2 - 10;
+	      		$textY = $y2 + 0;
     		}
 
     		// new EPLine
-    		$item['x1'] = $firstPoint[0];
-    		$item['y1'] = $firstPoint[1];
-    		$item['x2'] = $lastPoint[0];
-    		$item['y2'] = $lastPoint[1];
+    		$item['x1'] = $x1;
+    		$item['y1'] = $y1;
+    		$item['x2'] = $x2;
+    		$item['y2'] = $y2;
+    		$item['textX'] = $textX;
+    		$item['textY'] = $textY;
     		$item['position'] = $this->convert->convertIdent($lfValue, $unitIdent);
     		array_push($listOfGraduation, $item);
 
     		$lfValue += $offset;
     	}
 
-    	return $listOfGraduation;
+    	$array = [
+    		'axisline' => $axisline,
+    		'listOfGraduation' => $listOfGraduation
+    	];
+
+    	return $array;
     }
 
 	private function getBestGraduation($minScaleY, $maxScaleY, $nbFractionDigitsY)
@@ -332,12 +346,4 @@ class SVGService
 
 		return $nbGraduation;
 	}
-
-	private function translate($dx, $dy) 
-	{ 
-		$x = $y = null;
-        $x += $dx;
-        $y += $dy;
-        return [$x, $y];
-    }
 }
