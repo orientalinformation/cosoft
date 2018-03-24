@@ -88,17 +88,54 @@ class SVGService
 
 	public function getAxisX()
 	{
+		$listOfGraduation = array();
 		$unitIdent = 10;
 		$minScaleX = 0;
-		$maxScaleX = 100;
+		$maxScaleX = 100.0;
     	$axisLength = (PROFILE_CHARTS_WIDTH - (2 * PROFILE_CHARTS_MARGIN_WIDTH)) + 20;
     	$nbFractionDigits = 0;
     	$axisOriginX = PROFILE_CHARTS_MARGIN_WIDTH;
     	$axisOriginY = PROFILE_CHARTS_HEIGHT - PROFILE_CHARTS_MARGIN_HEIGHT;
     	$nbOfGraduation = 11;
-    	$axisMaxValue = 0.0;
-    	$axisMinValue = 0.0;
+    	$minValueX = 0.0;
+    	$maxValueX = 100.0;
     	$axisType = 0;
+
+    	$firstPoint = [$axisOriginX, $axisOriginY];
+    	$lastPoint = [$axisOriginX, $axisOriginY];
+
+    	if ($axisType == 0) {
+	      $lastPoint = $this->translate($axisLength, 0);
+	    } else {
+	      $lastPoint = $this->translate(0, -$axisLength);
+	    }
+
+	    //axisLine new axisLine ($fistPoint, $lastPoint, $unitIdent);
+	    $offset = ($maxScaleX - $minScaleX) / ($nbOfGraduation - 1);
+    	$offsetpix = ($axisLength - 20) / ($nbOfGraduation - 1);
+    
+    	$lfValue = $minScaleX;
+    	for ($i = 0; $i < $nbOfGraduation; $i++) {
+    		if ($axisType == 0) {
+    			$firstPoint = $this->translate($i*$offsetpix, 0);
+    			$lastPoint = $this->translate(0, 10);
+    		} else {
+    			$firstPoint = $this->translate(0, -$i*$offsetpix);
+    			$lastPoint = $this->translate(-10, 0);
+    		}
+
+    		// new EPLine
+    		$item['x1'] = $firstPoint[0];
+    		$item['y1'] = $firstPoint[1];
+    		$item['x2'] = $lastPoint[0];
+    		$item['y2'] = $lastPoint[1];
+    		$item['position'] = $this->convert->convertIdent($lfValue, $unitIdent);
+    		array_push($listOfGraduation, $item);
+
+    		$lfValue += $offset;
+    	}
+
+    	return $listOfGraduation;
 	}
 
 	public function getSelectedProfile($ID_EQUIP, $profileType, $profileFace)
@@ -231,5 +268,76 @@ class SVGService
         }
 
         return $result;
+    }
+
+    public function getAxisY($minScaleY, $maxScaleY, $minValueY, $maxValueY, $nbFractionDigits, $unitIdent)
+    {
+    	$listOfGraduation = $y = array();
+    	$axisLength = (PROFILE_CHARTS_HEIGHT - (2 * PROFILE_CHARTS_MARGIN_HEIGHT)) + 20;
+    	$axisOriginX = PROFILE_CHARTS_MARGIN_WIDTH;
+    	$axisOriginY = PROFILE_CHARTS_HEIGHT - PROFILE_CHARTS_MARGIN_HEIGHT;
+    	$nbOfGraduation = $this->getBestGraduation($minScaleY, $maxScaleY, $nbFractionDigits);
+    	$axisMaxValue = 0.0;
+    	$axisMinValue = 0.0;
+    	$axisType = 1; // 0
+
+    	$firstPoint = [$axisOriginX, $axisOriginY];
+    	$lastPoint = [$axisOriginX, $axisOriginY];
+
+    	if ($axisType == 0) {
+	      $lastPoint = $this->translate($axisLength, 0);
+	    } else {
+	      $lastPoint = $this->translate(0, -$axisLength);
+	    }
+
+	    //axisLine new axisLine ($fistPoint, $lastPoint, $unitIdent);
+	    $offset = ($maxScaleY - $minScaleY) / ($nbOfGraduation - 1);
+    	$offsetpix = ($axisLength - 20) / ($nbOfGraduation - 1);
+    
+    	$lfValue = $minScaleY;
+    	for ($i = 0; $i < $nbOfGraduation; $i++) {
+    		if ($axisType == 0) {
+    			$firstPoint = $this->translate($i*$offsetpix, 0);
+    			$lastPoint = $this->translate(0, 10);
+    		} else {
+    			$firstPoint = $this->translate(0, -$i*$offsetpix);
+    			$lastPoint = $this->translate(-10, 0);
+    		}
+
+    		// new EPLine
+    		$item['x1'] = $firstPoint[0];
+    		$item['y1'] = $firstPoint[1];
+    		$item['x2'] = $lastPoint[0];
+    		$item['y2'] = $lastPoint[1];
+    		$item['position'] = $this->convert->convertIdent($lfValue, $unitIdent);
+    		array_push($listOfGraduation, $item);
+
+    		$lfValue += $offset;
+    	}
+
+    	return $listOfGraduation;
+    }
+
+	private function getBestGraduation($minScaleY, $maxScaleY, $nbFractionDigitsY)
+	{
+		$nbGraduation = 11;
+		$prec = 1.0 / pow(10.0, $nbFractionDigitsY);
+
+		$nbGraduation = (int)round(abs(($maxScaleY - $minScaleY) / $prec) + 1.0);
+		if ($nbGraduation < 2) {
+		  $nbGraduation = 2;
+		} else if ($nbGraduation > 11) {
+		  $nbGraduation = 11;
+		}
+
+		return $nbGraduation;
+	}
+
+	private function translate($dx, $dy) 
+	{ 
+		$x = $y = null;
+        $x += $dx;
+        $y += $dy;
+        return [$x, $y];
     }
 }

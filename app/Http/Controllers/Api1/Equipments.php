@@ -780,6 +780,10 @@ class Equipments extends Controller
 
         $Y = $this->svg->getYPosition($miniMum, $maxiMum, $profileType, $listOfPoints);
 
+        $positionX = $this->svg->getAxisX();
+        $positionY = $this->svg->getAxisY($miniMum, $maxiMum, $minValueY, $maxValueY, $nbFractionDigits, $unitIdent);
+        // var_dump($positionY); die;
+
         $path1 = null;
 
         for($i = 0; $i < count($listOfPoints); $i++) {
