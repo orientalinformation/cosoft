@@ -481,8 +481,6 @@ class Lines extends Controller
                 return response("Value out of range in Tank pressure (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ") !" , 406); // Status code here
             }
             
-            
-
             if ($pipegen->ID_STUDY_EQUIPMENTS == null) {
                 $pipegen->ID_STUDY_EQUIPMENTS =  $studyEquip->ID_STUDY_EQUIPMENTS;
                 $pipegen->save();
