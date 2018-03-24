@@ -694,7 +694,7 @@ class Equipments extends Controller
         $unitIdent = $miniMum = 10;
         $ID_EQUIP = $profileType = $profileFace = $listOfPoints = $path = null;
         $YAxis = $XAxis = $pos = 0;
-        $X = $Y = $resultPoint = array();
+        $X = $Y = $resultPoint = $axisline = array();
         $textX = 75;
 
         $input = $this->request->all();
@@ -778,12 +778,17 @@ class Equipments extends Controller
         $miniMum = $this->convert->convertIdent($minScaleY, $unitIdent);
         $maxiMum = $this->convert->convertIdent($maxScaleY, $unitIdent);
 
-        $Y = $this->svg->getYPosition($miniMum, $maxiMum, $profileType, $listOfPoints);
+        // Write axis X
+        $axisX = $this->svg->getAxisX();
+        // End write axis X
 
-        $positionX = $this->svg->getAxisX();
-        $positionY = $this->svg->getAxisY($miniMum, $maxiMum, $minValueY, $maxValueY, $nbFractionDigits, $unitIdent);
-        // var_dump($positionY); die;
-
+        // Write axis Y
+        $axisY = $this->svg->getAxisY($miniMum, $maxiMum, $minValueY, $maxValueY, $nbFractionDigits, $unitIdent);
+        $axisline = $axisY['axisline'];
+        $Y = $axisY['listOfGraduation'];
+        // End write axis Y
+        
+        // write path and circle point
         $path1 = null;
 
         for($i = 0; $i < count($listOfPoints); $i++) {
@@ -798,6 +803,7 @@ class Equipments extends Controller
             }
         }
         $path = $path1 .' '.$path;
+        // end write path and circle point
 
         $array = [
             'MiniMum' => $miniMum,
@@ -811,7 +817,8 @@ class Equipments extends Controller
             'X' => $X,
             'Y' =>  $Y,
             'ListOfPoints' => $listOfPoints,
-            'path' => $path
+            'path' => $path,
+            'axisline' => $axisline
         ];
         
         return $array;
