@@ -692,7 +692,6 @@ class Reports extends Controller
         $proInfoStudy = $this->reportserv->getProInfoStudy($study->ID_STUDY);
         $proSections = [];
         $pro2Dchart = [];
-       
         
         foreach ($study->studyEquipments as $key=> $idstudyequips) {
             if ($idstudyequips->BRAIN_TYPE == 4) {
@@ -716,6 +715,11 @@ class Reports extends Controller
                     }
                 } else if ($shapeCode == 2) {
                     if ($equipData[$key]['ORIENTATION'] == 1) {
+                        if ($CONTOUR2D_G == 1) {
+                            $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                        } else {
+                            $pro2Dchart = [];
+                        }
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
                             $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                             $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
@@ -723,6 +727,11 @@ class Reports extends Controller
                             $proSections = [];
                         }
                     } else {
+                        if ($CONTOUR2D_G == 1) {
+                            $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                        } else {
+                            $pro2Dchart = [];
+                        }
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
                             $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
                             $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
@@ -730,11 +739,7 @@ class Reports extends Controller
                             $proSections = [];
                         }
                     }
-                    if ($CONTOUR2D_G == 1) {
-                        $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
-                    } else {
-                        $pro2Dchart = [];
-                    }
+                    
                 } else if (($shapeCode == 4) && ($shapeCode == 7) && ($shapeCode == 8) && ($shapeCode == 5)) {
                     if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
                         $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
@@ -742,7 +747,11 @@ class Reports extends Controller
                     } else {
                         $proSections = [];
                     }
-                
+                    if ($CONTOUR2D_G == 1) {
+                        $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                    } else {
+                        $pro2Dchart = [];
+                    }
                 } else if ($shapeCode == 6) {
                     if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
                         $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
@@ -757,10 +766,18 @@ class Reports extends Controller
                     } else {
                         $proSections = [];
                     }
-                    if ($CONTOUR2D_G == 1) {
-                        $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                    if ($equipData[$key]['ORIENTATION'] == 1) {
+                        if ($CONTOUR2D_G == 1) {
+                            $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                        } else {
+                            $pro2Dchart = [];
+                        }
                     } else {
-                        $pro2Dchart = [];
+                        if ($CONTOUR2D_G == 1) {
+                            $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                        } else {
+                            $pro2Dchart = [];
+                        }
                     }
                 } else if ($shapeCode == 3) {
                     if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
@@ -796,7 +813,7 @@ class Reports extends Controller
             file_put_contents($progressFile, $progress);
             
             if ($CONTOUR2D_G == 1) {
-                if (($shapeCode == 3) || ($shapeCode == 2) || ($shapeCode == 9)) {
+                if (($shapeCode != 1) || ($shapeCode != 6)) {
                 $progress .= "\nContour";
                 file_put_contents($progressFile, $progress);
                 }
@@ -1072,6 +1089,11 @@ class Reports extends Controller
                     }
                 } else if ($shapeCode == 2) {
                     if ($equipData[$key]['ORIENTATION'] == 1) {
+                        if ($CONTOUR2D_G == 1) {
+                            $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                        } else {
+                            $pro2Dchart = [];
+                        }
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
                             $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                             $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
@@ -1079,6 +1101,11 @@ class Reports extends Controller
                             $proSections = [];
                         }
                     } else {
+                        if ($CONTOUR2D_G == 1) {
+                            $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                        } else {
+                            $pro2Dchart = [];
+                        }
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
                             $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
                             $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
@@ -1086,11 +1113,7 @@ class Reports extends Controller
                             $proSections = [];
                         }
                     }
-                    if ($CONTOUR2D_G == 1) {
-                        $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
-                    } else {
-                        $pro2Dchart = [];
-                    }
+                    
                 } else if (($shapeCode == 4) && ($shapeCode == 7) && ($shapeCode == 8) && ($shapeCode == 5)) {
                     if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
                         $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
@@ -1098,7 +1121,11 @@ class Reports extends Controller
                     } else {
                         $proSections = [];
                     }
-                
+                    if ($CONTOUR2D_G == 1) {
+                        $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                    } else {
+                        $pro2Dchart = [];
+                    }
                 } else if ($shapeCode == 6) {
                     if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
                         $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
@@ -1113,10 +1140,18 @@ class Reports extends Controller
                     } else {
                         $proSections = [];
                     }
-                    if ($CONTOUR2D_G == 1) {
-                        $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                    if ($equipData[$key]['ORIENTATION'] == 1) {
+                        if ($CONTOUR2D_G == 1) {
+                            $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                        } else {
+                            $pro2Dchart = [];
+                        }
                     } else {
-                        $pro2Dchart = [];
+                        if ($CONTOUR2D_G == 1) {
+                            $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                        } else {
+                            $pro2Dchart = [];
+                        }
                     }
                 } else if ($shapeCode == 3) {
                     if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
@@ -1152,7 +1187,7 @@ class Reports extends Controller
             file_put_contents($progressFile, $progress);
             
             if ($CONTOUR2D_G == 1) {
-                if (($shapeCode == 3) || ($shapeCode == 2) || ($shapeCode == 9)) {
+                if (($shapeCode != 1) || ($shapeCode != 6)) {
                 $progress .= "\nContour";
                 file_put_contents($progressFile, $progress);
                 }
