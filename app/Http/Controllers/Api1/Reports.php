@@ -1016,6 +1016,7 @@ class Reports extends Controller
         } else {
             $cryogenPipeline = "";
         }
+        
         $consumptions = $this->reportserv->getAnalyticalConsumption($study->ID_STUDY);
         if ($CONS_OVERALL == 1 || $CONS_TOTAL ==1 || $CONS_SPECIFIC  == 1 || $CONS_HOUR ==1 || $CONS_DAY == 1||
             $CONS_WEEK == 1 || $CONS_MONTH == 1 || $CONS_YEAR ==1 || $CONS_EQUIP ==1 || $CONS_PIPE == 1 || $CONS_TANK ==1) {
@@ -1246,8 +1247,6 @@ class Reports extends Controller
         return view('report.view_report', $param);
     }
 
-    
-
     public function viewHtml($study ,$production, $product, $proElmt, $shapeName, 
     $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
     $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase , 
@@ -1289,25 +1288,6 @@ class Reports extends Controller
         return $array;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // HAIDT
     public function postFile() 
     {  
@@ -1322,7 +1302,6 @@ class Reports extends Controller
         ->setAllowUnrecognizedTypes(true)
         ->setAllowedAggregateTypes(['image'])
         ->upload();
-
 
         $url = 'http://'.$_SERVER['HTTP_HOST'].'/uploads/'.$media->filename.'.'.$media->extension;
         
