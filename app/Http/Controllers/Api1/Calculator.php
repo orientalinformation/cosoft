@@ -168,11 +168,10 @@ class Calculator extends Controller
 			$sdisableTimeStep = $sdisablePrecision = 1;
 			$checkOptim = $scheckStorage = 0;
 		}
-
 		$epsilonTemp = $this->cal->getOptimErrorT();
 		$epsilonEnth = $this->cal->getOptimErrorH();
 		$nbOptimIter = $this->cal->getNbOptim();
-		
+
 		$timeStep = $this->cal->getTimeStep($idStudy);
 		$precision = $this->cal->getPrecision($idStudy);
 		$storagestep = $this->cal->getStorageStep();
@@ -511,9 +510,11 @@ class Calculator extends Controller
 		$toc = $this->convert->convertCalculator($this->brainCal->getLoadingRate($idStudyEquipment, $idStudy), $uPercent['coeffA'], $uPercent['coeffB']);
 
 		$checkOptim = ($checkOptim == "true") ? 1 : 0;
+
 		$epsilonTemp = $this->brainCal->getOptimErrorT($brainMode, $idStudyEquipment);
 		$epsilonEnth = $this->brainCal->getOptimErrorH($brainMode, $idStudyEquipment);
 		$nbOptimIter = $this->brainCal->getNbOptim($brainMode, $idStudyEquipment);
+
 		$timeStep = $this->brainCal->getTimeStep($idStudyEquipment);
 		$precision = $this->brainCal->getPrecision($idStudyEquipment);
 		$precisionlogstep = $this->brainCal->getPrecisionLogStep($idStudyEquipment);
@@ -558,10 +559,12 @@ class Calculator extends Controller
 			'dwellingTimes' => $dwellingTimes,
 			'temperatures' => $temperatures,
 			'toc' => $toc,
+
 			'checkOptim' => $checkOptim,
 			'epsilonTemp' => $epsilonTemp,
 			'epsilonEnth' => $epsilonEnth,
 			'nbOptimIter' => $nbOptimIter,
+
 			'timeStep' => $timeStep,
 			'precision' => $precision,
 			'precisionlogstep' => $precisionlogstep,
@@ -764,9 +767,10 @@ class Calculator extends Controller
 		$vRadioOn = $tempPtSurf = $tempPtIn = $tempPtBot = $tempPtAvg = $nbOptimIter = 0;
 		$maxIter = 100;
 
-    	if (isset($input['checkOptim'])) $checkOptim = intval($input['checkOptim']);
+		if (isset($input['checkOptim'])) $checkOptim = intval($input['checkOptim']);
 		if (isset($input['epsilonTemp'])) $epsilonTemp = $input['epsilonTemp'];
 		if (isset($input['epsilonEnth'])) $epsilonEnth = $input['epsilonEnth'];
+		if (isset($input['nbOptimIter'])) $nbOptimIter = intval($input['nbOptimIter']);
 		if (isset($input['timeStep'])) $timeStep = $input['timeStep'];
 		if (isset($input['precision'])) $precision = $input['precision'];
 		if (isset($input['scheckStorage'])) $scheckStorage = intval($input['scheckStorage']);
@@ -779,7 +783,6 @@ class Calculator extends Controller
 		if (isset($input['tempPtIn'])) $tempPtIn = $input['tempPtIn'];
 		if (isset($input['tempPtBot'])) $tempPtBot = $input['tempPtBot'];
 		if (isset($input['tempPtAvg'])) $tempPtAvg = $input['tempPtAvg'];
-		if (isset($input['nbOptimIter'])) $nbOptimIter = intval($input['nbOptimIter']);
 		if (isset($input['sdisableOptim'])) $sdisableOptim = intval($input['sdisableOptim']);
 
 		$calculationParameter = CalculationParameter::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
@@ -792,58 +795,60 @@ class Calculator extends Controller
 				$calculationParameter->NB_OPTIM = intval($minMaxOptim->DEFAULT_VALUE);
 			}
 
-			$calculationParameter->ERROR_T = $this->convert->unitConvert($this->value->TEMPERATURE, $epsilonTemp);
-			$calculationParameter->ERROR_H = $this->convert->unitConvert($this->value->TEMPERATURE, $epsilonEnth);
+			$calculationParameter->ERROR_T = $this->units->deltaTemperature($epsilonTemp, 2, 0);
+			$uPercent = $this->units->uPercent();
+			$calculationParameter->ERROR_H =  $this->units->convertCalculator($epsilonEnth, intval($uPercent["coeffA"]), intval($uPercent["coeffB"]), 2, 0);
+			
 		} else {
 			$minMaxH = $this->brainCal->getMinMax(1131);
 			$minMaxT = $this->brainCal->getMinMax(1132);
+			$ERROR_H = $this->units->convertCalculator($this->cal->getOptimErrorH(), intval($uPercent["coeffA"]), intval($uPercent["coeffB"]), 2, 0);
+			$ERROR_T = $this->units->deltaTemperature($this->cal->getOptimErrorT(), 2, 0);
 			switch ($brainMode) {
-                case 1:
+				case 1:
                     $calculationParameter->NB_OPTIM = 0;
-                    $calculationParameter->ERROR_H = $minMaxH->DEFAULT_VALUE;
-                    $calculationParameter->ERROR_T = $minMaxT->DEFAULT_VALUE;
+					$calculationParameter->ERROR_H = $ERROR_H;
+                    $calculationParameter->ERROR_T = $ERROR_T;
                     break;
                 case 2:
                 	$minMaxOptim = $this->brainCal->getMinMax(1130);
                     $calculationParameter->NB_OPTIM = intval($minMaxOptim->DEFAULT_VALUE);
-                    $calculationParameter->ERROR_H = $minMaxH->DEFAULT_VALUE;
-                    $calculationParameter->ERROR_T = $minMaxT->DEFAULT_VALUE;
+                    $calculationParameter->ERROR_H = $ERROR_H;
+                    $calculationParameter->ERROR_T = $ERROR_T;
                     break;
                 case 10:
                 case 14:
                     $calculationParameter->NB_OPTIM = 0;
-                    $calculationParameter->ERROR_H = $minMaxH->DEFAULT_VALUE;
-                    $calculationParameter->ERROR_T = $minMaxT->DEFAULT_VALUE;
+                    $calculationParameter->ERROR_H = $ERROR_H;
+                    $calculationParameter->ERROR_T = $ERROR_T;
                     break;
                 case 11:
                 case 15:
                     $calculationParameter->NB_OPTIM = 0;
                     $minMaxH = $this->brainCal->getMinMax(1133);
 					$minMaxT = $this->brainCal->getMinMax(1134);
-                    $calculationParameter->ERROR_H = $minMaxH->DEFAULT_VALUE;
-                    $calculationParameter->ERROR_T = $minMaxT->DEFAULT_VALUE;
+                    $calculationParameter->ERROR_H = $ERROR_H;
+                    $calculationParameter->ERROR_T = $ERROR_T;
                     break;
                 case 12:
                 case 16:
                 	$minMaxH = $this->brainCal->getMinMax(1135);
 					$minMaxT = $this->brainCal->getMinMax(1136);
                     $calculationParameter->NB_OPTIM = 0;
-                    $calculationParameter->ERROR_H = $minMaxH->DEFAULT_VALUE;
-                    $calculationParameter->ERROR_T = $minMaxT->DEFAULT_VALUE;
+                    $calculationParameter->ERROR_H = $ERROR_H;
+                    $calculationParameter->ERROR_T = $ERROR_T;
                     break;
                 case 13:
                 case 17:
                 	$minMaxH = $this->brainCal->getMinMax(1137);
 					$minMaxT = $this->brainCal->getMinMax(1138);
                     $calculationParameter->NB_OPTIM = 0;
-                    $calculationParameter->ERROR_H = $minMaxH->DEFAULT_VALUE;
-                    $calculationParameter->ERROR_T = $minMaxT->DEFAULT_VALUE;
+                    $calculationParameter->ERROR_H = $ERROR_H;
+                    $calculationParameter->ERROR_T = $ERROR_T;
             }
 		}
-
-		$calculationParameter->TIME_STEP = $this->convert->unitConvert($this->value->TIME, $timeStep, 3);
-		$calculationParameter->PRECISION_REQUEST = $this->convert->unitConvert($this->value->TIME, $precision, 3);
-
+		$calculationParameter->TIME_STEP = $this->units->timeStep($timeStep, 3, 0);
+		$calculationParameter->PRECISION_REQUEST = $this->units->convert($precision, 3);
 		$studyEquipment = StudyEquipment::find($idStudyEquipment);
 		if ($studyEquipment->RUN_CALCULATE != 1) {
 			$studyEquipment->RUN_CALCULATE = 1;
@@ -889,8 +894,8 @@ class Calculator extends Controller
         }
 
         if ($studyEquipment->BRAIN_SAVETODB == 1) {
-			$lfStorageStep = $this->convert->unitConvert($this->value->TIME, $storagestep, 3);
-			$lfTimeStep = $this->convert->unitConvert($this->value->TIME, $timeStep, 3);
+			$lfStorageStep = $this->units->timeStep($storagestep, 1, 0);
+			$lfTimeStep = $this->units->timeStep($timeStep, 3, 0);
 			$ldNbStorageStep = 0;
 
 	        if ($timeStep != -1.0) {
@@ -901,15 +906,14 @@ class Calculator extends Controller
 
 	        $calculationParameter->STORAGE_STEP = $ldNbStorageStep;
 		}
-
 		$calculationParameter->HORIZ_SCAN = $hRadioOn;
 		$calculationParameter->VERT_SCAN = $vRadioOn;
 		$calculationParameter->MAX_IT_NB = $maxIter;
-		$calculationParameter->RELAX_COEFF = $this->convert->convertCalculator($relaxCoef, 1.0, 0.0);
-		$calculationParameter->STOP_TOP_SURF = $this->convert->unitConvert($this->value->TEMPERATURE, $tempPtSurf, 2);
-		$calculationParameter->STOP_INT = $this->convert->unitConvert($this->value->TEMPERATURE, $tempPtIn, 2);
-		$calculationParameter->STOP_BOTTOM_SURF = $this->convert->unitConvert($this->value->TEMPERATURE, $tempPtBot, 2);
-		$calculationParameter->STOP_AVG = $this->convert->unitConvert($this->value->TEMPERATURE, $tempPtAvg, 2);
+		$calculationParameter->RELAX_COEFF = $relaxCoef;
+		$calculationParameter->STOP_TOP_SURF = $this->units->temperature($tempPtSurf, 2, 0);
+		$calculationParameter->STOP_INT = $this->units->temperature($tempPtIn, 2, 0);
+		$calculationParameter->STOP_BOTTOM_SURF = $this->units->temperature($tempPtBot, 2, 0);
+		$calculationParameter->STOP_AVG = $this->units->temperature($tempPtAvg, 2, 0);
 		$calculationParameter->save();
     }
 

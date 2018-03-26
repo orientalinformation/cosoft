@@ -130,8 +130,8 @@ class CalculateService
     {
 		$mmErrorH = 0.0;
 		$minMax = $this->getMinMax(1131);
-		$uPercent = $this->convert->uPercent();
-		$mmErrorH =  $this->convert->convertCalculator($minMax->DEFAULT_VALUE, $uPercent["coeffA"], $uPercent["coeffB"]);
+		$uPercent = $this->units->uPercent();
+		$mmErrorH =  $this->units->convertCalculator($minMax->DEFAULT_VALUE, $uPercent["coeffA"], $uPercent["coeffB"], 2, 1);
 		return $mmErrorH;
 	}
 
