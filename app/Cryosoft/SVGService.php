@@ -12,6 +12,8 @@
 
 namespace App\Cryosoft;
 
+use App\Models\EquipCharact;
+
 class SVGService
 {
 	/**
@@ -22,12 +24,15 @@ class SVGService
     protected $app;
 
     protected $value;
+
+    protected $convert;
     
     public function __construct(\Laravel\Lumen\Application $app)
     {
         $this->app = $app;
         $this->auth = $app['Illuminate\\Contracts\\Auth\\Factory'];
         $this->value = $app['App\\Cryosoft\\ValueListService'];
+        $this->convert = $app['App\\Cryosoft\\UnitsConverterService'];
     }
 
     public function getAxisOrigin() 
@@ -43,9 +48,11 @@ class SVGService
     	return $point;
     }
 
-	public function getAxisXPos($lfVal, $minScaleX, $maxScaleX)
+	public function getAxisXPos($lfVal)
 	{
-		$pos = 0;
+		$pos = $minScaleX = 0;
+		$maxScaleX = 100;
+
 		if ($lfVal < $minScaleX) {
 		  $lfVal = $minScaleX;
 		} else if ($lfVal > $maxScaleX) {
@@ -59,20 +66,284 @@ class SVGService
 		return $pos;
 	}
 
-	public function getAxisYPos($lfVal, $minScaleX, $maxScaleX)
+	public function getAxisYPos($lfVal, $minScaleY, $maxScaleY)
 	{
 		$pos = 0;
-		if ($lfVal < $minScaleX) {
-		  $lfVal = $minScaleX;
-		} else if ($lfVal > $maxScaleX) {
-		  $lfVal = $minScaleX;
+		if ($lfVal < $minScaleY) {
+		  $lfVal = $minScaleY;
+		} else if ($lfVal > $maxScaleY) {
+		  $lfVal = $maxScaleY;
 		}
 
-		$axisYLength = (PROFILE_CHARTS_HEIGHT - 2 * PROFILE_CHARTS_MARGIN_HEIGHT);
+		$axisYLength = PROFILE_CHARTS_HEIGHT - (2 * PROFILE_CHARTS_MARGIN_HEIGHT);
 
-		$pos = PROFILE_CHARTS_MARGIN_WIDTH + round((float)(($lfVal - $minScaleX) / ($maxScaleX - $minScaleX)) * $axisYLength);
+		if ($minScaleY == $maxScaleY) {
+			$pos = (PROFILE_CHARTS_HEIGHT - PROFILE_CHARTS_MARGIN_HEIGHT - 125);
+		} else {
+			$pos = (PROFILE_CHARTS_HEIGHT - PROFILE_CHARTS_MARGIN_HEIGHT) - round((float)(($lfVal - $minScaleY) / ($maxScaleY - $minScaleY)) * $axisYLength);
+		}
 
 		return $pos;
 	}
 
+	public function getAxisX()
+	{
+		$listOfGraduation = $axisline = array();
+		$unitIdent = 10;
+		$minScaleX = 0;
+		$maxScaleX = 100.0;
+    	$axisLength = (PROFILE_CHARTS_WIDTH - (2 * PROFILE_CHARTS_MARGIN_WIDTH)) + 20;
+    	$nbFractionDigits = 0;
+    	$axisOriginX = PROFILE_CHARTS_MARGIN_WIDTH;
+    	$axisOriginY = PROFILE_CHARTS_HEIGHT - PROFILE_CHARTS_MARGIN_HEIGHT;
+    	$nbOfGraduation = 11;
+    	$minValueX = 0.0;
+    	$maxValueX = 100.0;
+    	$axisType = 0;
+
+    	// first point
+    	// $firstPoint = [$axisOriginX, $axisOriginY]; // 75 300
+    	$x1 = $axisOriginX;
+    	$y1 = $axisOriginY;
+
+    	// last point
+    	// $lastPoint = [$axisOriginX, $axisOriginY]; // 75 300
+    	$x2 = $axisOriginX;
+    	$y2 = $axisOriginY; 
+
+    	if ($axisType == 0) {
+	      // $lastPoint = $this->translate($axisLength, 0);
+	      $x2 = $x2 + $axisLength;
+	      $y2 = $y2 + 0;
+	    } else {
+	      // $lastPoint = $this->translate(0, -$axisLength);
+	      $x2 = $x2 + 0;
+	      $y2 = $y2 + (-$axisLength);
+	    }
+
+	    $item['x1'] = $x1;
+	    $item['y1'] = $y1;
+	    $item['x2'] = $x2;
+	    $item['y2'] = $y2;
+	    array_push($axisline, $item);
+
+	    //axisLine new axisLine ($fistPoint, $lastPoint, $unitIdent);
+	    $offset = ($maxScaleX - $minScaleX) / ($nbOfGraduation - 1);
+    	$offsetpix = ($axisLength - 20) / ($nbOfGraduation - 1);
+    
+    	$lfValue = $minScaleX;
+    	for ($i = 0; $i < $nbOfGraduation; $i++) {
+    		// first point
+    		$x1 = $axisOriginX;
+    		$y1 = $axisOriginY;
+
+    		if ($axisType == 0) {
+    			// $firstPoint = $this->translate($i*$offsetpix, 0);
+    			$x1 = $x1 + $i*$offsetpix;
+    			$y1 = $y1 + 0;
+
+    			// $lastPoint = $this->translate(0, 10);
+    			$x2 = $x1 + 0;
+	      		$y2 = $y1 + 10;
+    		} else {
+    			// $firstPoint = $this->translate(0, -$i*$offsetpix);
+    			$x1 = $x1 + 0;
+    			$y1 = $y1 + (-$i*$offsetpix);
+
+    			// $lastPoint = $this->translate(-10, 0);
+    			$x2 = $x1 - 10;
+	      		$y2 = $y1 + 0;
+    		}
+
+    		// new EPLine
+    		$item['x1'] = $x1;
+    		$item['y1'] = $y1;
+    		$item['x2'] = $x2;
+    		$item['y2'] = $y2;
+    		$item['position'] = $this->convert->convertIdent($lfValue, $unitIdent);
+    		array_push($listOfGraduation, $item);
+
+    		$lfValue += $offset;
+    	}
+
+    	$array = [
+    		'axisline' => $axisline,
+    		'listOfGraduation' => $listOfGraduation
+    	];
+
+    	return $array;
+	}
+
+	public function getSelectedProfile($ID_EQUIP, $profileType, $profileFace)
+    {   
+        $listOfPoints = $item = array();
+        $equipCharacts = EquipCharact::where('ID_EQUIP', $ID_EQUIP)->get();
+        if ($equipCharacts) {
+            foreach ($equipCharacts as $equipCharact) {
+                $item['X_POSITION'] = doubleval($equipCharact->X_POSITION);
+                if ($profileType == 1) {
+                    switch ($profileFace) {
+                        case 0:
+                            $item['Y_POINT'] = doubleval($equipCharact->ALPHA_TOP);
+                            break;
+                        case 1:
+                            $item['Y_POINT'] = doubleval($equipCharact->ALPHA_BOTTOM);
+                            break;
+                        case 2:
+                            $item['Y_POINT'] = doubleval($equipCharact->ALPHA_LEFT);
+                            break;
+                        case 3:
+                            $item['Y_POINT'] = doubleval($equipCharact->ALPHA_RIGHT);
+                            break;
+                        case 4:
+                            $item['Y_POINT'] = doubleval($equipCharact->ALPHA_FRONT);
+                            break;
+                        case 5:
+                            $item['Y_POINT'] = doubleval($equipCharact->ALPHA_REAR);
+                            break;
+                        default:
+                            # code..
+                            break;
+                    }
+                } else {
+                    switch ($profileFace) {
+                        case 0:
+                            $item['Y_POINT'] = doubleval($equipCharact->TEMP_TOP);
+                            break;
+                        case 1:
+                            $item['Y_POINT'] = doubleval($equipCharact->TEMP_BOTTOM);
+                            break;
+                        case 2:
+                            $item['Y_POINT'] = doubleval($equipCharact->TEMP_LEFT);
+                            break;
+                        case 3:
+                            $item['Y_POINT'] = doubleval($equipCharact->TEMP_RIGHT);
+                            break;
+                        case 4:
+                            $item['Y_POINT'] = doubleval($equipCharact->TEMP_FRONT);
+                            break;
+                        case 5:
+                            $item['Y_POINT'] = doubleval($equipCharact->TEMP_REAR);
+                            break;
+                        default:
+                            # code...
+                            break;
+                    }
+                }
+                array_push($listOfPoints, $item);
+            }
+        }
+
+        return $listOfPoints;
+    }
+
+    public function getAxisY($minScaleY, $maxScaleY, $minValueY, $maxValueY, $nbFractionDigits, $unitIdent)
+    {
+    	$listOfGraduation = $axisline = array();
+    	$axisLength = (PROFILE_CHARTS_HEIGHT - (2 * PROFILE_CHARTS_MARGIN_HEIGHT)) + 20; //270
+    	$axisOriginX = $x1 = $x2 = PROFILE_CHARTS_MARGIN_WIDTH;
+    	$axisOriginY = $y1 = $y2 = PROFILE_CHARTS_HEIGHT - PROFILE_CHARTS_MARGIN_HEIGHT;
+    	$nbOfGraduation = $this->getBestGraduation($minScaleY, $maxScaleY, $nbFractionDigits);
+    	$axisMaxValue = 0.0;
+    	$axisMinValue = 0.0;
+    	$axisType = 1; // 0
+    	$textX = $textY = 0;
+
+    	// first point
+    	// $firstPoint = [$axisOriginX, $axisOriginY]; // 75 300
+    	$x1 = $axisOriginX;
+    	$y1 = $axisOriginY;
+
+    	// last point
+    	// $lastPoint = [$axisOriginX, $axisOriginY]; // 75 300
+    	$x2 = $axisOriginX;
+    	$y2 = $axisOriginY; 
+
+    	if ($axisType == 0) {
+	      // $lastPoint = $this->translate($axisLength, 0);
+	      $x2 = $x2 + $axisLength;
+	      $y2 = $y2 + 0;
+	    } else {
+	      // $lastPoint = $this->translate(0, -$axisLength);
+	      $x2 = $x2 + 0;
+	      $y2 = $y2 + (-$axisLength);
+	    }
+
+	    $item['x1'] = $x1;
+	    $item['y1'] = $y1;
+	    $item['x2'] = $x2;
+	    $item['y2'] = $y2;
+	    array_push($axisline, $item);
+
+	    //axisLine new axisLine ($fistPoint, $lastPoint, $unitIdent);
+	    $offset = ($maxScaleY - $minScaleY) / ($nbOfGraduation - 1);
+    	$offsetpix = ($axisLength - 20) / ($nbOfGraduation - 1);
+    
+    	$lfValue = $minScaleY;
+    	for ($i = 0; $i < $nbOfGraduation; $i++) {
+    		// first point
+    		$x1 = $axisOriginX;
+    		$y1 = $axisOriginY;
+
+    		if ($axisType == 0) {
+    			// $firstPoint = $this->translate($i*$offsetpix, 0);
+    			$x1 = $x1 + $i*$offsetpix;
+    			$y1 = $y1 + 0;
+
+    			// $lastPoint = $this->translate(0, 10);
+    			$x2 = $x1 + 0;
+	      		$y2 = $y1 + 10;
+
+	      		// add text
+	      		$textX = $x2 + 0;
+	      		$textY = $y2 + 10;
+    		} else {
+    			// $firstPoint = $this->translate(0, -$i*$offsetpix);
+    			$x1 = $x1 + 0;
+    			$y1 = $y1 + (-$i*$offsetpix);
+
+    			// $lastPoint = $this->translate(-10, 0);
+    			$x2 = $x1 - 10;
+	      		$y2 = $y1 + 0;
+
+	      		// add text
+	      		$textX = $x2 - 10;
+	      		$textY = $y2 + 0;
+    		}
+
+    		// new EPLine
+    		$item['x1'] = $x1;
+    		$item['y1'] = $y1;
+    		$item['x2'] = $x2;
+    		$item['y2'] = $y2;
+    		$item['textX'] = $textX;
+    		$item['textY'] = $textY;
+    		$item['position'] = $this->convert->convertIdent($lfValue, $unitIdent);
+    		array_push($listOfGraduation, $item);
+
+    		$lfValue += $offset;
+    	}
+
+    	$array = [
+    		'axisline' => $axisline,
+    		'listOfGraduation' => $listOfGraduation
+    	];
+
+    	return $array;
+    }
+
+	private function getBestGraduation($minScaleY, $maxScaleY, $nbFractionDigitsY)
+	{
+		$nbGraduation = 11;
+		$prec = 1.0 / pow(10.0, $nbFractionDigitsY);
+
+		$nbGraduation = (int)round(abs(($maxScaleY - $minScaleY) / $prec) + 1.0);
+		if ($nbGraduation < 2) {
+		  $nbGraduation = 2;
+		} else if ($nbGraduation > 11) {
+		  $nbGraduation = 11;
+		}
+
+		return $nbGraduation;
+	}
 }
