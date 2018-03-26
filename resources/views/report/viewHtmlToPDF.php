@@ -10,6 +10,7 @@
     <!-- Bootstrap -->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
     <body>
+    <div class ="container-fluid">
         <div class="logo">
             <div class="row">
                 <div class="col-md-6">
@@ -20,23 +21,47 @@
                     <?php } ?>
                 </div>
                 <div class="col-md-6">
-                    <div class="pull-right">
+                    <div class="pull-right text-right">
                         <img src="<?php echo  $arrayParam['host'] . "/uploads/logo_cryosoft.png"?>">
                     </div>
                 </div>
             </div>
         </div>
         <div class="info-company">
-            <div align="center">
+            <div class="text-center">
                 <img src="<?php echo  $arrayParam['host'] . "/uploads/banner_cryosoft.png"?>">
             </div>
-            <div><b><u>Customer:</u></b></div>
-                <div><b>Company name : <u style="margin-left: 40px"><?php echo $arrayParam['params']['DEST_SURNAME'] ?></u> </b></div>
-                <div><b>Surname / Name : <u style="margin-left: 40px"> <?php echo $arrayParam['params']['DEST_NAME'] ?></u> </b></div>
-                <div><b>Function : <u style="margin-left: 40px"> <?php echo $arrayParam['params']['DEST_FUNCTION'] ?></u> </b></div>
-                <div><b>Contact : <u style="margin-left: 40px"> <?php echo $arrayParam['params']['DEST_COORD'] ?></u> </b></div>
-                <div><b>Date of the redivort generation : <u style="margin-left: 40px"> <?php echo date("d/m/Y") ?></u>  </b></div>
-            <div align="center">
+            <div class="table-responsive">
+                <div class="table table-bordered" border="1">
+                    <table>
+                        <tr>
+                            <th colspan="6">Customer</th>
+                        </tr>
+                        <tr>
+                            <td colspan="4">Company name</td>
+                            <td colspan="2"> <?php echo $arrayParam['params']['DEST_SURNAME'] ?> </td>
+                        </tr>
+                        <tr>
+                            <td colspan="4">Surname / Name</td>
+                            <td colspan="2"><?php echo $arrayParam['params']['DEST_NAME'] ?></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4">Function</td>
+                            <td colspan="2"><?php echo $arrayParam['params']['DEST_FUNCTION'] ?></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4">Contact</td>
+                            <td colspan="2"> <?php echo $arrayParam['params']['DEST_COORD'] ?></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4">Date of the redivort generation</td>
+                            <td colspan="2"><?php echo date("d/m/Y") ?></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="text-center">
                     <p>
                         <img src="<?php echo !empty($arrayParam['params']['PHOTO_PATH']) ? $arrayParam['params']['PHOTO_PATH'] : $arrayParam['host'] . "/uploads/globe_food.gif"?>">
                     </p>
@@ -839,16 +864,37 @@
         </div>
 
         <div class="info-company">
-            <div align="center">
-                    <p>
-                        <img src="<?php echo (!empty($arrayParam['study']['reports'][0]['PHOTO_PATH'])) ? $arrayParam['study']['reports'][0]['PHOTO_PATH'] : $arrayParam['host'] . "/uploads/globe_food.gif"?>">
-                    </p>
+            <div class="text-center">
+                <p>
+                    <img src="<?php echo (!empty($arrayParam['study']['reports'][0]['PHOTO_PATH'])) ? $arrayParam['study']['reports'][0]['PHOTO_PATH'] : $arrayParam['host'] . "/uploads/globe_food.gif"?>">
+                </p>
             </div>
-            <div><b><u>Study realized by :</u></b></div>
-                <div><b>Company name : <u style="margin-left: 40px"><?php echo $arrayParam['params']['WRITER_SURNAME'] ?></u> </b></div>
-                <div><b>Surname / Name : <u style="margin-left: 40px"><?php echo $arrayParam['params']['WRITER_NAME'] ?></u></b></div>
-                <div><b>Function : <u style="margin-left: 40px"><?php echo $arrayParam['params']['WRITER_FUNCTION'] ?></u></b></div>
-                <div><b>Contact : <u style="margin-left: 40px"><?php echo $arrayParam['params']['WRITER_COORD'] ?></u></b></div>
+            <div class="table-responsive">
+                <div class="table table-bordered">
+                    <table>
+                        <tr>
+                            <th colspan="6">Study realized by</th>
+                        </tr>
+                        <tr>
+                            <td colspan="4">Company name</td>
+                            <td colspan="2"><?php echo $arrayParam['params']['WRITER_SURNAME'] ?></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4">Surname / Name</td>
+                            <td colspan="2"><?php echo $arrayParam['params']['WRITER_NAME'] ?></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4">Function</td>
+                            <td colspan="2"><?php echo $arrayParam['params']['WRITER_FUNCTION'] ?></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4">Contact</td>
+                            <td colspan="2"><?php echo $arrayParam['params']['WRITER_COORD'] ?></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            </div>
         </div>
     </body>
 </html>
