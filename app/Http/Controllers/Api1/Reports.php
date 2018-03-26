@@ -740,7 +740,7 @@ class Reports extends Controller
                         }
                     }
                     
-                } else if (($shapeCode == 4) && ($shapeCode == 7) && ($shapeCode == 8) && ($shapeCode == 5)) {
+                } else if (($shapeCode == 4) || ($shapeCode == 7) || ($shapeCode == 8) || ($shapeCode == 5)) {
                     if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
                         $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
                         $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
@@ -1114,7 +1114,7 @@ class Reports extends Controller
                         }
                     }
                     
-                } else if (($shapeCode == 4) && ($shapeCode == 7) && ($shapeCode == 8) && ($shapeCode == 5)) {
+                } else if (($shapeCode == 4) || ($shapeCode == 7) || ($shapeCode == 8) || ($shapeCode == 5)) {
                     if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
                         $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
                         $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
