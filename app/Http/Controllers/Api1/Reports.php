@@ -835,10 +835,6 @@ class Reports extends Controller
         // set header and footer fonts
         PDF::setHeaderFont(Array('helvetica', '', 10));
 
-        // // set header and footer fonts
-        // PDF::setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
-        // PDF::setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
-
         // set default monospaced font
         PDF::SetDefaultMonospacedFont('courier');
 
@@ -855,7 +851,8 @@ class Reports extends Controller
         
         // set some language-dependent strings (optional)
         // ---------------------------------------------------------
-        
+        $html = "ddddddd";
+        PDF::writeHTML($html, true, false, true, false, '');
         PDF::AddPage();
         if ($REP_CUSTOMER == 1)  {
             if (!empty($production)) {
