@@ -866,7 +866,6 @@ class Reports extends Controller
         $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase, 
         $symbol, $public_path, $pro2Dchart, $params);
         $html= $view->render();
-        $this->writeProgressFile('/home/huytd/abc', $isSizingValuesChosen);
         // return $html;
         PDF::SetFont('helvetica', '', 6);
         PDF::writeHTML($html, true, false, true, false, '');
