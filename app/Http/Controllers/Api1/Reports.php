@@ -823,76 +823,238 @@ class Reports extends Controller
         file_put_contents($progressFile, $progress);
 
         // set document information
-        PDF::setPageOrientation('L');
+        PDF::setPageOrientation('L', 'A4');
         PDF::SetTitle('Cryosoft Report');
         PDF::SetSubject('UserName - StudyName');
 
         // set default header data
-        PDF::setHeaderData($host . "/" . $public_path . "/uploads/" . 'logo_cryosoft.png', 30, $study->STUDY_NAME,'Report', array(0,64,128), array(0,64,128));
-        PDF::setFooterData(array(0,64,255), array(0,64,128));
-        
+        // PDF::setHeaderData($host . "/" . $public_path . "/uploads/" . 'logo_cryosoft.png', 30, $study->STUDY_NAME,'Report', array(0,64,128), array(0,64,128));
+        // PDF::setFooterData(array(0,64,255), array(0,64,128));
+        PDF::SetHeaderData($host . "/" . $public_path . "/uploads/" . 'logo_cryosoft.png', 30, $study->STUDY_NAME,'Report', array(0,64,128), array(0,64,128));
+        PDF::setFooterData(array(0,64,0), array(0,64,128));
         // set header and footer fonts
         PDF::setHeaderFont(Array('helvetica', '', 10));
+
+        // // set header and footer fonts
+        // PDF::setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
+        // PDF::setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
+
         // set default monospaced font
-        // PDF::SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+        PDF::SetDefaultMonospacedFont('courier');
 
         // set margins
-        PDF::SetMargins(15, 27, 15);
+        PDF::SetMargins(10, 10, 10, true);
         PDF::SetHeaderMargin(5);
         PDF::SetFooterMargin(10);
 
-        // set auto page breaks
-        PDF::SetAutoPageBreak(TRUE, 15);
+       // set auto page breaks
+       PDF::SetAutoPageBreak(TRUE, 15);
 
-        // set image scale factor
-        PDF::setImageScale(1.25);
-
+       // set image scale factor
+       PDF::setImageScale(1.25);
+        
         // set some language-dependent strings (optional)
         // ---------------------------------------------------------
+        
         PDF::AddPage();
-        PDF::Bookmark('Chapter 1', 0, 0, '', 'B', array(0,64,128));
-        // print a line using Cell()
-        PDF::Cell(0, 10, 'Chapter 1', 0, 1, 'L');
+        if ($REP_CUSTOMER == 1)  {
+            if (!empty($production)) {
+                PDF::Bookmark('PRODUCTION DATA', 0, 0, '', 'B', array(0,64,128));
+                PDF::Cell(0, 10, 'Production Data', 0, 1, 'L');
+                $html = "ddddddd";
+                PDF::writeHTML($html, true, false, true, false, '');
+                PDF::AddPage();
+            }
+        }
+        
+        if ($PROD_LIST == 1) {
+            PDF::Bookmark('PRODUCT DATA', 0, 0, '', 'B', array(0,64,128));
+            PDF::Cell(0, 10, 'Product Data', 0, 1, 'L');
+            PDF::AddPage();
+        }
+        
+        if ($PROD_3D == 1) {
+            PDF::Bookmark('PRODUCT 3D', 0, 0, '', 'B', array(0,64,128));
+            PDF::Cell(0, 10, 'Product 3D', 0, 1, 'L');
+            PDF::AddPage();
+        }
+        
+        if ($EQUIP_LIST == 1) {
+            if (!empty($equipData)) {
+                PDF::Bookmark('EQUIPMENT DATA', 0, 0, '', 'B', array(0,64,128));
+                PDF::Cell(0, 10, 'Equipment Data', 0, 1, 'L');
+                
+                PDF::AddPage();
+            } 
+        }
+        
+        if ($ASSES_ECO == 1) {
+            PDF::Bookmark('BELT OR SHELVES LAYOUT', 0, 0, '', 'B', array(0,64,128));
+            PDF::Cell(0, 10, 'Belt or Shelves Layout', 0, 1, 'L');
+            PDF::AddPage();
+            foreach ($equipData as $resequipDatas) {
+                PDF::Bookmark($resequipDatas['displayName'], 1, 0, '', '', array(128,0,0));
+                PDF::Cell(0, 10, $resequipDatas['displayName'], 0, 1, 'L');
+                PDF::AddPage();
+            }
+        }
+        
+        if ($PIPELINE == 1) {
+            if (!empty($cryogenPipeline)) {
+                if ($study->OPTION_CRYOPIPELINE == 1) {
+                    PDF::Bookmark('CRYOGENIC PIPELINE', 0, 0, '', 'B', array(0,64,128));
+                    PDF::Cell(0, 10, 'Cryogenic Pipe', 0, 1, 'L');
+                    PDF::AddPage();
+                }
+            }
+        }
+        
+        if ($CONS_OVERALL == 1 || $CONS_TOTAL ==1 || $CONS_SPECIFIC  == 1 || $CONS_HOUR ==1 || $CONS_DAY == 1||
+        $CONS_WEEK == 1 || $CONS_MONTH == 1 || $CONS_YEAR ==1 || $CONS_EQUIP ==1 || $CONS_PIPE == 1 || $CONS_TANK ==1) {
+            if (!empty($consumptions )) {
+                PDF::Bookmark('CONSUMPTIONS / ECONOMICS ASSESSMENTS', 0, 0, '', 'B', array(0,64,128));
+                PDF::Cell(0, 10, 'Consumptions / Economics assessments', 0, 1, 'L');
+                PDF::AddPage();
+            }
+        }
+
+        if (($isSizingValuesChosen == 1) || ($isSizingValuesMax == 1) || ($SIZING_GRAPHE == 1)) {
+            PDF::Bookmark('HEAT BALANCE / SIZING RESULTS', 0, 0, '', 'B', array(0,64,128));
+            PDF::Cell(0, 10, 'Heat balance / sizing results', 0, 1, 'L');
+            PDF::AddPage();
+            if ($isSizingValuesChosen == 1) {
+                PDF::Bookmark('Chosen product flowrate', 1, 0, '', '', array(128,0,0));
+                PDF::Cell(0, 10, 'Chosen product flowrate', 0, 1, 'L');
+                PDF::AddPage();
+            }
+
+            if ($isSizingValuesMax == 1) {
+                PDF::Bookmark(' Maximum product flowrate', 1, 0, '', '', array(128,0,0));
+                PDF::Cell(0, 10, ' Maximum product flowrate', 0, 1, 'L');
+                PDF::AddPage();
+            }
+
+            if ($SIZING_GRAPHE == 1) {
+                PDF::Bookmark(' Graphic', 1, 0, '', '', array(128,0,0));
+                PDF::Cell(0, 10, ' Graphic', 0, 1, 'L');
+                PDF::AddPage();
+            }
+        }
+
+        if (!empty($heatexchange)) {
+            if (($ENTHALPY_V == 1) || ($ENTHALPY_G ==1)) {
+                PDF::Bookmark('HEAT EXCHANGE', 0, 0, '', 'B', array(0,64,128));
+                PDF::Cell(0, 10, 'Heat Exchange', 0, 1, 'L');
+                PDF::AddPage();
+                foreach ($heatexchange as $resheatexchange) {
+                    PDF::Bookmark($resheatexchange['equipName'] , 1, 0, '', '', array(128,0,0));
+                    PDF::Cell(0, 10, $resheatexchange['equipName'], 0, 1, 'L');
+                    PDF::AddPage();
+                }
+            }
+        }
+
+        if (!empty($proSections)) {
+            if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
+                PDF::Bookmark('PRODUCT SECTION', 0, 0, '', 'B', array(0,64,128));
+                PDF::Cell(0, 10, 'Product Section', 0, 1, 'L');
+                PDF::AddPage();
+                foreach ($proSections as $resproSections) {
+                    PDF::Bookmark($resproSections['equipName'] , 1, 0, '', '', array(128,0,0));
+                    PDF::Cell(0, 10, $resproSections['equipName'] , 0, 1, 'L');
+                    PDF::AddPage();
+                    if ($resproSections['selectedAxe'] == 1) {
+                        PDF::Bookmark('Values - Dimension' . $resproSections['selectedAxe'] . '(' . '*,' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][0] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
+                        PDF::Cell(0, 10, 'Values - Dimension' . $resproSections['selectedAxe'] . '(' . '*,' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][0] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')', 0, 1, 'L');
+                        PDF::AddPage();
+                        PDF::Bookmark('Graphic - Dimension' . $resproSections['selectedAxe'] . '(' . '*,' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][0] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
+                        PDF::Cell(0, 10, 'Graphic - Dimension' . $resproSections['selectedAxe'] . '(' . '*,' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][0] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')', 0, 1, 'L');
+                        PDF::AddPage();
+                    } else if ($resproSections['selectedAxe'] == 2) {
+                        PDF::Bookmark('Values - Dimension' . $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',*,' . $resproSections['axeTemp'][0] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
+                        PDF::Cell(0, 10, 'Values - Dimension' . $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',*,' . $resproSections['axeTemp'][0] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')', 0, 1, 'L');
+                        PDF::AddPage();
+                        PDF::Bookmark('Graphic - Dimension' . $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',*,' . $resproSections['axeTemp'][0] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
+                        PDF::Cell(0, 10, 'Graphic - Dimension' . $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',*,' . $resproSections['axeTemp'][0] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')', 0, 1, 'L');
+                        PDF::AddPage();
+                    } else if ($resproSections['selectedAxe'] == 3) {
+                        PDF::Bookmark('Values - Dimension' . $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][0] . ',*' . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
+                        PDF::Cell(0, 10, 'Values - Dimension' . $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][0] . ',*' . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')', 0, 1, 'L');
+                        PDF::AddPage();
+                        PDF::Bookmark('Graphic - Dimension' . $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][0] . ',*' . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
+                        PDF::Cell(0, 10, 'Graphic - Dimension' . $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][0] . ',*' . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')', 0, 1, 'L');
+                        PDF::AddPage();
+                    }
+                }
+            }
+        }
+
+        if (!empty($timeBase)) {
+            if ($ISOVALUE_V == 1 || $ISOVALUE_G == 1) {
+                PDF::Bookmark('PRODUCT GRAPH - TIME BASED', 0, 0, '', 'B', array(0,64,128));
+                PDF::Cell(0, 10, 'Product Graph - Time Based', 0, 1, 'L');
+                PDF::AddPage();
+                foreach($timeBase as $restimeBase) {
+                    PDF::Bookmark($restimeBase['equipName'] , 1, 0, '', '', array(128,0,0));
+                    PDF::Cell(0, 10, $restimeBase['equipName'] , 0, 1, 'L');
+                    PDF::AddPage();
+                }
+            }
+        }
+        
+        if (!empty($pro2Dchart)) {
+            if ($CONTOUR2D_G == 1) {
+                PDF::Bookmark('2D OUTLINES', 0, 0, '', 'B', array(0,64,128));
+                PDF::Cell(0, 10, '2D Outlines', 0, 1, 'L');
+                PDF::AddPage();
+                foreach ($pro2Dchart as $key => $pro2Dcharts) {
+                    if ($shapeCode == 2 || $shapeCode == 9) {
+                        if ($equipData[$key]['ORIENTATION'] == 1) {
+                            PDF::Bookmark($pro2Dcharts['equipName'] . 'Slice 23 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
+                            PDF::Cell(0, 10, $pro2Dcharts['equipName'] , 0, 1, 'L');
+                            PDF::AddPage();
+                        } else {
+                            PDF::Bookmark($pro2Dcharts['equipName'] . 'Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
+                            PDF::Cell(0, 10, $pro2Dcharts['equipName'] , 0, 1, 'L');
+                            PDF::AddPage();
+                        }
+                    } else if ($shapeCode != 1 || $shapeCode != 6) {
+                        PDF::Bookmark($pro2Dcharts['equipName'] . 'Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
+                        PDF::Cell(0, 10, $pro2Dcharts['equipName'] , 0, 1, 'L');
+                        PDF::AddPage();
+                    }
+                }
+            }
+        }
+
+        PDF::Bookmark('COMMENTS ', 0, 0, '', 'B', array(0,64,128));
+        PDF::Cell(0, 10, 'Comments', 0, 1, 'L');
+        PDF::AddPage();
         
         $view = $this->viewPDF($study, $production, $product, $proElmt, $shapeName, 
         $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
         $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase, 
         $symbol, $public_path, $pro2Dchart, $params);
         $html= $view->render();
-        file_put_contents('/home/huytd/abc', $isSizingValuesChosen);
-        // return $html;
-        PDF::SetFont('helvetica', '', 6);
+
+        PDF::SetFont('times', 'B', 10);
         PDF::writeHTML($html, true, false, true, false, '');
-        // return 10000;
         PDF::AddPage();
-        PDF::Bookmark('Paragraph 1.1', 1, 0, '', '', array(128,0,0));
-        PDF::Cell(0, 10, 'Paragraph 1.1', 0, 1, 'L');
-        PDF::AddPage();
-        
-        // add some pages and bookmarks
-        for ($i = 2; $i < 3; $i++) {
-            PDF::AddPage();
-            PDF::Bookmark('Chapter '.$i, 0, 0, '', 'B', array(0,64,128));
-            PDF::Cell(0, 10, 'Chapter '.$i, 0, 1, 'L');
-        }
         
         // add a new page for TOC
         PDF::addTOCPage();
-        
-        // write the TOC title and/or other elements on the TOC page
-        // PDF::SetFont('times', 'B', 6);
+        PDF::setCellMargins(1, 1, 1, 1);
         PDF::MultiCell(0, 0, 'Table Of Content', 0, 'C', 0, 1, '', '', true, 0);
         PDF::Ln();
         // define styles for various bookmark levels
         $bookmark_templates = array();
         
-        $bookmark_templates[0] = '<table border="0" cellpadding="0" cellspacing="0" style="background-color:#EEFAFF"><tr><td width="155mm"><span style="font-family:times;font-weight:bold;font-size:12pt;color:black;">#TOC_DESCRIPTION#</span></td><td width="25mm"><span style="font-family:courier;font-weight:bold;font-size:12pt;color:black;" align="right">#TOC_PAGE_NUMBER#</span></td></tr></table>';
-        $bookmark_templates[1] = '<table border="0" cellpadding="0" cellspacing="0"><tr><td width="5mm">&nbsp;</td><td width="150mm"><span style="font-family:times;font-size:11pt;color:green;">#TOC_DESCRIPTION#</span></td><td width="25mm"><span style="font-family:courier;font-weight:bold;font-size:11pt;color:green;" align="right">#TOC_PAGE_NUMBER#</span></td></tr></table>';
-        $bookmark_templates[2] = '<table border="0" cellpadding="0" cellspacing="0"><tr><td width="10mm">&nbsp;</td><td width="145mm"><span style="font-family:times;font-size:10pt;color:#666666;"><i>#TOC_DESCRIPTION#</i></span></td><td width="25mm"><span style="font-family:courier;font-weight:bold;font-size:10pt;color:#666666;" align="right">#TOC_PAGE_NUMBER#</span></td></tr></table>';
+        $bookmark_templates[0] = '<table border="0" cellpadding="0" cellspacing="0" style="background-color:#EEFAFF"><tr><td width="255mm"><span style="font-family:times;font-weight:bold;font-size:10pt;color:black;">#TOC_DESCRIPTION#</span></td><td width="25mm"><span style="font-family:courier;font-weight:bold;font-size:12pt;color:black;" align="right">#TOC_PAGE_NUMBER#</span></td></tr></table>';
+        $bookmark_templates[1] = '<table border="0" cellpadding="0" cellspacing="0"><tr><td width="5mm">&nbsp;</td><td width="250mm"><span style="font-family:times;font-size:9pt;color:green;">#TOC_DESCRIPTION#</span></td><td width="25mm"><span style="font-family:courier;font-weight:bold;font-size:11pt;color:green;" align="right">#TOC_PAGE_NUMBER#</span></td></tr></table>';
+        $bookmark_templates[2] = '<table border="0" cellpadding="0" cellspacing="0"><tr><td width="10mm">&nbsp;</td><td width="245mm"><span style="font-family:times;font-size:8pt;color:#666666;"><i>#TOC_DESCRIPTION#</i></span></td><td width="25mm"><span style="font-family:courier;font-weight:bold;font-size:10pt;color:#666666;" align="right">#TOC_PAGE_NUMBER#</span></td></tr></table>';
         // add other bookmark level templates here ...
         
         // add table of content at page 1
-        // (check the example n. 45 for a text-only TOC
         PDF::addHTMLTOC(1, 'INDEX', $bookmark_templates, true, 'B', array(128,0,0));
         
         // end of TOC page
@@ -1195,7 +1357,6 @@ class Reports extends Controller
         }
         $progress .= "\nFINISH";
         file_put_contents($progressFile, $progress);
-        
         
         $myfile = fopen( $public_path. "/reports/" . "/" . $study->USERNAM."/" . $name_report, "w") or die("Unable to open file!");
         $html = $this->viewHtml($study ,$production, $product, $proElmt, $shapeName, 

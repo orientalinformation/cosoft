@@ -8,9 +8,7 @@
                     <?php } ?>
                 </div>
                 <div class="col-md-6">
-                    <div class="pull-right">
-                            <img src="<?php echo  $arrayParam['public_path'] . "/uploads/logo_cryosoft.png"?>">
-                    </div>
+                    
                 </div>
             </div>
         </div>
@@ -89,7 +87,8 @@
             </div>
         <?php } ?>
 
-        <?php if ($arrayParam['params']['REP_CUSTOMER'] == 1) { ?>                
+        <?php if ($arrayParam['params']['REP_CUSTOMER'] == 1) { ?>   
+        <div><h3> Production data</h3></div>             
         <div class="production">
             <div class="table table-bordered">
                 <table border="0.5">
@@ -220,6 +219,7 @@
         </div>
         <?php } ?>
 
+        <?php if (!empty($equipData)) {?>
         <?php if ($arrayParam['params']['EQUIP_LIST'] == 1) { ?>
         <h3>Equipment data</h3>
         <div class="equipment-data">
@@ -248,6 +248,7 @@
             </table>
             </div>
         </div>
+        <?php } ?>
         <?php } ?>
         
         <?php if ($arrayParam['params']['ASSES_ECO'] == 1) { ?>
