@@ -95,6 +95,13 @@ class Reports extends Controller
         $this->minmax = $minmax;
     }
 
+    public function writeProgressFile($fileName, $content) {
+        $f = fopen($fileName, "w");
+        fwrite($f, $content);
+        fflush($f);
+        fclose($f);
+    }
+
     public function getReport($id)
     {
         $report = Report::where('ID_STUDY', $id)->first();
@@ -605,7 +612,7 @@ class Reports extends Controller
         if ($REP_CUSTOMER == 1) {
             $progress .= "Production";
             // $progress = "\n$study";
-            file_put_contents($progressFile, $progress);
+            $this->writeProgressFile($progressFile, $progress);
         }
         
         
@@ -634,13 +641,13 @@ class Reports extends Controller
         }
         if ($PROD_LIST == 1) {
             $progress .= "\nProduct";
-            file_put_contents($progressFile, $progress);
+            $this->writeProgressFile($progressFile, $progress);
         }
         
         $equipData = $this->stdeqp->findStudyEquipmentsByStudy($study);
         if ($EQUIP_LIST == 1) {
             $progress .= "\nEquiment";
-            file_put_contents($progressFile, $progress);
+            $this->writeProgressFile($progressFile, $progress);
         }
         
         
@@ -651,7 +658,7 @@ class Reports extends Controller
             if ($study->OPTION_CRYOPIPELINE == 1) {
                 $cryogenPipeline = $this->pipelines->loadPipeline($study->ID_STUDY);
                 $progress .= "\nPipeline Elements";
-                file_put_contents($progressFile, $progress);
+                $this->writeProgressFile($progressFile, $progress);
                 
             } else {
                 $cryogenPipeline = "";
@@ -665,7 +672,7 @@ class Reports extends Controller
         if ($CONS_OVERALL == 1 || $CONS_TOTAL ==1 || $CONS_SPECIFIC  == 1 || $CONS_HOUR ==1 || $CONS_DAY == 1||
             $CONS_WEEK == 1 || $CONS_MONTH == 1 || $CONS_YEAR ==1 || $CONS_EQUIP ==1 || $CONS_PIPE == 1 || $CONS_TANK ==1) {
             $progress .= "\nConsumptions Results";
-            file_put_contents($progressFile, $progress);
+            $this->writeProgressFile($progressFile, $progress);
         }
         
         if ($isSizingValuesChosen == 1 || $isSizingValuesMax == 1) {
@@ -678,7 +685,7 @@ class Reports extends Controller
                 $calModeHbMax = "";
             }
             $progress .= "\nSizing";
-            file_put_contents($progressFile, $progress);
+            $this->writeProgressFile($progressFile, $progress);
         } else {
             $calModeHeadBalance = "";
             $calModeHbMax = "";
@@ -686,7 +693,7 @@ class Reports extends Controller
 
         if ($REP_CONS_PIE == 1) {
             $progress .= "\nConsumptions Pies";
-            file_put_contents($progressFile, $progress);
+            $this->writeProgressFile($progressFile, $progress);
         }
         
         $proInfoStudy = $this->reportserv->getProInfoStudy($study->ID_STUDY);
@@ -810,17 +817,17 @@ class Reports extends Controller
             if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
                 $progress .= "\nProduct Section";
             }
-            file_put_contents($progressFile, $progress);
+            $this->writeProgressFile($progressFile, $progress);
             
             if ($CONTOUR2D_G == 1) {
                 if (($shapeCode != 1) || ($shapeCode != 6)) {
                 $progress .= "\nContour";
-                file_put_contents($progressFile, $progress);
+                $this->writeProgressFile($progressFile, $progress);
                 }
             }
         }
         $progress .= "\nFINISH";
-        file_put_contents($progressFile, $progress);
+        $this->writeProgressFile($progressFile, $progress);
 
         // set document information
         PDF::setPageOrientation('L', 'A4');
@@ -851,14 +858,178 @@ class Reports extends Controller
         
         // set some language-dependent strings (optional)
         // ---------------------------------------------------------
-        $html = "ddddddd";
+        PDF::AddPage();
+        PDF::SetFont('times', 'B', 10);
+        PDF::Bookmark('CONTENT ', 0, 0, '', 'B', array(0,64,128));
+        $html = '';
+        $html .= '<div class="logo">
+            <div class="row">
+                <div class="col-md-6">';
+                    if (!empty($CUSTOMER_PATH)) { 
+                        $html .= '<img style="max-width: 640px" src="'. $study['reports'][0]['CUSTOMER_PATH'] .'">';
+                    }
+        $html .= '</div>
+            </div>
+        </div>
+        
+        <div class="info-company">
+            <div align="center">
+                    <img style="max-width: 640px" src="'.$public_path.'/uploads/banner_cryosoft.png">
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered" border="1">
+                    <tr>
+                        <th colspan="6">Customer</th>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Company name</td>
+                        <td colspan="2"> '. $DEST_SURNAME .'  </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Surname/Name</td>
+                        <td colspan="2">'. $DEST_NAME .' </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Function</td>
+                        <td colspan="2">'. $DEST_FUNCTION .' </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Contact</td>
+                        <td colspan="2"> '. $DEST_COORD .' </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Date of the redivort generation</td>
+                        <td colspan="2">'. date("d/m/Y") .' </td>
+                    </tr>
+                </table>
+            </div>
+            <div align="center">
+                <p>';
+                if (!empty($study['reports'][0]['PHOTO_PATH'])) {
+                    $html .= '<img src="'. $study['reports'][0]['PHOTO_PATH'].'">';
+                } else {
+                    $html .= '<img src="'. $public_path.'/uploads/globe_food.gif">';
+                }
+                $html .= '</p>
+            <p></p><p></p><p></p>
+            <div class="table-responsive" style="color:red">
+                <table class ="table table-bordered" border="1">
+                <tr>
+                    <th align="center" colspan="3"><h3>Study of the product:</h3> '. $study['STUDY_NAME'] .' </th>
+                </tr>
+                <tr>
+                    <td >Calculation mode :</td>
+                    <td align="center" colspan="2">'. ($study['CALCULATION_MODE'] == 3 ? 'Optimum equipment' : 'Estimation' ) .'</td>
+                </tr>
+                <tr>
+                    <td >Economic :</td>
+                    <td align="center" colspan="2">'.( $study['OPTION_ECONO'] == 1 ? 'YES' : 'NO') .' </td>
+                </tr>
+                <tr>
+                    <td >Cryogenic Pipeline :</td>
+                    <td align="center" colspan="2">'. (!empty($cryogenPipeline) ? 'YES' : 'NO') .' </td>
+                </tr>
+                <tr>
+                    <td >Chaining :</td>
+                    <td align="center">'. ($study['CHAINING_CONTROLS'] == 1 ? 'YES' : 'NO') .' </td>
+                    <td align="center">'.  (($study['CHAINING_CONTROLS'] == 1) && ($study['HAS_CHILD'] != 0) && ($study['PARENT_ID'] != 0) ? 'This study is a child' : '') .' </td>
+                </tr>
+                </table>
+            </div>
+        </div>';
         PDF::writeHTML($html, true, false, true, false, '');
         PDF::AddPage();
+        if (($study['CHAINING_CONTROLS'] == 1) && ($study['PARENT_ID'] != 0)) {
+            if (!empty($calModeHeadBalance)) {
+                PDF::Bookmark('CHAIAING SYNTHESIS', 0, 0, '', 'B', array(0,64,128));
+                PDF::Cell(0, 10, '', 0, 1, 'L');
+                $html = '';
+                $html .= '<h3 style ="background-color:#268EE2">Chaining synthesis</h3>
+                <div class="chaining">
+                <div class="table table-bordered">
+                <table border="0.5">
+                    <tr>
+                        <th colspan="2">Study Name</th>
+                        <th colspan="2">Equipment</th>
+                        <th>Control temperature  ( '. $symbol['temperatureSymbol'] .' ) </th>
+                        <th>Residence/ Dwell time  ( '. $symbol['timeSymbol'] .' ) </th>
+                        <th>Convection Setting (Hz)</th>
+                        <th>Initial Average Product tempeture  ( '. $symbol['temperatureSymbol'] .' )  </th>
+                        <th>Final Average Product temperature  ( '. $symbol['temperatureSymbol'] .' ) </th>
+                        <th>Product Heat Load  ( '. $symbol['enthalpySymbol'] .' ) </th>
+                    </tr>';
+                    foreach ($calModeHeadBalance as $key => $resoptHeads) { 
+                    $html .= '<tr>
+                        <td colspan="2" align="center"> '. $study['STUDY_NAME'] .' </td>
+                        <td colspan="2" align="center"> '. $resoptHeads['equipName'] .' </td>
+                        <td align="center"> '. $resoptHeads['tr'] .' </td>
+                        <td align="center"> '. $resoptHeads['ts'] .' </td>
+                        <td align="center"> '. $equipData[$key]['tr'][0] .' </td>
+                        <td align="center"> '. $proInfoStudy['avgTInitial'] .' </td>
+                        <td align="center"> '. $resoptHeads['tfp'] .' </td>
+                        <td align="center"> '. $resoptHeads['vep'] .' </td>
+                    </tr>';
+                    }
+                    $html .= '</table>
+                </div>
+            </div>';
+                PDF::writeHTML($html, true, false, true, false, '');
+                PDF::AddPage();
+            }
+        }
+        
         if ($REP_CUSTOMER == 1)  {
             if (!empty($production)) {
                 PDF::Bookmark('PRODUCTION DATA', 0, 0, '', 'B', array(0,64,128));
-                PDF::Cell(0, 10, 'Production Data', 0, 1, 'L');
-                $html = "ddddddd";
+                PDF::Cell(0, 10, '', 0, 1, 'L');
+                $html = '';
+                $html .= '<h3 style ="background-color:#268EE2">Production Data</h3>
+                <div class="production">
+                            <div class="table table-bordered">
+                                <table border="0.5">
+                                <tr>
+                                    <th>Daily production</th>
+                                    <th align="center"> '. $production->DAILY_PROD .'</th>
+                                    <th>Hours/Day</th>
+                                </tr>
+                                <tr>
+                                    <td>Weekly production</td>
+                                    <td align="center"> '. $production->WEEKLY_PROD .'</td>
+                                    <td>Days/Week</td>
+                                </tr>
+                                <tr style="height: 10px;">
+                                    <td>Annual production</td>
+                                    <td align="center"> '. $production->NB_PROD_WEEK_PER_YEAR .'</td>
+                                    <td>Weeks/Year</td>
+                                </tr>
+                                <tr>
+                                    <td>Number of equipment cooldowns</td>
+                                    <td align="center"> '. $production->DAILY_STARTUP .'</td>
+                                    <td>per day</td>
+                                </tr>
+                                <tr>
+                                    <td>Factory Air temperature</td>
+                                    <td align="center"> '. $production->AMBIENT_TEMP .'</td>
+                                    <td>( '. $symbol['temperatureSymbol'] . ' )</td>
+                                </tr>
+                                <tr>
+                                    <td>Relative Humidity of Factory Air</td>
+                                    <td align="center"> '. $production->AMBIENT_HUM .'</td>
+                                    <td>(%)</td>
+                                </tr>
+                                <tr>
+                                    <td>Required Average temperature</td>
+                                    <td align="center"> '. $production->AVG_T_INITIAL .'</td>
+                                    <td>( '. $symbol['temperatureSymbol'] . ' )</td>
+                                </tr>
+                                <tr>
+                                    <td>Required Production Rate</td>
+                                    <td align="center"> '. $production->PROD_FLOW_RATE .'</td>
+                                    <td>( '. $symbol['productFlowSymbol'] .' )</td>
+                                </tr>
+                                </table>
+                            </div>
+                        </div>';
                 PDF::writeHTML($html, true, false, true, false, '');
                 PDF::AddPage();
             }
@@ -866,74 +1037,603 @@ class Reports extends Controller
         
         if ($PROD_LIST == 1) {
             PDF::Bookmark('PRODUCT DATA', 0, 0, '', 'B', array(0,64,128));
-            PDF::Cell(0, 10, 'Product Data', 0, 1, 'L');
+            PDF::Cell(0, 10, '', 0, 1, 'L');
+            $html = '';
+            $html .= '<h3 style ="background-color:#268EE2">Product Data</h3>
+            <h4>Composition of the product and its components</h4>
+            <div class="pro-data">
+                <div class="table table-bordered">
+                    <table border="0.5">
+                        <tr>
+                            <th align="center">Product name</th>
+                            <th align="center">Shape</th>
+                            <th align="center">Height( '. $symbol['prodDimensionSymbol'] . ' ) </th>
+                            <th align="center">Length( '. $symbol['prodDimensionSymbol'] . ' ) </th>
+                            <th align="center">Width( '. $symbol['prodDimensionSymbol'] . ' ) </th>
+                            <th align="center">Real product mass per unit( '. $symbol['massSymbol'] .' ) </th>
+                            <th align="center">Same temperature throughout product.</th>
+                            <th align="center">Initial temperature( ' . $symbol['temperatureSymbol'] . ' ) </th>
+                        </tr>
+                        <tr>
+                            <td align="center">'. $product->PRODNAME .' </td>
+                            <td align="center">'. $shapeName->LABEL .' </td>
+                            <td align="center">'. $proElmt->SHAPE_PARAM1 .'</td>
+                            <td align="center">'. $proElmt->SHAPE_PARAM2 .' </td>
+                            <td align="center">'. $proElmt->SHAPE_PARAM3 .' </td>
+                            <td align="center">'. $product->PROD_REALWEIGHT .' </td>
+                            <td align="center">'. ($product->PROD_ISO == 1 ? 'YES' : 'NO') .' </td>
+                            <td align="center">'. $production->AVG_T_INITIAL .' </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="pro-components">
+                <div class="table table-bordered">
+                    <table border="0.5">
+                        <tr>
+                            <th align="center">Component list</th>
+                            <th align="center">Description</th>
+                            <th align="center">Product dimension( '. $symbol['prodDimensionSymbol'] .' ) </th>
+                            <th align="center">Real mass( '. $symbol['massSymbol'] .' ) </th>
+                            <th align="center">Same temperature throughout product.</th>
+                            <th align="center">Added to product in study number</th>
+                            <th align="center">Initial temperature( '. $symbol['temperatureSymbol'] .' ) </th>
+                        </tr>';
+                        foreach($productComps as $resproductComps) { 
+                        $html .= '
+                        <tr>
+                            <td align="center"> '. $resproductComps['display_name'] .' </td>
+                            <td align="center"> '. $resproductComps['PROD_ELMT_NAME'] .' </td>
+                            <td align="center"> '. $resproductComps['SHAPE_PARAM2'] .' </td>
+                            <td align="center"> '. $resproductComps['PROD_ELMT_REALWEIGHT'] .' </td>
+                            <td align="center"> '. ($resproductComps['PROD_ELMT_ISO'] == 1 ? 'YES' : 'NO') .' </td>
+                            <td align="center"></td>
+                            <td align="center"> '. (($resproductComps['PROD_ELMT_ISO'] == 1) || ($resproductComps['PROD_ELMT_ISO'] == 2) ? '' : 'non isothermal') .' </td>
+                        </tr>';
+                        }
+                    $html .= '
+                    </table>
+                </div>
+            </div>';
+            PDF::writeHTML($html, true, false, true, false, '');
             PDF::AddPage();
         }
         
         if ($PROD_3D == 1) {
             PDF::Bookmark('PRODUCT 3D', 0, 0, '', 'B', array(0,64,128));
-            PDF::Cell(0, 10, 'Product 3D', 0, 1, 'L');
+            PDF::Cell(0, 10, '', 0, 1, 'L');
+            $html = '<h3 style ="background-color:#268EE2">Product 3D</h3>
+                    <div class="product3d">
+                        <div class="table table-bordered">
+                        <table border="0.5">
+                            <tr>
+                                <th colspan="6" align="center">Packing</th>
+                                <th colspan="2" align="center">3D view of the product</th>
+                            </tr>
+                            <tr>
+                                <td rowspan="2">Side</td>
+                                <td rowspan="2">Number of layers</td>
+                                <td colspan="3">Packing data</td>
+                                <td rowspan="2">Thickness ()</td>
+                                <td colspan="2" rowspan="2"></td>
+                            </tr>
+                            <tr>
+                                <td>Order</td>
+                                <td colspan="2">Name</td>
+                            </tr>
+                        </table>
+                        </div>
+                    </div>';
+            PDF::writeHTML($html, true, false, true, false, '');
             PDF::AddPage();
         }
         
         if ($EQUIP_LIST == 1) {
             if (!empty($equipData)) {
                 PDF::Bookmark('EQUIPMENT DATA', 0, 0, '', 'B', array(0,64,128));
-                PDF::Cell(0, 10, 'Equipment Data', 0, 1, 'L');
-                
+                PDF::Cell(0, 10, '', 0, 1, 'L');
+                $html ='';
+                $html .= '<h3 style ="background-color:#268EE2">Equipment Data</h3>
+                <div class="equipment-data">
+                    <div class="table table-bordered">
+                        <table border="0.5">
+                            <tr>
+                                <th align="center">No.</th>
+                                <th align="center">Name</th>
+                                <th align="center">Residence / Dwell time  ( '. $symbol['timeSymbol'] .' )</th>
+                                <th align="center">Control temperature( '. $symbol['temperatureSymbol'] .' )</th>
+                                <th align="center">Convection Setting(Hz)</th>
+                                <th align="center">Product orientation</th>
+                                <th align="center">Conveyor coverage or quantity of product per batch</th>
+                            </tr>';
+                            foreach($equipData as $key => $resequipDatas) {
+                                $html .='
+                                <tr>
+                                    <td align="center"> '. ($key + 1) .'</td>
+                                    <td align="center"> '. $resequipDatas['displayName'] .'</td>
+                                    <td align="center"> '. ($resequipDatas['ORIENTATION'] == 1 ? 'Parallel' : 'Perpendicular') .'</td>
+                                    <td align="center"> '. $resequipDatas['tr'][0] .'</td>
+                                    <td align="center"> '. $resequipDatas['ts'][0] .'</td>
+                                    <td align="center"> '. $resequipDatas['vc'][0] .'</td>
+                                    <td align="center"> '. $resequipDatas['top_or_QperBatch'] .'</td>
+                                </tr>';
+                            }
+                    $html .='
+                        </table>
+                    </div>
+                </div>';
+                PDF::writeHTML($html, true, false, true, false, '');
                 PDF::AddPage();
             } 
         }
         
         if ($ASSES_ECO == 1) {
             PDF::Bookmark('BELT OR SHELVES LAYOUT', 0, 0, '', 'B', array(0,64,128));
-            PDF::Cell(0, 10, 'Belt or Shelves Layout', 0, 1, 'L');
-            PDF::AddPage();
+            PDF::Cell(0, 10, '', 0, 1, 'L');
+            $html ='';
+            $html .='<h3 style ="background-color:#268EE2">Belt or Shelves Layout</h3>';
             foreach ($equipData as $resequipDatas) {
                 PDF::Bookmark($resequipDatas['displayName'], 1, 0, '', '', array(128,0,0));
-                PDF::Cell(0, 10, $resequipDatas['displayName'], 0, 1, 'L');
-                PDF::AddPage();
+                PDF::Cell(0, 10, '', 0, 1, 'L');
+                $html .='<h3>'. $resequipDatas['displayName'] .'</h3>
+                <div class="layout">
+                    <div class = "row">
+                        <div class="md-col-6">
+                            <div class="table table-bordered">
+                                <table border="0.5">
+                                    <tr>
+                                        <th colspan="2" align="center">Inputs</th>
+                                    </tr>
+                                    <tr>
+                                        <td>Space (length) ( '. $symbol['prodDimensionSymbol'] .' )</td>
+                                        <td align="center"> User not define </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Space (width) ( '. $symbol['prodDimensionSymbol'] .' )</td>
+                                        <td align="center"> User not define </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Orientation</td>
+                                        <td align="center"> '. ($resequipDatas['ORIENTATION'] == 1 ? 'Parallel' : 'Perpendicular') .' </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" align="center">Outputs</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Space in width ( '. $symbol['prodDimensionSymbol'] .' )</td>
+                                        <td align="center"> '. $resequipDatas['layoutResults']['LEFT_RIGHT_INTERVAL'] .' </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Number per meter</td>
+                                        <td align="center"> '. $resequipDatas['layoutResults']['NUMBER_PER_M'] .' </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Number in width</td>
+                                        <td align="center"> '. $resequipDatas['layoutResults']['NUMBER_IN_WIDTH'] .' </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Conveyor coverage or quantity of product per batch</td>
+                                        <td align="center"> '. $resequipDatas['top_or_QperBatch'] .' </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="md-col-6">
+                            image
+                        </div>
+                    </div>
+                </div>';
             }
+            PDF::writeHTML($html, true, false, true, false, '');
+            PDF::AddPage();
         }
         
         if ($PIPELINE == 1) {
             if (!empty($cryogenPipeline)) {
                 if ($study->OPTION_CRYOPIPELINE == 1) {
                     PDF::Bookmark('CRYOGENIC PIPELINE', 0, 0, '', 'B', array(0,64,128));
-                    PDF::Cell(0, 10, 'Cryogenic Pipe', 0, 1, 'L');
+                    PDF::Cell(0, 10, '', 0, 1, 'L');
+                    $html = '';
+                    $html .= '<h3 style ="background-color:#268EE2">Cryogenic Pipe</h3>
+                    <div class="consum-esti">
+                        <div class="table table-bordered">
+                            <table border="0.5">
+                                <tr>
+                                    <th colspan="2" align="center">Type</th>
+                                    <th colspan="4" align="center">Name</th>
+                                    <th colspan="2" align="center">Number</th>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">Insulated line</td>
+                                    <td colspan="4" align="center">'. ($cryogenPipeline['dataResultExist']['insulatedline'] ?? "") .'</td>
+                                    <td colspan="2" align="center">'. ($cryogenPipeline['dataResultExist']['insulllenght'] ?? "") .'</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">Insulated valves</td>
+                                    <td colspan="4" align="center">'. ($cryogenPipeline['dataResultExist']['insulatedlineval'] ?? "") .'</td>
+                                    <td colspan="2" align="center">'. ($cryogenPipeline['dataResultExist']['insulvallenght'] ?? "") .'</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">Elbows</td>
+                                    <td colspan="4" align="center">'. ($cryogenPipeline['dataResultExist']['elbows'] ?? "") .'</td>
+                                    <td colspan="2" align="center">'. ($cryogenPipeline['dataResultExist']['elbowsnumber'] ?? "") .'</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">Tees</td>
+                                    <td colspan="4" align="center">'. ($cryogenPipeline['dataResultExist']['tee'] ?? "") .'</td>
+                                    <td colspan="2" align="center">'. ($cryogenPipeline['dataResultExist']['teenumber'] ?? "") .'</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">Non-insulated line</td>
+                                    <td colspan="4" align="center">'. ($cryogenPipeline['dataResultExist']['non_insulated_line'] ?? "") .'</td>
+                                    <td colspan="2" align="center">'. ($cryogenPipeline['dataResultExist']['noninsullenght'] ?? "") .'</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">Non-insulated valves</td>
+                                    <td colspan="4" align="center">'. ($cryogenPipeline['dataResultExist']['non_insulated_valves'] ?? "") .'</td>
+                                    <td colspan="2"align="center">'. ($cryogenPipeline['dataResultExist']['noninsulatevallenght'] ?? "") .'</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">Storage tank</td>
+                                    <td colspan="4" align="center">'. ($cryogenPipeline['dataResultExist']['storageTankName'] ?? "") .'</td>
+                                    <td colspan="2" align="center"></td>
+                                </tr>
+                            </table>
+                            <div id="pressuer"><strong>Tank pressure :</strong> '. ($cryogenPipeline['dataResultExist']['pressuer'] ?? "") .' (Bar)</div>
+                            <div id="height"><strong>Equipment elevation above tank outlet. :</strong>'. ($cryogenPipeline['dataResultExist']['height'] ?? "") .' (m)</div>
+                        </div>
+                    </div>';
+                    PDF::writeHTML($html, true, false, true, false, '');
                     PDF::AddPage();
                 }
             }
+        }
+
+        if ($PACKING ==1) {
+            PDF::Bookmark('PACKING DATA', 0, 0, '', 'B', array(0,64,128));
+            PDF::Cell(0, 10, 'Packing Data', 0, 1, 'L');
+            $html ='';
+            $html .='<h3 style ="background-color:#268EE2">Packing Data</h3>
+            <div class = "Packing">
+                <table>
+                    <tr>
+                        <th colspan="10">Packing</th>
+                        <th colspan="4">3D view of the product</th>
+                    </tr>
+                    <tr>
+                        <td colspan="2" rowspan="2">Side</td>
+                        <td colspan="2" rowspan="2">Number of layers</td>
+                        <td colspan="5">Packing data</td>
+                        <td rowspan="2">Thickness ()</td>
+                        <td colspan="4" rowspan="5"></td>
+                    </tr>
+                    <tr>
+                        <td>Order</td>
+                        <td colspan="4">Name</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td colspan="4"></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td colspan="4"></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td colspan="4"></td>
+                        <td></td>
+                    </tr>
+                </table>
+            </div>';
+            PDF::writeHTML($html, true, false, true, false, '');
+            PDF::AddPage();
         }
         
         if ($CONS_OVERALL == 1 || $CONS_TOTAL ==1 || $CONS_SPECIFIC  == 1 || $CONS_HOUR ==1 || $CONS_DAY == 1||
         $CONS_WEEK == 1 || $CONS_MONTH == 1 || $CONS_YEAR ==1 || $CONS_EQUIP ==1 || $CONS_PIPE == 1 || $CONS_TANK ==1) {
             if (!empty($consumptions )) {
                 PDF::Bookmark('CONSUMPTIONS / ECONOMICS ASSESSMENTS', 0, 0, '', 'B', array(0,64,128));
-                PDF::Cell(0, 10, 'Consumptions / Economics assessments', 0, 1, 'L');
+                PDF::Cell(0, 10, '', 0, 1, 'L');
+                $html ='';
+                $html .='<h3 style ="background-color:#268EE2">Consumptions / Economics assessments</h3>
+                <h4>Values</h4>
+                <div class="consum-esti">
+                    <div class="table table-bordered">
+                    <table border="0.5">
+                        <tr>
+                                <th colspan="3" align="center" rowspan="2">Equipment</th>';
+                            if ($CONS_OVERALL == 1) { 
+                            $html .='
+                                <th rowspan="2" align="center">Overall Cryogen Consumption Ratio (product + equipment and pipeline losses) Unit of Cryogen, per piece of product.  ( '. $symbol['consumSymbol'] .' ) </th>';
+                            }
+                            if ($CONS_TOTAL == 1) { 
+                            $html .=' 
+                                <th rowspan="2" align="center">Total Cryogen Consumption (product + equipment and pipeline losses).  ( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .'  </th>';
+                            } 
+                            if ($CONS_SPECIFIC == 1) { 
+                            $html .=' 
+                                <th rowspan="2" align="center">Specific Cryogen Consumption Ratio (product only) Unit of Cryogen, per unit weight of product.  ( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .' </th>';
+                            }
+                            if ($CONS_HOUR == 1) {
+                            $html .=' 
+                                <th rowspan="2" align="center">Total Cryogen Consumption per hour  ( '.$symbol['consumSymbol'] .' ) </th>';
+                            }
+                            if ($CONS_DAY == 1) {
+                            $html .=' 
+                                <th rowspan="2" align="center">Total Cryogen Consumption per day  ( '. $symbol['consumSymbol'] .' ) </th>';
+                            }
+                            if ($CONS_WEEK == 1) { 
+                            $html .=' 
+                                <th rowspan="2" align="center">Total Cryogen Consumption per week  ( '. $symbol['consumSymbol'] .' ) </th>';
+                            }
+                            if ($CONS_MONTH == 1) { 
+                            $html .=' 
+                                <th rowspan="2" align="center">Total Cryogen Consumption per month  ( '. $symbol['consumSymbol'] .' ) </th>';
+                            }
+                            if ($CONS_YEAR == 1) { 
+                            $html .=' 
+                                <th rowspan="2" align="center">Total Cryogen Consumption per year  ( '. $symbol['consumSymbol'] .' ) </th>';
+                            }
+                            if ($CONS_EQUIP == 1) {
+                            $html .=' 
+                                <th colspan="2" align="center">Equipment Cryogen Consumption</th>';
+                            }
+                            if ($CONS_PIPE == 1) { 
+                            $html .=' 
+                                <th colspan="2" align="center">Pipeline consumption</th>';
+                            }
+                            if ($CONS_TANK == 1) { 
+                            $html .=' 
+                                <th rowspan="2">Tank losses  ( '. $symbol['consumSymbol'] .' ) </th>';
+                            }
+                            $html .=' 
+                        </tr>';
+
+                        if ($CONS_PIPE == 1 || $CONS_EQUIP == 1){
+                        $html .=' 
+                        <tr>';
+                            if ($CONS_EQUIP == 1) { 
+                            $html .=' 
+                                <td align="center">Heat losses per hour  ( '. $symbol['consumMaintienSymbol'] .' ) </td>
+                                <td align="center">Cooldown  ( '. $symbol['consumSymbol'] .' ) </td>';
+                            }
+                            if ($CONS_PIPE == 1) { 
+                            $html .=' 
+                                <td align="center">Heat losses per hour  ( '. $symbol['consumMaintienSymbol'] .' ) </td>
+                                <td align="center">Cooldown  ( '. $symbol['consumSymbol'] .' ) </td>';
+                            }
+                        $html .=' 
+                        </tr>';
+                        }
+                        foreach($consumptions as $resconsumptions) { 
+                        $html .=' 
+                        <tr>';
+                        $html .='
+                            <td colspan="2" rowspan="2"> '. $resconsumptions['equipName'] .' </td>
+                            <td align="center">(l)</td>';
+                            if ($CONS_OVERALL == 1) {
+                            $html .=' 
+                                <td align="center"> '. $resconsumptions['tc'] .' </td>';
+                            }
+                            if ($CONS_TOTAL == 1) {
+                            $html .='
+                                <td align="center"> '. $resconsumptions['kgProduct'] .' </td>';
+                            }
+                            if ($CONS_SPECIFIC == 1) {
+                            $html .='
+                                <td align="center"> '. $resconsumptions['product'] .' </td>
+                            ';
+                            }
+                            if ($CONS_HOUR == 1) {
+                            $html .='
+                                <td align="center"> '. $resconsumptions['hour'] .' </td>';
+                            }
+                            if ($CONS_DAY == 1) {
+                            $html .='
+                                <td align="center"> '. $resconsumptions['day'] .'</td>';
+                            }
+                            if ($CONS_WEEK == 1) {
+                            $html .='
+                                <td align="center"> '. $resconsumptions['week'] .' </td>';
+                            }
+                            if ($CONS_MONTH == 1) {
+                            $html .='
+                                <td align="center"> '. $resconsumptions['month'] .' </td>';
+                            }
+                            if ($CONS_YEAR == 1) {
+                            $html .='
+                                <td align="center"> '. $resconsumptions['year'] .' </td>';
+                            }
+                            if ($CONS_EQUIP == 1) { 
+                            $html .='
+                                <td align="center"> '. $resconsumptions['eqptPerm'] .' </td>
+                                <td align="center"> '. $resconsumptions['eqptCold'] .' </td>';
+                            }
+                            if ($CONS_PIPE == 1) {
+                            $html .='
+                                <td align="center"> '. $resconsumptions['linePerm'] .' </td>
+                                <td align="center"> '. $resconsumptions['lineCold'] .' </td>';
+                            }
+                            if ($CONS_TANK == 1) {
+                            $html .='
+                            <td align="center"> '. $resconsumptions['tank'] .' </td>';
+                            }
+                        $html .='</tr>';
+                        $html .='<tr>
+                            <td align="center">(€)</td>';
+                            if ($CONS_OVERALL == 1) {
+                            $html .=' 
+                                <td align="center"> '. $resconsumptions['tc'] .' </td>';
+                            }
+                            if ($CONS_TOTAL == 1) { 
+                            $html .='
+                                <td align="center"> -- </td>';
+                            }
+                            if ($CONS_SPECIFIC == 1) { 
+                                $html .='
+                                <td align="center"> -- </td>';
+                            }
+                            if ($CONS_HOUR == 1) { 
+                            $html .='
+                                <td align="center"> -- </td>';
+                            }
+                            if ($CONS_DAY == 1) { 
+                            $html .='
+                                <td align="center"> -- </td>';
+                            }
+                            if ($CONS_WEEK == 1) { 
+                            $html .='
+                                <td align="center"> -- </td>';
+                            }
+                            if ($CONS_MONTH == 1) { 
+                            $html .='
+                                <td align="center"> -- </td>';
+                            }
+                            if ($CONS_YEAR == 1) { 
+                            $html .='
+                                <td align="center"> -- </td>';
+                            }
+                            if ($CONS_EQUIP == 1) { 
+                            $html .='
+                                <td align="center"> -- </td>
+                                <td align="center"> -- </td>';
+                            }
+                            if ($CONS_PIPE == 1) { 
+                            $html .='
+                                <td align="center"> -- </td>
+                                <td align="center"> -- </td>';
+                            }
+                            if ($CONS_TANK == 1) { 
+                            $html .='
+                                <td align="center"> -- </td>';
+                            }
+                            $html .=' </tr>';
+                        }
+                        $html .='
+                        </table>
+                    </div>
+                </div>';
+                PDF::writeHTML($html, true, false, true, false, '');
                 PDF::AddPage();
             }
         }
 
         if (($isSizingValuesChosen == 1) || ($isSizingValuesMax == 1) || ($SIZING_GRAPHE == 1)) {
             PDF::Bookmark('HEAT BALANCE / SIZING RESULTS', 0, 0, '', 'B', array(0,64,128));
-            PDF::Cell(0, 10, 'Heat balance / sizing results', 0, 1, 'L');
-            PDF::AddPage();
+            PDF::Cell(0, 10, '', 0, 1, 'L');
+            $html ='';
+            $html .='<h3 style ="background-color:#268EE2">Heat balance / sizing results</h3>';
             if ($isSizingValuesChosen == 1) {
                 PDF::Bookmark('Chosen product flowrate', 1, 0, '', '', array(128,0,0));
-                PDF::Cell(0, 10, 'Chosen product flowrate', 0, 1, 'L');
+                PDF::Cell(0, 10, '', 0, 1, 'L');
+                $html .='<h3>Chosen product flowrate</h3>
+                <div class="heat-balance-sizing">
+                    <div class="table table-bordered">
+                        <table border="0.5">
+                            <tr>
+                                <th colspan="2" rowspan="2" align="center">Equipment</th>
+                                <th rowspan="2" align="center">Average initial temperature ('. $symbol['temperatureSymbol'] .')</th>
+                                <th rowspan="2" align="center">Final Average Product temperature ('. $symbol['temperatureSymbol'] .')</th>
+                                <th rowspan="2" align="center">Control temperature ('. $symbol['temperatureSymbol'] .')</th>
+                                <th rowspan="2" align="center">Residence / Dwell time   ('. $symbol['timeSymbol'] .')</th>
+                                <th rowspan="2" align="center">Product Heat Load ('. $symbol['enthalpySymbol'] .')</th>
+                                <th colspan="4" align="center">Chosen product flowrate</th>
+                                <th rowspan="2" align="center">Precision of the high level calculation. (%)</th>
+                            </tr>
+                            <tr>
+                                <td align="center">Hourly production capacity ('. $symbol['productFlowSymbol'] .')</td>
+                                <td colspan="2" align="center">Cryogen consumption (product + equipment heat load) ( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .' </td>
+                                <td align="center">Conveyor coverage or quantity of product per batch</td>
+                            </tr>';
+                            foreach($calModeHeadBalance as $resoptHeads) { 
+                            $html .='
+                                <tr>
+                                    <td align="center" colspan="2"> '. $resoptHeads['equipName'] .' </td>
+                                    <td align="center"> '. $proInfoStudy['avgTInitial'] .' </td>
+                                    <td align="center"> '. $resoptHeads['tfp'] .' </td>
+                                    <td align="center"> '. $resoptHeads['tr'] .' </td>
+                                    <td align="center"> '. $resoptHeads['ts'] .' </td>
+                                    <td align="center"> '. $resoptHeads['vep'] .' </td>
+                                    <td align="center"> '. $resoptHeads['dhp'] .' </td>
+                                    <td align="center" colspan="2"> '. $resoptHeads['conso'] .' </td>
+                                    <td align="center"> '. $resoptHeads['toc'] .' </td>
+                                    <td align="center"> '. $resoptHeads['precision'] .' </td>
+                                </tr>';
+                            }
+                            $html .='
+                        </table>
+                    </div>
+                </div>';
+                PDF::writeHTML($html, true, false, true, false, '');
                 PDF::AddPage();
             }
 
             if ($isSizingValuesMax == 1) {
                 PDF::Bookmark(' Maximum product flowrate', 1, 0, '', '', array(128,0,0));
-                PDF::Cell(0, 10, ' Maximum product flowrate', 0, 1, 'L');
+                PDF::Cell(0, 10, '', 0, 1, 'L');
+                $html = '';
+                $html .= '<h3> Maximum product flowrate</h3>
+                <div class="Max-prod-flowrate">
+                    <div class="table table-bordered">
+                        <table border="0.5">
+                            <tr>
+                                <th colspan="2" rowspan="2">Equipment</th>
+                                <th rowspan="2">Average initial temperature ( '. $symbol['temperatureSymbol'] .' ) </th>
+                                <th rowspan="2">Final Average Product temperature ( '. $symbol['temperatureSymbol'] .' ) </th>
+                                <th rowspan="2">Control temperature ( '. $symbol['temperatureSymbol'] .' ) </th>
+                                <th rowspan="2">Residence / Dwell time   ( '. $symbol['timeSymbol'] .' ) </th>
+                                <th rowspan="2">Product Heat Load ( '. $symbol['enthalpySymbol'] .' ) </th>
+                                <th colspan="4">Maximum product flowrate </th>
+                                <th rowspan="2">Precision of the high level calculation. (%)</th>
+                            </tr>
+                            <tr>
+                                <td>Hourly production capacity ( '. $symbol['productFlowSymbol'] .' ) </td>
+                                <td colspan="2">Cryogen consumption (product + equipment heat load) ( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .'  </td>
+                                <td>Conveyor coverage or quantity of product per batch</td>
+                            </tr>';
+                            foreach($calModeHbMax  as $resoptimumHbMax) { 
+                            $html .='<tr>
+                                <td align="center" colspan="2"> '. $resoptimumHbMax['equipName'] .' </td>
+                                <td align="center" > '. $proInfoStudy['avgTInitial'] .' </td>
+                                <td align="center">'. $resoptimumHbMax['tfp'] .' </td>
+                                <td align="center">'. $resoptimumHbMax['tr']  .'</td>
+                                <td align="center">'. $resoptimumHbMax['ts']  .'</td>
+                                <td align="center">'. $resoptimumHbMax['vep'] .' </td>
+                                <td align="center">'. $resoptimumHbMax['dhp'] .' </td>
+                                <td align="center" colspan="2"> '. $resoptimumHbMax['conso'] .' </td>
+                                <td align="center"> '. $resoptimumHbMax['toc'] .'</td>
+                                <td align="center"> '. $resoptimumHbMax['precision'] .' </td>
+                            </tr>';
+                            }
+                        $html .='</table>
+                    </div>
+                </div>';
+                PDF::writeHTML($html, true, false, true, false, '');
                 PDF::AddPage();
             }
 
             if ($SIZING_GRAPHE == 1) {
                 PDF::Bookmark(' Graphic', 1, 0, '', '', array(128,0,0));
-                PDF::Cell(0, 10, ' Graphic', 0, 1, 'L');
+                PDF::Cell(0, 10, ' ', 0, 1, 'L');
+                $html = '';
+                $html .= '<h3>Graphic</h3>
+                <img width="640" height="450" src="'. $public_path .'/sizing/'. $study['USERNAM'].'/'. $study['ID_STUDY'] .'.png">';
+                PDF::writeHTML($html, true, false, true, false, '');
                 PDF::AddPage();
             }
         }
@@ -941,11 +1641,44 @@ class Reports extends Controller
         if (!empty($heatexchange)) {
             if (($ENTHALPY_V == 1) || ($ENTHALPY_G ==1)) {
                 PDF::Bookmark('HEAT EXCHANGE', 0, 0, '', 'B', array(0,64,128));
-                PDF::Cell(0, 10, 'Heat Exchange', 0, 1, 'L');
-                PDF::AddPage();
-                foreach ($heatexchange as $resheatexchange) {
-                    PDF::Bookmark($resheatexchange['equipName'] , 1, 0, '', '', array(128,0,0));
-                    PDF::Cell(0, 10, $resheatexchange['equipName'], 0, 1, 'L');
+                PDF::Cell(0, 10, '', 0, 1, 'L');
+                $html = '';
+                $html .= '<h3 style ="background-color:#268EE2">Heat Exchange</h3>';
+                foreach ($heatexchange as $resheatexchanges) {
+                    PDF::Bookmark($resheatexchanges['equipName'] , 1, 0, '', '', array(128,0,0));
+                    PDF::Cell(0, 10, '', 0, 1, 'L');
+                    $html .='<h3>'. $resheatexchanges['equipName'] .'</h3>';
+                    if ($ENTHALPY_V == 1) {
+                        $html .='
+                        <h3>Values</h3>
+                        <div class="heat-exchange">
+                            <table border="0.5">
+                                <tr>
+                                    <th colspan="2">Equipment</th>';
+                                    foreach($resheatexchanges['result'] as $result) { 
+                                        $html .='<th align="center"> '. $result['x'] .'</th>';
+                                    }
+                                $html .='    
+                                </tr>
+                                <tr>
+                                    <td colspan="2"> '. $resheatexchanges['equipName'] .'  </td>';
+                                    foreach($resheatexchanges['result'] as $result) { 
+                                        $html .=' <th align="center"> '. $result['y'] .'</th>';
+                                    }
+                                    $html .='     
+                                </tr>
+                            </table>
+                        </div>';
+                        PDF::writeHTML($html, true, false, true, false, '');
+                    }
+                    if ($ENTHALPY_G ==1) {
+                        $html ='';
+                        $html .='<h3>Graphic</h3>
+                        <div id="hexchGraphic">
+                            <img width="640" height="450" src="'. $public_path .'/heatExchange/'. $study['USERNAM'] .'/'. $resheatexchanges['idStudyEquipment'] .'.png">
+                        </div>';
+                        PDF::writeHTML($html, true, false, true, false, '');
+                    }
                     PDF::AddPage();
                 }
             }
@@ -954,93 +1687,244 @@ class Reports extends Controller
         if (!empty($proSections)) {
             if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
                 PDF::Bookmark('PRODUCT SECTION', 0, 0, '', 'B', array(0,64,128));
-                PDF::Cell(0, 10, 'Product Section', 0, 1, 'L');
-                PDF::AddPage();
+                PDF::Cell(0, 10, '', 0, 1, 'L');
+                $html = '';
+                $html .= '<h3 style ="background-color:#268EE2">Product Section</h3>';
                 foreach ($proSections as $resproSections) {
                     PDF::Bookmark($resproSections['equipName'] , 1, 0, '', '', array(128,0,0));
-                    PDF::Cell(0, 10, $resproSections['equipName'] , 0, 1, 'L');
-                    PDF::AddPage();
-                    if ($resproSections['selectedAxe'] == 1) {
-                        PDF::Bookmark('Values - Dimension' . $resproSections['selectedAxe'] . '(' . '*,' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][0] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
-                        PDF::Cell(0, 10, 'Values - Dimension' . $resproSections['selectedAxe'] . '(' . '*,' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][0] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')', 0, 1, 'L');
-                        PDF::AddPage();
-                        PDF::Bookmark('Graphic - Dimension' . $resproSections['selectedAxe'] . '(' . '*,' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][0] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
-                        PDF::Cell(0, 10, 'Graphic - Dimension' . $resproSections['selectedAxe'] . '(' . '*,' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][0] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')', 0, 1, 'L');
-                        PDF::AddPage();
-                    } else if ($resproSections['selectedAxe'] == 2) {
-                        PDF::Bookmark('Values - Dimension' . $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',*,' . $resproSections['axeTemp'][0] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
-                        PDF::Cell(0, 10, 'Values - Dimension' . $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',*,' . $resproSections['axeTemp'][0] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')', 0, 1, 'L');
-                        PDF::AddPage();
-                        PDF::Bookmark('Graphic - Dimension' . $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',*,' . $resproSections['axeTemp'][0] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
-                        PDF::Cell(0, 10, 'Graphic - Dimension' . $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',*,' . $resproSections['axeTemp'][0] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')', 0, 1, 'L');
-                        PDF::AddPage();
-                    } else if ($resproSections['selectedAxe'] == 3) {
-                        PDF::Bookmark('Values - Dimension' . $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][0] . ',*' . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
-                        PDF::Cell(0, 10, 'Values - Dimension' . $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][0] . ',*' . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')', 0, 1, 'L');
-                        PDF::AddPage();
-                        PDF::Bookmark('Graphic - Dimension' . $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][0] . ',*' . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
-                        PDF::Cell(0, 10, 'Graphic - Dimension' . $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][0] . ',*' . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')', 0, 1, 'L');
-                        PDF::AddPage();
+                    PDF::Cell(0, 10, '' , 0, 1, 'L');
+                    $html .='<h3>'. $resproSections['equipName'] .'</h3>';
+                    if ($ISOCHRONE_V == 1) {
+                        if ($resproSections['selectedAxe'] == 1) {
+                            PDF::Bookmark('Values - Dimension' . $resproSections['selectedAxe'] . '(' . '*,' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][0] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
+                            PDF::Cell(0, 10, '', 0, 1, 'L');
+                            $html .='<h3> Values - Dimension'. $resproSections['selectedAxe'] . '(' . '*,' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][0] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>';
+                        } else if ($resproSections['selectedAxe'] == 2) {
+                            PDF::Bookmark('Values - Dimension' . $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',*,' . $resproSections['axeTemp'][0] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
+                            PDF::Cell(0, 10, '' , 0, 1, 'L');
+                            $html .='<h3> Values - Dimension'. $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',*,' . $resproSections['axeTemp'][0] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>';
+                        } else if ($resproSections['selectedAxe'] == 3) {
+                            PDF::Bookmark('Values - Dimension' . $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][0] . ',*' . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
+                            PDF::Cell(0, 10, '', 0, 1, 'L');
+                            $html .='<h3> Values - Dimension'. $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][0] . ',*' . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>';
+                        }
+                        $html .='
+                        <div class="values-dim2">
+                            <div class="table table-bordered">
+                                <table border="0.5">
+                                    <tr>
+                                        <th align="center">Node number</th>
+                                        <th align="center">Position Axis 1  ( '. $resproSections['prodchartDimensionSymbol'] .' ) </th>';
+                                        foreach ($resproSections['resultLabel'] as $index => $labelTemp) { 
+                                            $html .='<th align="center">T° at '. $resproSections['resultLabel'][$index] .' '. $resproSections['timeSymbol'] .' ( '. $resproSections['temperatureSymbol'] .' ) </th>';
+                                        }
+                                        $html .='</tr>';
+                                    foreach ($resproSections['result']['recAxis'] as $key=> $node) {
+                                    $html .='<tr>
+                                        <td align="center"> '. $key .'</td>
+                                        <td align="center"> '. $resproSections['dataChart'][0][$key]['y'] .'</td>';
+                                        foreach ($resproSections['dataChart'] as $index => $dbchart) { 
+                                            $html .='<td align="center"> '. $resproSections['dataChart'][$index][$key]['x'] .' </td>';
+                                        }
+                                    $html .='</tr>';
+                                    }
+                                $html .='</table>
+                            </div>
+                        </div>';
+                        PDF::writeHTML($html, true, false, true, false, '');
+                    }
+
+                    if ($ISOCHRONE_G == 1) {
+                        if ($resproSections['selectedAxe'] == 1) {
+                            PDF::Bookmark('Graphic - Dimension' . $resproSections['selectedAxe'] . '(' . '*,' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][0] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
+                            PDF::Cell(0, 10, '', 0, 1, 'L');
+                            $html ='';
+                            $html .='<h3> Graphic - Dimension'. $resproSections['selectedAxe'] . '(' . '*,' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][0] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>';
+                            $html .='<img width="640" height="450" src="'. $public_path .'/productSection/'. $study['USERNAM'] .'/'. $resproSections['idStudyEquipment'] .'-'. $resproSections['selectedAxe'] .'.png">';
+                            PDF::writeHTML($html, true, false, true, false, '');
+                        } else if ($resproSections['selectedAxe'] == 2) {
+                            PDF::Bookmark('Graphic - Dimension' . $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',*,' . $resproSections['axeTemp'][0] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
+                            PDF::Cell(0, 10, '', 0, 1, 'L');
+                            $html ='';
+                            $html .='<h3> Graphic - Dimension'. $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',*,' . $resproSections['axeTemp'][0] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>';
+                            $html .='<img width="640" height="450" src="'. $public_path .'/productSection/'. $study['USERNAM'] .'/'. $resproSections['idStudyEquipment'] .'-'. $resproSections['selectedAxe'] .'.png">';
+                            PDF::writeHTML($html, true, false, true, false, '');
+                        } else if ($resproSections['selectedAxe'] == 3) {
+                            PDF::Bookmark('Graphic - Dimension' . $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][0] . ',*' . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
+                            PDF::Cell(0, 10, '', 0, 1, 'L');
+                            $html ='';
+                            $html .='<h3> Graphic - Dimension'. $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][0] . ',*' . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>';
+                            $html .='<img width="640" height="450" src="'. $public_path .'/productSection/'. $study['USERNAM'] .'/'. $resproSections['idStudyEquipment'] .'-'. $resproSections['selectedAxe'] .'.png">';
+                            PDF::writeHTML($html, true, false, true, false, '');
+                        }
                     }
                 }
+                PDF::AddPage();
             }
         }
 
         if (!empty($timeBase)) {
             if ($ISOVALUE_V == 1 || $ISOVALUE_G == 1) {
                 PDF::Bookmark('PRODUCT GRAPH - TIME BASED', 0, 0, '', 'B', array(0,64,128));
-                PDF::Cell(0, 10, 'Product Graph - Time Based', 0, 1, 'L');
-                PDF::AddPage();
-                foreach($timeBase as $restimeBase) {
-                    PDF::Bookmark($restimeBase['equipName'] , 1, 0, '', '', array(128,0,0));
-                    PDF::Cell(0, 10, $restimeBase['equipName'] , 0, 1, 'L');
-                    PDF::AddPage();
+                PDF::Cell(0, 10, '', 0, 1, 'L');
+                $html = '';
+                $html .= '<h3 style ="background-color:#268EE2">Product Graph - Time Based</h3>';
+                foreach($timeBase as $timeBases) {
+                    PDF::Bookmark($timeBases['equipName'] , 1, 0, '', '', array(128,0,0));
+                    PDF::Cell(0, 10, '', 0, 1, 'L');
+                    $html .='<h3>'. $timeBases['equipName'] .'</h3>';
+                    if ($ISOVALUE_V == 1) {
+                        $html .='
+                        <h3>Values</h3>
+                        <div class="values-graphic"> 
+                            <div class="table table-bordered">
+                            <table border="0.5">
+                                <tr>
+                                    <th align="center">Points</th>
+                                    <th align="center">('. $timeBases['timeSymbol'] .')</th>';
+                                    foreach ($timeBases['result'] as $key => $points) {
+                                        $html .='<th align="center"> '. $timeBases['result'][$key]['points'] .'</th>';
+                                    }
+                                    $html .='</tr>
+                                <tr>
+                                    <td align="center"> "Top" . ( '. $timeBases['label']['top'] .' ) </td>
+                                    <td align="center">( '. $timeBases['temperatureSymbol'] .' )</td>';
+                                    foreach ($timeBases['result'] as $key => $tops) {
+                                        $html .='<td align="center"> '. $timeBases['result'][$key]['top'] .'</td>';
+                                    }
+                                    $html .='</tr>
+                                <tr>
+                                    <td align="center"> "Internal" . ( '. $timeBases['label']['int'] .' )</td>
+                                    <td align="center">( '. $timeBases['temperatureSymbol'] .' )</td>';
+                                    foreach ($timeBases['result'] as $key => $internals) {
+                                        $html .='<td align="center"> '. $timeBases['result'][$key]['int'] .'</td>';
+                                    }
+                                    $html .='</tr>
+                                <tr>
+                                    <td align="center"> "Bottom" . ( '. $timeBases['label']['bot'] .' )</td>
+                                    <td align="center">( '. $timeBases['temperatureSymbol'] .' )</td>';
+                                    foreach ($timeBases['result'] as $key => $bottoms) {
+                                        $html .='<td align="center"> '. $timeBases['result'][$key]['bot'] .'</td>';
+                                    }
+                                    $html .='</tr>
+                                <tr>
+                                    <td align="center">Avg. Temp.</td>
+                                    <td align="center">( '. $timeBases['temperatureSymbol'] .' )</td>';
+                                    foreach ($timeBases['result'] as $key => $avgs) {
+                                        $html .='<td align="center"> '. $timeBases['result'][$key]['average'] .'</td>';
+                                    }
+                                    $html .='</tr>
+                            </table>
+                            </div>
+                        </div>';
+                        PDF::writeHTML($html, true, false, true, false, '');
+                    }
+                    if ($ISOVALUE_G == 1) {
+                        $html = '';
+                        $html .='<h3>Graphic</h3>
+                        <img width="640" height="450" src="'. $public_path .'/timeBased/'.$study['USERNAM'] .'/'.$timeBases['idStudyEquipment'] .'.png">';
+                        PDF::writeHTML($html, true, false, true, false, '');
+                    }
                 }
+                PDF::AddPage();
             }
         }
         
         if (!empty($pro2Dchart)) {
             if ($CONTOUR2D_G == 1) {
                 PDF::Bookmark('2D OUTLINES', 0, 0, '', 'B', array(0,64,128));
-                PDF::Cell(0, 10, '2D Outlines', 0, 1, 'L');
-                PDF::AddPage();
+                PDF::Cell(0, 10, '', 0, 1, 'L');
+                $html ='';
+                $html .= '<h3 style ="background-color:#268EE2">2D Outlines</h3>';
                 foreach ($pro2Dchart as $key => $pro2Dcharts) {
                     if ($shapeCode == 2 || $shapeCode == 9) {
                         if ($equipData[$key]['ORIENTATION'] == 1) {
                             PDF::Bookmark($pro2Dcharts['equipName'] . 'Slice 23 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
-                            PDF::Cell(0, 10, $pro2Dcharts['equipName'] , 0, 1, 'L');
-                            PDF::AddPage();
+                            PDF::Cell(0, 10, '' , 0, 1, 'L');
+                            $html .='<h3>'. $pro2Dcharts['equipName'] . 'Slice 23 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
+                            $html .= '
+                            <div class="outlines"> 
+                                <img width="640" height="450" src="'. $public_path.'/heatmap/'.$study['USERNAM'].'/'.$pro2Dcharts['idStudyEquipment'].'/'. $pro2Dcharts['lfDwellingTime'].'-'.$pro2Dcharts['chartTempInterval'][0].'-'. $pro2Dcharts['chartTempInterval'][1].'-'.$pro2Dcharts['chartTempInterval'][2].'.png">
+                            </div>';
+                            PDF::writeHTML($html, true, false, true, false, '');
                         } else {
                             PDF::Bookmark($pro2Dcharts['equipName'] . 'Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
-                            PDF::Cell(0, 10, $pro2Dcharts['equipName'] , 0, 1, 'L');
-                            PDF::AddPage();
+                            PDF::Cell(0, 10, '', 0, 1, 'L');
+                            $html .='<h3>'. $pro2Dcharts['equipName'] . 'Slice 23 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
+                            $html .= '
+                            <div class="outlines"> 
+                            <img width="640" height="450" src="'. $public_path.'/heatmap/'.$study['USERNAM'].'/'.$pro2Dcharts['idStudyEquipment'].'/'. $pro2Dcharts['lfDwellingTime'].'-'.$pro2Dcharts['chartTempInterval'][0].'-'. $pro2Dcharts['chartTempInterval'][1].'-'.$pro2Dcharts['chartTempInterval'][2].'.png">
+                            </div>';
+                            PDF::writeHTML($html, true, false, true, false, '');
                         }
                     } else if ($shapeCode != 1 || $shapeCode != 6) {
                         PDF::Bookmark($pro2Dcharts['equipName'] . 'Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
-                        PDF::Cell(0, 10, $pro2Dcharts['equipName'] , 0, 1, 'L');
-                        PDF::AddPage();
+                        PDF::Cell(0, 10, '', 0, 1, 'L');
+                        $html .='<h3>'. $pro2Dcharts['equipName'] . 'Slice 23 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
+                        $html .= '
+                        <div class="outlines"> 
+                        <img width="640" height="450" src="'. $public_path.'/heatmap/'.$study['USERNAM'].'/'.$pro2Dcharts['idStudyEquipment'].'/'. $pro2Dcharts['lfDwellingTime'].'-'.$pro2Dcharts['chartTempInterval'][0].'-'. $pro2Dcharts['chartTempInterval'][1].'-'.$pro2Dcharts['chartTempInterval'][2].'.png">
+                        </div>';
+                        PDF::writeHTML($html, true, false, true, false, '');
                     }
                 }
+                PDF::AddPage();
             }
         }
 
         PDF::Bookmark('COMMENTS ', 0, 0, '', 'B', array(0,64,128));
-        PDF::Cell(0, 10, 'Comments', 0, 1, 'L');
-        PDF::AddPage();
-        
-        $view = $this->viewPDF($study, $production, $product, $proElmt, $shapeName, 
-        $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
-        $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase, 
-        $symbol, $public_path, $pro2Dchart, $params);
-        $html= $view->render();
+        PDF::Cell(0, 10, '', 0, 1, 'L');
+        $html ='';
+        $html .= '<h3 style ="background-color:#268EE2">Comments </h3>
+        <div class="comment">
+             <p>
+                <textarea  rows="5"> '. $REPORT_COMMENT .' </textarea>
+            </p>
+        </div>
 
-        PDF::SetFont('times', 'B', 10);
+        <div class="info-writer">
+            <div align="center">
+                <p>';
+                if (!empty($study['reports'][0]['PHOTO_PATH'])) {
+                    $html .= '<img src="'. $study['reports'][0]['PHOTO_PATH'].'">';
+                } else {
+                    $html .= '<img src="'. $public_path.'/uploads/globe_food.gif">';
+                }
+                $html .= '</p>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <tr>
+                        <th colspan="6">Study realized by</th>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Company name</td>
+                        <td colspan="2"> '. $WRITER_SURNAME .' </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Surname/Name</td>
+                        <td colspan="2"> '. $WRITER_NAME .' </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Function</td>
+                        <td colspan="2"> '. $WRITER_FUNCTION .' </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Contact</td>
+                        <td colspan="2"> '. $WRITER_COORD .' </td>
+                    </tr>
+                </table>
+            </div>
+        </div>';
         PDF::writeHTML($html, true, false, true, false, '');
         PDF::AddPage();
+
+        
         
         // add a new page for TOC
         PDF::addTOCPage();
         PDF::setCellMargins(1, 1, 1, 1);
+
         PDF::MultiCell(0, 0, 'Table Of Content', 0, 'C', 0, 1, '', '', true, 0);
         PDF::Ln();
         // define styles for various bookmark levels
@@ -1061,8 +1945,8 @@ class Reports extends Controller
     }
     
     function backgroundGenerationHTML($params) {
-        $id = $params['studyId'];
-        $input = $params['input'];
+        $id = $params['$studyId'];
+        $input = $params['$input'];
         $DEST_SURNAME = $input['DEST_SURNAME'];
         $DEST_NAME = $input['DEST_NAME'];
         $DEST_FUNCTION = $input['DEST_FUNCTION'];
@@ -1139,7 +2023,7 @@ class Reports extends Controller
         if ($REP_CUSTOMER == 1) {
             $progress .= "Production";
             // $progress = "\n$study";
-            file_put_contents($progressFile, $progress);
+            $this->writeProgressFile($progressFile, $progress);
         }
         
         $product = Product::Where('ID_STUDY', $id)->first();
@@ -1167,13 +2051,13 @@ class Reports extends Controller
         }
         if ($PROD_LIST == 1) {
             $progress .= "\nProduct";
-            file_put_contents($progressFile, $progress);
+            $this->writeProgressFile($progressFile, $progress);
         }
         
         $equipData = $this->stdeqp->findStudyEquipmentsByStudy($study);
         if ($EQUIP_LIST == 1) {
             $progress .= "\nEquiment";
-            file_put_contents($progressFile, $progress);
+            $this->writeProgressFile($progressFile, $progress);
         }
         
         $symbol = $this->reportserv->getSymbol($study->ID_STUDY);
@@ -1183,7 +2067,7 @@ class Reports extends Controller
             if ($study->OPTION_CRYOPIPELINE == 1) {
                 $cryogenPipeline = $this->pipelines->loadPipeline($study->ID_STUDY);
                 $progress .= "\nPipeline Elements";
-                file_put_contents($progressFile, $progress);
+                $this->writeProgressFile($progressFile, $progress);
                 
             } else {
                 $cryogenPipeline = "";
@@ -1197,7 +2081,7 @@ class Reports extends Controller
         if ($CONS_OVERALL == 1 || $CONS_TOTAL ==1 || $CONS_SPECIFIC  == 1 || $CONS_HOUR ==1 || $CONS_DAY == 1||
             $CONS_WEEK == 1 || $CONS_MONTH == 1 || $CONS_YEAR ==1 || $CONS_EQUIP ==1 || $CONS_PIPE == 1 || $CONS_TANK ==1) {
             $progress .= "\nConsumptions Results";
-            file_put_contents($progressFile, $progress);
+            $this->writeProgressFile($progressFile, $progress);
         }
         
         if ($isSizingValuesChosen == 1 || $isSizingValuesMax == 1) {
@@ -1210,7 +2094,7 @@ class Reports extends Controller
                 $calModeHbMax = "";
             }
             $progress .= "\nSizing";
-            file_put_contents($progressFile, $progress);
+            $this->writeProgressFile($progressFile, $progress);
         } else {
             $calModeHeadBalance = "";
             $calModeHbMax = "";
@@ -1218,7 +2102,7 @@ class Reports extends Controller
 
         if ($REP_CONS_PIE == 1) {
             $progress .= "\nConsumptions Pies";
-            file_put_contents($progressFile, $progress);
+            $this->writeProgressFile($progressFile, $progress);
         }
         
         $proInfoStudy = $this->reportserv->getProInfoStudy($study->ID_STUDY);
@@ -1343,17 +2227,17 @@ class Reports extends Controller
             if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
                 $progress .= "\nProduct Section";
             }
-            file_put_contents($progressFile, $progress);
+            $this->writeProgressFile($progressFile, $progress);
             
             if ($CONTOUR2D_G == 1) {
                 if (($shapeCode != 1) || ($shapeCode != 6)) {
                 $progress .= "\nContour";
-                file_put_contents($progressFile, $progress);
+                $this->writeProgressFile($progressFile, $progress);
                 }
             }
         }
         $progress .= "\nFINISH";
-        file_put_contents($progressFile, $progress);
+        $this->writeProgressFile($progressFile, $progress);
         
         $myfile = fopen( $public_path. "/reports/" . "/" . $study->USERNAM."/" . $name_report, "w") or die("Unable to open file!");
         $html = $this->viewHtml($study ,$production, $product, $proElmt, $shapeName, 
@@ -1387,7 +2271,7 @@ class Reports extends Controller
     }
     
     public function downLoadHtmlToPDF($studyId)
-    {   
+    {   $
         $input = $this->request->all();
         $params['studyId'] = $studyId;
         $params['input'] = $input;
@@ -1406,38 +2290,6 @@ class Reports extends Controller
         
         exit("{'processing':true}");
         return ['processing' => true];  
-    }
-    
-    public function viewPDF($study ,$production, $product, $proElmt, $shapeName, 
-    $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
-    $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase , $symbol, 
-    $public_path, $pro2Dchart, $params) 
-    {
-        $arrayParam = [
-            'study' => $study,
-            'production' => $production,
-            'product' => $product,
-            'proElmt' => $proElmt,
-            'shapeName' => $shapeName,
-            'proInfoStudy' => $proInfoStudy,
-            'symbol' => $symbol,
-            'public_path' => $public_path,
-            'params' => $params['input'],
-        ];
-        $param = [
-            'arrayParam' => $arrayParam,
-            'productComps' => $productComps,
-            'equipData' => $equipData,
-            'cryogenPipeline' => $cryogenPipeline,
-            'consumptions' => $consumptions,
-            'calModeHeadBalance' => $calModeHeadBalance,
-            'calModeHbMax' => $calModeHbMax,
-            'heatexchange' => $heatexchange,
-            'proSections' => $proSections,
-            'timeBase' => $timeBase,
-            'pro2Dchart' => $pro2Dchart,
-        ];
-        return view('report.view_report', $param);
     }
 
     public function viewHtml($study ,$production, $product, $proElmt, $shapeName, 
@@ -1475,10 +2327,11 @@ class Reports extends Controller
     function processingReport($id) {
         $study = Study::find($id);
         $public_path = rtrim(app()->basePath("public/"), '/');
-        $progressFile = "$study->ID_STUDY- $study->STUDY_NAME-Report.progess";
-        $file = file_get_contents($public_path. "/reports/" . $study->USERNAM. "/" .$progressFile);
-        $array = explode("\n",$file);
-        return $array;
+        $progressFile = "$study->ID_STUDY-$study->STUDY_NAME-Report.progess";
+        $progressFileHtml = 'http://'.$_SERVER['HTTP_HOST'].'/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . $study->STUDY_NAME . '-Report.html';
+        $file = file_get_contents($public_path . "/reports/" . $study->USERNAM . "/" . $progressFile);
+        $progress = explode("\n", $file);
+        return compact('progressFileHtml', 'progress');
     }
 
     // HAIDT
