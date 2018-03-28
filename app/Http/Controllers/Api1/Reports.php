@@ -830,25 +830,23 @@ class Reports extends Controller
         $this->writeProgressFile($progressFile, $progress);
 
         // set document information
-        PDF::setPageOrientation('L', 'A4');
         PDF::SetTitle('Cryosoft Report');
         PDF::SetSubject('UserName - StudyName');
-
+        
         // set default header data
-        // PDF::setHeaderData($host . "/" . $public_path . "/uploads/" . 'logo_cryosoft.png', 30, $study->STUDY_NAME,'Report', array(0,64,128), array(0,64,128));
-        // PDF::setFooterData(array(0,64,255), array(0,64,128));
-        PDF::SetHeaderData($host . "/" . $public_path . "/uploads/" . 'logo_cryosoft.png', 30, $study->STUDY_NAME,'Report', array(0,64,128), array(0,64,128));
-        PDF::setFooterData(array(0,64,0), array(0,64,128));
-        // set header and footer fonts
-        PDF::setHeaderFont(Array('helvetica', '', 10));
-
-        // set default monospaced font
-        PDF::SetDefaultMonospacedFont('courier');
-
+        PDF::setPageOrientation('L', 'A4');
         // set margins
         PDF::SetMargins(10, 10, 10, true);
         PDF::SetHeaderMargin(5);
         PDF::SetFooterMargin(10);
+        PDF::setHeaderFont(Array('helvetica', '', 10));
+        PDF::SetHeaderData($host . "/" . $public_path . "/uploads/" . 'logo_cryosoft.png', 30, $study->STUDY_NAME,'Report', array(0,64,128), array(0,64,128));
+        PDF::setFooterData(array(0,64,0), array(0,64,128));
+        // set header and footer fonts
+
+        // set default monospaced font
+        PDF::SetDefaultMonospacedFont('courier');
+
 
        // set auto page breaks
        PDF::SetAutoPageBreak(TRUE, 15);
