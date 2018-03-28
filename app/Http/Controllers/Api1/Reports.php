@@ -2271,7 +2271,7 @@ class Reports extends Controller
     }
     
     public function downLoadHtmlToPDF($studyId)
-    {   $
+    {  
         $input = $this->request->all();
         $params['studyId'] = $studyId;
         $params['input'] = $input;
