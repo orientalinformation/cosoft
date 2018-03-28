@@ -32,39 +32,37 @@
                 <img src="<?php echo  $arrayParam['host'] . "/uploads/banner_cryosoft.png"?>">
             </div>
             <div class="table-responsive">
-                <div class="table table-bordered" border="1">
-                    <table>
-                        <tr>
-                            <th colspan="6">Customer</th>
-                        </tr>
-                        <tr>
-                            <td colspan="4">Company name</td>
-                            <td colspan="2"> <?php echo $arrayParam['params']['DEST_SURNAME'] ?> </td>
-                        </tr>
-                        <tr>
-                            <td colspan="4">Surname / Name</td>
-                            <td colspan="2"><?php echo $arrayParam['params']['DEST_NAME'] ?></td>
-                        </tr>
-                        <tr>
-                            <td colspan="4">Function</td>
-                            <td colspan="2"><?php echo $arrayParam['params']['DEST_FUNCTION'] ?></td>
-                        </tr>
-                        <tr>
-                            <td colspan="4">Contact</td>
-                            <td colspan="2"> <?php echo $arrayParam['params']['DEST_COORD'] ?></td>
-                        </tr>
-                        <tr>
-                            <td colspan="4">Date of the redivort generation</td>
-                            <td colspan="2"><?php echo date("d/m/Y") ?></td>
-                        </tr>
-                    </table>
-                </div>
+                <table class="table table-bordered" border="1">
+                    <tr>
+                        <th colspan="6">Customer</th>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Company name</td>
+                        <td colspan="2"> <?php echo $arrayParam['params']['DEST_SURNAME'] ?> </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Surname / Name</td>
+                        <td colspan="2"><?php echo $arrayParam['params']['DEST_NAME'] ?></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Function</td>
+                        <td colspan="2"><?php echo $arrayParam['params']['DEST_FUNCTION'] ?></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Contact</td>
+                        <td colspan="2"> <?php echo $arrayParam['params']['DEST_COORD'] ?></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Date of the redivort generation</td>
+                        <td colspan="2"><?php echo date("d/m/Y") ?></td>
+                    </tr>
+                </table>
             </div>
             
             <div class="text-center">
-                    <p>
-                        <img src="<?php echo !empty($arrayParam['params']['PHOTO_PATH']) ? $arrayParam['params']['PHOTO_PATH'] : $arrayParam['host'] . "/uploads/globe_food.gif"?>">
-                    </p>
+                <p>
+                    <img src="<?php echo !empty($arrayParam['params']['PHOTO_PATH']) ? $arrayParam['params']['PHOTO_PATH'] : $arrayParam['host'] . "/uploads/globe_food.gif"?>">
+                </p>
             </div>
             <div class="table-responsive" style="color:red">
                 <table class ="table table-bordered" border="1">
@@ -91,6 +89,7 @@
                 </table>
             </div>
         </div>
+        <?php if (!empty($calModeHeadBalance)) { ?>
         <?php if (($arrayParam['study']['CHAINING_CONTROLS'] == 1) && ($arrayParam['study']['PARENT_ID'] != 0)) { ?>
         <h4>Chaining synthesis</h4>
         <div class="table-responsive">
@@ -121,6 +120,7 @@
                     </table>
                 </div>
             </div>
+        <?php } ?>
         <?php } ?>
 
         
@@ -870,30 +870,27 @@
                 </p>
             </div>
             <div class="table-responsive">
-                <div class="table table-bordered">
-                    <table>
-                        <tr>
-                            <th colspan="6">Study realized by</th>
-                        </tr>
-                        <tr>
-                            <td colspan="4">Company name</td>
-                            <td colspan="2"><?php echo $arrayParam['params']['WRITER_SURNAME'] ?></td>
-                        </tr>
-                        <tr>
-                            <td colspan="4">Surname / Name</td>
-                            <td colspan="2"><?php echo $arrayParam['params']['WRITER_NAME'] ?></td>
-                        </tr>
-                        <tr>
-                            <td colspan="4">Function</td>
-                            <td colspan="2"><?php echo $arrayParam['params']['WRITER_FUNCTION'] ?></td>
-                        </tr>
-                        <tr>
-                            <td colspan="4">Contact</td>
-                            <td colspan="2"><?php echo $arrayParam['params']['WRITER_COORD'] ?></td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
+                <table class="table table-bordered">
+                    <tr>
+                        <th colspan="6">Study realized by</th>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Company name</td>
+                        <td colspan="2"><?php echo $arrayParam['params']['WRITER_SURNAME'] ?></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Surname / Name</td>
+                        <td colspan="2"><?php echo $arrayParam['params']['WRITER_NAME'] ?></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Function</td>
+                        <td colspan="2"><?php echo $arrayParam['params']['WRITER_FUNCTION'] ?></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Contact</td>
+                        <td colspan="2"><?php echo $arrayParam['params']['WRITER_COORD'] ?></td>
+                    </tr>
+                </table>
             </div>
         </div>
     </body>

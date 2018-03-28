@@ -4,29 +4,48 @@
             <div class="row">
                 <div class="col-md-6">
                     <?php if (!empty($arrayParam['params']['CUSTOMER_PATH'])) { ?>
-                        <img src="<?php echo $arrayParam['params']['CUSTOMER_PATH']?>">
+                        <img style="max-width: 640px" src="<?php echo $arrayParam['params']['CUSTOMER_PATH']?>">
                     <?php } ?>
                 </div>
                 <div class="col-md-6">
-                    <div class="pull-right">
-                            <img src="<?php echo  $arrayParam['public_path'] . "/uploads/logo_cryosoft.png"?>">
-                    </div>
+                    
                 </div>
             </div>
         </div>
         
         <div class="info-company">
             <div align="center">
-                    <img src="<?php echo  $arrayParam['public_path'] . "/uploads/banner_cryosoft.png"?>">
+                    <img style="max-width: 640px" src="<?php echo  $arrayParam['public_path'] . "/uploads/banner_cryosoft.png"?>">
             </div>
-            <div><b><u>Customer:</u></b></div>
-                <div><b>Company name : <u style="margin-left: 40px"><?php echo $arrayParam['params']['DEST_SURNAME']?></u> </b></div>
-                <div><b>Surname / Name : <u style="margin-left: 40px"> <?php echo $arrayParam['params']['DEST_NAME']?></u> </b></div>
-                <div><b>Function : <u style="margin-left: 40px"> <?php echo $arrayParam['params']['DEST_FUNCTION']?></u> </b></div>
-                <div><b>Contact : <u style="margin-left: 40px"> <?php echo $arrayParam['params']['DEST_COORD'] ?></u> </b></div>
-                <div><b>Date of the redivort generation : <u style="margin-left: 40px"> <?php echo date("d/m/Y") ?></u>  </b></div>
+            <div class="table-responsive">
+                <table class="table table-bordered" border="1">
+                    <tr>
+                        <th colspan="6">Customer</th>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Company name</td>
+                        <td colspan="2"> <?php echo $arrayParam['params']['DEST_SURNAME'] ?> </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Surname / Name</td>
+                        <td colspan="2"><?php echo $arrayParam['params']['DEST_NAME'] ?></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Function</td>
+                        <td colspan="2"><?php echo $arrayParam['params']['DEST_FUNCTION'] ?></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Contact</td>
+                        <td colspan="2"> <?php echo $arrayParam['params']['DEST_COORD'] ?></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Date of the redivort generation</td>
+                        <td colspan="2"><?php echo date("d/m/Y") ?></td>
+                    </tr>
+                </table>
+            </div>
             <div align="center">
-                        <img src="<?php echo !empty($arrayParam['params']['PHOTO_PATH']) ? $arrayParam['params']['PHOTO_PATH'] : $arrayParam['public_path'] . "/uploads/globe_food.gif"?>">
+                <img style="max-width: 640px" src="<?php echo !empty($arrayParam['params']['PHOTO_PATH']) ? $arrayParam['params']['PHOTO_PATH'] : $arrayParam['public_path'] . "/uploads/globe_food.gif"?>">
             </div>
             <p></p><p></p><p></p>
             <div class="table-responsive" style="color:red">
@@ -89,7 +108,7 @@
             </div>
         <?php } ?>
 
-        <?php if ($arrayParam['params']['REP_CUSTOMER'] == 1) { ?>                
+        <?php if ($arrayParam['params']['REP_CUSTOMER'] == 1) { ?>   
         <div class="production">
             <div class="table table-bordered">
                 <table border="0.5">
@@ -220,6 +239,7 @@
         </div>
         <?php } ?>
 
+        <?php if (!empty($equipData)) {?>
         <?php if ($arrayParam['params']['EQUIP_LIST'] == 1) { ?>
         <h3>Equipment data</h3>
         <div class="equipment-data">
@@ -248,6 +268,7 @@
             </table>
             </div>
         </div>
+        <?php } ?>
         <?php } ?>
         
         <?php if ($arrayParam['params']['ASSES_ECO'] == 1) { ?>
@@ -631,7 +652,7 @@
         <?php if ($arrayParam['params']['SIZING_GRAPHE'] == 1) { ?>   
         <h4>Graphic</h4>
         <div class ="graphic">
-            <img src="<?php echo $arrayParam['public_path'] . "/sizing/" . $arrayParam['study']['USERNAM'] . "/" .  $arrayParam['study']['ID_STUDY'] . ".png" ?>">
+            <img style="max-width: 640px" src="<?php echo $arrayParam['public_path'] . "/sizing/" . $arrayParam['study']['USERNAM'] . "/" .  $arrayParam['study']['ID_STUDY'] . ".png" ?>">
         </div>
         <?php } ?>
         <?php } ?>
@@ -665,7 +686,7 @@
             <?php } ?>
             <?php if ($arrayParam['params']['ENTHALPY_G'] == 1) { ?>
             <div id="hexchGraphic">
-                <img src="<?php echo $arrayParam['public_path'] . "/heatExchange/" . $arrayParam['study']['USERNAM'] . "/" .  $resheatexchanges['idStudyEquipment'] . ".png" ?>">
+                <img style="max-width: 640px" src="<?php echo $arrayParam['public_path'] . "/heatExchange/" . $arrayParam['study']['USERNAM'] . "/" .  $resheatexchanges['idStudyEquipment'] . ".png" ?>">
             </div>
             <?php } ?>
             <?php } ?>
@@ -721,7 +742,7 @@
                 <img src="<?php echo $arrayParam['public_path'] . "/productSection/" . $arrayParam['study']['USERNAM'] . "/" .  $resproSections['idStudyEquipment'] . "-" . $resproSections['selectedAxe'] . ".png" ?>">
                 <?php } else if ($resproSections['selectedAxe'] == 3) {?>
                 Graphic - Dimension <?php echo $resproSections['selectedAxe'] . "(" . $resproSections['axeTemp'][0] . "," . $resproSections['axeTemp'][0] . ",*" . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?>  
-                <img src="<?php echo $arrayParam['public_path'] . "/productSection/" . $arrayParam['study']['USERNAM'] . "/" .  $resproSections['idStudyEquipment'] . "-" . $resproSections['selectedAxe'] . ".png" ?>">
+                <img style="max-width: 640px" src="<?php echo $arrayParam['public_path'] . "/productSection/" . $arrayParam['study']['USERNAM'] . "/" .  $resproSections['idStudyEquipment'] . "-" . $resproSections['selectedAxe'] . ".png" ?>">
                 <?php } ?>
                 </div>
                 <?php } ?>
@@ -779,7 +800,7 @@
         <?php } ?>
         <?php if ($arrayParam['params']['ISOVALUE_G'] == 1) { ?> 
         <div class="pro-graphic">
-        <img src="<?php echo $arrayParam['public_path'] . "/timeBased/" . $arrayParam['study']['USERNAM'] . "/" .  $timeBases['idStudyEquipment'] . ".png" ?>">
+        <img style="max-width: 640px" src="<?php echo $arrayParam['public_path'] . "/timeBased/" . $arrayParam['study']['USERNAM'] . "/" .  $timeBases['idStudyEquipment'] . ".png" ?>">
         </div>
         <?php } ?>
         <?php } ?>
@@ -791,7 +812,7 @@
             <?php foreach ($pro2Dchart as $pro2Dcharts) {?>
             <h3><?php echo $pro2Dcharts['equipName'] ?></h3>
                 <div class="outlines"> 
-                <img src="<?php echo $arrayParam['public_path'] . "/heatmap/" . $arrayParam['study']['USERNAM'] . "/" .  $pro2Dcharts['idStudyEquipment'] . "/" . $pro2Dcharts['lfDwellingTime'] . "-" 
+                <img style="max-width: 640px" src="<?php echo $arrayParam['public_path'] . "/heatmap/" . $arrayParam['study']['USERNAM'] . "/" .  $pro2Dcharts['idStudyEquipment'] . "/" . $pro2Dcharts['lfDwellingTime'] . "-" 
                 . $pro2Dcharts['chartTempInterval'][0] . "-" . $pro2Dcharts['chartTempInterval'][1] . "-" . $pro2Dcharts['chartTempInterval'][2] . ".png" ?>">
                 </div>
             <?php } ?>
@@ -808,14 +829,32 @@
         <div class="info-writer">
             <div align="center">
                 <p>
-                    <img src="<?php echo !empty($arrayParam['params']['PHOTO_PATH']) ? $arrayParam['params']['PHOTO_PATH'] : $arrayParam['public_path'] . "/uploads/globe_food.gif"?>">
+                    <img style="max-width: 640px" src="<?php echo !empty($arrayParam['params']['PHOTO_PATH']) ? $arrayParam['params']['PHOTO_PATH'] : $arrayParam['public_path'] . "/uploads/globe_food.gif"?>">
                 </p>
             </div>
-            <div><b><u>Study realized by :</u></b></div>
-                <div><b>Company name : <u style="margin-left: 40px"><?php echo $arrayParam['params']['WRITER_SURNAME'] ?></u> </b></div>
-                <div><b>Surname / Name : <u style="margin-left: 40px"><?php echo $arrayParam['params']['WRITER_NAME'] ?></u></b></div>
-                <div><b>Function : <u style="margin-left: 40px"><?php echo $arrayParam['params']['WRITER_FUNCTION'] ?></u></b></div>
-                <div><b>Contact : <u style="margin-left: 40px"><?php echo $arrayParam['params']['WRITER_COORD'] ?></u></b></div>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <tr>
+                        <th colspan="6">Study realized by</th>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Company name</td>
+                        <td colspan="2"><?php echo $arrayParam['params']['WRITER_SURNAME'] ?></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Surname / Name</td>
+                        <td colspan="2"><?php echo $arrayParam['params']['WRITER_NAME'] ?></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Function</td>
+                        <td colspan="2"><?php echo $arrayParam['params']['WRITER_FUNCTION'] ?></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Contact</td>
+                        <td colspan="2"><?php echo $arrayParam['params']['WRITER_COORD'] ?></td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </body>
 </html>

@@ -825,6 +825,46 @@ class ReportService
                 $resultValue[$key][] = $value;
             }
         }
+
+        $f = fopen("/tmp/productSection.inp", "w");
+
+        $dataLabel = '';
+        fputs($f, '"X" ');
+        foreach ($resultLabel as $row) {
+            $dataLabel .= '"Temperature T' . $row . '(' . $this->unit->timeSymbol() . ')' . '"' . ' ';
+        } 
+
+        fputs($f, $dataLabel);
+        fputs($f, "\n");
+
+        $i = 0;
+        foreach ($resultValue as $key => $row) {
+            $dataValue = '';
+            $dataValue = $i . ' ';
+            foreach ($row as $value) {
+                $dataValue .= $value . ' ';
+            }
+            fputs($f, $dataValue);
+            fputs($f, "\n");
+            $i++;
+        }
+        fclose($f);
+
+        $study = Study::find($idStudy);
+        $userName = $study->USERNAM;
+        $productSectionFolder = $this->output->public_path('productSection');
+
+        if (!is_dir($productSectionFolder)) {
+            mkdir($productSectionFolder, 0777);
+        }
+        if (!is_dir($productSectionFolder . '/' . $userName)) {
+            mkdir($productSectionFolder . '/' . $userName, 0777);
+        }
+
+        $fileName = $idStudyEquipment . '-' . $selectedAxe;
+
+        system('gnuplot -c '. $this->plotFolder .'/productSection.plot "('. $this->unit->prodchartDimensionSymbol() .')" "('. $this->unit->temperatureSymbol() .')" "'. $productSectionFolder . '/' . $userName .'" "'. $fileName .'"');
+
         $result["recAxis"] = $recAxis;
         $result["mesAxis"] = $mesAxis;
         $result["resultValue"] = $resultValue;
@@ -905,6 +945,33 @@ class ReportService
 
             $label["bot"] = $this->unit->meshesUnit($tempRecordPts->AXIS1_PT_BOT_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_BOT_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_BOT_SURF);
         }
+
+        $f = fopen("/tmp/timeBased.inp", "w");
+
+        $dataLabel = '';
+        fputs($f, '"X" ');
+        fputs($f, '"Top('. $label['top'] .')" ');
+        fputs($f, '"Internal('. $label['int'] .')" ');
+        fputs($f, '"Bottom('. $label['bot'] .')" ');
+        fputs($f, '"Average temperature"'. "\n");
+
+        $study = Study::find($idStudy);
+        $userName = $study->USERNAM;
+        $timeBasedFolder = $this->output->public_path('timeBased');
+
+        if (!is_dir($timeBasedFolder)) {
+            mkdir($timeBasedFolder, 0777);
+        }
+        if (!is_dir($timeBasedFolder . '/' . $userName)) {
+            mkdir($timeBasedFolder . '/' . $userName, 0777);
+        }
+
+        foreach ($curve['top'] as $key => $row) {
+            fputs($f, (double) $row['x'] . ' ' . (double) $row['y'] . ' ' . (double) $curve['bot'][$key]['y'] . ' ' . (double) $curve['int'][$key]['y'] . ' ' . (double) $curve['average'][$key]['y'] . "\n");
+        } 
+        fclose($f);
+
+        system('gnuplot -c '. $this->plotFolder .'/timeBased.plot "('. $this->unit->timeSymbol() .')" "('. $this->unit->temperatureSymbol() .')" "'. $timeBasedFolder . '/' . $userName .'" "'. $idStudyEquipment .'"');
 
         return compact("label", "result", "timeSymbol", "temperatureSymbol", "equipName", "idStudyEquipment");
     }
