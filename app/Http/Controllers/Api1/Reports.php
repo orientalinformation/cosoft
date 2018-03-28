@@ -1945,8 +1945,8 @@ class Reports extends Controller
     }
     
     function backgroundGenerationHTML($params) {
-        $id = $params['$studyId'];
-        $input = $params['$input'];
+        $id = $params['studyId'];
+        $input = $params['input'];
         $DEST_SURNAME = $input['DEST_SURNAME'];
         $DEST_NAME = $input['DEST_NAME'];
         $DEST_FUNCTION = $input['DEST_FUNCTION'];
