@@ -107,7 +107,7 @@ class UnitsService
             $number = round(($number), $decimal, PHP_ROUND_HALF_UP);
             $number = floor($number * pow(10, $decimal)) / pow(10, $decimal);
         } else {
-            $number = round(($value * $coeffA + $coeffB), $decimal);
+            $number = round($number, $decimal);
         }
         
         return number_format((float)$number, $decimal, '.', '');
@@ -179,6 +179,15 @@ class UnitsService
         } else {
             return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, $decimal, 0);
         }
+    }
+
+    public function uPercent()
+    {
+        return array(
+            "coeffA" => "100.0",
+            "coeffB" => "0.0",
+            "symbol" => "%"
+        );
     }
     // HAIDT
 }

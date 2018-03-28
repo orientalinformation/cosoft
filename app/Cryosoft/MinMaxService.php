@@ -126,6 +126,47 @@ class MinMaxService
 
         return $minMax; 
     }
+    
+    public function getMinMaxDeltaTemperature($limitItem)
+    {
+        $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
+        $minMax->LIMIT_MAX = $this->units->deltaTemperature($minMax->LIMIT_MAX, 2, 1);
+        $minMax->LIMIT_MIN = $this->units->deltaTemperature($minMax->LIMIT_MIN, 2, 1);
+        $minMax->DEFAULT_VALUE = $this->units->deltaTemperature($minMax->DEFAULT_VALUE, 2,1);
+
+        return $minMax; 
+    }
+
+    public function getMinMaxUPercent($limitItem)
+    {
+        $uPercent = $this->units->uPercent();		
+        $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
+        $minMax->LIMIT_MAX =  $this->units->convertCalculator($minMax->LIMIT_MAX, $uPercent["coeffA"], $uPercent["coeffB"], 2, 1);
+        $minMax->LIMIT_MIN = $this->units->convertCalculator($minMax->LIMIT_MIN, $uPercent["coeffA"], $uPercent["coeffB"], 2, 1);
+        $minMax->DEFAULT_VALUE = $this->units->convertCalculator($minMax->DEFAULT_VALUE, $uPercent["coeffA"], $uPercent["coeffB"], 2, 1);
+
+        return $minMax; 
+    }
+
+    public function getMinMaxTimeStep($limitItem)
+    {
+        $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
+        $minMax->LIMIT_MAX = $this->units->timeStep($minMax->LIMIT_MAX, 2, 1);
+        $minMax->LIMIT_MIN = $this->units->timeStep($minMax->LIMIT_MIN, 2, 1);
+        $minMax->DEFAULT_VALUE = $this->units->timeStep($minMax->DEFAULT_VALUE, 2,1);
+
+        return $minMax; 
+    }
+
+    public function getMinMaxTemperature($limitItem)
+    {
+        $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
+        $minMax->LIMIT_MAX = $this->units->temperature($minMax->LIMIT_MAX, 2, 1);
+        $minMax->LIMIT_MIN = $this->units->temperature($minMax->LIMIT_MIN, 2, 1);
+        $minMax->DEFAULT_VALUE = $this->units->temperature($minMax->DEFAULT_VALUE, 2,1);
+
+        return $minMax; 
+    }
 
     // end HAIDT
 }

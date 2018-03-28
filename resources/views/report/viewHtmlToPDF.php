@@ -60,9 +60,9 @@
             </div>
             
             <div class="text-center">
-                    <p>
-                        <img src="<?php echo !empty($arrayParam['params']['PHOTO_PATH']) ? $arrayParam['params']['PHOTO_PATH'] : $arrayParam['host'] . "/uploads/globe_food.gif"?>">
-                    </p>
+                <p>
+                    <img src="<?php echo !empty($arrayParam['params']['PHOTO_PATH']) ? $arrayParam['params']['PHOTO_PATH'] : $arrayParam['host'] . "/uploads/globe_food.gif"?>">
+                </p>
             </div>
             <div class="table-responsive" style="color:red">
                 <table class ="table table-bordered" border="1">
@@ -89,6 +89,7 @@
                 </table>
             </div>
         </div>
+        <?php if (!empty($calModeHeadBalance)) { ?>
         <?php if (($arrayParam['study']['CHAINING_CONTROLS'] == 1) && ($arrayParam['study']['PARENT_ID'] != 0)) { ?>
         <h4>Chaining synthesis</h4>
         <div class="table-responsive">
@@ -119,6 +120,7 @@
                     </table>
                 </div>
             </div>
+        <?php } ?>
         <?php } ?>
 
         
@@ -889,7 +891,6 @@
                         <td colspan="2"><?php echo $arrayParam['params']['WRITER_COORD'] ?></td>
                     </tr>
                 </table>
-            </div>
             </div>
         </div>
     </body>
