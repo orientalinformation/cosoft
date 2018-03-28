@@ -858,7 +858,86 @@ class Reports extends Controller
         
         // set some language-dependent strings (optional)
         // ---------------------------------------------------------
-
+        PDF::AddPage();
+        PDF::SetFont('times', 'B', 10);
+        PDF::Bookmark('CONTENT ', 0, 0, '', 'B', array(0,64,128));
+        $html = '';
+        $html .= '<div class="logo">
+            <div class="row">
+                <div class="col-md-6">';
+                    if (!empty($CUSTOMER_PATH)) { 
+                        $html .= '<img style="max-width: 640px" src="'. $study['reports'][0]['CUSTOMER_PATH'] .'">';
+                    }
+        $html .= '</div>
+            </div>
+        </div>
+        
+        <div class="info-company">
+            <div align="center">
+                    <img style="max-width: 640px" src="'.$public_path.'/uploads/banner_cryosoft.png">
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered" border="1">
+                    <tr>
+                        <th colspan="6">Customer</th>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Company name</td>
+                        <td colspan="2"> '. $DEST_SURNAME .'  </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Surname/Name</td>
+                        <td colspan="2">'. $DEST_NAME .' </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Function</td>
+                        <td colspan="2">'. $DEST_FUNCTION .' </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Contact</td>
+                        <td colspan="2"> '. $DEST_COORD .' </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Date of the redivort generation</td>
+                        <td colspan="2">'. date("d/m/Y") .' </td>
+                    </tr>
+                </table>
+            </div>
+            <div align="center">
+                <p>';
+                if (!empty($study['reports'][0]['PHOTO_PATH'])) {
+                    $html .= '<img src="'. $study['reports'][0]['PHOTO_PATH'].'">';
+                } else {
+                    $html .= '<img src="'. $public_path.'/uploads/globe_food.gif">';
+                }
+                $html .= '</p>
+            <p></p><p></p><p></p>
+            <div class="table-responsive" style="color:red">
+                <table class ="table table-bordered" border="1">
+                <tr>
+                    <th align="center" colspan="3"><h3>Study of the product:</h3> '. $study['STUDY_NAME'] .' </th>
+                </tr>
+                <tr>
+                    <td >Calculation mode :</td>
+                    <td align="center" colspan="2">'. ($study['CALCULATION_MODE'] == 3 ? 'Optimum equipment' : 'Estimation' ) .'</td>
+                </tr>
+                <tr>
+                    <td >Economic :</td>
+                    <td align="center" colspan="2">'.( $study['OPTION_ECONO'] == 1 ? 'YES' : 'NO') .' </td>
+                </tr>
+                <tr>
+                    <td >Cryogenic Pipeline :</td>
+                    <td align="center" colspan="2">'. (!empty($cryogenPipeline) ? 'YES' : 'NO') .' </td>
+                </tr>
+                <tr>
+                    <td >Chaining :</td>
+                    <td align="center">'. ($study['CHAINING_CONTROLS'] == 1 ? 'YES' : 'NO') .' </td>
+                    <td align="center">'.  (($study['CHAINING_CONTROLS'] == 1) && ($study['HAS_CHILD'] != 0) && ($study['PARENT_ID'] != 0) ? 'This study is a child' : '') .' </td>
+                </tr>
+                </table>
+            </div>
+        </div>';
+        PDF::writeHTML($html, true, false, true, false, '');
         PDF::AddPage();
         if (($study['CHAINING_CONTROLS'] == 1) && ($study['PARENT_ID'] != 0)) {
             if (!empty($calModeHeadBalance)) {
@@ -902,6 +981,56 @@ class Reports extends Controller
         if ($REP_CUSTOMER == 1)  {
             if (!empty($production)) {
                 PDF::Bookmark('PRODUCTION DATA', 0, 0, '', 'B', array(0,64,128));
+                PDF::Cell(0, 10, '', 0, 1, 'L');
+                $html = '';
+                $html .= '<h3 style ="background-color:#268EE2">Production Data</h3>
+                <div class="production">
+                            <div class="table table-bordered">
+                                <table border="0.5">
+                                <tr>
+                                    <th>Daily production</th>
+                                    <th align="center"> '. $production->DAILY_PROD .'</th>
+                                    <th>Hours/Day</th>
+                                </tr>
+                                <tr>
+                                    <td>Weekly production</td>
+                                    <td align="center"> '. $production->WEEKLY_PROD .'</td>
+                                    <td>Days/Week</td>
+                                </tr>
+                                <tr style="height: 10px;">
+                                    <td>Annual production</td>
+                                    <td align="center"> '. $production->NB_PROD_WEEK_PER_YEAR .'</td>
+                                    <td>Weeks/Year</td>
+                                </tr>
+                                <tr>
+                                    <td>Number of equipment cooldowns</td>
+                                    <td align="center"> '. $production->DAILY_STARTUP .'</td>
+                                    <td>per day</td>
+                                </tr>
+                                <tr>
+                                    <td>Factory Air temperature</td>
+                                    <td align="center"> '. $production->AMBIENT_TEMP .'</td>
+                                    <td>( '. $symbol['temperatureSymbol'] . ' )</td>
+                                </tr>
+                                <tr>
+                                    <td>Relative Humidity of Factory Air</td>
+                                    <td align="center"> '. $production->AMBIENT_HUM .'</td>
+                                    <td>(%)</td>
+                                </tr>
+                                <tr>
+                                    <td>Required Average temperature</td>
+                                    <td align="center"> '. $production->AVG_T_INITIAL .'</td>
+                                    <td>( '. $symbol['temperatureSymbol'] . ' )</td>
+                                </tr>
+                                <tr>
+                                    <td>Required Production Rate</td>
+                                    <td align="center"> '. $production->PROD_FLOW_RATE .'</td>
+                                    <td>( '. $symbol['productFlowSymbol'] .' )</td>
+                                </tr>
+                                </table>
+                            </div>
+                        </div>';
+                PDF::writeHTML($html, true, false, true, false, '');
                 PDF::AddPage();
             }
         }
@@ -1744,6 +1873,49 @@ class Reports extends Controller
         }
 
         PDF::Bookmark('COMMENTS ', 0, 0, '', 'B', array(0,64,128));
+        PDF::Cell(0, 10, '', 0, 1, 'L');
+        $html ='';
+        $html .= '<h3 style ="background-color:#268EE2">Comments </h3>
+        <div class="comment">
+             <p>
+                <textarea  rows="5"> '. $REPORT_COMMENT .' </textarea>
+            </p>
+        </div>
+
+        <div class="info-writer">
+            <div align="center">
+                <p>';
+                if (!empty($study['reports'][0]['PHOTO_PATH'])) {
+                    $html .= '<img src="'. $study['reports'][0]['PHOTO_PATH'].'">';
+                } else {
+                    $html .= '<img src="'. $public_path.'/uploads/globe_food.gif">';
+                }
+                $html .= '</p>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <tr>
+                        <th colspan="6">Study realized by</th>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Company name</td>
+                        <td colspan="2"> '. $WRITER_SURNAME .' </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Surname/Name</td>
+                        <td colspan="2"> '. $WRITER_NAME .' </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Function</td>
+                        <td colspan="2"> '. $WRITER_FUNCTION .' </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Contact</td>
+                        <td colspan="2"> '. $WRITER_COORD .' </td>
+                    </tr>
+                </table>
+            </div>
+        </div>';
         PDF::writeHTML($html, true, false, true, false, '');
         PDF::AddPage();
 
