@@ -423,6 +423,7 @@ class Reports extends Controller
         if (isset($input['ID_STUDY'])) $ID_STUDY = $input['ID_STUDY'];
 
         if (isset($input['ASSES_ECO'])) $ASSES_ECO = $input['ASSES_ECO'];
+
         $SIZING_VALUES = $input['isSizingValuesChosen'];
 
         $mmNbSample1 = $this->minmax->checkMinMaxValue($ENTHALPY_SAMPLE, $this->value->MINMAX_REPORT_NBSAMPLE); 
