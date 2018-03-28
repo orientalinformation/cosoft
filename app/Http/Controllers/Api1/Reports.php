@@ -2157,9 +2157,10 @@ class Reports extends Controller
         $public_path = rtrim(app()->basePath("public/"), '/');
         $progressFile = "$study->ID_STUDY-$study->STUDY_NAME-Report.progess";
         $progressFileHtml = 'http://'.$_SERVER['HTTP_HOST'].'/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . $study->STUDY_NAME . '-Report.html';
+        $progressFilePdf = 'http://'.$_SERVER['HTTP_HOST'].'/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . $study->STUDY_NAME . '-Report.pdf';
         $file = file_get_contents($public_path . "/reports/" . $study->USERNAM . "/" . $progressFile);
         $progress = explode("\n", $file);
-        return compact('progressFileHtml', 'progress');
+        return compact('progressFileHtml', 'progressFilePdf', 'progress');
     }
 
     // HAIDT
