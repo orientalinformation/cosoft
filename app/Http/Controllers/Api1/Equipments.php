@@ -804,12 +804,13 @@ class Equipments extends Controller
         }
         $path = $path1 .' '.$path;
         // end write path and circle point
+        $nbpixY = (PROFILE_CHARTS_HEIGHT - PROFILE_CHARTS_MARGIN_HEIGHT) - ((PROFILE_CHARTS_HEIGHT - (2 * PROFILE_CHARTS_MARGIN_HEIGHT)) + 20);
 
         $array = [
             'MiniMum' => $miniMum,
             'MaxiMum' => $maxiMum,
-            'YAxis' => $YAxis,
-            'XAxis' => $XAxis,
+            'minValueY' => $minValueY,
+            'maxValueY' => $maxValueY,
             'imageWidth' => PROFILE_CHARTS_WIDTH,
             'imageHeight' => PROFILE_CHARTS_HEIGHT, 
             'imageMargeWidth' => PROFILE_CHARTS_MARGIN_WIDTH,
@@ -818,7 +819,9 @@ class Equipments extends Controller
             'Y' =>  $Y,
             'ListOfPoints' => $listOfPoints,
             'path' => $path,
-            'axisline' => $axisline
+            'axisline' => $axisline,
+            'originY' => (PROFILE_CHARTS_HEIGHT - PROFILE_CHARTS_MARGIN_HEIGHT),
+            'nbpixY' => $nbpixY,
         ];
         
         return $array;
