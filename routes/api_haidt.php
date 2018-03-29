@@ -390,3 +390,11 @@ $router->GET('/api/v1/minmax', 'Api1\\CheckMinMax@getMinMax');
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/calculator/calculationparameters', 'Api1\\Calculator@checkCalculationParameters');
+
+/**
+ * POST checkBrainCalculationParameters
+ * Summary:
+ * Notes: check Brain Calculation Parameters
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/calculator/braincalculationparameters', 'Api1\\Calculator@checkBrainCalculationParameters');
