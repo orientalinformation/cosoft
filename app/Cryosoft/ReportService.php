@@ -26,6 +26,7 @@ use App\Models\TempRecordData;
 use App\Models\MeshPosition;
 use App\Models\ProductElmt;
 use App\Models\CalculationParameter;
+use App\Models\Translation;
 
 use App\Cryosoft\ValueListService;
 use App\Cryosoft\UnitsConverterService;
@@ -35,6 +36,7 @@ use App\Cryosoft\EconomicResultsService;
 use App\Cryosoft\StudyService;
 use App\Cryosoft\OutputService;
 use App\Models\LayoutGeneration;
+use App\Models\PackingElmt;
 
 class ReportService
 {
@@ -97,6 +99,7 @@ class ReportService
         $idUser = $this->auth->user()->ID_USER;
         $study = Study::find($idStudy);
         $calculationMode = $study->CALCULATION_MODE;
+        $stuName = $study->STUDY_NAME;
 
         //get study equipment
         $studyEquipments = StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
@@ -224,6 +227,7 @@ class ReportService
             $item["conso_warning"] = $conso_warning;
             $item["toc"] = $toc;
             $item["precision"] = $precision;
+            $item["stuName"] = $stuName;
 
             $result[] = $item;
         }
@@ -1137,12 +1141,34 @@ class ReportService
 
         if ($packing != null) {
             $packingLayers = \App\Models\PackingLayer::where('ID_PACKING', $packing->ID_PACKING)->get();
+            
             for ($i = 0; $i < count($packingLayers); $i++) { 
                 $value = $this->unit->unitConvert(16, $packingLayers[$i]->THICKNESS);
                 $packingLayers[$i]->THICKNESS = $value;
             }
         }
 
-        return compact('packing', 'packingLayers');
+        $packingLayerData = [];
+        $count = 0;
+        foreach ($packingLayers as $key => $pk) {
+            $pkrelease[] = $pk->packingElmt->PACKING_RELEASE;
+            $version = $pk->packingElmt->PACKING_VERSION;
+            $name = \App\Models\PackingLayer::select('LABEL')->join('Translation', 'ID_PACKING_ELMT', '=', 'Translation.ID_TRANSLATION')
+            ->where('ID_PACKING_LAYER', $pk['ID_PACKING_LAYER'])
+            ->where('TRANS_TYPE', 3)->where('ID_TRANSLATION', $pk['ID_PACKING_ELMT'])
+            ->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'DESC')->first();
+            $status = Translation::select('LABEL')->where('TRANS_TYPE', 100)->whereIn('ID_TRANSLATION', $pkrelease)
+            ->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
+            $label = $name->LABEL . "-" . $version  . "(". $status->LABEL .")";
+            $packingLayers[$key]['LABEL'] = $label;
+            
+            $count++;
+        } 
+
+        foreach ($packingLayers as $pk) {
+            $packingLayerData[$pk['PACKING_SIDE_NUMBER']][] = $pk;
+        }
+
+        return compact('packing', 'packingLayerData', 'count');
     }
 }
