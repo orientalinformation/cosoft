@@ -232,27 +232,79 @@
 
         <?php if ($arrayParam['params']['PROD_3D'] == 1) { ?>               
         <h3 style ="background-color:#268EE2">Product 3D</h3>
+        <?php if ($arrayParam['params']['PACKING'] == 1) { ?>
+        <h3 style ="background-color:#268EE2">&& Packing Data</h3>
+        <?php } ?>
         <div class="product3d">
             <div class="table-responsive">
             <table class ="table table-bordered" border="1">
                 <tr>
-                    <th colspan="6" align="center">Packing</th>
-                    <th colspan="2" align="center">3D view of the product</th>
+                    <th colspan="5" align="center">Packing</th>
+                    <th align="center">3D view of the product</th>
                 </tr>
                 <tr>
                     <td rowspan="2">Side</td>
                     <td rowspan="2">Number of layers</td>
-                    <td colspan="3">Packing data</td>
+                    <td colspan="2">Packing data</td>
                     <td rowspan="2">Thickness ()</td>
-                    <td colspan="2" rowspan="2"></td>
+                    <?php if ($arrayParam['params']['PACKING'] == 1) { ?>
+                        <td rowspan="<?php echo count($packings['count'] + 2) ?>"></td>
+                    <?php } else { ?>
+                        <td rowspan="2"></td>
+                    <?php } ?>
                 </tr>
                 <tr>
                     <td>Order</td>
-                    <td colspan="2">Name</td>
+                    <td>Name</td>
                 </tr>
+                <?php if ($arrayParam['params']['PACKING'] == 1) { ?>
+                    <?php if (!empty($packings['packingLayerData']['1'])) { ?>
+                        <?php foreach ($packings['packingLayerData']['1'] as $key => $top) { ?>
+                            <tr>
+                                <?php if ($key == 0) { ?>
+                                    <td rowspan="<?php echo count($packings['packingLayerData']['1'])?>">Top</td>
+                                    <td rowspan="<?php echo count($packings['packingLayerData']['1'])?>"><?php echo count($packings['packingLayerData']['1'])?></td>
+                                <?php } ?>
+                                    <td><?php echo $top['PACKING_LAYER_ORDER'] + 1 ?></td>
+                                    <td><?php echo $top['LABEL'] ?></td>
+                                    <td><?php echo $top['THICKNESS'] ?></td>
+                            </tr>
+                        <?php } ?>
+                    <?php } ?>
+                    <?php if (!empty($packings['packingLayerData']['2'])) { ?>
+                        <?php foreach ($packings['packingLayerData']['2'] as $key => $bottom) { ?>
+                            <tr>
+                                <?php if ($key == 0) { ?>
+                                    <td rowspan="<?php echo count($packings['packingLayerData']['2'])?>">Bottom</td>
+                                    <td rowspan="<?php echo count($packings['packingLayerData']['2'])?>"><?php echo count($packings['packingLayerData']['2'])?></td>
+                                <?php } ?>
+                                    <td><?php echo $bottom['PACKING_LAYER_ORDER'] + 1 ?></td>
+                                    <td><?php echo $bottom['LABEL'] ?></td>
+                                    <td><?php echo $bottom['THICKNESS'] ?></td>
+                            </tr>
+                        <?php } ?>
+                    <?php } ?>
+                    <?php if (!empty($packings['packingLayerData']['3'])) { ?>
+                        <?php foreach ($packings['packingLayerData']['3'] as $key => $sides) { ?>
+                            <tr>
+                                <?php if ($key == 0) { ?>
+                                    <td rowspan="<?php echo count($packings['packingLayerData']['3'])?>">4 Sides</td>
+                                    <td rowspan="<?php echo count($packings['packingLayerData']['3'])?>"><?php echo count($packings['packingLayerData']['3'])?></td>
+                                <?php } ?>
+                                    <td><?php echo $sides['PACKING_LAYER_ORDER'] + 1 ?></td>
+                                    <td><?php echo $sides['LABEL'] ?></td>
+                                    <td><?php echo $sides['THICKNESS'] ?></td>
+                            </tr>
+                        <?php } ?>
+                    <?php } ?>
+                    </table>
+                </div>
+            </div>
+                <?php } else { ?>
             </table>
             </div>
         </div>
+        <?php } ?>
         <?php } ?>
 
         <?php if ($arrayParam['params']['EQUIP_LIST'] == 1) { ?>
@@ -395,53 +447,68 @@
         <?php } ?>
         <?php } ?>
 
-        <?php if ($arrayParam['params']['PACKING'] == 1) { ?>
-        <div class = "Packing">
-            <table>
+        <?php if ($arrayParam['params']['PACKING'] == 1 && $arrayParam['params']['PROD_3D'] != 1) { ?>
+        <div class= "Packing">
+        <div class="table-responsive">
+        <table class ="table table-bordered" border="1">
                 <tr>
-                    <th colspan="10">Packing</th>
-                    <th colspan="4">3D view of the product</th>
+                    <th colspan="5" align="center">Packing</th>
+                    <th align="center">3D view of the product</th>
                 </tr>
                 <tr>
-                    <td colspan="2" rowspan="2">Side</td>
-                    <td colspan="2" rowspan="2">Number of layers</td>
-                    <td colspan="5">Packing data</td>
+                    <td rowspan="2">Side</td>
+                    <td rowspan="2">Number of layers</td>
+                    <td colspan="2">Packing data</td>
                     <td rowspan="2">Thickness ()</td>
-                    <td colspan="4" rowspan="5"></td>
+                    <td rowspan="<?php echo count($packings['count'] + 2) ?>"></td>
+                    
                 </tr>
                 <tr>
                     <td>Order</td>
-                    <td colspan="4">Name</td>
+                    <td>Name</td>
                 </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td colspan="4"></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td colspan="4"></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td colspan="4"></td>
-                    <td></td>
-                </tr>
-            </table>
-        </div>
+                    <?php if (!empty($packings['packingLayerData']['1'])) { ?>
+                        <?php foreach ($packings['packingLayerData']['1'] as $key => $top) { ?>
+                            <tr>
+                                <?php if ($key == 0) { ?>
+                                    <td rowspan="<?php echo count($packings['packingLayerData']['1'])?>">Top</td>
+                                    <td rowspan="<?php echo count($packings['packingLayerData']['1'])?>"><?php echo count($packings['packingLayerData']['1'])?></td>
+                                <?php } ?>
+                                    <td><?php echo $top['PACKING_LAYER_ORDER'] + 1 ?></td>
+                                    <td><?php echo $top['LABEL'] ?></td>
+                                    <td><?php echo $top['THICKNESS'] ?></td>
+                            </tr>
+                        <?php } ?>
+                    <?php } ?>
+                    <?php if (!empty($packings['packingLayerData']['2'])) { ?>
+                        <?php foreach ($packings['packingLayerData']['2'] as $key => $bottom) { ?>
+                            <tr>
+                                <?php if ($key == 0) { ?>
+                                    <td rowspan="<?php echo count($packings['packingLayerData']['2'])?>">Bottom</td>
+                                    <td rowspan="<?php echo count($packings['packingLayerData']['2'])?>"><?php echo count($packings['packingLayerData']['2'])?></td>
+                                <?php } ?>
+                                    <td><?php echo $bottom['PACKING_LAYER_ORDER'] + 1 ?></td>
+                                    <td><?php echo $bottom['LABEL'] ?></td>
+                                    <td><?php echo $bottom['THICKNESS'] ?></td>
+                            </tr>
+                        <?php } ?>
+                    <?php } ?>
+                    <?php if (!empty($packings['packingLayerData']['3'])) { ?>
+                        <?php foreach ($packings['packingLayerData']['3'] as $key => $sides) { ?>
+                            <tr>
+                                <?php if ($key == 0) { ?>
+                                    <td rowspan="<?php echo count($packings['packingLayerData']['3'])?>">4 Sides</td>
+                                    <td rowspan="<?php echo count($packings['packingLayerData']['3'])?>"><?php echo count($packings['packingLayerData']['3'])?></td>
+                                <?php } ?>
+                                    <td><?php echo $sides['PACKING_LAYER_ORDER'] + 1 ?></td>
+                                    <td><?php echo $sides['LABEL'] ?></td>
+                                    <td><?php echo $sides['THICKNESS'] ?></td>
+                            </tr>
+                        <?php } ?>
+                    <?php } ?>
+                    </table>
+                </div>
+            </div>
         <?php } ?>
 
         <?php if (!empty($consumptions)) { ?>

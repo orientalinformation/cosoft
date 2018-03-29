@@ -637,10 +637,7 @@ class Reports extends Controller
             $idElmArr[] = $productElmt->ID_PRODUCT_ELMT;
             $comprelease[] = $productElmt->component->COMP_RELEASE;
         }
-
         $packings = $this->reportserv->getStudyPackingLayers($study->ID_STUDY);
-
-        
         
         $shapeName = Translation::where('TRANS_TYPE', 4)->where('ID_TRANSLATION', $shapeCode)->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
         $componentName = ProductElmt::select('LABEL','ID_COMP', 'ID_PRODUCT_ELMT', 'PROD_ELMT_ISO', 'PROD_ELMT_NAME', 'PROD_ELMT_REALWEIGHT', 'SHAPE_PARAM2')
@@ -653,6 +650,7 @@ class Reports extends Controller
             $productComps[] = $value;
             $productComps[$key]['display_name'] = $value->LABEL . ' - ' . $productElmt->component->COMP_VERSION . '(' . $componentStatus->LABEL . ' )';
         }
+
         if ($PROD_LIST == 1) {
             $progress .= "\nProduct";
             $this->writeProgressFile($progressFile, $progress);
@@ -1119,52 +1117,95 @@ class Reports extends Controller
             if ($PACKING == 1) {
                 $html .= '<h3 style ="background-color:#268EE2">&& Packing Data</h3>';
             }
-            $html .='<div class="product3d">
-                    <div class="table table-bordered">
-                        <table border="0.5">
-                            <tr>
-                                <th colspan="8">Packing</th>
-                                <th colspan="4">3D view of the product</th>
-                            </tr>
-                            <tr>
-                                <td rowspan="2">Side</td>
-                                <td rowspan="2">Number of layers</td>
-                                <td colspan="5">Packing data</td>
-                                <td rowspan="2">Thickness ()</td>
-                                <td colspan="4" rowspan="5"></td>
-                            </tr>
-                            <tr>
-                                <td>Order</td>
-                                <td colspan="4">Name</td>
-                            </tr>
-                            <tr>
-                                <td>1</td>
-                                <td>2</td>
-                                <td>3</td>
-                                <td colspan="4">4</td>
-                                <td>5</td>
-                            </tr>
-                            <tr>
-                                <td>1</td>
-                                <td>2</td>
-                                <td>3</td>
-                                <td colspan="4">4</td>
-                                <td>5</td>
-                            </tr>
-                            <tr>
-                                <td>1</td>
-                                <td>2</td>
-                                <td>3</td>
-                                <td colspan="4">4</td>
-                                <td>5</td>
-                            </tr>
-                        </table>
-                    </div>';
-                    // }
-            PDF::writeHTML($html, true, false, true, false, '');
-            PDF::AddPage();
-        }
-        
+            $html .='<div class="pro-data">
+            <div class="table table-bordered">
+            <table border="0.5" align="center">
+                <tr class="lineHeight20">
+                    <td colspan="5" class="colCenter">Packing</td>
+                    <td class="colCenter">3D view of the product</td>
+                </tr>
+                <tr class="lineHeight20">
+                    <td rowspan="2" class="colCenter">Side</td>
+                    <td rowspan="2" class="colCenter">Number of layers</td>
+                    <td colspan="2" class="colCenter">Packing data</td>
+                    <td rowspan="2" class="colCenter">Thickness ()</td>';
+                    if ($PACKING == 1) {    
+                    $html .='   
+                        <td rowspan="'. ($packings['count'] + 2).'" class="colCenter"> </td>';
+                    } else {
+                        $html .='  
+                        <td rowspan="2" class="colCenter"> </td>';
+                    }
+                    $html .=' 
+                    </tr>
+                    <tr class="lineHeight15">
+                        <td class="colCenter">Order</td>
+                        <td class="colCenter">Name</td>
+                    </tr>';
+                        if ($PACKING == 1) {
+                            if (!empty($packings['packingLayerData']['1'])) {
+                                foreach ($packings['packingLayerData']['1'] as $key => $top) {
+                                    $html .= '<tr class="lineHeight15">';
+                                    if ($key == 0) {
+                                        $html .= '
+                                            <td rowspan="'. count($packings['packingLayerData']['1']) .'" class="colCenter"> Top</td>
+                                            <td rowspan="'. count($packings['packingLayerData']['1']) .'" class="colCenter"> '. count($packings['packingLayerData']['1']) .'</td>';
+                                    }
+                            
+                                    $html .= '
+                                        <td class="colCenter">'. ($top['PACKING_LAYER_ORDER'] + 1 ) .'</td>
+                                        <td class="colCenter">'. $top['LABEL'] .'</td>
+                                        <td class="colCenter">'. $top['THICKNESS'] .'</td>
+                                    </tr>';
+                                }
+                            }
+                            if (!empty($packings['packingLayerData']['2'])) {
+                                foreach ($packings['packingLayerData']['2'] as $key => $bottom) {
+                                    $html .= '<tr class="lineHeight15">';
+                                    if ($key == 0) {
+                                        $html .= '
+                                            <td rowspan="'. count($packings['packingLayerData']['2']) .'" class="colCenter"> Bottom</td>
+                                            <td rowspan="'. count($packings['packingLayerData']['2']) .'" class="colCenter"> '. count($packings['packingLayerData']['2']) .'</td>';
+                                    }
+                            
+                                    $html .= '
+                                        <td class="colCenter">'. ($bottom['PACKING_LAYER_ORDER'] + 1 ) .'</td>
+                                        <td class="colCenter">'. $bottom['LABEL'] .'</td>
+                                        <td class="colCenter">'. $bottom['THICKNESS'] .'</td>
+                                    </tr>';
+                                }
+                            }
+                            if (!empty($packings['packingLayerData']['3'])) {
+                                foreach ($packings['packingLayerData']['3'] as $key => $sides) {
+                                    $html .= '<tr class="lineHeight15">';
+                                    if ($key == 0) {
+                                        $html .= '
+                                            <td rowspan="'. count($packings['packingLayerData']['3']) .'" class="colCenter"> 4 Sides</td>
+                                            <td rowspan="'. count($packings['packingLayerData']['3']) .'" class="colCenter"> '. count($packings['packingLayerData']['3']) .'</td>';
+                                    }
+                            
+                                    $html .= '
+                                        <td class="colCenter">'. ($sides['PACKING_LAYER_ORDER'] + 1 ) .'</td>
+                                        <td class="colCenter"> '. $sides['LABEL'] .'</td>
+                                        <td class="colCenter">'. $sides['THICKNESS'] .'</td>
+                                    </tr>';
+                                }
+                            }
+                            $html .='
+                            </table>
+                            </div>
+                        </div>';
+                        } else {
+                            $html .='
+                            </table>
+                            </div>
+                        </div>';
+                        }
+                                // }
+                                PDF::writeHTML($html, true, false, true, false, '');
+                                PDF::AddPage();
+                            }
+                            
         if ($EQUIP_LIST == 1) {
             if (!empty($equipData)) {
                 PDF::Bookmark('EQUIPMENT DATA', 0, 0, '', 'B', array(0,64,128));
@@ -1331,55 +1372,79 @@ class Reports extends Controller
             PDF::Cell(0, 10, 'Packing Data', 0, 1, 'L');
             $html ='';
             $html .='<h3 style ="background-color:#268EE2">Packing Data</h3>
-            <div class = "Packing">
-                <table border="0.5">
-                    <tr>
-                        <th colspan="10">Packing</th>
-                        <th colspan="4">3D view of the product</th>
+            <div class="pro-data">
+            <div class="table table-bordered">
+                <table border="0.5" align="center">
+                    <tr class="lineHeight20">
+                        <td colspan="5" class="colCenter">Packing</td>
+                        <td class="colCenter">3D view of the product</td>
                     </tr>
-                    <tr>
-                        <td colspan="2" rowspan="2">Side</td>
-                        <td colspan="2" rowspan="2">Number of layers</td>
-                        <td colspan="5">Packing data</td>
-                        <td rowspan="2">Thickness ()</td>
-                        <td colspan="4" rowspan="5"></td>
+                    <tr class="lineHeight20">
+                        <td rowspan="2" class="colCenter">Side</td>
+                        <td rowspan="2" class="colCenter">Number of layers</td>
+                        <td colspan="2" class="colCenter">Packing data</td>
+                        <td rowspan="2" class="colCenter">Thickness ()</td>
+                        <td rowspan="'. ($packings['count'] + 2).'" class="colCenter"> </td>
                     </tr>
-                    <tr>
-                        <td>Order</td>
-                        <td colspan="4">Name</td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td colspan="4"></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td colspan="4"></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td colspan="4"></td>
-                        <td></td>
-                    </tr>
-                </table>
-            </div>';
-            PDF::writeHTML($html, true, false, true, false, '');
-            PDF::AddPage();
-        }
+                    <tr class="lineHeight15">
+                        <td class="colCenter">Order</td>
+                        <td class="colCenter">Name</td>
+                    </tr>';
+                        if (!empty($packings['packingLayerData']['1'])) {
+                            foreach ($packings['packingLayerData']['1'] as $key => $top) {
+                                $html .= '<tr class="lineHeight15">';
+                                if ($key == 0) {
+                                    $html .= '
+                                        <td rowspan="'. count($packings['packingLayerData']['1']) .'" class="colCenter"> Top</td>
+                                        <td rowspan="'. count($packings['packingLayerData']['1']) .'" class="colCenter"> '. count($packings['packingLayerData']['1']) .'</td>';
+                                }
+                        
+                                $html .= '
+                                    <td class="colCenter">'. ($top['PACKING_LAYER_ORDER'] + 1 ) .'</td>
+                                    <td class="colCenter">'. $top['LABEL'] .'</td>
+                                    <td class="colCenter">'. $top['THICKNESS'] .'</td>
+                                </tr>';
+                            }
+                        }
+                        if (!empty($packings['packingLayerData']['2'])) {
+                            foreach ($packings['packingLayerData']['2'] as $key => $bottom) {
+                                $html .= '<tr class="lineHeight15">';
+                                if ($key == 0) {
+                                    $html .= '
+                                        <td rowspan="'. count($packings['packingLayerData']['2']) .'" class="colCenter"> Bottom</td>
+                                        <td rowspan="'. count($packings['packingLayerData']['2']) .'" class="colCenter"> '. count($packings['packingLayerData']['2']) .'</td>';
+                                }
+                        
+                                $html .= '
+                                    <td class="colCenter">'. ($bottom['PACKING_LAYER_ORDER'] + 1 ) .'</td>
+                                    <td class="colCenter">'. $bottom['LABEL'] .'</td>
+                                    <td class="colCenter">'. $bottom['THICKNESS'] .'</td>
+                                </tr>';
+                            }
+                        }
+                        if (!empty($packings['packingLayerData']['3'])) {
+                            foreach ($packings['packingLayerData']['3'] as $key => $sides) {
+                                $html .= '<tr class="lineHeight15">';
+                                if ($key == 0) {
+                                    $html .= '
+                                        <td rowspan="'. count($packings['packingLayerData']['3']) .'" class="colCenter"> 4 Sides</td>
+                                        <td rowspan="'. count($packings['packingLayerData']['3']) .'" class="colCenter"> '. count($packings['packingLayerData']['3']) .'</td>';
+                                }
+                        
+                                $html .= '
+                                    <td class="colCenter">'. ($sides['PACKING_LAYER_ORDER'] + 1 ) .'</td>
+                                    <td class="colCenter"> '. $sides['LABEL'] .'</td>
+                                    <td class="colCenter">'. $sides['THICKNESS'] .'</td>
+                                </tr>';
+                            }
+                        }
+                            $html .='
+                        </table>
+                        </div>
+                    </div>';
+                    PDF::writeHTML($html, true, false, true, false, '');
+                    PDF::AddPage();
+                }
         
         if ($CONS_OVERALL == 1 || $CONS_TOTAL ==1 || $CONS_SPECIFIC  == 1 || $CONS_HOUR ==1 || $CONS_DAY == 1||
         $CONS_WEEK == 1 || $CONS_MONTH == 1 || $CONS_YEAR ==1 || $CONS_EQUIP ==1 || $CONS_PIPE == 1 || $CONS_TANK ==1) {
@@ -1819,36 +1884,36 @@ class Reports extends Controller
                                 <tr>
                                     <th align="center">Points</th>
                                     <th align="center">('. $timeBases['timeSymbol'] .')</th>';
-                                    foreach ($timeBases['result'] as $key => $points) {
+                                    foreach ($timeBases['result'] as $points) {
                                         $html .='<th align="center"> '. $timeBases['result'][$key]['points'] .'</th>';
                                     }
                                     $html .='</tr>
                                 <tr>
                                     <td align="center"> "Top" . ( '. $timeBases['label']['top'] .' ) </td>
                                     <td align="center">( '. $timeBases['temperatureSymbol'] .' )</td>';
-                                    foreach ($timeBases['result'] as $key => $tops) {
-                                        $html .='<td align="center"> '. $timeBases['result'][$key]['top'] .'</td>';
+                                    foreach ($timeBases['result'] as $tops) {
+                                        $html .='<td align="center"> '. $tops['top'] .'</td>';
                                     }
                                     $html .='</tr>
                                 <tr>
                                     <td align="center"> "Internal" . ( '. $timeBases['label']['int'] .' )</td>
                                     <td align="center">( '. $timeBases['temperatureSymbol'] .' )</td>';
-                                    foreach ($timeBases['result'] as $key => $internals) {
-                                        $html .='<td align="center"> '. $timeBases['result'][$key]['int'] .'</td>';
+                                    foreach ($timeBases['result'] as $internals) {
+                                        $html .='<td align="center"> '. $internals['int'] .'</td>';
                                     }
                                     $html .='</tr>
                                 <tr>
                                     <td align="center"> "Bottom" . ( '. $timeBases['label']['bot'] .' )</td>
                                     <td align="center">( '. $timeBases['temperatureSymbol'] .' )</td>';
-                                    foreach ($timeBases['result'] as $key => $bottoms) {
-                                        $html .='<td align="center"> '. $timeBases['result'][$key]['bot'] .'</td>';
+                                    foreach ($timeBases['result'] as $bottoms) {
+                                        $html .='<td align="center"> '. $bottoms['bot'] .'</td>';
                                     }
                                     $html .='</tr>
                                 <tr>
                                     <td align="center">Avg. Temp.</td>
                                     <td align="center">( '. $timeBases['temperatureSymbol'] .' )</td>';
-                                    foreach ($timeBases['result'] as $key => $avgs) {
-                                        $html .='<td align="center"> '. $timeBases['result'][$key]['average'] .'</td>';
+                                    foreach ($timeBases['result'] as $avgs) {
+                                        $html .='<td align="center"> '. $bottoms['average'] .'</td>';
                                     }
                                     $html .='</tr>
                             </table>
@@ -2074,7 +2139,7 @@ class Reports extends Controller
             $idElmArr[] = $productElmt->ID_PRODUCT_ELMT;
             $comprelease[] = $productElmt->component->COMP_RELEASE;
         }
-        
+        $packings = $this->reportserv->getStudyPackingLayers($study->ID_STUDY);
         $shapeName = Translation::where('TRANS_TYPE', 4)->where('ID_TRANSLATION', $shapeCode)->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
         $componentName = ProductElmt::select('LABEL','ID_COMP', 'ID_PRODUCT_ELMT', 'PROD_ELMT_ISO', 'PROD_ELMT_NAME', 'PROD_ELMT_REALWEIGHT', 'SHAPE_PARAM2')
         ->join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')->whereIn('ID_PRODUCT_ELMT', $idElmArr)
@@ -2280,7 +2345,7 @@ class Reports extends Controller
         $html = $this->viewHtml($study ,$production, $product, $proElmt, $shapeName, 
         $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
         $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase, 
-        $symbol, $host, $pro2Dchart, $params);
+        $symbol, $host, $pro2Dchart, $params, $packings);
         fwrite($myfile, $html);
         fclose($myfile);
         $url = ["url" => "$host/reports/$study->USERNAM/$name_report"];
@@ -2332,7 +2397,7 @@ class Reports extends Controller
     public function viewHtml($study ,$production, $product, $proElmt, $shapeName, 
     $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
     $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase , 
-    $symbol, $host, $pro2Dchart, $params)
+    $symbol, $host, $pro2Dchart, $params, $packings)
     {
         $arrayParam = [
             'study' => $study,
@@ -2357,6 +2422,7 @@ class Reports extends Controller
             'proSections' => $proSections,
             'timeBase' => $timeBase,
             'pro2Dchart' => $pro2Dchart,
+            'packings' => $packings,
         ];
         return view('report.viewHtmlToPDF', $param);
     }
