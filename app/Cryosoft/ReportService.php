@@ -97,6 +97,7 @@ class ReportService
         $idUser = $this->auth->user()->ID_USER;
         $study = Study::find($idStudy);
         $calculationMode = $study->CALCULATION_MODE;
+        $stuName = $study->STUDY_NAME;
 
         //get study equipment
         $studyEquipments = StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
@@ -224,6 +225,7 @@ class ReportService
             $item["conso_warning"] = $conso_warning;
             $item["toc"] = $toc;
             $item["precision"] = $precision;
+            $item["stuName"] = $stuName;
 
             $result[] = $item;
         }

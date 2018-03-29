@@ -627,6 +627,10 @@ class Reports extends Controller
             $idElmArr[] = $productElmt->ID_PRODUCT_ELMT;
             $comprelease[] = $productElmt->component->COMP_RELEASE;
         }
+
+        $packings = $this->reportserv->getStudyPackingLayers($study->ID_STUDY);
+
+        
         
         $shapeName = Translation::where('TRANS_TYPE', 4)->where('ID_TRANSLATION', $shapeCode)->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
         $componentName = ProductElmt::select('LABEL','ID_COMP', 'ID_PRODUCT_ELMT', 'PROD_ELMT_ISO', 'PROD_ELMT_NAME', 'PROD_ELMT_REALWEIGHT', 'SHAPE_PARAM2')
@@ -651,6 +655,7 @@ class Reports extends Controller
         }
         
         
+        // $this->writeProgressFile('/home/huytd/adadad', $a);
         $symbol = $this->reportserv->getSymbol($study->ID_STUDY);
         $infoReport = $study->reports;
 
@@ -880,7 +885,7 @@ class Reports extends Controller
                         <th colspan="6">Customer</th>
                     </tr>
                     <tr>
-                        <td colspan="4">Company name</td>
+                        <td colspan="4">Company name </td>
                         <td colspan="2"> '. $DEST_SURNAME .'  </td>
                     </tr>
                     <tr>
@@ -958,8 +963,8 @@ class Reports extends Controller
                     </tr>';
                     foreach ($calModeHeadBalance as $key => $resoptHeads) { 
                     $html .= '<tr>
-                        <td colspan="2" align="center"> '. $study['STUDY_NAME'] .' </td>
-                        <td colspan="2" align="center"> '. $resoptHeads['equipName'] .' </td>
+                        <td colspan="2" align="center"> '. $resoptHeads['stuName'] .' </td>
+                        <td colspan="2" align="center"> '. $resoptHeads[''] .' </td>
                         <td align="center"> '. $resoptHeads['tr'] .' </td>
                         <td align="center"> '. $resoptHeads['ts'] .' </td>
                         <td align="center"> '. $equipData[$key]['tr'][0] .' </td>
@@ -1100,28 +1105,52 @@ class Reports extends Controller
         if ($PROD_3D == 1) {
             PDF::Bookmark('PRODUCT 3D', 0, 0, '', 'B', array(0,64,128));
             PDF::Cell(0, 10, '', 0, 1, 'L');
-            $html = '<h3 style ="background-color:#268EE2">Product 3D</h3>
-                    <div class="product3d">
-                        <div class="table table-bordered">
+            $html = '<h3 style ="background-color:#268EE2">Product 3D</h3>';
+            if ($PACKING == 1) {
+                $html .= '<h3 style ="background-color:#268EE2">&& Packing Data</h3>';
+            }
+            $html .='<div class="product3d">
+                    <div class="table table-bordered">
                         <table border="0.5">
                             <tr>
-                                <th colspan="6" align="center">Packing</th>
-                                <th colspan="2" align="center">3D view of the product</th>
+                                <th colspan="8">Packing</th>
+                                <th colspan="4">3D view of the product</th>
                             </tr>
                             <tr>
                                 <td rowspan="2">Side</td>
                                 <td rowspan="2">Number of layers</td>
-                                <td colspan="3">Packing data</td>
+                                <td colspan="5">Packing data</td>
                                 <td rowspan="2">Thickness ()</td>
-                                <td colspan="2" rowspan="2"></td>
+                                <td colspan="4" rowspan="5"></td>
                             </tr>
                             <tr>
                                 <td>Order</td>
-                                <td colspan="2">Name</td>
+                                <td colspan="4">Name</td>
+                            </tr>
+                            <tr>
+                                <td>1</td>
+                                <td>2</td>
+                                <td>3</td>
+                                <td colspan="4">4</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>1</td>
+                                <td>2</td>
+                                <td>3</td>
+                                <td colspan="4">4</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>1</td>
+                                <td>2</td>
+                                <td>3</td>
+                                <td colspan="4">4</td>
+                                <td>5</td>
                             </tr>
                         </table>
-                        </div>
                     </div>';
+                    // }
             PDF::writeHTML($html, true, false, true, false, '');
             PDF::AddPage();
         }
@@ -1287,13 +1316,13 @@ class Reports extends Controller
             }
         }
 
-        if ($PACKING ==1) {
+        if ($PROD_3D != 1 && $PACKING == 1) {
             PDF::Bookmark('PACKING DATA', 0, 0, '', 'B', array(0,64,128));
             PDF::Cell(0, 10, 'Packing Data', 0, 1, 'L');
             $html ='';
             $html .='<h3 style ="background-color:#268EE2">Packing Data</h3>
             <div class = "Packing">
-                <table>
+                <table border="0.5">
                     <tr>
                         <th colspan="10">Packing</th>
                         <th colspan="4">3D view of the product</th>
@@ -1943,8 +1972,8 @@ class Reports extends Controller
     }
     
     function backgroundGenerationHTML($params) {
-        $id = $params['$studyId'];
-        $input = $params['$input'];
+        $id = $params['studyId'];
+        $input = $params['input'];
         $DEST_SURNAME = $input['DEST_SURNAME'];
         $DEST_NAME = $input['DEST_NAME'];
         $DEST_FUNCTION = $input['DEST_FUNCTION'];
@@ -2269,7 +2298,7 @@ class Reports extends Controller
     }
     
     public function downLoadHtmlToPDF($studyId)
-    {   $
+    {
         $input = $this->request->all();
         $params['studyId'] = $studyId;
         $params['input'] = $input;

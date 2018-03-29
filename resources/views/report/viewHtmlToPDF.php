@@ -91,7 +91,7 @@
         </div>
         <?php if (!empty($calModeHeadBalance)) { ?>
         <?php if (($arrayParam['study']['CHAINING_CONTROLS'] == 1) && ($arrayParam['study']['PARENT_ID'] != 0)) { ?>
-        <h4>Chaining synthesis</h4>
+        <h3 style ="background-color:#268EE2">Chaining synthesis</h3>
         <div class="table-responsive">
             <table class ="table table-bordered" border="1">
                 <table border="0.5">
@@ -107,7 +107,7 @@
                     </tr>
                     <?php foreach($calModeHeadBalance as $key => $resoptHeads) { ?>
                         <tr>
-                            <td colspan="2" align="center"><?php echo $arrayParam['study']['STUDY_NAME'] ?></td>
+                            <td colspan="2" align="center"><?php echo $resoptHeads['stuName'] ?></td>
                             <td colspan="2" align="center"><?php echo $resoptHeads['equipName'] ?></td>
                             <td align="center"><?php echo $resoptHeads['tr'] ?></td>
                             <td align="center"><?php echo $resoptHeads['ts'] ?></td>
@@ -126,6 +126,7 @@
         
         <?php if ($arrayParam['params']['REP_CUSTOMER'] == 1) { ?>                 
         <div class="production">
+        <h3 style ="background-color:#268EE2">Production Data</h3>
             <div class="table table-responsive">
                 <table class ="table table-bordered" border="1">
                 <tr>
@@ -174,7 +175,7 @@
         <?php } ?>
 
         <?php if ($arrayParam['params']['PROD_LIST'] == 1) { ?>
-        <h3>Composition of the product and its components</h3>
+        <h3 style ="background-color:#268EE2">Composition of the product and its components</h3>
         <div class="pro-data">
             <div class="table-responsive">
                 <table class ="table table-bordered" border="1">
@@ -230,7 +231,7 @@
         <?php } ?>
 
         <?php if ($arrayParam['params']['PROD_3D'] == 1) { ?>               
-        <h3>Product 3D</h3>
+        <h3 style ="background-color:#268EE2">Product 3D</h3>
         <div class="product3d">
             <div class="table-responsive">
             <table class ="table table-bordered" border="1">
@@ -255,7 +256,7 @@
         <?php } ?>
 
         <?php if ($arrayParam['params']['EQUIP_LIST'] == 1) { ?>
-        <h3>Equipment data</h3>
+        <h3 style ="background-color:#268EE2">Equipment data</h3>
         <div class="equipment-data">
             <div class="table-responsive">
             <table class ="table table-bordered" border="1">
@@ -285,7 +286,7 @@
         <?php } ?>
 
         <?php if ($arrayParam['params']['ASSES_ECO'] == 1) { ?>
-        <h3>Belt or shelves layout</h3>
+        <h3 style ="background-color:#268EE2">Belt or shelves layout</h3>
         <?php foreach($equipData as $key => $resequipDatas) { ?>
         <h4><?php echo $resequipDatas['displayName'] ?></h4>
         <div class="layout">
@@ -342,7 +343,7 @@
 
         <?php if (!empty($cryogenPipeline)) { ?> 
         <?php if ($arrayParam['params']['PIPELINE'] == 1) { ?>
-        <h3>Cryogenic Pipeline</h3>
+        <h3 style ="background-color:#268EE2">Cryogenic Pipeline</h3>
         <div class="consum-esti">
             <div class="table-responsive">
             <table class ="table table-bordered" border="1">
@@ -444,7 +445,9 @@
         <?php } ?>
 
         <?php if (!empty($consumptions)) { ?>
-        <h3>Consumptions / Economics assessments</h3>
+        <?php if ($arrayParam['params']['CONS_OVERALL'] == 1 || $arrayParam['params']['CONS_TOTAL'] ==1 || $arrayParam['params']['CONS_SPECIFIC']  == 1 || $arrayParam['params']['CONS_HOUR'] ==1 || $arrayParam['params']['CONS_DAY'] == 1||
+        $arrayParam['params']['CONS_WEEK'] == 1 || $arrayParam['params']['CONS_MONTH'] == 1 || $arrayParam['params']['CONS_YEAR'] ==1 || $arrayParam['params']['CONS_EQUIP'] ==1 || $arrayParam['params']['CONS_PIPE'] == 1 || $arrayParam['params']['CONS_TANK'] ==1)  { ?>
+        <h3 style ="background-color:#268EE2">Consumptions / Economics assessments</h3>
         <h4>Values</h4>
         <div class="consum-esti">
             <div class="table-responsive">
@@ -580,9 +583,10 @@
             </div>
         </div>
         <?php } ?>
+        <?php } ?>
 
         <?php if (($arrayParam['params']['isSizingValuesChosen'] == 1) || ($arrayParam['params']['isSizingValuesMax'] == 1) || ($arrayParam['params']['SIZING_GRAPHE'] == 1))  { ?>
-        <h3>Heat balance / sizing results</h3>
+        <h3 style ="background-color:#268EE2">Heat balance / sizing results</h3>
         <?php } ?>
         <?php if ($arrayParam['params']['isSizingValuesChosen'] == 1) { ?>
         <h4>Chosen product flowrate</h4>
@@ -674,7 +678,7 @@
 
         <?php if (!empty($heatexchange)) { ?>
         <?php if (($arrayParam['params']['ENTHALPY_V'] == 1) || ($arrayParam['params']['ENTHALPY_G'] == 1)) { ?>
-        <h3>Heat Exchange</h3>
+        <h3 style ="background-color:#268EE2">Heat Exchange</h3>
         <?php } ?>
             <!-- <h4>get first Equipment </h4> -->
             <?php foreach($heatexchange as $key=> $resheatexchanges) { ?>
@@ -724,7 +728,7 @@
          
         <?php if (!empty($proSections)) { ?>
         <?php if (($arrayParam['params']['ISOCHRONE_V'] == 1) || ($arrayParam['params']['ISOCHRONE_G'] == 1)) { ?> 
-        <h3>Product Section</h3>
+        <h3 style ="background-color:#268EE2">Product Section</h3>
         <?php } ?> 
         <!-- <h4>get first Equipment </h4> -->
             <?php foreach ($proSections as $resproSections) {?>
@@ -787,7 +791,7 @@
         
         <?php if (!empty($timeBase)) { ?>
         <?php if (($arrayParam['params']['ISOVALUE_V'] == 1) || ($arrayParam['params']['ISOVALUE_G'] == 1)) { ?> 
-        <h3>Product Graph - Time Based</h3>
+        <h3 style ="background-color:#268EE2">Product Graph - Time Based</h3>
         <?php } ?>   
             <?php if ($arrayParam['params']['ISOVALUE_V'] == 1) { ?> 
             <?php foreach ($timeBase as $timeBases) { ?>
@@ -844,7 +848,7 @@
 
         <?php if (!empty($pro2Dchart)) { ?>
             <?php if ($arrayParam['params']['CONTOUR2D_G'] == 1) { ?> 
-            <h3>2D Outlines</h3>
+            <h3 style ="background-color:#268EE2">2D Outlines</h3>
                 <?php foreach ($pro2Dchart as $pro2Dcharts) {?>
                 <h3><?php echo $pro2Dcharts['equipName'] ?></h3>
                     <div class="outlines" align="center"> 
@@ -855,7 +859,7 @@
         <?php } ?>
         <?php } ?>
 
-        <h3>Comments</h3>
+        <h3 style ="background-color:#268EE2">Comments</h3>
         
         <div class="comment">
             <p>
