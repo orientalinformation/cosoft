@@ -1142,33 +1142,33 @@ class ReportService
         if ($packing != null) {
             $packingLayers = \App\Models\PackingLayer::where('ID_PACKING', $packing->ID_PACKING)->get();
             
-            for ($i = 0; $i < count($packingLayers); $i++) { 
-                $value = $this->unit->unitConvert(16, $packingLayers[$i]->THICKNESS);
-                $packingLayers[$i]->THICKNESS = $value;
+                for ($i = 0; $i < count($packingLayers); $i++) { 
+                    $value = $this->unit->unitConvert(16, $packingLayers[$i]->THICKNESS);
+                    $packingLayers[$i]->THICKNESS = $value;
+                }
+                
+                $packingLayerData = [];
+                $count = 0;
+                foreach ($packingLayers as $key => $pk) {
+                    $pkrelease[] = $pk->packingElmt->PACKING_RELEASE;
+                    $version = $pk->packingElmt->PACKING_VERSION;
+                    $name = \App\Models\PackingLayer::select('LABEL')->join('Translation', 'ID_PACKING_ELMT', '=', 'Translation.ID_TRANSLATION')
+                    ->where('ID_PACKING_LAYER', $pk['ID_PACKING_LAYER'])
+                    ->where('TRANS_TYPE', 3)->where('ID_TRANSLATION', $pk['ID_PACKING_ELMT'])
+                    ->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'DESC')->first();
+                    $status = Translation::select('LABEL')->where('TRANS_TYPE', 100)->whereIn('ID_TRANSLATION', $pkrelease)
+                    ->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
+                    $label = $name->LABEL . "-" . $version  . "(". $status->LABEL .")";
+                    $packingLayers[$key]['LABEL'] = $label;
+                    
+                    $count++;
+                } 
+                
+                foreach ($packingLayers as $pk) {
+                    $packingLayerData[$pk['PACKING_SIDE_NUMBER']][] = $pk;
+                }
+                
+                return compact('packing', 'packingLayerData', 'count');
             }
         }
-
-        $packingLayerData = [];
-        $count = 0;
-        foreach ($packingLayers as $key => $pk) {
-            $pkrelease[] = $pk->packingElmt->PACKING_RELEASE;
-            $version = $pk->packingElmt->PACKING_VERSION;
-            $name = \App\Models\PackingLayer::select('LABEL')->join('Translation', 'ID_PACKING_ELMT', '=', 'Translation.ID_TRANSLATION')
-            ->where('ID_PACKING_LAYER', $pk['ID_PACKING_LAYER'])
-            ->where('TRANS_TYPE', 3)->where('ID_TRANSLATION', $pk['ID_PACKING_ELMT'])
-            ->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'DESC')->first();
-            $status = Translation::select('LABEL')->where('TRANS_TYPE', 100)->whereIn('ID_TRANSLATION', $pkrelease)
-            ->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
-            $label = $name->LABEL . "-" . $version  . "(". $status->LABEL .")";
-            $packingLayers[$key]['LABEL'] = $label;
-            
-            $count++;
-        } 
-
-        foreach ($packingLayers as $pk) {
-            $packingLayerData[$pk['PACKING_SIDE_NUMBER']][] = $pk;
-        }
-
-        return compact('packing', 'packingLayerData', 'count');
-    }
 }
