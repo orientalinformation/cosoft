@@ -193,6 +193,11 @@ class Products extends Controller
         return compact('product', 'elements', 'specificDimension', 'compFamily', 'subFamily', 'waterPercentList');
     }
 
+    public function getSubfamily($compFamily)
+    {
+        return $this->product->getAllSubFamily($compFamily);
+    }
+
     public function removeProductElement($id)
     {
         // $id is product id

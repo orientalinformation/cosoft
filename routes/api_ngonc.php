@@ -49,6 +49,14 @@ $router->POST('/api/v1/studies/{id}/saveLocationAxis', 'Api1\\Studies@saveLocati
 $router->GET('/api/v1/equipments/{id}/reCalculate', 'Api1\\Equipments@reCalculate');
 
 /**
+ * GET getSubfamily
+ * Summary: 
+ * Notes: get subfamily filter
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/products/subfamily/{compfamily}', 'Api1\\Products@getSubfamily');
+
+/**
  * GET getstudyEquipmentProductChart
  * Summary: 
  * Notes: get Study Equipment Product Chart
