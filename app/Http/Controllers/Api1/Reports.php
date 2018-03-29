@@ -24,6 +24,7 @@ use App\Models\Translation;
 use App\Models\InitialTemperature;
 use App\Cryosoft\StudyEquipmentService;
 use App\Cryosoft\MinMaxService;
+use App\Cryosoft\StudyService;
 use PDF;
 use View;
 
@@ -75,6 +76,10 @@ class Reports extends Controller
      * @var \App\CryoSoft\MinMaxService
      */
     protected $minmax;
+    /**
+     * @var \App\CryoSoft\StudyService
+     */
+    protected $study;
 
     /**
      * Create a new controller instance.
@@ -83,7 +88,7 @@ class Reports extends Controller
      */
     public function __construct(Request $request, Auth $auth, UnitsConverterService $convert, 
     ValueListService $value, StudyEquipmentService $stdeqp, Lines $pipelines, 
-    ReportService $reportserv, MinMaxService $minmax)
+    ReportService $reportserv, MinMaxService $minmax, StudyService $study)
     {
         $this->request = $request;
         $this->auth = $auth;
@@ -93,6 +98,7 @@ class Reports extends Controller
         $this->pipelines = $pipelines;
         $this->reportserv = $reportserv;
         $this->minmax = $minmax;
+        $this->study = $study;
     }
 
     public function writeProgressFile($fileName, $content) {
@@ -418,6 +424,8 @@ class Reports extends Controller
 
         if (isset($input['ASSES_ECO'])) $ASSES_ECO = $input['ASSES_ECO'];
 
+        $SIZING_VALUES = $input['isSizingValuesChosen'];
+
         $mmNbSample1 = $this->minmax->checkMinMaxValue($ENTHALPY_SAMPLE, $this->value->MINMAX_REPORT_NBSAMPLE); 
         $mmNbSample2 = $this->minmax->checkMinMaxValue($ISOCHRONE_SAMPLE, $this->value->MINMAX_REPORT_NBSAMPLE); 
         $mmNbSample3 = $this->minmax->checkMinMaxValue($ISOVALUE_SAMPLE, $this->value->MINMAX_REPORT_NBSAMPLE); 
@@ -529,8 +537,10 @@ class Reports extends Controller
         $report->PLAN_Y = $PLAN_Y;
         $report->PLAN_Z = $PLAN_Z;
         $report->ASSES_ECO = $ASSES_ECO;
-
-        $report->update();
+        if ($this->study->isMyStudy($id)) {
+            $report->update();
+        }
+        
 
         return 1;
     }

@@ -107,7 +107,7 @@ class UnitsService
             $number = round(($number), $decimal, PHP_ROUND_HALF_UP);
             $number = floor($number * pow(10, $decimal)) / pow(10, $decimal);
         } else {
-            $number = round($number, $decimal);
+            $number = round($number, $decimal, PHP_ROUND_HALF_UP);
         }
         
         return number_format((float)$number, $decimal, '.', '');
