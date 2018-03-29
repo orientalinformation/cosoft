@@ -48,7 +48,7 @@ class Components extends Controller
 
     public function findComponents() {
         $input = $this->request->all();
-        $idStudy = $input['idStudy'];
+        $idStudy = (!empty($input['idStudy'])) ? $input['idStudy'] : 0;;
         $compfamily = (!empty($input['compfamily'])) ? $input['compfamily'] : 0;
         $subfamily = (!empty($input['subfamily'])) ? $input['subfamily'] : 0;
         $waterpercent = (!empty($input['waterpercent'])) ? $input['waterpercent'] : 0;
@@ -70,5 +70,10 @@ class Components extends Controller
         ->orderBy('LABEL', 'ASC')->get();
 
         return compact('mine', 'others');
+    }
+
+    public function getAllCompFamily()
+    {
+        return $this->product->getAllCompFamily();
     }
 }
