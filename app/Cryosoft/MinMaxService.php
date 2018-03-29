@@ -148,6 +148,13 @@ class MinMaxService
         return $minMax; 
     }
 
+    public function getMinMaxUPercentNone($limitItem)
+    {
+        $uPercent = $this->units->uPercent();		
+        $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
+        return $minMax; 
+    }
+
     public function getMinMaxTimeStep($limitItem)
     {
         $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();

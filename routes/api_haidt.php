@@ -382,3 +382,11 @@ $router->GET('/api/v1/referencedata/subfamily', 'Api1\\ReferenceData@getDataSubF
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/minmax', 'Api1\\CheckMinMax@getMinMax');
+
+/**
+ * POST checkCalculationParameters
+ * Summary:
+ * Notes: check Calculation Parameters
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/calculator/calculationparameters', 'Api1\\Calculator@checkCalculationParameters');
