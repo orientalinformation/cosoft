@@ -719,9 +719,9 @@ class Equipments extends Controller
     {
         $minMax = $minScaleY = $maxScaleY = $minValueY = $maxValueY = $nbFractionDigits = $maxiMum = null;
         $unitIdent = $miniMum = 10;
-        $ID_EQUIP = $profileType = $profileFace = $listOfPoints = $path  = null;
+        $ID_EQUIP = $profileType = $profileFace = $listOfPoints = $path = $nbpoints = null;
         $YAxis = $XAxis = $pos = 0;
-        $X = $Y = $resultPoint = $axisline = $valuesTabX =  $valuesTabY = array();
+        $X = $Y = $resultPoint = $axisline = $valuesTabX =  $valuesTabY = $selectedPoints = array();
         $textX = 75;
 
         $input = $this->request->all();
@@ -746,11 +746,13 @@ class Equipments extends Controller
         $maxValueY = doubleval($minMax->LIMIT_MIN);
 
         $listOfPoints = $this->svg->getSelectedProfile($ID_EQUIP, $profileType, $profileFace);
+        $nbpoints = count($listOfPoints);
         
         if (count($listOfPoints) > 0) {
             for($i = 0; $i < count($listOfPoints); $i++) {
                 array_push($valuesTabX, $listOfPoints[$i]['X_POSITION']);
-                array_push($valuesTabY, $listOfPoints[$i]['Y_POINT']);
+                array_push($valuesTabY, round($listOfPoints[$i]['Y_POINT'], 2));
+                array_push($selectedPoints, 1);
 
                 if (doubleval($listOfPoints[$i]['Y_POINT']) < $minValueY) {
                     $minValueY = doubleval($listOfPoints[$i]['Y_POINT']);
@@ -850,9 +852,13 @@ class Equipments extends Controller
             'path' => $path,
             'axisline' => $axisline,
             'originY' => (PROFILE_CHARTS_HEIGHT - PROFILE_CHARTS_MARGIN_HEIGHT),
+            'minPixY' => (PROFILE_CHARTS_HEIGHT - PROFILE_CHARTS_MARGIN_HEIGHT),
+            'maxPixY' => (PROFILE_CHARTS_HEIGHT - (2 * PROFILE_CHARTS_MARGIN_HEIGHT)) + 20,
             'nbpixY' => $nbpixY,
             'valuesTabX' => $valuesTabX,
-            'valuesTabY' => $valuesTabY
+            'valuesTabY' => $valuesTabY,
+            'selectedPoints' => $selectedPoints,
+            'nbpoints' => $nbpoints 
         ];
         
         return $array;
