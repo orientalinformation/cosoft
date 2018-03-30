@@ -692,9 +692,9 @@ class Equipments extends Controller
     {
         $minMax = $minScaleY = $maxScaleY = $minValueY = $maxValueY = $nbFractionDigits = $maxiMum = null;
         $unitIdent = $miniMum = 10;
-        $ID_EQUIP = $profileType = $profileFace = $listOfPoints = $path = null;
+        $ID_EQUIP = $profileType = $profileFace = $listOfPoints = $path  = null;
         $YAxis = $XAxis = $pos = 0;
-        $X = $Y = $resultPoint = $axisline = array();
+        $X = $Y = $resultPoint = $axisline = $valuesTabX =  $valuesTabY = array();
         $textX = 75;
 
         $input = $this->request->all();
@@ -722,6 +722,9 @@ class Equipments extends Controller
         
         if (count($listOfPoints) > 0) {
             for($i = 0; $i < count($listOfPoints); $i++) {
+                array_push($valuesTabX, $listOfPoints[$i]['X_POSITION']);
+                array_push($valuesTabY, $listOfPoints[$i]['Y_POINT']);
+
                 if (doubleval($listOfPoints[$i]['Y_POINT']) < $minValueY) {
                     $minValueY = doubleval($listOfPoints[$i]['Y_POINT']);
                 }
@@ -729,7 +732,6 @@ class Equipments extends Controller
                 if (doubleval($listOfPoints[$i]['Y_POINT']) > $maxValueY) {
                     $maxValueY = doubleval($listOfPoints[$i]['Y_POINT']);
                 }
-
 
                 if ($i == 0) {
                     $item['position'] = $pos;
@@ -822,6 +824,8 @@ class Equipments extends Controller
             'axisline' => $axisline,
             'originY' => (PROFILE_CHARTS_HEIGHT - PROFILE_CHARTS_MARGIN_HEIGHT),
             'nbpixY' => $nbpixY,
+            'valuesTabX' => $valuesTabX,
+            'valuesTabY' => $valuesTabY
         ];
         
         return $array;
