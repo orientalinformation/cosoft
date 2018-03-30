@@ -637,7 +637,11 @@ class Reports extends Controller
             $idElmArr[] = $productElmt->ID_PRODUCT_ELMT;
             $comprelease[] = $productElmt->component->COMP_RELEASE;
         }
-        $packings = $this->reportserv->getStudyPackingLayers($study->ID_STUDY);
+        if ($study->packings != null) {
+            $packings = $this->reportserv->getStudyPackingLayers($study->ID_STUDY);
+        } else {
+            $packings = [];
+        }
         
         $shapeName = Translation::where('TRANS_TYPE', 4)->where('ID_TRANSLATION', $shapeCode)->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
         $componentName = ProductElmt::select('LABEL','ID_COMP', 'ID_PRODUCT_ELMT', 'PROD_ELMT_ISO', 'PROD_ELMT_NAME', 'PROD_ELMT_REALWEIGHT', 'SHAPE_PARAM2')
@@ -1885,7 +1889,7 @@ class Reports extends Controller
                                     <th align="center">Points</th>
                                     <th align="center">('. $timeBases['timeSymbol'] .')</th>';
                                     foreach ($timeBases['result'] as $points) {
-                                        $html .='<th align="center"> '. $timeBases['result'][$key]['points'] .'</th>';
+                                        $html .='<th align="center"> '. $points['points'] .'</th>';
                                     }
                                     $html .='</tr>
                                 <tr>
@@ -2139,7 +2143,11 @@ class Reports extends Controller
             $idElmArr[] = $productElmt->ID_PRODUCT_ELMT;
             $comprelease[] = $productElmt->component->COMP_RELEASE;
         }
-        $packings = $this->reportserv->getStudyPackingLayers($study->ID_STUDY);
+        if ($study->packings != null) {
+            $packings = $this->reportserv->getStudyPackingLayers($study->ID_STUDY);
+        } else {
+            $packings = [];
+        }
         $shapeName = Translation::where('TRANS_TYPE', 4)->where('ID_TRANSLATION', $shapeCode)->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
         $componentName = ProductElmt::select('LABEL','ID_COMP', 'ID_PRODUCT_ELMT', 'PROD_ELMT_ISO', 'PROD_ELMT_NAME', 'PROD_ELMT_REALWEIGHT', 'SHAPE_PARAM2')
         ->join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')->whereIn('ID_PRODUCT_ELMT', $idElmArr)
