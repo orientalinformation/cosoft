@@ -30,6 +30,7 @@ use App\Models\StudEqpPrm;
 use App\Models\CalculationParametersDef;
 use App\Models\CalculationParameter;
 use App\Cryosoft\CalculateService;
+use App\Cryosoft\StudyService;
 use App\Models\TempRecordPts;
 use App\Models\TempRecordPtsDef;
 use App\Models\MeshPosition;
@@ -82,12 +83,17 @@ class Studies extends Controller
     protected $packing;
 
     /**
+     * @var \App\Cryosoft\StudyService
+     */
+    protected $study;
+
+    /**
      * Create a new controller instance.
      *
      * @return void
      */
     public function __construct(Request $request, Auth $auth, KernelService $kernel, UnitsConverterService $convert,
-        ValueListService $value, LineService $lineE, StudyEquipmentService $stdeqp, PackingService $packing)
+        ValueListService $value, LineService $lineE, StudyEquipmentService $stdeqp, PackingService $packing, StudyService $study)
     {
         $this->request = $request;
         $this->auth = $auth;
@@ -97,12 +103,23 @@ class Studies extends Controller
         $this->lineE = $lineE;
         $this->stdeqp = $stdeqp;
         $this->packing = $packing;
+        $this->study = $study;
     }
 
     public function findStudies()
     {
-        $mine = $this->auth->user()->studies;
-        $others = Study::where('ID_USER', '!=', $this->auth->user()->ID_USER)->get();
+        $input = $this->request->all();
+        $idUser = (isset($input['idUser'])) ? $input['idUser'] : 0;
+        $compfamily = (isset($input['compfamily'])) ? $input['compfamily'] : 0;
+        $subfamily = (isset($input['subfamily'])) ? $input['subfamily'] : 0;
+        $component = (isset($input['component'])) ? $input['component'] : 0;
+
+        $mine = '';
+        if ($idUser == 0 || $idUser == $this->auth->user()->ID_USER) {
+            $mine = Study::distinct()->where('ID_USER', $this->auth->user()->ID_USER)->orderBy('STUDY_NAME')->get();
+        }
+        
+        $others = $this->study->getFilteredStudiesList($idUser, $compfamily, $subfamily, $component);
 
         return compact('mine', 'others');
     }
