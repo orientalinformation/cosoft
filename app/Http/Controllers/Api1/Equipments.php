@@ -28,6 +28,7 @@ use App\Models\EquipGenZone;
 use App\Models\EquipZone;
 use App\Models\MinMax;
 use App\Models\StudyEquipment;
+use App\Models\CoolingFamily;
 use App\Cryosoft\SVGService;
 
 class Equipments extends Controller
@@ -99,9 +100,35 @@ class Equipments extends Controller
     {
         $input = $this->request->all();
         
-        $equipments = \App\Models\Equipment::all()->toArray();
+        $equipments = Equipment::all()->toArray();
 
         return $equipments;
+    }
+
+    public function loadEnergies()
+    {
+        $energies = CoolingFamily::distinct()->select('cooling_family.ID_COOLING_FAMILY', 'translation.LABEL')
+        ->join('translation', 'cooling_family.ID_COOLING_FAMILY', '=', 'translation.ID_TRANSLATION')
+        ->where('translation.TRANS_TYPE', 2)
+        ->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+        ->orderBy('translation.LABEL')
+        ->get();
+        
+        return $energies;
+    }
+
+    public function loadConstructors($energy = -1)
+    {
+        $query = Equipseries::distinct()->select('Equipseries.CONSTRUCTOR')
+        ->join('equipment', 'Equipseries.ID_EQUIPSERIES', '=', 'equipment.ID_EQUIPSERIES');
+
+        if ($energy != -1) {
+            $query->where('equipment.ID_COOLING_FAMILY', $energy);
+        }
+
+        $query->orderBy('Equipseries.CONSTRUCTOR');
+
+        return $query->get();
     }
 
     public function findRefEquipment()
