@@ -510,7 +510,8 @@ class Calculator extends Controller
 		}
 
 		$uPercent = $this->convert->uPercent();
-		$toc =  $this->units->convertCalculator($this->brainCal->getLoadingRate($idStudyEquipment, $idStudy), $uPercent["coeffA"], $uPercent["coeffB"], 2, 1);
+		$toc =  $this->units->convertCalculator($this->brainCal->getLoadingRate($idStudyEquipment, $idStudy), 
+		$uPercent["coeffA"], $uPercent["coeffB"], 2, 1);
 
 		$checkOptim = ($checkOptim == "true") ? 1 : 0;
 
@@ -518,18 +519,14 @@ class Calculator extends Controller
 		$sdisableFields = $this->cal->disableFields($idStudy);
 		$sdisableCalculate = $this->cal->disableCalculate($idStudy);
 
-		$sdisableOptim = $sdisableNbOptim = $sdisableStorage = $sdisableTimeStep = $sdisablePrecision = 0;
+		$sdisableTimeStep = $sdisablePrecision = 0;
 
 		if ($idStudyEquipment != null) {
 			$isBrainCalculator = 1;
 		}
 
 		if ($sdisableFields == 0) {
-			$sdisableOptim = $sdisableFields;
-
 			if ($calMode == $this->value->STUDY_OPTIMUM_MODE) {
-				$sdisableNbOptim = $sdisableStorage = 1;
-
 				if ($this->cal->getTimeStep($idStudy) == $this->value->VALUE_N_A) {
 					$sdisableTimeStep = 1;
 				} else {
@@ -542,15 +539,12 @@ class Calculator extends Controller
 					$sdisablePrecision = 0;
 				}
 			} else if ($calMode == $this->value->STUDY_SELECTED_MODE) {
-				$sdisableNbOptim = $sdisableStorage = 0;
 				$sdisableTimeStep = $sdisablePrecision = 0;
 			} else {
-				$sdisableNbOptim = $sdisableStorage = 1;
 				$sdisableTimeStep = $sdisablePrecision = 0;
 			}
 
 		} else {
-			$sdisableOptim = $sdisableNbOptim = $sdisableStorage = 1;
 			$sdisableTimeStep = $sdisablePrecision = 1;
 		}
 
@@ -1420,6 +1414,7 @@ class Calculator extends Controller
 	public function checkBrainCalculationParameters()
 	{
 		$input = $this->request->all();
+
     	$checkOptim = $epsilonTemp = $epsilonEnth = $epsilonTemp = $epsilonEnth = $scheckStorage = $sdisableOptim = null;
 		$timeStep = 1.0;
 		$precision = 0.5;
@@ -1464,11 +1459,10 @@ class Calculator extends Controller
 		if (isset($input['sdisableTR'])) $sdisableTR = $input['sdisableTR'];
 		if (isset($input['sdisableTOC'])) $sdisableTOC = $input['sdisableTOC'];
 
-
 		if (intval($sdisableTS) != 1 || intval($typeCalculate) != 3) {
 
 			for ($i = 0; $i < count($newLTs) ; $i++) { 
-				$ts = $this->units->time($newLTs[$i], 1, 0);
+				$ts = $this->units->time(doubleval($newLTs[$i]["value"]), 1, 0);
 				$checkTS = $this->minmax->checkMinMaxValue($ts, 1146);
 				if ( !$checkTS ) {
 					$mm = $this->minmax->getMinMaxTime(1146);
@@ -1476,14 +1470,13 @@ class Calculator extends Controller
 						"Message" => "Value out of range in Residence / Dwell time (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
 					];
 				}
-
 			}
 		}
 
 		if (intval($sdisableTR) != 1 ) {
 			for ($i = 0; $i < count($newLTr); $i++) { 
 
-				$tr = $this->units->prodTemperature($newLTr[$i], 0, 1);
+				$tr = $this->units->prodTemperature(doubleval($newLTr[$i]["value"]), 0, 1);
 	
 				$checkTS = $this->minmax->checkMinMaxValue($tr, 1145);
 				if ( !$checkTS ) {
@@ -1494,7 +1487,20 @@ class Calculator extends Controller
 				}
 			}
 		}
-		
+
+		$uPercent = $this->units->uPercent();
+		if (intval($typeCalculate) != 1 || intval($typeCalculate) != 2 || intval($sdisableTOC != 1)) {
+				$toc = $this->units->convertCalculator(doubleval($toc), $uPercent["coeffA"], $uPercent["coeffB"], 2, 0);
+				$checkToc = $this->minmax->checkMinMaxValue($epsilonTemp, 704);
+				if ( !$checkToc ) {
+
+					$mm = $this->minmax->getMinMaxUPercent(704);
+					return  [
+						"Message" => "Value out of range in Loading rate (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+					];
+				}
+		}
+
 		if (intval($checkOptim) == 1) {
 			$epsilonTemp = $this->units->deltaTemperature($epsilonTemp, 2, 0);
 			$checkEpsilonTemp = $this->minmax->checkMinMaxValue($epsilonTemp, 1132);
@@ -1523,18 +1529,26 @@ class Calculator extends Controller
 				];
 			}
 		}
-		
-		if (intval($sdisableTimeStep) != 1) {
-			$timeStep = $this->units->timeStep($timeStep, 3, 0);
-			$checkTimeStep = $this->minmax->checkMinMaxValue($timeStep, 1013);
-			if ( !$checkTimeStep ) {
-				$mm = $this->minmax->getMinMaxTimeStep(1013);
+
+		$countTS = 0;
+		for ($i = 0; $i < count($newLTs) ; $i++) { 
+			$countTS += doubleval($newLTs[$i]["value"]);
+		}
+
+		if (intval($sdisableFields) != 1) {
+			$countTS = $this->units->time($countTS, 2, 1);
+			$mm = $this->minmax->getMinMaxTimeStep(1013);
+			if (doubleval($mm->LIMIT_MAX) > doubleval($countTS)) {
+				$mm->LIMIT_MAX = $countTS;
+			}
+			$timeStep1 = $this->units->timeStep($timeStep, 3, 0);
+			if ($timeStep1 < $mm->LIMIT_MIN || $timeStep > $mm->LIMIT_MAX) {
 				return  [
 					"Message" => "Value out of range in Time Step (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
 				];
 			}
 		}
-		if (intval($sdisablePrecision) != 1) {
+		if (intval($scheckStorage) != 1 || intval($scheckStorage) == 1) {
 			$checkPrecision = $this->minmax->checkMinMaxValue($precision, 1019);
 			if ( !$checkPrecision ) {
 				$mm = $this->minmax->getMinMaxUPercentNone(1019);
@@ -1543,14 +1557,22 @@ class Calculator extends Controller
 				];
 			}
 		}
+
 		if (intval($sdisableNbOptim) != 1) {
 			if (intval($scheckStorage) == 1) {
+				$mm = $this->minmax->getMinMaxTimeStep(1013);
+				$mm->LIMIT_MAX = $mm->LIMIT_MAX *  $timeStep;
+				$mm->LIMIT_MIN = $mm->LIMIT_MIN *  $timeStep;				
+
+				if (doubleval($mm->LIMIT_MAX) > doubleval($countTS)) {
+					$mm->LIMIT_MAX = $countTS;
+				}
+				$mm->LIMIT_MIN = $timeStep;
+
 				$storagestep = $this->units->timeStep($storagestep, 1, 0);
-				$checkStoragestep = $this->minmax->checkMinMaxValue($storagestep, 1013);
-				if ( !$checkStoragestep ) {
-					$mm = $this->minmax->getMinMaxTimeStep(1013);
+				if ($storagestep < $mm->LIMIT_MIN || $storagestep > $mm->LIMIT_MAX) {
 					return  [
-						"Message" => "Value out of range in Step (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+						"Message" => "Value out of range in Storage step (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
 					];
 				}
 			}
