@@ -1634,4 +1634,133 @@ class Calculator extends Controller
 
 		return 1;
 	}
+
+	public function checkStartCalculationParameters()
+	{
+		$input = $this->request->all();
+
+		$timeStep = 1.0;
+		$precision = 0.5;
+		$storagestep = $relaxCoef = 0.0; 
+		$tempPtSurf = $tempPtIn = $tempPtBot = $tempPtAvg = 0;
+		$maxIter = 100;
+		
+		if (isset($input['maxIter'])) $maxIter = intval($input['maxIter']);
+		if (isset($input['relaxCoef'])) $relaxCoef = $input['relaxCoef'];
+		if (isset($input['precision'])) $precision = $input['precision'];
+		if (isset($input['tempPtSurf'])) $tempPtSurf = $input['tempPtSurf'];
+		if (isset($input['tempPtIn'])) $tempPtIn = $input['tempPtIn'];
+		if (isset($input['tempPtBot'])) $tempPtBot = $input['tempPtBot'];
+		if (isset($input['tempPtAvg'])) $tempPtAvg = $input['tempPtAvg'];
+		if (isset($input['precisionlogstep'])) $precisionlogstep = $input['precisionlogstep'];
+		if (isset($input['storagestep'])) $storagestep = $input['storagestep'];
+		if (isset($input['timeStep'])) $timeStep = $input['timeStep'];
+		if (isset($input['sdisableFields'])) $sdisableFields = $input['sdisableFields'];
+
+
+
+		if (intval($sdisableFields) != 1) {
+			$checkMaxIter = $this->minmax->checkMinMaxValue($maxIter, 1010);
+			if ( !$checkMaxIter ) {
+				$mm = $this->minmax->getMinMaxLimitItem(1010);
+				return  [
+					"Message" => "Value out of range in Max of iterations (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+				];
+			}
+			
+			$checkRelaxCoef = $this->minmax->checkMinMaxValue($relaxCoef, 1018);
+			if ( !$checkRelaxCoef ) {
+				$mm = $this->minmax->getMinMaxLimitItem(1018);
+				return  [
+					"Message" => "Value out of range in Coef. of relaxation (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+				];
+			}
+			
+			$tempPtSurf = $this->units->temperature($tempPtSurf, 2, 0);
+			$checkTempPtSurf = $this->minmax->checkMinMaxValue($tempPtSurf, 1014);
+			if ( !$checkTempPtSurf ) {
+				$mm = $this->minmax->getMinMaxTemperature(1014);
+				return  [
+					"Message" => "Value out of range in Surface (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+				];
+			}
+
+			$tempPtIn = $this->units->temperature($tempPtIn, 2, 0);
+			$checkTempPtIn = $this->minmax->checkMinMaxValue($tempPtIn, 1014);
+			if ( !$checkTempPtIn ) {
+				$mm = $this->minmax->getMinMaxTemperature(1014);
+				return  [
+					"Message" => "Value out of range in Internal (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+				];
+			}
+
+			$tempPtBot = $this->units->temperature($tempPtBot, 2, 0);
+			$checkTempPtBot = $this->minmax->checkMinMaxValue($tempPtBot, 1014);
+			if ( !$checkTempPtBot ) {
+				$mm = $this->minmax->getMinMaxTemperature(1014);
+				return  [
+					"Message" => "Value out of range in Bottom (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+				];
+			}
+
+			$tempPtAvg = $this->units->temperature($tempPtAvg, 2, 0);
+			$checkTempPtAvg = $this->minmax->checkMinMaxValue($tempPtAvg, 1014);
+			if ( !$checkTempPtAvg ) {
+				$mm = $this->minmax->getMinMaxTemperature(1014);
+				return  [
+					"Message" => "Value out of range in Average (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+				];
+			}
+
+			$checkPrecision = $this->minmax->checkMinMaxValue($precision, 1019);
+			if ( !$checkPrecision ) {
+				$mm = $this->minmax->getMinMaxUPercentNone(1019);
+				return  [
+					"Message" => "Value out of range in Precision of numerical modelling (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+				];
+			}
+
+			$checkPrecisionlogstep = $this->minmax->checkMinMaxValue($precisionlogstep, 1107);
+			if ( !$checkPrecisionlogstep ) {
+				$mm = $this->minmax->getMinMaxTimeStep(1107);
+				return  [
+					"Message" => "Value out of range in Precision log step (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+				];
+			}
+
+// storagestep
+			// $mm = $this->minmax->getMinMaxLimitItem(1106);
+			// $mm->LIMIT_MAX = $mm->LIMIT_MAX *  $timeStep;
+			// $mm->LIMIT_MIN = $mm->LIMIT_MIN *  $timeStep;			
+
+			// $storagestep = $this->units->timeStep($storagestep, 1, 0);
+			// if ($storagestep < $mm->LIMIT_MIN || $storagestep > $mm->LIMIT_MAX) {
+			// 	return  [
+			// 		"Message" => "Value out of range in Storage step (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+			// 	];
+			// }
+				
+		}
+
+
+
+		
+		// if (intval($sdisableFields) != 1) {
+		// 	$countTS = $this->units->time($countTS, 2, 1);
+		// 	$mm = $this->minmax->getMinMaxTimeStep(1013);
+		// 	if (doubleval($mm->LIMIT_MAX) > doubleval($countTS)) {
+		// 		$mm->LIMIT_MAX = $countTS;
+		// 	}
+		// 	$timeStep1 = $this->units->timeStep($timeStep, 3, 0);
+		// 	if ($timeStep1 < $mm->LIMIT_MIN || $timeStep > $mm->LIMIT_MAX) {
+		// 		return  [
+		// 			"Message" => "Value out of range in Time Step (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+		// 		];
+		// 	}
+		// }
+
+
+		
+		return 1;
+	}
 }
