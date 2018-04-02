@@ -591,24 +591,6 @@ class Reports extends Controller
         $ISOVALUE_G = $input['ISOVALUE_G'];
         $ISOVALUE_SAMPLE = $input['ISOVALUE_SAMPLE'];
         $CONTOUR2D_G = $input['CONTOUR2D_G'];
-        $POINT1_X = $input['POINT1_X'];
-        $POINT1_Y = $input['POINT1_Y'];
-        $POINT1_Z = $input['POINT1_Z'];
-        $POINT2_X = $input['POINT2_X'];
-        $POINT2_Y = $input['POINT2_Y'];
-        $POINT2_Z = $input['POINT2_Z'];
-        $POINT3_X = $input['POINT3_X'];
-        $POINT3_Y = $input['POINT3_Y'];
-        $POINT3_Z = $input['POINT3_Z'];
-        $AXE3_Y = $input['AXE3_Y'];
-        $AXE3_Z = $input['AXE3_Z'];
-        $AXE2_X = $input['AXE2_X'];
-        $AXE2_Z = $input['AXE2_Z'];
-        $AXE1_X = $input['AXE1_X'];
-        $AXE1_Y = $input['AXE1_Y'];
-        $PLAN_X = $input['PLAN_X'];
-        $PLAN_Y = $input['PLAN_Y'];
-        $PLAN_Z = $input['PLAN_Z'];
         $study = Study::find($id);
         $host = 'http://' . $_SERVER['HTTP_HOST'];
         $public_path = rtrim(app()->basePath("public/"), '/');
@@ -1205,10 +1187,9 @@ class Reports extends Controller
                             </div>
                         </div>';
                         }
-                                // }
-                                PDF::writeHTML($html, true, false, true, false, '');
-                                PDF::AddPage();
-                            }
+                    PDF::writeHTML($html, true, false, true, false, '');
+                    PDF::AddPage();
+                }
                             
         if ($EQUIP_LIST == 1) {
             if (!empty($equipData)) {
@@ -2034,15 +2015,15 @@ class Reports extends Controller
         PDF::MultiCell(0, 0, 'Table Of Content', 0, 'C', 0, 1, '', '', true, 0);
         PDF::Ln();
         // define styles for various bookmark levels
-        $bookmark_templates = array();
+        // $bookmark_templates = array();
         
-        $bookmark_templates[0] = '<table border="0" cellpadding="0" cellspacing="0" style="background-color:#EEFAFF"><tr><td width="255mm"><span style="font-family:times;font-weight:bold;font-size:10pt;color:black;">#TOC_DESCRIPTION#</span></td><td width="25mm"><span style="font-family:courier;font-weight:bold;font-size:12pt;color:black;" align="right">#TOC_PAGE_NUMBER#</span></td></tr></table>';
-        $bookmark_templates[1] = '<table border="0" cellpadding="0" cellspacing="0"><tr><td width="5mm">&nbsp;</td><td width="250mm"><span style="font-family:times;font-size:9pt;color:green;">#TOC_DESCRIPTION#</span></td><td width="25mm"><span style="font-family:courier;font-weight:bold;font-size:11pt;color:green;" align="right">#TOC_PAGE_NUMBER#</span></td></tr></table>';
-        $bookmark_templates[2] = '<table border="0" cellpadding="0" cellspacing="0"><tr><td width="10mm">&nbsp;</td><td width="245mm"><span style="font-family:times;font-size:8pt;color:#666666;"><i>#TOC_DESCRIPTION#</i></span></td><td width="25mm"><span style="font-family:courier;font-weight:bold;font-size:10pt;color:#666666;" align="right">#TOC_PAGE_NUMBER#</span></td></tr></table>';
+        // $bookmark_templates[0] = '<table border="0" cellpadding="0" cellspacing="0" style="background-color:#EEFAFF"><tr><td width="255mm"><span style="font-family:times;font-weight:bold;font-size:10pt;color:black;">#TOC_DESCRIPTION#</span></td><td width="25mm"><span style="font-family:courier;font-weight:bold;font-size:12pt;color:black;" align="right">#TOC_PAGE_NUMBER#</span></td></tr></table>';
+        // $bookmark_templates[1] = '<table border="0" cellpadding="0" cellspacing="0"><tr><td width="5mm">&nbsp;</td><td width="250mm"><span style="font-family:times;font-size:9pt;color:green;">#TOC_DESCRIPTION#</span></td><td width="25mm"><span style="font-family:courier;font-weight:bold;font-size:11pt;color:green;" align="right">#TOC_PAGE_NUMBER#</span></td></tr></table>';
+        // $bookmark_templates[2] = '<table border="0" cellpadding="0" cellspacing="0"><tr><td width="10mm">&nbsp;</td><td width="245mm"><span style="font-family:times;font-size:8pt;color:#666666;"><i>#TOC_DESCRIPTION#</i></span></td><td width="25mm"><span style="font-family:courier;font-weight:bold;font-size:10pt;color:#666666;" align="right">#TOC_PAGE_NUMBER#</span></td></tr></table>';
         // add other bookmark level templates here ...
         
         // add table of content at page 1
-        PDF::addHTMLTOC(1, 'INDEX', $bookmark_templates, true, 'B', array(128,0,0));
+        PDF::addTOC(1, 'courier', '.', 'INDEX', 'B', array(128,0,0));;
         
         // end of TOC page
         PDF::endTOCPage();
@@ -2096,24 +2077,6 @@ class Reports extends Controller
         $ISOVALUE_G = $input['ISOVALUE_G'];
         $ISOVALUE_SAMPLE = $input['ISOVALUE_SAMPLE'];
         $CONTOUR2D_G = $input['CONTOUR2D_G'];
-        $POINT1_X = $input['POINT1_X'];
-        $POINT1_Y = $input['POINT1_Y'];
-        $POINT1_Z = $input['POINT1_Z'];
-        $POINT2_X = $input['POINT2_X'];
-        $POINT2_Y = $input['POINT2_Y'];
-        $POINT2_Z = $input['POINT2_Z'];
-        $POINT3_X = $input['POINT3_X'];
-        $POINT3_Y = $input['POINT3_Y'];
-        $POINT3_Z = $input['POINT3_Z'];
-        $AXE3_Y = $input['AXE3_Y'];
-        $AXE3_Z = $input['AXE3_Z'];
-        $AXE2_X = $input['AXE2_X'];
-        $AXE2_Z = $input['AXE2_Z'];
-        $AXE1_X = $input['AXE1_X'];
-        $AXE1_Y = $input['AXE1_Y'];
-        $PLAN_X = $input['PLAN_X'];
-        $PLAN_Y = $input['PLAN_Y'];
-        $PLAN_Z = $input['PLAN_Z'];
         $study = Study::find($id);
         $host = 'http://' . $_SERVER['HTTP_HOST'];
         $public_path = rtrim(app()->basePath("public/"), '/');
