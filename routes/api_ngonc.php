@@ -62,7 +62,47 @@ $router->GET('/api/v1/equipments/selection/loadEnergies', 'Api1\\Equipments@load
  * Notes: load Manufacturer
  * Output-Formats: [application/json]
  */
-$router->GET('/api/v1/equipments/selection/loadConstructors/{energy}', 'Api1\\Equipments@loadConstructors');
+$router->GET('/api/v1/equipments/selection/loadConstructors', 'Api1\\Equipments@loadConstructors');
+
+/**
+ * GET loadFamilies
+ * Summary: 
+ * Notes: load Family
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/equipments/selection/loadFamilies', 'Api1\\Equipments@loadFamilies');
+
+/**
+ * GET loadOrigines
+ * Summary: 
+ * Notes: load Origines
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/equipments/selection/loadOrigines', 'Api1\\Equipments@loadOrigines');
+
+/**
+ * GET loadProcesses
+ * Summary: 
+ * Notes: load Processes
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/equipments/selection/loadProcesses', 'Api1\\Equipments@loadProcesses');
+
+/**
+ * GET loadSeries
+ * Summary: 
+ * Notes: load Series
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/equipments/selection/loadSeries', 'Api1\\Equipments@loadSeries');
+
+/**
+ * GET loadDimensions
+ * Summary: 
+ * Notes: load Dimensions
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/equipments/selection/loadDimensions', 'Api1\\Equipments@loadDimensions');
 
 /**
  * GET getAllCompFamily
