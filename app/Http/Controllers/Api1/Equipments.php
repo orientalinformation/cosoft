@@ -835,7 +835,8 @@ class Equipments extends Controller
         }
         $path = $path1 .' '.$path;
         // end write path and circle point
-        $nbpixY = (PROFILE_CHARTS_HEIGHT - PROFILE_CHARTS_MARGIN_HEIGHT) - ((PROFILE_CHARTS_HEIGHT - (2 * PROFILE_CHARTS_MARGIN_HEIGHT)) + 20);
+        $minPixY = (PROFILE_CHARTS_HEIGHT - PROFILE_CHARTS_MARGIN_HEIGHT) - (PROFILE_CHARTS_HEIGHT - (2 * PROFILE_CHARTS_MARGIN_HEIGHT)) ;
+        $nbpixY = (PROFILE_CHARTS_HEIGHT - PROFILE_CHARTS_MARGIN_HEIGHT) - $minPixY;
 
         $array = [
             'MiniMum' => $miniMum,
@@ -852,13 +853,14 @@ class Equipments extends Controller
             'path' => $path,
             'axisline' => $axisline,
             'originY' => (PROFILE_CHARTS_HEIGHT - PROFILE_CHARTS_MARGIN_HEIGHT),
-            'minPixY' => (PROFILE_CHARTS_HEIGHT - PROFILE_CHARTS_MARGIN_HEIGHT),
-            'maxPixY' => (PROFILE_CHARTS_HEIGHT - (2 * PROFILE_CHARTS_MARGIN_HEIGHT)) + 20,
+            'minPixY' => $minPixY,
+            'maxPixY' => (PROFILE_CHARTS_HEIGHT - PROFILE_CHARTS_MARGIN_HEIGHT),
             'nbpixY' => $nbpixY,
             'valuesTabX' => $valuesTabX,
             'valuesTabY' => $valuesTabY,
             'selectedPoints' => $selectedPoints,
-            'nbpoints' => $nbpoints 
+            'nbpoints' => $nbpoints ,
+            'axisYLength' => (PROFILE_CHARTS_WIDTH - (2 * PROFILE_CHARTS_MARGIN_WIDTH)) + 20,
         ];
         
         return $array;
