@@ -49,6 +49,22 @@ $router->POST('/api/v1/studies/{id}/saveLocationAxis', 'Api1\\Studies@saveLocati
 $router->GET('/api/v1/equipments/{id}/reCalculate', 'Api1\\Equipments@reCalculate');
 
 /**
+ * GET loadEnergies
+ * Summary: 
+ * Notes: load Energy
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/equipments/selection/loadEnergies', 'Api1\\Equipments@loadEnergies');
+
+/**
+ * GET loadConstructors
+ * Summary: 
+ * Notes: load Manufacturer
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/equipments/selection/loadConstructors/{energy}', 'Api1\\Equipments@loadConstructors');
+
+/**
  * GET getAllCompFamily
  * Summary: 
  * Notes: get all CompFamily

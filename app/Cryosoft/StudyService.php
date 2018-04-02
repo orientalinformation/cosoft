@@ -97,5 +97,34 @@ class StudyService
         
         return 0;
     }
-    
+
+    public function getFilteredStudiesList($idUser, $idCompFamily, $idCompSubFamily, $idComponent)
+    {
+        $querys = Study::distinct();
+
+        if ($idCompFamily + $idCompSubFamily + $idComponent > 0) {
+            $querys->join('product_elmt', 'studies.ID_PROD', '=', 'product_elmt.ID_PROD');
+
+            if ($idComponent > 0) {
+                $querys->where('product_elmt.ID_PROD', $idComponent);
+            } else {
+                $querys->join('component', 'product_elmt.ID_COMP', '=', 'component.ID_COMP');
+                if ($idCompFamily > 0) {
+                    $querys->where('component.CLASS_TYPE', $idCompFamily);
+                }
+                if ($idCompSubFamily > 0) {
+                    $querys->where('component.SUB_FAMILY', $idCompSubFamily);
+                }
+            }
+        }   
+        if ($idUser > 0) {
+            $querys->where('studies.ID_USER', $idUser);
+        } else {
+            $querys->where('studies.ID_USER', '!=', $this->auth->user()->ID_USER);  
+        }
+
+        $querys->orderBy('studies.STUDY_NAME');
+
+        return $querys->get();
+    }  
 }

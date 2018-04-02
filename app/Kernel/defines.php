@@ -17,6 +17,15 @@ define('PROFILE_CHARTS_HEIGHT', 350); // SVG chart
 define('PROFILE_CHARTS_MARGIN_WIDTH', 75); // SVG chart
 define('PROFILE_CHARTS_MARGIN_HEIGHT', 50); // SVG chart
 
+define('LINE_STROKE_COLOR', '#000000');
+define('CIRCLE_STROKE_COLOR', '#000000');
+define('CIRCLE_FILLED_COLOR', '#D5D5FF');
+define('SELECT_STROKE_COLOR', '#FF0000');
+define('SELECT_FILLED_COLOR', '#00FF00');
+define('PATH_FILLED_COLOR', 'none');
+define('PATH_STROKE_COLOR', '#0000FF');
+define('PATH_ELEMENT_ID', 'profilLine');
+
 define('SC_CLEAN_MODE_ESTIM_2_OPTIM',20);  // estimation -> optimum
 define('SC_CLEAN_MODE_OPTIM_2_ESTIM',21);  // optimum -> estimation
 define('SC_CLEAN_MODE_ESTIM_2_SELECT',22);  // estimation -> selected
