@@ -649,7 +649,6 @@ class Reports extends Controller
         }
         
         
-        // $this->writeProgressFile('/home/huytd/adadad', $a);
         $symbol = $this->reportserv->getSymbol($study->ID_STUDY);
         $infoReport = $study->reports;
 
@@ -674,20 +673,23 @@ class Reports extends Controller
             $this->writeProgressFile($progressFile, $progress);
         }
         
-        if ($isSizingValuesChosen == 1 || $isSizingValuesMax == 1) {
+        if ($isSizingValuesChosen == 1 || $isSizingValuesMax == 1 || $SIZING_GRAPHE == 1) {
             if ($study->CALCULATION_MODE == 3) {
                 $calModeHeadBalance = $this->reportserv->getOptimumHeadBalance($study->ID_STUDY);
                 $calModeHbMax = $this->reportserv->getOptimumHeadBalanceMax($study->ID_STUDY);
+                $graphicSizing = $this->reportserv->sizingOptimumResult($study->ID_STUDY);
                 
             } else if ($study->CALCULATION_MODE == 1) {
                 $calModeHeadBalance = $this->reportserv->getEstimationHeadBalance($study->ID_STUDY, 1);
                 $calModeHbMax = "";
+                $graphicSizing = $this->reportserv->sizingEstimationResult($study->ID_STUDY);
             }
             $progress .= "\nSizing";
             $this->writeProgressFile($progressFile, $progress);
         } else {
             $calModeHeadBalance = "";
             $calModeHbMax = "";
+            $graphicSizing = "";
         }
 
         if ($REP_CONS_PIE == 1) {
@@ -1512,7 +1514,7 @@ class Reports extends Controller
                         <tr>';
                         $html .='
                             <td colspan="2" rowspan="2"> '. $resconsumptions['equipName'] .' </td>
-                            <td align="center">(l)</td>';
+                            <td align="center">( '. $symbol['consumSymbol'] .' )</td>';
                             if ($CONS_OVERALL == 1) {
                             $html .=' 
                                 <td align="center"> '. $resconsumptions['tc'] .' </td>';
@@ -1562,7 +1564,7 @@ class Reports extends Controller
                             }
                         $html .='</tr>';
                         $html .='<tr>
-                            <td align="center">(€)</td>';
+                            <td align="center">( '. $symbol['monetarySymbol'] .' )</td>';
                             if ($CONS_OVERALL == 1) {
                             $html .=' 
                                 <td align="center"> '. $resconsumptions['tc'] .' </td>';
@@ -2091,7 +2093,6 @@ class Reports extends Controller
         $production = Production::Where('ID_STUDY', $id)->first();
         if ($REP_CUSTOMER == 1) {
             $progress .= "Production";
-            // $progress = "\n$study";
             $this->writeProgressFile($progressFile, $progress);
         }
         
@@ -2157,20 +2158,23 @@ class Reports extends Controller
             $this->writeProgressFile($progressFile, $progress);
         }
         
-        if ($isSizingValuesChosen == 1 || $isSizingValuesMax == 1) {
+        if ($isSizingValuesChosen == 1 || $isSizingValuesMax == 1 || $SIZING_GRAPHE == 1) {
             if ($study->CALCULATION_MODE == 3) {
                 $calModeHeadBalance = $this->reportserv->getOptimumHeadBalance($study->ID_STUDY);
                 $calModeHbMax = $this->reportserv->getOptimumHeadBalanceMax($study->ID_STUDY);
+                $graphicSizing = $this->reportserv->sizingOptimumResult($study->ID_STUDY);
                 
             } else if ($study->CALCULATION_MODE == 1) {
                 $calModeHeadBalance = $this->reportserv->getEstimationHeadBalance($study->ID_STUDY, 1);
                 $calModeHbMax = "";
+                $graphicSizing = $this->reportserv->sizingEstimationResult($study->ID_STUDY);
             }
             $progress .= "\nSizing";
             $this->writeProgressFile($progressFile, $progress);
         } else {
             $calModeHeadBalance = "";
             $calModeHbMax = "";
+            $graphicSizing = "";
         }
 
         if ($REP_CONS_PIE == 1) {
