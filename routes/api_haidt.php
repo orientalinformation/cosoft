@@ -398,3 +398,11 @@ $router->POST('/api/v1/calculator/calculationparameters', 'Api1\\Calculator@chec
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/calculator/braincalculationparameters', 'Api1\\Calculator@checkBrainCalculationParameters');
+
+/**
+ * POST checkStartCalculationParameters
+ * Summary:
+ * Notes: check Start Calculation Parameters
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/calculator/startcalculationparameters', 'Api1\\Calculator@checkStartCalculationParameters');

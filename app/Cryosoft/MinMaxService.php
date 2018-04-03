@@ -155,11 +155,11 @@ class MinMaxService
         return $minMax; 
     }
 
-    public function getMinMaxTimeStep($limitItem)
+    public function getMinMaxTimeStep($limitItem, $decimal)
     {
         $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
-        $minMax->LIMIT_MAX = $this->units->timeStep($minMax->LIMIT_MAX, 2, 1);
-        $minMax->LIMIT_MIN = $this->units->timeStep($minMax->LIMIT_MIN, 2, 1);
+        $minMax->LIMIT_MAX = $this->units->timeStep($minMax->LIMIT_MAX, $decimal, 1);
+        $minMax->LIMIT_MIN = $this->units->timeStep($minMax->LIMIT_MIN, $decimal, 1);
         $minMax->DEFAULT_VALUE = $this->units->timeStep($minMax->DEFAULT_VALUE, 2,1);
 
         return $minMax; 
