@@ -1326,7 +1326,7 @@ class Calculator extends Controller
 			$timeStep = $this->units->timeStep($timeStep, 3, 0);
 			$checkTimeStep = $this->minmax->checkMinMaxValue($timeStep, 1013);
 			if ( !$checkTimeStep ) {
-				$mm = $this->minmax->getMinMaxTimeStep(1013);
+				$mm = $this->minmax->getMinMaxTimeStep(1013, 2);
 				return  [
 					"Message" => "Value out of range in Time Step (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
 				];
@@ -1346,7 +1346,7 @@ class Calculator extends Controller
 				$storagestep = $this->units->timeStep($storagestep, 1, 0);
 				$checkStoragestep = $this->minmax->checkMinMaxValue($storagestep, 1013);
 				if ( !$checkStoragestep ) {
-					$mm = $this->minmax->getMinMaxTimeStep(1013);
+					$mm = $this->minmax->getMinMaxTimeStep(1013, 2);
 					return  [
 						"Message" => "Value out of range in Step (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
 					];
@@ -1537,7 +1537,7 @@ class Calculator extends Controller
 
 		if (intval($sdisableFields) != 1) {
 			$countTS = $this->units->time($countTS, 2, 1);
-			$mm = $this->minmax->getMinMaxTimeStep(1013);
+			$mm = $this->minmax->getMinMaxTimeStep(1013, 2);
 			if (doubleval($mm->LIMIT_MAX) > doubleval($countTS)) {
 				$mm->LIMIT_MAX = $countTS;
 			}
@@ -1560,7 +1560,7 @@ class Calculator extends Controller
 
 		if (intval($sdisableNbOptim) != 1) {
 			if (intval($scheckStorage) == 1) {
-				$mm = $this->minmax->getMinMaxTimeStep(1013);
+				$mm = $this->minmax->getMinMaxTimeStep(1013, 2);
 				$mm->LIMIT_MAX = $mm->LIMIT_MAX *  $timeStep;
 				$mm->LIMIT_MIN = $mm->LIMIT_MIN *  $timeStep;				
 
@@ -1644,6 +1644,9 @@ class Calculator extends Controller
 		$storagestep = $relaxCoef = 0.0; 
 		$tempPtSurf = $tempPtIn = $tempPtBot = $tempPtAvg = 0;
 		$maxIter = 100;
+
+		if (isset($input['dwellingTimes'])) $newLTs = $input['dwellingTimes'];
+
 		
 		if (isset($input['maxIter'])) $maxIter = intval($input['maxIter']);
 		if (isset($input['relaxCoef'])) $relaxCoef = $input['relaxCoef'];
@@ -1722,44 +1725,46 @@ class Calculator extends Controller
 
 			$checkPrecisionlogstep = $this->minmax->checkMinMaxValue($precisionlogstep, 1107);
 			if ( !$checkPrecisionlogstep ) {
-				$mm = $this->minmax->getMinMaxTimeStep(1107);
+				$mm = $this->minmax->getMinMaxTimeStep(1107, 2);
 				return  [
 					"Message" => "Value out of range in Precision log step (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
 				];
 			}
 
-// storagestep
-			// $mm = $this->minmax->getMinMaxLimitItem(1106);
-			// $mm->LIMIT_MAX = $mm->LIMIT_MAX *  $timeStep;
-			// $mm->LIMIT_MIN = $mm->LIMIT_MIN *  $timeStep;			
+			$countTS = 0;
+			for ($i = 0; $i < count($newLTs) ; $i++) { 
+				$countTS += $this->units->time(doubleval($newLTs[$i]["value"]), 1, 1);
+			}
+			$countTS = $this->units->time($countTS, 2, 1);
 
-			// $storagestep = $this->units->timeStep($storagestep, 1, 0);
-			// if ($storagestep < $mm->LIMIT_MIN || $storagestep > $mm->LIMIT_MAX) {
-			// 	return  [
-			// 		"Message" => "Value out of range in Storage step (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
-			// 	];
-			// }
-				
+			$mm = $this->minmax->getMinMaxTimeStep(1013, 3);
+
+			if (doubleval($mm->LIMIT_MAX) > doubleval($countTS)) {
+				$mm->LIMIT_MAX = $countTS;
+			}
+			$timeStep1 = $this->units->timeStep($timeStep, 3, 0);
+
+			if ($timeStep1 < $mm->LIMIT_MIN || $timeStep > $mm->LIMIT_MAX) {
+				return  [
+					"Message" => "Value out of range in Time Step (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+				];
+			}
+
+			$mm = $this->minmax->getMinMaxTimeStep(1106, 2);
+			$mm->LIMIT_MAX = $mm->LIMIT_MAX *  $timeStep;
+			$mm->LIMIT_MIN = $mm->LIMIT_MIN *  $timeStep;				
+
+			if (doubleval($mm->LIMIT_MAX) > doubleval($countTS)) {
+				$mm->LIMIT_MAX = $countTS;
+			}
+
+			$storagestep = $this->units->timeStep($storagestep, 1, 0);
+			if ($storagestep < $mm->LIMIT_MIN || $storagestep > $mm->LIMIT_MAX) {
+				return  [
+					"Message" => "Value out of range in Storage step (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+				];
+			}
 		}
-
-
-
-		
-		// if (intval($sdisableFields) != 1) {
-		// 	$countTS = $this->units->time($countTS, 2, 1);
-		// 	$mm = $this->minmax->getMinMaxTimeStep(1013);
-		// 	if (doubleval($mm->LIMIT_MAX) > doubleval($countTS)) {
-		// 		$mm->LIMIT_MAX = $countTS;
-		// 	}
-		// 	$timeStep1 = $this->units->timeStep($timeStep, 3, 0);
-		// 	if ($timeStep1 < $mm->LIMIT_MIN || $timeStep > $mm->LIMIT_MAX) {
-		// 		return  [
-		// 			"Message" => "Value out of range in Time Step (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
-		// 		];
-		// 	}
-		// }
-
-
 		
 		return 1;
 	}
