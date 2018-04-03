@@ -910,12 +910,16 @@ class Equipments extends Controller
         $YAxis = $XAxis = $pos = 0;
         $X = $Y = $resultPoint = $axisline = $valuesTabX =  $valuesTabY = $selectedPoints = array();
         $textX = 75;
+        $minScale = $maxScale = $typeChart = null;
 
         $input = $this->request->all();
 
         if (isset($input['profilType'])) $profileType = intval($input['profilType']);
         if (isset($input['profilFace'])) $profileFace = intval($input['profilFace']);
         if (isset($input['ID_EQUIP'])) $ID_EQUIP = intval($input['ID_EQUIP']);
+        if (isset($input['minScaleY'])) $minScale = floatval($input['minScaleY']);
+        if (isset($input['maxScaleY'])) $maxScale = floatval($input['maxScaleY']);
+        if (isset($input['typeChart'])) $typeChart = intval($input['typeChart']);
 
         if ($profileType == 1) {
             $minMax = $this->getMinMax(1039);
@@ -995,6 +999,12 @@ class Equipments extends Controller
 
         $miniMum = $this->convert->convertIdent($minScaleY, $unitIdent);
         $maxiMum = $this->convert->convertIdent($maxScaleY, $unitIdent);
+
+        //refresh
+        if ($typeChart == 1) {
+            $miniMum = $minScale;
+            $maxiMum = $maxScale;
+        }
 
         // Write axis X
         $axisX = $this->svg->getAxisX();

@@ -187,7 +187,7 @@ class BrainCalculateService
             $logStep = $calcParameter->PRECISION_LOG_STEP;
         }
 
-        return $logStep;
+        return intval($logStep);
     }
 
     public function getStorageStep($idStudyEquipments) 
