@@ -908,7 +908,7 @@ class Equipments extends Controller
         $unitIdent = $miniMum = 10;
         $ID_EQUIP = $profileType = $profileFace = $listOfPoints = $path = $nbpoints = null;
         $YAxis = $XAxis = $pos = 0;
-        $X = $Y = $resultPoint = $axisline = $valuesTabX =  $valuesTabY = $selectedPoints = array();
+        $X = $Y = $resultPoint = $axisline = $valuesTabX =  $valuesTabY = $selectedPoints = $posTabY = array();
         $textX = 75;
         $minScale = $maxScale = $typeChart = null;
 
@@ -1024,6 +1024,7 @@ class Equipments extends Controller
             $listOfPoints[$i]['X_POSITION'] = $this->svg->getAxisXPos(doubleval($listOfPoints[$i]['X_POSITION']));
             $listOfPoints[$i]['Y_POINT'] = $this->svg->getAxisYPos(doubleval($listOfPoints[$i]['Y_POINT']), $miniMum, $maxiMum);
 
+            array_push($posTabY, $listOfPoints[$i]['Y_POINT']);
             if ($i == 0) {
                 $path1 = 'M '. $listOfPoints[0]['X_POSITION']. ' '.$listOfPoints[0]['Y_POINT'] .' L';
             } else {
@@ -1058,6 +1059,7 @@ class Equipments extends Controller
             'selectedPoints' => $selectedPoints,
             'nbpoints' => $nbpoints ,
             'axisYLength' => (PROFILE_CHARTS_WIDTH - (2 * PROFILE_CHARTS_MARGIN_WIDTH)) + 20,
+            'posTabY' => $posTabY
         ];
         
         return $array;
