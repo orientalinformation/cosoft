@@ -137,7 +137,7 @@ class Equipments extends Controller
     {
         $input = $this->request->all();
         $energy = (isset($input['energy'])) ? $input['energy'] : -1;
-        $manufacturer = (isset($input['manufacturer'])) ? $input['manufacturer'] : -1;
+        $manufacturer = (isset($input['manufacturer'])) ? $input['manufacturer'] : '';
         $query = Equipfamily::distinct()->select('equipfamily.ID_FAMILY', 'translation.LABEL')
         ->join('translation', 'equipfamily.ID_FAMILY', '=', 'translation.ID_TRANSLATION')
         ->join('equipseries', 'equipfamily.ID_FAMILY', '=', 'equipseries.ID_FAMILY')
@@ -148,7 +148,7 @@ class Equipments extends Controller
             $query->where('equipment.ID_COOLING_FAMILY', $energy);
         }
 
-        if ($manufacturer != -1) {
+        if ($manufacturer != null && $manufacturer != '') {
             $query->where('equipseries.CONSTRUCTOR', $manufacturer);
         }
 
@@ -162,7 +162,7 @@ class Equipments extends Controller
     {
         $input = $this->request->all();
         $energy = (isset($input['energy'])) ? $input['energy'] : -1;
-        $manufacturer = (isset($input['manufacturer'])) ? $input['manufacturer'] : -1;
+        $manufacturer = (isset($input['manufacturer'])) ? $input['manufacturer'] : '';
         $family = (isset($input['family'])) ? $input['family'] : -1;
         $query = Equipment::distinct()->select('equipment.STD', 'translation.LABEL')
         ->join('translation', 'equipment.STD', '=', 'translation.ID_TRANSLATION')
@@ -174,7 +174,7 @@ class Equipments extends Controller
             $query->where('equipment.ID_COOLING_FAMILY', $energy);
         }
 
-        if ($manufacturer != -1) {
+        if ($manufacturer != null && $manufacturer != '') {
             $query->where('equipseries.CONSTRUCTOR', $manufacturer);
         }
 
@@ -192,7 +192,7 @@ class Equipments extends Controller
     {
         $input = $this->request->all();
         $energy = (isset($input['energy'])) ? $input['energy'] : -1;
-        $manufacturer = (isset($input['manufacturer'])) ? $input['manufacturer'] : -1;
+        $manufacturer = (isset($input['manufacturer'])) ? $input['manufacturer'] : '';
         $family = (isset($input['family'])) ? $input['family'] : -1;
         $origine = (isset($input['origine'])) ? $input['origine'] : -1;
 
@@ -206,7 +206,7 @@ class Equipments extends Controller
             $query->where('equipment.ID_COOLING_FAMILY', $energy);
         }
 
-        if ($manufacturer != -1) {
+        if ($manufacturer != null && $manufacturer != '') {
             $query->where('equipseries.CONSTRUCTOR', $manufacturer);
         }
 
@@ -228,7 +228,7 @@ class Equipments extends Controller
     {
         $input = $this->request->all();
         $energy = (isset($input['energy'])) ? $input['energy'] : -1;
-        $manufacturer = (isset($input['manufacturer'])) ? $input['manufacturer'] : -1;
+        $manufacturer = (isset($input['manufacturer'])) ? $input['manufacturer'] : '';
         $family = (isset($input['family'])) ? $input['family'] : -1;
         $origine = (isset($input['origine'])) ? $input['origine'] : -1;
         $process = (isset($input['process'])) ? $input['process'] : -1;
@@ -243,7 +243,7 @@ class Equipments extends Controller
             $query->where('equipment.ID_COOLING_FAMILY', $energy);
         }
 
-        if ($manufacturer != -1) {
+        if ($manufacturer != null && $manufacturer != '') {
             $query->where('equipseries.CONSTRUCTOR', $manufacturer);
         }
 
@@ -269,7 +269,7 @@ class Equipments extends Controller
     {
         $input = $this->request->all();
         $energy = (isset($input['energy'])) ? $input['energy'] : -1;
-        $manufacturer = (isset($input['manufacturer'])) ? $input['manufacturer'] : -1;
+        $manufacturer = (isset($input['manufacturer'])) ? $input['manufacturer'] : '';
         $family = (isset($input['family'])) ? $input['family'] : -1;
         $origine = (isset($input['origine'])) ? $input['origine'] : -1;
         $process = (isset($input['process'])) ? $input['process'] : -1;
@@ -283,7 +283,7 @@ class Equipments extends Controller
             $query->where('equipment.ID_COOLING_FAMILY', $energy);
         }
 
-        if ($manufacturer != -1) {
+        if ($manufacturer != null && $manufacturer != '') {
             $query->where('equipseries.CONSTRUCTOR', $manufacturer);
         }
 
