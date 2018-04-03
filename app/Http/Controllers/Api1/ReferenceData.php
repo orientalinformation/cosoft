@@ -640,4 +640,29 @@ class ReferenceData extends Controller
         }
         return 0;
     }
+
+    public function checkDataComponent()
+    {
+        $input = $this->request->all();
+
+        $COMP_COMMENT = $COMP_NAME = null;
+        $LIPID = $GLUCID = $PROTID = $WATER = $FREEZE_TEMP = $COMP_VERSION = 0;
+        $SALT = $AIR = $NON_FROZEN_WATER = $FATTYPE = 0;
+        
+        if (isset($input['COMP_NAME'])) $COMP_NAME = $input['COMP_NAME'];
+        if (isset($input['COMP_VERSION'])) $COMP_VERSION = intval($input['COMP_VERSION']);
+        if (isset($input['COMP_COMMENT'])) $COMP_COMMENT = $input['COMP_COMMENT'];
+        if (isset($FREEZE_TEMP)) $FREEZE_TEMP = (float) $this->convert->unitConvert($this->value->TEMPERATURE, floatval($input['FREEZE_TEMP']));
+        if (isset($input['WATER'])) $WATER = floatval($input['WATER']);
+        if (isset($input['PROTID'])) $PROTID = floatval($input['PROTID']);
+        if (isset($input['LIPID'])) $LIPID = floatval($input['LIPID']);
+        if (isset($input['GLUCID'])) $GLUCID = floatval($input['GLUCID']);
+        if (isset($input['SALT'])) $SALT = floatval($input['SALT']);
+        if (isset($input['AIR'])) $AIR = floatval($input['AIR']);
+        if (isset($input['NON_FROZEN_WATER'])) $NON_FROZEN_WATER = floatval($input['NON_FROZEN_WATER']);
+        if (isset($input['FATTYPE'])) $FATTYPE = intval($input['FATTYPE']);
+
+        return 1;
+
+    }
 }
