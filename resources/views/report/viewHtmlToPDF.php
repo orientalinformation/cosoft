@@ -520,7 +520,7 @@
             <div class="table-responsive">
             <table class ="table table-bordered" border="1">
                 <tr>
-                <th colspan="3" align="center" rowspan="2">Equipment</th>
+                <th colspan="2" align="center" rowspan="2">Equipment</th>
                 <?php if ($arrayParam['params']['CONS_OVERALL'] == 1) { ?>
                 <th rowspan="2" align="center">Overall Cryogen Consumption Ratio (product + equipment and pipeline losses) Unit of Cryogen, per piece of product.  <?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></th>
                 <?php } ?>
@@ -569,8 +569,8 @@
                 <?php } ?>
                 <?php foreach($consumptions as $resconsumptions) { ?>
                     <tr>
-                        <td colspan="2" rowspan="2"><?php echo $resconsumptions['equipName'] ?></td>
-                        <td align="center">(l)</td>
+                        <td align="center" rowspan="2"><?php echo $resconsumptions['equipName'] ?></td>
+                        <td align="center" ><?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></td>
                         <?php if ($arrayParam['params']['CONS_OVERALL'] == 1) { ?>
                         <td align="center"><?php echo $resconsumptions['tc'] ?></td>
                         <?php } ?>
@@ -608,9 +608,9 @@
                         <?php } ?>
                     </tr>
                     <tr>
-                        <td align="center">(€)</td>
+                        <td align="center"><?php echo "(" . $arrayParam['symbol']['monetarySymbol'] . " )" ?></td>
                         <?php if ($arrayParam['params']['CONS_OVERALL'] == 1) { ?>
-                        <td align="center"><?php echo $resconsumptions['tc'] ?></td>
+                        <td align="center"><?php echo "--" ?></td>
                         <?php } ?>
                         <?php if ($arrayParam['params']['CONS_TOTAL'] == 1) { ?>
                         <td align="center"><?php echo "--" ?></td>
