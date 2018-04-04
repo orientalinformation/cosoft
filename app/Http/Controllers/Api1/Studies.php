@@ -1422,15 +1422,36 @@ class Studies extends Controller
         $nbSteps = $input['NB_STEPS'];
         
         if ($this->study->isMyStudy($id)) {
+            $idStudyEquipment = $input['ID_STUDY_EQUIPMENTS'];
             $productElmt = ProductElmt::where('ID_STUDY', $id)->first();
             $shape = $productElmt->SHAPECODE;
+            $layoutGen = LayoutGeneration::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
+            $orientation = $layoutGen->PROD_POSITION;
             $tempRecordPts =  TempRecordPts::where('ID_STUDY', $id)->first();
             $tempRecordPts->NB_STEPS = $nbSteps;
             $tempRecordPts->save();
 
-            $point_top = [$input['POINT_TOP_X'], $input['POINT_TOP_Y'], $input['POINT_TOP_Z']];
-            $point_int = [$input['POINT_INT_X'], $input['POINT_INT_Y'], $input['POINT_INT_Z']];
-            $point_bot = [$input['POINT_BOT_X'], $input['POINT_BOT_Y'], $input['POINT_BOT_Z']];
+            $pointTop = ['x' => $input['POINT_TOP_X'], 'y' => $input['POINT_TOP_Y'], 'z' => $input['POINT_TOP_Z']];
+            $pointInt = ['x' => $input['POINT_INT_X'], 'y' => $input['POINT_INT_Y'], 'z' => $input['POINT_INT_Z']];
+            $pointBot = ['x' => $input['POINT_BOT_X'], 'y' => $input['POINT_BOT_Y'], 'z' => $input['POINT_BOT_Z']];
+
+            $axis = [
+                [$input['AXIS_AXE1_X'], $input['AXIS_AXE1_Y'], $input['AXIS_AXE1_Z']],
+                [$input['AXIS_AXE2_X'], $input['AXIS_AXE2_Y'], $input['AXIS_AXE2_Z']],
+                [$input['AXIS_AXE3_X'], $input['AXIS_AXE3_Y'], $input['AXIS_AXE3_Z']]
+            ];
+
+            $plan = ['x' => $input['PLAN_X'], 'y' => $input['PLAN_Y'], 'z' => $input['PLAN_Z']];
+
+            $pointTopResult = $this->study->convertPointForDB($shape, $orientation, $pointTop);
+            $pointIntResult = $this->study->convertPointForDB($shape, $orientation, $pointInt);
+            $pointBotResult = $this->study->convertPointForDB($shape, $orientation, $pointBot);
+
+            $axisResult = $this->study->convertAxisForDB($shape, $orientation, $axis);
+
+            $plan = $this->study->convertPointForDB($shape, $orientation, $plan);
+            var_dump($plan);die;
+            
         }
 
         return 1;
