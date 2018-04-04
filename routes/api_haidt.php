@@ -414,3 +414,11 @@ $router->POST('/api/v1/calculator/startcalculationparameters', 'Api1\\Calculator
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/referencedata/savedatacomponent', 'Api1\\ReferenceData@checkDataComponent');
+
+/**
+ * POST checkTemperature
+ * Summary:
+ * Notes: Check unit min max temperatures
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/referencedata/checktemperature', 'Api1\\ReferenceData@checkTemperature');
