@@ -332,6 +332,75 @@ class SVGService
     	return $array;
     }
 
+    public function generateNewProfile($listOfSelectedPoints, $minValue, $maxValue)
+    {   
+        $result = null;
+        if (count($listOfSelectedPoints) > 0) {
+            for ($i = 0; $i < count($listOfSelectedPoints); $i++) {
+                if (floatval($listOfSelectedPoints[$i]['Y_POINT']) == floatval(0)) {
+                    $listOfSelectedPoints[$i]['Y_POINT'] = $this->linearInterpValue($listOfSelectedPoints, $minValue, $maxValue, $listOfSelectedPoints[$i]['X_POSITION']);
+                }
+            }
+
+            $result = $listOfSelectedPoints;
+        }
+
+        return $result;
+    }
+
+    private function linearInterpValue($listOfSelectedPoints, $minValue, $maxValue, $X_POSITION) 
+    {
+        $value = 0;
+        // Coefficient de la droite y = ax+b
+        $coefA = 0;
+        $coefB = 0;
+        // coordonnes de 2 points connus A et B
+        $xA = $yA = $xB = $yB = INF;
+        // coordonnes point courant
+        $x;
+        
+        $size = count($listOfSelectedPoints);
+
+        if (floatval($X_POSITION) <= floatval($listOfSelectedPoints[0]['X_POSITION'])) {
+            $value = $listOfSelectedPoints[0]['Y_POINT'];
+        } else if (floatval($X_POSITION) >= floatval($listOfSelectedPoints[$size - 1]['X_POSITION'])) {
+            $value = $listOfSelectedPoints[$size - 1]['Y_POINT'];
+        } else {
+            for ($i = 1; $i < $size; $i++) {
+                $x = $listOfSelectedPoints[$i]['X_POSITION'];
+                
+                if (floatval($X_POSITION) == floatval($x)) {
+                    $value = $listOfSelectedPoints[$i]['Y_POINT'];
+                } else if (floatval($x) > floatval($X_POSITION)) {
+                    $xA = $listOfSelectedPoints[$i - 1]['X_POSITION'];
+                    $yA = $listOfSelectedPoints[$i - 1]['Y_POINT'];
+
+                    $xB = $listOfSelectedPoints[$i]['X_POSITION'];
+                    $yB = $listOfSelectedPoints[$i]['Y_POINT'];
+                    break;
+                }
+            }
+            var_dump($x.'/'.$X_POSITION); die;
+
+            if (floatval($xA) != floatval($xB)) {
+                $coefA = (floatval($yB) - floatval($yA)) / (floatval($xB) - floatval($xA));
+                $coefB = floatval($yB) - (floatval($coefA) * floatval($xB));
+
+                $value = (floatval($coefA) * floatval($X_POSITION)) + floatval($coefB);
+            } else {
+                $value = floatval($yA);
+            }
+        }
+
+        if (floatval($value) < floatval($minValue)) {
+            $value = $minValue;
+        } else if (floatval($value) > floatval($maxValue)) {
+            $value = $maxValue;
+        }
+
+        return $value;
+    }
+
 	private function getBestGraduation($minScaleY, $maxScaleY, $nbFractionDigitsY)
 	{
 		$nbGraduation = 11;
