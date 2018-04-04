@@ -99,8 +99,60 @@ class Equipments extends Controller
     public function getEquipments()
     {
         $input = $this->request->all();
+        $idStudy = (isset($input['idStudy'])) ? $input['idStudy'] : 0;
+        $energy = (isset($input['energy'])) ? $input['energy'] : -1;
+        $manufacturer = (isset($input['manufacturer'])) ? $input['manufacturer'] : '';
+        $family = (isset($input['family'])) ? $input['family'] : -1;
+        $origine = (isset($input['origine'])) ? $input['origine'] : -1;
+        $process = (isset($input['process'])) ? $input['process'] : -1;
+        $series = (isset($input['series'])) ? $input['series'] : -1;
+        $size = (isset($input['size'])) ? $input['size'] : '';
         
-        $equipments = Equipment::all()->toArray();
+        $querys = Equipment::orderBy('EQUIP_NAME');
+
+        $querys->where('EQP_IMP_ID_STUDY', $idStudy)
+            ->orWhere('EQP_IMP_ID_STUDY', 0);
+
+        $querys->where(function ($query) {
+            $query->where('ID_USER', $this->auth->user()->ID_USER)
+            ->where('EQUIP_RELEASE', 2);
+        });
+
+        $querys->orWhere(function ($query) {
+            $query->where('EQUIP_RELEASE', 4)
+            ->orWhere('EQUIP_RELEASE', 3);
+        });
+
+        if ($energy != 1) {
+            $querys->where('ID_COOLING_FAMILY', $energy);
+        }
+
+        if ($family != -1) {
+            $querys->where('ID_FAMILY', $family);
+        }
+
+        if ($process != -1) {
+            $querys->where('BATCH_PROCESS', $process);
+        }
+
+        if ($series != -1) {
+            $querys->where('ID_EQUIPSERIES', $series);
+        }
+
+        if ($size != null && $size  != '') {
+            $sizeLabel = explode('x', $size);
+            $length = $sizeLabel[0];
+            $width = $sizeLabel[1];
+
+            $querys->where('EQP_LENGTH', $length)->where('EQP_WIDTH', $width);
+        }
+
+        if ($manufacturer != null && $manufacturer != '') {
+            $querys->where('CONSTRUCTOR', $manufacturer);
+        }
+
+
+        $equipments = $querys->get();
 
         return $equipments;
     }
@@ -311,8 +363,9 @@ class Equipments extends Controller
         $result = [];
         if (count($equipMents) > 0) {
             foreach ($equipMents as $key => $value) {
-                $result[$key]['EQP_LENGTH'] = $this->convert->equipDimension($value->EQP_LENGTH);
-                $result[$key]['EQP_WIDTH'] = $this->convert->equipDimension($value->EQP_WIDTH);
+                $result[] = $value;
+                $result[$key]['DISPLAY_LENGTH'] = $this->convert->equipDimension($value->EQP_LENGTH);
+                $result[$key]['DISPLAY_WIDTH'] = $this->convert->equipDimension($value->EQP_WIDTH);
             }
         }
         return $result;
@@ -907,11 +960,12 @@ class Equipments extends Controller
         $minMax = $minScaleY = $maxScaleY = $minValueY = $maxValueY = $nbFractionDigits = $maxiMum = null;
         $unitIdent = $miniMum = 10;
         $ID_EQUIP = $profileType = $profileFace = $listOfPoints = $path = $nbpoints = null;
-        $YAxis = $XAxis = $pos = 0;
+        $YAxis = $XAxis = $pos = $start = $end = 0;
         $X = $Y = $resultPoint = $axisline = $valuesTabX =  $valuesTabY = $selectedPoints = $posTabY = array();
         $textX = 75;
         $minScale = $maxScale = $typeChart = null;
-
+        $newProfil = '';
+                    
         $input = $this->request->all();
 
         if (isset($input['profilType'])) $profileType = intval($input['profilType']);
@@ -920,6 +974,7 @@ class Equipments extends Controller
         if (isset($input['minScaleY'])) $minScale = floatval($input['minScaleY']);
         if (isset($input['maxScaleY'])) $maxScale = floatval($input['maxScaleY']);
         if (isset($input['typeChart'])) $typeChart = intval($input['typeChart']);
+        if (isset($input['newProfil'])) $newProfil = $input['newProfil'];
 
         if ($profileType == 1) {
             $minMax = $this->getMinMax(1039);
@@ -938,6 +993,30 @@ class Equipments extends Controller
 
         $listOfPoints = $this->svg->getSelectedProfile($ID_EQUIP, $profileType, $profileFace);
         $nbpoints = count($listOfPoints);
+
+        if ($typeChart == 2) {
+            if (count($listOfPoints) > 0) {
+                for($i = 0; $i < count($listOfPoints); $i++) {
+                    $end = strpos($newProfil, '_', $start);
+                    $value = substr($newProfil, $start, $end);
+
+                    if ($value != '') {
+                        if ($profileType == 1) {
+                            $listOfPoints[$i]['Y_POINT'] = $this->convert->convectionCoeff($value);
+                        } else {
+                            $listOfPoints[$i]['Y_POINT'] = $this->convert->temperature($value);
+                        }
+                    } else {
+
+                        // $listOfPoints[$i]['Y_POINT'] = Double.MIN_VALUE;
+                    }
+
+                    $start = $end + 1;
+                }
+
+                $listOfPoints = $this->svg->generateNewProfile($listOfPoints, $minMax->LIMIT_MIN, $minMax->LIMIT_MAX);
+            }
+        }
         
         if (count($listOfPoints) > 0) {
             for($i = 0; $i < count($listOfPoints); $i++) {
@@ -1057,7 +1136,7 @@ class Equipments extends Controller
             'valuesTabX' => $valuesTabX,
             'valuesTabY' => $valuesTabY,
             'selectedPoints' => $selectedPoints,
-            'nbpoints' => $nbpoints ,
+            'nbpoints' => $nbpoints,
             'axisYLength' => (PROFILE_CHARTS_WIDTH - (2 * PROFILE_CHARTS_MARGIN_WIDTH)) + 20,
             'posTabY' => $posTabY
         ];
