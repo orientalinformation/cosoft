@@ -572,6 +572,18 @@ class Studies extends Controller
         $study->TO_RECALCULATE = $update->TO_RECALCULATE;
         $study->HAS_CHILD = $update->HAS_CHILD;
         $study->OPEN_BY_OWNER = $update->OPEN_BY_OWNER;
+        if ($study->OPTION_CRYOPIPELINE = $update->OPTION_CRYOPIPELINE) {
+            if (!empty($study->studyEquipments)) {
+                foreach ($study->studyEquipments as $studyEquip) {
+                    $pipeGen = $studyEquip->pipeGens->first();
+                    $pipeDefition = $pipeGen->lineDefinitions;
+                    foreach ($pipeDefition as $pipeDefitions) {
+                        $pipeDefitions->delete();
+                    }
+                    $pipeGen->delete();
+                }
+            }
+        }
 
         return (int) $study->save();
     }
