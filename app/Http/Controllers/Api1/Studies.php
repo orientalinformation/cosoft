@@ -1407,7 +1407,19 @@ class Studies extends Controller
     public function saveLocationAxis($id)
     {
         $input = $this->request->all();
-        var_dump($input);die;
+        $nbSteps = $input['NB_STEPS'];
+        
+        if ($this->study->isMyStudy($id)) {
+            $productElmt = ProductElmt::where('ID_STUDY', $id)->first();
+            $shape = $productElmt->SHAPECODE;
+            $tempRecordPts =  TempRecordPts::where('ID_STUDY', $id)->first();
+            $tempRecordPts->NB_STEPS = $nbSteps;
+            $tempRecordPts->save();
+
+            $point_top = [$input['POINT_TOP_X'], $input['POINT_TOP_Y'], $input['POINT_TOP_Z']];
+            $point_int = [$input['POINT_INT_X'], $input['POINT_INT_Y'], $input['POINT_INT_Z']];
+            $point_bot = [$input['POINT_BOT_X'], $input['POINT_BOT_Y'], $input['POINT_BOT_Z']];
+        }
 
         return 1;
     }
