@@ -380,7 +380,6 @@ class SVGService
                     break;
                 }
             }
-            var_dump($x.'/'.$X_POSITION); die;
 
             if (floatval($xA) != floatval($xB)) {
                 $coefA = (floatval($yB) - floatval($yA)) / (floatval($xB) - floatval($xA));

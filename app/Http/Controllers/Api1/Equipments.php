@@ -941,6 +941,7 @@ class Equipments extends Controller
         $listOfPoints = $this->svg->getSelectedProfile($ID_EQUIP, $profileType, $profileFace);
         $nbpoints = count($listOfPoints);
 
+        // Generate new profile
         if ($typeChart == 2) {
             if (count($listOfPoints) > 0) {
                 for($i = 0; $i < count($listOfPoints); $i++) {
