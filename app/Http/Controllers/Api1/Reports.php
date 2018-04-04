@@ -873,7 +873,7 @@ class Reports extends Controller
         
         <div class="info-company">
             <div align="center">
-                    <img style="max-width: 640px" src="'.$public_path.'/uploads/banner_cryosoft.png">
+                    <img style="max-width: 640px" src="'.$public_path.'/images/banner_cryosoft.png">
             </div>
             <div class="table-responsive">
                 <table class="table table-bordered" border="1">
@@ -907,7 +907,7 @@ class Reports extends Controller
                 if (!empty($study['reports'][0]['PHOTO_PATH'])) {
                     $html .= '<img src="'. $study['reports'][0]['PHOTO_PATH'].'">';
                 } else {
-                    $html .= '<img src="'. $public_path.'/uploads/globe_food.gif">';
+                    $html .= '<img src="'. $public_path.'/images/globe_food.gif">';
                 }
                 $html .= '</p>
             <p></p><p></p><p></p>
@@ -1977,7 +1977,7 @@ class Reports extends Controller
                 if (!empty($study['reports'][0]['PHOTO_PATH'])) {
                     $html .= '<img src="'. $study['reports'][0]['PHOTO_PATH'].'">';
                 } else {
-                    $html .= '<img src="'. $public_path.'/uploads/globe_food.gif">';
+                    $html .= '<img src="'. $public_path.'/images/globe_food.gif">';
                 }
                 $html .= '</p>
             </div>
@@ -2029,7 +2029,7 @@ class Reports extends Controller
         
         // end of TOC page
         PDF::endTOCPage();
-        PDF::Output( $public_path. "/reports/" . $study->USERNAM."/" . $name_report, 'F');
+        PDF::Output($public_path . "/reports/" . $study->USERNAM."/" . $name_report, 'F');
         return ["url" => "$host/reports/$study->USERNAM/$name_report"];
     }
     

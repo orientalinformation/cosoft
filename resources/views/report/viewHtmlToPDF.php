@@ -22,14 +22,14 @@
                 </div>
                 <div class="col-md-6">
                     <div class="pull-right text-right">
-                        <img src="<?php echo  $arrayParam['host'] . "/uploads/logo_cryosoft.png"?>">
+                        <img src="<?php echo  $arrayParam['host'] . "/images/logo_cryosoft.png"?>">
                     </div>
                 </div>
             </div>
         </div>
         <div class="info-company">
             <div class="text-center">
-                <img src="<?php echo  $arrayParam['host'] . "/uploads/banner_cryosoft.png"?>">
+                <img src="<?php echo  $arrayParam['host'] . "/images/banner_cryosoft.png"?>">
             </div>
             <div class="table-responsive">
                 <table class="table table-bordered" border="1">
@@ -61,7 +61,7 @@
             
             <div class="text-center">
                 <p>
-                    <img src="<?php echo !empty($arrayParam['params']['PHOTO_PATH']) ? $arrayParam['params']['PHOTO_PATH'] : $arrayParam['host'] . "/uploads/globe_food.gif"?>">
+                    <img src="<?php echo !empty($arrayParam['params']['PHOTO_PATH']) ? $arrayParam['params']['PHOTO_PATH'] : $arrayParam['host'] . "/images/globe_food.gif"?>">
                 </p>
             </div>
             <div class="table-responsive" style="color:red">
@@ -937,7 +937,7 @@
         <div class="info-company">
             <div class="text-center">
                 <p>
-                    <img src="<?php echo (!empty($arrayParam['study']['reports'][0]['PHOTO_PATH'])) ? $arrayParam['study']['reports'][0]['PHOTO_PATH'] : $arrayParam['host'] . "/uploads/globe_food.gif"?>">
+                    <img src="<?php echo (!empty($arrayParam['study']['reports'][0]['PHOTO_PATH'])) ? $arrayParam['study']['reports'][0]['PHOTO_PATH'] : $arrayParam['host'] . "/images/globe_food.gif"?>">
                 </p>
             </div>
             <div class="table-responsive">

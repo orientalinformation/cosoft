@@ -127,4 +127,124 @@ class StudyService
 
         return $querys->get();
     }  
+
+    public function convertAxisForDB($ldShape, $bIsParallel, $appAxe)
+    {
+        $dbAxe = [];
+
+        switch ($ldShape) {
+            case 1:
+                $dbAxe[0] = $this->vector3f($this->convertPointForDB($ldShape, $bIsParallel, $this->vector3f($appAxe[0])));
+                $dbAxe[1] = $this->vector3f($this->convertPointForDB($ldShape, $bIsParallel, $this->vector3f($appAxe[1])));
+                $dbAxe[2] = $this->vector3f($this->convertPointForDB($ldShape, $bIsParallel, $this->vector3f($appAxe[2])));
+                break;
+
+            case 2:
+            case 9:
+                if ($bIsParallel) {
+                    $dbAxe[0] = $this->vector3f($this->convertPointForDB($ldShape, $bIsParallel, $this->vector3f($appAxe[2])));
+                    $dbAxe[1] = $this->vector3f($this->convertPointForDB($ldShape, $bIsParallel, $this->vector3f($appAxe[1])));
+                    $dbAxe[2] = $this->vector3f($this->convertPointForDB($ldShape, $bIsParallel, $this->vector3f($appAxe[0])));
+                } else {
+                    $dbAxe[0] = $this->vector3f($this->convertPointForDB($ldShape, $bIsParallel, $this->vector3f($appAxe[0])));
+                    $dbAxe[1] = $this->vector3f($this->convertPointForDB($ldShape, $bIsParallel, $this->vector3f($appAxe[1])));
+                    $dbAxe[2] = $this->vector3f($this->convertPointForDB($ldShape, $bIsParallel, $this->vector3f($appAxe[2])));
+                }
+                break;
+
+            case 3:
+                if ($bIsParallel) {
+                    $dbAxe[0] = $this->vector3f($this->convertPointForDB($ldShape, $bIsParallel, $this->vector3f($appAxe[1])));
+                    $dbAxe[1] = $this->vector3f($this->convertPointForDB($ldShape, $bIsParallel, $this->vector3f($appAxe[0])));
+                    $dbAxe[2] = $this->vector3f($this->convertPointForDB($ldShape, $bIsParallel, $this->vector3f($appAxe[2])));
+                } else {
+                    $dbAxe[0] = $this->vector3f($this->convertPointForDB($ldShape, $bIsParallel, $this->vector3f($appAxe[1])));
+                    $dbAxe[1] = $this->vector3f($this->convertPointForDB($ldShape, $bIsParallel, $this->vector3f($appAxe[0])));
+                    $dbAxe[2] = $this->vector3f($this->convertPointForDB($ldShape, $bIsParallel, $this->vector3f($appAxe[2])));
+                }
+                break;
+
+            case 4:
+            case 5:
+                $dbAxe[0] = $this->vector3f($this->convertPointForDB($ldShape, $bIsParallel, $this->vector3f($appAxe[0])));
+                $dbAxe[1] = $this->vector3f($this->convertPointForDB($ldShape, $bIsParallel, $this->vector3f($appAxe[1])));
+                $dbAxe[2] = [];
+                break;
+
+            case 7:
+            case 8:
+                $dbAxe[0] = $this->vector3f($this->convertPointForDB($ldShape, $bIsParallel, $this->vector3f($appAxe[1])));
+                $dbAxe[1] = $this->vector3f($this->convertPointForDB($ldShape, $bIsParallel, $this->vector3f($appAxe[0])));
+                $dbAxe[2] = [];
+                break;
+
+            case 6:
+                $dbAxe[0] = [];
+                $dbAxe[1] = $this->vector3f($this->convertPointForDB($ldShape, $bIsParallel, $this->vector3f($appAxe[1])));
+                $dbAxe[2] = [];
+            
+            default:
+                $dbAxe = [];
+                break;
+        }
+
+        return $dbAxe;
+    }
+
+    public function convertPointForDB($ldShape, $bIsParallel, $appDim) {
+        $dbDim = [];
+
+        switch ($ldShape) {
+            case 1:
+                $dbDim = [$appDim['x'], $appDim['y'], $appDim['z']];
+                break;
+
+            case 2:
+            case 9:
+                if ($bIsParallel) {
+                    $dbDim = [$appDim['z'], $appDim['y'], $appDim['x']];
+                } else {
+                    $dbDim = [$appDim['x'], $appDim['y'], $appDim['z']];
+                }
+                break;
+
+            case 3:
+                if ($bIsParallel) {
+                    $dbDim = [$appDim['y'], $appDim['z'], $appDim['x']];
+                } else {
+                    $dbDim = [$appDim['y'], $appDim['x'], $appDim['z']];
+                }
+                break;
+
+            case 4:
+            case 5:
+                $dbDim = [$appDim['x'], $appDim['y'], $appDim['z']];
+                break;
+
+            case 7:
+            case 8:
+                $dbDim = [$appDim['y'], $appDim['x'], $appDim['z']];
+                break;
+
+            case 6:
+                $dbDim = [$appDim['x'], $appDim['y'], $appDim['z']];
+                break;
+
+            default:
+                $dbDim = [$appDim['x'], $appDim['y'], $appDim['z']];
+        }
+
+        return $dbDim;
+    }
+
+    public function vector3f($array)
+    {
+        $data = [
+            'x' => $array[0],
+            'y' => $array[1],
+            'z' => $array[2]
+        ];
+
+        return $data;
+    }
 }
