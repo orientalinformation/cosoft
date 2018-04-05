@@ -151,7 +151,6 @@ class Equipments extends Controller
             $querys->where('CONSTRUCTOR', $manufacturer);
         }
 
-
         $equipments = $querys->get();
 
         return $equipments;
@@ -1191,7 +1190,7 @@ class Equipments extends Controller
         if (isset($input['checkRear'])) $checkRear = intval($input['checkRear']);
 
         $listOfPoints = $this->svg->getSelectedProfile($ID_EQUIP, $profileType, $profileFace);
-        // var_dump($checkTop.'/'.$checkButton.'/'.$checkLeft.'/'.$checkRight.'/'.$checkFront.'/'.$checkRear);
+
         $bsaveTop = (($checkTop != null) || ($profileFace == PROFILE_TOP)) ? true : false;
         $bsaveBottom = (($checkButton != null) || ($profileFace == PROFILE_BOTTOM)) ? true : false;
         $bsaveLeft = (($checkLeft != null) || ($profileFace == PROFILE_LEFT)) ? true : false;
