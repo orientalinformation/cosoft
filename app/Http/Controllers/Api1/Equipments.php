@@ -963,7 +963,7 @@ class Equipments extends Controller
         $YAxis = $XAxis = $pos = $start = $end = 0;
         $X = $Y = $resultPoint = $axisline = $valuesTabX =  $valuesTabY = $selectedPoints = $posTabY = array();
         $textX = 75;
-        $minScale = $maxScale = $typeChart = null;
+        $minScale = $maxScale = $typeChart = $listofPointsOld = null;
         $newProfil = '';
                     
         $input = $this->request->all();
@@ -992,6 +992,7 @@ class Equipments extends Controller
         $maxValueY = doubleval($minMax->LIMIT_MIN);
 
         $listOfPoints = $this->svg->getSelectedProfile($ID_EQUIP, $profileType, $profileFace);
+        $listofPointsOld = $listOfPoints;
         $nbpoints = count($listOfPoints);
 
         // Generate new profile
@@ -1000,7 +1001,7 @@ class Equipments extends Controller
                 for($i = 0; $i < count($listOfPoints); $i++) {
                     $end = strpos($newProfil, '_', $start);
                     $value = substr($newProfil, $start, $end);
-
+                    
                     if ($value != '') {
                         if ($profileType == 1) {
                             $listOfPoints[$i]['Y_POINT'] = $this->convert->convectionCoeff($value);
@@ -1008,14 +1009,13 @@ class Equipments extends Controller
                             $listOfPoints[$i]['Y_POINT'] = $this->convert->temperature($value);
                         }
                     } else {
-
-                        // $listOfPoints[$i]['Y_POINT'] = Double.MIN_VALUE;
+                        $listOfPoints[$i]['Y_POINT'] = DOUBLE_MIN_VALUE;
                     }
 
                     $start = $end + 1;
                 }
 
-                $listOfPoints = $this->svg->generateNewProfile($listOfPoints, $minMax->LIMIT_MIN, $minMax->LIMIT_MAX);
+                $listOfPoints = $this->svg->generateNewProfile($listofPointsOld, $listOfPoints, $minMax->LIMIT_MIN, $minMax->LIMIT_MAX);
             }
         }
         

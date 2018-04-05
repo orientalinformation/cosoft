@@ -332,13 +332,13 @@ class SVGService
     	return $array;
     }
 
-    public function generateNewProfile($listOfSelectedPoints, $minValue, $maxValue)
+    public function generateNewProfile($listOfPointsOld, $listOfSelectedPoints, $minValue, $maxValue)
     {   
         $result = null;
         if (count($listOfSelectedPoints) > 0) {
             for ($i = 0; $i < count($listOfSelectedPoints); $i++) {
                 if (floatval($listOfSelectedPoints[$i]['Y_POINT']) == floatval(0)) {
-                    $listOfSelectedPoints[$i]['Y_POINT'] = $this->linearInterpValue($listOfSelectedPoints, $minValue, $maxValue, $listOfSelectedPoints[$i]['X_POSITION']);
+                    $listOfSelectedPoints[$i]['Y_POINT'] = $this->linearInterpValue($listOfPointsOld, $minValue, $maxValue, $listOfSelectedPoints[$i]['X_POSITION']);
                 }
             }
 
@@ -355,7 +355,7 @@ class SVGService
         $coefA = 0;
         $coefB = 0;
         // coordonnes de 2 points connus A et B
-        $xA = $yA = $xB = $yB = INF;
+        $xA = $yA = $xB = $yB = NEGATIVE_INFINITY;
         // coordonnes point courant
         $x;
         
@@ -366,11 +366,11 @@ class SVGService
         } else if (floatval($X_POSITION) >= floatval($listOfSelectedPoints[$size - 1]['X_POSITION'])) {
             $value = $listOfSelectedPoints[$size - 1]['Y_POINT'];
         } else {
-            for ($i = 1; $i < $size; $i++) {
+            for ($i = 1; $i < $size; ++$i) {
                 $x = $listOfSelectedPoints[$i]['X_POSITION'];
                 
                 if (floatval($X_POSITION) == floatval($x)) {
-                    $value = $listOfSelectedPoints[$i]['Y_POINT'];
+                    $value = floatval($listOfSelectedPoints[$i]['Y_POINT']);
                 } else if (floatval($x) > floatval($X_POSITION)) {
                     $xA = $listOfSelectedPoints[$i - 1]['X_POSITION'];
                     $yA = $listOfSelectedPoints[$i - 1]['Y_POINT'];
