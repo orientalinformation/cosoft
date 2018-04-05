@@ -965,6 +965,7 @@ class Equipments extends Controller
         $textX = 75;
         $minScale = $maxScale = $typeChart = $listofPointsOld = null;
         $newProfil = '';
+        $checkTop = $checkButton = $checkLeft = $checkRight = $checkFront = $checkRear = null;
                     
         $input = $this->request->all();
 
@@ -984,6 +985,20 @@ class Equipments extends Controller
             $minMax = $this->getMinMax(1040);
             $unitIdent = 1;
             $nbFractionDigits = 0;
+        }
+
+        if ($profileFace == 0) {
+            $checkTop = 0;
+        } else if ($profileFace == 1) {
+            $checkButton = 1;
+        } else if ($profileFace == 2) {
+            $checkLeft = 2;
+        } else if ($profileFace == 3) {
+            $checkRight = 3;
+        } else if ($profileFace == 4) {
+            $checkFront = 4;
+        } else if ($profileFace == 5) {
+            $checkRear = 5;
         }
 
         $minScaleY = doubleval($minMax->LIMIT_MIN);
@@ -1139,10 +1154,95 @@ class Equipments extends Controller
             'selectedPoints' => $selectedPoints,
             'nbpoints' => $nbpoints,
             'axisYLength' => (PROFILE_CHARTS_WIDTH - (2 * PROFILE_CHARTS_MARGIN_WIDTH)) + 20,
-            'posTabY' => $posTabY
+            'posTabY' => $posTabY,
+            'checkTop' => $checkTop,
+            'checkButton' => $checkButton,
+            'checkLeft' => $checkLeft,
+            'checkRight' => $checkRight,
+            'checkFront' => $checkFront,
+            'checkRear' => $checkRear
         ];
         
         return $array;
+    }
+
+    public function saveSelectedProfile()
+    {
+        $ID_EQUIP = $profileType = $profileFace = $minScale = $maxScale = $typeChart = null;
+        $newProfil = $sFace = '';
+        $bsaveTop = $bsaveBottom = $bsaveLeft = $bsaveRight = $bsaveFront = $bsaveRear = null;
+        $checkTop = $checkButton = $checkLeft = $checkRight = $checkFront = $checkRear = null;
+        $start = $end = 0;
+
+        $input = $this->request->all();
+
+        if (isset($input['profilType'])) $profileType = intval($input['profilType']);
+        if (isset($input['profilFace'])) $profileFace = intval($input['profilFace']);
+        if (isset($input['ID_EQUIP'])) $ID_EQUIP = intval($input['ID_EQUIP']);
+        if (isset($input['minScaleY'])) $minScale = floatval($input['minScaleY']);
+        if (isset($input['maxScaleY'])) $maxScale = floatval($input['maxScaleY']);
+        if (isset($input['typeChart'])) $typeChart = intval($input['typeChart']);
+        if (isset($input['newProfil'])) $newProfil = $input['newProfil'];
+        if (isset($input['checkTop'])) $checkTop = intval($input['checkTop']);
+        if (isset($input['checkButton'])) $checkButton = intval($input['checkButton']);
+        if (isset($input['checkLeft'])) $checkLeft = intval($input['checkLeft']);
+        if (isset($input['checkRight'])) $checkRight = intval($input['checkRight']);
+        if (isset($input['checkFront'])) $checkFront = intval($input['checkFront']);
+        if (isset($input['checkRear'])) $checkRear = intval($input['checkRear']);
+
+        $listOfPoints = $this->svg->getSelectedProfile($ID_EQUIP, $profileType, $profileFace);
+        // var_dump($checkTop.'/'.$checkButton.'/'.$checkLeft.'/'.$checkRight.'/'.$checkFront.'/'.$checkRear);
+        $bsaveTop = (($checkTop != null) || ($profileFace == PROFILE_TOP)) ? true : false;
+        $bsaveBottom = (($checkButton != null) || ($profileFace == PROFILE_BOTTOM)) ? true : false;
+        $bsaveLeft = (($checkLeft != null) || ($profileFace == PROFILE_LEFT)) ? true : false;
+        $bsaveRight = (($checkRight != null) || ($profileFace == PROFILE_RIGHT)) ? true : false;
+        $bsaveFront = (($checkFront != null) || ($profileFace == PROFILE_FRONT)) ? true : false;
+        $bsaveRear = (($checkRear != null) || ($profileFace == PROFILE_REAR)) ? true : false;
+
+        // get new profile
+        if (count($listOfPoints) > 0) {
+            for($i = 0; $i < count($listOfPoints); $i++) {
+                $end = strpos($newProfil, '_', $start);
+                $value = substr($newProfil, $start, $end);
+                
+                if ($value != '') {
+                    if ($profileType == 1) {
+                        $listOfPoints[$i]['Y_POINT'] = $this->convert->convectionCoeff($value);
+                    } else {
+                        $listOfPoints[$i]['Y_POINT'] = $this->convert->temperature($value);
+                    }
+                } else {
+                    $listOfPoints[$i]['Y_POINT'] = DOUBLE_MIN_VALUE;
+                }
+
+                $start = $end + 1;
+            }
+        }
+
+        // get old profile
+        $equipCharacts = EquipCharact::where('ID_EQUIP', $ID_EQUIP)->get();
+        if ($equipCharacts) {
+            for ($i = 0; $i < count($equipCharacts); $i++) {
+                if ($profileType == CONVECTION_PROFILE) {
+                    if($bsaveTop) $equipCharacts[$i]->ALPHA_TOP = $listOfPoints[$i]['Y_POINT'];
+                    if($bsaveBottom) $equipCharacts[$i]->ALPHA_BOTTOM = $listOfPoints[$i]['Y_POINT'];
+                    if($bsaveLeft) $equipCharacts[$i]->ALPHA_LEFT = $listOfPoints[$i]['Y_POINT'];
+                    if($bsaveRight) $equipCharacts[$i]->ALPHA_RIGHT = $listOfPoints[$i]['Y_POINT'];
+                    if($bsaveFront) $equipCharacts[$i]->ALPHA_FRONT = $listOfPoints[$i]['Y_POINT'];
+                    if($bsaveRear) $equipCharacts[$i]->ALPHA_REAR = $listOfPoints[$i]['Y_POINT'];
+                } else {
+                    if($bsaveTop) $equipCharacts[$i]->TEMP_TOP = $listOfPoints[$i]['Y_POINT'];
+                    if($bsaveBottom) $equipCharacts[$i]->TEMP_BOTTOM = $listOfPoints[$i]['Y_POINT'];
+                    if($bsaveLeft) $equipCharacts[$i]->TEMP_LEFT = $listOfPoints[$i]['Y_POINT'];
+                    if($bsaveRight) $equipCharacts[$i]->TEMP_RIGHT = $listOfPoints[$i]['Y_POINT'];
+                    if($bsaveFront) $equipCharacts[$i]->TEMP_FRONT = $listOfPoints[$i]['Y_POINT'];
+                    if($bsaveRear) $equipCharacts[$i]->TEMP_REAR = $listOfPoints[$i]['Y_POINT'];
+                }
+                $equipCharacts[$i]->save();
+            }
+        }
+
+        return 1;
     }
 
     public function getDataCurve($idEquip) 
