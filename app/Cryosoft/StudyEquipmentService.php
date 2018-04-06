@@ -10,6 +10,7 @@ use App\Models\DimaResults;
 use App\Models\RecordPosition;
 use App\Models\Product;
 use App\Models\Production;
+use App\Models\TempRecordData;
 use App\Models\InitialTemperature;
 
 class StudyEquipmentService
