@@ -123,11 +123,19 @@ class Equipments extends Controller
         });
 
         $querys->orWhere(function ($query) {
-            $query->where('EQUIP_RELEASE', 4)
+            $query->where('EQUIP_RELEASE', 3)
             ->orWhere('EQUIP_RELEASE', 3);
         });
 
         
+        if ($size != '') {
+            $sizeLabel = explode('x', $size);
+            $length = $sizeLabel[0];
+            $width = $sizeLabel[1];
+
+            $querys->where('EQP_LENGTH', $length)->where('EQP_WIDTH', $width);
+        }
+
         if ($family != -1) {
             $querys->where('ID_FAMILY', $family);
         }
@@ -140,15 +148,8 @@ class Equipments extends Controller
             $querys->where('ID_EQUIPSERIES', $series);
         }
 
-        if ($size != '') {
-            $sizeLabel = explode('x', $size);
-            $length = $sizeLabel[0];
-            $width = $sizeLabel[1];
 
-            $querys->where('EQP_LENGTH', $length)->where('EQP_WIDTH', $width);
-        }
-
-        if ($series != -1 && $manufacturer != '') {
+        if ($manufacturer != '') {
             $querys->where('CONSTRUCTOR', $manufacturer);
         }
 
