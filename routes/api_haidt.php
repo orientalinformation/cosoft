@@ -430,3 +430,11 @@ $router->POST('/api/v1/referencedata/checktemperature', 'Api1\\ReferenceData@che
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/referencedata/checkpacking', 'Api1\\PackingElements@checkPacking');
+
+/**
+ * GET getMonetary
+ * Summary:
+ * Notes: get list Monetary 
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/users/{id}/unitsmonetary', 'Api1\\Users@getMonetaryUser');
