@@ -64,12 +64,14 @@ class Products extends Controller
      * @param $id
      * @return mixed
      */
-    public function getProductById($id) {
+    public function getProductById($id) 
+    {
         $product = Product::find($id);
         return $product;
     }
 
-    public function getElementsByProductId($id) {
+    public function getElementsByProductId($id) 
+    {
     	$elements = \App\Models\ProductElmt::where('ID_PROD', $id)->orderBy('SHAPE_POS2','DESC')->get();
     	return $elements;
     }
@@ -165,7 +167,8 @@ class Products extends Controller
         return compact('oldDim2', 'dim2', 'ok1', 'ok2', 'idElement');
     }
 
-    public function getProductViewModel($id) {
+    public function getProductViewModel($id) 
+    {
         $product = Product::findOrFail($id);
         $product->PROD_WEIGHT = $this->unit->mass($product->PROD_WEIGHT);
         $product->PROD_REALWEIGHT = $this->unit->mass($product->PROD_REALWEIGHT);
@@ -304,7 +307,8 @@ class Products extends Controller
      * @return array
      * @throws \Exception
      */
-    public function generateDefaultMesh($idProd) {
+    public function generateDefaultMesh($idProd) 
+    {
         /** @var Product $product */
         $product = Product::findOrFail($idProd);
 
@@ -332,7 +336,8 @@ class Products extends Controller
      * @param $idProd
      * @throws \Exception
      */
-    public function initTemperature($idProd) {
+    public function initTemperature($idProd) 
+    {
 
         $input = $this->request->all();
         

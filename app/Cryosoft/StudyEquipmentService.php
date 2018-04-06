@@ -27,7 +27,8 @@ class StudyEquipmentService
         $this->kernel = $app['App\\Kernel\\KernelService'];
     }
 
-    public function calculateEquipmentParams(StudyEquipment &$sEquip) {
+    public function calculateEquipmentParams(StudyEquipment &$sEquip) 
+    {
         // runLayoutCalculator(sEquip, username, password);
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $sEquip->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\layout-trace.txt');
         $lcRunResult = $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, 1);
@@ -69,7 +70,8 @@ class StudyEquipmentService
     /**
      * @return \App\Models\LayoutGeneration
      */
-    public function getStudyEquipmentLayoutGen(StudyEquipment &$sEquip) {
+    public function getStudyEquipmentLayoutGen(StudyEquipment &$sEquip) 
+    {
         $layoutGen = LayoutGeneration::where('ID_STUDY_EQUIPMENTS', $sEquip->ID_STUDY_EQUIPMENTS)->first();
         if (!$layoutGen) {
             $layoutGen = new LayoutGeneration();
@@ -258,7 +260,8 @@ class StudyEquipmentService
         return $returnStr;
     }
 
-    public function isAnalogicResults(StudyEquipment &$se) {
+    public function isAnalogicResults(StudyEquipment &$se) 
+    {
         $results = DimaResults::where('ID_STUDY_EQUIPMENTS',$se->ID_STUDY_EQUIPMENTS)->get();
 
         return count($results)>0;
