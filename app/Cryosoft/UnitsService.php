@@ -49,7 +49,7 @@ class UnitsService
         } else {
             if ($value != null) $value = ($value + $coeffB) / $coeffA;
 
-            return $value;
+            return round($value, $decimal);
         }
     }
 

@@ -112,17 +112,14 @@ class Reports extends Controller
     {
         $study = Study::where('ID_STUDY', $id)->first();
         $stuequip = $study->studyEquipments->first();
-        if ($study->CALCULATION_MODE == 3) {
-            if ($stuequip != null) {
-                if ($stuequip->BRAIN_TYPE != 4) {
+        if ($stuequip != null) {
+            if ($study->CALCULATION_MODE == 1 && $stuequip->BRAIN_TYPE != 4) {
                     return response("Report is available only when equipments are calculated numerically", 406);
-                } else if ($study->CALCULATION_MODE == 1) {
-                    if ($stuequip->BRAIN_TYPE == 0) {
-                        return response("Report is available only when equipments are calculated numerically", 406);
-                    }
-                }
+            } else if ($study->CALCULATION_MODE != 1 && $stuequip->BRAIN_TYPE == 0) {
+                    return response("Report is available only when equipments are calculated numerically", 406);
             }
         }
+        
         $report = Report::where('ID_STUDY', $id)->first();
 
         if ($report) {
@@ -967,7 +964,7 @@ class Reports extends Controller
                     foreach ($calModeHeadBalance as $key => $resoptHeads) { 
                     $html .= '<tr>
                         <td colspan="2" align="center"> '. $resoptHeads['stuName'] .' </td>
-                        <td colspan="2" align="center"> '. $resoptHeads[''] .' </td>
+                        <td colspan="2" align="center"> '. "TODO" .' </td>
                         <td align="center"> '. $resoptHeads['tr'] .' </td>
                         <td align="center"> '. $resoptHeads['ts'] .' </td>
                         <td align="center"> '. $equipData[$key]['tr'][0] .' </td>
@@ -2015,9 +2012,6 @@ class Reports extends Controller
             </div>
         </div>';
         PDF::writeHTML($html, true, false, true, false, '');
-        PDF::AddPage();
-
-        
         
         // add a new page for TOC
         PDF::addTOCPage();

@@ -34,6 +34,7 @@ use App\Models\StudyEquipment;
 use App\Models\MonetaryCurrency;
 use App\Models\Unit;
 use App\Cryosoft\UnitsConverterService;
+
 class Admin extends Controller
 {	
 	/**
@@ -374,5 +375,4 @@ class Admin extends Controller
 
 		return compact('monetary', 'kernelMonetary', 'listUnit');
 	}
-
 }

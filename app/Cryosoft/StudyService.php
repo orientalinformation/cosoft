@@ -66,7 +66,8 @@ class StudyService
         return $disabled;
     }
 
-    public function getStudyPrice($study) {
+    public function getStudyPrice($study) 
+    {
         if ($study->OPTION_ECO != 0) {
 
             if ($study->ID_PRICE == 0) {
@@ -191,7 +192,8 @@ class StudyService
         return $dbAxe;
     }
 
-    public function convertPointForDB($ldShape, $bIsParallel, $appDim) {
+    public function convertPointForDB($ldShape, $bIsParallel, $appDim) 
+    {
         $dbDim = [];
 
         switch ($ldShape) {

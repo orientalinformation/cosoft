@@ -57,7 +57,8 @@ class EquipmentsService
         return $sEquipName;
     }
 
-    public function getResultsEquipName($idStudyEquipment) {
+    public function getResultsEquipName($idStudyEquipment) 
+    {
         $sEquipName = "";
         $studyEquipment = StudyEquipment::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->first();
         if (!empty($studyEquipment)) {
@@ -82,7 +83,8 @@ class EquipmentsService
         } 
     }
 
-    public function getSpecificEquipSize($idStudyEquipment) {
+    public function getSpecificEquipSize($idStudyEquipment) 
+    {
         $sEquipName = "";
         $studyEquipment = StudyEquipment::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->first();
         if (!empty($studyEquipment)) {
@@ -159,7 +161,8 @@ class EquipmentsService
         return $std;
     }
 
-    public function cryogenPrice($value, $energy) {
+    public function cryogenPrice($value, $energy) 
+    {
         if ($energy == 2) {
             $snrjUnitLabel = CONSUMPTION_UNIT_LN2;
         } else if ($energy == 3) {
@@ -172,7 +175,8 @@ class EquipmentsService
     }
     
 
-    public function cryogenPriceSave($value, $energy) {
+    public function cryogenPriceSave($value, $energy) 
+    {
         if ($energy == 2) {
             $snrjUnitLabel = CONSUMPTION_UNIT_LN2;
         } else if ($energy == 3) {

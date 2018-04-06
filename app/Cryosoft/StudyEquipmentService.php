@@ -8,6 +8,9 @@ use App\Models\StudEqpPrm;
 use App\Models\LayoutResults;
 use App\Models\DimaResults;
 use App\Models\RecordPosition;
+use App\Models\Product;
+use App\Models\Production;
+use App\Models\TempRecordData;
 use App\Models\InitialTemperature;
 
 class StudyEquipmentService
@@ -27,7 +30,8 @@ class StudyEquipmentService
         $this->kernel = $app['App\\Kernel\\KernelService'];
     }
 
-    public function calculateEquipmentParams(StudyEquipment &$sEquip) {
+    public function calculateEquipmentParams(StudyEquipment &$sEquip) 
+    {
         // runLayoutCalculator(sEquip, username, password);
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $sEquip->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\layout-trace.txt');
         $lcRunResult = $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, 1);
@@ -69,7 +73,8 @@ class StudyEquipmentService
     /**
      * @return \App\Models\LayoutGeneration
      */
-    public function getStudyEquipmentLayoutGen(StudyEquipment &$sEquip) {
+    public function getStudyEquipmentLayoutGen(StudyEquipment &$sEquip) 
+    {
         $layoutGen = LayoutGeneration::where('ID_STUDY_EQUIPMENTS', $sEquip->ID_STUDY_EQUIPMENTS)->first();
         if (!$layoutGen) {
             $layoutGen = new LayoutGeneration();
@@ -258,139 +263,304 @@ class StudyEquipmentService
         return $returnStr;
     }
 
-    public function isAnalogicResults(StudyEquipment &$se) {
+    public function isAnalogicResults(StudyEquipment &$se) 
+    {
         $results = DimaResults::where('ID_STUDY_EQUIPMENTS',$se->ID_STUDY_EQUIPMENTS)->get();
 
         return count($results)>0;
     }
 
-	public function setInitialTempFromNumericalResults (StudyEquipments &$sequip, $shape, Product &$product, Production &$production)
+    public function setInitialTempFromAnalogicalResults(StudyEquipments &$sequip, $shape, Product &$product, Production &$production)
     {
-        // $offset = [0,0,0];
-        // $bret = true;
-        // $counter = 0;
-        // $NB_TEMP_FOR_NEXTSTATUS = 25;
-		
-        // try {
-        //      $recPos = RecordPosition::where('ID_STUDY_EQUIPMENTS', $sequip->ID_STUDY_EQUIPMENTS)
-        //         ->orderBy('RECORD_TIME', 'DESC')->first();
-        //     if ($recPos) {
-		// 		// get temp record data
-        //         //	SFE : 26/05/2005 : axe z n'est plus enregistré => on lit que l'axe 0 par sécurité
-        //         $tempRecordData = TempRecordData::where([
-        //             ['ID_REC_POS', $recPos->ID_REC_POS],
-        //             ['REC_AXIS_Z_POS', '0']
-        //         ])->orderBy('REC_AXIS_X_POS')->orderBy('REC_AXIS_Y_POS')->get();
-        //         if ($tempRecordData) {
-        //             $orientation = $sequip->layoutGeneration->first()->PROD_POSITION;
-		// 			//	SFE : 26/05/2005 : axe z n'est plus enregistré => il faut propager les valeurs
-        //             $NbNodesZ = 0;
-        //             switch ($shape) {
-        //                 case $this->value->SLAB:
-        //                 case $this->value->CYLINDER_STANDING:
-        //                 case $this->value->CYLINDER_CONCENTRIC_LAYING:
-        //                 case $this->value->CYLINDER_LAYING:
-        //                 case $this->value->CYLINDER_CONCENTRIC_STANDING:
-        //                 case $this->value->SPHERE:
-        //                     $NbNodesZ = 1;
-        //                     break;
-        //                 case $this->value->PARALLELEPIPED_STANDING:
-        //                 case $this->value->PARALLELEPIPED_BREADED:
-        //                     if ($orientation == $this->value->POSITION_PARALLEL) {
-        //                         $NbNodesZ = $product->meshGenerations()->first()->MESH_1_NB;
-        //                     } else {
-        //                         $NbNodesZ = $product->meshGenerations()->first()->MESH_3_NB;
+        $offset = [0, 0, 0];
+        $bret = true;
+        $dimaResults = null;
+
+        $lfTemp = 0.0;
+        
+        // // Increase value to show still alive
+        // cryoRun . nextCRRStatus(true);
+
+        try {		
+            //get TFP from Dima Results
+            //     UnnamedObjectQuery query = new UnnamedObjectQuery(DimaResults . class,"WHERE ID_STUDY_EQUIPMENTS= ? ORDER BY SETPOINT DESC","I")
+                $dimaResults = DimaResults::where('ID_STUDY_EQUIPMENTS', $sequip->ID_STUDY_EQUIPMENTS)->orderBy('SETPOINT','desc')->get();
+                
+            //     // Increase value to show still alive
+            //     cryoRun . nextCRRStatus(true);
+
+            //     Iterator < DimaResults > it = query . getIterator();
+            //     int nIndex = 0;
+            //     while (it . hasNext() && (nIndex <= $this->value->TR_INDEX)) {
+            //         dimaResults = (DimaResults) it . next();
+            //         lfTemp = dimaResults . getDimaTfp();
+            //         nIndex ++;
+            //     }
+            
+            $nIndex = 0;
+            foreach ($dimaResults as $dimaResult) {
+                if ($nIndex > $this->value->TR_INDEX) break;
+                $lfTemp = $dimaResult->DIMA_TFP;
+                $nIndex++;
+            }
+            
+        //     // save initial temperature
+        //     saveInitialTemperature(shape, offset, lfTemp, product, production);
+            $this->saveInitialTemperature($shape, $offset, $lfTemp, $product, $production);
+        } catch (\Exception $e) {
+            // LOG . error("Error while writing initial temp from analogical results", e);
+            throw new Exception("Error while writing initial temp from analogical results");
+        }
+
+        return $bret;
+    }
+    
+
+    public function setInitialTempFromSimpleNumericalResults(StudyEquipments &$sequip, $shape, Product &$product, Production &$production)
+    {
+        $offset = [0, 0, 0];
+        $bret = false;
+        $dimaResults = null;
+
+        $lfTemp = 0.0;
+        
+        // Increase value to show still alive
+        // cryoRun . nextCRRStatus(true);
+
+        try {		
+            //get TFP from Dima Results
+            // UnnamedObjectQuery query = new UnnamedObjectQuery(DimaResults . class,"WHERE ID_STUDY_EQUIPMENTS = ?"
+            //     + " AND DIMA_TYPE = ?" ,"II")
+            // ;
+            // query . addParameter(sequip . getIdStudyEquipments());
+            // query . addParameter(ValuesList . DIMA_TYPE_DHP_CHOSEN);
+            $dimaResults = DimaResults::where('ID_STUDY_EQUIPMENTS', $sequip->ID_STUDY_EQUIPMENTS)
+                ->where('ID_STUDY_EQUIPMENTS', $this->value->DIMA_TYPE_DHP_CHOSEN)->first();
+
+            // Increase value to show still alive
+            // cryoRun . nextCRRStatus(true);
+
+            $lfTemp = $dimaResults->DIMA_TFP;
+            
+            // save initial temperature
+            $this->saveInitialTemperature($shape, $offset, $lfTemp, $product, $production);
+        } catch (Exception $e) {
+            // LOG . error("Error while writing initial temp from analogical results", e);
+            throw new Exception("Error while writing initial temp from analogical results");
+        }
+
+        return $bret;
+    }
+
+    public function setInitialTempFromNumericalResults (StudyEquipment &$sequip, $shape, Product &$product, Production &$production)
+    {
+        $offset = [0,0,0];
+        $bret = true;
+        $counter = 0;
+        $NB_TEMP_FOR_NEXTSTATUS = 25;
+        
+        try {
+             $recPos = RecordPosition::where('ID_STUDY_EQUIPMENTS', $sequip->ID_STUDY_EQUIPMENTS)
+                ->orderBy('RECORD_TIME', 'DESC')->first();
+            if ($recPos) {
+                // get temp record data
+                //	SFE : 26/05/2005 : axe z n'est plus enregistré => on lit que l'axe 0 par sécurité
+                $tempRecordData = TempRecordData::where([
+                    ['ID_REC_POS', $recPos->ID_REC_POS],
+                    ['REC_AXIS_Z_POS', '0']
+                ])->orderBy('REC_AXIS_X_POS')->orderBy('REC_AXIS_Y_POS')->get();
+                if ($tempRecordData) {
+                    $orientation = $sequip->layoutGeneration->first()->PROD_POSITION;
+                    //	SFE : 26/05/2005 : axe z n'est plus enregistré => il faut propager les valeurs
+                    $NbNodesZ = 0;
+                    switch ($shape) {
+                        case $this->value->SLAB:
+                        case $this->value->CYLINDER_STANDING:
+                        case $this->value->CYLINDER_CONCENTRIC_LAYING:
+                        case $this->value->CYLINDER_LAYING:
+                        case $this->value->CYLINDER_CONCENTRIC_STANDING:
+                        case $this->value->SPHERE:
+                            $NbNodesZ = 1;
+                            break;
+                        case $this->value->PARALLELEPIPED_STANDING:
+                        case $this->value->PARALLELEPIPED_BREADED:
+                            if ($orientation == $this->value->POSITION_PARALLEL) {
+                                $NbNodesZ = $product->meshGenerations()->first()->MESH_1_NB;
+                            } else {
+                                $NbNodesZ = $product->meshGenerations()->first()->MESH_3_NB;
                                 
-        //                     }
-        //                     break;
-        //                 case $this->value->PARALLELEPIPED_LAYING:
-		// 					//tjs calculer comme s'il était en position perpendiculaire
-        //                     $NbNodesZ = $product->meshGenerations()->first()->MESH_3_NB;
-        //                     break;
-        //             }
-	
-		// 			// Increase value to show still alive
-        //             // cryoRun . nextCRRStatus(true);
+                            }
+                            break;
+                        case $this->value->PARALLELEPIPED_LAYING:
+                            //tjs calculer comme s'il était en position perpendiculaire
+                            $NbNodesZ = $product->meshGenerations()->first()->MESH_3_NB;
+                            break;
+                    }
+    
+                    // Increase value to show still alive
+                    // cryoRun . nextCRRStatus(true);
 
-        //             foreach ($tempRecordData as $trd) {
-        //                 $initTemp = new InitialTemperature();
-        //                 $initTemp->ID_PRODUCTION  = $production->ID_PRODUCTION;
-        //                 $initTemp->INITIAL_T = $trd->TEMP;
-						
-		// 				// SFE : 26/05/2005 : propagation temperature axe Z
-        //                 for ($i = 0; $i < $NbNodesZ; $i++) {
-        //                     switch ($shape) {
-        //                         case $this->value->SLAB:
-        //                             $initTemp->MESH_1_ORDER = pack('s', $i);
-        //                             $initTemp->MESH_2_ORDER = pack('s',($trd->REC_AXIS_Y_POS +$offset[1]));
-        //                             $initTemp->MESH_3_ORDER = pack('s', $trd->REC_AXIS_X_POS);
-        //                             break;
-        //                         case $this->value->PARALLELEPIPED_STANDING:
-        //                         case $this->value->PARALLELEPIPED_BREADED:
-        //                             if ($orientation == $this->value->POSITION_PARALLEL) {
-        //                                 $initTemp->MESH_1_ORDER = pack('s',($i +$offset[0]));
-        //                                 $initTemp->MESH_2_ORDER = pack('s',($trd->REC_AXIS_Y_POS +$offset[1]));
-        //                                 $initTemp->MESH_3_ORDER = pack('s',($trd->REC_AXIS_X_POS +$offset[2]));
-        //                             } else {
-        //                                 $initTemp->MESH_1_ORDER = pack('s',($trd->REC_AXIS_X_POS +$offset[0]));
-        //                                 $initTemp->MESH_2_ORDER = pack('s',($trd->REC_AXIS_Y_POS +$offset[1]));
-        //                                 $initTemp->MESH_3_ORDER = pack('s',($i +$offset[2]));
-        //                             }
-        //                             break;
-        //                         case $this->value->PARALLELEPIPED_LAYING:
-        //                             $initTemp->MESH_1_ORDER = pack('s', $trd->REC_AXIS_Y_POS);
-        //                             $initTemp->MESH_2_ORDER = pack('s',($trd->REC_AXIS_X_POS +$offset[1]));
-        //                             $initTemp->MESH_3_ORDER = pack('s', $i);
-        //                             break;
-        //                         case $this->value->CYLINDER_STANDING:
-        //                         case $this->value->CYLINDER_CONCENTRIC_LAYING:
-        //                             $initTemp->MESH_1_ORDER = pack('s', $trd->REC_AXIS_X_POS);
-        //                             $initTemp->MESH_2_ORDER = pack('s',($trd->REC_AXIS_Y_POS +$offset[1]));
-        //                             $initTemp->MESH_3_ORDER = pack('s', $i);
-        //                             break;
+                    foreach ($tempRecordData as $trd) {
+                        $initTemp = new InitialTemperature();
+                        $initTemp->ID_PRODUCTION  = $production->ID_PRODUCTION;
+                        $initTemp->INITIAL_T = $trd->TEMP;
+                        
+                        // SFE : 26/05/2005 : propagation temperature axe Z
+                        for ($i = 0; $i < $NbNodesZ; $i++) {
+                            switch ($shape) {
+                                case $this->value->SLAB:
+                                    $initTemp->MESH_1_ORDER = pack('s', $i);
+                                    $initTemp->MESH_2_ORDER = pack('s',($trd->REC_AXIS_Y_POS +$offset[1]));
+                                    $initTemp->MESH_3_ORDER = pack('s', $trd->REC_AXIS_X_POS);
+                                    break;
+                                case $this->value->PARALLELEPIPED_STANDING:
+                                case $this->value->PARALLELEPIPED_BREADED:
+                                    if ($orientation == $this->value->POSITION_PARALLEL) {
+                                        $initTemp->MESH_1_ORDER = pack('s',($i +$offset[0]));
+                                        $initTemp->MESH_2_ORDER = pack('s',($trd->REC_AXIS_Y_POS +$offset[1]));
+                                        $initTemp->MESH_3_ORDER = pack('s',($trd->REC_AXIS_X_POS +$offset[2]));
+                                    } else {
+                                        $initTemp->MESH_1_ORDER = pack('s',($trd->REC_AXIS_X_POS +$offset[0]));
+                                        $initTemp->MESH_2_ORDER = pack('s',($trd->REC_AXIS_Y_POS +$offset[1]));
+                                        $initTemp->MESH_3_ORDER = pack('s',($i +$offset[2]));
+                                    }
+                                    break;
+                                case $this->value->PARALLELEPIPED_LAYING:
+                                    $initTemp->MESH_1_ORDER = pack('s', $trd->REC_AXIS_Y_POS);
+                                    $initTemp->MESH_2_ORDER = pack('s',($trd->REC_AXIS_X_POS +$offset[1]));
+                                    $initTemp->MESH_3_ORDER = pack('s', $i);
+                                    break;
+                                case $this->value->CYLINDER_STANDING:
+                                case $this->value->CYLINDER_CONCENTRIC_LAYING:
+                                    $initTemp->MESH_1_ORDER = pack('s', $trd->REC_AXIS_X_POS);
+                                    $initTemp->MESH_2_ORDER = pack('s',($trd->REC_AXIS_Y_POS +$offset[1]));
+                                    $initTemp->MESH_3_ORDER = pack('s', $i);
+                                    break;
 
-        //                         case $this->value->CYLINDER_LAYING:
-        //                         case $this->value->CYLINDER_CONCENTRIC_STANDING:
-        //                             $initTemp->MESH_1_ORDER = pack('s', $trd->REC_AXIS_Y_POS);
-        //                             $initTemp->MESH_2_ORDER = pack('s',($trd->REC_AXIS_X_POS +$offset[1]));
-        //                             $initTemp->MESH_3_ORDER = pack('s', $i);
-        //                             break;
+                                case $this->value->CYLINDER_LAYING:
+                                case $this->value->CYLINDER_CONCENTRIC_STANDING:
+                                    $initTemp->MESH_1_ORDER = pack('s', $trd->REC_AXIS_Y_POS);
+                                    $initTemp->MESH_2_ORDER = pack('s',($trd->REC_AXIS_X_POS +$offset[1]));
+                                    $initTemp->MESH_3_ORDER = pack('s', $i);
+                                    break;
 
-        //                         case $this->value->SPHERE:
-        //                             $initTemp->MESH_1_ORDER = pack('s', $trd->REC_AXIS_X_POS);
-        //                             $initTemp->MESH_2_ORDER = pack('s',($trd->REC_AXIS_Y_POS +$offset[1]));
-        //                             $initTemp->MESH_3_ORDER = pack('s', $i);
-        //                             break;
-        //                     }
-							
-		// 					//create initial temperature
-        //                     CryosoftDB . create(initTemp, connection);
+                                case $this->value->SPHERE:
+                                    $initTemp->MESH_1_ORDER = pack('s', $trd->REC_AXIS_X_POS);
+                                    $initTemp->MESH_2_ORDER = pack('s',($trd->REC_AXIS_Y_POS +$offset[1]));
+                                    $initTemp->MESH_3_ORDER = pack('s', $i);
+                                    break;
+                            }
+                            
+                            //create initial temperature
+                            // JAVA:CryosoftDB . create(initTemp, connection);
+                            $initTemp->save();
+                            
+                            /*JAVA: if ((++$counter % $NB_TEMP_FOR_NEXTSTATUS) == 0) {
+                                // Increase value to show still alive
+                                cryoRun . nextCRRStatus(true);
+                            }*/
+                        }//for
+                    }//while
+                    
+                    // update production to set avg initial temp
+                    // LOG . debug("update avg initial temperature (id_production=" + production . getIdProduction() + ") "
+                    //     + "temp init = " + sequip . getAverageProductTemp());
+                    // production . setAvgTInitial(sequip . getAverageProductTemp());
+                    $production->AVG_T_INITIAL = $sequip->AVERAGE_PRODUCT_TEMP;
+                    // tx . update(production);
+                    $production->save();
+                    
+                    // Increase value to show still alive
+                    // cryoRun . nextCRRStatus(true);
+                } else {
+                    $bret = false;
+                }
+            } else {
+                $bret = false;
+            }
+        } catch (\Exception $e) {
+            throw new Exception("Error while writing initial temp from numerical results");
+        }
 
-        //                     if ((++$counter % $NB_TEMP_FOR_NEXTSTATUS) == 0) {
-		// 						// Increase value to show still alive
-        //                         cryoRun . nextCRRStatus(true);
-        //                     }
-        //                 }//for
-        //             }//while
-					
-		// 			// update production to set avg initial temp
-        //             // LOG . debug("update avg initial temperature (id_production=" + production . getIdProduction() + ") "
-        //             //     + "temp init = " + sequip . getAverageProductTemp());
-        //             // production . setAvgTInitial(sequip . getAverageProductTemp());
-        //             // tx . update(production);
-					
-		// 			// Increase value to show still alive
-        //             // cryoRun . nextCRRStatus(true);
-        //         } else {
-        //             // bret = false;
-        //         }
-        //     } else {
-        //         // bret = false;
-        //     }
-        // } catch (Exception $e) {
-        //     throw new Exception("Error while writing initial temp from numerical results");
-        // }
+        return $bret;
+    }
 
-        // return $bret;
+    private function saveInitialTemperature (/*int*/ $shape, array $offset, /*double*/ $lfTemp, Product &$product, Production &$production)
+    {
+        // // V4 : use oxymel connection to update
+        // Transaction tx = dbmgr . getTransaction();
+        // // V4 : use standard connection to insert data
+        // Connection connection = null;
+
+        // InitialTemperature initTemp = null;
+        // long counter = 0;
+        $initTemp = null;
+        $counter = 0;
+        
+        // Increase value to show still alive
+        // cryoRun . nextCRRStatus(true);
+
+        try {
+            // V4: use standard connection to insert data
+            // connection = CryosoftDB . getDatasource() . getConnection();
+            
+            // dispatch this temp
+            $nbNode1 = $product->meshGenerations->first()->MESH_1_NB;
+            $nbNode2 = $product->meshGenerations->first()->MESH_1_NB;
+            $nbNode3 = $product->meshGenerations->first()->MESH_1_NB;
+
+            // short i, j, k;
+            $i = $j = $k = 0;
+            switch ($shape) {
+                case $this->value->SLAB:
+                case $this->value->SPHERE:
+                    $nbNode1 = $nbNode3 = 1;
+                    break;
+                case $this->value->CYLINDER_STANDING:
+                case $this->value->CYLINDER_CONCENTRIC_LAYING:
+                case $this->value->CYLINDER_LAYING:
+                case $this->value->CYLINDER_CONCENTRIC_STANDING:
+                    $nbNode3 = 1;
+                    break;
+                case $this->value->PARALLELEPIPED_STANDING:
+                case $this->value->PARALLELEPIPED_BREADED:
+                case $this->value->PARALLELEPIPED_LAYING:
+                    break;
+            }
+
+            for ($i = 0; $i < $nbNode1; $i ++) {
+                for ($j = 0; $j < $nbNode2; $j ++) {
+                    for ($k = 0; $k < $nbNode3; $k ++) {
+                        $initTemp = new InitialTemperature();
+                        $initTemp->ID_PRODUCTION = $production->ID_PRODUCTION;
+                        $initTemp->INITIAL_T = $lfTemp;
+                        $initTemp->MESH_1_ORDER = (($i + $offset[0]));
+                        $initTemp->MESH_2_ORDER = (($j + $offset[1]));
+                        $initTemp->MESH_3_ORDER = (($k + $offset[2]));
+
+                        // CryosoftDB . create($initTemp, connection);
+                        $initTemp->save();
+
+                        // if ((++counter % NB_TEMP_FOR_NEXTSTATUS) == 0) {
+                        //     // Increase value to show still alive
+                        //     cryoRun . nextCRRStatus(true);
+                        // }
+                    }
+                }
+            }
+            
+            // Increase value to show still alive
+            // cryoRun . nextCRRStatus(true);
+            
+            // update production to set avg initial temp
+            $production->AVG_T_INITIAL = $lfTemp;
+            $production->save();
+            
+            // Increase value to show still alive
+            // cryoRun . nextCRRStatus(true);
+        } catch (Exception $e) {
+            // LOG . error("Error while writing initial temp from analogical results", e);
+            throw new Exception("Error while writing initial temp from analogical results");
+        }
     }
 }
