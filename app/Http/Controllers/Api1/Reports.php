@@ -110,6 +110,16 @@ class Reports extends Controller
 
     public function getReport($id)
     {
+        $study = Study::where('ID_STUDY', $id)->first();
+        $stuequip = $study->studyEquipments->first();
+        if ($stuequip != null) {
+            if ($study->CALCULATION_MODE == 1 && $stuequip->BRAIN_TYPE != 4) {
+                    return response("Report is available only when equipments are calculated numerically", 406);
+            } else if ($study->CALCULATION_MODE != 1 && $stuequip->BRAIN_TYPE == 0) {
+                    return response("Report is available only when equipments are calculated numerically", 406);
+            }
+        }
+        
         $report = Report::where('ID_STUDY', $id)->first();
 
         if ($report) {
@@ -861,16 +871,11 @@ class Reports extends Controller
         PDF::SetFont('times', 'B', 10);
         PDF::Bookmark('CONTENT ', 0, 0, '', 'B', array(0,64,128));
         $html = '';
-        $html .= '<div class="logo">
-            <div class="row">
-                <div class="col-md-6">';
+        $html .= '<div class="logo">';
                     if (!empty($CUSTOMER_PATH)) { 
                         $html .= '<img style="max-width: 640px" src="'. $study['reports'][0]['CUSTOMER_PATH'] .'">';
                     }
         $html .= '</div>
-            </div>
-        </div>
-        
         <div class="info-company">
             <div align="center">
                     <img style="max-width: 640px" src="'.$public_path.'/images/banner_cryosoft.png">
@@ -910,7 +915,6 @@ class Reports extends Controller
                     $html .= '<img src="'. $public_path.'/images/globe_food.gif">';
                 }
                 $html .= '</p>
-            <p></p><p></p><p></p>
             <div class="table-responsive" style="color:red">
                 <table class ="table table-bordered" border="1">
                 <tr>
@@ -1675,7 +1679,7 @@ class Reports extends Controller
             if ($isSizingValuesMax == 1) {
                 PDF::Bookmark(' Maximum product flowrate', 1, 0, '', '', array(128,0,0));
                 PDF::Cell(0, 10, '', 0, 1, 'L');
-                $html = '';
+                $html .= '';
                 $html .= '<h3> Maximum product flowrate</h3>
                 <div class="Max-prod-flowrate">
                     <div class="table table-bordered">
@@ -1719,9 +1723,10 @@ class Reports extends Controller
             if ($SIZING_GRAPHE == 1) {
                 PDF::Bookmark(' Graphic', 1, 0, '', '', array(128,0,0));
                 PDF::Cell(0, 10, ' ', 0, 1, 'L');
-                $html = '';
+                $html .= '';
                 $html .= '<h3>Graphic</h3>
-                <img width="640" height="450" src="'. $public_path .'/sizing/'. $study['USERNAM'].'/'. $study['ID_STUDY'] .'.png">';
+                <div align="center">
+                    <img  width="640" height="450" src="'. $public_path .'/sizing/'. $study['USERNAM'].'/'. $study['ID_STUDY'] .'.png"></div>';
                 PDF::writeHTML($html, true, false, true, false, '');
                 PDF::AddPage();
             }
@@ -1763,7 +1768,7 @@ class Reports extends Controller
                     if ($ENTHALPY_G ==1) {
                         $html ='';
                         $html .='<h3>Graphic</h3>
-                        <div id="hexchGraphic">
+                        <div align="center">
                             <img width="640" height="450" src="'. $public_path .'/heatExchange/'. $study['USERNAM'] .'/'. $resheatexchanges['idStudyEquipment'] .'.png">
                         </div>';
                         PDF::writeHTML($html, true, false, true, false, '');
@@ -1822,28 +1827,28 @@ class Reports extends Controller
                         </div>';
                         PDF::writeHTML($html, true, false, true, false, '');
                     }
-
+                    $html ='';
                     if ($ISOCHRONE_G == 1) {
                         if ($resproSections['selectedAxe'] == 1) {
                             PDF::Bookmark('Graphic - Dimension' . $resproSections['selectedAxe'] . '(' . '*,' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][0] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
                             PDF::Cell(0, 10, '', 0, 1, 'L');
-                            $html ='';
-                            $html .='<h3> Graphic - Dimension'. $resproSections['selectedAxe'] . '(' . '*,' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][0] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>';
-                            $html .='<img width="640" height="450" src="'. $public_path .'/productSection/'. $study['USERNAM'] .'/'. $resproSections['idStudyEquipment'] .'-'. $resproSections['selectedAxe'] .'.png">';
+                            $html .='<h3> Graphic - Dimension'. $resproSections['selectedAxe'] . '(' . '*,' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][0] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>
+                            <div align="center">
+                            <img width="640" height="450" src="'. $public_path .'/productSection/'. $study['USERNAM'] .'/'. $resproSections['idStudyEquipment'] .'-'. $resproSections['selectedAxe'] .'.png"></div>';
                             PDF::writeHTML($html, true, false, true, false, '');
                         } else if ($resproSections['selectedAxe'] == 2) {
                             PDF::Bookmark('Graphic - Dimension' . $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',*,' . $resproSections['axeTemp'][0] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
                             PDF::Cell(0, 10, '', 0, 1, 'L');
-                            $html ='';
-                            $html .='<h3> Graphic - Dimension'. $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',*,' . $resproSections['axeTemp'][0] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>';
-                            $html .='<img width="640" height="450" src="'. $public_path .'/productSection/'. $study['USERNAM'] .'/'. $resproSections['idStudyEquipment'] .'-'. $resproSections['selectedAxe'] .'.png">';
+                            $html .='<h3> Graphic - Dimension'. $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',*,' . $resproSections['axeTemp'][0] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>
+                            <div align="center">
+                            <img width="640" height="450" src="'. $public_path .'/productSection/'. $study['USERNAM'] .'/'. $resproSections['idStudyEquipment'] .'-'. $resproSections['selectedAxe'] .'.png"></div>';
                             PDF::writeHTML($html, true, false, true, false, '');
                         } else if ($resproSections['selectedAxe'] == 3) {
                             PDF::Bookmark('Graphic - Dimension' . $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][0] . ',*' . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
                             PDF::Cell(0, 10, '', 0, 1, 'L');
-                            $html ='';
-                            $html .='<h3> Graphic - Dimension'. $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][0] . ',*' . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>';
-                            $html .='<img width="640" height="450" src="'. $public_path .'/productSection/'. $study['USERNAM'] .'/'. $resproSections['idStudyEquipment'] .'-'. $resproSections['selectedAxe'] .'.png">';
+                            $html .='<h3> Graphic - Dimension'. $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][0] . ',*' . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>
+                            <div align="center">
+                            <img width="640" height="450" src="'. $public_path .'/productSection/'. $study['USERNAM'] .'/'. $resproSections['idStudyEquipment'] .'-'. $resproSections['selectedAxe'] .'.png"></div>';
                             PDF::writeHTML($html, true, false, true, false, '');
                         }
                     }
@@ -1911,7 +1916,8 @@ class Reports extends Controller
                     if ($ISOVALUE_G == 1) {
                         $html = '';
                         $html .='<h3>Graphic</h3>
-                        <img width="640" height="450" src="'. $public_path .'/timeBased/'.$study['USERNAM'] .'/'.$timeBases['idStudyEquipment'] .'.png">';
+                        <div align="center">
+                            <img width="640" height="450" src="'. $public_path .'/timeBased/'.$study['USERNAM'] .'/'.$timeBases['idStudyEquipment'] .'.png"></div>';
                         PDF::writeHTML($html, true, false, true, false, '');
                     }
                 }
@@ -1932,7 +1938,7 @@ class Reports extends Controller
                             PDF::Cell(0, 10, '' , 0, 1, 'L');
                             $html .='<h3>'. $pro2Dcharts['equipName'] . 'Slice 23 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
                             $html .= '
-                            <div class="outlines"> 
+                            <div align="center"> 
                                 <img width="640" height="450" src="'. $public_path.'/heatmap/'.$study['USERNAM'].'/'.$pro2Dcharts['idStudyEquipment'].'/'. $pro2Dcharts['lfDwellingTime'].'-'.$pro2Dcharts['chartTempInterval'][0].'-'. $pro2Dcharts['chartTempInterval'][1].'-'.$pro2Dcharts['chartTempInterval'][2].'.png">
                             </div>';
                             PDF::writeHTML($html, true, false, true, false, '');
@@ -1941,7 +1947,7 @@ class Reports extends Controller
                             PDF::Cell(0, 10, '', 0, 1, 'L');
                             $html .='<h3>'. $pro2Dcharts['equipName'] . 'Slice 23 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
                             $html .= '
-                            <div class="outlines"> 
+                            <div align="center">
                             <img width="640" height="450" src="'. $public_path.'/heatmap/'.$study['USERNAM'].'/'.$pro2Dcharts['idStudyEquipment'].'/'. $pro2Dcharts['lfDwellingTime'].'-'.$pro2Dcharts['chartTempInterval'][0].'-'. $pro2Dcharts['chartTempInterval'][1].'-'.$pro2Dcharts['chartTempInterval'][2].'.png">
                             </div>';
                             PDF::writeHTML($html, true, false, true, false, '');
@@ -1951,7 +1957,7 @@ class Reports extends Controller
                         PDF::Cell(0, 10, '', 0, 1, 'L');
                         $html .='<h3>'. $pro2Dcharts['equipName'] . 'Slice 23 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
                         $html .= '
-                        <div class="outlines"> 
+                        <div align="center">
                         <img width="640" height="450" src="'. $public_path.'/heatmap/'.$study['USERNAM'].'/'.$pro2Dcharts['idStudyEquipment'].'/'. $pro2Dcharts['lfDwellingTime'].'-'.$pro2Dcharts['chartTempInterval'][0].'-'. $pro2Dcharts['chartTempInterval'][1].'-'.$pro2Dcharts['chartTempInterval'][2].'.png">
                         </div>';
                         PDF::writeHTML($html, true, false, true, false, '');
@@ -2006,9 +2012,6 @@ class Reports extends Controller
             </div>
         </div>';
         PDF::writeHTML($html, true, false, true, false, '');
-        PDF::AddPage();
-
-        
         
         // add a new page for TOC
         PDF::addTOCPage();
@@ -2160,14 +2163,26 @@ class Reports extends Controller
         
         if ($isSizingValuesChosen == 1 || $isSizingValuesMax == 1 || $SIZING_GRAPHE == 1) {
             if ($study->CALCULATION_MODE == 3) {
-                $calModeHeadBalance = $this->reportserv->getOptimumHeadBalance($study->ID_STUDY);
-                $calModeHbMax = $this->reportserv->getOptimumHeadBalanceMax($study->ID_STUDY);
-                $graphicSizing = $this->reportserv->sizingOptimumResult($study->ID_STUDY);
+                if ($study->studyEquipments->BRAIN_TYPE == 4) {
+                    $calModeHeadBalance = $this->reportserv->getOptimumHeadBalance($study->ID_STUDY);
+                    $calModeHbMax = $this->reportserv->getOptimumHeadBalanceMax($study->ID_STUDY);
+                    $graphicSizing = $this->reportserv->sizingOptimumResult($study->ID_STUDY);
+                } else {
+                    $calModeHeadBalance = "";
+                    $calModeHbMax = "";
+                    $graphicSizing = "";
+                }
                 
             } else if ($study->CALCULATION_MODE == 1) {
-                $calModeHeadBalance = $this->reportserv->getEstimationHeadBalance($study->ID_STUDY, 1);
-                $calModeHbMax = "";
-                $graphicSizing = $this->reportserv->sizingEstimationResult($study->ID_STUDY);
+                if ($study->studyEquipments->BRAIN_TYPE != 0) {
+                    $calModeHeadBalance = $this->reportserv->getEstimationHeadBalance($study->ID_STUDY, 1);
+                    $calModeHbMax = "";
+                    $graphicSizing = $this->reportserv->sizingEstimationResult($study->ID_STUDY);
+                } else {
+                    $calModeHeadBalance = "";
+                    $calModeHbMax = "";
+                    $graphicSizing = "";
+                }
             }
             $progress .= "\nSizing";
             $this->writeProgressFile($progressFile, $progress);

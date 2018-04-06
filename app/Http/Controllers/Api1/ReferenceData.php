@@ -143,7 +143,7 @@ class ReferenceData extends Controller
             'COMP_NAME' => $COMP_NAME,
             'COMP_COMMENT' => $COMP_COMMENT,
             'COMP_VERSION' => $COMP_VERSION,
-            'FREEZE_TEMP' => $FREEZE_TEMP,
+            'FREEZE_TEMP' => $this->units->temperature($FREEZE_TEMP, 2, 1),
             'WATER' => $WATER,
             'PROTID' => $PROTID,
             'LIPID' => $LIPID,
@@ -601,12 +601,26 @@ class ReferenceData extends Controller
     public function getCompenthsByIdComp($idComp)
     {
         $compenths = Compenth::where('ID_COMP', $idComp)->get();
+
+        foreach ($compenths as $key) {
+            // var_dump($key->COMPTEMP);die;
+            $key->COMPTEMP = $this->units->temperature($key->COMPTEMP, 2, 1);
+            $key->COMPENTH = $this->units->enthalpy($key->COMPENTH, 3, 1);
+            $key->COMPCOND = $this->units->conductivity($key->COMPCOND, 4, 1);
+            $key->COMPDENS = $this->units->density($key->COMPDENS, 1, 1);
+        }
+
         return $compenths;
     }
 
     public function getCompenthById($id)
     {
         $compenth = Compenth::find($id);
+        $compenth->COMPTEMP = $this->units->temperature($compenth->COMPTEMP, 2, 1);
+        $compenth->COMPENTH = $this->units->enthalpy($compenth->COMPENTH, 3, 1);
+        $compenth->COMPCOND = $this->units->conductivity($compenth->COMPCOND, 4, 1);
+        $compenth->COMPDENS = $this->units->density($compenth->COMPDENS, 1, 1);
+
         return $compenth;
     }
 
@@ -625,11 +639,11 @@ class ReferenceData extends Controller
 
         $compenth = Compenth::find($ID_COMPENTH);
         if ($compenth) {
-            $compenth->COMPTEMP = $COMPTEMP;
             $compenth->ID_COMP = $ID_COMP;
-            $compenth->COMPCOND = $COMPCOND;
-            $compenth->COMPDENS = $COMPDENS;
-            $compenth->COMPENTH = $COMPENTH;
+            $compenth->COMPTEMP = $this->units->temperature($COMPTEMP, 2, 0);
+            $compenth->COMPENTH = $this->units->enthalpy($COMPENTH, 3, 0);
+            $compenth->COMPCOND = $this->units->conductivity($COMPCOND, 4, 0);
+            $compenth->COMPDENS = $this->units->density($COMPDENS, 1, 0);
             $compenth->save();
         }
         return 1;
@@ -800,4 +814,5 @@ class ReferenceData extends Controller
 
         return 1;
     }
+
 }

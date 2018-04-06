@@ -1428,8 +1428,7 @@ class Studies extends Controller
             $layoutGen = LayoutGeneration::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
             $orientation = $layoutGen->PROD_POSITION;
             $tempRecordPts =  TempRecordPts::where('ID_STUDY', $id)->first();
-            $tempRecordPts->NB_STEPS = $nbSteps;
-            $tempRecordPts->save();
+            
 
             $pointTop = ['x' => $input['POINT_TOP_X'], 'y' => $input['POINT_TOP_Y'], 'z' => $input['POINT_TOP_Z']];
             $pointInt = ['x' => $input['POINT_INT_X'], 'y' => $input['POINT_INT_Y'], 'z' => $input['POINT_INT_Z']];
@@ -1449,9 +1448,46 @@ class Studies extends Controller
 
             $axisResult = $this->study->convertAxisForDB($shape, $orientation, $axis);
 
-            $plan = $this->study->convertPointForDB($shape, $orientation, $plan);
-            var_dump($plan);die;
-            
+            $planResult = $this->study->convertPointForDB($shape, $orientation, $plan);
+
+            $tempRecordPts->NB_STEPS = $nbSteps;
+            $tempRecordPts->AXIS1_PT_TOP_SURF = $pointTopResult[0];
+            $tempRecordPts->AXIS2_PT_TOP_SURF = $pointTopResult[1];
+            $tempRecordPts->AXIS3_PT_TOP_SURF = $pointTopResult[2];
+
+            $tempRecordPts->AXIS1_PT_INT_PT = $pointIntResult[0];
+            $tempRecordPts->AXIS2_PT_INT_PT = $pointIntResult[1];
+            $tempRecordPts->AXIS3_PT_INT_PT = $pointIntResult[2];
+
+            $tempRecordPts->AXIS1_PT_BOT_SURF = $pointBotResult[0];
+            $tempRecordPts->AXIS2_PT_BOT_SURF = $pointBotResult[1];
+            $tempRecordPts->AXIS3_PT_BOT_SURF = $pointBotResult[2];
+
+            if (isset($axisResult[0]['y'])) {
+                $tempRecordPts->AXIS2_AX_1 = $axisResult[0]['y'];
+            }
+            if (isset($axisResult[0]['z'])) {
+                $tempRecordPts->AXIS3_AX_1 = $axisResult[0]['z'];
+            }
+            if (isset($axisResult[1]['x'])) {
+                $tempRecordPts->AXIS1_AX_2 = $axisResult[1]['x'];
+            }
+            if (isset($axisResult[1]['z'])) {
+                $tempRecordPts->AXIS3_AX_2 = $axisResult[1]['z'];
+            }
+            if (isset($axisResult[2]['x'])) {
+                $tempRecordPts->AXIS1_AX_3 = $axisResult[2]['x'];
+            }
+            if (isset($axisResult[2]['y'])) {
+                $tempRecordPts->AXIS2_AX_3 = $axisResult[2]['y'];
+            }
+
+            $tempRecordPts->AXIS1_PL_2_3 = $planResult[0];
+            $tempRecordPts->AXIS2_PL_1_3 = $planResult[1];
+            $tempRecordPts->AXIS3_PL_1_2 = $planResult[2];
+
+
+            // $tempRecordPts->save();
         }
 
         return 1;

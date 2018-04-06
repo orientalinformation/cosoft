@@ -49,7 +49,7 @@ class UnitsService
         } else {
             if ($value != null) $value = ($value + $coeffB) / $coeffA;
 
-            return $value;
+            return round($value, $decimal);
         }
     }
 
@@ -188,6 +188,47 @@ class UnitsService
             "coeffB" => "0.0",
             "symbol" => "%"
         );
+    }
+
+    public function enthalpy($value, $decimal, $status) {
+        $unit = Unit::where('TYPE_UNIT', $this->value->ENTHALPY)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+
+        if ($status == 1) {
+            return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, $decimal, 1);
+        } else {
+            return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, $decimal, 0);
+        }
+    }
+
+    public function conductivity($value, $decimal, $status)
+    {
+        $unit = Unit::where('TYPE_UNIT', $this->value->CONDUCTIVITY)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+
+        if ($status == 1) {
+            return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, $decimal, 1);
+        } else {
+            return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, $decimal, 0);
+        }
+    }
+
+    public function density($value, $decimal, $status)
+    {
+        $unit = Unit::where('TYPE_UNIT', $this->value->DENSITY)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+
+        if ($status == 1) {
+            return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, $decimal, 1);
+        } else {
+            return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, $decimal, 0);
+        }
     }
     // HAIDT
 }

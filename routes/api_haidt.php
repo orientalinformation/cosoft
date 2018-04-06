@@ -422,3 +422,11 @@ $router->POST('/api/v1/referencedata/savedatacomponent', 'Api1\\ReferenceData@ch
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/referencedata/checktemperature', 'Api1\\ReferenceData@checkTemperature');
+
+/**
+ * POST checkPacking
+ * Summary:
+ * Notes: Check unit min max Packing
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/referencedata/checkpacking', 'Api1\\PackingElements@checkPacking');
