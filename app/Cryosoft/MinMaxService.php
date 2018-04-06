@@ -185,5 +185,15 @@ class MinMaxService
         return $minMax; 
     }
 
+    public function getMinMaxCoeff($limitItem, $decimal)
+    {	
+        $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
+        $minMax->LIMIT_MAX =  $this->units->convectionCoeff($minMax->LIMIT_MAX, $decimal, 1);
+        $minMax->LIMIT_MIN = $this->units->convectionCoeff($minMax->LIMIT_MIN, $decimal, 1);
+        $minMax->DEFAULT_VALUE = $this->units->convectionCoeff($minMax->DEFAULT_VALUE, $decimal, 1);
+
+        return $minMax; 
+    }
+
     // end HAIDT
 }
