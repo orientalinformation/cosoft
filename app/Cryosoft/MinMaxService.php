@@ -175,5 +175,15 @@ class MinMaxService
         return $minMax; 
     }
 
+    public function getMinMaxConductivity($limitItem, $decimal)
+    {
+        $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
+        $minMax->LIMIT_MAX = $this->units->conductivity($minMax->LIMIT_MAX, $decimal, 1);
+        $minMax->LIMIT_MIN = $this->units->conductivity($minMax->LIMIT_MIN, $decimal, 1);
+        $minMax->DEFAULT_VALUE = $this->units->conductivity($minMax->DEFAULT_VALUE, $decimal,1);
+
+        return $minMax; 
+    }
+
     // end HAIDT
 }

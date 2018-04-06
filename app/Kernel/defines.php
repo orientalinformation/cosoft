@@ -25,6 +25,8 @@ define('SELECT_FILLED_COLOR', '#00FF00');
 define('PATH_FILLED_COLOR', 'none');
 define('PATH_STROKE_COLOR', '#0000FF');
 define('PATH_ELEMENT_ID', 'profilLine');
+define('DOUBLE_MIN_VALUE', 4.9e-324);
+define('NEGATIVE_INFINITY', INF);
 
 define('SC_CLEAN_MODE_ESTIM_2_OPTIM',20);  // estimation -> optimum
 define('SC_CLEAN_MODE_OPTIM_2_ESTIM',21);  // optimum -> estimation

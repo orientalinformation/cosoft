@@ -99,8 +99,59 @@ class Equipments extends Controller
     public function getEquipments()
     {
         $input = $this->request->all();
+        $idStudy = (isset($input['idStudy'])) ? $input['idStudy'] : 0;
+        $energy = (isset($input['energy'])) ? $input['energy'] : -1;
+        $manufacturer = (isset($input['manufacturer'])) ? $input['manufacturer'] : '';
+        $family = (isset($input['family'])) ? $input['family'] : -1;
+        $origine = (isset($input['origine'])) ? $input['origine'] : -1;
+        $process = (isset($input['process'])) ? $input['process'] : -1;
+        $series = (isset($input['series'])) ? $input['series'] : -1;
+        $size = (isset($input['size'])) ? $input['size'] : '';
         
-        $equipments = Equipment::all()->toArray();
+        $querys = Equipment::orderBy('EQUIP_NAME');
+
+        $querys->where('EQP_IMP_ID_STUDY', $idStudy)
+            ->orWhere('EQP_IMP_ID_STUDY', 0);
+
+        $querys->where(function ($query) {
+            $query->where('ID_USER', $this->auth->user()->ID_USER)
+            ->where('EQUIP_RELEASE', 2);
+        });
+
+        $querys->orWhere(function ($query) {
+            $query->where('EQUIP_RELEASE', 4)
+            ->orWhere('EQUIP_RELEASE', 3);
+        });
+
+        if ($energy != 1) {
+            $querys->where('ID_COOLING_FAMILY', $energy);
+        }
+
+        if ($family != -1) {
+            $querys->where('ID_FAMILY', $family);
+        }
+
+        if ($process != -1) {
+            $querys->where('BATCH_PROCESS', $process);
+        }
+
+        if ($series != -1) {
+            $querys->where('ID_EQUIPSERIES', $series);
+        }
+
+        if ($size != null && $size  != '') {
+            $sizeLabel = explode('x', $size);
+            $length = $sizeLabel[0];
+            $width = $sizeLabel[1];
+
+            $querys->where('EQP_LENGTH', $length)->where('EQP_WIDTH', $width);
+        }
+
+        if ($manufacturer != null && $manufacturer != '') {
+            $querys->where('CONSTRUCTOR', $manufacturer);
+        }
+
+        $equipments = $querys->get();
 
         return $equipments;
     }
@@ -311,8 +362,9 @@ class Equipments extends Controller
         $result = [];
         if (count($equipMents) > 0) {
             foreach ($equipMents as $key => $value) {
-                $result[$key]['EQP_LENGTH'] = $this->convert->equipDimension($value->EQP_LENGTH);
-                $result[$key]['EQP_WIDTH'] = $this->convert->equipDimension($value->EQP_WIDTH);
+                $result[] = $value;
+                $result[$key]['DISPLAY_LENGTH'] = $this->convert->equipDimension($value->EQP_LENGTH);
+                $result[$key]['DISPLAY_WIDTH'] = $this->convert->equipDimension($value->EQP_WIDTH);
             }
         }
         return $result;
@@ -907,11 +959,13 @@ class Equipments extends Controller
         $minMax = $minScaleY = $maxScaleY = $minValueY = $maxValueY = $nbFractionDigits = $maxiMum = null;
         $unitIdent = $miniMum = 10;
         $ID_EQUIP = $profileType = $profileFace = $listOfPoints = $path = $nbpoints = null;
-        $YAxis = $XAxis = $pos = 0;
+        $YAxis = $XAxis = $pos = $start = $end = 0;
         $X = $Y = $resultPoint = $axisline = $valuesTabX =  $valuesTabY = $selectedPoints = $posTabY = array();
         $textX = 75;
-        $minScale = $maxScale = $typeChart = null;
-
+        $minScale = $maxScale = $typeChart = $listofPointsOld = null;
+        $newProfil = '';
+        $checkTop = $checkButton = $checkLeft = $checkRight = $checkFront = $checkRear = null;
+                    
         $input = $this->request->all();
 
         if (isset($input['profilType'])) $profileType = intval($input['profilType']);
@@ -920,6 +974,7 @@ class Equipments extends Controller
         if (isset($input['minScaleY'])) $minScale = floatval($input['minScaleY']);
         if (isset($input['maxScaleY'])) $maxScale = floatval($input['maxScaleY']);
         if (isset($input['typeChart'])) $typeChart = intval($input['typeChart']);
+        if (isset($input['newProfil'])) $newProfil = $input['newProfil'];
 
         if ($profileType == 1) {
             $minMax = $this->getMinMax(1039);
@@ -931,13 +986,52 @@ class Equipments extends Controller
             $nbFractionDigits = 0;
         }
 
+        if ($profileFace == 0) {
+            $checkTop = 0;
+        } else if ($profileFace == 1) {
+            $checkButton = 1;
+        } else if ($profileFace == 2) {
+            $checkLeft = 2;
+        } else if ($profileFace == 3) {
+            $checkRight = 3;
+        } else if ($profileFace == 4) {
+            $checkFront = 4;
+        } else if ($profileFace == 5) {
+            $checkRear = 5;
+        }
+
         $minScaleY = doubleval($minMax->LIMIT_MIN);
         $maxScaleY = doubleval($minMax->LIMIT_MAX);
         $minValueY = doubleval($minMax->LIMIT_MAX);
         $maxValueY = doubleval($minMax->LIMIT_MIN);
 
         $listOfPoints = $this->svg->getSelectedProfile($ID_EQUIP, $profileType, $profileFace);
+        $listofPointsOld = $listOfPoints;
         $nbpoints = count($listOfPoints);
+
+        // Generate new profile
+        if ($typeChart == 2) {
+            if (count($listOfPoints) > 0) {
+                for($i = 0; $i < count($listOfPoints); $i++) {
+                    $end = strpos($newProfil, '_', $start);
+                    $value = substr($newProfil, $start, $end);
+                    
+                    if ($value != '') {
+                        if ($profileType == 1) {
+                            $listOfPoints[$i]['Y_POINT'] = $this->convert->convectionCoeff($value);
+                        } else {
+                            $listOfPoints[$i]['Y_POINT'] = $this->convert->temperature($value);
+                        }
+                    } else {
+                        $listOfPoints[$i]['Y_POINT'] = DOUBLE_MIN_VALUE;
+                    }
+
+                    $start = $end + 1;
+                }
+
+                $listOfPoints = $this->svg->generateNewProfile($listofPointsOld, $listOfPoints, $minMax->LIMIT_MIN, $minMax->LIMIT_MAX);
+            }
+        }
         
         if (count($listOfPoints) > 0) {
             for($i = 0; $i < count($listOfPoints); $i++) {
@@ -1057,12 +1151,97 @@ class Equipments extends Controller
             'valuesTabX' => $valuesTabX,
             'valuesTabY' => $valuesTabY,
             'selectedPoints' => $selectedPoints,
-            'nbpoints' => $nbpoints ,
+            'nbpoints' => $nbpoints,
             'axisYLength' => (PROFILE_CHARTS_WIDTH - (2 * PROFILE_CHARTS_MARGIN_WIDTH)) + 20,
-            'posTabY' => $posTabY
+            'posTabY' => $posTabY,
+            'checkTop' => $checkTop,
+            'checkButton' => $checkButton,
+            'checkLeft' => $checkLeft,
+            'checkRight' => $checkRight,
+            'checkFront' => $checkFront,
+            'checkRear' => $checkRear
         ];
         
         return $array;
+    }
+
+    public function saveSelectedProfile()
+    {
+        $ID_EQUIP = $profileType = $profileFace = $minScale = $maxScale = $typeChart = null;
+        $newProfil = $sFace = '';
+        $bsaveTop = $bsaveBottom = $bsaveLeft = $bsaveRight = $bsaveFront = $bsaveRear = null;
+        $checkTop = $checkButton = $checkLeft = $checkRight = $checkFront = $checkRear = null;
+        $start = $end = 0;
+
+        $input = $this->request->all();
+
+        if (isset($input['profilType'])) $profileType = intval($input['profilType']);
+        if (isset($input['profilFace'])) $profileFace = intval($input['profilFace']);
+        if (isset($input['ID_EQUIP'])) $ID_EQUIP = intval($input['ID_EQUIP']);
+        if (isset($input['minScaleY'])) $minScale = floatval($input['minScaleY']);
+        if (isset($input['maxScaleY'])) $maxScale = floatval($input['maxScaleY']);
+        if (isset($input['typeChart'])) $typeChart = intval($input['typeChart']);
+        if (isset($input['newProfil'])) $newProfil = $input['newProfil'];
+        if (isset($input['checkTop'])) $checkTop = intval($input['checkTop']);
+        if (isset($input['checkButton'])) $checkButton = intval($input['checkButton']);
+        if (isset($input['checkLeft'])) $checkLeft = intval($input['checkLeft']);
+        if (isset($input['checkRight'])) $checkRight = intval($input['checkRight']);
+        if (isset($input['checkFront'])) $checkFront = intval($input['checkFront']);
+        if (isset($input['checkRear'])) $checkRear = intval($input['checkRear']);
+
+        $listOfPoints = $this->svg->getSelectedProfile($ID_EQUIP, $profileType, $profileFace);
+
+        $bsaveTop = (($checkTop != null) || ($profileFace == PROFILE_TOP)) ? true : false;
+        $bsaveBottom = (($checkButton != null) || ($profileFace == PROFILE_BOTTOM)) ? true : false;
+        $bsaveLeft = (($checkLeft != null) || ($profileFace == PROFILE_LEFT)) ? true : false;
+        $bsaveRight = (($checkRight != null) || ($profileFace == PROFILE_RIGHT)) ? true : false;
+        $bsaveFront = (($checkFront != null) || ($profileFace == PROFILE_FRONT)) ? true : false;
+        $bsaveRear = (($checkRear != null) || ($profileFace == PROFILE_REAR)) ? true : false;
+
+        // get new profile
+        if (count($listOfPoints) > 0) {
+            for($i = 0; $i < count($listOfPoints); $i++) {
+                $end = strpos($newProfil, '_', $start);
+                $value = substr($newProfil, $start, $end);
+                
+                if ($value != '') {
+                    if ($profileType == 1) {
+                        $listOfPoints[$i]['Y_POINT'] = $this->convert->convectionCoeff($value);
+                    } else {
+                        $listOfPoints[$i]['Y_POINT'] = $this->convert->temperature($value);
+                    }
+                } else {
+                    $listOfPoints[$i]['Y_POINT'] = DOUBLE_MIN_VALUE;
+                }
+
+                $start = $end + 1;
+            }
+        }
+
+        // get old profile
+        $equipCharacts = EquipCharact::where('ID_EQUIP', $ID_EQUIP)->get();
+        if ($equipCharacts) {
+            for ($i = 0; $i < count($equipCharacts); $i++) {
+                if ($profileType == CONVECTION_PROFILE) {
+                    if($bsaveTop) $equipCharacts[$i]->ALPHA_TOP = $listOfPoints[$i]['Y_POINT'];
+                    if($bsaveBottom) $equipCharacts[$i]->ALPHA_BOTTOM = $listOfPoints[$i]['Y_POINT'];
+                    if($bsaveLeft) $equipCharacts[$i]->ALPHA_LEFT = $listOfPoints[$i]['Y_POINT'];
+                    if($bsaveRight) $equipCharacts[$i]->ALPHA_RIGHT = $listOfPoints[$i]['Y_POINT'];
+                    if($bsaveFront) $equipCharacts[$i]->ALPHA_FRONT = $listOfPoints[$i]['Y_POINT'];
+                    if($bsaveRear) $equipCharacts[$i]->ALPHA_REAR = $listOfPoints[$i]['Y_POINT'];
+                } else {
+                    if($bsaveTop) $equipCharacts[$i]->TEMP_TOP = $listOfPoints[$i]['Y_POINT'];
+                    if($bsaveBottom) $equipCharacts[$i]->TEMP_BOTTOM = $listOfPoints[$i]['Y_POINT'];
+                    if($bsaveLeft) $equipCharacts[$i]->TEMP_LEFT = $listOfPoints[$i]['Y_POINT'];
+                    if($bsaveRight) $equipCharacts[$i]->TEMP_RIGHT = $listOfPoints[$i]['Y_POINT'];
+                    if($bsaveFront) $equipCharacts[$i]->TEMP_FRONT = $listOfPoints[$i]['Y_POINT'];
+                    if($bsaveRear) $equipCharacts[$i]->TEMP_REAR = $listOfPoints[$i]['Y_POINT'];
+                }
+                $equipCharacts[$i]->save();
+            }
+        }
+
+        return 1;
     }
 
     public function getDataCurve($idEquip) 
