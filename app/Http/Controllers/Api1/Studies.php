@@ -1474,7 +1474,7 @@ class Studies extends Controller
         $precalcLdgRatePrm = new PrecalcLdgRatePrm();
         $packing = new Packing();
 
-        $isNumberical = ($stdEqp->BRAIN_TYPE == $this->value->BRAIN_RUN_FULL_YES) ? true : false;
+        $isNumerical = ($stdEqp->BRAIN_TYPE == $this->value->BRAIN_RUN_FULL_YES) ? true : false;
         $isAnalogical = false;
         if ($study->CALCULATION_MODE == $this->value->STUDY_ESTIMATION_MODE) {
             // estimation
@@ -1589,12 +1589,9 @@ class Studies extends Controller
                             $shapeId = $productemlt->ID_SHAPE;
                             unset($productemlt->ID_PRODUCT_ELMT);
                             $productemlt->save();
-                            foreach ($prodelmtCurr->meshPositions as $meshPositionCurr) {
-                                $meshPos = new MeshPosition();
-                                $meshPos = $meshPositionCurr->replicate();
-                                unset($meshPos->ID_MESH_POSITION);
-                                $meshPos->save();
-                            }
+                            DB::insert(DB::RAW('insert into MESH_POSITION (ID_PRODUCT_ELMT, MESH_AXIS, MESH_ORDER, MESH_AXIS_POS) SELECT '
+                                . $productemlt->ID_PRODUCT_ELMT . ',M.MESH_AXIS, M.MESH_ORDER, M.MESH_AXIS_POS FROM MESH_POSITION AS M WHERE ID_PRODUCT_ELMT = '
+                                . $prodelmtCurr->ID_PRODUCT_ELMT));
                         }
                     }
                 }
