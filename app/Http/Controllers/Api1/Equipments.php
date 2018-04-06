@@ -110,6 +110,10 @@ class Equipments extends Controller
         
         $querys = Equipment::orderBy('EQUIP_NAME');
 
+        if ($energy != 1) {
+            $querys->where('ID_COOLING_FAMILY', $energy);
+        }
+
         $querys->where('EQP_IMP_ID_STUDY', $idStudy)
             ->orWhere('EQP_IMP_ID_STUDY', 0);
 
@@ -123,10 +127,7 @@ class Equipments extends Controller
             ->orWhere('EQUIP_RELEASE', 3);
         });
 
-        if ($energy != 1) {
-            $querys->where('ID_COOLING_FAMILY', $energy);
-        }
-
+        
         if ($family != -1) {
             $querys->where('ID_FAMILY', $family);
         }
@@ -139,7 +140,7 @@ class Equipments extends Controller
             $querys->where('ID_EQUIPSERIES', $series);
         }
 
-        if ($size != null && $size  != '') {
+        if ($size != '') {
             $sizeLabel = explode('x', $size);
             $length = $sizeLabel[0];
             $width = $sizeLabel[1];
@@ -147,7 +148,7 @@ class Equipments extends Controller
             $querys->where('EQP_LENGTH', $length)->where('EQP_WIDTH', $width);
         }
 
-        if ($manufacturer != null && $manufacturer != '') {
+        if ($series != -1 && $manufacturer != '') {
             $querys->where('CONSTRUCTOR', $manufacturer);
         }
 
