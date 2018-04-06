@@ -434,12 +434,9 @@ class Settings extends Controller
             ];
         }
 
-
-
-
         $checkAlphaTopDef = $this->minmax->checkMinMaxValue($this->units->convectionCoeff($studyAlphaTopDef, 2, 0), 1018);
         if (!$checkAlphaTopDef) {
-            $mm = $this->minmax->getMinMaxCoeff(1018);
+            $mm = $this->minmax->getMinMaxCoeff(1018, 2);
             return  [
                 "Message" => "Value out of range in Alpha top (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
@@ -447,7 +444,7 @@ class Settings extends Controller
 
         $checkAlphaBottomDef = $this->minmax->checkMinMaxValue($this->units->convectionCoeff($studyAlphaBottomDef, 3, 0), 1018);
         if (!$checkAlphaBottomDef) {
-            $mm = $this->minmax->getMinMaxCoeff(1018);
+            $mm = $this->minmax->getMinMaxCoeff(1018, 2);
             return  [
                 "Message" => "Value out of range in Alpha bottom (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
@@ -455,7 +452,7 @@ class Settings extends Controller
 
         $checkAlphaLeftDef = $this->minmax->checkMinMaxValue($this->units->convectionCoeff($studyAlphaLeftDef, 3, 0), 1018);
         if (!$checkAlphaLeftDef) {
-            $mm = $this->minmax->getMinMaxCoeff(1018);
+            $mm = $this->minmax->getMinMaxCoeff(1018, 2);
             return  [
                 "Message" => "Value out of range in Alpha left (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
@@ -463,7 +460,7 @@ class Settings extends Controller
 
         $checkAlphaRightDef = $this->minmax->checkMinMaxValue($this->units->convectionCoeff($studyAlphaRightDef, 3, 0), 1018);
         if (!$checkAlphaRightDef) {
-            $mm = $this->minmax->getMinMaxCoeff(1018);
+            $mm = $this->minmax->getMinMaxCoeff(1018, 2);
             return  [
                 "Message" => "Value out of range in Alpha right (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
@@ -471,7 +468,7 @@ class Settings extends Controller
 
         $checkAlphaFrontDef = $this->minmax->checkMinMaxValue($this->units->convectionCoeff($studyAlphaFrontDef, 3, 0), 1018);
         if (!$checkAlphaFrontDef) {
-            $mm = $this->minmax->getMinMaxCoeff(1018);
+            $mm = $this->minmax->getMinMaxCoeff(1018, 2);
             return  [
                 "Message" => "Value out of range in Alpha front (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
@@ -479,7 +476,7 @@ class Settings extends Controller
         
         $checkAlphaRearDef = $this->minmax->checkMinMaxValue($this->units->convectionCoeff($studyAlphaRearDef, 3, 0), 1018);
         if (!$checkAlphaRearDef) {
-            $mm = $this->minmax->getMinMaxCoeff(1018);
+            $mm = $this->minmax->getMinMaxCoeff(1018, 2);
             return  [
                 "Message" => "Value out of range in Alpha rear (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
             ];
