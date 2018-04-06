@@ -349,7 +349,7 @@ class StudyEquipmentService
         return $bret;
     }
 
-    public function setInitialTempFromNumericalResults (StudyEquipments &$sequip, $shape, Product &$product, Production &$production)
+    public function setInitialTempFromNumericalResults (StudyEquipment &$sequip, $shape, Product &$product, Production &$production)
     {
         $offset = [0,0,0];
         $bret = true;
