@@ -8,6 +8,8 @@ use App\Models\StudEqpPrm;
 use App\Models\LayoutResults;
 use App\Models\DimaResults;
 use App\Models\RecordPosition;
+use App\Models\Product;
+use App\Models\Production;
 use App\Models\InitialTemperature;
 
 class StudyEquipmentService
