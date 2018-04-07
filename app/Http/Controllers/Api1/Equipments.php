@@ -127,7 +127,6 @@ class Equipments extends Controller
             ->orWhere('EQUIP_RELEASE', 3);
         });
 
-        
         if ($size != '') {
             $sizeLabel = explode('x', $size);
             $length = $sizeLabel[0];
@@ -147,7 +146,6 @@ class Equipments extends Controller
         if ($series != -1) {
             $querys->where('ID_EQUIPSERIES', $series);
         }
-
 
         if ($manufacturer != '') {
             $querys->where('CONSTRUCTOR', $manufacturer);
@@ -1422,7 +1420,6 @@ class Equipments extends Controller
     {
         $input = $this->request->all();
 
-
         $ID_EQUIP = $EQUIP_NAME = $EQUIP_VERSION = $EQUIP_RELEASE = $EQUIP_COMMENT = $EQP_LENGTH = $EQP_WIDTH = $EQP_HEIGHT = $NB_TR = $NB_TS = $NB_VC = $MAX_FLOW_RATE = $TMP_REGUL_MIN = $MAX_NOZZLES_BY_RAMP = $MAX_RAMPS = $Ramps = $Shelves = $Consumptions = null;
 
         if (isset($input['ID_EQUIP'])) $ID_EQUIP = intval($input['ID_EQUIP']);
@@ -2071,7 +2068,6 @@ class Equipments extends Controller
         return true;
     }
 
-    // HAIDT
     public function getEquipmentFilter($id)
     {
         $equipment = Equipment::find($id);
@@ -2148,6 +2144,4 @@ class Equipments extends Controller
 
         return $equipment;
     }
-
-    // end HAIDT
 }

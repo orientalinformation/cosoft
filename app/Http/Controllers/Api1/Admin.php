@@ -61,7 +61,6 @@ class Admin extends Controller
 		$password = $input['password'];
 		$confirm = $input['confirmpassword'];
 
-
 		$hashPassword = Hash::make($password);
 
 		if ($password != $confirm) {

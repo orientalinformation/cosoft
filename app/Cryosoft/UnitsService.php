@@ -32,7 +32,7 @@ class UnitsService
         $this->auth = $app['Illuminate\\Contracts\\Auth\\Factory'];
         $this->value = $app['App\\Cryosoft\\ValueListService'];
     }
-    // HAIDT
+
     public function meshes($value, $decimal, $status) 
     {
         $unit = Unit::where('TYPE_UNIT', $this->value->MESH_CUT)
@@ -190,7 +190,8 @@ class UnitsService
         );
     }
 
-    public function enthalpy($value, $decimal, $status) {
+    public function enthalpy($value, $decimal, $status) 
+    {
         $unit = Unit::where('TYPE_UNIT', $this->value->ENTHALPY)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
