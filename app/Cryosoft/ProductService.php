@@ -3,7 +3,10 @@
 namespace App\Cryosoft;
 
 use App\Models\Study;
+use App\Models\Product;
 use App\Models\Translation;
+use App\Models\ProductElmt;
+use App\Models\MeshPosition;
 
 class ProductService
 {
@@ -13,6 +16,8 @@ class ProductService
     {
         $this->app = $app;
         $this->auth = $app['Illuminate\\Contracts\\Auth\\Factory'];
+        $this->values = app('App\\Cryosoft\\ValueListService');
+        $this->units = app('App\\Cryosoft\\UnitsService');
     }
 
     public function getAllCompFamily()
@@ -155,5 +160,128 @@ class ProductService
         }
 
         return $result;
+    }
+
+    // search mesh order for one elment on an axis
+    public function searchNbPtforElmt(ProductElmt &$elmt, /*int*/ $axe = 2)
+    {
+        $mshPsts = MeshPosition::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->where('MESH_AXIS', $axe)->orderBy('MESH_ORDER')->get();
+        $points = [];
+        foreach ($mshPsts as $mshPst) {
+            $points[] = $mshPst->MESH_ORDER;
+        }
+        return $points;
+    }
+
+    public function make2Dcontour(Study &$study) 
+    {
+        $idProduction = $study->productions->first()->ID_PRODUCTION;
+        $product = $study->products->first();
+        //     ArrayList < Integer > listOfElmtId = getProdElmtComeFromParentProduct();
+        $listOfElmtId = ProductElmt::where('ID_PROD', $product->ID_PROD)->where('INSERT_LINE_ORDER', '!=', $study->ID_STUDY)
+            ->pluck('ID_PRODUCT_ELMT')->toArray();
+        
+        // 	// delete old
+        //     String sChartPrefix = CONTOUR2D_FILENAME + getUserID() + "_" + idProduction;
+        //     deleteCharts(sChartPrefix);
+
+        //     if ((imgType != ValuesList . JPG_TYPE)
+        //         && (imgType != ValuesList . PNG_TYPE)
+        //         && (imgType != ValuesList . SVG_TYPE))
+        //         return null;
+
+        if (!count($listOfElmtId)>0) {
+            return null;
+        }
+
+        // /*int*/ $ldAxe[] = $this->getPlanFor2DContour(productBean . idShapeencours, $listOfElmtId, $idProduction);
+        /*int*/ $ldAxe[] = $this->getPlanFor2DContour($product, $listOfElmtId, $idProduction);
+        if (($ldAxe[0] < $this->values->MESH_AXIS_1) || ($ldAxe[1] < $this->values->MESH_AXIS_1)) {
+            return null;
+        }
+
+        /*double*/ $lfPasTemp = 0;
+        /*double[]*/ $BorneTemp = $this->getTemperatureBorne($listOfElmtId, $idProduction);
+        $BorneTemp[$this->values->ID_TMIN] = $this->units->prodTemperature($BorneTemp[$this->values->ID_TMIN]);
+        $BorneTemp[$this->values->ID_TMAX] = $this->units->prodTemperature($BorneTemp[$this->values->ID_TMAX]);
+
+        /*double[]*/ $res = $this->calculatePasTemp($BorneTemp[$this->values->ID_TMIN], $BorneTemp[$this->values->ID_TMAX]);
+        $BorneTemp[$this->values->ID_TMIN] = $res[$this->values->ID_TMIN];
+        $BorneTemp[$this->values->ID_TMAX] = res[$this->values->ID_TMAX];
+        $lfPasTemp = $res[$this->values->ID_PAS];
+
+        /*double*/ $zStep = $lfPasTemp;
+        /*double*/ $zStart = $BorneTemp[$this->values->ID_TMIN];
+        /*double*/ $zEnd = $BorneTemp[$this->values->ID_TMAX];
+
+        //     Grid myGrid = getGrideByPlan(listOfElmtId, idProduction, ldAxe[0], ldAxe[1], ldAxe[2]);
+        //     if (myGrid == null || myGrid . getNbColumn() == 0 || myGrid . getNbLine() == 0) {
+        //         return null;
+        //     }
+
+        //     HorizontalNumberAxis axisX = new HorizontalNumberAxis(this . getLabel("OUT_2D_DIM")
+        //         + " " + ldAxe[0]
+        //         + " (" + convert . prodchartDimensionSymbol() + ")");
+        //     axisX . setLabelPosition(HorizontalNumberAxis . LABEL_POSITION_HORIZONTAL_RIGHT_CENTER);
+        //     axisX . disableArrow();
+        //     axisX . setIntermediaryGapIndicatorVisible(true);
+
+        //     VerticalNumberAxis axisY = new VerticalNumberAxis(this . getLabel("OUT_2D_DIM")
+        //         + " " + ldAxe[1]
+        //         + " (" + convert . prodchartDimensionSymbol() + ")");
+        //     axisY . setLabelPosition(VerticalNumberAxis . LABEL_POSITION_VERTICAL_LEFT_CENTER);
+        //     axisY . disableArrow();
+        //     axisY . setIntermediaryGapIndicatorVisible(true);
+
+        //     int imageHeight = ValuesList . IMG2D_HEIGHT;;
+        //     int imageWidth = ValuesList . IMG2D_WIDTH;
+
+        //     Contour2D coutour2d = new Contour2D(
+        //         imageWidth,
+        //         imageHeight,
+        //         axisX,
+        //         axisY,
+        //         myGrid,
+        //         zStart,
+        //         zEnd,
+        //         zStep
+        //     );
+
+        //     String sFileName = Ln2Servlet . GEN_IMG_DIR + ValuesList . FILE_SEPARATOR
+        //         + sChartPrefix;
+        //     try {
+        // 		//	couleur de fond
+        //         coutour2d . setGraphicBackgroundColor(ValuesList . GRAPHIC_BACKGROUND);
+        //         coutour2d . setImageBackgroundColor(ValuesList . IMG_BACKGROUND);
+        //         coutour2d . setBackgroundColorVisible(true);
+        //         if (imgType == ValuesList . JPG_TYPE) {
+        //             sFileName += ValuesList . JPG_EXTENSION;
+        //             File fimg = new File(Ln2Servlet . getWebAppPath() + ValuesList . FILE_SEPARATOR + sFileName);
+        //             FileOutputStream fos = new FileOutputStream(fimg);
+        //             coutour2d . drawJPEG(fos);
+        //             fos . flush();
+        //             fos . close();
+        //         } else if (imgType == ValuesList . PNG_TYPE) {
+        //             sFileName += ValuesList . PNG_EXTENSION;
+        //             File fimg = new File(Ln2Servlet . getWebAppPath() + ValuesList . FILE_SEPARATOR + sFileName);
+        //             FileOutputStream fos = new FileOutputStream(fimg);
+        //             coutour2d . drawPNG(fos);
+        //             fos . flush();
+        //             fos . close();
+        //         } else // if( imgType == ValuesList.SVG_TYPE )  
+        //         {
+        //             sFileName += ValuesList . SVG_EXTENSION;
+        //             File fimg = new File(Ln2Servlet . getWebAppPath() + ValuesList . FILE_SEPARATOR + sFileName);
+        //             FileOutputStream fos = new FileOutputStream(fimg);
+        //             coutour2d . drawSVG(fos);
+        //             fos . flush();
+        //             fos . close();
+        //         }
+
+        //     } catch (Exception ex) {
+        //         log . error("Error generating an image", ex);
+        //         return null;
+        //     }
+        //     return sFileName;
     }
 }

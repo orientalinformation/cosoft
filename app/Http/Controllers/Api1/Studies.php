@@ -1679,7 +1679,7 @@ class Studies extends Controller
                     // just duplicate => child product = parent product
                     $this->stdeqp->setInitialTempFromNumericalResults($stdEqp, $shapeId, $product, $production);
                 } else if ($isAnalogical) {
-                    if ($study->CALCULATION_MODE == $this->values->STUDY_ESTIMATION_MODE) {
+                    if ($study->CALCULATION_MODE == $this->value->STUDY_ESTIMATION_MODE) {
                         // estimation
                         // just duplicate => child product = parent product
                         $this->stdeqp->setInitialTempFromAnalogicalResults($stdEqp, $shapeId, $product, $production);

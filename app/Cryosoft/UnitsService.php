@@ -53,7 +53,7 @@ class UnitsService
         }
     }
 
-    public function prodTemperature($value, $decimal, $status)
+    public function prodTemperature($value, $decimal = 2, $status = 1)
     {
         $unit = Unit::where('TYPE_UNIT', $this->value->TEMPERATURE)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
@@ -95,8 +95,9 @@ class UnitsService
         }
     }
 
-    public function convertCalculator($value, $coeffA, $coeffB, $decimal, $status)
+    public function convertCalculator($value, $coeffA, $coeffB, $decimal, $status = 1)
     {
+        // convert or unconvert (convert: status == 1)
         if ($status == 1) {
             $number = $value * $coeffA + $coeffB;
         } else {

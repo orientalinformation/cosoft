@@ -12,6 +12,7 @@ use App\Models\Product;
 use App\Models\Production;
 use App\Models\TempRecordData;
 use App\Models\InitialTemperature;
+use App\Models\ProductElement;
 
 class StudyEquipmentService
 {
@@ -316,7 +317,7 @@ class StudyEquipmentService
     }
     
 
-    public function setInitialTempFromSimpleNumericalResults(StudyEquipments &$sequip, $shape, Product &$product, Production &$production)
+    public function setInitialTempFromSimpleNumericalResults(StudyEquipment &$sequip, $shape, Product &$product, Production &$production)
     {
         $offset = [0, 0, 0];
         $bret = false;
@@ -336,6 +337,8 @@ class StudyEquipmentService
             // query . addParameter(ValuesList . DIMA_TYPE_DHP_CHOSEN);
             $dimaResults = DimaResults::where('ID_STUDY_EQUIPMENTS', $sequip->ID_STUDY_EQUIPMENTS)
                 ->where('ID_STUDY_EQUIPMENTS', $this->value->DIMA_TYPE_DHP_CHOSEN)->first();
+
+            // TODO: Check if dima result exists before create child study
 
             // Increase value to show still alive
             // cryoRun . nextCRRStatus(true);
