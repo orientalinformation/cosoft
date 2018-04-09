@@ -62,8 +62,6 @@ class ValueListService
     public $NO_SPECIFIC_SIZE = -1.0;
     public $CAP_DIMMAT_ENABLE = 16;
     public $CAP_VARIABLE_TR = 1;
-    public $TRHIGHT_INDEX = 0;
-    public $TRLOW_INDEX = 2;
     public $NO_RESULTS = "---";
     public $CAP_CONSO_ENABLE = 256;
     public $RESULT_NOT_APPLIC = "****";
@@ -218,28 +216,37 @@ class ValueListService
     public $ACTIVE_FROM_SLEEPING = 8;
     public $OBSOLETE = 9;
 
-    public $BRAIN_RUN_NONE			= 0;			// brain never runs
-	public $BRAIN_RUN_SIMPLIFIED	= 1;			// come from calculate popup => simplified run
-	public $BRAIN_RUN_REFINE		= 2;			// come from refine popup => simplified run
-	public $BRAIN_RUN_FULL_NO		= 3;			// come from full request popup with no access to product chart
-    public $BRAIN_RUN_FULL_YES		= 4;			// come from full request popup with access to product chart
+    public $BRAIN_RUN_NONE            = 0;            // brain never runs
+    public $BRAIN_RUN_SIMPLIFIED    = 1;            // come from calculate popup => simplified run
+    public $BRAIN_RUN_REFINE        = 2;            // come from refine popup => simplified run
+    public $BRAIN_RUN_FULL_NO        = 3;            // come from full request popup with no access to product chart
+    public $BRAIN_RUN_FULL_YES        = 4;            // come from full request popup with access to product chart
     
-    public $STUDY_ESTIMATION_MODE	= 1;		// budget Estimation
-	public $STUDY_OPTIMUM_MODE		= 3;		// Optimum Equipement
-    public $STUDY_SELECTED_MODE		= 2;		// Selected Equipement
+    public $STUDY_ESTIMATION_MODE    = 1;        // budget Estimation
+    public $STUDY_OPTIMUM_MODE        = 3;        // Optimum Equipement
+    public $STUDY_SELECTED_MODE        = 2;        // Selected Equipement
     
     // shapes
-	public $SLAB 							= 1;
-	public $PARALLELEPIPED_STANDING 		= 2;
-	public $PARALLELEPIPED_LAYING 			= 3;
-	public $CYLINDER_STANDING 				= 4;
-	public $CYLINDER_LAYING 				= 5;
-	public $SPHERE 							= 6;
-	public $CYLINDER_CONCENTRIC_STANDING	= 7;
-	public $CYLINDER_CONCENTRIC_LAYING		= 8;
-    public $PARALLELEPIPED_BREADED			= 9;
+    public $SLAB                             = 1;
+    public $PARALLELEPIPED_STANDING         = 2;
+    public $PARALLELEPIPED_LAYING             = 3;
+    public $CYLINDER_STANDING                 = 4;
+    public $CYLINDER_LAYING                 = 5;
+    public $SPHERE                             = 6;
+    public $CYLINDER_CONCENTRIC_STANDING    = 7;
+    public $CYLINDER_CONCENTRIC_LAYING        = 8;
+    public $PARALLELEPIPED_BREADED            = 9;
     
     public $POSITION_PARALLEL = 1;
-	public $POSITION_NOT_PARALLEL = 0;
+    public $POSITION_NOT_PARALLEL = 0;
+    
 
+    public $TRHIGHT_INDEX     = 0;                        // TR+10
+    public $TR_INDEX         = 1;                        // TR
+    public $TRLOW_INDEX     = 2;                        // TR-10
+
+
+    public $DIMA_TYPE_ESTIMATION	= 0x0000;		// result for estimation
+	public $DIMA_TYPE_DHP_CHOSEN	= 0x0001;		// result for choosen hourly production (optimum+selected)
+	public $DIMA_TYPE_DHP_MAX		= 0x0010;		// result for maximum hourly production (optimum+selected)
 }

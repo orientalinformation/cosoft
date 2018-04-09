@@ -41,7 +41,6 @@ class MinMaxService
     public function checkMinMaxValue($value, $limitItem)
     {
         $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
-
         if (doubleval($value) < round($minMax->LIMIT_MIN, 2) || doubleval($value) > round($minMax->LIMIT_MAX, 2)) {
             return false;
         } else {
@@ -181,6 +180,16 @@ class MinMaxService
         $minMax->LIMIT_MAX = $this->units->conductivity($minMax->LIMIT_MAX, $decimal, 1);
         $minMax->LIMIT_MIN = $this->units->conductivity($minMax->LIMIT_MIN, $decimal, 1);
         $minMax->DEFAULT_VALUE = $this->units->conductivity($minMax->DEFAULT_VALUE, $decimal,1);
+
+        return $minMax; 
+    }
+
+    public function getMinMaxCoeff($limitItem, $decimal)
+    {	
+        $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
+        $minMax->LIMIT_MAX =  $this->units->convectionCoeff($minMax->LIMIT_MAX, $decimal, 1);
+        $minMax->LIMIT_MIN = $this->units->convectionCoeff($minMax->LIMIT_MIN, $decimal, 1);
+        $minMax->DEFAULT_VALUE = $this->units->convectionCoeff($minMax->DEFAULT_VALUE, $decimal, 1);
 
         return $minMax; 
     }

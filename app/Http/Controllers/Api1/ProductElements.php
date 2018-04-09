@@ -82,4 +82,14 @@ class ProductElements extends Controller
         return $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($moveElement->product->ID_STUDY, $conf, 4);
     }
 
+    public function initProdElmtTemp($id) {
+        $elmt = \App\Models\ProductElmt::findOrFail($id);
+
+        $input = $this->request->json()->all();
+
+        
+
+        return $input;
+    }
+
 }

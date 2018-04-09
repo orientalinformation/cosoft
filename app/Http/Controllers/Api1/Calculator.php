@@ -1647,7 +1647,6 @@ class Calculator extends Controller
 
 		if (isset($input['dwellingTimes'])) $newLTs = $input['dwellingTimes'];
 
-		
 		if (isset($input['maxIter'])) $maxIter = intval($input['maxIter']);
 		if (isset($input['relaxCoef'])) $relaxCoef = $input['relaxCoef'];
 		if (isset($input['precision'])) $precision = $input['precision'];
@@ -1659,8 +1658,6 @@ class Calculator extends Controller
 		if (isset($input['storagestep'])) $storagestep = $input['storagestep'];
 		if (isset($input['timeStep'])) $timeStep = $input['timeStep'];
 		if (isset($input['sdisableFields'])) $sdisableFields = $input['sdisableFields'];
-
-
 
 		if (intval($sdisableFields) != 1) {
 			$checkMaxIter = $this->minmax->checkMinMaxValue($maxIter, 1010);

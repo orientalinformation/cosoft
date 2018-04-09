@@ -350,9 +350,9 @@ class InputInitial extends Controller
 	{
 		$index  = 0;
 		if ($value != 0) {
-			$round = round(100/$value);
+			$round = round(100 / $value);
 			if ($round != 0) {
-				$round = round($size/$round);
+				$round = round($size / $round);
 				$index = ($round >= $size) ? ($size - 1) : $round;
 			}
 		}

@@ -41,12 +41,12 @@ $router->POST('/api/v1/products/{idProd}/generateMesh', 'Api1\\Products@generate
 $router->POST('/api/v1/products/{idProd}/defaultMesh', 'Api1\\Products@generateDefaultMesh');
 
 /**
- * POST initTemperature
+ * POST initIsoTemperature
  * Summary:
  * Notes: initialize temperature
  * Output-Formats: [application/json]
  */
-$router->POST('/api/v1/products/{idProd}/initTemperature', 'Api1\\Products@initTemperature');
+$router->POST('/api/v1/products/{idProd}/initIsoTemperature', 'Api1\\Products@initIsoTemperature');
 
 /**
  * PUT createStudy
@@ -130,3 +130,10 @@ $router->GET('/api/v1/studies/{id}/chaining', 'Api1\\Studies@getChainingModel');
  */
 $router->PUT('/api/v1/studies/{id}/chaining', 'Api1\\Studies@createChildStudy');
 
+/**
+ * POST initProdElmtTemp
+ * Summary: 
+ * Notes: init product element temperature
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/productElmts/{id}/initTemp', 'Api1\\ProductElements@initProdElmtTemp');

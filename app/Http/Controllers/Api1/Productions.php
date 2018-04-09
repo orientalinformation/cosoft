@@ -33,7 +33,8 @@ class Productions extends Controller
         $this->unit = $unit;
     }
 
-    public function getProductionById($id) {
+    public function getProductionById($id) 
+    {
         $production = \App\Models\Production::find($id);
         $result = [];
         $result['ID_PRODUCTION'] = $production->ID_PRODUCTION;
@@ -50,7 +51,8 @@ class Productions extends Controller
         return $result;
     }
 
-    public function saveProduction($id) {
+    public function saveProduction($id) 
+    {
         // @var \App\Models\Production
         $production = \App\Models\Production::find($id);
 

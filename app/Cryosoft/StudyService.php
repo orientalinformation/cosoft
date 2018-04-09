@@ -21,6 +21,7 @@ class StudyService
         $this->app = $app;
         $this->auth = $app['Illuminate\\Contracts\\Auth\\Factory'];
         $this->value = $app['App\\Cryosoft\\ValueListService'];
+        $this->calculator = $app['App\\Cryosoft\\CalculateService'];
     }
 
     public function isMyStudy($idStudy) 
@@ -66,7 +67,8 @@ class StudyService
         return $disabled;
     }
 
-    public function getStudyPrice($study) {
+    public function getStudyPrice($study) 
+    {
         if ($study->OPTION_ECO != 0) {
 
             if ($study->ID_PRICE == 0) {
@@ -191,7 +193,8 @@ class StudyService
         return $dbAxe;
     }
 
-    public function convertPointForDB($ldShape, $bIsParallel, $appDim) {
+    public function convertPointForDB($ldShape, $bIsParallel, $appDim) 
+    {
         $dbDim = [];
 
         switch ($ldShape) {
@@ -246,5 +249,23 @@ class StudyService
         ];
 
         return $data;
+    }
+
+    public function RunStudyCleaner($idStudy, /*int*/ $ld_Mode, /*int*/ $ld_StudEqpId = -1) {
+        // log . debug("Run Study CLeaner: mode= " + ld_Mode + " / Id study equipments= " + ld_StudEqpId);
+        /*int*/ $ret = 0;
+        // $ret = Cleaner . RunStudyCleaner(mySTD . getIdStudy(), ld_StudEqpId, ld_Mode);
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy);
+        $ret = $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, $ld_Mode);
+        // Chaining management to mark childs to recalculate
+        if ($this->calculator->isStudyHasChilds($idStudy)) {
+            // ret = setChildsStudiesToRecalculate(ld_StudEqpId);
+        }
+
+        return $ret;
+    }
+
+    public function hasParentStudy() {
+        
     }
 }
