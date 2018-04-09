@@ -246,7 +246,18 @@ class ValueListService
     public $TRLOW_INDEX     = 2;                        // TR-10
 
 
-    public $DIMA_TYPE_ESTIMATION	= 0x0000;		// result for estimation
-	public $DIMA_TYPE_DHP_CHOSEN	= 0x0001;		// result for choosen hourly production (optimum+selected)
-	public $DIMA_TYPE_DHP_MAX		= 0x0010;		// result for maximum hourly production (optimum+selected)
+    public $DIMA_TYPE_ESTIMATION    = 0x0000;        // result for estimation
+    public $DIMA_TYPE_DHP_CHOSEN    = 0x0001;        // result for choosen hourly production (optimum+selected)
+    public $DIMA_TYPE_DHP_MAX        = 0x0010;        // result for maximum hourly production (optimum+selected)
+    
+    public $PROD_ISOTHERM              = 1;
+    public $PROD_NOT_ISOTHERM         = 0;
+    
+    public $PRODELT_UNDEFINED         = 0;
+    public $PRODELT_ISOTHERM         = 1;
+    public $PRODELT_NOT_ISOTHERM     = 2;
+
+    public $MESH_AXIS_1                 = 1;    //axe 1
+    public $MESH_AXIS_2                 = 2;    //axe 2
+    public $MESH_AXIS_3                 = 3;    //axe 3
 }

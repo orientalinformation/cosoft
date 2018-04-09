@@ -3,10 +3,12 @@
 namespace App\Cryosoft;
 
 use App\Models\Study;
+use App\Models\StudyEquipment;
 use App\Models\Product;
 use App\Models\Translation;
 use App\Models\ProductElmt;
 use App\Models\MeshPosition;
+use App\Models\InitialTemperature;
 
 class ProductService
 {
@@ -17,7 +19,9 @@ class ProductService
         $this->app = $app;
         $this->auth = $app['Illuminate\\Contracts\\Auth\\Factory'];
         $this->values = app('App\\Cryosoft\\ValueListService');
-        $this->units = app('App\\Cryosoft\\UnitsService');
+        $this->units = app('App\\Cryosoft\\UnitsConverterService');
+        $this->studies = app('App\\Cryosoft\\StudyService');
+        $this->stdeqp = app('App\\Cryosoft\\StudyEquipmentService');
     }
 
     public function getAllCompFamily()
@@ -185,9 +189,9 @@ class ProductService
         //     String sChartPrefix = CONTOUR2D_FILENAME + getUserID() + "_" + idProduction;
         //     deleteCharts(sChartPrefix);
 
-        //     if ((imgType != ValuesList . JPG_TYPE)
-        //         && (imgType != ValuesList . PNG_TYPE)
-        //         && (imgType != ValuesList . SVG_TYPE))
+        //     if ((imgType != $this->values->JPG_TYPE)
+        //         && (imgType != $this->values->PNG_TYPE)
+        //         && (imgType != $this->values->SVG_TYPE))
         //         return null;
 
         if (!count($listOfElmtId)>0) {
@@ -233,8 +237,8 @@ class ProductService
         //     axisY . disableArrow();
         //     axisY . setIntermediaryGapIndicatorVisible(true);
 
-        //     int imageHeight = ValuesList . IMG2D_HEIGHT;;
-        //     int imageWidth = ValuesList . IMG2D_WIDTH;
+        //     int imageHeight = $this->values->IMG2D_HEIGHT;;
+        //     int imageWidth = $this->values->IMG2D_WIDTH;
 
         //     Contour2D coutour2d = new Contour2D(
         //         imageWidth,
@@ -247,31 +251,31 @@ class ProductService
         //         zStep
         //     );
 
-        //     String sFileName = Ln2Servlet . GEN_IMG_DIR + ValuesList . FILE_SEPARATOR
+        //     String sFileName = Ln2Servlet . GEN_IMG_DIR + $this->values->FILE_SEPARATOR
         //         + sChartPrefix;
         //     try {
         // 		//	couleur de fond
-        //         coutour2d . setGraphicBackgroundColor(ValuesList . GRAPHIC_BACKGROUND);
-        //         coutour2d . setImageBackgroundColor(ValuesList . IMG_BACKGROUND);
+        //         coutour2d . setGraphicBackgroundColor($this->values->GRAPHIC_BACKGROUND);
+        //         coutour2d . setImageBackgroundColor($this->values->IMG_BACKGROUND);
         //         coutour2d . setBackgroundColorVisible(true);
-        //         if (imgType == ValuesList . JPG_TYPE) {
-        //             sFileName += ValuesList . JPG_EXTENSION;
-        //             File fimg = new File(Ln2Servlet . getWebAppPath() + ValuesList . FILE_SEPARATOR + sFileName);
+        //         if (imgType == $this->values->JPG_TYPE) {
+        //             sFileName += $this->values->JPG_EXTENSION;
+        //             File fimg = new File(Ln2Servlet . getWebAppPath() + $this->values->FILE_SEPARATOR + sFileName);
         //             FileOutputStream fos = new FileOutputStream(fimg);
         //             coutour2d . drawJPEG(fos);
         //             fos . flush();
         //             fos . close();
-        //         } else if (imgType == ValuesList . PNG_TYPE) {
-        //             sFileName += ValuesList . PNG_EXTENSION;
-        //             File fimg = new File(Ln2Servlet . getWebAppPath() + ValuesList . FILE_SEPARATOR + sFileName);
+        //         } else if (imgType == $this->values->PNG_TYPE) {
+        //             sFileName += $this->values->PNG_EXTENSION;
+        //             File fimg = new File(Ln2Servlet . getWebAppPath() + $this->values->FILE_SEPARATOR + sFileName);
         //             FileOutputStream fos = new FileOutputStream(fimg);
         //             coutour2d . drawPNG(fos);
         //             fos . flush();
         //             fos . close();
         //         } else // if( imgType == ValuesList.SVG_TYPE )  
         //         {
-        //             sFileName += ValuesList . SVG_EXTENSION;
-        //             File fimg = new File(Ln2Servlet . getWebAppPath() + ValuesList . FILE_SEPARATOR + sFileName);
+        //             sFileName += $this->values->SVG_EXTENSION;
+        //             File fimg = new File(Ln2Servlet . getWebAppPath() + $this->values->FILE_SEPARATOR + sFileName);
         //             FileOutputStream fos = new FileOutputStream(fimg);
         //             coutour2d . drawSVG(fos);
         //             fos . flush();
@@ -283,5 +287,199 @@ class ProductService
         //         return null;
         //     }
         //     return sFileName;
+    }
+
+    public function CheckInitialTemperature(\App\Models\Product &$product) {
+        // @TODO: implement
+        return true;
+    }
+
+    public function DeleteOldInitTemp(\App\Models\Product &$product) {
+        // @TODO: implement
+        // delete all current initial temperature
+        InitialTemperature::where('ID_PRODUCTION', $product->study->ID_PRODUCTION)->delete();
+    }
+
+    public function saveMatrixTempComeFromParent(\App\Models\Product &$product)
+    {
+        echo "start save matrix from parent\n";
+        
+        /*boolean*/ $bret = false;
+        //	save matrix temperature issue from parent study
+        $study = $product->study;
+        $production = $study->productions->first();
+        // try {
+            if ($this->studies->isStudyHasParent($study)
+                // && IsMeshPositionCalculate()
+                // && !IsThereSomeInitialTemperature()
+            ) {
+                echo "study has parent\n";
+                
+                $productElmt = null;
+                // loop on all product element (from the first inserted to the last excepted for breaded)
+                if ($product->productElmts->first()->ID_SHAPE != $this->values->PARALLELEPIPED_BREADED) {
+                    /*ProductElmt */$productElmts = \App\Models\ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2')->get();
+                    // for (int i = vProductElmtBean . size() - 1; i >= 0; i --) {
+                    //     productElmt = ((ProductElmtBean) vProductElmtBean . get(i)) . getProductElmt ();
+                    //     if (productElmt . getInsertLineOrder() != $this->studies->getSelectedStudy()) {
+                    //         break;
+                    //     }
+                    // }//for
+                    foreach ($productElmts as $pElmt) {
+                        if ($pElmt->INSERT_LINE_ORDER != $study->ID_STUDY){
+                            $productElmt = $pElmt;
+                            break;
+                        }                        
+                    }
+                } else {
+                    /*ProductElmt */ $productElmts = \App\Models\ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2', 'DESC')->get();
+                    // for (int i = 0; i < vProductElmtBean . size(); i ++) {
+                    //     productElmt = ((ProductElmtBean) vProductElmtBean . get(i)) . getProductElmt ();
+                    //     if (productElmt . getInsertLineOrder() != $this->studies->getSelectedStudy()) {
+                    //         break;
+                    //     }
+                    // }//for
+                    foreach ($productElmts as $pElmt) {
+                        if ($pElmt->INSERT_LINE_ORDER != $study->ID_STUDY) {
+                            $productElmt = $pElmt;
+                            break;
+                        }
+                    }
+                }
+                echo $productElmt == null?"cannot found productElmt\n":"found\n";
+                
+                if ($productElmt != null) {
+                    // search the list of mesh points on axis 2 for this product element
+                    /*int */$offset = [];
+                    $offset[0] = 0;
+                    $offset[1] = 0;
+                    $offset[2] = 0;
+                    /*ArrayList < Short > */$meshPoint = null;
+
+                    switch ($productElmt->ID_SHAPE) {
+                        case $this->values->SLAB:
+                        case $this->values->PARALLELEPIPED_STANDING:
+                        case $this->values->PARALLELEPIPED_LAYING:
+                        case $this->values->CYLINDER_STANDING:
+                        case $this->values->CYLINDER_LAYING:
+                            $meshPoint = $this->searchNbPtforElmt($productElmt, $this->values->MESH_AXIS_2);
+                            $offset[1] = $meshPoint[0];
+                            $offset[0] = $offset[2] = 0;
+                            break;
+
+                        case $this->values->PARALLELEPIPED_BREADED:
+                            $meshPoint = $this->searchNbPtforElmt($productElmt, $this->values->MESH_AXIS_1);
+                            $offset[0] = $meshPoint[0];
+                            $meshPoint = $this->searchNbPtforElmt($productElmt, $this->values->MESH_AXIS_2);
+                            $offset[1] = $meshPoint[0];
+                            $meshPoint = $this->searchNbPtforElmt($productElmt, $this->values->MESH_AXIS_3);
+                            $offset[2] = $meshPoint[0];
+                            break;
+
+                        case $this->values->CYLINDER_CONCENTRIC_STANDING:
+                        case $this->values->CYLINDER_CONCENTRIC_LAYING:
+                        case $this->values->SPHERE:
+                            $offset[0] = $offset[1] = $offset[2] = 0;
+                            break;
+                    }
+                    
+                    $parentStudy = Study::findOrFail($study->PARENT_ID);
+                    /*StudyEquipments */$sequip = StudyEquipment::findOrFail($study->PARENT_STUD_EQP_ID);
+                    /*Product */$parentProduct = $parentStudy->products()->first();
+                    echo $sequip != null ? "found parent stdeqp\n" : "not found stdeqp\n";
+                    echo $parentProduct != null ? "found parent\n" : "not found parent\n";
+                    if (($sequip != null) && ($parentProduct != null)) {
+                        // log . debug("search source for save temperature.....");
+                        /*boolean */$bNum = ($sequip->BRAIN_TYPE == $this->values->BRAIN_RUN_FULL_YES) ? true : false;
+                        /*boolean */$bAna;
+                        if ($study->CALCULATION_MODE == ($this->values->STUDY_ESTIMATION_MODE)) {
+                            // estimation
+                            $bAna = $this->stdeqp->isAnalogicResults($sequip);
+                        } else {
+                            // optimum or selected
+                            $bAna = ($sequip->BRAIN_TYPE != $this->values->BRAIN_RUN_NONE) ? true : false;
+                        }
+
+                        if ($bNum) {
+                            // log . debug(".....from numerical results");
+                            $this->stdeqp->setInitialTempFromNumericalResults(
+                                $sequip,
+                                $productElmt->ID_SHAPE,
+                                $parentProduct,
+                                $production
+                            );
+                        } else if ($bAna) {
+                            if ($study->CALCULATION_MODE == ($this->values->STUDY_ESTIMATION_MODE)) {
+                                // log . debug(".....from analogic results (estimation)");
+                                $this->stdeqp->setInitialTempFromAnalogicalResults(
+                                    $sequip,
+                                    $productElmt->ID_SHAPE,
+                                    $parentProduct,
+                                    $production
+                                );
+                            } else {
+                                // log . debug(".....from analogic results (optimum/selected)");
+                                $this->stdeqp->setInitialTempFromSimpleNumericalResults(
+                                    $sequip,
+                                    $productElmt->ID_SHAPE,
+                                    $parentProduct,
+                                    $production
+                                );
+                            }
+                        }
+                        $bret = true;
+                    } else {
+                        // log . error("Parent study equipments are not exist - may be deleted");
+                        throw new \Exception("Parent study equipments are not exist - may be deleted");
+                    }
+                }
+            }
+        // } catch (\Exception $qe) {
+        //     // log . warn("Exception while saving Temperature", qe);
+        //     throw new \Exception("Exception while saving Temperature");
+        // }
+
+        return $bret;
+    }
+
+    public function PropagationTempElmt (\App\Models\Product &$product, $X, $valueY, $Z, $stemp)
+    {
+        $study = $product->study;
+        /* MODIF: ETUDE SANS CHAINING OU SANS ETUDES FILLES:
+         * 	pour que l'enregistrement des températures initiales soit un
+         * 	peu plus rapide, étant donné qu'aujourd'hui l'IHM ne permet de saisir
+         * 	les températures que suivant l'axe2, l'enregistrement des températures
+         * 	dans la base se fera aussi que suivant l'axe 2. Le kernel se chargera 
+         * 	de la propagation des températures sur les autres axes => kernel + rapide
+         * ETUDE AVEC ENFANT: enregistrement de la matrice 3D
+         */
+
+        $lfTemp = $this->units->prodTemperature($stemp);
+
+        // short i, k;
+        $i = $k = 0;
+
+        // list < InitialTemperature > listTemp = new ArrayList < InitialTemperature > ();
+        $listTemp = [];
+        // InitialTemperature temp = null;
+
+        for ($i = 0; $i < $X; $i ++) {
+            for ($k = 0; $k < $Z; $k ++) {
+                // save node temperature
+                $temp = new InitialTemperature();
+                $temp->ID_PRODUCTION = ($study->ID_PRODUCTION);
+                $temp->MESH_1_ORDER = ($i);
+                $temp->MESH_2_ORDER = $valueY;
+                $temp->MESH_3_ORDER = ($k);
+                $temp->INITIAL_T = ($lfTemp);
+                
+                // add in initial list
+                // $listTemp . add(temp);
+                array_push($listTemp, $temp->toArray());
+            } // for axis 2
+        } // for axis 1
+        InitialTemperature::insert($listTemp);
+        // save temperature inDB 
+        // DBInitialTemperature . insertList(listTemp);
     }
 }
