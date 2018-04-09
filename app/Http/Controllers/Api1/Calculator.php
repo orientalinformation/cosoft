@@ -163,6 +163,12 @@ class Calculator extends Controller
 				$sdisableTimeStep = $sdisablePrecision = 0;
 			}
 
+			// check if there is some equipment with optimization enable
+			if(!$this->cal->isThereAnEquipWithOptimEnable($idStudy)) {
+				$sdisableOptim = $sdisableNbOptim = 1;
+				$checkOptim = 0;
+			}
+
 		} else {
 			$sdisableOptim = $sdisableNbOptim = $sdisableStorage = 1;
 			$sdisableTimeStep = $sdisablePrecision = 1;
