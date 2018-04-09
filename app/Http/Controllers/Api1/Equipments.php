@@ -110,6 +110,10 @@ class Equipments extends Controller
         
         $querys = Equipment::orderBy('EQUIP_NAME');
 
+        if ($energy != 1) {
+            $querys->where('ID_COOLING_FAMILY', $energy);
+        }
+
         $querys->where('EQP_IMP_ID_STUDY', $idStudy)
             ->orWhere('EQP_IMP_ID_STUDY', 0);
 
@@ -119,12 +123,16 @@ class Equipments extends Controller
         });
 
         $querys->orWhere(function ($query) {
-            $query->where('EQUIP_RELEASE', 4)
+            $query->where('EQUIP_RELEASE', 3)
             ->orWhere('EQUIP_RELEASE', 3);
         });
 
-        if ($energy != 1) {
-            $querys->where('ID_COOLING_FAMILY', $energy);
+        if ($size != '') {
+            $sizeLabel = explode('x', $size);
+            $length = $sizeLabel[0];
+            $width = $sizeLabel[1];
+
+            $querys->where('EQP_LENGTH', $length)->where('EQP_WIDTH', $width);
         }
 
         if ($family != -1) {
@@ -139,15 +147,7 @@ class Equipments extends Controller
             $querys->where('ID_EQUIPSERIES', $series);
         }
 
-        if ($size != null && $size  != '') {
-            $sizeLabel = explode('x', $size);
-            $length = $sizeLabel[0];
-            $width = $sizeLabel[1];
-
-            $querys->where('EQP_LENGTH', $length)->where('EQP_WIDTH', $width);
-        }
-
-        if ($manufacturer != null && $manufacturer != '') {
+        if ($manufacturer != '') {
             $querys->where('CONSTRUCTOR', $manufacturer);
         }
 
@@ -1420,7 +1420,6 @@ class Equipments extends Controller
     {
         $input = $this->request->all();
 
-
         $ID_EQUIP = $EQUIP_NAME = $EQUIP_VERSION = $EQUIP_RELEASE = $EQUIP_COMMENT = $EQP_LENGTH = $EQP_WIDTH = $EQP_HEIGHT = $NB_TR = $NB_TS = $NB_VC = $MAX_FLOW_RATE = $TMP_REGUL_MIN = $MAX_NOZZLES_BY_RAMP = $MAX_RAMPS = $Ramps = $Shelves = $Consumptions = null;
 
         if (isset($input['ID_EQUIP'])) $ID_EQUIP = intval($input['ID_EQUIP']);
@@ -2069,7 +2068,6 @@ class Equipments extends Controller
         return true;
     }
 
-    // HAIDT
     public function getEquipmentFilter($id)
     {
         $equipment = Equipment::find($id);
@@ -2146,6 +2144,4 @@ class Equipments extends Controller
 
         return $equipment;
     }
-
-    // end HAIDT
 }

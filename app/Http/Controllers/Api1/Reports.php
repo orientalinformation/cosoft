@@ -112,17 +112,14 @@ class Reports extends Controller
     {
         $study = Study::where('ID_STUDY', $id)->first();
         $stuequip = $study->studyEquipments->first();
-        if ($study->CALCULATION_MODE == 3) {
-            if ($stuequip != null) {
-                if ($stuequip->BRAIN_TYPE != 4) {
+        if ($stuequip != null) {
+            if ($study->CALCULATION_MODE == 1 && $stuequip->BRAIN_TYPE != 4) {
                     return response("Report is available only when equipments are calculated numerically", 406);
-                } else if ($study->CALCULATION_MODE == 1) {
-                    if ($stuequip->BRAIN_TYPE == 0) {
-                        return response("Report is available only when equipments are calculated numerically", 406);
-                    }
-                }
+            } else if ($study->CALCULATION_MODE != 1 && $stuequip->BRAIN_TYPE == 0) {
+                    return response("Report is available only when equipments are calculated numerically", 406);
             }
         }
+        
         $report = Report::where('ID_STUDY', $id)->first();
 
         if ($report) {
@@ -224,7 +221,7 @@ class Reports extends Controller
             $report->save();
         }
         // HAIDT
-        $report->ip = 'http://'.$_SERVER['HTTP_HOST'];
+        $report->ip = getenv('APP_URL');
         // end HAIDT
         
         return $report;
@@ -605,7 +602,7 @@ class Reports extends Controller
         $ISOVALUE_SAMPLE = $input['ISOVALUE_SAMPLE'];
         $CONTOUR2D_G = $input['CONTOUR2D_G'];
         $study = Study::find($id);
-        $host = 'http://' . $_SERVER['HTTP_HOST'];
+        $host = getenv('APP_URL');
         $public_path = rtrim(app()->basePath("public/"), '/');
         $progressFile = $public_path. "/reports/" . $study->USERNAM. "/" ."$study->ID_STUDY-$study->STUDY_NAME-Report.progess";
         $name_report = "$study->ID_STUDY-$study->STUDY_NAME-Report.pdf";
@@ -967,7 +964,7 @@ class Reports extends Controller
                     foreach ($calModeHeadBalance as $key => $resoptHeads) { 
                     $html .= '<tr>
                         <td colspan="2" align="center"> '. $resoptHeads['stuName'] .' </td>
-                        <td colspan="2" align="center"> '. $resoptHeads[''] .' </td>
+                        <td colspan="2" align="center"> '. "TODO" .' </td>
                         <td align="center"> '. $resoptHeads['tr'] .' </td>
                         <td align="center"> '. $resoptHeads['ts'] .' </td>
                         <td align="center"> '. $equipData[$key]['tr'][0] .' </td>
@@ -2015,9 +2012,6 @@ class Reports extends Controller
             </div>
         </div>';
         PDF::writeHTML($html, true, false, true, false, '');
-        PDF::AddPage();
-
-        
         
         // add a new page for TOC
         PDF::addTOCPage();
@@ -2089,7 +2083,7 @@ class Reports extends Controller
         $ISOVALUE_SAMPLE = $input['ISOVALUE_SAMPLE'];
         $CONTOUR2D_G = $input['CONTOUR2D_G'];
         $study = Study::find($id);
-        $host = 'http://' . $_SERVER['HTTP_HOST'];
+        $host = getenv('APP_URL');
         $public_path = rtrim(app()->basePath("public/"), '/');
         $name_report = "$study->ID_STUDY-$study->STUDY_NAME-Report.html";
         $progressFile = $public_path. "/reports/" . $study->USERNAM. "/" ."$study->ID_STUDY-$study->STUDY_NAME-Report.progess";
@@ -2427,8 +2421,8 @@ class Reports extends Controller
         $study = Study::find($id);
         $public_path = rtrim(app()->basePath("public/"), '/');
         $progressFile = "$study->ID_STUDY-$study->STUDY_NAME-Report.progess";
-        $progressFileHtml = 'http://'.$_SERVER['HTTP_HOST'].'/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . $study->STUDY_NAME . '-Report.html';
-        $progressFilePdf = 'http://'.$_SERVER['HTTP_HOST'].'/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . $study->STUDY_NAME . '-Report.pdf';
+        $progressFileHtml = getenv('APP_URL') . '/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . $study->STUDY_NAME . '-Report.html';
+        $progressFilePdf = getenv('APP_URL') . '/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . $study->STUDY_NAME . '-Report.pdf';
         $file = file_get_contents($public_path . "/reports/" . $study->USERNAM . "/" . $progressFile);
         $progress = explode("\n", $file);
         return compact('progressFileHtml', 'progressFilePdf', 'progress');
@@ -2449,7 +2443,7 @@ class Reports extends Controller
         ->setAllowedAggregateTypes(['image'])
         ->upload();
 
-        $url = 'http://'.$_SERVER['HTTP_HOST'].'/uploads/'.$media->filename.'.'.$media->extension;
+        $url = getenv('APP_URL') . '/uploads/'.$media->filename.'.'.$media->extension;
         
         return $url;
     }

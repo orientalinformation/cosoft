@@ -15,6 +15,7 @@ use App\Models\Study;
 use App\Cryosoft\MeshService;
 use App\Cryosoft\UnitsConverterService;
 use App\Cryosoft\ProductService;
+use App\Cryosoft\ProductElementsService;
 
 class Products extends Controller
 {
@@ -45,12 +46,22 @@ class Products extends Controller
     protected $product;
 
     /**
+     * @var \App\Cryosoft\ProductElementsService
+     */
+    protected $productElmts;
+
+    protected $bApplyStudyCleaner = false;
+    protected $bCleanerError = false;
+
+    /**
      * Products constructor.
      * @param Request $request
      * @param Auth $auth
      * @param KernelService $kernel
      */
-    public function __construct(Request $request, Auth $auth, KernelService $kernel, MeshService $mesh, UnitsConverterService $unit, ProductService $product)
+    public function __construct(Request $request, Auth $auth, KernelService $kernel,
+        MeshService $mesh, UnitsConverterService $unit, ProductService $product,
+        ProductElementsService $productElmts)
     {
         $this->request = $request;
         $this->auth = $auth;
@@ -58,35 +69,39 @@ class Products extends Controller
         $this->kernel = $kernel;
         $this->unit = $unit;
         $this->product = $product;
+        $this->productElmts = $productElmts;
+        $this->studies = app('App\\Cryosoft\\StudyService');
     }
 
     /**
      * @param $id
      * @return mixed
      */
-    public function getProductById($id) {
+    public function getProductById($id) 
+    {
         $product = Product::find($id);
         return $product;
     }
 
-    public function getElementsByProductId($id) {
-    	$elements = \App\Models\ProductElmt::where('ID_PROD', $id)->orderBy('SHAPE_POS2','DESC')->get();
-    	return $elements;
+    public function getElementsByProductId($id) 
+    {
+        $elements = \App\Models\ProductElmt::where('ID_PROD', $id)->orderBy('SHAPE_POS2','DESC')->get();
+        return $elements;
     }
 
     public function appendElementsToProduct($id)
     {
         // $id is product id
-    	$input = $this->request->all();
+        $input = $this->request->all();
 
         $componentId = $input['componentId'];
         $product = Product::find($id);
 
-    	$elmt = new ProductElmt();
-    	$elmt->ID_PROD = $id;
-    	$elmt->ID_SHAPE = $input['shapeId'];
-    	$elmt->ID_COMP = $componentId;
-    	$elmt->PROD_ELMT_ISO = $product->PROD_ISO;
+        $elmt = new ProductElmt();
+        $elmt->ID_PROD = $id;
+        $elmt->ID_SHAPE = $input['shapeId'];
+        $elmt->ID_COMP = $componentId;
+        $elmt->PROD_ELMT_ISO = $product->PROD_ISO;
         $elmt->SHAPE_PARAM2 = 0.01; //default 1cm
 
         if (isset($input['dim1']))
@@ -97,10 +112,10 @@ class Products extends Controller
 
         $elmt->PROD_ELMT_NAME = "";
 
-    	$elmt->ORIGINAL_THICK = 0.0;
-    	$elmt->PROD_ELMT_WEIGHT = 0.0;
-    	$elmt->PROD_ELMT_REALWEIGHT = -1;
-    	$elmt->NODE_DECIM = 0; // @TODO: research more on nodeDecim
+        $elmt->ORIGINAL_THICK = 0.0;
+        $elmt->PROD_ELMT_WEIGHT = 0.0;
+        $elmt->PROD_ELMT_REALWEIGHT = -1;
+        $elmt->NODE_DECIM = 0; // @TODO: research more on nodeDecim
         $elmt->INSERT_LINE_ORDER = $product->ID_STUDY;
 
         $nElements = \App\Models\ProductElmt::where('ID_PROD', $id)->count();
@@ -111,7 +126,7 @@ class Products extends Controller
         $elmt->PROD_DEHYD = 0;
         $elmt->PROD_DEHYD_COST = 0;
 
-    	$elmt->push();
+        $elmt->push();
 
         $elmtId = $elmt->ID_PRODUCT_ELMT;
 
@@ -165,7 +180,8 @@ class Products extends Controller
         return compact('oldDim2', 'dim2', 'ok1', 'ok2', 'idElement');
     }
 
-    public function getProductViewModel($id) {
+    public function getProductViewModel($id) 
+    {
         $product = Product::findOrFail($id);
         $product->PROD_WEIGHT = $this->unit->mass($product->PROD_WEIGHT);
         $product->PROD_REALWEIGHT = $this->unit->mass($product->PROD_REALWEIGHT);
@@ -252,10 +268,18 @@ class Products extends Controller
         }
         $elements = $product->productElmts;
         $elmtMeshPositions = [];
+        $productElmtInitTemp = [];
+        $nbMeshPointElmt = [];
 
         foreach ($elements as $elmt) {
             $meshPositions = \App\Models\MeshPosition::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->get();
             array_push($elmtMeshPositions, $meshPositions);
+
+            $pointMeshOrder2 = $this->product->searchNbPtforElmt($elmt, 2);
+            array_push($nbMeshPointElmt, count($pointMeshOrder2));
+
+            $elmtInitTemp = $this->productElmts->searchTempMeshPoint($elmt, $pointMeshOrder2);
+            array_push($productElmtInitTemp, $elmtInitTemp);
         }
 
         $productIsoTemp = null;
@@ -268,8 +292,8 @@ class Products extends Controller
                 }
             }
         }
-        
-        return compact('meshGeneration', 'elements', 'elmtMeshPositions', 'productIsoTemp');
+
+        return compact('meshGeneration', 'elements', 'elmtMeshPositions', 'productIsoTemp', 'nbMeshPointElmt', 'productElmtInitTemp');
     }
 
     public function generateMesh($idProd) {
@@ -304,7 +328,8 @@ class Products extends Controller
      * @return array
      * @throws \Exception
      */
-    public function generateDefaultMesh($idProd) {
+    public function generateDefaultMesh($idProd) 
+    {
         /** @var Product $product */
         $product = Product::findOrFail($idProd);
 
@@ -332,7 +357,8 @@ class Products extends Controller
      * @param $idProd
      * @throws \Exception
      */
-    public function initTemperature($idProd) {
+    public function initIsoTemperature($idProd) 
+    {
 
         $input = $this->request->all();
         
@@ -390,4 +416,5 @@ class Products extends Controller
         
         return 0;
     }
+
 }
