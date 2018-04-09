@@ -124,7 +124,7 @@ class ProductElementsService
         }
         
         //search meshpoints on axis 2
-        $pointMeshOrder2 = $this->searchNbPtforElmt($pe, $this->value->MESH_AXIS_2);
+        $pointMeshOrder2 = $this->products->searchNbPtforElmt($pe, $this->value->MESH_AXIS_2);
         // pb . pointMeshOrder2 = pointMeshOrder2;
         $nbPointaxe2 = count($pointMeshOrder2);
 
@@ -134,7 +134,7 @@ class ProductElementsService
         $i = $j = $k = 0;
 
         // /*list < InitialTemperature > */$listTemp = [];//new ArrayList < InitialTemperature > ();
-        /*InitialTemperature */$listTemp = null;
+        /*InitialTemperature */$listTemp = [];
 
         for ($j = 0; $j < $nbPointaxe2; $j ++) {
             // $s = (Short) pb . pointMeshOrder2 . get(j);// recup
