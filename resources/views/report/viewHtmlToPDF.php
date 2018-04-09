@@ -192,12 +192,12 @@
                     <tr>
                         <td align="center"><?php echo $arrayParam['product']->PRODNAME ?></td>
                         <td align="center"><?php echo $arrayParam['shapeName']->LABEL ?></td>
-                        <td align="center"><?php echo $arrayParam['proElmt']->SHAPE_PARAM1 ?></td>
-                        <td align="center"><?php echo $arrayParam['proElmt']->SHAPE_PARAM2 ?></td>
-                        <td align="center"><?php echo $arrayParam['proElmt']->SHAPE_PARAM3 ?></td>
-                        <td align="center"><?php echo $arrayParam['product']->PROD_REALWEIGHT ?></td>
+                        <td align="center"><?php echo $arrayParam['proElmtParam1'] ?></td>
+                        <td align="center"><?php echo $arrayParam['proElmtParam2'] ?></td>
+                        <td align="center"><?php echo $arrayParam['proElmtParam3'] ?></td>
+                        <td align="center"><?php echo $arrayParam['productRealW'] ?></td>
                         <td align="center"><?php echo $arrayParam['product']->PROD_ISO == 1 ? "YES" : "NO" ?></td>
-                        <td align="center"><?php echo $arrayParam['production']->AVG_T_INITIAL ?></td>
+                        <td align="center"><?php echo $arrayParam['productionINTL'] ?></td>
                     </tr>
                 </table>
             </div>
@@ -214,7 +214,7 @@
                         <th align="center">Added to product in study number</th>
                         <th align="center">Initial temperature <?php echo "(" . $arrayParam['symbol']['temperatureSymbol'] . " )" ?></th>
                     </tr>
-                    <?php foreach($productComps as $resproductComps) { ?>
+                    <?php foreach($productComps as $key => $resproductComps) { ?>
                     <tr>
                         <td align="center"><?php echo $resproductComps['display_name'] ?></td>
                         <td align="center"><?php echo $resproductComps['PROD_ELMT_NAME'] ?></td>
