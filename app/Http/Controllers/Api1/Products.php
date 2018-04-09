@@ -277,7 +277,7 @@ class Products extends Controller
             $meshGeneration->MESH_2_INT = $this->unit->meshesUnit($meshGeneration->MESH_2_INT);
             $meshGeneration->MESH_3_INT = $this->unit->meshesUnit($meshGeneration->MESH_3_INT);
         }
-        $elements = $product->productElmts;
+        $elements = ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2', 'DESC')->get();
         $elmtMeshPositions = [];
         $productElmtInitTemp = [];
         $nbMeshPointElmt = [];
@@ -424,8 +424,12 @@ class Products extends Controller
                 }
             }
         }
+
+        $slices = array_chunk($listTemp, 100);
+        foreach ($slices as $slice) {
+            InitialTemperature::insert($slice);
+        }
         
-        InitialTemperature::insert($listTemp);
 
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY);
         $ktOk = $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 4);
@@ -507,7 +511,7 @@ class Products extends Controller
                     // file_put_contents('/tmp/debug',print_r($pe, true));
                         
                     if ( $pe['PROD_ELMT_ISO'] == $this->values->PRODELT_ISOTHERM) {
-                            //============= ProdELMT ISO
+                        //============= ProdELMT ISO
                         if ($this->studies->isStudyHasParent($study)) {
                             // 3D
                             if ($pb->ID_SHAPE != $this->values->PARALLELEPIPED_BREADED) {
@@ -545,20 +549,20 @@ class Products extends Controller
                         // $pb->pointMeshOrder2 = pointMeshOrder2;
 
                         // ArrayList < Double > t = $pb->tempMeshPoint;
-                        // if ((t . size() != $pb->pointMeshOrder2 . size()) || (t == null)) {
-                        //         // in case of new mesh generation without T°ini, intiliaze T° in to zero
-                        //     ArrayList < Double > t2 = new ArrayList < Double > ();
-                        //     for (int i = 0; i < $pb->pointMeshOrder2 . size(); i ++) {
-                        //         if (i < t . size()) {
-                        //             t2 . add((Double)t . get(i));
-                        //         } else {
-                        //             t2 . add(new Double(0));
-                        //         }
-                        //     }
-                        //     $pb->tempMeshPoint = t2;
-                        //     t = t2;
-                        // }
                         $t = $pe['initTemp'];
+                        $t2 = [];
+                        
+                        if ((count($t) != count($pointMeshOrder2)) || ($t == null)) {
+                            // in case of new mesh generation without T°ini, intiliaze T° in to zero
+                            for ($i = 0; $i < count($pointMeshOrder2); $i++) {
+                                if ($i < count($t)) {
+                                    $t2[] = $t[i];
+                                } else {
+                                    $t2[] = 0;
+                                }
+                            }
+                            $t = $t2;
+                        }
 
                         if ($this->studies->isStudyHasParent($study)) {
                                 //	3D: dispatch this temp

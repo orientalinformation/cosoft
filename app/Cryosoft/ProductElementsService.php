@@ -32,7 +32,7 @@ class ProductElementsService
         $this->app = $app;
         $this->auth = app('Illuminate\\Contracts\\Auth\\Factory');
         $this->value = app('App\\Cryosoft\\ValueListService');
-        $this->units = app('App\\Cryosoft\\UnitsService');
+        $this->units = app('App\\Cryosoft\\UnitsConverterService');
         $this->products = app('App\\Cryosoft\\ProductService');
     }
 
@@ -125,11 +125,13 @@ class ProductElementsService
         
         //search meshpoints on axis 2
         $pointMeshOrder2 = $this->products->searchNbPtforElmt($pe, $this->value->MESH_AXIS_2);
+
+        
         // pb . pointMeshOrder2 = pointMeshOrder2;
         $nbPointaxe2 = count($pointMeshOrder2);
-
-        /*double */$lfTemp = floatval( $pb['initTemp'][0] );
-
+        
+        /*double */$lfTemp = floatval( $this->units->prodTemperature(floatval( $pb['initTemp'][0] ) ) );
+        
         // short i, j, k;
         $i = $j = $k = 0;
 
@@ -158,7 +160,10 @@ class ProductElementsService
         
         // save temperature inDB 
         // DBInitialTemperature . insertList(listTemp);
-        InitialTemperature::insert($listTemp);
+        $slices = array_chunk($listTemp, 100);
+        foreach ($slices as $slice) {
+            InitialTemperature::insert($slice);
+        }
     }
 
     public function PropagationTempProdElmtIsoForBreaded ($pb)
@@ -197,9 +202,9 @@ class ProductElementsService
             $i = $j = $k = 0;
             
             //search meshpoints on axis 2
-            $pointMeshOrder1 = searchNbPtforElmt($pe, $this->value->MESH_AXIS_1);
-            $pointMeshOrder2 = searchNbPtforElmt($pe, $this->value->MESH_AXIS_2);
-            $pointMeshOrder3 = searchNbPtforElmt($pe, $this->value->MESH_AXIS_3);
+            $pointMeshOrder1 = $this->products->searchNbPtforElmt($pe, $this->value->MESH_AXIS_1);
+            $pointMeshOrder2 = $this->products->searchNbPtforElmt($pe, $this->value->MESH_AXIS_2);
+            $pointMeshOrder3 = $this->products->searchNbPtforElmt($pe, $this->value->MESH_AXIS_3);
             
             // get the first and last nodes of the internal product
             $nbPointaxe1 = count($pointMeshOrder1);
@@ -224,7 +229,7 @@ class ProductElementsService
                     break;
                 }
             }
-            for ($k = 1; $k < $nbPointaxe2; $k ++) {
+            for ($k = 1; $k < $nbPointaxe3; $k ++) {
                 $last = $pointMeshOrder3[$k];
                 $first = $pointMeshOrder3[$k-1];
                 if (($last - $first) > 1) {
@@ -274,7 +279,10 @@ class ProductElementsService
             
             // save temperature inDB 
             // DBInitialTemperature . insertList(listTemp);
-            InitialTemperature::insert($listTemp);
+            $slices = array_chunk($listTemp, 100);
+            foreach ($slices as $slice) {
+                InitialTemperature::insert($slice);
+            }
         } // if breaded
     }
 }

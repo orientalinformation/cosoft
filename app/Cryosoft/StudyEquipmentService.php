@@ -465,7 +465,10 @@ class StudyEquipmentService
                                 cryoRun . nextCRRStatus(true);
                             }*/
                         }//for
-                        InitialTemperature::insert($listTemp);
+                        $slices = array_chunk($listTemp, 100);
+                        foreach ($slices as $slice) {
+                            InitialTemperature::insert($slice);
+                        }
                     }//while
                     
                     // update production to set avg initial temp
@@ -558,7 +561,10 @@ class StudyEquipmentService
             }
 
             // var_dump(count($listTemp));
-            InitialTemperature::insert($listTemp);
+            $slices = array_chunk($listTemp, 100);
+            foreach ($slices as $slice) {
+                InitialTemperature::insert($slice);
+            }
             
             // Increase value to show still alive
             // cryoRun . nextCRRStatus(true);
