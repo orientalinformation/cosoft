@@ -102,10 +102,10 @@ class Equipments extends Controller
         $idStudy = (isset($input['idStudy'])) ? $input['idStudy'] : 0;
         $energy = (isset($input['energy'])) ? $input['energy'] : -1;
         $manufacturer = (isset($input['manufacturer'])) ? $input['manufacturer'] : '';
-        $family = (isset($input['family'])) ? $input['family'] : -1;
+        $sery = (isset($input['sery'])) ? $input['sery'] : -1;
         $origine = (isset($input['origine'])) ? $input['origine'] : -1;
         $process = (isset($input['process'])) ? $input['process'] : -1;
-        $series = (isset($input['series'])) ? $input['series'] : -1;
+        $model = (isset($input['model'])) ? $input['model'] : -1;
         $size = (isset($input['size'])) ? $input['size'] : '';
         
         $querys = Equipment::orderBy('EQUIP_NAME');
@@ -135,16 +135,16 @@ class Equipments extends Controller
             $querys->where('EQP_LENGTH', $length)->where('EQP_WIDTH', $width);
         }
 
-        if ($family != -1) {
-            $querys->where('ID_FAMILY', $family);
+        if ($sery != -1) {
+            $querys->where('ID_FAMILY', $sery);
         }
 
         if ($process != -1) {
             $querys->where('BATCH_PROCESS', $process);
         }
 
-        if ($series != -1) {
-            $querys->where('ID_EQUIPSERIES', $series);
+        if ($model != -1) {
+            $querys->where('ID_EQUIPSERIES', $model);
         }
 
         if ($manufacturer != '') {
@@ -156,22 +156,36 @@ class Equipments extends Controller
         return $equipments;
     }
 
-    public function loadEnergies()
+    public function getSelectionCriteriaFilter()
     {
+        $input = $this->request->all();
+        $energyId = (isset($input['energy'])) ? $input['energy'] : -1;
+        $manufacturerValue = (isset($input['manufacturer'])) ? $input['manufacturer'] : '';
+        $seryId = (isset($input['sery'])) ? $input['sery'] : -1;
+        $originId = (isset($input['origin'])) ? $input['origin'] : -1;
+        $processId = (isset($input['process'])) ? $input['process'] : -1;
+        $modelId = (isset($input['model'])) ? $input['model'] : -1;
+
         $energies = CoolingFamily::distinct()->select('cooling_family.ID_COOLING_FAMILY', 'translation.LABEL')
         ->join('translation', 'cooling_family.ID_COOLING_FAMILY', '=', 'translation.ID_TRANSLATION')
         ->where('translation.TRANS_TYPE', 2)
         ->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
         ->orderBy('translation.LABEL')
         ->get();
+
+        $manufacturer = $this->getConstructors($energyId);
+        $series = $this->getFamilies($energyId, $manufacturerValue);
+        $origines = $this->getOrigines($energyId, $manufacturerValue, $seryId);
+        $processes = $this->getProcesses($energyId, $manufacturerValue, $seryId, $originId);
+        $model = $this->getModel($energyId, $manufacturerValue, $seryId, $originId, $processId);
+        $size = $this->getSize($energyId, $manufacturerValue, $seryId, $originId, $processId, $modelId);
+
         
-        return $energies;
+        return compact('energies', 'manufacturer', 'series', 'origines', 'processes', 'model', 'size');
     }
 
-    public function loadConstructors()
+    public function getConstructors($energy = -1)
     {
-        $input = $this->request->all();
-        $energy = (isset($input['energy'])) ? $input['energy'] : -1;
         $query = Equipseries::distinct()->select('Equipseries.CONSTRUCTOR')
         ->join('equipment', 'Equipseries.ID_EQUIPSERIES', '=', 'equipment.ID_EQUIPSERIES');
 
@@ -184,11 +198,8 @@ class Equipments extends Controller
         return $query->get();
     }
 
-    public function loadFamilies()
+    public function getFamilies($energy = -1, $manufacturer = '')
     {
-        $input = $this->request->all();
-        $energy = (isset($input['energy'])) ? $input['energy'] : -1;
-        $manufacturer = (isset($input['manufacturer'])) ? $input['manufacturer'] : '';
         $query = Equipfamily::distinct()->select('equipfamily.ID_FAMILY', 'translation.LABEL')
         ->join('translation', 'equipfamily.ID_FAMILY', '=', 'translation.ID_TRANSLATION')
         ->join('equipseries', 'equipfamily.ID_FAMILY', '=', 'equipseries.ID_FAMILY')
@@ -199,7 +210,7 @@ class Equipments extends Controller
             $query->where('equipment.ID_COOLING_FAMILY', $energy);
         }
 
-        if ($manufacturer != null && $manufacturer != '') {
+        if ($manufacturer != '') {
             $query->where('equipseries.CONSTRUCTOR', $manufacturer);
         }
 
@@ -209,12 +220,8 @@ class Equipments extends Controller
         return $equipFamily;
     }
 
-    public function loadOrigines()
+    public function getOrigines($energy = -1, $manufacturer = '', $family = -1)
     {
-        $input = $this->request->all();
-        $energy = (isset($input['energy'])) ? $input['energy'] : -1;
-        $manufacturer = (isset($input['manufacturer'])) ? $input['manufacturer'] : '';
-        $family = (isset($input['family'])) ? $input['family'] : -1;
         $query = Equipment::distinct()->select('equipment.STD', 'translation.LABEL')
         ->join('translation', 'equipment.STD', '=', 'translation.ID_TRANSLATION')
         ->join('equipseries', 'equipment.ID_EQUIPSERIES', 'equipseries.ID_EQUIPSERIES')
@@ -236,17 +243,12 @@ class Equipments extends Controller
         $query->orderBy('translation.LABEL');
 
         $equipMents = $query->get();
+
         return $equipMents;
     }
 
-    public function loadProcesses()
+    public function getProcesses($energy = -1, $manufacturer = '', $family = -1, $origine = -1)
     {
-        $input = $this->request->all();
-        $energy = (isset($input['energy'])) ? $input['energy'] : -1;
-        $manufacturer = (isset($input['manufacturer'])) ? $input['manufacturer'] : '';
-        $family = (isset($input['family'])) ? $input['family'] : -1;
-        $origine = (isset($input['origine'])) ? $input['origine'] : -1;
-
         $query = Equipfamily::distinct()->select('equipfamily.BATCH_PROCESS', 'translation.LABEL')
         ->join('translation', 'equipfamily.BATCH_PROCESS', '=', 'translation.ID_TRANSLATION')
         ->join('equipseries', 'equipfamily.ID_FAMILY', '=', 'equipseries.ID_FAMILY')
@@ -271,19 +273,13 @@ class Equipments extends Controller
 
         $query->orderBy('translation.LABEL');
 
-        $equipFamily = $query->get();
-        return $equipFamily;
+        $processes = $query->get();
+
+        return $processes;
     }
 
-    public function loadSeries()
+    public function getModel($energy = -1, $manufacturer = '', $family = -1, $origine = -1, $process = -1)
     {
-        $input = $this->request->all();
-        $energy = (isset($input['energy'])) ? $input['energy'] : -1;
-        $manufacturer = (isset($input['manufacturer'])) ? $input['manufacturer'] : '';
-        $family = (isset($input['family'])) ? $input['family'] : -1;
-        $origine = (isset($input['origine'])) ? $input['origine'] : -1;
-        $process = (isset($input['process'])) ? $input['process'] : -1;
-
         $query = Equipseries::distinct()->select('equipseries.ID_EQUIPSERIES', 'translation.LABEL')
         ->join('translation', 'equipseries.ID_EQUIPSERIES', '=', 'translation.ID_TRANSLATION')
         ->join('equipfamily', 'equipseries.ID_FAMILY', '=', 'equipfamily.ID_FAMILY')
@@ -313,19 +309,12 @@ class Equipments extends Controller
         $query->orderBy('translation.LABEL');
 
         $equipSeries = $query->get();
+
         return $equipSeries;
     }
-
-    public function loadDimensions()
+    
+    public function getSize($energy = -1, $manufacturer = '', $family = -1, $origine = -1, $process = -1, $series = -1)
     {
-        $input = $this->request->all();
-        $energy = (isset($input['energy'])) ? $input['energy'] : -1;
-        $manufacturer = (isset($input['manufacturer'])) ? $input['manufacturer'] : '';
-        $family = (isset($input['family'])) ? $input['family'] : -1;
-        $origine = (isset($input['origine'])) ? $input['origine'] : -1;
-        $process = (isset($input['process'])) ? $input['process'] : -1;
-        $series = (isset($input['series'])) ? $input['series'] : -1;
-
         $query = Equipment::distinct()->select('equipment.EQP_LENGTH', 'equipment.EQP_WIDTH')
         ->join('equipseries', 'equipment.ID_EQUIPSERIES', '=', 'equipseries.ID_EQUIPSERIES')
         ->join('equipfamily', 'equipseries.ID_FAMILY', '=', 'equipfamily.ID_FAMILY');
