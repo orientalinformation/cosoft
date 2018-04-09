@@ -689,7 +689,7 @@ class Calculator extends Controller
 			$this->setBrainMode(11);
 			$brainMode = 11;
 		}
-
+		
  		$runType = null;
  		if ($typeCalculate == 3) {
  			$brainMode = 13;
@@ -720,6 +720,8 @@ class Calculator extends Controller
 			} else {
 				$this->startConsumptionEconomic($idStudy, $idStudyEquipment);
 			}
+
+			sleep(15);
  		}
 
     	return $runType;
@@ -1224,7 +1226,7 @@ class Calculator extends Controller
 
 		$this->runStudyCleaner($idStudy, $idStudyEquipment, 54);
 
-		$conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
+		$conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\brain_mode_13.txt');
 		$param = new \Cryosoft\stSKBRParam($lfControlTemp, $lfLoadingRateMax);
 		$ldMode = 13;
 
