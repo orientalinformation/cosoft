@@ -108,24 +108,46 @@ class Equipments extends Controller
         $model = (isset($input['model'])) ? $input['model'] : -1;
         $size = (isset($input['size'])) ? $input['size'] : '';
         
-        $querys = Equipment::orderBy('EQUIP_NAME');
+        $querys = Equipment::query();
 
         if ($energy != 1) {
             $querys->where('ID_COOLING_FAMILY', $energy);
         }
 
-        $querys->where('EQP_IMP_ID_STUDY', $idStudy)
+        $querys->where(function($query) use ($idStudy) {
+             $query->where('EQP_IMP_ID_STUDY', $idStudy)
             ->orWhere('EQP_IMP_ID_STUDY', 0);
-
-        $querys->where(function ($query) {
-            $query->where('ID_USER', $this->auth->user()->ID_USER)
-            ->where('EQUIP_RELEASE', 2);
         });
 
-        $querys->orWhere(function ($query) {
-            $query->where('EQUIP_RELEASE', 3)
-            ->orWhere('EQUIP_RELEASE', 3);
+        $querys->where(function ($q) {
+            $q->where('ID_USER', $this->auth->user()->ID_USER)
+                  ->where('EQUIP_RELEASE', 2);
         });
+        
+        $querys->orWhere(function ($q) {
+            $q->where('EQUIP_RELEASE', 3)
+                  ->orWhere('EQUIP_RELEASE', 4);
+        });
+
+        /*if ($energy != 1) {
+            $querys->where('ID_COOLING_FAMILY', $energy);
+
+            $querys->where(function ($query) use ($idStudy) {
+                $query->where('EQP_IMP_ID_STUDY', $idStudy)
+                   ->orWhere('EQP_IMP_ID_STUDY', 0);
+                $query->where(function ($q) {
+                    $q->where('ID_USER', $this->auth->user()->ID_USER)
+                          ->where('EQUIP_RELEASE', 2);
+                });
+                $query->orWhere(function ($q) {
+                    $q->where('EQUIP_RELEASE', 3)
+                          ->orWhere('EQUIP_RELEASE', 4);
+                });
+            });
+        } else {
+            $querys->where('EQP_IMP_ID_STUDY', $idStudy)
+               ->orWhere('EQP_IMP_ID_STUDY', 0);
+        }*/
 
         if ($size != '') {
             $sizeLabel = explode('x', $size);
@@ -150,6 +172,8 @@ class Equipments extends Controller
         if ($manufacturer != '') {
             $querys->where('CONSTRUCTOR', $manufacturer);
         }
+
+        $querys->orderBy('EQUIP_NAME');
 
         $equipments = $querys->get();
 
@@ -312,7 +336,7 @@ class Equipments extends Controller
 
         return $equipSeries;
     }
-    
+
     public function getSize($energy = -1, $manufacturer = '', $family = -1, $origine = -1, $process = -1, $series = -1)
     {
         $query = Equipment::distinct()->select('equipment.EQP_LENGTH', 'equipment.EQP_WIDTH')
