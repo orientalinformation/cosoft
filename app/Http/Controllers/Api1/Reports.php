@@ -2103,7 +2103,6 @@ class Reports extends Controller
         $proElmt = ProductElmt::Where('ID_PROD', $product->ID_PROD)->first();
         $idComArr = [];
         $comprelease = [];
-        $productCompsParam = $this->convert->prodDimension($productComps)
         foreach ($product->productElmts as $productElmt) {
             $shapeCode = $productElmt->shape->SHAPECODE;
             $idComArr[] = $productElmt->ID_COMP;
