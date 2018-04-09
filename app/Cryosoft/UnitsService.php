@@ -14,6 +14,7 @@ namespace App\Cryosoft;
 use Illuminate\Contracts\Auth\Factory as Auth;
 use App\Models\Unit;
 use App\Models\UserUnit;
+use App\Models\MonetaryCurrency;
 
 class UnitsService
 {
@@ -222,6 +223,76 @@ class UnitsService
     public function density($value, $decimal, $status)
     {
         $unit = Unit::where('TYPE_UNIT', $this->value->DENSITY)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+
+        if ($status == 1) {
+            return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, $decimal, 1);
+        } else {
+            return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, $decimal, 0);
+        }
+    }
+
+    public function uMoney()
+    {
+        $user = $this->auth->user();
+        $monetaryUnit = MonetaryCurrency::where("ID_MONETARY_CURRENCY", $user->ID_MONETARY_CURRENCY)->first();
+        $unit = Unit::where("TYPE_UNIT", 27)->where("SYMBOL", $monetaryUnit->MONEY_SYMB)->first();
+
+        $result = array();
+
+        if ($unit == null) {
+            $result = $this->uNone();
+        } else {
+            $result = [
+                "coeffA" => $unit->COEFF_A,
+                "coeffB" => $unit->COEFF_B,
+                "symbol" => $unit->SYMBOL
+            ];
+        }
+
+        return $result;
+    }
+
+    public function uNone()
+    {
+        return array(
+            "coeffA" => "1.0",
+            "coeffB" => "0.0",
+            "symbol" => ""
+        );
+    }
+
+    public function monetary($value, $decimal, $status) 
+    {
+        $uMoney = $this->uMoney();
+
+        if ($status == 1) {
+            return $this->convertCalculator($value, $uMoney["coeffA"], $uMoney["coeffB"],  $decimal, 1);
+        } else {
+            return $this->convertCalculator($value, $uMoney["coeffA"], $uMoney["coeffB"],  $decimal, 0);
+
+        }
+    }
+
+    public function tankCapacity($value, $typeunit, $decimal, $status) 
+    {
+        $unit = Unit::where('TYPE_UNIT', $typeunit)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+
+        if ($status == 1) {
+            return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, $decimal, 1);
+        } else {
+            return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, $decimal, 0);
+        }
+    }
+
+    public function lineDimension($value, $decimal, $status) 
+    {
+        $unit = Unit::where('TYPE_UNIT', $this->value->LINE)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();

@@ -43,6 +43,8 @@ class ValueListService
     public $PRESSURE = 15;
     public $CONDUCTIVITY = 10;
     public $DENSITY = 7;
+    public $RESERVOIR_CAPACITY_LN2 = 18;
+    public $RESERVOIR_CAPACITY_CO2 = 25;
 
     //brand mode
     public $BRAIN_MODE_ESTIMATION = 1;
