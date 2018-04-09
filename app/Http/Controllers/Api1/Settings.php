@@ -58,9 +58,9 @@ class Settings extends Controller
     public function getMyMeshParamDef()
     {
         $meshParamDef = \App\Models\MeshParamDef::find($this->auth->user()->ID_USER);
-        $meshParamDef->MESH_1_SIZE = $this->units->meshes($meshParamDef->MESH_1_SIZE, 2, 1);
-        $meshParamDef->MESH_2_SIZE = $this->units->meshes($meshParamDef->MESH_2_SIZE, 2, 1);
-        $meshParamDef->MESH_3_SIZE = $this->units->meshes($meshParamDef->MESH_3_SIZE, 2, 1);
+        $meshParamDef->MESH_1_SIZE = $this->units->meshes($meshParamDef->MESH_1_SIZE, 5, 1);
+        $meshParamDef->MESH_2_SIZE = $this->units->meshes($meshParamDef->MESH_2_SIZE, 5, 1);
+        $meshParamDef->MESH_3_SIZE = $this->units->meshes($meshParamDef->MESH_3_SIZE, 5, 1);
 
         return $meshParamDef;
     }
@@ -72,9 +72,9 @@ class Settings extends Controller
         $dimension2 = floatval($input['dim2']);
         $dimension3 = floatval($input['dim3']);
 
-        $checkValue1 = $this->minmax->checkMinMaxValue($this->units->meshes($dimension1, 2, 0), 1);
-        $checkValue2 = $this->minmax->checkMinMaxValue($this->units->meshes($dimension2, 2, 0), 1);
-        $checkValue3 = $this->minmax->checkMinMaxValue($this->units->meshes($dimension3, 2, 0), 1);
+        $checkValue1 = $this->minmax->checkMinMaxValue($this->units->meshes($dimension1, 5, 0), 1);
+        $checkValue2 = $this->minmax->checkMinMaxValue($this->units->meshes($dimension2, 5, 0), 1);
+        $checkValue3 = $this->minmax->checkMinMaxValue($this->units->meshes($dimension3, 5, 0), 1);
 
         if ( !$checkValue1 ) {
             $mm = $this->minmax->getMinMaxMesh(1);
@@ -100,9 +100,9 @@ class Settings extends Controller
         $meshParamDef = \App\Models\MeshParamDef::find($this->auth->user()->ID_USER);
 
         if ($meshParamDef) {
-            if (isset($input['dim1'])) $meshParamDef->MESH_1_SIZE = $this->units->meshes($dimension1, 2, 0);
-            if (isset($input['dim2'])) $meshParamDef->MESH_2_SIZE = $this->units->meshes($dimension2, 2, 0);
-            if (isset($input['dim3'])) $meshParamDef->MESH_3_SIZE = $this->units->meshes($dimension3, 2, 0);
+            if (isset($input['dim1'])) $meshParamDef->MESH_1_SIZE = $this->units->meshes($dimension1, 5, 0);
+            if (isset($input['dim2'])) $meshParamDef->MESH_2_SIZE = $this->units->meshes($dimension2, 5, 0);
+            if (isset($input['dim3'])) $meshParamDef->MESH_3_SIZE = $this->units->meshes($dimension3, 5, 0);
             $meshParamDef->save();
         }
 
