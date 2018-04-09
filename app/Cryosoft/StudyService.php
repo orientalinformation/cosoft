@@ -16,11 +16,33 @@ class StudyService
     */
     protected $auth;
 
+    public static $MODE_ESTIMATION = 1;
+    public static $MODE_SELECTED = 2;
+    public static $MODE_OPTIMUM = 3;
+    
+    // study options
+    public static $OPTION_NOT_ECONOMIC = 0;
+    public static $OPTION_ECONOMIC = 1;
+    
+    public static $OPTION_NOT_PIPELINE = 0;
+    public static $OPTION_PIPELINE = 1;
+    
+    public static $OPTION_NOT_CHAINING = 0;
+    public static $OPTION_CHAINING = 1;
+    
+    public static $OPTION_NOT_CHAIN_ADDCOMP = 0;
+    public static $OPTION_CHAIN_ADDCOMP = 1;
+    
+    public static $OPTION_NOT_NODE_DECIM = 0;
+    public static $OPTION_NODE_DECIM = 1;
+    
+
     public function __construct(\Laravel\Lumen\Application $app)
     {
         $this->app = $app;
         $this->auth = $app['Illuminate\\Contracts\\Auth\\Factory'];
         $this->value = $app['App\\Cryosoft\\ValueListService'];
+        $this->kernel = $app['App\\Kernel\\KernelService'];
         $this->calculator = $app['App\\Cryosoft\\CalculateService'];
     }
 
@@ -265,7 +287,13 @@ class StudyService
         return $ret;
     }
 
-    public function hasParentStudy() {
-        
+    public function isStudyHasParent (\App\Models\Study $mySTD) {
+        /*boolean*/ $bret = false;
+        //study with chaining?
+        if (($mySTD->CHAINING_CONTROLS == self::$OPTION_CHAINING)
+            && ($mySTD->PARENT_ID > 0)) {
+            $bret = true;
+        }
+        return $bret;
     }
 }
