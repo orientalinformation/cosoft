@@ -2062,7 +2062,7 @@ class Output extends Controller
 
         // get TimeInterva
         $recordPosition = RecordPosition::select('RECORD_TIME')->where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("RECORD_TIME", "ASC")->get();
-        $lfDwellingTime = $recordPosition[count($recordPosition) - 1]->RECORD_TIME;
+        $lfDwellingTime = $this->unit->time($recordPosition[count($recordPosition) - 1]->RECORD_TIME);
 
         $calculationParameter = CalculationParameter::select('STORAGE_STEP', 'TIME_STEP')->where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
 
