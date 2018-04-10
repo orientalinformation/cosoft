@@ -56,6 +56,11 @@ class CalculateService
 	 */
 	protected $units;
 
+	/**
+	 * @var App\Cryosoft\EquipmentsService
+	 */
+	protected $equipment;
+
 	public function __construct(\Laravel\Lumen\Application $app) 
     {
 		$this->app = $app;
@@ -64,6 +69,7 @@ class CalculateService
 		$this->convert = $app['App\\Cryosoft\\UnitsConverterService'];
 		$this->calParametersDef = $this->getCalculationParametersDef();
 		$this->units = $app['App\\Cryosoft\\UnitsService'];
+		$this->equipment = $app['App\\Cryosoft\\EquipmentsService'];
 
 	}
 
@@ -487,5 +493,25 @@ class CalculateService
     	$tempRecordsPt->save();
 
     	$this->saveTempRecordPtsToReport($idStudy);
+    }
+
+    public function isThereAnEquipWithOptimEnable($idStudy)
+    {
+    	$bret = false;
+    	$studyEquipments = StudyEquipment::where('ID_STUDY', $idStudy)->get();
+
+    	if (count($studyEquipments) > 0) {
+			for ($i = 0; $i < count($studyEquipments); $i++) {
+				$capability = $studyEquipments[$i]->CAPABILITIES;
+				$equipWithSpecificSize = (($studyEquipments[$i]->STDEQP_LENGTH != -1) && ($studyEquipments[$i]->STDEQP_WIDTH != -1)) ? true : false;
+				
+				$bspecialEquip = ($this->equipment->getCapability($capability, 262144) && $this->equipment->getCapability($capability, 2097152) && (!$equipWithSpecificSize));
+				if (($this->equipment->getCapability($capability, 64)) && (!$bspecialEquip)) {
+                    $bret = true;
+                    break;
+                }
+			}
+		}
+		return $bret;
     }
 }

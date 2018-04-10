@@ -137,3 +137,11 @@ $router->PUT('/api/v1/studies/{id}/chaining', 'Api1\\Studies@createChildStudy');
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/productElmts/{id}/initTemp', 'Api1\\ProductElements@initProdElmtTemp');
+
+/**
+ * POST initNonIsoTemperature
+ * Summary: 
+ * Notes: initialize non isothermal temperature
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/products/{idProd}/initNonIsoTemperature', 'Api1\\Products@initNonIsoTemperature');

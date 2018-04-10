@@ -336,7 +336,7 @@ class StudyEquipmentService
             // query . addParameter(sequip . getIdStudyEquipments());
             // query . addParameter(ValuesList . DIMA_TYPE_DHP_CHOSEN);
             $dimaResults = DimaResults::where('ID_STUDY_EQUIPMENTS', $sequip->ID_STUDY_EQUIPMENTS)
-                ->where('ID_STUDY_EQUIPMENTS', $this->value->DIMA_TYPE_DHP_CHOSEN)->first();
+                ->where('DIMA_TYPE', $this->value->DIMA_TYPE_DHP_CHOSEN)->first();
 
             // TODO: Check if dima result exists before create child study
 
@@ -402,6 +402,7 @@ class StudyEquipmentService
     
                     // Increase value to show still alive
                     // cryoRun . nextCRRStatus(true);
+                    $listTemp = [];
 
                     foreach ($tempRecordData as $trd) {
                         $initTemp = new InitialTemperature();
@@ -456,13 +457,18 @@ class StudyEquipmentService
                             
                             //create initial temperature
                             // JAVA:CryosoftDB . create(initTemp, connection);
-                            $initTemp->save();
+                            // $initTemp->save();
+                            array_push($listTemp, $initTemp->toArray());
                             
                             /*JAVA: if ((++$counter % $NB_TEMP_FOR_NEXTSTATUS) == 0) {
                                 // Increase value to show still alive
                                 cryoRun . nextCRRStatus(true);
                             }*/
                         }//for
+                        $slices = array_chunk($listTemp, 100);
+                        foreach ($slices as $slice) {
+                            InitialTemperature::insert($slice);
+                        }
                     }//while
                     
                     // update production to set avg initial temp
@@ -509,8 +515,8 @@ class StudyEquipmentService
             
             // dispatch this temp
             $nbNode1 = $product->meshGenerations->first()->MESH_1_NB;
-            $nbNode2 = $product->meshGenerations->first()->MESH_1_NB;
-            $nbNode3 = $product->meshGenerations->first()->MESH_1_NB;
+            $nbNode2 = $product->meshGenerations->first()->MESH_2_NB;
+            $nbNode3 = $product->meshGenerations->first()->MESH_3_NB;
 
             // short i, j, k;
             $i = $j = $k = 0;
@@ -531,6 +537,8 @@ class StudyEquipmentService
                     break;
             }
 
+            $listTemp = [];
+
             for ($i = 0; $i < $nbNode1; $i ++) {
                 for ($j = 0; $j < $nbNode2; $j ++) {
                     for ($k = 0; $k < $nbNode3; $k ++) {
@@ -540,9 +548,9 @@ class StudyEquipmentService
                         $initTemp->MESH_1_ORDER = (($i + $offset[0]));
                         $initTemp->MESH_2_ORDER = (($j + $offset[1]));
                         $initTemp->MESH_3_ORDER = (($k + $offset[2]));
-
+                        array_push($listTemp, $initTemp->toArray());
                         // CryosoftDB . create($initTemp, connection);
-                        $initTemp->save();
+                        // $initTemp->save();
 
                         // if ((++counter % NB_TEMP_FOR_NEXTSTATUS) == 0) {
                         //     // Increase value to show still alive
@@ -550,6 +558,12 @@ class StudyEquipmentService
                         // }
                     }
                 }
+            }
+
+            // var_dump(count($listTemp));
+            $slices = array_chunk($listTemp, 100);
+            foreach ($slices as $slice) {
+                InitialTemperature::insert($slice);
             }
             
             // Increase value to show still alive
