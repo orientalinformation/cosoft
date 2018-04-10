@@ -466,63 +466,95 @@ class Lines extends Controller
         
             if ($pressure == "") {
                 return response("Enter a value in Tank pressure !", 406);
-            }
+            } 
             
-            if ($storageTank == 0 ) {
+            if ($storageTank == 0) {
                 return response("A Storage Tank is Obligatory1", 406); // Status code here
             }
             
             if ($checkValueInsulllenght) {
-                $pipegen->INSULLINE_LENGHT = $insulatedLineLength;
+                if (is_int($insulatedLineLength) && $insulatedLineLength != "") {
+                    return response("Not a valid number in Length !" ,406);
+                } else {
+                    $pipegen->INSULLINE_LENGHT = $insulatedLineLength;
+                }
             } else {
                 $mm = $this->minmax->getMinMaxNoneLine($this->value->MIN_MAX_STUDY_LINE_INSULATEDLINE_LENGHT);
                 return response("Value out of range in Length (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ") !" , 406); // Status code here
             }
 
             if ($checkValueNoninsullenght) {
-                $pipegen->NOINSULLINE_LENGHT = $nonInsulatedLineLength;
+                if (is_int($nonInsulatedLineLength) && $nonInsulatedLineLength != "") {
+                    return response("Not a valid number in Length !" ,406);
+                } else {
+                    $pipegen->NOINSULLINE_LENGHT = $nonInsulatedLineLength;
+                }
             } else {
                 $mm = $this->minmax->getMinMaxLineDimention($this->value->MIN_MAX_STUDY_LINE_NON_INSULATEDLINE_LENGHT);
                 return response("Value out of range in Length (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ") !" , 406); // Status code here
             }
 
             if ($checkValueInsulvallenght) {
-                $pipegen->INSUL_VALVES = $insulatedValvesQuantity;
+                if (!is_string($insulatedValvesQuantity) || $insulatedValvesQuantity == 0 || $insulatedValvesQuantity == "") {
+                    $pipegen->INSUL_VALVES = $insulatedValvesQuantity;
+                } else {
+                    return response("Not a valid number in Number !" ,406);
+                }
             } else {
                 $mm = $this->minmax->getMinMaxNoneLine($this->value->MIN_MAX_STUDY_LINE_INSULATEDVALVE_NUMBER);
                 return response("Value out of range in Number(" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ") !" , 406); // Status code here
             }
 
             if ($checkValueNoninsulatevallenght) {
-                $pipegen->NOINSUL_VALVES = $nonInsulatedValvesQuantity;
+                if (!is_string($nonInsulatedValvesQuantity) || $nonInsulatedValvesQuantity == 0|| $nonInsulatedValvesQuantity == "") {
+                    $pipegen->NOINSUL_VALVES = $nonInsulatedValvesQuantity;
+                } else {
+                    return response("Not a valid number in Number !" ,406);
+                }
             } else {
                 $mm = $this->minmax->getMinMaxLineDimention($this->value->MIN_MAX_STUDY_LINE_NON_INSULATEDVALVE_NUMBER);
                 return response("Value out of range in Number (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ") !" , 406); // Status code here
             }
 
             if ($checkValueTee) {
-                $pipegen->TEES = $teesQuantity;
+                if (!is_string($teesQuantity) || $teesQuantity == 0|| $teesQuantity == "") {
+                    $pipegen->TEES = $teesQuantity;
+                } else {
+                    return response("Not a valid number in Number !" ,406);
+                }
             } else {
                 $mm = $this->minmax->getMinMaxLineDimention($this->value->MIN_MAX_STUDY_LINE_TEES_NUMBER);
                 return response("Value out of range in Number (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ") !" , 406); // Status code here
             }
 
             if ($checkValueElbow) {
-                $pipegen->ELBOWS = $elbowsQuantity;
+                if (!is_string($elbowsQuantity) || $elbowsQuantity == 0|| $elbowsQuantity == "") {
+                    $pipegen->ELBOWS = $elbowsQuantity;
+                } else {
+                    return response("Not a valid number in Number !" ,406);
+                }
             } else {
                 $mm = $this->minmax->getMinMaxLineDimention($this->value->MIN_MAX_STUDY_LINE_ELBOWS_NUMBER);
                 return response("Value out of range in Number (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ") !" , 406); // Status code here
             }
 
             if ($checkValuePressure) {
-                $pipegen->PRESSURE = $pressure;
+                if (!is_string($pressure) || $pressure == 0) {
+                    $pipegen->PRESSURE = $pressure;
+                } else {
+                    return response("Not a valid number in Number !" ,406);
+                }
             } else {
                 $mm = $this->minmax->getMinMaxPressure($this->value->MIN_MAX_STUDY_LINE_PRESSURE);
                 return response("Value out of range in Tank pressure (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ") !" , 406); // Status code here
             }
 
             if ($checkValueHeight) {
-                $pipegen->HEIGHT = $height;
+                if (is_int($height) && $height != 0) {
+                    return response("Not a valid number in Number !" ,406);
+                } else {
+                    $pipegen->HEIGHT = $height;
+                }
             } else {
                 $mm = $this->minmax->getMinMaxHeight($this->value->MIN_MAX_STUDY_LINE_HEIGHT);
                 return response("Value out of range in Tank pressure (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ") !" , 406); // Status code here
@@ -533,7 +565,6 @@ class Lines extends Controller
                 $pipegen->save();
                 
             } else {
-                
                 $pipegen->save();
             }
             if (($insulatedLine != 0) && ($insulatedLineLength != 0.0)) {
