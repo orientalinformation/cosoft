@@ -887,7 +887,7 @@ class Reports extends Controller
                     </tr>
                     <tr>
                         <td colspan="4">Company name </td>
-                        <td colspan="2"> '. $DEST_SURNAME .'  </td>
+                        <td colspan="2"> '. $DEST_SURNAME .' </td>
                     </tr>
                     <tr>
                         <td colspan="4">Surname/Name</td>

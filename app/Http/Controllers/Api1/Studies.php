@@ -576,11 +576,13 @@ class Studies extends Controller
             if (!empty($study->studyEquipments)) {
                 foreach ($study->studyEquipments as $studyEquip) {
                     $pipeGen = $studyEquip->pipeGens->first();
-                    $pipeDefition = $pipeGen->lineDefinitions;
-                    foreach ($pipeDefition as $pipeDefitions) {
-                        $pipeDefitions->delete();
+                    if ($pipeGen != null) {
+                        $pipeDefition = $pipeGen->lineDefinitions;
+                        foreach ($pipeDefition as $pipeDefitions) {
+                            $pipeDefitions->delete();
+                        }
+                        $pipeGen->delete();
                     }
-                    $pipeGen->delete();
                 }
             }
         }
