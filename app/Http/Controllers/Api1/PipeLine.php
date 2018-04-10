@@ -194,10 +194,20 @@ class PipeLine extends Controller
         $translation->LABEL = $name;
         $translation->save();
 
-        return LineElmt::where('ID_USER', $this->auth->user()->ID_USER)
+        $rs = LineElmt::where('ID_USER', $this->auth->user()->ID_USER)
         ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
         ->where('Translation.TRANS_TYPE', 27)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
         ->where('ID_PIPELINE_ELMT', $idLineElmt)->first();
+
+        $rs->ELMT_PRICE = $this->units->monetary($rs->ELMT_PRICE, 3, 1);
+
+        if ($rs->ELT_TYPE == 3) {
+            $rs->ELT_SIZE = $this->units->tankCapacity($rs->ELT_SIZE, $this->value->RESERVOIR_CAPACITY_CO2, 3, 1);
+        } else {
+            $rs->ELT_SIZE = $this->units->lineDimension($rs->ELT_SIZE, 3, 1);
+        }
+
+        return $rs;
     }
 
     public function deletePipeLine($idLineElmt)
@@ -323,10 +333,19 @@ class PipeLine extends Controller
                 ->update(['LINE_DATE' => $current->toDateTimeString()]);
             }
 
-            return LineElmt::where('ID_USER', $this->auth->user()->ID_USER)
+            $rs = LineElmt::where('ID_USER', $this->auth->user()->ID_USER)
             ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
             ->where('Translation.TRANS_TYPE', 27)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
             ->where('ID_PIPELINE_ELMT', $idPipeLine)->first();
+
+            $rs->ELMT_PRICE = $this->units->monetary($rs->ELMT_PRICE, 3, 1);
+
+            if ($rs->ELT_TYPE == 3) {
+                $rs->ELT_SIZE = $this->units->tankCapacity($rs->ELT_SIZE, $this->value->RESERVOIR_CAPACITY_CO2, 3, 1);
+            } else {
+                $rs->ELT_SIZE = $this->units->lineDimension($rs->ELT_SIZE, 3, 1);
+            }
+
         }
     }
 
@@ -387,10 +406,19 @@ class PipeLine extends Controller
         $translation->LABEL = $name;
         $translation->save();
 
-        return LineElmt::where('ID_USER', $this->auth->user()->ID_USER)
+        $rs = LineElmt::where('ID_USER', $this->auth->user()->ID_USER)
         ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
         ->where('Translation.TRANS_TYPE', 27)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
         ->where('ID_PIPELINE_ELMT', $idLineElmt)->first();
+
+        $rs->ELMT_PRICE = $this->units->monetary($rs->ELMT_PRICE, 3, 1);
+
+        if ($rs->ELT_TYPE == 3) {
+            $rs->ELT_SIZE = $this->units->tankCapacity($rs->ELT_SIZE, $this->value->RESERVOIR_CAPACITY_CO2, 3, 1);
+        } else {
+            $rs->ELT_SIZE = $this->units->lineDimension($rs->ELT_SIZE, 3, 1);
+        }
+
     }
 
     public function checkPipeline()
