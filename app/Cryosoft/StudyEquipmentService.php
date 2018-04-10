@@ -373,7 +373,7 @@ class StudyEquipmentService
                     ['REC_AXIS_Z_POS', '0']
                 ])->orderBy('REC_AXIS_X_POS')->orderBy('REC_AXIS_Y_POS')->get();
                 if ($tempRecordData) {
-                    $orientation = $sequip->layoutGeneration->first()->PROD_POSITION;
+                    $orientation = $sequip->layoutGenerations()->first()->PROD_POSITION;
                     //	SFE : 26/05/2005 : axe z n'est plus enregistré => il faut propager les valeurs
                     $NbNodesZ = 0;
                     switch ($shape) {
