@@ -161,7 +161,7 @@
                 </tr>
                 <tr>
                     <td>Required Average temperature</td>
-                    <td ><?php echo $arrayParam['production']->AVG_T_INITIAL ?></td>
+                    <td ><?php echo $arrayParam['production']->AVG_T_DESIRED ?></td>
                     <td><?php echo "(" . $arrayParam['symbol']['temperatureSymbol'] . " )" ?></td>
                 </tr>
                 <tr>
@@ -175,16 +175,37 @@
         <?php } ?>
 
         <?php if ($arrayParam['params']['PROD_LIST'] == 1) { ?>
-        <h3 style ="background-color:#268EE2">Composition of the product and its components</h3>
+        <h3 style ="background-color:#268EE2">Product Data</h3>
+        <h3 >Composition of the product and its components</h3>
         <div class="pro-data">
             <div class="table-responsive">
                 <table class ="table table-bordered" border="1">
                     <tr>
                         <th align="center">Product name</th>
                         <th align="center">Shape</th>
-                        <th align="center">Height <?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . " )" ?></th>
-                        <th align="center">Length <?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . " )" ?></th>
-                        <th align="center">Width <?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . " )" ?></th>
+                        <?php if ($arrayParam['shapeCode'] == 1 || $arrayParam['shapeCode'] == 6) {?>
+                            <th align="center">Diameter <?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . " )" ?></th>
+                        <?php } else if ($arrayParam['shapeCode'] == 2 || $arrayParam['shapeCode'] == 9) { ?>
+                            <th align="center">Length <?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . " )" ?></th>
+                            <th align="center">Height <?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . " )" ?></th>
+                            <th align="center">Width <?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . " )" ?></th>
+                        <?php } else if ($arrayParam['shapeCode'] == 3) { ?>
+                            <th align="center">Height <?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . " )" ?></th>
+                            <th align="center">Length <?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . " )" ?></th>
+                            <th align="center">Width <?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . " )" ?></th>
+                        <?php } else if ($arrayParam['shapeCode'] == 4) { ?>
+                            <th align="center">Diameter <?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . " )" ?></th>
+                            <th align="center">Height <?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . " )" ?></th>
+                        <?php } else if ($arrayParam['shapeCode'] == 5) { ?>
+                            <th align="center">Diameter <?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . " )" ?></th>
+                            <th align="center">Length <?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . " )" ?></th>
+                        <?php } else if ($arrayParam['shapeCode'] == 7) { ?>
+                            <th align="center">Height <?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . " )" ?></th>
+                            <th align="center">Diameter <?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . " )" ?></th>
+                        <?php } else if ($arrayParam['shapeCode'] == 8) { ?>
+                            <th align="center">Length <?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . " )" ?></th>
+                            <th align="center">Diameter <?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . " )" ?></th>
+                        <?php } ?>
                         <th align="center">Real product mass per unit <?php echo "(" . $arrayParam['symbol']['massSymbol'] . " )" ?></th>
                         <th align="center">Same temperature throughout product.</th>
                         <th align="center">Initial temperature <?php echo "(" . $arrayParam['symbol']['temperatureSymbol'] . " )" ?></th>
@@ -192,9 +213,16 @@
                     <tr>
                         <td align="center"><?php echo $arrayParam['product']->PRODNAME ?></td>
                         <td align="center"><?php echo $arrayParam['shapeName']->LABEL ?></td>
-                        <td align="center"><?php echo $arrayParam['proElmtParam1'] ?></td>
-                        <td align="center"><?php echo $arrayParam['proElmtParam2'] ?></td>
-                        <td align="center"><?php echo $arrayParam['proElmtParam3'] ?></td>
+                        <?php if ($arrayParam['shapeCode'] == 1 || $arrayParam['shapeCode'] == 6) {?>
+                            <td align="center"><?php echo $arrayParam['proElmtParam2'] ?></td>
+                        <?php } else if ($arrayParam['shapeCode'] == 2 || $arrayParam['shapeCode'] == 9 || $arrayParam['shapeCode'] == 3) { ?>
+                            <td align="center"><?php echo $arrayParam['proElmtParam1'] ?></td>
+                            <td align="center"><?php echo $arrayParam['proElmtParam2'] ?></td>
+                            <td align="center"><?php echo $arrayParam['proElmtParam3'] ?></td>
+                        <?php } else if ($arrayParam['shapeCode'] == 4 || $arrayParam['shapeCode'] == 5 || $arrayParam['shapeCode'] == 7|| $arrayParam['shapeCode'] == 8) { ?>
+                            <td align="center"><?php echo $arrayParam['proElmtParam1'] ?></td>
+                            <td align="center"><?php echo $arrayParam['proElmtParam2'] ?></td>
+                        <?php } ?>
                         <td align="center"><?php echo $arrayParam['productRealW'] ?></td>
                         <td align="center"><?php echo $arrayParam['product']->PROD_ISO == 1 ? "YES" : "NO" ?></td>
                         <td align="center"><?php echo $arrayParam['productionINTL'] ?></td>
@@ -220,9 +248,9 @@
                         <td align="center"><?php echo $resproductComps['PROD_ELMT_NAME'] ?></td>
                         <td align="center"><?php echo $resproductComps['SHAPE_PARAM2'] ?></td>
                         <td align="center"><?php echo $resproductComps['PROD_ELMT_REALWEIGHT'] ?></td>
-                        <td align="center"><?php echo ($resproductComps['PROD_ELMT_ISO'] == 1) ? "YES" : "NO" ?></td>
+                        <td align="center"><?php echo ($resproductComps['PROD_ELMT_ISO'] == 0) ? "YES" : "NO" ?></td>
                         <td align="center"><?php echo "" ?></td>
-                        <td align="center"><?php echo ($resproductComps['PROD_ELMT_ISO'] == 1 )|| ($resproductComps['PROD_ELMT_ISO'] == 2) ? '' : "non isothermal" ?></td>
+                        <td align="center"><?php echo ($resproductComps['PROD_ELMT_ISO'] == 0 )|| ($resproductComps['PROD_ELMT_ISO'] == 2) ? '' : "non isothermal" ?></td>
                     </tr>
                     <?php } ?>
                 </table>
@@ -567,7 +595,7 @@
                         <?php } ?>
                     </tr>
                 <?php } ?>
-                <?php foreach($consumptions as $resconsumptions) { ?>
+                <?php foreach($consumptions as $key => $resconsumptions) { ?>
                     <tr>
                         <td align="center" rowspan="2"><?php echo $resconsumptions['equipName'] ?></td>
                         <td align="center" ><?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></td>
@@ -609,40 +637,78 @@
                     </tr>
                     <tr>
                         <td align="center"><?php echo "(" . $arrayParam['symbol']['monetarySymbol'] . " )" ?></td>
-                        <?php if ($arrayParam['params']['CONS_OVERALL'] == 1) { ?>
-                        <td align="center"><?php echo "--" ?></td>
-                        <?php } ?>
-                        <?php if ($arrayParam['params']['CONS_TOTAL'] == 1) { ?>
-                        <td align="center"><?php echo "--" ?></td>
-                        <?php } ?>
-                        <?php if ($arrayParam['params']['CONS_SPECIFIC'] == 1) { ?>
-                        <td align="center"><?php echo "--" ?></td>
-                        <?php } ?>
-                        <?php if ($arrayParam['params']['CONS_HOUR'] == 1) { ?>
-                        <td align="center"><?php echo "--" ?></td>
-                        <?php } ?>
-                        <?php if ($arrayParam['params']['CONS_DAY'] == 1) { ?>
-                        <td align="center"><?php echo "--" ?></td>
-                        <?php } ?>
-                        <?php if ($arrayParam['params']['CONS_WEEK'] == 1) { ?>
-                        <td align="center"><?php echo "--" ?></td>
-                        <?php } ?>
-                        <?php if ($arrayParam['params']['CONS_MONTH'] == 1) { ?>
-                        <td align="center"><?php echo "--" ?></td>
-                        <?php } ?>
-                        <?php if ($arrayParam['params']['CONS_YEAR'] == 1) { ?>
-                        <td align="center"><?php echo "--" ?></td>
-                        <?php } ?>
-                        <?php if ($arrayParam['params']['CONS_EQUIP'] == 1) { ?>
-                        <td align="center"><?php echo "--" ?></td>
-                        <td align="center"><?php echo "--" ?></td>
-                        <?php } ?>
-                        <?php if ($arrayParam['params']['CONS_PIPE'] == 1) { ?>
-                        <td align="center"><?php echo "--" ?></td>
-                        <td align="center"><?php echo "--" ?></td>
-                        <?php } ?>
-                        <?php if ($arrayParam['params']['CONS_TANK'] == 1) { ?>
-                        <td align="center"><?php echo "--" ?></td>
+                        <?php if ($arrayParam['study']['OPTION_ECO'] != 1) { ?>
+                            <?php if ($arrayParam['params']['CONS_OVERALL'] == 1) { ?>
+                            <td align="center"><?php echo "--" ?></td>
+                            <?php } ?>
+                            <?php if ($arrayParam['params']['CONS_TOTAL'] == 1) { ?>
+                            <td align="center"><?php echo "--" ?></td>
+                            <?php } ?>
+                            <?php if ($arrayParam['params']['CONS_SPECIFIC'] == 1) { ?>
+                            <td align="center"><?php echo "--" ?></td>
+                            <?php } ?>
+                            <?php if ($arrayParam['params']['CONS_HOUR'] == 1) { ?>
+                            <td align="center"><?php echo "--" ?></td>
+                            <?php } ?>
+                            <?php if ($arrayParam['params']['CONS_DAY'] == 1) { ?>
+                            <td align="center"><?php echo "--" ?></td>
+                            <?php } ?>
+                            <?php if ($arrayParam['params']['CONS_WEEK'] == 1) { ?>
+                            <td align="center"><?php echo "--" ?></td>
+                            <?php } ?>
+                            <?php if ($arrayParam['params']['CONS_MONTH'] == 1) { ?>
+                            <td align="center"><?php echo "--" ?></td>
+                            <?php } ?>
+                            <?php if ($arrayParam['params']['CONS_YEAR'] == 1) { ?>
+                            <td align="center"><?php echo "--" ?></td>
+                            <?php } ?>
+                            <?php if ($arrayParam['params']['CONS_EQUIP'] == 1) { ?>
+                            <td align="center"><?php echo "--" ?></td>
+                            <td align="center"><?php echo "--" ?></td>
+                            <?php } ?>
+                            <?php if ($arrayParam['params']['CONS_PIPE'] == 1) { ?>
+                            <td align="center"><?php echo "--" ?></td>
+                            <td align="center"><?php echo "--" ?></td>
+                            <?php } ?>
+                            <?php if ($arrayParam['params']['CONS_TANK'] == 1) { ?>
+                            <td align="center"><?php echo "--" ?></td>
+                            <?php } ?>
+                        <?php } else { ?>
+                            <?php if ($arrayParam['params']['CONS_OVERALL'] == 1) { ?>
+                            <td align="center"><?php echo $economic[$key]['tc'] ?></td>
+                            <?php } ?>
+                            <?php if ($arrayParam['params']['CONS_TOTAL'] == 1) { ?>
+                            <td align="center"><?php echo $economic[$key]['kgProduct'] ?></td>
+                            <?php } ?>
+                            <?php if ($arrayParam['params']['CONS_SPECIFIC'] == 1) { ?>
+                            <td align="center"><?php echo $economic[$key]['product'] ?></td>
+                            <?php } ?>
+                            <?php if ($arrayParam['params']['CONS_HOUR'] == 1) { ?>
+                            <td align="center"><?php echo $economic[$key]['hour'] ?></td>
+                            <?php } ?>
+                            <?php if ($arrayParam['params']['CONS_DAY'] == 1) { ?>
+                            <td align="center"><?php echo $economic[$key]['day'] ?></td>
+                            <?php } ?>
+                            <?php if ($arrayParam['params']['CONS_WEEK'] == 1) { ?>
+                            <td align="center"><?php echo $economic[$key]['week'] ?></td>
+                            <?php } ?>
+                            <?php if ($arrayParam['params']['CONS_MONTH'] == 1) { ?>
+                            <td align="center"><?php echo $economic[$key]['month'] ?></td>
+                            <?php } ?>
+                            <?php if ($arrayParam['params']['CONS_YEAR'] == 1) { ?>
+                            <td align="center"><?php echo $economic[$key]['year'] ?></td>
+                            <?php } ?>
+                            <?php if ($arrayParam['params']['CONS_EQUIP'] == 1) { ?>
+                            <td align="center"><?php echo $economic[$key]['eqptPerm'] ?></td>
+                            <td align="center"><?php echo $economic[$key]['eqptCold'] ?></td>
+                            <?php } ?>
+                            <?php if ($arrayParam['params']['CONS_PIPE'] == 1) { ?>
+                            <td align="center"><?php echo $economic[$key]['linePerm'] ?></td>
+                            <td align="center"><?php echo $economic[$key]['lineCold'] ?></td>
+                            <?php } ?>
+                            <?php if ($arrayParam['params']['CONS_TANK'] == 1) { ?>
+                            <td align="center"><?php echo $economic[$key]['tank'] ?></td>
+                            <?php } ?>
                         <?php } ?>
                     </tr>
                 <?php } ?>
@@ -802,11 +868,11 @@
             <?php if ($arrayParam['params']['ISOCHRONE_V'] == 1) { ?>  
             <h4><?php echo $resproSections['equipName'] ?></h4>
                 <?php if ($resproSections['selectedAxe'] == 1) {?> 
-                Values - Dimension <?php echo $resproSections['selectedAxe'] . "(" . "*," . $resproSections['axeTemp'][0] . "," . $resproSections['axeTemp'][0] . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?>  
+                Values - Dimension <?php echo $resproSections['selectedAxe'] . "(" . "*," . $resproSections['axeTemp'][0] . "," . $resproSections['axeTemp'][1] . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?>  
                 <?php } else if ($resproSections['selectedAxe'] == 2) { ?>
-                Values - Dimension <?php echo $resproSections['selectedAxe'] . "(" . $resproSections['axeTemp'][0] . ",*," . $resproSections['axeTemp'][0] . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?>  
+                Values - Dimension <?php echo $resproSections['selectedAxe'] . "(" . $resproSections['axeTemp'][0] . ",*," . $resproSections['axeTemp'][1] . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?>  
                 <?php } else if ($resproSections['selectedAxe'] == 3) {?>
-                Values - Dimension <?php echo $resproSections['selectedAxe'] . "(" . $resproSections['axeTemp'][0] . "," . $resproSections['axeTemp'][0] . ",*" . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?>  
+                Values - Dimension <?php echo $resproSections['selectedAxe'] . "(" . $resproSections['axeTemp'][0] . "," . $resproSections['axeTemp'][1] . ",*" . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?>  
                 <?php } ?>
                 <div class="values-dim2">
                     <div class="table-responsive">
@@ -836,17 +902,17 @@
                 <div class="graphic-dim2" align="center"> 
                 <?php if ($arrayParam['params']['ISOCHRONE_G'] == 1) { ?> 
                 <?php if ($resproSections['selectedAxe'] == 1) {?> 
-                Graphic - Dimension <?php echo $resproSections['selectedAxe'] . "(" . "*," . $resproSections['axeTemp'][0] . "," . $resproSections['axeTemp'][0] . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?> 
+                Graphic - Dimension <?php echo $resproSections['selectedAxe'] . "(" . "*," . $resproSections['axeTemp'][0] . "," . $resproSections['axeTemp'][1] . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?> 
                 <p> 
                     <img src="<?php echo $arrayParam['host'] . "/productSection/" . $arrayParam['study']['USERNAM'] . "/" .  $resproSections['idStudyEquipment'] . "-" . $resproSections['selectedAxe'] . ".png" ?>" style="max-width: 640px">
                     <?php } else if ($resproSections['selectedAxe'] == 2) { ?>
                 </p>
-                Graphic - Dimension <?php echo $resproSections['selectedAxe'] . "(" . $resproSections['axeTemp'][0] . ",*," . $resproSections['axeTemp'][0] . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?>  
+                Graphic - Dimension <?php echo $resproSections['selectedAxe'] . "(" . $resproSections['axeTemp'][0] . ",*," . $resproSections['axeTemp'][1] . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?>  
                 <p>
                     <img src="<?php echo $arrayParam['host'] . "/productSection/" . $arrayParam['study']['USERNAM'] . "/" .  $resproSections['idStudyEquipment'] . "-" . $resproSections['selectedAxe'] . ".png" ?>" style="max-width: 640px">
                     <?php } else if ($resproSections['selectedAxe'] == 3) {?>
                 </p>
-                Graphic - Dimension <?php echo $resproSections['selectedAxe'] . "(" . $resproSections['axeTemp'][0] . "," . $resproSections['axeTemp'][0] . ",*" . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?>  
+                Graphic - Dimension <?php echo $resproSections['selectedAxe'] . "(" . $resproSections['axeTemp'][0] . "," . $resproSections['axeTemp'][1] . ",*" . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?>  
                 <p>
                     <img src="<?php echo $arrayParam['host'] . "/productSection/" . $arrayParam['study']['USERNAM'] . "/" .  $resproSections['idStudyEquipment'] . "-" . $resproSections['selectedAxe'] . ".png" ?>" style="max-width: 640px">
                     <?php } ?>
