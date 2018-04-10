@@ -2157,12 +2157,19 @@ class Output extends Controller
     {
         set_time_limit(1000);
         $input = $this->request->all();
+        $refreshTemp = $input['refreshTemp'];
         $idStudy = $input['idStudy'];
         $idStudyEquipment = $input['idStudyEquipment'];
         $selectedPlan = $input['selectedPlan'];
-        $pasTemp = $input['temperatureStep'];
-        $temperatureMin = ($input['temperatureMin'] != 0) ? $this->unit->prodTemperature($input['temperatureMin']) : $input['temperatureMin'];
-        $temperatureMax = ($input['temperatureMax'] != 0) ? $this->unit->prodTemperature($input['temperatureMax']) : $input['temperatureMax'];
+        if ($refreshTemp == 1) {
+            $pasTemp = $input['temperatureStep'];
+            $temperatureMin = $this->unit->prodTemperature($input['temperatureMin']);
+            $temperatureMax = $this->unit->prodTemperature($input['temperatureMax']);
+        } else {
+            $pasTemp = -1.0;
+            $temperatureMin = 0.0;
+            $temperatureMax = 0.0;
+        }
         $lfDwellingTime = $input['timeSelected'];
         $axisX = $input['axisX'];
         $axisY = $input['axisY'];
