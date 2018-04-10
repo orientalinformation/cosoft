@@ -194,5 +194,25 @@ class MinMaxService
         return $minMax; 
     }
 
+    public function getMinMaxTankCapacity($limitItem, $typeunit, $decimal)
+    {
+        $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
+        $minMax->LIMIT_MAX = $this->units->tankCapacity($minMax->LIMIT_MAX, $typeunit, $decimal, 1);
+        $minMax->LIMIT_MIN = $this->units->tankCapacity($minMax->LIMIT_MIN, $typeunit, $decimal, 1);
+        $minMax->DEFAULT_VALUE = $this->units->tankCapacity($minMax->DEFAULT_VALUE, $typeunit, $decimal,1);
+
+        return $minMax; 
+    }
+
+    public function getMinMaxLineDimension($limitItem, $decimal)
+    {
+        $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
+        $minMax->LIMIT_MAX = $this->units->lineDimension($minMax->LIMIT_MAX, $decimal, 1);
+        $minMax->LIMIT_MIN = $this->units->lineDimension($minMax->LIMIT_MIN, $decimal, 1);
+        $minMax->DEFAULT_VALUE = $this->units->lineDimension($minMax->DEFAULT_VALUE, $decimal,1);
+
+        return $minMax; 
+    }
+
     // end HAIDT
 }

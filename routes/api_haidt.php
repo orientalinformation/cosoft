@@ -438,3 +438,11 @@ $router->POST('/api/v1/referencedata/checkpacking', 'Api1\\PackingElements@check
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/users/{id}/unitsmonetary', 'Api1\\Users@getMonetaryUser');
+
+/**
+ * POST checkPipeline
+ * Summary:
+ * Notes: Check unit min max Pipeline
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/referencedata/checkpipeline', 'Api1\\PipeLine@checkPipeline');
