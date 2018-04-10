@@ -599,6 +599,104 @@ class ReportService
         return $result;
     }
 
+    public function getAnalyticalEconomic($idStudy)
+    {
+        $study = Study::find($idStudy);
+
+        $lfcoef = $this->unit->unitConvert($this->value->MASS_PER_UNIT, 1.0);
+
+        $calculationMode = $study->CALCULATION_MODE;
+
+        $studyEquipments = StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
+
+        $result = array();
+
+        foreach ($studyEquipments as $row) {
+            $capabilitie = $row->CAPABILITIES;
+            $equipStatus = $row->EQUIP_STATUS;
+            $brainType = $row->BRAIN_TYPE;
+            $idCoolingFamily = $row->ID_COOLING_FAMILY;
+            $idStudyEquipment = $row->ID_STUDY_EQUIPMENTS;
+
+            if ($this->equip->getCapability($capabilitie, 256)) {
+                $equipName = $this->equip->getSpecificEquipName($idStudyEquipment);
+                $economicResult = EconomicResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->first();
+
+                $studEqpPrm = StudEqpPrm::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("VALUE_TYPE", 300)->first();
+                $lfSetpoint = 0.0;
+                if (!empty($studEqpPrm)) {
+                    $lfSetpoint = $studEqpPrm->VALUE;
+                }
+
+                $dimaR = DimaResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("SETPOINT", $lfSetpoint)->first();
+
+                if ($economicResult != null) {
+                    if ($dimaR != null) {
+                        $dimaStatus = $this->dima->getCalculationStatus($dimaR->DIMA_STATUS);
+                        $equipStatus = $row->EQUIP_STATUS;
+                    } else {
+                        $dimaStatus = 1;
+                        $equipStatus = 0;
+                    }
+
+                    $consoToDisplay = $this->eco->isConsoToDisplay($dimaStatus, $equipStatus);
+                    if (!$consoToDisplay) {
+                        $tc = "****";
+                        $kgProduct = "****";
+                        $product = "****";
+                        $day = "****";
+                        $week = "****";
+                        $hour = "****";
+                        $year = "****";
+                        $eqptPerm = "****";
+                        $eqptCold = "****";
+                        $lineCold = "****";
+                        $linePerm = "****";
+                        $tank = "****";
+                    } else {
+                        $tc = $this->unit->monetary($economicResult->COST_TOTAL);
+                        if ($lfcoef != 0.0) {
+                            $kgProduct = $this->unit->monetary($economicResult->COST_KG / $lfcoef);
+                            $product = $this->unit->monetary($economicResult->COST_PRODUCT / $lfcoef);
+                        } else {
+                            $kgProduct = $product = "****";
+                        }
+
+                        $day = $this->unit->monetary($economicResult->COST_DAY, 0);
+                        $week = $this->unit->monetary($economicResult->COST_WEEK, 0);
+                        $hour = $this->unit->monetary($economicResult->COST_HOUR);
+                        $year = $this->unit->monetary($economicResult->COST_YEAR, 0);
+                        $eqptCold = $this->unit->monetary($economicResult->COST_MAT_GETCOLD);
+                        $eqptPerm = $this->unit->monetary($economicResult->COST_MAT_PERM);
+                        $lineCold = $this->unit->monetary($economicResult->COST_LINE_GETCOLD);
+                        $linePerm = $this->unit->monetary($economicResult->COST_LINE_PERM);
+                        $tank = $this->unit->monetary($economicResult->COST_TANK);
+                    }
+
+                    $item["id"] = $idStudyEquipment;
+                    $item["equipName"] = $equipName;
+                    $item["tc"] = $tc;
+                    $item["kgProduct"] = $kgProduct;
+                    $item["product"] = $product;
+                    $item["day"] = $day;
+                    $item["week"] = $week;
+                    $item["hour"] = $hour;
+                    $item["year"] = $year;
+                    $item["eqptPerm"] = $eqptPerm;
+                    $item["eqptCold"] = $eqptCold;
+                    $item["lineCold"] = $lineCold;
+                    $item["linePerm"] = $linePerm;
+                    $item["tank"] = $tank;
+
+                    $result[] = $item;
+                }
+            }
+
+
+        }
+
+        return $result;
+    }
     public function getProInfoStudy($idStudy)
     {
         $production = Production::select("PROD_FLOW_RATE", "AVG_T_INITIAL")->where("ID_STUDY", $idStudy)->first();

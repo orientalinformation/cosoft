@@ -429,6 +429,7 @@ class Studies extends Controller
                         $studyelmt = new StudyEquipment();
                         $studyelmt = $stuElmt->replicate();
                         $studyelmt->ID_STUDY = $study->ID_STUDY;
+                        $studyelmt->BRAIN_TYPE = 0;
                         unset($studyelmt->ID_STUDY_EQUIPMENTS);
                         if ($studyelmt->save()) {
                             $studyelmtId = $studyelmt->ID_STUDY_EQUIPMENTS;
