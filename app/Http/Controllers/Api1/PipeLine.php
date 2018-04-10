@@ -10,6 +10,9 @@ use App\Models\Translation;
 use App\Models\LineElmt;
 use App\Models\CoolingFamily;
 use App\Models\LineDefinition;
+use App\Cryosoft\UnitsService;
+use App\Cryosoft\MinMaxService;
+use App\Cryosoft\ValueListService;
 
 
 class PipeLine extends Controller
@@ -25,16 +28,30 @@ class PipeLine extends Controller
      */
     protected $auth;
     
+    /**
+	 * @var App\Cryosoft\UnitsService
+	 */
+    protected $units;
+    
+        /**
+	 * @var App\Cryosoft\MinMaxService
+	 */
+    protected $minmax;
+    
+    protected $value;
 
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth)
+    public function __construct(Request $request, Auth $auth, UnitsService $units, MinMaxService $minmax, ValueListService $value)
     {
         $this->request = $request;
         $this->auth = $auth;
+        $this->units = $units;
+        $this->minmax = $minmax;
+        $this->value = $value;
     }
 
     public function findRefPipeline()
@@ -43,11 +60,31 @@ class PipeLine extends Controller
         ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
         ->where('Translation.TRANS_TYPE', 27)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
         ->orderBy('LABEL', 'ASC')->get();
+
+        foreach ($mine as $key) {
+            $key->ELMT_PRICE = $this->units->monetary($key->ELMT_PRICE, 3, 1);
+
+            if ($key->ELT_TYPE == 3) {
+                $key->ELT_SIZE = $this->units->tankCapacity($key->ELT_SIZE, $this->value->RESERVOIR_CAPACITY_CO2, 3, 1);
+            } else {
+                $key->ELT_SIZE = $this->units->lineDimension($key->ELT_SIZE, 3, 1);
+            }            
+        }
         
         $others = LineElmt::where('ID_USER', '!=', $this->auth->user()->ID_USER)
         ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
         ->where('Translation.TRANS_TYPE', 27)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
         ->orderBy('LABEL', 'ASC')->get();
+
+        foreach ($others as $key) {
+            $key->ELMT_PRICE = $this->units->monetary($key->ELMT_PRICE, 3, 1);
+
+            if ($key->ELT_TYPE == 3) {
+                $key->ELT_SIZE = $this->units->tankCapacity($key->ELT_SIZE, $this->value->RESERVOIR_CAPACITY_CO2, 3, 1);
+            } else {
+                $key->ELT_SIZE = $this->units->lineDimension($key->ELT_SIZE, 3, 1);
+            }            
+        }
 
         return compact('mine', 'others');
     }
