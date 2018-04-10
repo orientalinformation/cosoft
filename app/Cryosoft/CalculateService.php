@@ -212,7 +212,7 @@ class CalculateService
     {
 		$lfStep = 0.0;
 
-		if ($this->calParametersDef != null) {
+		if ($this->calParametersDef) {
 			$lfStep = $this->calParametersDef->STORAGE_STEP_DEF * $this->calParametersDef->TIME_STEP_DEF;
 		}
 
@@ -237,8 +237,10 @@ class CalculateService
     {
 		$etat = 0;
 
-		if ($this->calParametersDef->VERT_SCAN_DEF) {
-			$etat = 1;
+		if ($this->calParametersDef) {
+			if ($this->calParametersDef->VERT_SCAN_DEF) {
+				$etat = 1;
+			}
 		}
 		return $etat;
 	}
@@ -247,8 +249,10 @@ class CalculateService
     {
 		$etat = 0;
 
-		if (!$this->calParametersDef->VERT_SCAN_DEF) {
-			$etat = 1;
+		if ($this->calParametersDef) {
+			if (!$this->calParametersDef->VERT_SCAN_DEF) {
+				$etat = 1;
+			}
 		}
 		return $etat;
 	}
@@ -256,8 +260,11 @@ class CalculateService
 	public function getHradioOn() 
     {
 		$etat = 0;
-		if ($this->calParametersDef->HORIZ_SCAN_DEF) {
-			$etat = 1;
+
+		if ($this->calParametersDef) {
+			if ($this->calParametersDef->HORIZ_SCAN_DEF) {
+				$etat = 1;
+			}
 		}
 		return $etat;
 	}
@@ -265,8 +272,10 @@ class CalculateService
 	public function getHradioOff() 
     {
 		$etat = 0;
-		if (!$this->calParametersDef->HORIZ_SCAN_DEF) {
-			$etat = 1;
+		if ($this->calParametersDef) {
+			if (!$this->calParametersDef->HORIZ_SCAN_DEF) {
+				$etat = 1;
+			}
 		}
 		return $etat;
 	}
