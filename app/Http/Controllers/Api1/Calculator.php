@@ -1430,6 +1430,7 @@ class Calculator extends Controller
         $hRadioOn = 1;
         $vRadioOn = $tempPtSurf = $tempPtIn = $tempPtBot = $tempPtAvg = $nbOptimIter = 0;
         $maxIter = 100;
+        if (isset($input['idStudyEquipment'])) $idStudyEquipment = intval($input['idStudyEquipment']);
 
         if (isset($input['typeCalculate'])) $typeCalculate = intval($input['typeCalculate']);
         if (isset($input['dwellingTimes'])) $newLTs = $input['dwellingTimes'];
@@ -1467,13 +1468,15 @@ class Calculator extends Controller
         if (isset($input['sdisableTR'])) $sdisableTR = $input['sdisableTR'];
         if (isset($input['sdisableTOC'])) $sdisableTOC = $input['sdisableTOC'];
 
+        $eq = $this->getLimitItem($idStudyEquipment);
+
         if (intval($sdisableTS) != 1 || intval($typeCalculate) != 3) {
 
             for ($i = 0; $i < count($newLTs) ; $i++) { 
                 $ts = $this->units->time(doubleval($newLTs[$i]["value"]), 1, 0);
-                $checkTS = $this->minmax->checkMinMaxValue($ts, 1146);
+                $checkTS = $this->minmax->checkMinMaxValue($ts, $eq->ITEM_TS);
                 if ( !$checkTS ) {
-                    $mm = $this->minmax->getMinMaxTime(1146);
+                    $mm = $this->minmax->getMinMaxTime($eq->ITEM_TS);
                     return  [
                         "Message" => "Value out of range in Residence / Dwell time (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
                     ];
@@ -1486,9 +1489,9 @@ class Calculator extends Controller
 
                 $tr = $this->units->prodTemperature(doubleval($newLTr[$i]["value"]), 0, 1);
     
-                $checkTS = $this->minmax->checkMinMaxValue($tr, 1145);
-                if ( !$checkTS ) {
-                    $mm = $this->minmax->getMinMaxProdTemperature(1145);
+                $checkTR = $this->minmax->checkMinMaxValue($tr, $eq->ITEM_TR);
+                if ( !$checkTR ) {
+                    $mm = $this->minmax->getMinMaxProdTemperature($eq->ITEM_TR);
                     return  [
                         "Message" => "Value out of range in Control temperature (" . round(doubleval($mm->LIMIT_MIN)) . " : " . round(doubleval($mm->LIMIT_MAX)) . ")"
                     ];
@@ -1772,5 +1775,12 @@ class Calculator extends Controller
         }
         
         return 1;
+    }
+
+    public function getLimitItem($idSE)
+    {
+        $se = StudyEquipment::find($idSE);
+
+        return Equipment::find($se->ID_EQUIP);
     }
 }
