@@ -488,7 +488,7 @@ class StudyEquipmentService
                 $bret = false;
             }
         } catch (\Exception $e) {
-            throw new Exception("Error while writing initial temp from numerical results");
+            throw new \Exception("Error while writing initial temp from numerical results");
         }
 
         return $bret;
