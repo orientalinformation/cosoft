@@ -296,14 +296,22 @@ class PipeLine extends Controller
                         }
                     }
                 }
-                Translation::where('TRANS_TYPE', 27)->where('ID_TRANSLATION', $idPipeLine)->update(['LABEL' => $name]);;
+                Translation::where('TRANS_TYPE', 27)->where('ID_TRANSLATION', $idPipeLine)->update(['LABEL' => $name]);
+
+
+                if ($type == 3) {
+                    $size = $this->units->tankCapacity($size, $this->value->RESERVOIR_CAPACITY_CO2, 3, 0);
+                } else {
+                    $size = $this->units->lineDimension($size, 3, 0);
+                }
+
                 $lineElmt->LINE_VERSION = $version;
                 $lineElmt->LINE_COMMENT = $comment;
                 $lineElmt->MANUFACTURER = $manu;
                 $lineElmt->ELT_TYPE = $type;
                 $lineElmt->ID_COOLING_FAMILY = $cooling;
                 $lineElmt->INSULATION_TYPE = $insulation;
-                $lineElmt->ELMT_PRICE = $price;
+                $lineElmt->ELMT_PRICE = $this->units->monetary($price, 3, 0);
                 $lineElmt->ELT_SIZE = $size;
                 $lineElmt->ELT_LOSSES_1 = $losses1;
                 $lineElmt->ELT_LOSSES_2 = $losses2;
@@ -383,5 +391,93 @@ class PipeLine extends Controller
         ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
         ->where('Translation.TRANS_TYPE', 27)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
         ->where('ID_PIPELINE_ELMT', $idLineElmt)->first();
+    }
+
+    public function checkPipeline()
+    {
+        $input = $this->request->all();
+        
+        if (isset($input['LABEL'])) $name = $input['LABEL'];
+
+        if (isset($input['LINE_VERSION'])) $version = $input['LINE_VERSION'];
+
+        if (isset($input['LINE_COMMENT'])) $comment = $input['LINE_COMMENT'];
+
+        if (isset($input['MANUFACTURER'])) $manu = $input['MANUFACTURER'];
+
+        if (isset($input['ELT_TYPE'])) $type = $input['ELT_TYPE'];
+
+        if (isset($input['ID_COOLING_FAMILY'])) $cooling = $input['ID_COOLING_FAMILY'];
+
+        if (isset($input['INSULATION_TYPE'])) $insulation = $input['INSULATION_TYPE'];
+
+        if (isset($input['ELMT_PRICE'])) $price = $input['ELMT_PRICE'];
+
+        if (isset($input['ELT_SIZE'])) $size = $input['ELT_SIZE'];
+
+        if (isset($input['ELT_LOSSES_1'])) $losses1 = $input['ELT_LOSSES_1'];
+
+        if (isset($input['ELT_LOSSES_2'])) $losses2 = $input['ELT_LOSSES_2'];
+
+        if (isset($input['LINE_RELEASE'])) $release = $input['LINE_RELEASE'];
+
+        if ($type != 1) {
+            $losses2 = 0;
+
+            if ($type != 2) $losses1 = 0;
+        }
+
+        if (intval($type) != 2) {
+            $size = $this->units->lineDimension($size, 3, 0);
+            $checksize = $this->minmax->checkMinMaxValue($size, 1109);
+            if ( !$checksize ) {
+                $mm = $this->minmax->getMinMaxLineDimension(1109, 3);//getMinMaxLimitItem
+                return  [
+                    "Message" => "Value out of range in  Size (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+                ];
+            }
+        } else {
+            $size = $this->units->tankCapacity($size, $this->value->RESERVOIR_CAPACITY_CO2, 3, 0);
+            $checksize = $this->minmax->checkMinMaxValue($size, 1110);
+            if ( !$checksize ) {
+                $mm = $this->minmax->getMinMaxTankCapacity(1110, 3);//getMinMaxLimitItem
+                return  [
+                    "Message" => "Value out of range in  Size (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+                ];
+            }
+        }
+
+        if (intval($type) < 3) {
+
+            if (intval($type) != 2) {
+                $checklosses1 = $this->minmax->checkMinMaxValue($losses1, 1111);
+                if ( !$checklosses1 ) {
+                    $mm = $this->minmax->getMinMaxLimitItem(1111, 3);
+                    return  [
+                        "Message" => "Value out of range in  Losses in get cold (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+                    ];
+                }
+            } else {
+                $checklosses1 = $this->minmax->checkMinMaxValue($losses1, 1112);
+                if ( !$checklosses1 ) {
+                    $mm = $this->minmax->getMinMaxLimitItem(1112, 3);
+                    return  [
+                        "Message" => "Value out of range in  Rate of evaporation (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+                    ];
+                }
+            }
+
+            if (intval($type) == 1) {
+                $checklosses2 = $this->minmax->checkMinMaxValue($losses2, 1113);
+                if ( !$checklosses2 ) {
+                    $mm = $this->minmax->getMinMaxLimitItem(1113, 3);
+                    return  [
+                        "Message" => "Value out of range in  Permanent losses (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+                    ];
+                }
+            }
+        }
+
+        return 1;
     }
 }
