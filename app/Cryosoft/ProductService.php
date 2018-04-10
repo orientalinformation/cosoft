@@ -454,7 +454,7 @@ class ProductService
          * ETUDE AVEC ENFANT: enregistrement de la matrice 3D
          */
 
-        $lfTemp = $this->units->prodTemperature($stemp);
+        $lfTemp = floatval($this->units->prodTemperature($stemp));
 
         // short i, k;
         $i = $k = 0;
@@ -478,7 +478,10 @@ class ProductService
                 array_push($listTemp, $temp->toArray());
             } // for axis 2
         } // for axis 1
-        InitialTemperature::insert($listTemp);
+        $slices = array_chunk($listTemp, 100);
+        foreach ($slices as $slice) {
+            InitialTemperature::insert($slice);
+        }
         // save temperature inDB 
         // DBInitialTemperature . insertList(listTemp);
     }
