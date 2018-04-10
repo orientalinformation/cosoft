@@ -326,17 +326,19 @@ class Settings extends Controller
     public function getMyCalculationParametersDef()
     {
         $calculationparametersdef = \App\Models\CalculationParametersDef::find($this->auth->user()->ID_USER);
-        $calculationparametersdef->STOP_TOP_SURF_DEF = $this->units->prodTemperature($calculationparametersdef->STOP_TOP_SURF_DEF, 2, 1);
-        $calculationparametersdef->STOP_INT_DEF = $this->units->prodTemperature($calculationparametersdef->STOP_INT_DEF, 2, 1);
-        $calculationparametersdef->STOP_BOTTOM_SURF_DEF = $this->units->prodTemperature($calculationparametersdef->STOP_BOTTOM_SURF_DEF, 2, 1);
-        $calculationparametersdef->STOP_AVG_DEF = $this->units->prodTemperature($calculationparametersdef->STOP_AVG_DEF, 2, 1);
-        $calculationparametersdef->STUDY_ALPHA_TOP_DEF = $this->units->convectionCoeff($calculationparametersdef->STUDY_ALPHA_TOP_DEF, 2, 1);
-        $calculationparametersdef->STUDY_ALPHA_BOTTOM_DEF = $this->units->convectionCoeff($calculationparametersdef->STUDY_ALPHA_BOTTOM_DEF, 2, 1);
-        $calculationparametersdef->STUDY_ALPHA_LEFT_DEF = $this->units->convectionCoeff($calculationparametersdef->STUDY_ALPHA_LEFT_DEF, 2, 1);
-        $calculationparametersdef->STUDY_ALPHA_RIGHT_DEF = $this->units->convectionCoeff($calculationparametersdef->STUDY_ALPHA_RIGHT_DEF, 2, 1);
-        $calculationparametersdef->STUDY_ALPHA_FRONT_DEF = $this->units->convectionCoeff($calculationparametersdef->STUDY_ALPHA_FRONT_DEF, 2, 1);
-        $calculationparametersdef->STUDY_ALPHA_REAR_DEF = $this->units->convectionCoeff($calculationparametersdef->STUDY_ALPHA_REAR_DEF, 2, 1);
-        $calculationparametersdef->TIME_STEP_DEF = $this->units->time($calculationparametersdef->TIME_STEP_DEF, 3, 1);
+        if ($calculationparametersdef) {
+            $calculationparametersdef->STOP_TOP_SURF_DEF = $this->units->prodTemperature($calculationparametersdef->STOP_TOP_SURF_DEF, 2, 1);
+            $calculationparametersdef->STOP_INT_DEF = $this->units->prodTemperature($calculationparametersdef->STOP_INT_DEF, 2, 1);
+            $calculationparametersdef->STOP_BOTTOM_SURF_DEF = $this->units->prodTemperature($calculationparametersdef->STOP_BOTTOM_SURF_DEF, 2, 1);
+            $calculationparametersdef->STOP_AVG_DEF = $this->units->prodTemperature($calculationparametersdef->STOP_AVG_DEF, 2, 1);
+            $calculationparametersdef->STUDY_ALPHA_TOP_DEF = $this->units->convectionCoeff($calculationparametersdef->STUDY_ALPHA_TOP_DEF, 2, 1);
+            $calculationparametersdef->STUDY_ALPHA_BOTTOM_DEF = $this->units->convectionCoeff($calculationparametersdef->STUDY_ALPHA_BOTTOM_DEF, 2, 1);
+            $calculationparametersdef->STUDY_ALPHA_LEFT_DEF = $this->units->convectionCoeff($calculationparametersdef->STUDY_ALPHA_LEFT_DEF, 2, 1);
+            $calculationparametersdef->STUDY_ALPHA_RIGHT_DEF = $this->units->convectionCoeff($calculationparametersdef->STUDY_ALPHA_RIGHT_DEF, 2, 1);
+            $calculationparametersdef->STUDY_ALPHA_FRONT_DEF = $this->units->convectionCoeff($calculationparametersdef->STUDY_ALPHA_FRONT_DEF, 2, 1);
+            $calculationparametersdef->STUDY_ALPHA_REAR_DEF = $this->units->convectionCoeff($calculationparametersdef->STUDY_ALPHA_REAR_DEF, 2, 1);
+            $calculationparametersdef->TIME_STEP_DEF = $this->units->time($calculationparametersdef->TIME_STEP_DEF, 3, 1);
+        }
 
         return $calculationparametersdef;
     }
