@@ -282,32 +282,58 @@ class CalculateService
 
 	public function getMaxIter() 
     {
-		return intval($this->calParametersDef->MAX_IT_NB_DEF);
+    	$result = null;
+    	if ($this->calParametersDef) {
+    		$result = $this->calParametersDef->MAX_IT_NB_DEF;
+    	}
+		return intval($result);
 	}
 
 	public function getRelaxCoef() 
     {
-		return $this->calParametersDef->RELAX_COEFF_DEF;
+    	$result = null;
+    	if ($this->calParametersDef) {
+    		$result = $this->calParametersDef->RELAX_COEFF_DEF;
+    	}
+
+		return $result;
 	}
 
 	public function getTempPtSurf() 
     {
-		return $this->units->temperature($this->calParametersDef->STOP_TOP_SURF_DEF, 2, 1);
+    	$result = null;
+    	if ($this->calParametersDef) {
+    		$result = $this->units->temperature($this->calParametersDef->STOP_TOP_SURF_DEF, 2, 1);
+    	}
+		return $result;
 	}
 
 	public function getTempPtIn() 
     {
-		return $this->units->temperature($this->calParametersDef->STOP_INT_DEF, 2, 1);
+    	$result = null;
+    	if ($this->calParametersDef) {
+    		$result = $this->units->temperature($this->calParametersDef->STOP_INT_DEF, 2, 1);
+    	}
+		return $result;
 	}
 
 	public function getTempPtBot() 
     {
-		return $this->units->temperature($this->calParametersDef->STOP_BOTTOM_SURF_DEF, 2, 1);
+    	$result = null;
+    	if ($this->calParametersDef) {
+    		$result = $this->units->temperature($this->calParametersDef->STOP_BOTTOM_SURF_DEF, 2, 1);
+    	}
+		return $result;
 	}
 
 	public function getTempPtAvg() 
     {
-		return $this->units->temperature($this->calParametersDef->STOP_AVG_DEF, 2, 1);
+    	$result = null;
+    	if ($this->calParametersDef) {
+    		$result = $this->units->temperature($this->calParametersDef->STOP_AVG_DEF, 2, 1);
+    	}
+
+		return $result;
 	}
 
     public function getOption($idStudy, $key, $axe)
