@@ -132,12 +132,34 @@ class CalculateService
 		return $mmErrorT;
 	}
 
+	public function getOptimErrorTMinMax($minMax) 
+    {
+		$mmErrorT = 0.0;
+		if ($minMax) {
+			$mmErrorT = $this->units->deltaTemperature($minMax->DEFAULT_VALUE, 2, 0);
+		}
+
+		return $mmErrorT;
+	}
+
 	public function getOptimErrorH() 
     {
 		$mmErrorH = 0.0;
 		$minMax = $this->getMinMax(1131);
 		$uPercent = $this->units->uPercent();
 		$mmErrorH =  $this->units->convertCalculator($minMax->DEFAULT_VALUE, $uPercent["coeffA"], $uPercent["coeffB"], 2, 1);
+		return $mmErrorH;
+	}
+
+	public function getOptimErrorHMinMax($minMax) 
+    {
+		$mmErrorH = 0.0;
+		$uPercent = $this->units->uPercent();
+
+		if ($minMax) {
+			$mmErrorH =  $this->units->convertCalculator($minMax->DEFAULT_VALUE, intval($uPercent["coeffA"]), intval($uPercent["coeffB"]), 2, 0);
+		}
+
 		return $mmErrorH;
 	}
 

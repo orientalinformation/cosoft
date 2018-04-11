@@ -869,8 +869,8 @@ class Calculator extends Controller
         } else {
             $minMaxH = $this->brainCal->getMinMax(1131);
             $minMaxT = $this->brainCal->getMinMax(1132);
-            $ERROR_H = $this->units->convertCalculator($this->cal->getOptimErrorH(), intval($uPercent["coeffA"]), intval($uPercent["coeffB"]), 2, 0);
-            $ERROR_T = $this->units->deltaTemperature($this->cal->getOptimErrorT(), 2, 0);
+            $ERROR_H = $this->cal->getOptimErrorHMinMax($minMaxH);
+            $ERROR_T = $this->cal->getOptimErrorTMinMax($minMaxT);
             switch ($brainMode) {
                 case 1:
                     $calculationParameter->NB_OPTIM = 0;
@@ -894,24 +894,24 @@ class Calculator extends Controller
                     $calculationParameter->NB_OPTIM = 0;
                     $minMaxH = $this->brainCal->getMinMax(1133);
                     $minMaxT = $this->brainCal->getMinMax(1134);
-                    $calculationParameter->ERROR_H = $ERROR_H;
-                    $calculationParameter->ERROR_T = $ERROR_T;
+                    $calculationParameter->ERROR_H = $this->cal->getOptimErrorHMinMax($minMaxH);
+                    $calculationParameter->ERROR_T = $this->cal->getOptimErrorTMinMax($minMaxT);
                     break;
                 case 12:
                 case 16:
                     $minMaxH = $this->brainCal->getMinMax(1135);
                     $minMaxT = $this->brainCal->getMinMax(1136);
                     $calculationParameter->NB_OPTIM = 0;
-                    $calculationParameter->ERROR_H = $ERROR_H;
-                    $calculationParameter->ERROR_T = $ERROR_T;
+                    $calculationParameter->ERROR_H = $this->cal->getOptimErrorHMinMax($minMaxH);
+                    $calculationParameter->ERROR_T = $this->cal->getOptimErrorTMinMax($minMaxT);
                     break;
                 case 13:
                 case 17:
                     $minMaxH = $this->brainCal->getMinMax(1137);
                     $minMaxT = $this->brainCal->getMinMax(1138);
                     $calculationParameter->NB_OPTIM = 0;
-                    $calculationParameter->ERROR_H = $ERROR_H;
-                    $calculationParameter->ERROR_T = $ERROR_T;
+                    $calculationParameter->ERROR_H = $this->cal->getOptimErrorHMinMax($minMaxH);
+                    $calculationParameter->ERROR_T = $this->cal->getOptimErrorTMinMax($minMaxT);
             }
         }
         $calculationParameter->TIME_STEP = $this->units->timeStep($timeStep, 3, 0);
