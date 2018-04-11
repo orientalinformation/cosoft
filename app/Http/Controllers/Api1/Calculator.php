@@ -438,13 +438,19 @@ class Calculator extends Controller
             $ID_USER_STUDY = $study->ID_USER;
         }
 
-        if ($checkOptim == "true") {
-            $this->setBrainMode(11);
-            $brainMode = 11;
+        if ($typeCalculate == 3) {
+            $this->setBrainMode(13);
+            $brainMode = 13;
         } else {
-            $this->setBrainMode(12);
-            $brainMode = 12;
+            if ($checkOptim == "true") {
+                $this->setBrainMode(11);
+                $brainMode = 11;
+            } else {
+                $this->setBrainMode(12);
+                $brainMode = 12;
+            }
         }
+        
 
         $sdisableCalculate 	= $this->cal->disableCalculate($idStudy);
         $sdisableFields = $this->cal->disableFields($idStudy);
