@@ -1200,22 +1200,21 @@ class Calculator extends Controller
         $input = $request->all();
         $lfControlTemp = $lfLoadingRateMax = 0.0;
         $toc = 0;
-
+        
         $studyEquipment = StudyEquipment::find($idStudyEquipment);
+        $temperatures = [];
 
         if ($this->equipment->getCapability($studyEquipment->CAPABILITIES, 1)) {
-            $temperatures = [];
-
             if (isset($input['temperatures'])) {
                 $temperatures = $input['temperatures'];
                 if (count($temperatures) > 0) {
                     $lfControlTemp = doubleval($temperatures[0]['value']);
                 }
-            } else {
-                $temperatures = $this->brainCal->getListTr($idStudyEquipment);
-                if (count($temperatures) > 0) {
-                    $lfControlTemp = doubleval($temperatures[0]);
-                }
+            } 
+        } else {
+            $temperatures = $this->brainCal->getListTr($idStudyEquipment);
+            if (count($temperatures) > 0) {
+                $lfControlTemp = doubleval($temperatures[0]);
             }
         }
 
@@ -1423,12 +1422,12 @@ class Calculator extends Controller
     {
         $input = $this->request->all();
 
-        $checkOptim = $epsilonTemp = $epsilonEnth = $epsilonTemp = $epsilonEnth = $scheckStorage = $sdisableOptim = null;
+        $checkOptim = $epsilonTemp = $epsilonEnth = $epsilonTemp = $epsilonEnth = $scheckStorage = $sdisableOptim = $typeCalculate = null;
         $timeStep = 1.0;
         $precision = 0.5;
         $storagestep = $relaxCoef = 0.0; 
         $hRadioOn = 1;
-        $vRadioOn = $tempPtSurf = $tempPtIn = $tempPtBot = $tempPtAvg = $nbOptimIter = 0;
+        $vRadioOn = $tempPtSurf = $tempPtIn = $tempPtBot = $tempPtAvg = $nbOptimIter = $brainMode = 0;
         $maxIter = 100;
         if (isset($input['idStudyEquipment'])) $idStudyEquipment = intval($input['idStudyEquipment']);
 
@@ -1438,8 +1437,8 @@ class Calculator extends Controller
         if (isset($input['toc'])) $toc = intval($input['toc']);
 
         if (isset($input['checkOptim'])) $checkOptim = intval($input['checkOptim']);
-        if (isset($input['epsilonTemp'])) $epsilonTemp = $input['epsilonTemp'];
-        if (isset($input['epsilonEnth'])) $epsilonEnth = $input['epsilonEnth'];
+        if (isset($input['epsilonTemp'])) $epsilonTemp = floatval($input['epsilonTemp']);
+        if (isset($input['epsilonEnth'])) $epsilonEnth = floatval($input['epsilonEnth']);
         if (isset($input['nbOptimIter'])) $nbOptimIter = intval($input['nbOptimIter']);
 
         if (isset($input['timeStep'])) $timeStep = $input['timeStep'];
@@ -1468,7 +1467,17 @@ class Calculator extends Controller
         if (isset($input['sdisableTR'])) $sdisableTR = $input['sdisableTR'];
         if (isset($input['sdisableTOC'])) $sdisableTOC = $input['sdisableTOC'];
 
+        if ($typeCalculate == 1) {
+            $brainMode = 11;
+        } else if ($typeCalculate == 2) {
+            $brainMode = 12;
+        } else {
+            $brainMode = 13;
+        }
+       
         $eq = $this->getLimitItem($idStudyEquipment);
+        $minMaxT = $this->brainCal->getErrorTMaxMin($brainMode);
+        $minMaxH = $this->brainCal->getErrorHMaxMin($brainMode);
 
         if (intval($sdisableTS) != 1 || intval($typeCalculate) != 3) {
 
@@ -1514,19 +1523,19 @@ class Calculator extends Controller
 
         if (intval($checkOptim) == 1) {
             $epsilonTemp = $this->units->deltaTemperature($epsilonTemp, 2, 0);
-            $checkEpsilonTemp = $this->minmax->checkMinMaxValue($epsilonTemp, 1132);
+            $checkEpsilonTemp = $this->minmax->checkMinMaxValue($epsilonTemp, intval($minMaxT));
             if ( !$checkEpsilonTemp ) {
-                $mm = $this->minmax->getMinMaxDeltaTemperature(1132);
+                $mm = $this->minmax->getMinMaxDeltaTemperature(intval($minMaxT));
                 return  [
                     "Message" => "Value out of range in Temperature margin (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
                 ];
             }
 
             $uPercent = $this->units->uPercent();
-            $epsilonEnth =  $this->units->convertCalculator($epsilonEnth, $uPercent["coeffA"], $uPercent["coeffB"], 2, 0);
-            $checkEpsilonEnth = $this->minmax->checkMinMaxValue($epsilonEnth, 1131);
+            $epsilonEnth =  $this->units->convertCalculator($epsilonEnth, intval($uPercent["coeffA"]), intval($uPercent["coeffB"]), 2, 0);
+            $checkEpsilonEnth = $this->minmax->checkMinMaxValue($epsilonEnth, intval($minMaxH));
             if ( !$checkEpsilonEnth ) {
-                $mm = $this->minmax->getMinMaxUPercent(1131);
+                $mm = $this->minmax->getMinMaxUPercent(intval($minMaxH));
                 return  [
                     "Message" => "Value out of range in Enthalpy error (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
                 ];
@@ -1552,6 +1561,7 @@ class Calculator extends Controller
             if (doubleval($mm->LIMIT_MAX) > doubleval($countTS)) {
                 $mm->LIMIT_MAX = $countTS;
             }
+            
             $timeStep1 = $this->units->timeStep($timeStep, 3, 0);
             if ($timeStep1 < $mm->LIMIT_MIN || $timeStep > $mm->LIMIT_MAX) {
                 return  [
@@ -1559,6 +1569,7 @@ class Calculator extends Controller
                 ];
             }
         }
+
         if (intval($scheckStorage) != 1 || intval($scheckStorage) == 1) {
             $checkPrecision = $this->minmax->checkMinMaxValue($precision, 1019);
             if ( !$checkPrecision ) {
