@@ -355,6 +355,58 @@ class BrainCalculateService
         return $sOptimErrorT;
     }
 
+    public function getErrorTMaxMin($brainMode)
+    {
+        $minMax = null;
+        switch ($brainMode) {
+            case 1:
+            case 2:
+            case 10:
+            case 14:
+                $minMax = 1132;
+                break;
+            case 11:
+            case 15:
+                $minMax = 1134;
+                break;
+            case 12:
+            case 16:
+                $minMax = 1136;
+                break;
+
+            case 13:
+            case 17:
+                $minMax = 1138;
+        }
+        return $minMax;
+    }
+
+    public function getErrorHMaxMin($brainMode)
+    {
+        $minMax = null;
+        switch ($brainMode) {
+            case 1:
+            case 2:
+            case 10:
+            case 14:
+                $minMax = 1131;
+                break;
+            case 11:
+            case 15:
+                $minMax = 1133;
+                break;
+            case 12:
+            case 16:
+                $minMax = 1135;
+                break;
+
+            case 13:
+            case 17:
+                $minMax = 1137;
+        }
+        return $minMax;
+    }
+
     public function getOptimErrorH($brainMode, $idStudyEquipment)
     {
         $sOptimErrorH = 0;
