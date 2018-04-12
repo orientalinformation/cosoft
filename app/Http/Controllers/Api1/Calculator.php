@@ -424,7 +424,7 @@ class Calculator extends Controller
     public function getStudyEquipmentCalculation()
     {
         $input = $this->request->all();
-        $idStudy = $idStudyEquipment = $typeCalculate = $ID_USER_STUDY = null;
+        $idStudy = $idStudyEquipment = $typeCalculate = $ID_USER_STUDY = $equipment = null;
         $checkOptim = false;
 
         if (isset($input['idStudy'])) $idStudy = intval($input['idStudy']);
@@ -457,6 +457,11 @@ class Calculator extends Controller
         
         $sdisableTS = $sdisableTR = $sdisableTOC = $sdisableOptim = $sdisableNbOptim = $sdisableStorage = 0;
         $scheckOptim = $scheckStorage = 0;
+
+        $studyEquipment = StudyEquipment::find($idStudyEquipment);
+        if ($studyEquipment) {
+            $equipment = Equipment::find($studyEquipment->ID_EQUIP);
+        }
 
         if ($sdisableFields == 0) {
             switch($brainMode)
@@ -494,7 +499,16 @@ class Calculator extends Controller
                 default :
                     $sdisableTS = $sdisableTR = $sdisableTOC = $sdisableNbOptim = $sdisableStorage = 1;
                     $scheckOptim = $scheckStorage = 0;
-            }		
+            }	
+
+            if ($equipment) {
+                if (!$this->equipment->getCapability($equipment->CAPABILITIES, $this->value->CAP_OPTIM_ENABLE)) {
+                    $sdisableOptim = $sdisableNbOptim = 1;
+                    $scheckOptim = 0;
+                } else {
+                    $sdisableOptim = 0;
+                }
+            }
         } else {
             $sdisableTS = $sdisableTR = $sdisableTOC = $sdisableOptim = $sdisableNbOptim = $sdisableStorage = 1;
             $scheckOptim = $scheckStorage = 0;
@@ -1794,10 +1808,14 @@ class Calculator extends Controller
         return 1;
     }
 
-    public function getLimitItem($idSE)
+    public function getLimitItem($idStudyEquipment)
     {
-        $se = StudyEquipment::find($idSE);
+        $equipment = null;
+        $studyEquipment = StudyEquipment::find($idStudyEquipment);
+        if ($studyEquipment) {
+            $equipment = Equipment::find($studyEquipment->ID_EQUIP);
+        }
 
-        return Equipment::find($se->ID_EQUIP);
+        return $equipment;
     }
 }
