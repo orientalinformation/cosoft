@@ -90,4 +90,33 @@ class MinMaxs extends Controller
 
         return compact('mmDaily', 'mmWeekly', 'mmAnnual', 'mmPerDay', 'mmFactory', 'mmHumidity', 'mmAverage', 'mmProdFlow');
     }
+
+    public function getMinMaxProduct()
+    {
+        $mm = MinMax::where("LIMIT_ITEM", MIN_MAX_PRODUCT_DIM1)->first();
+        $mmDim1 = [
+            'LIMIT_MIN' => $this->unit->prodDimension($mm->LIMIT_MIN, ['format' => false]),
+            'LIMIT_MAX' => $this->unit->prodDimension($mm->LIMIT_MAX, ['format' => false]),
+        ];
+        
+        $mm = MinMax::where("LIMIT_ITEM", MIN_MAX_PRODUCT_DIM2)->first();
+        $mmDim2 = [
+            'LIMIT_MIN' => $this->unit->prodDimension($mm->LIMIT_MIN, ['format' => false]),
+            'LIMIT_MAX' => $this->unit->prodDimension($mm->LIMIT_MAX, ['format' => false]),
+        ];
+
+        $mm = MinMax::where("LIMIT_ITEM", MIN_MAX_PRODUCT_DIM3)->first();
+        $mmDim3 = [
+            'LIMIT_MIN' => $this->unit->prodDimension($mm->LIMIT_MIN, ['format' => false]),
+            'LIMIT_MAX' => $this->unit->prodDimension($mm->LIMIT_MAX, ['format' => false]),
+        ];
+
+        $mm = MinMax::where("LIMIT_ITEM", MIN_MAX_PRODUCT_WEIGHT)->first();
+        $mmMass = [
+            'LIMIT_MIN' => $this->unit->mass($mm->LIMIT_MIN, ['format' => false]),
+            'LIMIT_MAX' => $this->unit->mass($mm->LIMIT_MAX, ['format' => false]),
+        ];
+
+        return compact('mmDim1', 'mmDim2', 'mmDim3', 'mmMass');
+    }
 }
