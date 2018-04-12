@@ -54,12 +54,12 @@ class Productions extends Controller
 
     public function saveProduction($id) 
     {
-        $mmTA = MinMax::where("LIMIT_ITEM", MIN_MAX_TEMP_AMBIANT)->first();
+        $update = (object) $this->request->json()->all();
         // var_dump($this->unit->temperature($mmTA->LIMIT_MIN, ['format' => false]));die;
         // @var \App\Models\Production
         $production = \App\Models\Production::find($id);
 
-        $update = (object) $this->request->json()->all();
+        
         $production->DAILY_PROD             = $update->DAILY_PROD;
         $production->DAILY_STARTUP          = $update->DAILY_STARTUP;
         $production->WEEKLY_PROD            = $update->WEEKLY_PROD;

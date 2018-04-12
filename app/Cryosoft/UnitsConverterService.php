@@ -690,10 +690,10 @@ class UnitsConverterService
         ->first();
         return $this->convertUnitSave($value, $unit->COEFF_A, $unit->COEFF_B);
     }
-    public function none($value)
+    public function none($value, $options = null)
     {
         $uNone = $this->uNone();
-        return $this->convertCalculator($value, $uNone["coeffA"], $uNone["coeffB"]);
+        return $this->convertCalculator($value, $uNone["coeffA"], $uNone["coeffB"], 2, $options);
     }
 
     public function toc($value) 

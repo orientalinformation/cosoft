@@ -73,6 +73,14 @@ $router->GET('/api/v1/components/allCompFamily', 'Api1\\Components@getAllCompFam
 $router->GET('/api/v1/products/subfamily/{compfamily}', 'Api1\\Products@getSubfamily');
 
 /**
+ * GET getMinMaxProduction
+ * Summary: 
+ * Notes: get min max production
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/minMaxs/production', 'Api1\\MinMaxs@getMinMaxProduction');
+
+/**
  * GET getstudyEquipmentProductChart
  * Summary: 
  * Notes: get Study Equipment Product Chart
