@@ -19,6 +19,7 @@ use App\Models\StudEqpPrm;
 use App\Models\LayoutResults;
 use App\Models\Study;
 use App\Models\StudyEquipment;
+use App\Models\Equipment;
 
 
 class BrainCalculateService
@@ -219,14 +220,13 @@ class BrainCalculateService
 		return MinMax::where('LIMIT_ITEM', $limitItem)->first();
 	}
 
-    public function getLoadingRate($idStudyEquipment, $idStudy)
+    public function getLoadingRate($idStudyEquipment, $idStudy, $brainMode)
     {
-        $calMode = $this->getCalculationMode($idStudy);
         $loadingRate = 0;
         $layoutResult =  LayoutResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->first();
 
         if ($layoutResult != null) {
-            if ($calMode == $this->value->BRAIN_MODE_OPTIMUM_DHPMAX) {
+            if ($brainMode == $this->value->BRAIN_MODE_OPTIMUM_DHPMAX) {
                 $loadingRate = $layoutResult->LOADING_RATE_MAX;
             } else {
                 $loadingRate = $layoutResult->LOADING_RATE;
@@ -305,12 +305,14 @@ class BrainCalculateService
 
     public function getOptimErrorT($brainMode, $idStudyEquipments)
     {
-        $sOptimErrorT = 0;
-        $studyEquipment = StudyEquipment::find($idStudyEquipments);
-        $brandType = $studyEquipment->BRAIN_TYPE;
-        $idCalcParams = $studyEquipment->ID_CALC_PARAMS;
+        $sOptimErrorT = $brandType = $idCalcParams = $calcParameters = null;
 
-        $calcParameters = CalculationParameter::find($idCalcParams);
+        $studyEquipment = StudyEquipment::find($idStudyEquipments);
+        if ($studyEquipment) {
+            $brandType = $studyEquipment->BRAIN_TYPE;
+            $idCalcParams = $studyEquipment->ID_CALC_PARAMS;
+            $calcParameters = CalculationParameter::find($idCalcParams);
+        }
 
         switch ($brainMode) {
             case 1:
@@ -343,7 +345,7 @@ class BrainCalculateService
 
             case 13:
             case 17:
-                if ($brandType != 0 || $brandType != 1) {
+                if ($brandType != 0 && $brandType != 1) {
                     $sOptimErrorT =   $this->units->deltaTemperature($calcParameters->ERROR_T, 2, 1);
                 } else {
                     $minMax = $this->getMinMax(1138);
@@ -409,11 +411,15 @@ class BrainCalculateService
 
     public function getOptimErrorH($brainMode, $idStudyEquipment)
     {
-        $sOptimErrorH = 0;
+        $sOptimErrorH = $brandType = $idCalcParams = $calcParameter = null;
         $studyEquipment = StudyEquipment::find($idStudyEquipment);
-        $brandType = $studyEquipment->BRAIN_TYPE;
-        $idCalcParams = $studyEquipment->ID_CALC_PARAMS;
-        $calcParameters = CalculationParameter::find($idCalcParams);
+
+        if ($studyEquipment) {
+            $brandType = $studyEquipment->BRAIN_TYPE;
+            $idCalcParams = $studyEquipment->ID_CALC_PARAMS;
+            $calcParameter = CalculationParameter::find($idCalcParams);
+        }
+
         $uPercent = $this->convert->uPercent();
 
         switch ($brainMode) {
@@ -422,36 +428,36 @@ class BrainCalculateService
             case 10:
             case 14:
                 $minMax = $this->getMinMax(1131);
-                $sOptimErrorH =  $this->convert->convertCalculator($minMax->DEFAULT_VALUE, $uPercent["coeffA"], $uPercent["coeffB"]);
+                $sOptimErrorH = $this->units->convertCalculator($minMax->DEFAULT_VALUE, intval($uPercent["coeffA"]), intval($uPercent["coeffB"]), 2, 1);
                 break;
 
             case 11:
             case 15:
                 if ($brandType == 2) {
-                    $sOptimErrorH =  $this->convert->convertCalculator($calcParameters->ERROR_H, $uPercent["coeffA"], $uPercent["coeffB"]);
+                    $sOptimErrorH = $this->units->convertCalculator($calcParameter->ERROR_H, intval($uPercent["coeffA"]), intval($uPercent["coeffB"]), 2, 1);
                 } else {
                     $minMax = $this->getMinMax(1133);
-                    $sOptimErrorH =  $this->convert->convertCalculator($minMax->DEFAULT_VALUE, $uPercent["coeffA"], $uPercent["coeffB"]);
+                    $sOptimErrorH =  $this->units->convertCalculator($minMax->DEFAULT_VALUE, intval($uPercent["coeffA"]), intval($uPercent["coeffB"]), 2, 1);
                 }
                 break;
 
             case 12:
             case 16:
                 if ($brandType == 4 || $brandType == 3) {
-                    $sOptimErrorH =  $this->convert->convertCalculator($calcParameters->ERROR_H, $uPercent["coeffA"], $uPercent["coeffB"]);
+                    $sOptimErrorH =  $this->units->convertCalculator($calcParameter->ERROR_H, intval($uPercent["coeffA"]), intval($uPercent["coeffB"]), 2, 1);
                 } else {
                     $minMax = $this->getMinMax(1135);
-                    $sOptimErrorH =  $this->convert->convertCalculator($minMax->DEFAULT_VALUE, $uPercent["coeffA"], $uPercent["coeffB"]);
+                    $sOptimErrorH =  $this->units->convertCalculator($minMax->DEFAULT_VALUE, intval($uPercent["coeffA"]), intval($uPercent["coeffB"]), 2, 1);
                 }
                 break;
 
             case 13:
             case 17:
-                if ($brandType != 0 || $brandType != 1) {
-                    $sOptimErrorH =  $this->convert->convertCalculator($calcParameters->ERROR_H, $uPercent["coeffA"], $uPercent["coeffB"]);
+                if ($brandType != 0 && $brandType != 1) {
+                    $sOptimErrorH =  $this->units->convertCalculator($calcParameter->ERROR_H, intval($uPercent["coeffA"]), intval($uPercent["coeffB"]), 2, 1);
                 } else {
                     $minMax = $this->getMinMax(1137);
-                    $sOptimErrorH =  $this->convert->convertCalculator($minMax->DEFAULT_VALUE, $uPercent["coeffA"], $uPercent["coeffB"]);
+                    $sOptimErrorH =  $this->units->convertCalculator($minMax->DEFAULT_VALUE, intval($uPercent["coeffA"]), intval($uPercent["coeffB"]), 2, 1);
                 }
                 break;
         }
@@ -516,5 +522,31 @@ class BrainCalculateService
         }
 
         return $brainMode;
+    }
+
+    public function getControlTempMin($idStudyEquipment)
+    {   
+        $equipment = $minMax = $result = null;
+        $studyEquipment = StudyEquipment::find($idStudyEquipment);
+        if ($studyEquipment) {
+            $equipment = Equipment::find($studyEquipment->ID_EQUIP);
+            if ($equipment) $minMax = $this->getMinMax($equipment->ITEM_TR);
+            if ($minMax) $result = $minMax->LIMIT_MIN;
+        }
+
+        return $result;
+    }
+
+    public function getControlTempMax($idStudyEquipment) 
+    {
+        $equipment = $minMax = $result = null;
+        $studyEquipment = StudyEquipment::find($idStudyEquipment);
+        if ($studyEquipment) {
+            $equipment = Equipment::find($studyEquipment->ID_EQUIP);
+            if ($equipment) $minMax = $this->getMinMax($equipment->ITEM_TR);
+            if ($minMax) $result = $minMax->LIMIT_MAX;
+        }
+
+        return $result;
     }
 }
