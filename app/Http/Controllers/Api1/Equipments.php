@@ -30,6 +30,8 @@ use App\Models\MinMax;
 use App\Models\StudyEquipment;
 use App\Models\CoolingFamily;
 use App\Cryosoft\SVGService;
+use App\Cryosoft\UnitsService;
+use App\Cryosoft\MinMaxService;
 
 class Equipments extends Controller
 {
@@ -79,12 +81,23 @@ class Equipments extends Controller
     protected $stdeqp;
 
     /**
+     * @var App\Cryosoft\UnitsService
+     */
+    protected $units;
+    
+        /**
+	 * @var App\Cryosoft\MinMaxService
+	 */
+	protected $minmax;
+
+
+    /**
      * Create a new controller instance.
      *
      * @return void
      */
     public function __construct(Request $request, Auth $auth, UnitsConverterService $convert, EquipmentsService $equip
-    , KernelService $kernel, StudyService $studies, StudyEquipmentService $stdeqp, SVGService $svg)
+    , KernelService $kernel, StudyService $studies, StudyEquipmentService $stdeqp, SVGService $svg, UnitsService $units, MinMaxService $minmax)
     {
         $this->request = $request;
         $this->auth = $auth;
@@ -94,6 +107,8 @@ class Equipments extends Controller
         $this->studies = $studies;
         $this->stdeqp = $stdeqp;
         $this->svg = $svg;
+        $this->units = $units;
+        $this->minmax = $minmax;
     }
 
     public function getEquipments()
@@ -389,18 +404,18 @@ class Equipments extends Controller
             $key->shelvesWidthSymbol = $this->convert->shelvesWidthSymbol();
             $key->rampsPositionSymbol = $this->convert->rampsPositionSymbol();
 
-            $key->EQP_LENGTH = $this->convert->equipDimensionUser($key->EQP_LENGTH);
-            $key->EQP_WIDTH = $this->convert->equipDimensionUser($key->EQP_WIDTH);
-            $key->EQP_HEIGHT = $this->convert->equipDimensionUser($key->EQP_HEIGHT);
-            $key->MAX_FLOW_RATE = $this->convert->consumptionUser($key->MAX_FLOW_RATE, $key->ID_COOLING_FAMILY, 1);
-            $key->TMP_REGUL_MIN = $this->convert->controlTemperatureUser($key->TMP_REGUL_MIN);
+            $key->EQP_LENGTH = $this->units->equipDimension($key->EQP_LENGTH, 2, 1);
+            $key->EQP_WIDTH = $this->units->equipDimension($key->EQP_WIDTH, 2, 1);
+            $key->EQP_HEIGHT = $this->units->equipDimension($key->EQP_HEIGHT, 2, 1);
+            $key->MAX_FLOW_RATE = $this->units->consumption($key->MAX_FLOW_RATE, $key->ID_COOLING_FAMILY, 1, 2, 1);
+            $key->TMP_REGUL_MIN = $this->units->controlTemperature($key->TMP_REGUL_MIN, 0, 1);
 
             $equipGener = EquipGeneration::find($key->ID_EQUIPGENERATION);
         
             if ($equipGener) { 
-                $equipGener->TEMP_SETPOINT = doubleval($this->convert->controlTemperatureUser($equipGener->TEMP_SETPOINT));
-                $equipGener->DWELLING_TIME = doubleval($this->convert->timeUser($equipGener->DWELLING_TIME));
-                $equipGener->NEW_POS = doubleval($this->convert->timeUser($equipGener->NEW_POS));
+                $equipGener->TEMP_SETPOINT = doubleval($this->units->controlTemperature($equipGener->TEMP_SETPOINT, 2, 1));
+                $equipGener->DWELLING_TIME = doubleval($this->units->time($equipGener->DWELLING_TIME, 2, 1));
+                $equipGener->NEW_POS = doubleval($this->units->time($equipGener->NEW_POS, 2, 1));
             }
             $key->equipGeneration = $equipGener;
         }
@@ -417,18 +432,18 @@ class Equipments extends Controller
             $key->shelvesWidthSymbol = $this->convert->shelvesWidthSymbol();
             $key->rampsPositionSymbol = $this->convert->rampsPositionSymbol();
 
-            $key->EQP_LENGTH = $this->convert->equipDimensionUser($key->EQP_LENGTH);
-            $key->EQP_WIDTH = $this->convert->equipDimensionUser($key->EQP_WIDTH);
-            $key->EQP_HEIGHT = $this->convert->equipDimensionUser($key->EQP_HEIGHT);
-            $key->MAX_FLOW_RATE = $this->convert->consumptionUser($key->MAX_FLOW_RATE, $key->ID_COOLING_FAMILY, 1);
-            $key->TMP_REGUL_MIN = $this->convert->controlTemperatureUser($key->TMP_REGUL_MIN);
+            $key->EQP_LENGTH = $this->units->equipDimension($key->EQP_LENGTH, 2, 1);
+            $key->EQP_WIDTH = $this->units->equipDimension($key->EQP_WIDTH, 2, 1);
+            $key->EQP_HEIGHT = $this->units->equipDimension($key->EQP_HEIGHT, 2, 1);
+            $key->MAX_FLOW_RATE = $this->units->consumption($key->MAX_FLOW_RATE, $key->ID_COOLING_FAMILY, 1, 2, 1);
+            $key->TMP_REGUL_MIN = $this->units->controlTemperature($key->TMP_REGUL_MIN, 0, 1);
 
             $equipGener = EquipGeneration::find($key->ID_EQUIPGENERATION);
-
+        
             if ($equipGener) { 
-                $equipGener->TEMP_SETPOINT = doubleval($this->convert->controlTemperature($equipGener->TEMP_SETPOINT));
-                $equipGener->DWELLING_TIME = doubleval($this->convert->time($equipGener->DWELLING_TIME));
-                $equipGener->NEW_POS = doubleval($this->convert->time($equipGener->NEW_POS));
+                $equipGener->TEMP_SETPOINT = doubleval($this->units->controlTemperature($equipGener->TEMP_SETPOINT, 2, 1));
+                $equipGener->DWELLING_TIME = doubleval($this->units->time($equipGener->DWELLING_TIME, 2, 1));
+                $equipGener->NEW_POS = doubleval($this->units->time($equipGener->NEW_POS, 2, 1));
             }
             $key->equipGeneration = $equipGener;
         }
@@ -776,7 +791,7 @@ class Equipments extends Controller
             $list = Ramps::where('ID_EQUIP', $idEquip)->orderBy('POSITION', 'ASC')->get();
 
             foreach ( $list as $ramps) {
-                $ramps->POSITION = $this->convert->rampsPositionUser($ramps->POSITION);
+                $ramps->POSITION = $this->units->rampsPosition($ramps->POSITION, 2, 1);
             }
         }
 
@@ -794,7 +809,7 @@ class Equipments extends Controller
             $list = Shelves::where('ID_EQUIP', $idEquip)->orderBy('SPACE', 'ASC')->get();
 
             foreach ( $list as $shelves) {
-                $shelves->SPACE = $this->convert->shelvesWidthUser($shelves->SPACE);
+                $shelves->SPACE = $this->units->shelvesWidth($shelves->SPACE, 2, 1);
             }
         }
 
@@ -818,11 +833,13 @@ class Equipments extends Controller
         foreach ($list as $key) {
             if ($equip) {
                 if ($this->equip->getCapability($equip->CAPABILITIES, 65536)) {
-                    $key->TEMPERATURE = $this->convert->timeUser($key->TEMPERATURE);
+                    $key->TEMPERATURE = $this->units->time($key->TEMPERATURE, 2, 1);
                 } else {
-                    $key->TEMPERATURE = $this->convert->controlTemperatureUser($key->TEMPERATURE);
+                    $key->TEMPERATURE = $this->units->controlTemperature($key->TEMPERATURE, 2, 1);
                 }
-                $key->CONSUMPTION_GETCOLD = $this->convert->consumptionUser($key->CONSUMPTION_GETCOLD, $equip->ID_COOLING_FAMILY, 2);
+                $key->CONSUMPTION_PERM = $this->units->consumption($key->CONSUMPTION_PERM, $equip->ID_COOLING_FAMILY, 2, 2, 1);
+
+                $key->CONSUMPTION_GETCOLD = $this->units->consumption($key->CONSUMPTION_GETCOLD, $equip->ID_COOLING_FAMILY, 3, 2, 1);
             }
         }
 

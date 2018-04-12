@@ -1259,7 +1259,9 @@ class Studies extends Controller
             $meshPoints = MeshPosition::distinct()->select('MESH_AXIS_POS')->where('ID_STUDY', $id)->where('MESH_AXIS', $i+1)->orderBy('MESH_AXIS_POS')->get();
             $itemName = [];
             foreach ($meshPoints as $row) {
-                $itemName[] = $this->convert->meshesUnit($row->MESH_AXIS_POS);
+                $item['value'] = $row->MESH_AXIS_POS;
+                $item['name'] = $this->convert->meshesUnit($row->MESH_AXIS_POS);
+                $itemName[] = $item;
             }
             $tfMesh[$i] = array_reverse($itemName);
         }
@@ -1489,8 +1491,7 @@ class Studies extends Controller
             $tempRecordPts->AXIS2_PL_1_3 = $planResult[1];
             $tempRecordPts->AXIS3_PL_1_2 = $planResult[2];
 
-
-            // $tempRecordPts->save();
+            $tempRecordPts->save();
         }
 
         return 1;
