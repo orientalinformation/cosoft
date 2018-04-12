@@ -446,3 +446,11 @@ $router->GET('/api/v1/users/{id}/unitsmonetary', 'Api1\\Users@getMonetaryUser');
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/referencedata/checkpipeline', 'Api1\\PipeLine@checkPipeline');
+
+/**
+ * POST checkEquipment
+ * Summary:
+ * Notes: Check unit min max Equipment
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/referencedata/checkequipment', 'Api1\\Equipments@checkEquipment');

@@ -33,6 +33,7 @@ use App\Cryosoft\SVGService;
 use App\Cryosoft\UnitsService;
 use App\Cryosoft\MinMaxService;
 
+
 class Equipments extends Controller
 {
     /**
@@ -2161,5 +2162,66 @@ class Equipments extends Controller
         }
 
         return $equipment;
+    }
+
+    public function checkEquipment()
+    {
+        $input = $this->request->all();
+
+        $nameE = $typeCalculate = $versionE = $equipId1 = $equipId2 = $tempSetPoint = $dwellingTime = $newPos = $typeEquipment = null;
+        
+        if (isset($input['typeEquipment'])) $typeEquipment = intval($input['typeEquipment']);
+        if (isset($input['nameEquipment'])) $nameE = $input['nameEquipment'];
+        if (isset($input['versionEquipment'])) $versionE = floatval($input['versionEquipment']);
+        if (isset($input['typeCalculate'])) $typeCalculate = intval($input['typeCalculate']);
+        
+        if ($typeEquipment == 0) {
+            if (isset($input['equipmentId1'])) $equipId1 = intval($input['equipmentId1']);
+            if (isset($input['tempSetPoint'])) $tempSetPoint = floatval($input['tempSetPoint']);
+            if (isset($input['dwellingTime'])) $dwellingTime = floatval($input['dwellingTime']);
+        } else if ($typeEquipment == 1) {
+            if (isset($input['equipmentId1'])) $equipId1 = intval($input['equipmentId1']);
+            if (isset($input['dwellingTime'])) $dwellingTime = floatval($input['dwellingTime']);
+            if (isset($input['newPos'])) $newPos = $input['newPos'];
+        } else if ($typeEquipment == 2) {
+            if (isset($input['equipmentId1'])) $equipId1 = intval($input['equipmentId1']);
+        } else {
+            if (isset($input['equipmentId1'])) $equipId1 = intval($input['equipmentId1']);
+            if (isset($input['equipmentId2'])) $equipId2 = intval($input['equipmentId2']);
+            if (isset($input['tempSetPoint'])) $tempSetPoint = floatval($input['tempSetPoint']);
+        }
+
+        if ($typeEquipment == 3) {
+
+        } else {
+            $eq = Equipment::find($equipId1);
+            
+            if ($typeEquipment == 0) {
+                if ($tempSetPoint != null) {
+                    $tempSetPoint = $this->units->controlTemperature($tempSetPoint, 2, 0);
+                    $checkTempSetPoint = $this->minmax->checkMinMaxValue($tempSetPoint, $eq->ITEM_TR);
+                    if ( !$checkTempSetPoint ) {
+                        $mm = $this->minmax->getMinMaxControlTemperature($eq->ITEM_TR, 2);
+                        return  [
+                            "Message" => "Value out of range in Regulation temperature (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+                        ];
+                    }
+                }
+                
+                if ($dwellingTime != null) {
+                    $dwellingTime = $this->units->time($dwellingTime, 2, 0);
+                    $checkDwellingTime = $this->minmax->checkMinMaxValue($dwellingTime, $eq->ITEM_TS);
+                    if ( !$checkDwellingTime ) {
+                        $mm = $this->minmax->getMinMaxTimes($eq->ITEM_TS, 2);
+                        return  [
+                            "Message" => "Value out of range in Dwelling Time (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+                        ];
+                    }
+                }
+            }
+            
+        }
+
+        return 1;
     }
 }
