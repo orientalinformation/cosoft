@@ -214,5 +214,26 @@ class MinMaxService
         return $minMax; 
     }
 
+    public function getMinMaxControlTemperature($limitItem, $decimal)
+    {
+        $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
+        $minMax->LIMIT_MAX = $this->units->controlTemperature($minMax->LIMIT_MAX, $decimal, 1);
+        $minMax->LIMIT_MIN = $this->units->controlTemperature($minMax->LIMIT_MIN, $decimal, 1);
+        $minMax->DEFAULT_VALUE = $this->units->controlTemperature($minMax->DEFAULT_VALUE, $decimal,1);
+
+        return $minMax; 
+
+    }
+
+    public function getMinMaxTimes($limitItem, $decimal)
+    {  
+        $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
+        $minMax->LIMIT_MAX = $this->units->time($minMax->LIMIT_MAX, $decimal, 1);
+        $minMax->LIMIT_MIN = $this->units->time($minMax->LIMIT_MIN, $decimal, 1);
+        $minMax->DEFAULT_VALUE = $this->units->time($minMax->DEFAULT_VALUE, $decimal,1);
+
+        return $minMax; 
+    }
+
     // end HAIDT
 }
