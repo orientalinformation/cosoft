@@ -858,11 +858,11 @@ class Reports extends Controller
 
         // set default monospaced font
         PDF::SetDefaultMonospacedFont('courier');
-       // set auto page breaks
-       PDF::SetAutoPageBreak(TRUE, 15);
+        // set auto page breaks
+        PDF::SetAutoPageBreak(TRUE, 15);
 
-       // set image scale factor
-       PDF::setImageScale(1.25);
+        // set image scale factor
+        PDF::setImageScale(1.25);
         
         // set some language-dependent strings (optional)
         // ---------------------------------------------------------
