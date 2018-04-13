@@ -850,7 +850,8 @@ class Equipments extends Controller
     public function getEquipmentCharacts($idEquip)
     {
         $equipCharacts = EquipCharact::where('ID_EQUIP', $idEquip)->orderBy('X_POSITION', 'ASC')->get();
-        if (count($equipCharacts) > 0) {
+        $equipment = Equipment::find($idEquip);
+        if (count($equipCharacts) > 0 && $equipment && ($equipment->STD == 0)) {
             foreach ($equipCharacts as $equipCharact) {
                 $equipCharact->X_POSITION = floatval($equipCharact->X_POSITION);
                 $equipCharact->ALPHA_TOP = $this->convert->convectionCoeff($equipCharact->ALPHA_TOP);
@@ -867,6 +868,8 @@ class Equipments extends Controller
                 $equipCharact->TEMP_FRONT = $this->convert->temperature($equipCharact->TEMP_FRONT);
                 $equipCharact->TEMP_REAR = $this->convert->temperature($equipCharact->TEMP_REAR);
             }
+        } else if ((count($equipCharacts) < 0) && $equipment && ($equipment->STD != 0)) {
+            // some code here
         }
         return $equipCharacts;
     }
