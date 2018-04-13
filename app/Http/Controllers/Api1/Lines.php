@@ -102,7 +102,7 @@ class Lines extends Controller
                     $lineElmt = $lineDef->lineElmt;
                     $lineElmts[] = $lineElmt;
                 }
-                $diameterParam = $this->lineE->getdiameter($coolingFamily, $lineElmts[0]->INSULATION_TYPE) ?? '';
+                $diameterParam = $this->lineE->getdiameter($coolingFamily, $lineElmts[0]->INSULATION_TYPE);
                 $storageTankParam = $this->lineE->getStorageTank($coolingFamily, $lineElmts[0]->INSULATION_TYPE);
                 $insulationParams = LineElmt::distinct()->select('INSULATION_TYPE')->where('ID_COOLING_FAMILY', $coolingFamily)->get();
                 if ($lineElmts[0]->INSULATION_TYPE == 0 ) {
@@ -474,7 +474,7 @@ class Lines extends Controller
             
             if ($checkValueInsulllenght) {
                 if (is_int($insulatedLineLength) && $insulatedLineLength != "") {
-                    return response("Not a valid number in Length insuline!" ,406);
+                    return response("Not a valid number in Length !" ,406);
                 } else {
                     $pipegen->INSULLINE_LENGHT = $insulatedLineLength;
                 }
@@ -485,7 +485,7 @@ class Lines extends Controller
 
             if ($checkValueNoninsullenght) {
                 if (is_int($nonInsulatedLineLength) && $nonInsulatedLineLength != "") {
-                    return response("Not a valid number in Length none insuline!" ,406);
+                    return response("Not a valid number in Length !" ,406);
                 } else {
                     $pipegen->NOINSULLINE_LENGHT = $nonInsulatedLineLength;
                 }
@@ -496,7 +496,7 @@ class Lines extends Controller
 
             if ($checkValueInsulvallenght) {
                 if (filter_var($insulatedValvesQuantity , FILTER_VALIDATE_INT) === false) {
-                    return response("Not a valid number in Number insuval!" ,406);
+                    return response("Not a valid number in Number !" ,406);
                 } else {
                     $pipegen->INSUL_VALVES = $insulatedValvesQuantity;
                 }
@@ -507,7 +507,7 @@ class Lines extends Controller
 
             if ($checkValueNoninsulatevallenght) {
                 if (filter_var($nonInsulatedValvesQuantity , FILTER_VALIDATE_INT) === false) {
-                    return response("Not a valid number in Number non insuval!" ,406);
+                    return response("Not a valid number in Number !" ,406);
                 } else {
                     $pipegen->NOINSUL_VALVES = $nonInsulatedValvesQuantity;
                 }
@@ -518,7 +518,7 @@ class Lines extends Controller
 
             if ($checkValueTee) {
                 if (filter_var($teesQuantity , FILTER_VALIDATE_INT) === false) {
-                    return response("Not a valid number in Number  tee!" ,406);
+                    return response("Not a valid number in Number !" ,406);
                 } else {
                     $pipegen->TEES = $teesQuantity;
                 }
@@ -529,7 +529,7 @@ class Lines extends Controller
 
             if ($checkValueElbow) {
                 if (filter_var($elbowsQuantity , FILTER_VALIDATE_INT) === false) {
-                    return response("Not a valid number in Number  elbows!" ,406);
+                    return response("Not a valid number in Number !" ,406);
                 } else {
                     $pipegen->ELBOWS = $elbowsQuantity;
                 }
@@ -542,7 +542,7 @@ class Lines extends Controller
                 if (!is_string($pressure) || $pressure == 0) {
                     $pipegen->PRESSURE = $pressure;
                 } else {
-                    return response("Not a valid number in Number pressure!" ,406);
+                    return response("Not a valid number in Number !" ,406);
                 }
             } else {
                 $mm = $this->minmax->getMinMaxPressure($this->value->MIN_MAX_STUDY_LINE_PRESSURE);
@@ -551,7 +551,7 @@ class Lines extends Controller
 
             if ($checkValueHeight) {
                 if (is_int($height) && $height != 0) {
-                    return response("Not a valid number in Number height!" ,406);
+                    return response("Not a valid number in Number !" ,406);
                 } else {
                     $pipegen->HEIGHT = $height;
                 }
