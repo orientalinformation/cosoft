@@ -299,7 +299,7 @@ class Products extends Controller
             if (InitialTemperature::where('ID_PRODUCTION', $product->study->ID_PRODUCTION)->count() > 0) {
                 $productIsoTemp = InitialTemperature::where('ID_PRODUCTION', $product->study->ID_PRODUCTION)->first();
                 if ($productIsoTemp) {
-                    $productIsoTemp = $productIsoTemp->INITIAL_T;
+                    $productIsoTemp = $this->unit->temperature($productIsoTemp->INITIAL_T);
                 }
             }
         }
@@ -419,7 +419,7 @@ class Products extends Controller
                     $t->MESH_2_ORDER = $y;
                     $t->MESH_3_ORDER = $z;
                     $t->ID_PRODUCTION = $production->ID_PRODUCTION;
-                    $t->INITIAL_T = floatval( $input['initTemp'] );
+                    $t->INITIAL_T = floatval( $this->unit->temperature($input['initTemp'], ['save' => true]) );
                     array_push($listTemp, $t->toArray());
                 }
             }
