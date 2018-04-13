@@ -424,7 +424,7 @@ class Calculator extends Controller
     public function getStudyEquipmentCalculation()
     {
         $input = $this->request->all();
-        $idStudy = $idStudyEquipment = $typeCalculate = $ID_USER_STUDY = null;
+        $idStudy = $idStudyEquipment = $typeCalculate = $ID_USER_STUDY = $equipment = null;
         $checkOptim = false;
 
         if (isset($input['idStudy'])) $idStudy = intval($input['idStudy']);
@@ -438,19 +438,30 @@ class Calculator extends Controller
             $ID_USER_STUDY = $study->ID_USER;
         }
 
-        if ($checkOptim == "true") {
-            $this->setBrainMode(11);
-            $brainMode = 11;
+        if ($typeCalculate == 3) {
+            $this->setBrainMode(13);
+            $brainMode = 13;
         } else {
-            $this->setBrainMode(12);
-            $brainMode = 12;
+            if ($checkOptim == "true") {
+                $this->setBrainMode(11);
+                $brainMode = 11;
+            } else {
+                $this->setBrainMode(12);
+                $brainMode = 12;
+            }
         }
+        
 
         $sdisableCalculate 	= $this->cal->disableCalculate($idStudy);
         $sdisableFields = $this->cal->disableFields($idStudy);
         
         $sdisableTS = $sdisableTR = $sdisableTOC = $sdisableOptim = $sdisableNbOptim = $sdisableStorage = 0;
         $scheckOptim = $scheckStorage = 0;
+
+        $studyEquipment = StudyEquipment::find($idStudyEquipment);
+        if ($studyEquipment) {
+            $equipment = Equipment::find($studyEquipment->ID_EQUIP);
+        }
 
         if ($sdisableFields == 0) {
             switch($brainMode)
@@ -488,36 +499,65 @@ class Calculator extends Controller
                 default :
                     $sdisableTS = $sdisableTR = $sdisableTOC = $sdisableNbOptim = $sdisableStorage = 1;
                     $scheckOptim = $scheckStorage = 0;
-            }		
+            }	
+
+            if ($equipment) {
+                if (!$this->equipment->getCapability($equipment->CAPABILITIES, $this->value->CAP_OPTIM_ENABLE)) {
+                    $sdisableOptim = $sdisableNbOptim = 1;
+                    $scheckOptim = 0;
+                } else {
+                    $sdisableOptim = 0;
+                }
+            }
         } else {
             $sdisableTS = $sdisableTR = $sdisableTOC = $sdisableOptim = $sdisableNbOptim = $sdisableStorage = 1;
             $scheckOptim = $scheckStorage = 0;
         }
 
+        // Ts
         $lTs = $this->brainCal->getListTs($idStudyEquipment);
-
-        $itemTs = array();
-        $dwellingTimes = array();
-
-        for ($i = 0; $i < count($lTs); $i++) { 
-            $itemTs['name'] = $i;
-            $itemTs['value'] = $this->units->time($lTs[$i], 1, 0);
-            array_push($dwellingTimes, $itemTs);
+        $itemTs = $dwellingTimes = array();
+        for ($i = 0; $i < count($lTs); $i++) {
+            if ($brainMode == $this->value->BRAIN_MODE_OPTIMUM_DHPMAX) {
+                $itemTs['name'] = $i;
+                $itemTs['value'] = $this->value->VALUE_N_A;
+                array_push($dwellingTimes, $itemTs);
+            } else {
+                $itemTs['name'] = $i;
+                $itemTs['value'] = $this->units->time($lTs[$i], 1, 0);
+                array_push($dwellingTimes, $itemTs);
+            }
         }
 
+        // new Tr
+        $itemTr  = $temperatures = array();
         $lTr = $this->brainCal->getListTr($idStudyEquipment);
-        $itemTr = array();
-        $temperatures = array();
-
-        for($i = 0; $i < count($lTr); $i++) {
-            $itemTr['name'] = $i;
-            $itemTr['value'] = $this->units->prodTemperature($lTr[$i], 0, 1);
-            array_push($temperatures, $itemTr);
+        if (($brainMode == $this->value->BRAIN_MODE_OPTIMUM_DHPMAX) || 
+            ($brainMode == $this->value->BRAIN_MODE_SELECTED_DHPMAX)) {
+            if (!$this->equipment->getCapability($equipment->CAPABILITIES, $this->value->CAP_VARIABLE_TR)) {
+                $itemTr['name'] = 0;
+                $itemTr['value'] = $this->units->prodTemperature($lTr[0], 0, 1);
+                array_push($temperatures, $itemTr);
+            } else if ($this->equipment->getCapability($equipment->CAPABILITIES, $this->value->CAP_COOLING_EQUIPMENT)) {
+                $itemTr['name'] = 0;
+                $itemTr['value'] = $this->units->controlTemperature($this->brainCal->getControlTempMin($idStudyEquipment), 0, 1);
+                array_push($temperatures, $itemTr);
+            } else {
+                $itemTr['name'] = 0;
+                $itemTr['value'] = $this->units->controlTemperature($this->brainCal->getControlTempMax($idStudyEquipment), 0, 1);
+                array_push($temperatures, $itemTr);
+            }
+        } else {
+            for($i = 0; $i < count($lTr); $i++) {
+                $itemTr['name'] = $i;
+                $itemTr['value'] = $this->units->prodTemperature($lTr[$i], 0, 1);
+                array_push($temperatures, $itemTr);
+            }
         }
 
+        // TOC
         $uPercent = $this->convert->uPercent();
-        $toc =  $this->units->convertCalculator($this->brainCal->getLoadingRate($idStudyEquipment, $idStudy), 
-        $uPercent["coeffA"], $uPercent["coeffB"], 2, 1);
+        $toc =  $this->units->convertCalculator($this->brainCal->getLoadingRate($idStudyEquipment, $idStudy, $brainMode), $uPercent["coeffA"], $uPercent["coeffB"], 1, 1);
 
         $checkOptim = ($checkOptim == "true") ? 1 : 0;
 
@@ -1511,7 +1551,7 @@ class Calculator extends Controller
         $uPercent = $this->units->uPercent();
         if (intval($typeCalculate) != 1 || intval($typeCalculate) != 2 || intval($sdisableTOC != 1)) {
                 $toc = $this->units->convertCalculator(doubleval($toc), $uPercent["coeffA"], $uPercent["coeffB"], 2, 0);
-                $checkToc = $this->minmax->checkMinMaxValue($epsilonTemp, 704);
+                $checkToc = $this->minmax->checkMinMaxValue($toc, 704);
                 if ( !$checkToc ) {
 
                     $mm = $this->minmax->getMinMaxUPercent(704);
@@ -1788,10 +1828,14 @@ class Calculator extends Controller
         return 1;
     }
 
-    public function getLimitItem($idSE)
+    public function getLimitItem($idStudyEquipment)
     {
-        $se = StudyEquipment::find($idSE);
+        $equipment = null;
+        $studyEquipment = StudyEquipment::find($idStudyEquipment);
+        if ($studyEquipment) {
+            $equipment = Equipment::find($studyEquipment->ID_EQUIP);
+        }
 
-        return Equipment::find($se->ID_EQUIP);
+        return $equipment;
     }
 }

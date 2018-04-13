@@ -430,7 +430,9 @@ class UnitsConverterService
             $number = round(($value * $coeffA + $coeffB), $decimal);
         }
 
-        if (!empty($options) && $options['format'] == false) {
+        if (isset($options['save']) && $options['save'] == true) {
+            return ($value - $coeffB) / $coeffA;
+        } elseif (isset($options['format']) && $options['format'] == false) {
             return $number;
         } else {
             return number_format((float)$number, $decimal, '.', '');
@@ -448,8 +450,8 @@ class UnitsConverterService
     public function uNone()
     {
         return array(
-            "coeffA" => "1.0",
-            "coeffB" => "0.0",
+            "coeffA" => 1,
+            "coeffB" => 0,
             "symbol" => ""
         );
     }
@@ -457,8 +459,8 @@ class UnitsConverterService
     public function uPercent()
     {
         return array(
-            "coeffA" => "100.0",
-            "coeffB" => "0.0",
+            "coeffA" => 100,
+            "coeffB" => 0,
             "symbol" => "%"
         );
     }
@@ -500,13 +502,13 @@ class UnitsConverterService
         return round($value, 2);
     }
 
-    public function mass($value) 
+    public function mass($value, $options = null) 
     {
         $unit = Unit::where('TYPE_UNIT', $this->value->MASS)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
-        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 3);
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 3, $options);
     }
 
     public function massSave($value) 
@@ -526,12 +528,12 @@ class UnitsConverterService
         return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 0);
     }
 
-    public function prodTemperature($value) {
+    public function prodTemperature($value, $options = null) {
         $unit = Unit::where('TYPE_UNIT', $this->value->TEMPERATURE)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
-        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 1);
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 1, $options);
     }
 
     public function time($value) {
@@ -550,12 +552,12 @@ class UnitsConverterService
         return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 3);
     }
 
-    public function productFlow($value) {
+    public function productFlow($value, $options = null) {
         $unit = Unit::where('TYPE_UNIT', $this->value->PRODUCT_FLOW)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
-        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 1);
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 1, $options);
     }
 
     public function equipDimension($value) {
@@ -592,12 +594,12 @@ class UnitsConverterService
         return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 3);
     }
 
-    public function temperature($value) {
+    public function temperature($value, $options = null) {
         $unit = Unit::where('TYPE_UNIT', $this->value->TEMPERATURE)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
-        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 0);
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 2, $options);
     }
 
     public function convectionCoeff($value) {
@@ -688,10 +690,10 @@ class UnitsConverterService
         ->first();
         return $this->convertUnitSave($value, $unit->COEFF_A, $unit->COEFF_B);
     }
-    public function none($value)
+    public function none($value, $options = null)
     {
         $uNone = $this->uNone();
-        return $this->convertCalculator($value, $uNone["coeffA"], $uNone["coeffB"]);
+        return $this->convertCalculator($value, $uNone["coeffA"], $uNone["coeffB"], 2, $options);
     }
 
     public function toc($value) 
@@ -837,13 +839,13 @@ class UnitsConverterService
         return $unit->SYMBOL;
     }
 
-    public function prodDimension($value) 
+    public function prodDimension($value, $options = null) 
     {
         $unit = Unit::where('TYPE_UNIT', $this->value->PROD_DIMENSION)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
-        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 2);
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 2, $options);
     }
 
     public function prodDimensionSave($value)
