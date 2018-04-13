@@ -55,7 +55,6 @@ class Productions extends Controller
     public function saveProduction($id) 
     {
         $update = (object) $this->request->json()->all();
-        // var_dump($this->unit->temperature($mmTA->LIMIT_MIN, ['format' => false]));die;
         // @var \App\Models\Production
         $production = \App\Models\Production::find($id);
 
