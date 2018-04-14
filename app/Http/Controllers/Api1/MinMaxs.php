@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\MinMax;
 
 use App\Cryosoft\UnitsConverterService;
+use App\Cryosoft\EquipmentsService;
 
 
 class MinMaxs extends Controller
@@ -31,11 +32,12 @@ class MinMaxs extends Controller
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth, UnitsConverterService $unit)
+    public function __construct(Request $request, Auth $auth, UnitsConverterService $unit, EquipmentsService $equip)
     {
         $this->request = $request;
         $this->auth = $auth;
         $this->unit = $unit;
+        $this->equip = $equip;
     }
 
     public function getMinMaxProduction()
@@ -130,6 +132,30 @@ class MinMaxs extends Controller
         ];
 
         return compact('mmDim1', 'mmDim2', 'mmDim3', 'mmMass', 'mmTemp', 'mmThickness');
+    }
+
+    public function getMinMaxEquipment($id)
+    {
+    	$energy = $this->equip->initEnergyDef($id);
+		$mm = MinMax::where("LIMIT_ITEM", MIN_MAX_ENERGY_PRICE)->first();
+        $mmPrice = [
+            'LIMIT_MIN' => $this->unit->cryogenPrice($mm->LIMIT_MIN, $energy, ['format' => false]),
+            'LIMIT_MAX' => $this->unit->cryogenPrice($mm->LIMIT_MAX, $energy, ['format' => false]),
+        ];
+
+        $mm = MinMax::where("LIMIT_ITEM", 1034)->first();
+        $mmLInterval = [
+            'LIMIT_MIN' => $this->unit->prodDimension($mm->LIMIT_MIN, ['format' => false]),
+            'LIMIT_MAX' => $this->unit->prodDimension($mm->LIMIT_MAX, ['format' => false]),
+        ];
+
+        $mm = MinMax::where("LIMIT_ITEM", 1033)->first();
+        $mmWInterval = [
+            'LIMIT_MIN' => $this->unit->prodDimension($mm->LIMIT_MIN, ['format' => false]),
+            'LIMIT_MAX' => $this->unit->prodDimension($mm->LIMIT_MAX, ['format' => false]),
+        ];
+    	
+    	return compact('mmPrice', 'mmLInterval', 'mmWInterval');
     }
 
 }

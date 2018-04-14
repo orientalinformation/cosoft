@@ -772,6 +772,34 @@ class UnitsConverterService
         return $this->unitConvert($sUnitLabel, $value, $decimal);
     }
 
+    public function cryogenPrice($value, $energy, $options = null)
+    {
+        $snrjUnitLabel = '';
+        switch ($energy) {
+            case 2:
+                $snrjUnitLabel = CONSUMPTION_UNIT_LN2;
+                break;
+
+            case 3:
+                $snrjUnitLabel = CONSUMPTION_UNIT_CO2;
+                break;
+            
+            default:
+                $snrjUnitLabel = CONSUMPTION_UNIT;
+                break;
+        }
+
+        $lfCoef = $this->unitConvert($snrjUnitLabel, $value);
+        $lfValue = $value;
+        if ($lfCoef != 0) {
+            $lfValue /= $lfCoef;
+        }
+        $uMoney = $this->uMoney();
+        $sValue = $this->convertCalculator($lfValue, $uMoney['coeffA'], $uMoney['coeffB'], 3, $options);
+        return $sValue;
+    }
+
+
 // convert unit for user
     public function temperatureSymbolUser() {
         $user = $this->auth->user();

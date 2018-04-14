@@ -89,6 +89,14 @@ $router->GET('/api/v1/minMaxs/production', 'Api1\\MinMaxs@getMinMaxProduction');
 $router->GET('/api/v1/minMaxs/productMeshPacking', 'Api1\\MinMaxs@getMinMaxProductMeshPacking');
 
 /**
+ * GET getMinMaxEquipment
+ * Summary: 
+ * Notes: get min max equipment
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/minMaxs/{id}/equipment', 'Api1\\MinMaxs@getMinMaxEquipment');
+
+/**
  * GET getstudyEquipmentProductChart
  * Summary: 
  * Notes: get Study Equipment Product Chart

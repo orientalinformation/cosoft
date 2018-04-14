@@ -107,10 +107,12 @@ class EquipmentsService
         $energyDef = 0;
 
         $studyEquipments = StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
-        foreach($studyEquipments as $row){
-            $ener =  $row->ID_COOLING_FAMILY;
-            if (($energyDef == 0) && (($ener == 3) || ($ener == 2))) {
-                $energyDef = $ener;
+        if (count($studyEquipments) > 0) {
+            foreach($studyEquipments as $row){
+                $ener =  $row->ID_COOLING_FAMILY;
+                if (($energyDef == 0) && (($ener == 3) || ($ener == 2))) {
+                    $energyDef = $ener;
+                }
             }
         }
         
