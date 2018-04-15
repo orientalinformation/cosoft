@@ -363,7 +363,7 @@ class StudyEquipmentService
         $NB_TEMP_FOR_NEXTSTATUS = 25;
         
         try {
-             $recPos = RecordPosition::where('ID_STUDY_EQUIPMENTS', $sequip->ID_STUDY_EQUIPMENTS)
+            $recPos = RecordPosition::where('ID_STUDY_EQUIPMENTS', $sequip->ID_STUDY_EQUIPMENTS)
                 ->orderBy('RECORD_TIME', 'DESC')->first();
             if ($recPos) {
                 // get temp record data
@@ -413,45 +413,45 @@ class StudyEquipmentService
                         for ($i = 0; $i < $NbNodesZ; $i++) {
                             switch ($shape) {
                                 case $this->value->SLAB:
-                                    $initTemp->MESH_1_ORDER = pack('s', $i);
-                                    $initTemp->MESH_2_ORDER = pack('s',($trd->REC_AXIS_Y_POS +$offset[1]));
-                                    $initTemp->MESH_3_ORDER = pack('s', $trd->REC_AXIS_X_POS);
+                                    $initTemp->MESH_1_ORDER =  $i;
+                                    $initTemp->MESH_2_ORDER = ($trd->REC_AXIS_Y_POS +$offset[1]);
+                                    $initTemp->MESH_3_ORDER =  $trd->REC_AXIS_X_POS;
                                     break;
                                 case $this->value->PARALLELEPIPED_STANDING:
                                 case $this->value->PARALLELEPIPED_BREADED:
                                     if ($orientation == $this->value->POSITION_PARALLEL) {
-                                        $initTemp->MESH_1_ORDER = pack('s',($i +$offset[0]));
-                                        $initTemp->MESH_2_ORDER = pack('s',($trd->REC_AXIS_Y_POS +$offset[1]));
-                                        $initTemp->MESH_3_ORDER = pack('s',($trd->REC_AXIS_X_POS +$offset[2]));
+                                        $initTemp->MESH_1_ORDER = ($i +$offset[0]);
+                                        $initTemp->MESH_2_ORDER = ($trd->REC_AXIS_Y_POS +$offset[1]);
+                                        $initTemp->MESH_3_ORDER = ($trd->REC_AXIS_X_POS +$offset[2]);
                                     } else {
-                                        $initTemp->MESH_1_ORDER = pack('s',($trd->REC_AXIS_X_POS +$offset[0]));
-                                        $initTemp->MESH_2_ORDER = pack('s',($trd->REC_AXIS_Y_POS +$offset[1]));
-                                        $initTemp->MESH_3_ORDER = pack('s',($i +$offset[2]));
+                                        $initTemp->MESH_1_ORDER = ($trd->REC_AXIS_X_POS +$offset[0]);
+                                        $initTemp->MESH_2_ORDER = ($trd->REC_AXIS_Y_POS +$offset[1]);
+                                        $initTemp->MESH_3_ORDER = ($i +$offset[2]);
                                     }
                                     break;
                                 case $this->value->PARALLELEPIPED_LAYING:
-                                    $initTemp->MESH_1_ORDER = pack('s', $trd->REC_AXIS_Y_POS);
-                                    $initTemp->MESH_2_ORDER = pack('s',($trd->REC_AXIS_X_POS +$offset[1]));
-                                    $initTemp->MESH_3_ORDER = pack('s', $i);
+                                    $initTemp->MESH_1_ORDER =  $trd->REC_AXIS_Y_POS;
+                                    $initTemp->MESH_2_ORDER = ($trd->REC_AXIS_X_POS +$offset[1]);
+                                    $initTemp->MESH_3_ORDER =  $i;
                                     break;
                                 case $this->value->CYLINDER_STANDING:
                                 case $this->value->CYLINDER_CONCENTRIC_LAYING:
-                                    $initTemp->MESH_1_ORDER = pack('s', $trd->REC_AXIS_X_POS);
-                                    $initTemp->MESH_2_ORDER = pack('s',($trd->REC_AXIS_Y_POS +$offset[1]));
-                                    $initTemp->MESH_3_ORDER = pack('s', $i);
+                                    $initTemp->MESH_1_ORDER =  $trd->REC_AXIS_X_POS;
+                                    $initTemp->MESH_2_ORDER = ($trd->REC_AXIS_Y_POS +$offset[1]);
+                                    $initTemp->MESH_3_ORDER =  $i;
                                     break;
 
                                 case $this->value->CYLINDER_LAYING:
                                 case $this->value->CYLINDER_CONCENTRIC_STANDING:
-                                    $initTemp->MESH_1_ORDER = pack('s', $trd->REC_AXIS_Y_POS);
-                                    $initTemp->MESH_2_ORDER = pack('s',($trd->REC_AXIS_X_POS +$offset[1]));
-                                    $initTemp->MESH_3_ORDER = pack('s', $i);
+                                    $initTemp->MESH_1_ORDER =  $trd->REC_AXIS_Y_POS;
+                                    $initTemp->MESH_2_ORDER = ($trd->REC_AXIS_X_POS +$offset[1]);
+                                    $initTemp->MESH_3_ORDER =  $i;
                                     break;
 
                                 case $this->value->SPHERE:
-                                    $initTemp->MESH_1_ORDER = pack('s', $trd->REC_AXIS_X_POS);
-                                    $initTemp->MESH_2_ORDER = pack('s',($trd->REC_AXIS_Y_POS +$offset[1]));
-                                    $initTemp->MESH_3_ORDER = pack('s', $i);
+                                    $initTemp->MESH_1_ORDER =  $trd->REC_AXIS_X_POS;
+                                    $initTemp->MESH_2_ORDER = ($trd->REC_AXIS_Y_POS +$offset[1]);
+                                    $initTemp->MESH_3_ORDER =  $i;
                                     break;
                             }
                             
@@ -465,12 +465,14 @@ class StudyEquipmentService
                                 cryoRun . nextCRRStatus(true);
                             }*/
                         }//for
-                        $slices = array_chunk($listTemp, 100);
-                        foreach ($slices as $slice) {
-                            InitialTemperature::insert($slice);
-                        }
-                    }//while
-                    
+                        
+                    }//foreach tempRecordData
+
+                    $slices = array_chunk($listTemp, 100);
+                    foreach ($slices as $slice) {
+                        InitialTemperature::insert($slice);
+                    }
+
                     // update production to set avg initial temp
                     // LOG . debug("update avg initial temperature (id_production=" + production . getIdProduction() + ") "
                     //     + "temp init = " + sequip . getAverageProductTemp());
