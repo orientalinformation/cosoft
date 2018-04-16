@@ -987,51 +987,51 @@ class Reports extends Controller
                 $html = '';
                 $html .= '<h3 style ="background-color:#268EE2">Production Data</h3>
                 <div class="production">
-                            <div class="table table-bordered">
-                                <table border="0.5">
-                                <tr>
-                                    <th>Daily production</th>
-                                    <th align="center"> '. $production->DAILY_PROD .'</th>
-                                    <th>Hours/Day</th>
-                                </tr>
-                                <tr>
-                                    <td>Weekly production</td>
-                                    <td align="center"> '. $production->WEEKLY_PROD .'</td>
-                                    <td>Days/Week</td>
-                                </tr>
-                                <tr style="height: 10px;">
-                                    <td>Annual production</td>
-                                    <td align="center"> '. $production->NB_PROD_WEEK_PER_YEAR .'</td>
-                                    <td>Weeks/Year</td>
-                                </tr>
-                                <tr>
-                                    <td>Number of equipment cooldowns</td>
-                                    <td align="center"> '. $production->DAILY_STARTUP .'</td>
-                                    <td>per day</td>
-                                </tr>
-                                <tr>
-                                    <td>Factory Air temperature</td>
-                                    <td align="center"> '. $this->convert->prodTemperature($production->AMBIENT_TEMP) .'</td>
-                                    <td>( '. $symbol['temperatureSymbol'] . ' )</td>
-                                </tr>
-                                <tr>
-                                    <td>Relative Humidity of Factory Air</td>
-                                    <td align="center"> '. $production->AMBIENT_HUM .'</td>
-                                    <td>(%)</td>
-                                </tr>
-                                <tr>
-                                    <td>Required Average temperature</td>
-                                    <td align="center"> '. $this->convert->prodTemperature($production->AVG_T_DESIRED) .'</td>
-                                    <td>( '. $symbol['temperatureSymbol'] . ' )</td>
-                                </tr>
-                                <tr>
-                                    <td>Required Production Rate</td>
-                                    <td align="center"> '. $this->convert->productFlow($production->PROD_FLOW_RATE) .'</td>
-                                    <td>( '. $symbol['productFlowSymbol'] .' )</td>
-                                </tr>
-                                </table>
-                            </div>
-                        </div>';
+                    <div class="table table-bordered">
+                        <table border="0.5">
+                        <tr>
+                            <th>Daily production</th>
+                            <th align="center"> '. $production->DAILY_PROD .'</th>
+                            <th>Hours/Day</th>
+                        </tr>
+                        <tr>
+                            <td>Weekly production</td>
+                            <td align="center"> '. $production->WEEKLY_PROD .'</td>
+                            <td>Days/Week</td>
+                        </tr>
+                        <tr style="height: 10px;">
+                            <td>Annual production</td>
+                            <td align="center"> '. $production->NB_PROD_WEEK_PER_YEAR .'</td>
+                            <td>Weeks/Year</td>
+                        </tr>
+                        <tr>
+                            <td>Number of equipment cooldowns</td>
+                            <td align="center"> '. $production->DAILY_STARTUP .'</td>
+                            <td>per day</td>
+                        </tr>
+                        <tr>
+                            <td>Factory Air temperature</td>
+                            <td align="center"> '. $this->convert->prodTemperature($production->AMBIENT_TEMP) .'</td>
+                            <td>( '. $symbol['temperatureSymbol'] . ' )</td>
+                        </tr>
+                        <tr>
+                            <td>Relative Humidity of Factory Air</td>
+                            <td align="center"> '. $production->AMBIENT_HUM .'</td>
+                            <td>(%)</td>
+                        </tr>
+                        <tr>
+                            <td>Required Average temperature</td>
+                            <td align="center"> '. $this->convert->prodTemperature($production->AVG_T_DESIRED) .'</td>
+                            <td>( '. $symbol['temperatureSymbol'] . ' )</td>
+                        </tr>
+                        <tr>
+                            <td>Required Production Rate</td>
+                            <td align="center"> '. $this->convert->productFlow($production->PROD_FLOW_RATE) .'</td>
+                            <td>( '. $symbol['productFlowSymbol'] .' )</td>
+                        </tr>
+                        </table>
+                    </div>
+                </div>';
                 PDF::writeHTML($html, true, false, true, false, '');
                 PDF::AddPage();
             }
@@ -1358,42 +1358,42 @@ class Reports extends Controller
                                 </tr>
                                 <tr>
                                     <td colspan="2">Insulated line</td>
-                                    <td colspan="4" align="center">'. ($cryogenPipeline['dataResultExist']['insulatedline'] ?? "") .'</td>
-                                    <td colspan="2" align="center">'. ($cryogenPipeline['dataResultExist']['insulllenght'] ?? "") .'</td>
+                                    <td colspan="4" align="center">'. (!empty($cryogenPipeline['dataResultExist']['insulatedline']) ?? "") .'</td>
+                                    <td colspan="2" align="center">'. (!empty($cryogenPipeline['dataResultExist']['insulllenght']) ?? "") .'</td>
                                 </tr>
                                 <tr>
                                     <td colspan="2">Insulated valves</td>
-                                    <td colspan="4" align="center">'. ($cryogenPipeline['dataResultExist']['insulatedlineval'] ?? "") .'</td>
-                                    <td colspan="2" align="center">'. ($cryogenPipeline['dataResultExist']['insulvallenght'] ?? "") .'</td>
+                                    <td colspan="4" align="center">'. (!empty($cryogenPipeline['dataResultExist']['insulatedlineval']) ?? "") .'</td>
+                                    <td colspan="2" align="center">'. (!empty($cryogenPipeline['dataResultExist']['insulvallenght']) ?? "") .'</td>
                                 </tr>
                                 <tr>
                                     <td colspan="2">Elbows</td>
-                                    <td colspan="4" align="center">'. ($cryogenPipeline['dataResultExist']['elbows'] ?? "") .'</td>
-                                    <td colspan="2" align="center">'. ($cryogenPipeline['dataResultExist']['elbowsnumber'] ?? "") .'</td>
+                                    <td colspan="4" align="center">'. (!empty($cryogenPipeline['dataResultExist']['elbows']) ?? "") .'</td>
+                                    <td colspan="2" align="center">'. (!empty($cryogenPipeline['dataResultExist']['elbowsnumber']) ?? "") .'</td>
                                 </tr>
                                 <tr>
                                     <td colspan="2">Tees</td>
-                                    <td colspan="4" align="center">'. ($cryogenPipeline['dataResultExist']['tee'] ?? "") .'</td>
-                                    <td colspan="2" align="center">'. ($cryogenPipeline['dataResultExist']['teenumber'] ?? "") .'</td>
+                                    <td colspan="4" align="center">'. (!empty($cryogenPipeline['dataResultExist']['tee']) ?? "") .'</td>
+                                    <td colspan="2" align="center">'. (!empty($cryogenPipeline['dataResultExist']['teenumber']) ?? "") .'</td>
                                 </tr>
                                 <tr>
                                     <td colspan="2">Non-insulated line</td>
-                                    <td colspan="4" align="center">'. ($cryogenPipeline['dataResultExist']['non_insulated_line'] ?? "") .'</td>
-                                    <td colspan="2" align="center">'. ($cryogenPipeline['dataResultExist']['noninsullenght'] ?? "") .'</td>
+                                    <td colspan="4" align="center">'. (!empty($cryogenPipeline['dataResultExist']['non_insulated_line']) ?? "") .'</td>
+                                    <td colspan="2" align="center">'. (!empty($cryogenPipeline['dataResultExist']['noninsullenght']) ?? "") .'</td>
                                 </tr>
                                 <tr>
                                     <td colspan="2">Non-insulated valves</td>
-                                    <td colspan="4" align="center">'. ($cryogenPipeline['dataResultExist']['non_insulated_valves'] ?? "") .'</td>
-                                    <td colspan="2"align="center">'. ($cryogenPipeline['dataResultExist']['noninsulatevallenght'] ?? "") .'</td>
+                                    <td colspan="4" align="center">'. (!empty($cryogenPipeline['dataResultExist']['non_insulated_valves']) ?? "") .'</td>
+                                    <td colspan="2"align="center">'. (!empty($cryogenPipeline['dataResultExist']['noninsulatevallenght']) ?? "") .'</td>
                                 </tr>
                                 <tr>
                                     <td colspan="2">Storage tank</td>
-                                    <td colspan="4" align="center">'. ($cryogenPipeline['dataResultExist']['storageTankName'] ?? "") .'</td>
+                                    <td colspan="4" align="center">'. (!empty($cryogenPipeline['dataResultExist']['storageTankName']) ?? "") .'</td>
                                     <td colspan="2" align="center"></td>
                                 </tr>
                             </table>
-                            <div id="pressuer"><strong>Tank pressure :</strong> '. ($cryogenPipeline['dataResultExist']['pressuer'] ?? "") .' (Bar)</div>
-                            <div id="height"><strong>Equipment elevation above tank outlet. :</strong>'. ($cryogenPipeline['dataResultExist']['height'] ?? "") .' (m)</div>
+                            <div id="pressuer"><strong>Tank pressure :</strong> '. (!empty($cryogenPipeline['dataResultExist']['pressuer']) ?? "") .' (Bar)</div>
+                            <div id="height"><strong>Equipment elevation above tank outlet. :</strong>'. (!empty($cryogenPipeline['dataResultExist']['height']) ?? "") .' (m)</div>
                         </div>
                     </div>';
                     PDF::writeHTML($html, true, false, true, false, '');
