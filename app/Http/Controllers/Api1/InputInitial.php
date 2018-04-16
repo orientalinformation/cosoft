@@ -108,17 +108,17 @@ class InputInitial extends Controller
 					case 4:
 					case 5:
 						$tempRecordPts->AXIS1_PT_TOP_SURF = $listAxis1[$this->getIndex($sizeList1, 0)];
-						$tempRecordPts->AXIS2_PT_TOP_SURF_DEF = $listAxis2[$this->getIndex($sizeList2, 100)];
+						$tempRecordPts->AXIS2_PT_TOP_SURF = $listAxis2[$this->getIndex($sizeList2, 100)];
 						break;
 
 					case 7:
 						$tempRecordPts->AXIS1_PT_TOP_SURF = $listAxis1[$this->getIndex($sizeList1, 100)];
-						$tempRecordPts->AXIS2_PT_TOP_SURF_DEF = $listAxis2[$this->getIndex($sizeList2, 0)];
+						$tempRecordPts->AXIS2_PT_TOP_SURF = $listAxis2[$this->getIndex($sizeList2, 0)];
 						break;
 					case 6:
 					default:
 						$tempRecordPts->AXIS1_PT_TOP_SURF = $listAxis1[$this->getIndex($sizeList1, 50)];
-						$tempRecordPts->AXIS2_PT_TOP_SURF_DEF = $listAxis2[$this->getIndex($sizeList2, 100)];
+						$tempRecordPts->AXIS2_PT_TOP_SURF = $listAxis2[$this->getIndex($sizeList2, 100)];
 						break;
 				}
 				$tempRecordPts->AXIS3_PT_TOP_SURF = $listAxis3[$this->getIndex($sizeList3, 50)];
@@ -129,13 +129,13 @@ class InputInitial extends Controller
 						$percent = (abs(floatval($tempRecordPtsDef->AXIS1_PT_TOP_SURF_DEF) - 50) * 2);
 						$offset = $listAxis1[$this->getIndex($sizeList1, $percent)];
 						$tempRecordPts->AXIS1_PT_TOP_SURF = $offset;
-						$tempRecordPts->AXIS2_PT_TOP_SURF_DEF = $listAxis2[$this->getIndex($sizeList2, $tempRecordPtsDef->AXIS2_PT_TOP_SURF_DEF)];
+						$tempRecordPts->AXIS2_PT_TOP_SURF = $listAxis2[$this->getIndex($sizeList2, $tempRecordPtsDef->AXIS2_PT_TOP_SURF_DEF)];
 						break;
 
 					case 7:
 						$percent = (abs(floatval($tempRecordPtsDef->AXIS2_PT_TOP_SURF_DEF) - 50) * 2);
 						$offset = $listAxis2[$this->getIndex($sizeList2, $percent)];
-						$tempRecordPts->AXIS1_PT_TOP_SURF_DEF = $listAxis1[$this->getIndex($sizeList1, $tempRecordPtsDef->AXIS1_PT_TOP_SURF_DEF)];
+						$tempRecordPts->AXIS1_PT_TOP_SURF = $listAxis1[$this->getIndex($sizeList1, $tempRecordPtsDef->AXIS1_PT_TOP_SURF_DEF)];
 						$tempRecordPts->AXIS2_PT_TOP_SURF = $offset;
 						break;
 					case 6:

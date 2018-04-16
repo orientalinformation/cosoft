@@ -42,6 +42,7 @@ use App\Models\PipeGen;
 use App\Models\PipeRes;
 use App\Models\LineElmt;
 use App\Models\LineDefinition;
+use App\Cryosoft\MeshService;
 // use DB;
 
 class Studies extends Controller
@@ -93,7 +94,8 @@ class Studies extends Controller
      * @return void
      */
     public function __construct(Request $request, Auth $auth, KernelService $kernel, UnitsConverterService $convert,
-        ValueListService $value, LineService $lineE, StudyEquipmentService $stdeqp, PackingService $packing, StudyService $study)
+        ValueListService $value, LineService $lineE, StudyEquipmentService $stdeqp, PackingService $packing, StudyService $study,
+        MeshService $mesh)
     {
         $this->request = $request;
         $this->auth = $auth;
@@ -104,6 +106,7 @@ class Studies extends Controller
         $this->stdeqp = $stdeqp;
         $this->packing = $packing;
         $this->study = $study;
+        $this->mesh = $mesh;
     }
 
     public function findStudies()
@@ -568,7 +571,7 @@ class Studies extends Controller
         $study->OPTION_EXHAUSTPIPELINE = $update->OPTION_EXHAUSTPIPELINE;
         $study->OPTION_ECO = $update->OPTION_ECO;
         $study->CHAINING_CONTROLS = $update->CHAINING_CONTROLS;
-        $study->CHAINING_ADD_COMP_ENABLE = $update->CHAINING_ADD_COMP_ENABLE;
+        $study->CHAINING_ADD_COMP_ENABLE = $update->CHAINING_ADD_COMP_ENABLE;        
         $study->CHAINING_NODE_DECIM_ENABLE = $update->CHAINING_NODE_DECIM_ENABLE;
         $study->TO_RECALCULATE = $update->TO_RECALCULATE;
         $study->HAS_CHILD = $update->HAS_CHILD;
@@ -583,6 +586,28 @@ class Studies extends Controller
                             $pipeDefitions->delete();
                         }
                         $pipeGen->delete();
+                    }
+                }
+            }
+        }
+
+        if ($study->CHAINING_ADD_COMP_ENABLE) {
+            $product = $study->products()->first();
+            if ($product) {
+                $meshGen = $product->meshGenerations()->first();
+                if ($meshGen) {
+                    if ($meshGen->MESH_1_FIXED != MeshService::IRREGULAR_MESH ||
+                        $meshGen->MESH_1_MODE != MeshService::MAILLAGE_MODE_REGULAR)
+                    {
+                        $meshGen->MESH_1_FIXED = MeshService::IRREGULAR_MESH;
+                        $meshGen->MESH_2_FIXED = MeshService::IRREGULAR_MESH;
+                        $meshGen->MESH_3_FIXED = MeshService::IRREGULAR_MESH;
+                        
+                        $meshGen->MESH_1_MODE = MeshService::MAILLAGE_MODE_REGULAR;
+                        $meshGen->MESH_2_MODE = MeshService::MAILLAGE_MODE_REGULAR;
+                        $meshGen->MESH_3_MODE = MeshService::MAILLAGE_MODE_REGULAR;
+                        $meshGen->save();
+                        $this->mesh->rebuildMesh($study);
                     }
                 }
             }

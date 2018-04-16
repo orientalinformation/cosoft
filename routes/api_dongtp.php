@@ -312,3 +312,11 @@ $router->PUT('/api/v1/input/meshinitial/{idStudy}', 'Api1\\InputInitial@initTemp
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/referencedata/highchart', 'Api1\\Equipments@saveSelectedProfile');
+
+/**
+ * GET data temp profile
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/input/tempprofile', 'Api1\\TempProfiles@getDataSvgTemperature');

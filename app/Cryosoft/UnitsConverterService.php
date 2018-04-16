@@ -669,12 +669,12 @@ class UnitsConverterService
         ->first();
         return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 0);
     }
-    public function packingThickness($value) {
+    public function packingThickness($value, $options = null) {
         $unit = Unit::where('TYPE_UNIT', $this->value->THICKNESS_PACKING)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
-        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B);
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 2, $options);
     }
     public function pressure($value) {
         $unit = Unit::where('TYPE_UNIT', $this->value->PRESSURE)
@@ -771,6 +771,34 @@ class UnitsConverterService
 
         return $this->unitConvert($sUnitLabel, $value, $decimal);
     }
+
+    public function cryogenPrice($value, $energy, $options = null)
+    {
+        $snrjUnitLabel = '';
+        switch ($energy) {
+            case 2:
+                $snrjUnitLabel = CONSUMPTION_UNIT_LN2;
+                break;
+
+            case 3:
+                $snrjUnitLabel = CONSUMPTION_UNIT_CO2;
+                break;
+            
+            default:
+                $snrjUnitLabel = CONSUMPTION_UNIT;
+                break;
+        }
+
+        $lfCoef = $this->unitConvert($snrjUnitLabel, $value);
+        $lfValue = $value;
+        if ($lfCoef != 0) {
+            $lfValue /= $lfCoef;
+        }
+        $uMoney = $this->uMoney();
+        $sValue = $this->convertCalculator($lfValue, $uMoney['coeffA'], $uMoney['coeffB'], 3, $options);
+        return $sValue;
+    }
+
 
 // convert unit for user
     public function temperatureSymbolUser() {
