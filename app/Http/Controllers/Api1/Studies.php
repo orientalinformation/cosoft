@@ -89,6 +89,11 @@ class Studies extends Controller
     protected $study;
 
     /**
+     * @var \App\Cryosoft\MeshService
+     */
+    protected $mesh;
+
+    /**
      * Create a new controller instance.
      *
      * @return void
@@ -1727,6 +1732,8 @@ class Studies extends Controller
                 $study->ID_PRECALC_LDG_RATE_PRM = $precalcLdgRatePrm->ID_PRECALC_LDG_RATE_PRM;
                 $study->ID_PACKING = $packing->ID_PACKING;
                 $study->save();
+
+                $this->mesh->rebuildMesh($study);
 
                 return $study;
 
