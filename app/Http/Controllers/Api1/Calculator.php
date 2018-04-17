@@ -1597,13 +1597,13 @@ class Calculator extends Controller
 
         if (intval($sdisableFields) != 1) {
             $countTS = $this->units->time($countTS, 2, 1);
-            $mm = $this->minmax->getMinMaxTimeStep(1013, 2);
+            $mm = $this->minmax->getMinMaxTimeStep(1013, 4);
             if (doubleval($mm->LIMIT_MAX) > doubleval($countTS)) {
                 $mm->LIMIT_MAX = $countTS;
             }
             
-            $timeStep1 = $this->units->timeStep($timeStep, 3, 0);
-            if ($timeStep1 < $mm->LIMIT_MIN || $timeStep > $mm->LIMIT_MAX) {
+            $timeStep1 = $this->units->timeStep($timeStep, 4, 0);
+            if ($timeStep1 < $mm->LIMIT_MIN || $timeStep1 > $mm->LIMIT_MAX) {
                 return  [
                     "Message" => "Value out of range in Time Step (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
                 ];
