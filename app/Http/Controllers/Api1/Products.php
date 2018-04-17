@@ -288,7 +288,8 @@ class Products extends Controller
             array_push($elmtMeshPositions, $meshPositions);
 
             $pointMeshOrder2 = $this->product->searchNbPtforElmt($elmt, 2);
-            $initTempPositions = $pointMeshOrder2['positions'];
+
+            array_push($initTempPositions, $pointMeshOrder2['positions']);
             array_push($nbMeshPointElmt, count($pointMeshOrder2['points']));
 
             $res = $this->productElmts->searchTempMeshPoint($elmt, $pointMeshOrder2['points']);
