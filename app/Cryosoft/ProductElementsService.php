@@ -43,12 +43,14 @@ class ProductElementsService
     {
         // ArrayList < Double > listtemp = new ArrayList < Double > ();
         $listtemp = [];
+        $meshPositions = [];
         try {
             //search the mesh2 order point
             if ($pointMeshOrder2 == null) {
-                $pointMeshOrder2 = $this->products->searchNbPtforElmt($productElmt, 2);
+                $res = $this->products->searchNbPtforElmt($productElmt, 2);
+                $pointMeshOrder2 = $res['points'];
+                $meshPositions = $res['positions'];
             }
-
             if (count ($pointMeshOrder2) == 0) {
                 return null;
             }
@@ -87,7 +89,7 @@ class ProductElementsService
         } catch (\Exception $e) {
             // log . error("Unexpected exception  search datatbase", e);
         }
-        return $listtemp;
+        return compact('listtemp', 'meshPositions');
     }
 
     public function PropagationTempProdElmtIso ($pb, /*boolean*/ $b3D)

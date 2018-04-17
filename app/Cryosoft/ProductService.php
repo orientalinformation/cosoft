@@ -171,10 +171,12 @@ class ProductService
     {
         $mshPsts = MeshPosition::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->where('MESH_AXIS', $axe)->orderBy('MESH_ORDER')->get();
         $points = [];
+        $positions = [];
         foreach ($mshPsts as $mshPst) {
             $points[] = $mshPst->MESH_ORDER;
+            $positions[] = $mshPst->MESH_AXIS_POS;
         }
-        return $points;
+        return compact('points', 'positions');
     }
 
     public function make2Dcontour(Study &$study) 

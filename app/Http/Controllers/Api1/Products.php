@@ -280,6 +280,7 @@ class Products extends Controller
         $elements = ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2', 'DESC')->get();
         $elmtMeshPositions = [];
         $productElmtInitTemp = [];
+        $initTempPositions = [];
         $nbMeshPointElmt = [];
 
         foreach ($elements as $elmt) {
@@ -287,9 +288,11 @@ class Products extends Controller
             array_push($elmtMeshPositions, $meshPositions);
 
             $pointMeshOrder2 = $this->product->searchNbPtforElmt($elmt, 2);
-            array_push($nbMeshPointElmt, count($pointMeshOrder2));
+            $initTempPositions = $pointMeshOrder2['positions'];
+            array_push($nbMeshPointElmt, count($pointMeshOrder2['points']));
 
-            $elmtInitTemp = $this->productElmts->searchTempMeshPoint($elmt, $pointMeshOrder2);
+            $res = $this->productElmts->searchTempMeshPoint($elmt, $pointMeshOrder2['points']);
+            $elmtInitTemp = $res['listtemp'];
             array_push($productElmtInitTemp, $elmtInitTemp);
         }
 
@@ -306,7 +309,7 @@ class Products extends Controller
 
         // $productElmtInitTemp = array_reverse($productElmtInitTemp);
 
-        return compact('meshGeneration', 'elements', 'elmtMeshPositions', 'productIsoTemp', 'nbMeshPointElmt', 'productElmtInitTemp');
+        return compact('meshGeneration', 'elements', 'elmtMeshPositions', 'productIsoTemp', 'nbMeshPointElmt', 'productElmtInitTemp', 'initTempPositions');
     }
 
     public function generateMesh($idProd) {
