@@ -130,7 +130,7 @@ class ProductElementsService
 
         
         // pb . pointMeshOrder2 = pointMeshOrder2;
-        $nbPointaxe2 = count($pointMeshOrder2);
+        $nbPointaxe2 = count($pointMeshOrder2['points']);
         
         /*double */$lfTemp = floatval( $this->units->prodTemperature(floatval( $pb['initTemp'][0] ) ) );
         
@@ -142,7 +142,7 @@ class ProductElementsService
 
         for ($j = 0; $j < $nbPointaxe2; $j ++) {
             // $s = (Short) pb . pointMeshOrder2 . get(j);// recup
-            $meshOrderaxe2 = $pointMeshOrder2[$j];
+            $meshOrderaxe2 = $pointMeshOrder2['points'][$j];
 
             for ($i = 0; $i < $nbPointaxe1; $i ++) {
                 for ($k = 0; $k < $nbPointaxe3; $k ++) {
