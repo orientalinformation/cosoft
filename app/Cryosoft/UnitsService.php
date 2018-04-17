@@ -110,6 +110,7 @@ class UnitsService
             $number = floor($number * pow(10, $decimal)) / pow(10, $decimal);
         } else {
             $number = round($number, $decimal, PHP_ROUND_HALF_UP);
+            $number = floor($number * pow(10, $decimal)) / pow(10, $decimal);
         }
         
         return number_format((float)$number, $decimal, '.', '');
@@ -418,6 +419,20 @@ class UnitsService
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
 
+        if ($status == 1) {
+            return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, $decimal, 1);
+        } else {
+            return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, $decimal, 0);
+        }
+    }
+
+    public function length($value, $decimal = 2, $status = 1)
+    {
+        $unit = Unit::where('TYPE_UNIT', $this->value->LENGTH)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+        
         if ($status == 1) {
             return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, $decimal, 1);
         } else {

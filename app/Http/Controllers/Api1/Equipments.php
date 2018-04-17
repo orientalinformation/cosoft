@@ -404,10 +404,10 @@ class Equipments extends Controller
             $key->consumptionSymbol3 = $this->convert->consumptionSymbolUser($key->ID_COOLING_FAMILY, 3);
             $key->shelvesWidthSymbol = $this->convert->shelvesWidthSymbol();
             $key->rampsPositionSymbol = $this->convert->rampsPositionSymbol();
-            $key->EQP_LENGTH = $this->units->equipDimension($key->EQP_LENGTH, 2, 1);
+            $key->EQP_LENGTH = $this->units->equipDimension($key->EQP_LENGTH, 2, 1);            
             $key->EQP_WIDTH = $this->units->equipDimension($key->EQP_WIDTH, 2, 1);
             $key->EQP_HEIGHT = $this->units->equipDimension($key->EQP_HEIGHT, 2, 1);
-            $key->MAX_FLOW_RATE = $this->units->consumption($key->MAX_FLOW_RATE, $key->ID_COOLING_FAMILY, 1, 2, 1);
+            $key->MAX_FLOW_RATE = doubleval($this->units->consumption($key->MAX_FLOW_RATE, $key->ID_COOLING_FAMILY, 1, 2, 1));
             $key->TMP_REGUL_MIN = $this->units->controlTemperature($key->TMP_REGUL_MIN, 0, 1);
 
             $equipGener = EquipGeneration::find($key->ID_EQUIPGENERATION);
@@ -472,18 +472,19 @@ class Equipments extends Controller
         
         if ($typeEquipment == 0) {
             if (isset($input['equipmentId1'])) $equipId1 = intval($input['equipmentId1']);
-            if (isset($input['tempSetPoint'])) $tempSetPoint = floatval($input['tempSetPoint']);
-            if (isset($input['dwellingTime'])) $dwellingTime = floatval($input['dwellingTime']);
+            if (isset($input['tempSetPoint'])) $tempSetPoint = $this->units->controlTemperature(floatval($input['tempSetPoint']), 2, 0);
+            if (isset($input['dwellingTime'])) $dwellingTime = $this->units->time(floatval($input['dwellingTime']), 2, 0);
         } else if ($typeEquipment == 1) {
             if (isset($input['equipmentId1'])) $equipId1 = intval($input['equipmentId1']);
-            if (isset($input['dwellingTime'])) $dwellingTime = floatval($input['dwellingTime']);
-            if (isset($input['newPos'])) $newPos = $input['newPos'];
+            if (isset($input['dwellingTime'])) $dwellingTime = $this->units->time(floatval($input['dwellingTime']), 2, 0);
+            if (isset($input['newPos'])) $newPos = $this->units->time(floatval($input['newPos']), 2, 0);
         } else if ($typeEquipment == 2) {
             if (isset($input['equipmentId1'])) $equipId1 = intval($input['equipmentId1']);
         } else {
             if (isset($input['equipmentId1'])) $equipId1 = intval($input['equipmentId1']);
             if (isset($input['equipmentId2'])) $equipId2 = intval($input['equipmentId2']);
-            if (isset($input['tempSetPoint'])) $tempSetPoint = floatval($input['tempSetPoint']);
+            if (isset($input['dwellingTime'])) $dwellingTime = $this->units->time(floatval($input['dwellingTime']), 2, 0);
+            if (isset($input['tempSetPoint'])) $tempSetPoint = $this->units->controlTemperature(floatval($input['tempSetPoint']), 2, 0);
         }
         $equipGenZone = $input['equipGenZone'];
 
@@ -849,20 +850,20 @@ class Equipments extends Controller
         $equipment = Equipment::find($idEquip);
         if (count($equipCharacts) > 0 && $equipment && ($equipment->STD == 0)) {
             foreach ($equipCharacts as $equipCharact) {
-                $equipCharact->X_POSITION = floatval($equipCharact->X_POSITION);
-                $equipCharact->ALPHA_TOP = $this->convert->convectionCoeff($equipCharact->ALPHA_TOP);
-                $equipCharact->ALPHA_BOTTOM = $this->convert->convectionCoeff($equipCharact->ALPHA_BOTTOM);
-                $equipCharact->ALPHA_LEFT = $this->convert->convectionCoeff($equipCharact->ALPHA_LEFT);
-                $equipCharact->ALPHA_RIGHT = $this->convert->convectionCoeff($equipCharact->ALPHA_RIGHT);
-                $equipCharact->ALPHA_FRONT = $this->convert->convectionCoeff($equipCharact->ALPHA_FRONT);
-                $equipCharact->ALPHA_REAR = $this->convert->convectionCoeff($equipCharact->ALPHA_REAR);
+                $equipCharact->X_POSITION = $this->units->time(floatval($equipCharact->X_POSITION), 1, 1);
+                $equipCharact->ALPHA_TOP = $this->units->convectionCoeff($equipCharact->ALPHA_TOP, 2, 1);
+                $equipCharact->ALPHA_BOTTOM = $this->units->convectionCoeff($equipCharact->ALPHA_BOTTOM, 2, 1);
+                $equipCharact->ALPHA_LEFT = $this->units->convectionCoeff($equipCharact->ALPHA_LEFT, 2, 1);
+                $equipCharact->ALPHA_RIGHT = $this->units->convectionCoeff($equipCharact->ALPHA_RIGHT, 2, 1);
+                $equipCharact->ALPHA_FRONT = $this->units->convectionCoeff($equipCharact->ALPHA_FRONT, 2, 1);
+                $equipCharact->ALPHA_REAR = $this->units->convectionCoeff($equipCharact->ALPHA_REAR, 2, 1);
 
-                $equipCharact->TEMP_TOP = $this->convert->temperature($equipCharact->TEMP_TOP);
-                $equipCharact->TEMP_BOTTOM = $this->convert->temperature($equipCharact->TEMP_BOTTOM);
-                $equipCharact->TEMP_LEFT = $this->convert->temperature($equipCharact->TEMP_LEFT);
-                $equipCharact->TEMP_RIGHT = $this->convert->temperature($equipCharact->TEMP_RIGHT);
-                $equipCharact->TEMP_FRONT = $this->convert->temperature($equipCharact->TEMP_FRONT);
-                $equipCharact->TEMP_REAR = $this->convert->temperature($equipCharact->TEMP_REAR);
+                $equipCharact->TEMP_TOP = $this->units->temperature($equipCharact->TEMP_TOP, 2, 1);
+                $equipCharact->TEMP_BOTTOM = $this->units->temperature($equipCharact->TEMP_BOTTOM, 2, 1);
+                $equipCharact->TEMP_LEFT = $this->units->temperature($equipCharact->TEMP_LEFT, 2, 1);
+                $equipCharact->TEMP_RIGHT = $this->units->temperature($equipCharact->TEMP_RIGHT, 2, 1);
+                $equipCharact->TEMP_FRONT = $this->units->temperature($equipCharact->TEMP_FRONT, 2, 1);
+                $equipCharact->TEMP_REAR = $this->units->temperature($equipCharact->TEMP_REAR, 2, 1);
             }
         } else if ((count($equipCharacts) < 0) && $equipment && ($equipment->STD != 0)) {
             // some code here
@@ -1593,19 +1594,19 @@ class Equipments extends Controller
     {
         $equipCharact = EquipCharact::find($id);
         if ($equipCharact) {
-            $equipCharact->ALPHA_TOP = $this->convert->convectionCoeff($equipCharact->ALPHA_TOP);
-            $equipCharact->ALPHA_BOTTOM = $this->convert->convectionCoeff($equipCharact->ALPHA_BOTTOM);
-            $equipCharact->ALPHA_LEFT = $this->convert->convectionCoeff($equipCharact->ALPHA_LEFT);
-            $equipCharact->ALPHA_RIGHT = $this->convert->convectionCoeff($equipCharact->ALPHA_RIGHT);
-            $equipCharact->ALPHA_FRONT = $this->convert->convectionCoeff($equipCharact->ALPHA_FRONT);
-            $equipCharact->ALPHA_REAR = $this->convert->convectionCoeff($equipCharact->ALPHA_REAR);
+            $equipCharact->ALPHA_TOP = $this->units->convectionCoeff($equipCharact->ALPHA_TOP, 2, 1);
+            $equipCharact->ALPHA_BOTTOM = $this->units->convectionCoeff($equipCharact->ALPHA_BOTTOM, 2, 1);
+            $equipCharact->ALPHA_LEFT = $this->units->convectionCoeff($equipCharact->ALPHA_LEFT, 2, 1);
+            $equipCharact->ALPHA_RIGHT = $this->units->convectionCoeff($equipCharact->ALPHA_RIGHT, 2, 1);
+            $equipCharact->ALPHA_FRONT = $this->units->convectionCoeff($equipCharact->ALPHA_FRONT, 2, 1);
+            $equipCharact->ALPHA_REAR = $this->units->convectionCoeff($equipCharact->ALPHA_REAR, 2, 1);
 
-            $equipCharact->TEMP_TOP = $this->convert->temperature($equipCharact->TEMP_TOP);
-            $equipCharact->TEMP_BOTTOM = $this->convert->temperature($equipCharact->TEMP_BOTTOM);
-            $equipCharact->TEMP_LEFT = $this->convert->temperature($equipCharact->TEMP_LEFT);
-            $equipCharact->TEMP_RIGHT = $this->convert->temperature($equipCharact->TEMP_RIGHT);
-            $equipCharact->TEMP_FRONT = $this->convert->temperature($equipCharact->TEMP_FRONT);
-            $equipCharact->TEMP_REAR = $this->convert->temperature($equipCharact->TEMP_REAR);
+            $equipCharact->TEMP_TOP = $this->units->temperature($equipCharact->TEMP_TOP, 2, 1);
+            $equipCharact->TEMP_BOTTOM = $this->units->temperature($equipCharact->TEMP_BOTTOM, 2, 1);
+            $equipCharact->TEMP_LEFT = $this->units->temperature($equipCharact->TEMP_LEFT, 2, 1);
+            $equipCharact->TEMP_RIGHT = $this->units->temperature($equipCharact->TEMP_RIGHT, 2, 1);
+            $equipCharact->TEMP_FRONT = $this->units->temperature($equipCharact->TEMP_FRONT, 2, 1);
+            $equipCharact->TEMP_REAR = $this->units->temperature($equipCharact->TEMP_REAR, 2, 1);
         }
         return $equipCharact;
     }
@@ -1671,18 +1672,20 @@ class Equipments extends Controller
         $TEMP_TOP = $TEMP_BOTTOM = $TEMP_LEFT = $TEMP_RIGHT = $TEMP_FRONT = $TEMP_REAR = null;
 
         if (isset($input['ID_EQUIPCHARAC'])) $ID_EQUIPCHARAC = intval($input['ID_EQUIPCHARAC']);
-        if (isset($input['ALPHA_TOP'])) $ALPHA_TOP = floatval($input['ALPHA_TOP']);
-        if (isset($input['ALPHA_BOTTOM'])) $ALPHA_BOTTOM = floatval($input['ALPHA_BOTTOM']);
-        if (isset($input['ALPHA_LEFT'])) $ALPHA_LEFT = floatval($input['ALPHA_LEFT']);
-        if (isset($input['ALPHA_RIGHT'])) $ALPHA_RIGHT = floatval($input['ALPHA_RIGHT']);
-        if (isset($input['ALPHA_FRONT'])) $ALPHA_FRONT = floatval($input['ALPHA_FRONT']);
-        if (isset($input['ALPHA_REAR'])) $ALPHA_REAR = floatval($input['ALPHA_REAR']);
-        if (isset($input['TEMP_TOP'])) $TEMP_TOP = floatval($input['TEMP_TOP']);
-        if (isset($input['TEMP_BOTTOM'])) $TEMP_BOTTOM = floatval($input['TEMP_BOTTOM']);
-        if (isset($input['TEMP_LEFT'])) $TEMP_LEFT = floatval($input['TEMP_LEFT']);
-        if (isset($input['TEMP_RIGHT'])) $TEMP_RIGHT = floatval($input['TEMP_RIGHT']);
-        if (isset($input['TEMP_FRONT'])) $TEMP_FRONT = floatval($input['TEMP_FRONT']);
-        if (isset($input['TEMP_REAR'])) $TEMP_REAR = floatval($input['TEMP_REAR']);
+
+        if (isset($input['ALPHA_TOP'])) $ALPHA_TOP = $this->units->convectionCoeff(floatval($input['ALPHA_TOP']), 2, 0);
+        if (isset($input['ALPHA_BOTTOM'])) $ALPHA_BOTTOM = $this->units->convectionCoeff(floatval($input['ALPHA_BOTTOM']), 2, 0);
+        if (isset($input['ALPHA_LEFT'])) $ALPHA_LEFT = $this->units->convectionCoeff(floatval($input['ALPHA_LEFT']), 2, 0);
+        if (isset($input['ALPHA_RIGHT'])) $ALPHA_RIGHT = $this->units->convectionCoeff(floatval($input['ALPHA_RIGHT']), 2, 0);
+        if (isset($input['ALPHA_FRONT'])) $ALPHA_FRONT = $this->units->convectionCoeff(floatval($input['ALPHA_FRONT']), 2, 0);
+        if (isset($input['ALPHA_REAR'])) $ALPHA_REAR = $this->units->convectionCoeff(floatval($input['ALPHA_REAR']), 2, 0);
+
+        if (isset($input['TEMP_TOP'])) $TEMP_TOP = $this->units->temperature(floatval($input['TEMP_TOP']), 2, 0);
+        if (isset($input['TEMP_BOTTOM'])) $TEMP_BOTTOM = $this->units->temperature(floatval($input['TEMP_BOTTOM']), 2, 0);
+        if (isset($input['TEMP_LEFT'])) $TEMP_LEFT = $this->units->temperature(floatval($input['TEMP_LEFT']), 2, 0);
+        if (isset($input['TEMP_RIGHT'])) $TEMP_RIGHT = $this->units->temperature(floatval($input['TEMP_RIGHT']), 2, 0);
+        if (isset($input['TEMP_FRONT'])) $TEMP_FRONT = $this->units->temperature(floatval($input['TEMP_FRONT']), 2, 0);
+        if (isset($input['TEMP_REAR'])) $TEMP_REAR = $this->units->temperature(floatval($input['TEMP_REAR']), 2, 0);
 
         $equipCharact = EquipCharact::find($ID_EQUIPCHARAC);
         if ($equipCharact) {
@@ -1998,6 +2001,64 @@ class Equipments extends Controller
                 $equipGenZone->REAR_PRM1 = $listEquipGenZone[$i]['REAR_PRM1'];
                 $equipGenZone->REAR_PRM2 = $listEquipGenZone[$i]['REAR_PRM2'];
                 $equipGenZone->REAR_PRM3 = $listEquipGenZone[$i]['REAR_PRM3'];
+
+                 // *_CHANGE = 2
+                if ($equipGenZone->TOP_ADIABAT == 0 && $equipGenZone->TOP_CHANGE == 2) {
+                    $equipGenZone->TOP_PRM1 = $this->units->convectionCoeff($equipGenZone->TOP_PRM1, 2, 0);
+                    $equipGenZone->TOP_PRM2 = $this->units->convectionCoeff($equipGenZone->TOP_PRM2, 2, 0);
+                    $equipGenZone->TOP_PRM3 = $this->units->convectionCoeff($equipGenZone->TOP_PRM3, 2, 0);
+                }
+                if ($equipGenZone->BOTTOM_ADIABAT == 0 && $equipGenZone->BOTTOM_CHANGE == 2) {
+                    $equipGenZone->BOTTOM_PRM1 = $this->units->convectionCoeff($equipGenZone->BOTTOM_PRM1, 2, 0);
+                    $equipGenZone->BOTTOM_PRM2 = $this->units->convectionCoeff($equipGenZone->BOTTOM_PRM2, 2, 0);
+                    $equipGenZone->BOTTOM_PRM3 = $this->units->convectionCoeff($equipGenZone->BOTTOM_PRM3, 2, 0);
+                }
+                if ($equipGenZone->LEFT_ADIABAT == 0 && $equipGenZone->LEFT_CHANGE == 2) {
+                    $equipGenZone->LEFT_PRM1 = $this->units->convectionCoeff($equipGenZone->LEFT_PRM1, 2, 0);
+                    $equipGenZone->LEFT_PRM2 = $this->units->convectionCoeff($equipGenZone->LEFT_PRM2, 2, 0);
+                    $equipGenZone->LEFT_PRM3 = $this->units->convectionCoeff($equipGenZone->LEFT_PRM3, 2, 0);
+                }
+                if ($equipGenZone->RIGHT_ADIABAT == 0 && $equipGenZone->RIGHT_CHANGE == 2) {
+                    $equipGenZone->RIGHT_PRM1 = $this->units->convectionCoeff($equipGenZone->RIGHT_PRM1, 2, 0);
+                    $equipGenZone->RIGHT_PRM2 = $this->units->convectionCoeff($equipGenZone->RIGHT_PRM2, 2, 0);
+                    $equipGenZone->RIGHT_PRM3 = $this->units->convectionCoeff($equipGenZone->RIGHT_PRM3, 2, 0);
+                }
+                if ($equipGenZone->FRONT_ADIABAT == 0 && $equipGenZone->FRONT_CHANGE == 2) {
+                    $equipGenZone->FRONT_PRM1 = $this->units->convectionCoeff($equipGenZone->FRONT_PRM1, 2, 0);
+                    $equipGenZone->FRONT_PRM2 = $this->units->convectionCoeff($equipGenZone->FRONT_PRM2, 2, 0);
+                    $equipGenZone->FRONT_PRM3 = $this->units->convectionCoeff($equipGenZone->FRONT_PRM3, 2, 0);
+                }
+                if ($equipGenZone->REAR_ADIABAT == 0 && $equipGenZone->REAR_CHANGE == 2) {
+                    $equipGenZone->REAR_PRM1 = $this->units->convectionCoeff($equipGenZone->REAR_PRM1, 2, 0);
+                    $equipGenZone->REAR_PRM2 = $this->units->convectionCoeff($equipGenZone->REAR_PRM2, 2, 0);
+                    $equipGenZone->REAR_PRM3 = $this->units->convectionCoeff($equipGenZone->REAR_PRM3, 2, 0);
+                }
+
+                // *_CHANGE = 3
+                if ($equipGenZone->TOP_ADIABAT == 0 && $equipGenZone->TOP_CHANGE == 3) {
+                    $equipGenZone->TOP_PRM1 = $this->units->lenght($equipGenZone->TOP_PRM1, 2, 0);
+                    $equipGenZone->TOP_PRM2 = $this->units->conductivity($equipGenZone->TOP_PRM2, 2, 0);
+                }
+                if ($equipGenZone->BOTTOM_ADIABAT == 0 && $equipGenZone->BOTTOM_CHANGE == 3) {
+                    $equipGenZone->BOTTOM_PRM1 = $this->units->lenght($equipGenZone->BOTTOM_PRM1, 2, 0);
+                    $equipGenZone->BOTTOM_PRM2 = $this->units->conductivity($equipGenZone->BOTTOM_PRM2, 2, 0);
+                }
+                if ($equipGenZone->LEFT_ADIABAT == 0 && $equipGenZone->LEFT_CHANGE == 3) {
+                    $equipGenZone->LEFT_PRM1 = $this->units->lenght($equipGenZone->LEFT_PRM1, 2, 1);
+                    $equipGenZone->LEFT_PRM2 = $this->units->conductivity($equipGenZone->LEFT_PRM2, 2, 0);
+                }
+                if ($equipGenZone->RIGHT_ADIABAT == 0 && $equipGenZone->RIGHT_CHANGE == 3) {
+                    $equipGenZone->RIGHT_PRM1 = $this->units->lenght($equipGenZone->RIGHT_PRM1, 2, 1);
+                    $equipGenZone->RIGHT_PRM2 = $this->units->conductivity($equipGenZone->RIGHT_PRM2, 2, 0);
+                }
+                if ($equipGenZone->FRONT_ADIABAT == 0 && $equipGenZone->FRONT_CHANGE == 3) {
+                    $equipGenZone->FRONT_PRM1 = $this->units->lenght($equipGenZone->FRONT_PRM1, 2, 1);
+                    $equipGenZone->FRONT_PRM2 = $this->units->conductivity($equipGenZone->FRONT_PRM2, 2, 0);
+                }
+                if ($equipGenZone->REAR_ADIABAT == 0 && $equipGenZone->REAR_CHANGE == 3) {
+                    $equipGenZone->REAR_PRM1 = $this->units->lenght($equipGenZone->REAR_PRM1, 2, 1);
+                    $equipGenZone->REAR_PRM2 = $this->units->conductivity($equipGenZone->REAR_PRM2, 2, 0);
+                }
     
                 $equipGenZone->save();
             }
@@ -2105,6 +2166,104 @@ class Equipments extends Controller
                 ->orderBy('ZONE_NUMBER', 'ASC')->get();
 
                 if (count($listEquipGenZone) > 0) {
+
+                    foreach ($listEquipGenZone as $key) {
+                        // AlphaI/Alpha in the mylar zone
+                        if ($key->TOP_ADIABAT == 0 && $key->TOP_CHANGE == 2) {
+                            $key->TOP_PRM1 = $this->units->convectionCoeff($key->TOP_PRM1, 2, 1);
+                        }
+                        if ($key->BOTTOM_ADIABAT == 0 && $key->BOTTOM_CHANGE == 2) {
+                            $key->BOTTOM_PRM1 = $this->units->convectionCoeff($key->BOTTOM_PRM1, 2, 1);
+                        }
+                        if ($key->LEFT_ADIABAT == 0 && $key->LEFT_CHANGE == 2) {
+                            $key->LEFT_PRM1 = $this->units->convectionCoeff($key->LEFT_PRM1, 2, 1);
+                        }
+                        if ($key->RIGHT_ADIABAT == 0 && $key->RIGHT_CHANGE == 2) {
+                            $key->RIGHT_PRM1 = $this->units->convectionCoeff($key->RIGHT_PRM1, 2, 1);
+                        }
+                        if ($key->FRONT_ADIABAT == 0 && $key->FRONT_CHANGE == 2) {
+                            $key->FRONT_PRM1 = $this->units->convectionCoeff($key->FRONT_PRM1, 2, 1);
+                        }
+                        if ($key->REAR_ADIABAT == 0 && $key->REAR_CHANGE == 2) {
+                            $key->REAR_PRM1 = $this->units->convectionCoeff($key->REAR_PRM1, 2, 1);
+                        }
+                        // Alpha spraying zone
+                        if ($key->TOP_ADIABAT == 0 && $key->TOP_CHANGE == 2) {
+                            $key->TOP_PRM2 = $this->units->convectionCoeff($key->TOP_PRM2, 2, 1);
+                        }
+                        if ($key->BOTTOM_ADIABAT == 0 && $key->BOTTOM_CHANGE == 2) {
+                            $key->BOTTOM_PRM2 = $this->units->convectionCoeff($key->BOTTOM_PRM2, 2, 1);
+                        }
+                        if ($key->LEFT_ADIABAT == 0 && $key->LEFT_CHANGE == 2) {
+                            $key->LEFT_PRM2 = $this->units->convectionCoeff($key->LEFT_PRM2, 2, 1);
+                        }
+                        if ($key->RIGHT_ADIABAT == 0 && $key->RIGHT_CHANGE == 2) {
+                            $key->RIGHT_PRM2 = $this->units->convectionCoeff($key->RIGHT_PRM2, 2, 1);
+                        }
+                        if ($key->FRONT_ADIABAT == 0 && $key->FRONT_CHANGE == 2) {
+                            $key->FRONT_PRM2 = $this->units->convectionCoeff($key->FRONT_PRM2, 2, 1);
+                        }
+                        if ($key->REAR_ADIABAT == 0 && $key->REAR_CHANGE == 2) {
+                            $key->REAR_PRM2 = $this->units->convectionCoeff($key->REAR_PRM2, 2, 1);
+                        }
+                        // Alpha stabilization zone
+                        if ($key->TOP_ADIABAT == 0 && $key->TOP_CHANGE == 2) {
+                            $key->TOP_PRM3 = $this->units->convectionCoeff($key->TOP_PRM3, 2, 1);
+                        }
+                        if ($key->BOTTOM_ADIABAT == 0 && $key->BOTTOM_CHANGE == 2) {
+                            $key->BOTTOM_PRM3 = $this->units->convectionCoeff($key->BOTTOM_PRM3, 2, 1);
+                        }
+                        if ($key->LEFT_ADIABAT == 0 && $key->LEFT_CHANGE == 2) {
+                            $key->LEFT_PRM3 = $this->units->convectionCoeff($key->LEFT_PRM3, 2, 1);
+                        }
+                        if ($key->RIGHT_ADIABAT == 0 && $key->RIGHT_CHANGE == 2) {
+                            $key->RIGHT_PRM3 = $this->units->convectionCoeff($key->RIGHT_PRM3, 2, 1);
+                        }
+                        if ($key->FRONT_ADIABAT == 0 && $key->FRONT_CHANGE == 2) {
+                            $key->FRONT_PRM3 = $this->units->convectionCoeff($key->FRONT_PRM3, 2, 1);
+                        }
+                        if ($key->REAR_ADIABAT == 0 && $key->REAR_CHANGE == 2) {
+                            $key->REAR_PRM3 = $this->units->convectionCoeff($key->REAR_PRM3, 2, 1);
+                        }
+                        // Insulation tickness
+                        if ($key->TOP_ADIABAT == 0 && $key->TOP_CHANGE == 3) {
+                            $key->TOP_PRM1 = $this->units->lenght($key->TOP_PRM1, 2, 1);
+                        }
+                        if ($key->BOTTOM_ADIABAT == 0 && $key->BOTTOM_CHANGE == 3) {
+                            $key->BOTTOM_PRM1 = $this->units->lenght($key->BOTTOM_PRM1, 2, 1);
+                        }
+                        if ($key->LEFT_ADIABAT == 0 && $key->LEFT_CHANGE == 3) {
+                            $key->LEFT_PRM1 = $this->units->lenght($key->LEFT_PRM1, 2, 1);
+                        }
+                        if ($key->RIGHT_ADIABAT == 0 && $key->RIGHT_CHANGE == 3) {
+                            $key->RIGHT_PRM1 = $this->units->lenght($key->RIGHT_PRM1, 2, 1);
+                        }
+                        if ($key->FRONT_ADIABAT == 0 && $key->FRONT_CHANGE == 3) {
+                            $key->FRONT_PRM1 = $this->units->lenght($key->FRONT_PRM1, 2, 1);
+                        }
+                        if ($key->REAR_ADIABAT == 0 && $key->REAR_CHANGE == 3) {
+                            $key->REAR_PRM1 = $this->units->lenght($key->REAR_PRM1, 2, 1);
+                        }
+                        // Insulation conductivity
+                        if ($key->TOP_ADIABAT == 0 && $key->TOP_CHANGE == 3) {
+                            $key->TOP_PRM2 = $this->units->conductivity($key->TOP_PRM2, 2, 1);
+                        }
+                        if ($key->BOTTOM_ADIABAT == 0 && $key->BOTTOM_CHANGE == 3) {
+                            $key->BOTTOM_PRM2 = $this->units->conductivity($key->BOTTOM_PRM2, 2, 1);
+                        }
+                        if ($key->LEFT_ADIABAT == 0 && $key->LEFT_CHANGE == 3) {
+                            $key->LEFT_PRM2 = $this->units->conductivity($key->LEFT_PRM2, 2, 1);
+                        }
+                        if ($key->RIGHT_ADIABAT == 0 && $key->RIGHT_CHANGE == 3) {
+                            $key->RIGHT_PRM2 = $this->units->conductivity($key->RIGHT_PRM2, 2, 1);
+                        }
+                        if ($key->FRONT_ADIABAT == 0 && $key->FRONT_CHANGE == 3) {
+                            $key->FRONT_PRM2 = $this->units->conductivity($key->FRONT_PRM2, 2, 1);
+                        }
+                        if ($key->REAR_ADIABAT == 0 && $key->REAR_CHANGE == 3) {
+                            $key->REAR_PRM2 = $this->units->conductivity($key->REAR_PRM2, 2, 1);
+                        }
+                    }
                     $equipment->EquipGenZone = $listEquipGenZone;
                 } else {
                     $checkGenZone = true;
