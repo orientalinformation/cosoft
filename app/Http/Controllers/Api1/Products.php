@@ -284,7 +284,7 @@ class Products extends Controller
         $nbMeshPointElmt = [];
 
         foreach ($elements as $elmt) {
-            $meshPositions = \App\Models\MeshPosition::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->get();
+            $meshPositions = \App\Models\MeshPosition::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->orderBy('MESH_ORDER')->get();
             array_push($elmtMeshPositions, $meshPositions);
 
             $pointMeshOrder2 = $this->product->searchNbPtforElmt($elmt, 2);
@@ -292,8 +292,7 @@ class Products extends Controller
             array_push($initTempPositions, $pointMeshOrder2['positions']);
             array_push($nbMeshPointElmt, count($pointMeshOrder2['points']));
 
-            $res = $this->productElmts->searchTempMeshPoint($elmt, $pointMeshOrder2['points']);
-            $elmtInitTemp = $res['listtemp'];
+            $elmtInitTemp = $this->productElmts->searchTempMeshPoint($elmt, $pointMeshOrder2['points']);
             array_push($productElmtInitTemp, $elmtInitTemp);
         }
 
@@ -472,7 +471,7 @@ class Products extends Controller
         //     bApplyStudyCleaner = false;
         //     tempIsdefine = false;
         // }
-        // $this->studies->RunStudyCleaner($study->ID_STUDY, SC_CLEAN_OUTPUT_PRODUCTION);
+        $this->studies->RunStudyCleaner($study->ID_STUDY, SC_CLEAN_OUTPUT_PRODUCTION);
                     
         // if (!bCleanerError && !tempIsdefine)
 

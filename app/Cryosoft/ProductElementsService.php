@@ -43,13 +43,11 @@ class ProductElementsService
     {
         // ArrayList < Double > listtemp = new ArrayList < Double > ();
         $listtemp = [];
-        $meshPositions = [];
         try {
             //search the mesh2 order point
             if ($pointMeshOrder2 == null) {
                 $res = $this->products->searchNbPtforElmt($productElmt, 2);
                 $pointMeshOrder2 = $res['points'];
-                $meshPositions = $res['positions'];
             }
             if (count ($pointMeshOrder2) == 0) {
                 return null;
@@ -89,7 +87,7 @@ class ProductElementsService
         } catch (\Exception $e) {
             // log . error("Unexpected exception  search datatbase", e);
         }
-        return compact('listtemp', 'meshPositions');
+        return $listtemp;
     }
 
     public function PropagationTempProdElmtIso ($pb, /*boolean*/ $b3D)
@@ -204,9 +202,9 @@ class ProductElementsService
             $i = $j = $k = 0;
             
             //search meshpoints on axis 2
-            $pointMeshOrder1 = $this->products->searchNbPtforElmt($pe, $this->value->MESH_AXIS_1);
-            $pointMeshOrder2 = $this->products->searchNbPtforElmt($pe, $this->value->MESH_AXIS_2);
-            $pointMeshOrder3 = $this->products->searchNbPtforElmt($pe, $this->value->MESH_AXIS_3);
+            $pointMeshOrder1 = $this->products->searchNbPtforElmt($pe, $this->value->MESH_AXIS_1)['points'];
+            $pointMeshOrder2 = $this->products->searchNbPtforElmt($pe, $this->value->MESH_AXIS_2)['points'];
+            $pointMeshOrder3 = $this->products->searchNbPtforElmt($pe, $this->value->MESH_AXIS_3)['points'];
             
             // get the first and last nodes of the internal product
             $nbPointaxe1 = count($pointMeshOrder1);
