@@ -56,7 +56,7 @@ class Productions extends Controller
     {
         $update = (object) $this->request->json()->all();
         // @var \App\Models\Production
-        $production = \App\Models\Production::find($id);
+        $production = \App\Models\Production::findOrFail($id);
 
         
         $production->DAILY_PROD             = $update->DAILY_PROD;
