@@ -121,6 +121,14 @@ $router->GET('/api/v1/studyEquipment/{id}/study', 'Api1\\StudyEquipments@getstud
 $router->GET('/api/v1/studyEquipment/{id}/recordPosition', 'Api1\\StudyEquipments@getRecordPosition');
 
 /**
+ * POST saveEquipSizing
+ * Summary: 
+ * Notes: save EquipSizing Heat Balance
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/studyEquipment/{id}/saveEquipSizing', 'Api1\\StudyEquipments@saveEquipSizing');
+
+/**
  * GET units
  * Summary: 
  * Notes: get Admin Units
