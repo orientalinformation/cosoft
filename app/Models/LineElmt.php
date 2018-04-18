@@ -60,6 +60,7 @@ class LineElmt extends Model
         'INSULATION_TYPE'     => 'integer',
         'LINE_RELEASE'     => 'integer',
         'OPEN_BY_OWNER'     => 'integer',
+        'ID_COOLING_FAMILY'     => 'integer',
     ];
     /**
      * @var string
