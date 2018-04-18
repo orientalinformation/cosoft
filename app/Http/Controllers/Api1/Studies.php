@@ -602,15 +602,15 @@ class Studies extends Controller
                 $meshGen = $product->meshGenerations()->first();
                 if ($meshGen) {
                     if ($meshGen->MESH_1_FIXED != MeshService::IRREGULAR_MESH ||
-                        $meshGen->MESH_1_MODE != MeshService::MAILLAGE_MODE_REGULAR)
+                        $meshGen->MESH_1_MODE != MeshService::MAILLAGE_MODE_IRREGULAR)
                     {
                         $meshGen->MESH_1_FIXED = MeshService::IRREGULAR_MESH;
                         $meshGen->MESH_2_FIXED = MeshService::IRREGULAR_MESH;
                         $meshGen->MESH_3_FIXED = MeshService::IRREGULAR_MESH;
                         
-                        $meshGen->MESH_1_MODE = MeshService::MAILLAGE_MODE_REGULAR;
-                        $meshGen->MESH_2_MODE = MeshService::MAILLAGE_MODE_REGULAR;
-                        $meshGen->MESH_3_MODE = MeshService::MAILLAGE_MODE_REGULAR;
+                        $meshGen->MESH_1_MODE = MeshService::MAILLAGE_MODE_IRREGULAR;
+                        $meshGen->MESH_2_MODE = MeshService::MAILLAGE_MODE_IRREGULAR;
+                        $meshGen->MESH_3_MODE = MeshService::MAILLAGE_MODE_IRREGULAR;
                         $meshGen->save();
                         $this->mesh->rebuildMesh($study);
                     }

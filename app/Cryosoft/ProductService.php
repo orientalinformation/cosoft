@@ -171,10 +171,14 @@ class ProductService
     {
         $mshPsts = MeshPosition::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->where('MESH_AXIS', $axe)->orderBy('MESH_ORDER')->get();
         $points = [];
+        $positions = [];
         foreach ($mshPsts as $mshPst) {
             $points[] = $mshPst->MESH_ORDER;
+            $positions[] = $this->units->meshesUnit($mshPst->MESH_AXIS_POS);
         }
-        return $points;
+        rsort($positions);
+        
+        return compact('points', 'positions');
     }
 
     public function make2Dcontour(Study &$study) 
@@ -363,17 +367,17 @@ class ProductService
                         case $this->values->CYLINDER_STANDING:
                         case $this->values->CYLINDER_LAYING:
                             $meshPoint = $this->searchNbPtforElmt($productElmt, $this->values->MESH_AXIS_2);
-                            $offset[1] = $meshPoint[0];
+                            $offset[1] = $meshPoint['points'][0];
                             $offset[0] = $offset[2] = 0;
                             break;
 
                         case $this->values->PARALLELEPIPED_BREADED:
                             $meshPoint = $this->searchNbPtforElmt($productElmt, $this->values->MESH_AXIS_1);
-                            $offset[0] = $meshPoint[0];
+                            $offset[0] = $meshPoint['points'][0];
                             $meshPoint = $this->searchNbPtforElmt($productElmt, $this->values->MESH_AXIS_2);
-                            $offset[1] = $meshPoint[0];
+                            $offset[1] = $meshPoint['points'][0];
                             $meshPoint = $this->searchNbPtforElmt($productElmt, $this->values->MESH_AXIS_3);
-                            $offset[2] = $meshPoint[0];
+                            $offset[2] = $meshPoint['points'][0];
                             break;
 
                         case $this->values->CYLINDER_CONCENTRIC_STANDING:
