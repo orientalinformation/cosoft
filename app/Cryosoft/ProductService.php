@@ -174,8 +174,10 @@ class ProductService
         $positions = [];
         foreach ($mshPsts as $mshPst) {
             $points[] = $mshPst->MESH_ORDER;
-            $positions[] = $mshPst->MESH_AXIS_POS;
+            $positions[] = $this->units->meshesUnit($mshPst->MESH_AXIS_POS);
         }
+        rsort($positions);
+        
         return compact('points', 'positions');
     }
 
