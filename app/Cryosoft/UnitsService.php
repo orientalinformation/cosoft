@@ -439,5 +439,11 @@ class UnitsService
             return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, $decimal, 0);
         }
     }
+
+    public function toc($value, $decimal = 2, $status = 1) 
+    {
+        $uPercent = $this->uPercent();
+        return $this->convertCalculator($value, $uPercent["coeffA"], $uPercent["coeffB"], $decimal, $status);
+    }
     // HAIDT
 }

@@ -1280,10 +1280,10 @@ class Equipments extends Controller
         if ($equipGeneration) {
             $array = [
                 'isCapabilities' => $isCapabilities,
-                'REGUL_TEMP' => $equipGeneration->TEMP_SETPOINT,
-                'DWELLING_TIME' => $equipGeneration->DWELLING_TIME,
-                'PRODTEMP' => $equipGeneration->AVG_PRODINTEMP,
-                'LOADINGRATE' => $equipGeneration->EQP_GEN_LOADRATE
+                'REGUL_TEMP' => $this->units->controlTemperature($equipGeneration->TEMP_SETPOINT, 0, 1),
+                'DWELLING_TIME' => $this->units->time($equipGeneration->DWELLING_TIME, 0, 1),
+                'PRODTEMP' => $this->units->prodTemperature($equipGeneration->AVG_PRODINTEMP, 1, 1),
+                'LOADINGRATE' => $this->units->toc($equipGeneration->EQP_GEN_LOADRATE, 1, 1)
             ];
         }
         return $array;
@@ -1296,9 +1296,9 @@ class Equipments extends Controller
         $ID_EQUIP = $REGUL_TEMP = $DWELLING_TIME = $PRODTEMP = $LOADINGRATE = $result = null;
 
         if (isset($input['ID_EQUIP'])) $ID_EQUIP = intval($input['ID_EQUIP']);
-        if (isset($input['REGUL_TEMP'])) $REGUL_TEMP = floatval($input['REGUL_TEMP']);
-        if (isset($input['DWELLING_TIME'])) $DWELLING_TIME = floatval($input['DWELLING_TIME']);
-        if (isset($input['PRODTEMP'])) $PRODTEMP = floatval($input['PRODTEMP']);
+        if (isset($input['REGUL_TEMP'])) $REGUL_TEMP = $this->units->controlTemperature(floatval($input['REGUL_TEMP']), 0, 0);
+        if (isset($input['DWELLING_TIME'])) $DWELLING_TIME = $this->units->time(floatval($input['DWELLING_TIME']), 0, 0);
+        if (isset($input['PRODTEMP'])) $PRODTEMP = $this->units->prodTemperature(floatval($input['PRODTEMP']), 1, 0);
         if (isset($input['LOADINGRATE'])) $LOADINGRATE = floatval($input['LOADINGRATE']);
 
         $equipment = Equipment::find($ID_EQUIP);
@@ -1651,8 +1651,8 @@ class Equipments extends Controller
         if ($equipment) {
             $equipGeneration = EquipGeneration::where('ID_EQUIP', $equipment->ID_EQUIP)->first();
             if ($equipGeneration) {
-                $tr_current = $equipGeneration->TEMP_SETPOINT;
-                $tr_new = $equipGeneration->TEMP_SETPOINT;
+                $tr_current = $this->units->controlTemperature($equipGeneration->TEMP_SETPOINT, 0, 1);
+                $tr_new = $this->units->controlTemperature($equipGeneration->TEMP_SETPOINT, 0, 1);
             }
         }
 
@@ -1762,8 +1762,8 @@ class Equipments extends Controller
                 // code have study;
 
                 if ($equipGeneration) {
-                    $equipGeneration->MOVING_POS = $lfOldTR;
-                    $equipGeneration->TEMP_SETPOINT = $lfNewTR;
+                    $equipGeneration->MOVING_POS = $this->units->controlTemperature($lfOldTR, 0, 0);
+                    $equipGeneration->TEMP_SETPOINT = $this->units->controlTemperature($lfNewTR, 0, 0);
                     $equipGeneration->MOVING_CHANGE = 2;
                     $equipGeneration->save();
 
@@ -1784,18 +1784,19 @@ class Equipments extends Controller
         $equipRs->shelvesWidthSymbol = $this->convert->shelvesWidthSymbol();
         $equipRs->rampsPositionSymbol = $this->convert->rampsPositionSymbol();
 
-        $equipRs->EQP_LENGTH = $this->convert->equipDimensionUser($equipRs->EQP_LENGTH);
-        $equipRs->EQP_WIDTH = $this->convert->equipDimensionUser($equipRs->EQP_WIDTH);
-        $equipRs->EQP_HEIGHT = $this->convert->equipDimensionUser($equipRs->EQP_HEIGHT);
-        $equipRs->MAX_FLOW_RATE = $this->convert->consumptionUser($equipRs->MAX_FLOW_RATE, $equipRs->ID_COOLING_FAMILY, 1);
-        $equipRs->TMP_REGUL_MIN = $this->convert->controlTemperatureUser($equipRs->TMP_REGUL_MIN);
+        $equipRs->EQP_LENGTH = $this->units->equipDimension($equipRs->EQP_LENGTH, 2, 1);            
+        $equipRs->EQP_WIDTH = $this->units->equipDimension($equipRs->EQP_WIDTH, 2, 1);
+        $equipRs->EQP_HEIGHT = $this->units->equipDimension($equipRs->EQP_HEIGHT, 2, 1);
+        $equipRs->MAX_FLOW_RATE = doubleval($this->units->consumption($equipRs->MAX_FLOW_RATE, $equipRs->ID_COOLING_FAMILY, 1, 2, 1));
+        $equipRs->TMP_REGUL_MIN = $this->units->controlTemperature($equipRs->TMP_REGUL_MIN, 0, 1);
 
         $equipGenerRs = EquipGeneration::find($equipRs->ID_EQUIPGENERATION);
     
         if ($equipGenerRs) { 
-            $equipGenerRs->TEMP_SETPOINT = doubleval($this->convert->controlTemperatureUser($equipGenerRs->TEMP_SETPOINT));
-            $equipGenerRs->DWELLING_TIME = doubleval($this->convert->timeUser($equipGenerRs->DWELLING_TIME));
-            $equipGenerRs->NEW_POS = doubleval($this->convert->timeUser($equipGenerRs->NEW_POS));
+
+            $equipGenerRs->TEMP_SETPOINT = doubleval($this->units->controlTemperature($equipGenerRs->TEMP_SETPOINT, 2, 1));
+            $equipGenerRs->DWELLING_TIME = $this->units->time($equipGenerRs->DWELLING_TIME, 2, 1);
+            $equipGenerRs->NEW_POS = $this->units->time($equipGenerRs->NEW_POS, 2, 1);
         }
         $equipRs->equipGeneration = $equipGenerRs;
         
@@ -2489,6 +2490,100 @@ class Equipments extends Controller
                 }
             }
             
+        }
+
+        return 1;
+    }
+
+    public function checkRedrawCurves()
+    {
+        $input = $this->request->all();
+
+        $ID_EQUIP = $REGUL_TEMP = $DWELLING_TIME = $PRODTEMP = $LOADINGRATE = $result = null;
+
+        if (isset($input['ID_EQUIP'])) $ID_EQUIP = intval($input['ID_EQUIP']);
+        if (isset($input['REGUL_TEMP'])) $REGUL_TEMP = floatval($input['REGUL_TEMP']);
+        if (isset($input['DWELLING_TIME'])) $DWELLING_TIME = floatval($input['DWELLING_TIME']);
+        if (isset($input['PRODTEMP'])) $PRODTEMP = floatval($input['PRODTEMP']);
+        if (isset($input['LOADINGRATE'])) $LOADINGRATE = floatval($input['LOADINGRATE']);
+
+        $equipment = Equipment::find($ID_EQUIP);
+        if ($equipment) {
+
+            if ($equipment->STD == 1) {
+                $equipGeneration = EquipGeneration::where('ID_EQUIP', $equipment->ID_EQUIPGENERATION)->first();
+
+                if ($equipGeneration) {
+
+                    if ($this->equip->getCapability($equipment->CAPABILITIES, 65536)) {
+                        $DWELLING_TIME = $this->units->time($DWELLING_TIME, 0, 0);
+                        $checkDWELLING_TIME = $this->minmax->checkMinMaxValue($DWELLING_TIME, $equipment->ITEM_TS);
+
+                        if ( !$checkDWELLING_TIME) {
+                            $mm = $this->minmax->getMinMaxTimes($equipment->ITEM_TS, 0);
+                            return  [
+                                "Message" => "Value out of range in Dwelling Time (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+                            ];
+                        }
+                    } else {
+                        $REGUL_TEMP = $this->units->controlTemperature($REGUL_TEMP, 0, 0);
+                        $checkREGUL_TEMP = $this->minmax->checkMinMaxValue($REGUL_TEMP, $equipment->ITEM_TR);
+
+                        if ( !$checkREGUL_TEMP) {
+                            $mm = $this->minmax->getMinMaxControlTemperature($equipment->ITEM_TR, 0);
+                            return  [
+                                "Message" => "Value out of range in Regulation temperature (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+                            ];
+                        }
+                    }
+                    $PRODTEMP = $this->units->prodTemperature($PRODTEMP, 1, 0);
+                    $checkPRODTEMP = $this->minmax->checkMinMaxValue($PRODTEMP, 1066);
+
+                    if ( !$checkPRODTEMP) {
+                        $mm = $this->minmax->getMinMaxProdTemperature(1066, 0);
+                        return  [
+                            "Message" => "Value out of range in Initial temperature of the product (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+                        ];
+                    }
+
+                    $checkLOADINGRATE = $this->minmax->checkMinMaxValue($LOADINGRATE, 704);
+
+                    if ( !$checkLOADINGRATE) {
+                        $mm = $this->minmax->getMinMaxLimitItem(704, 1);
+                        return  [
+                            "Message" => "Value out of range in Loading Rate (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+                        ];
+                    }
+                }
+            }
+        }
+
+        return 1;
+    }
+
+    public function checkBuildForNewTR()
+    {
+        $input = $this->request->all();
+
+        $lfOldTR = $lfNewTR = $ID_STUDY = $ID_EQUIP = $equipment = $equipGeneration = $result = null;
+        $nbStudies = $lastIdStudy = $id_equip = 0;
+
+        if (isset($input['ID_EQUIP'])) $ID_EQUIP = intval($input['ID_EQUIP']);
+        if (isset($input['ID_STUDY'])) $ID_STUDY = intval($input['ID_STUDY']);
+        if (isset($input['tr_current'])) $lfOldTR = floatval($input['tr_current']);
+        if (isset($input['tr_new'])) $lfNewTR = $this->units->controlTemperature(floatval($input['tr_new']), 0, 0);
+
+        $equipment = Equipment::find($ID_EQUIP);
+        if ($equipment) {
+
+            $checkLfNewTR = $this->minmax->checkMinMaxValue($lfNewTR, $equipment->ITEM_TR);
+
+            if ( !$checkLfNewTR) {
+                $mm = $this->minmax->getMinMaxLimitItem($equipment->ITEM_TR, 0);
+                return  [
+                    "Message" => "Value out of range in New temperature (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+                ];
+            }
         }
 
         return 1;

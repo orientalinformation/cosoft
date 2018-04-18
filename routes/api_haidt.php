@@ -462,3 +462,19 @@ $router->POST('/api/v1/referencedata/checkequipment', 'Api1\\Equipments@checkEqu
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/referencedata/checkupdateequipment', 'Api1\\Equipments@checkUpdateEquipment');
+
+/**
+ * POST checkRedrawCurves
+ * Summary:
+ * Notes: Check unit min max Curves
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/referencedata/checkredrawcurves', 'Api1\\Equipments@checkRedrawCurves');
+
+/**
+ * POST checkBuildForNewTR
+ * Summary:
+ * Notes: Check unit min max tempsetpoint
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/referencedata/checktempsetpoint', 'Api1\\Equipments@checkBuildForNewTR');
