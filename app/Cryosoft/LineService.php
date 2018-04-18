@@ -23,7 +23,7 @@ class LineService
     }
 
     public function getNameComboBoxLarge($elt_type, $insideDiameter, $coolingFamily, $sort) {
-        $sname = LineElmt::select('ID_PIPELINE_ELMT', 'LABEL', 'LINE_RELEASE')->where('ID_USER', '!=', $this->auth->user()->ID_USER)
+        $sname = LineElmt::select('ID_PIPELINE_ELMT', 'LABEL', 'LINE_RELEASE')
                 ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
                 ->where('Translation.TRANS_TYPE', 27)->where('ELT_TYPE', '=', $elt_type)
                 ->where('ELT_SIZE','=',$insideDiameter)->where('ID_COOLING_FAMILY', $coolingFamily)
