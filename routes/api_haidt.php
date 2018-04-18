@@ -454,3 +454,11 @@ $router->POST('/api/v1/referencedata/checkpipeline', 'Api1\\PipeLine@checkPipeli
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/referencedata/checkequipment', 'Api1\\Equipments@checkEquipment');
+
+/**
+ * POST checkUpdateEquipment
+ * Summary:
+ * Notes: Check unit min max Equipment
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/referencedata/checkupdateequipment', 'Api1\\Equipments@checkUpdateEquipment');

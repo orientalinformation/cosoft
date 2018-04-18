@@ -46,9 +46,9 @@ class ProductElementsService
         try {
             //search the mesh2 order point
             if ($pointMeshOrder2 == null) {
-                $pointMeshOrder2 = $this->products->searchNbPtforElmt($productElmt, 2);
+                $res = $this->products->searchNbPtforElmt($productElmt, 2);
+                $pointMeshOrder2 = $res['points'];
             }
-
             if (count ($pointMeshOrder2) == 0) {
                 return null;
             }
@@ -128,7 +128,7 @@ class ProductElementsService
 
         
         // pb . pointMeshOrder2 = pointMeshOrder2;
-        $nbPointaxe2 = count($pointMeshOrder2);
+        $nbPointaxe2 = count($pointMeshOrder2['points']);
         
         /*double */$lfTemp = floatval( $this->units->prodTemperature(floatval( $pb['initTemp'][0] ) ) );
         
@@ -140,7 +140,7 @@ class ProductElementsService
 
         for ($j = 0; $j < $nbPointaxe2; $j ++) {
             // $s = (Short) pb . pointMeshOrder2 . get(j);// recup
-            $meshOrderaxe2 = $pointMeshOrder2[$j];
+            $meshOrderaxe2 = $pointMeshOrder2['points'][$j];
 
             for ($i = 0; $i < $nbPointaxe1; $i ++) {
                 for ($k = 0; $k < $nbPointaxe3; $k ++) {
@@ -202,9 +202,9 @@ class ProductElementsService
             $i = $j = $k = 0;
             
             //search meshpoints on axis 2
-            $pointMeshOrder1 = $this->products->searchNbPtforElmt($pe, $this->value->MESH_AXIS_1);
-            $pointMeshOrder2 = $this->products->searchNbPtforElmt($pe, $this->value->MESH_AXIS_2);
-            $pointMeshOrder3 = $this->products->searchNbPtforElmt($pe, $this->value->MESH_AXIS_3);
+            $pointMeshOrder1 = $this->products->searchNbPtforElmt($pe, $this->value->MESH_AXIS_1)['points'];
+            $pointMeshOrder2 = $this->products->searchNbPtforElmt($pe, $this->value->MESH_AXIS_2)['points'];
+            $pointMeshOrder3 = $this->products->searchNbPtforElmt($pe, $this->value->MESH_AXIS_3)['points'];
             
             // get the first and last nodes of the internal product
             $nbPointaxe1 = count($pointMeshOrder1);

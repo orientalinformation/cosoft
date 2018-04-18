@@ -280,16 +280,19 @@ class Products extends Controller
         $elements = ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2', 'DESC')->get();
         $elmtMeshPositions = [];
         $productElmtInitTemp = [];
+        $initTempPositions = [];
         $nbMeshPointElmt = [];
 
         foreach ($elements as $elmt) {
-            $meshPositions = \App\Models\MeshPosition::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->get();
+            $meshPositions = \App\Models\MeshPosition::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->orderBy('MESH_ORDER')->get();
             array_push($elmtMeshPositions, $meshPositions);
 
             $pointMeshOrder2 = $this->product->searchNbPtforElmt($elmt, 2);
-            array_push($nbMeshPointElmt, count($pointMeshOrder2));
 
-            $elmtInitTemp = $this->productElmts->searchTempMeshPoint($elmt, $pointMeshOrder2);
+            array_push($initTempPositions, $pointMeshOrder2['positions']);
+            array_push($nbMeshPointElmt, count($pointMeshOrder2['points']));
+
+            $elmtInitTemp = $this->productElmts->searchTempMeshPoint($elmt, $pointMeshOrder2['points']);
             array_push($productElmtInitTemp, $elmtInitTemp);
         }
 
@@ -306,7 +309,7 @@ class Products extends Controller
 
         // $productElmtInitTemp = array_reverse($productElmtInitTemp);
 
-        return compact('meshGeneration', 'elements', 'elmtMeshPositions', 'productIsoTemp', 'nbMeshPointElmt', 'productElmtInitTemp');
+        return compact('meshGeneration', 'elements', 'elmtMeshPositions', 'productIsoTemp', 'nbMeshPointElmt', 'productElmtInitTemp', 'initTempPositions');
     }
 
     public function generateMesh($idProd) {
@@ -468,7 +471,7 @@ class Products extends Controller
         //     bApplyStudyCleaner = false;
         //     tempIsdefine = false;
         // }
-        // $this->studies->RunStudyCleaner($study->ID_STUDY, SC_CLEAN_OUTPUT_PRODUCTION);
+        $this->studies->RunStudyCleaner($study->ID_STUDY, SC_CLEAN_OUTPUT_PRODUCTION);
                     
         // if (!bCleanerError && !tempIsdefine)
 
@@ -545,7 +548,7 @@ class Products extends Controller
                         }
                             //=============== PROdELMT MESHPOINT
                             //search meshpoints on axis 2
-                        /*ArrayList < Short >*/ $pointMeshOrder2 = $this->product->searchNbPtforElmt($pb, 2);
+                        /*ArrayList < Short >*/ $pointMeshOrder2 = $this->product->searchNbPtforElmt($pb, 2)['points'];
                         // $pb->pointMeshOrder2 = pointMeshOrder2;
 
                         // ArrayList < Double > t = $pb->tempMeshPoint;
@@ -556,7 +559,7 @@ class Products extends Controller
                             // in case of new mesh generation without T°ini, intiliaze T° in to zero
                             for ($i = 0; $i < count($pointMeshOrder2); $i++) {
                                 if ($i < count($t)) {
-                                    $t2[] = $t[i];
+                                    $t2[] = $t[$i];
                                 } else {
                                     $t2[] = 0;
                                 }
@@ -589,7 +592,7 @@ class Products extends Controller
                             $ldNodeNb1 = $ldNodeNb3 = 1;
                         }
                         for ($i = 0; $i < count($t); $i ++) {
-                            $ldNodeNb2 = $pointMeshOrder2[$i];
+                            $ldNodeNb2 = $pointMeshOrder2['points'][$i];
                                 
                                 //============get the temp
                             /*Double*/ $Dt = $t[$i];
