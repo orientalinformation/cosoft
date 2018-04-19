@@ -55,7 +55,7 @@ class LineService
         return $sname;
 	}
 
-	public function getNonLine($elt_type,$insideDiameter, $coolingFamily) {
+	public function getNonLine($elt_type, $insideDiameter, $coolingFamily) {
         
         $nonName = LineElmt::select('ID_PIPELINE_ELMT', 'LABEL', 'LINE_RELEASE')
             ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')

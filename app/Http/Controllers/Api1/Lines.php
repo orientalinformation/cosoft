@@ -346,9 +346,9 @@ class Lines extends Controller
             if (count($non_insulated_valves) > 0) {
                 $non_insulated_valvesLabel = [];
                 $non_insulated_valValue = [];
-                foreach ($insulatedlinevals as $insulatedlineval) {
-                    $non_insulated_valvesLabel[] = $insulatedlineval->LABEL ."-". $this->lineE->getStatus($insulatedlineval->LINE_RELEASE);
-                    $non_insulated_valValue[] = $insulatedlineval->ID_PIPELINE_ELMT;
+                foreach ($non_insulated_valves as $non_insulated_valve) {
+                    $non_insulated_valvesLabel[] = $non_insulated_valve->LABEL ."-". $this->lineE->getStatus($non_insulated_valve->LINE_RELEASE);
+                    $non_insulated_valValue[] = $non_insulated_valve->ID_PIPELINE_ELMT;
                 }
             } else {
                 $non_insulated_valvesLabel = '';
