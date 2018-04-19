@@ -1593,7 +1593,9 @@ class Calculator extends Controller
 
         $countTS = 0;
         for ($i = 0; $i < count($newLTs) ; $i++) { 
-            $countTS += doubleval($newLTs[$i]["valueCheck"]);
+            if (isset($newLTs[$i]["valueCheck"])) {
+                $countTS += doubleval($newLTs[$i]["valueCheck"]);
+            }
         }
 
         if (intval($sdisableFields) != 1) {
