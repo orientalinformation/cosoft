@@ -310,7 +310,7 @@ class ProductService
     {
         echo "start save matrix from parent\n";
         
-        /*boolean*/ $bret = false;
+        $bret = false;
         //	save matrix temperature issue from parent study
         $study = $product->study;
         $production = $study->productions->first();
@@ -324,7 +324,7 @@ class ProductService
                 $productElmt = null;
                 // loop on all product element (from the first inserted to the last excepted for breaded)
                 if ($product->productElmts->first()->ID_SHAPE != $this->values->PARALLELEPIPED_BREADED) {
-                    /*ProductElmt */$productElmts = \App\Models\ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2')->get();
+                    $productElmts = \App\Models\ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2')->get();
                     // for (int i = vProductElmtBean . size() - 1; i >= 0; i --) {
                     //     productElmt = ((ProductElmtBean) vProductElmtBean . get(i)) . getProductElmt ();
                     //     if (productElmt . getInsertLineOrder() != $this->studies->getSelectedStudy()) {
@@ -338,7 +338,7 @@ class ProductService
                         }                        
                     }
                 } else {
-                    /*ProductElmt */ $productElmts = \App\Models\ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2', 'DESC')->get();
+                    $productElmts = \App\Models\ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2', 'DESC')->get();
                     // for (int i = 0; i < vProductElmtBean . size(); i ++) {
                     //     productElmt = ((ProductElmtBean) vProductElmtBean . get(i)) . getProductElmt ();
                     //     if (productElmt . getInsertLineOrder() != $this->studies->getSelectedStudy()) {
@@ -356,11 +356,11 @@ class ProductService
                 
                 if ($productElmt != null) {
                     // search the list of mesh points on axis 2 for this product element
-                    /*int */$offset = [];
+                    $offset = [];
                     $offset[0] = 0;
                     $offset[1] = 0;
                     $offset[2] = 0;
-                    /*ArrayList < Short > */$meshPoint = null;
+                    $meshPoint = null;
 
                     switch ($productElmt->ID_SHAPE) {
                         case $this->values->SLAB:
@@ -390,14 +390,14 @@ class ProductService
                     }
                     
                     $parentStudy = Study::findOrFail($study->PARENT_ID);
-                    /*StudyEquipments */$sequip = StudyEquipment::findOrFail($study->PARENT_STUD_EQP_ID);
-                    /*Product */$parentProduct = $parentStudy->products()->first();
+                    $sequip = StudyEquipment::findOrFail($study->PARENT_STUD_EQP_ID);
+                    $parentProduct = $parentStudy->products()->first();
                     echo $sequip != null ? "found parent stdeqp\n" : "not found stdeqp\n";
                     echo $parentProduct != null ? "found parent\n" : "not found parent\n";
                     if (($sequip != null) && ($parentProduct != null)) {
                         // log . debug("search source for save temperature.....");
-                        /*boolean */$bNum = ($sequip->BRAIN_TYPE == $this->values->BRAIN_RUN_FULL_YES) ? true : false;
-                        /*boolean */$bAna;
+                        $bNum = ($sequip->BRAIN_TYPE == $this->values->BRAIN_RUN_FULL_YES) ? true : false;
+                        $bAna;
                         if ($study->CALCULATION_MODE == ($this->values->STUDY_ESTIMATION_MODE)) {
                             // estimation
                             $bAna = $this->stdeqp->isAnalogicResults($sequip);
@@ -484,6 +484,7 @@ class ProductService
                 array_push($listTemp, $temp->toArray());
             } // for axis 2
         } // for axis 1
+
         $slices = array_chunk($listTemp, 100);
         foreach ($slices as $slice) {
             InitialTemperature::insert($slice);
