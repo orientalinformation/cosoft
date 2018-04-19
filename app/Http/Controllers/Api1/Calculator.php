@@ -731,39 +731,39 @@ class Calculator extends Controller
             $brainMode = 11;
         }
         
-         $runType = null;
-         if ($typeCalculate == 3) {
-             $brainMode = 13;
-             $this->saveCalculationParameters($this->request, $idStudyEquipment, $brainMode);
-             $this->saveTempRecordPts($this->request, $idStudy);
-             //resetBrainStudyError(); not using
-             $runType = $this->startMaxCapacityCalculation($this->request, $idStudy, $idStudyEquipment);
-         } else {
-             $this->saveEquipmentSettings($this->request, $idStudyEquipment);
-             $this->saveCalculationParameters($this->request, $idStudyEquipment, $brainMode);
-             $this->saveTempRecordPts($this->request, $idStudy);
+        $runType = $result = null;
+        if ($typeCalculate == 3) {
+            $brainMode = 13;
+            $this->saveCalculationParameters($this->request, $idStudyEquipment, $brainMode);
+            $this->saveTempRecordPts($this->request, $idStudy);
+            //resetBrainStudyError(); not using
+            $runType = $this->startMaxCapacityCalculation($this->request, $idStudy, $idStudyEquipment);
+        } else {
+            $this->saveEquipmentSettings($this->request, $idStudyEquipment);
+            $this->saveCalculationParameters($this->request, $idStudyEquipment, $brainMode);
+            $this->saveTempRecordPts($this->request, $idStudy);
 
-             if ($this->cal->isStudyHasChilds($idStudy)) {
-                 $this->cal->setChildsStudiesToRecalculate($idStudy, $idStudyEquipment);
-             }
+            if ($this->cal->isStudyHasChilds($idStudy)) {
+                $this->cal->setChildsStudiesToRecalculate($idStudy, $idStudyEquipment);
+            }
 
-             $this->runStudyCleaner($idStudy, $idStudyEquipment, 53);
+            $this->runStudyCleaner($idStudy, $idStudyEquipment, 53);
 
-             $runType = $this->startBrainNumericalCalculation($idStudy, $idStudyEquipment, $brainMode);
-            sleep(15);
-
-             $study = Study::find($idStudy);
-             if ($study->OPTION_CRYOPIPELINE == 1) {
+            $study = Study::find($idStudy);
+            if ($study->OPTION_CRYOPIPELINE == 1) {
                 $this->startPipeLine($idStudy, $idStudyEquipment);
             }
-                    
-             if ($study->OPTION_ECO == 1) {
-                 $this->startEconomic($idStudy, $idStudyEquipment);
-            } else {
-                $this->startConsumptionEconomic($idStudy, $idStudyEquipment);
-            }
+                     
+            $this->startEconomic($idStudy, $idStudyEquipment);
+            $this->startConsumptionEconomic($idStudy, $idStudyEquipment);
 
-         }
+            $runType = $this->startBrainNumericalCalculation($idStudy, $idStudyEquipment, $brainMode);
+
+            if ($runType == 259) {
+                sleep(45);
+                return 0;
+            }
+        }
 
         return $runType;
     }
@@ -1136,6 +1136,7 @@ class Calculator extends Controller
 
             $results = $this->kernel->getKernelObject('BrainCalculator')->BRTeachCalculation($conf, $param, $ldMode);
         }
+
         return $results;
     }
 
