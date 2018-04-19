@@ -592,12 +592,15 @@ class Products extends Controller
                             $ldNodeNb1 = $ldNodeNb3 = 1;
                         }
                         for ($i = 0; $i < count($t); $i ++) {
-                            $ldNodeNb2 = $pointMeshOrder2['points'][$i];
+                            if (isset($pointMeshOrder2['points'][$i])) {
+                                $ldNodeNb2 = $pointMeshOrder2['points'][$i];
                                 
-                                //============get the temp
-                            /*Double*/ $Dt = $t[$i];
+                                    //============get the temp
+                                /*Double*/ $Dt = $t[$i];
 
-                            $this->product->PropagationTempElmt($product, $ldNodeNb1, $ldNodeNb2, $ldNodeNb3, $Dt);
+                                $this->product->PropagationTempElmt($product, $ldNodeNb1, $ldNodeNb2, $ldNodeNb3, $Dt);
+                            }
+                            
                         }
                                 
                             // save Flag ProdElmt NON ISO to 2
