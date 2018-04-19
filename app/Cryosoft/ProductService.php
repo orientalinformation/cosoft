@@ -167,7 +167,7 @@ class ProductService
     }
 
     // search mesh order for one elment on an axis
-    public function searchNbPtforElmt(ProductElmt &$elmt, /*int*/ $axe = 2)
+    public function searchNbPtforElmt(ProductElmt &$elmt, $axe = 2)
     {
         $mshPsts = MeshPosition::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->where('MESH_AXIS', $axe)->orderBy('MESH_ORDER')->get();
         $points = [];
@@ -293,12 +293,14 @@ class ProductService
         //     return sFileName;
     }
 
-    public function CheckInitialTemperature(\App\Models\Product &$product) {
+    public function CheckInitialTemperature(\App\Models\Product &$product) 
+    {
         // @TODO: implement
         return true;
     }
 
-    public function DeleteOldInitTemp(\App\Models\Product &$product) {
+    public function DeleteOldInitTemp(\App\Models\Product &$product) 
+    {
         // @TODO: implement
         // delete all current initial temperature
         InitialTemperature::where('ID_PRODUCTION', $product->study->ID_PRODUCTION)->delete();

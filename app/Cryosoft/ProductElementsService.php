@@ -49,7 +49,8 @@ class ProductElementsService
                 $res = $this->products->searchNbPtforElmt($productElmt, 2);
                 $pointMeshOrder2 = $res['points'];
             }
-            if (count ($pointMeshOrder2) == 0) {
+
+            if (count($pointMeshOrder2) == 0) {
                 return null;
             }
             // put the array in String

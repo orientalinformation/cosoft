@@ -288,7 +288,6 @@ class Products extends Controller
             array_push($elmtMeshPositions, $meshPositions);
 
             $pointMeshOrder2 = $this->product->searchNbPtforElmt($elmt, 2);
-
             array_push($initTempPositions, $pointMeshOrder2['positions']);
             array_push($nbMeshPointElmt, count($pointMeshOrder2['points']));
 
@@ -445,12 +444,11 @@ class Products extends Controller
         DB::connection()->disableQueryLog();
         set_time_limit(300);
         ini_set('max_execution_time', 300);
-        /*boolean*/ $bSave = false;
+        $bSave = false;
         $product = Product::findOrFail($idProd);
         $study = $product->study;
         $input = $this->request->json()->all();
-        // var_dump($input);
-        // die('1');
+        // var_dump($input); die('initNon');
 
         // short ldNodeNb1, ldNodeNb2, ldNodeNb3;
         $ldNodeNb1 = $ldNodeNb2 = $ldNodeNb3 = 0;
@@ -594,7 +592,7 @@ class Products extends Controller
                         for ($i = 0; $i < count($t); $i ++) {
                             $ldNodeNb2 = $pointMeshOrder2['points'][$i];
                                 
-                                //============get the temp
+                            //============get the temp
                             /*Double*/ $Dt = $t[$i];
 
                             $this->product->PropagationTempElmt($product, $ldNodeNb1, $ldNodeNb2, $ldNodeNb3, $Dt);
@@ -605,7 +603,7 @@ class Products extends Controller
                         $pb->save();//updateProductELMT
                     }
                 }
-            }//end of foreach
+            } //end of foreach
             
             
             //indicates that temperature are defined
@@ -625,5 +623,4 @@ class Products extends Controller
 
         return 1;
     }
-
 }

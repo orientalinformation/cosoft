@@ -87,14 +87,12 @@ class ProductElements extends Controller
         return $this->mesh->rebuildMesh($moveElement->product->study);
     }
 
-    public function initProdElmtTemp($id) {
+    public function initProdElmtTemp($id) 
+    {
         $elmt = \App\Models\ProductElmt::findOrFail($id);
 
         $input = $this->request->json()->all();
 
-
-
         return $input;
     }
-
 }
