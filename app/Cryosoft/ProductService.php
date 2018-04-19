@@ -174,8 +174,10 @@ class ProductService
         $positions = [];
         foreach ($mshPsts as $mshPst) {
             $points[] = $mshPst->MESH_ORDER;
-            $positions[] = $mshPst->MESH_AXIS_POS;
+            $positions[] = $this->units->meshesUnit($mshPst->MESH_AXIS_POS);
         }
+        rsort($positions);
+        
         return compact('points', 'positions');
     }
 
@@ -328,7 +330,7 @@ class ProductService
                     //     }
                     // }//for
                     foreach ($productElmts as $pElmt) {
-                        if ($pElmt->INSERT_LINE_ORDER != $study->ID_STUDY){
+                        if ($pElmt->INSERT_LINE_ORDER != $study->ID_STUDY) {
                             $productElmt = $pElmt;
                             break;
                         }                        

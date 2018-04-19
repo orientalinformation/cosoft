@@ -727,12 +727,12 @@ class Output extends Controller
             $maxLength = -1;
 
             $mmWidth = MinMax::where("LIMIT_ITEM", $this->value->MIN_MAX_EQUIPMENT_WIDTH)->first();
-            $minWidth = $this->unit->equipDimension($mmWidth->LIMIT_MIN);
-            $minWidth = $this->unit->equipDimension($mmWidth->LIMIT_MAX);
+            $minWidth = $this->unit->equipDimension($mmWidth->LIMIT_MIN, ['format' => false]);
+            $maxWidth = $this->unit->equipDimension($mmWidth->LIMIT_MAX, ['format' => false]);
 
             $mmLength = MinMax::where("LIMIT_ITEM", $this->value->MIN_MAX_EQUIPMENT_LENGTH)->first();
-            $minLength = $this->unit->equipDimension($mmWidth->LIMIT_MIN);
-            $maxLength = $this->unit->equipDimension($mmWidth->LIMIT_MAX);
+            $minLength = $this->unit->equipDimension($mmLength->LIMIT_MIN, ['format' => false]);
+            $maxLength = $this->unit->equipDimension($mmLength->LIMIT_MAX, ['format' => false]);
 
             $minSurf = $minWidth * $minLength;
             $maxSurf = $maxWidth * $maxLength;

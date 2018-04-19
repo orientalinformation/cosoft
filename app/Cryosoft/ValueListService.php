@@ -45,6 +45,7 @@ class ValueListService
     public $DENSITY = 7;
     public $RESERVOIR_CAPACITY_LN2 = 18;
     public $RESERVOIR_CAPACITY_CO2 = 25;
+    public $LENGTH = 3;
 
     //brand mode
     public $BRAIN_MODE_ESTIMATION = 1;

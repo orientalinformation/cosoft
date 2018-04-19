@@ -521,6 +521,7 @@ class Calculator extends Controller
             if ($brainMode == $this->value->BRAIN_MODE_OPTIMUM_DHPMAX) {
                 $itemTs['name'] = $i;
                 $itemTs['value'] = $this->value->VALUE_N_A;
+                $itemTs['valueCheck'] = $this->units->time($lTs[$i], 1, 0);
                 array_push($dwellingTimes, $itemTs);
             } else {
                 $itemTs['name'] = $i;
@@ -1592,7 +1593,7 @@ class Calculator extends Controller
 
         $countTS = 0;
         for ($i = 0; $i < count($newLTs) ; $i++) { 
-            $countTS += doubleval($newLTs[$i]["value"]);
+            $countTS += doubleval($newLTs[$i]["valueCheck"]);
         }
 
         if (intval($sdisableFields) != 1) {
