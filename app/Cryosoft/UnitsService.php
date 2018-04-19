@@ -305,7 +305,8 @@ class UnitsService
         }
     }
 
-    public function equipDimension($value, $decimal, $status) {
+    public function equipDimension($value, $decimal, $status) 
+    {
         $unit = Unit::where('TYPE_UNIT', $this->value->EQUIP_DIMENSION)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
@@ -387,7 +388,8 @@ class UnitsService
         }
     }
 
-    public function controlTemperature($value, $decimal, $status) {
+    public function controlTemperature($value, $decimal, $status) 
+    {
         $unit = Unit::where('TYPE_UNIT', $this->value->TEMPERATURE)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
@@ -400,7 +402,8 @@ class UnitsService
         }
     }
 
-    public function rampsPosition($value, $decimal, $status) {
+    public function rampsPosition($value, $decimal, $status) 
+    {
         $unit = Unit::where('TYPE_UNIT', $this->value->SLOPES_POSITION)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
@@ -413,7 +416,8 @@ class UnitsService
         }
     }
 
-    public function shelvesWidthUser($value) {
+    public function shelvesWidthUser($value) 
+    {
         $unit = Unit::where('TYPE_UNIT', $this->value->W_CARPET_SHELVES)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)

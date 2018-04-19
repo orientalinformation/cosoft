@@ -273,10 +273,9 @@ class StudyService
         return $data;
     }
 
-    public function RunStudyCleaner($idStudy, /*int*/ $ld_Mode, /*int*/ $ld_StudEqpId = -1) {
-        // log . debug("Run Study CLeaner: mode= " + ld_Mode + " / Id study equipments= " + ld_StudEqpId);
-        /*int*/ $ret = 0;
-        // $ret = Cleaner . RunStudyCleaner(mySTD . getIdStudy(), ld_StudEqpId, ld_Mode);
+    public function RunStudyCleaner($idStudy, $ld_Mode, $ld_StudEqpId = -1) 
+    {
+        $ret = 0;
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy);
         $ret = $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, $ld_Mode);
         // Chaining management to mark childs to recalculate
@@ -287,8 +286,9 @@ class StudyService
         return $ret;
     }
 
-    public function isStudyHasParent (\App\Models\Study $mySTD) {
-        /*boolean*/ $bret = false;
+    public function isStudyHasParent (\App\Models\Study $mySTD) 
+    {
+        $bret = false;
         //study with chaining?
         if (($mySTD->CHAINING_CONTROLS == self::$OPTION_CHAINING)
             && ($mySTD->PARENT_ID > 0)) {

@@ -108,7 +108,6 @@ class MinMaxService
         return $minMax; 
     }
 
-    // HAIDT
     public function getMinMaxTime($limitItem)
     {  
         $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
