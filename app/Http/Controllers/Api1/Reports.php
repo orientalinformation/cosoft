@@ -944,35 +944,34 @@ class Reports extends Controller
         if (($study['CHAINING_CONTROLS'] == 1) && ($study['PARENT_ID'] != 0)) {
             if (!empty($calModeHeadBalance)) {
                 PDF::Bookmark('CHAINING SYNTHESIS', 0, 0, '', 'B', array(0,64,128));
-                // PDF::Cell(0, 10, '', 0, 1, 'L');
-                $html = '';
-                $html .= '<h3 style ="background-color:#268EE2">Chaining synthesis</h3>
-                <div class="chaining">
+                $html = '<h3 style ="background-color:#268EE2">Chaining synthesis</h3>
+            <div class="chaining">
                 <div class="table table-bordered">
-                <table border="0.5">
-                    <tr>
-                        <th colspan="2">Study Name</th>
-                        <th colspan="2">Equipment</th>
-                        <th>Control temperature  ( '. $symbol['temperatureSymbol'] .' ) </th>
-                        <th>Residence/ Dwell time  ( '. $symbol['timeSymbol'] .' ) </th>
-                        <th>Convection Setting (Hz)</th>
-                        <th>Initial Average Product tempeture  ( '. $symbol['temperatureSymbol'] .' )  </th>
-                        <th>Final Average Product temperature  ( '. $symbol['temperatureSymbol'] .' ) </th>
-                        <th>Product Heat Load  ( '. $symbol['enthalpySymbol'] .' ) </th>
-                    </tr>';
-                    foreach ($calModeHeadBalance as $key => $resoptHeads) { 
-                    $html .= '<tr>
-                        <td colspan="2" align="center"> '. $resoptHeads['stuName'] .' </td>
-                        <td colspan="2" align="center"> '. "TODO" .' </td>
-                        <td align="center"> '. $resoptHeads['tr'] .' </td>
-                        <td align="center"> '. $resoptHeads['ts'] .' </td>
-                        <td align="center"> '. $equipData[$key]['tr'][0] .' </td>
-                        <td align="center"> '. $proInfoStudy['avgTInitial'] .' </td>
-                        <td align="center"> '. $resoptHeads['tfp'] .' </td>
-                        <td align="center"> '. $resoptHeads['vep'] .' </td>
-                    </tr>';
-                    }
-                    $html .= '</table>
+                    <table border="1">
+                        <tr>
+                            <th colspan="2">Study Name</th>
+                            <th colspan="2">Equipment</th>
+                            <th>Control temperature  ( '. $symbol['temperatureSymbol'] .' ) </th>
+                            <th>Residence/ Dwell time  ( '. $symbol['timeSymbol'] .' ) </th>
+                            <th>Convection Setting (Hz)</th>
+                            <th>Initial Average Product tempeture  ( '. $symbol['temperatureSymbol'] .' )  </th>
+                            <th>Final Average Product temperature  ( '. $symbol['temperatureSymbol'] .' ) </th>
+                            <th>Product Heat Load  ( '. $symbol['enthalpySymbol'] .' ) </th>
+                        </tr>';
+                        foreach ($calModeHeadBalance as $key => $resoptHeads) { 
+                        $html .= '<tr>
+                            <td colspan="2" align="center"> '. $resoptHeads['stuName'] .' </td>
+                            <td colspan="2" align="center"> '. "TODO" .' </td>
+                            <td align="center"> '. $resoptHeads['tr'] .' </td>
+                            <td align="center"> '. $resoptHeads['ts'] .' </td>
+                            <td align="center"> '. $equipData[$key]['tr'][0] .' </td>
+                            <td align="center"> '. $proInfoStudy['avgTInitial'] .' </td>
+                            <td align="center"> '. $resoptHeads['tfp'] .' </td>
+                            <td align="center"> '. $resoptHeads['vep'] .' </td>
+                        </tr>';
+                        }
+                    $html .= '
+                    </table>
                 </div>
             </div>';
                 PDF::writeHTML($html, true, false, true, false, '');
@@ -1040,8 +1039,7 @@ class Reports extends Controller
         if ($PROD_LIST == 1) {
             PDF::Bookmark('PRODUCT DATA', 0, 0, '', 'B', array(0,64,128));
             // PDF::Cell(0, 10, '', 0, 1, 'L');
-            $html = '';
-            $html .= '<h3 style ="background-color:#268EE2">Product Data</h3>
+            $html = '<h3 style ="background-color:#268EE2">Product Data</h3>
             <h4>Composition of the product and its components</h4>
             <div class="pro-data">
                 <div class="table table-bordered">
