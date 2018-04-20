@@ -440,7 +440,6 @@ class Lines extends Controller
         $teesQuantity = $input['TEES'];
         $height = ($input['HEIGHT'] == 0) ? 0 : $this->convert->materialRiseSave($input['HEIGHT']);
         $pressure = ($input['PRESSURE'] == 0) ? 0 : $this->convert->pressureSave($input['PRESSURE']);
-        // $storageTankCapacity = $input['storageTankCapacity'];
         $gasTemperature = ($input['GAS_TEMP'] == 0) ? 0 : $this->convert->exhaustTemperature($input['GAS_TEMP']);
         
         $study = Study::find($id);
