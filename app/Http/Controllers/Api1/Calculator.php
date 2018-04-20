@@ -1381,6 +1381,7 @@ class Calculator extends Controller
                 ];
             }
         }
+        
         if (intval($sdisablePrecision) != 1) {
             $checkPrecision = $this->minmax->checkMinMaxValue($precision, 1019);
             if ( !$checkPrecision ) {
@@ -1390,6 +1391,7 @@ class Calculator extends Controller
                 ];
             }
         }
+
         if (intval($sdisableNbOptim) != 1) {
             if (intval($scheckStorage) == 1) {
                 $storagestep = $this->units->timeStep($storagestep, 1, 0);
@@ -1799,15 +1801,14 @@ class Calculator extends Controller
             for ($i = 0; $i < count($newLTs) ; $i++) { 
                 $countTS += $this->units->time(doubleval($newLTs[$i]["value"]), 1, 1);
             }
+
             $countTS = $this->units->time($countTS, 2, 1);
-
             $mm = $this->minmax->getMinMaxTimeStep(1013, 3);
-
             if (doubleval($mm->LIMIT_MAX) > doubleval($countTS)) {
                 $mm->LIMIT_MAX = $countTS;
             }
-            $timeStep1 = $this->units->timeStep($timeStep, 3, 0);
 
+            $timeStep1 = $this->units->timeStep($timeStep, 3, 0);
             if ($timeStep1 < $mm->LIMIT_MIN || $timeStep > $mm->LIMIT_MAX) {
                 return  [
                     "Message" => "Value out of range in Time Step (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"

@@ -91,7 +91,7 @@ class ProductElementsService
         return $listtemp;
     }
 
-    public function PropagationTempProdElmtIso ($pb, /*boolean*/ $b3D)
+    public function PropagationTempProdElmtIso ($pb, $b3D)
     {
         $pe = \App\Models\ProductElmt::find($pb['ID_PRODUCT_ELMT']);
         $product = \App\Models\Product::find($pb['ID_PROD']);
@@ -127,17 +127,17 @@ class ProductElementsService
         //search meshpoints on axis 2
         $pointMeshOrder2 = $this->products->searchNbPtforElmt($pe, $this->value->MESH_AXIS_2);
 
-        
         // pb . pointMeshOrder2 = pointMeshOrder2;
         $nbPointaxe2 = count($pointMeshOrder2['points']);
         
-        /*double */$lfTemp = floatval( $this->units->prodTemperature(floatval( $pb['initTemp'][0] ) ) );
+        $lfTemp = floatval($this->units->prodTemperature(floatval($pb['initTemp'][0])));
         
         // short i, j, k;
         $i = $j = $k = 0;
 
         // /*list < InitialTemperature > */$listTemp = [];//new ArrayList < InitialTemperature > ();
-        /*InitialTemperature */$listTemp = [];
+        /*InitialTemperature */
+        $listTemp = [];
 
         for ($j = 0; $j < $nbPointaxe2; $j ++) {
             // $s = (Short) pb . pointMeshOrder2 . get(j);// recup
@@ -212,6 +212,7 @@ class ProductElementsService
             $nbPointaxe2 = count($pointMeshOrder2);
             $nbPointaxe3 = count($pointMeshOrder3);
             $first = $last = 0;
+            
             for ($i = 1; $i < $nbPointaxe1; $i ++) {
                 $last = $pointMeshOrder1[$i];
                 $first = $pointMeshOrder1[$i-1];
@@ -221,6 +222,7 @@ class ProductElementsService
                     break;
                 }
             }
+
             for ($j = 1; $j < $nbPointaxe2; $j ++) {
                 $last = $pointMeshOrder2[$j];
                 $first = $pointMeshOrder2[$j-1];
@@ -230,6 +232,7 @@ class ProductElementsService
                     break;
                 }
             }
+
             for ($k = 1; $k < $nbPointaxe3; $k ++) {
                 $last = $pointMeshOrder3[$k];
                 $first = $pointMeshOrder3[$k-1];

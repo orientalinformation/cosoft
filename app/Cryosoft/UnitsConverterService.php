@@ -1072,5 +1072,4 @@ class UnitsConverterService
 
         return $sValue;
     }
-
 }

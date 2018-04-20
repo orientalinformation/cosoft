@@ -96,7 +96,6 @@ class Products extends Controller
 
     public function appendElementsToProduct($id)
     {
-        // $id is product id
         $input = $this->request->all();
 
         $componentId = $input['componentId'];
@@ -277,6 +276,7 @@ class Products extends Controller
             $meshGeneration->MESH_2_INT = $this->unit->meshesUnit($meshGeneration->MESH_2_INT);
             $meshGeneration->MESH_3_INT = $this->unit->meshesUnit($meshGeneration->MESH_3_INT);
         }
+
         $elements = ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2', 'DESC')->get();
         $elmtMeshPositions = [];
         $productElmtInitTemp = [];
@@ -307,11 +307,11 @@ class Products extends Controller
         }
 
         // $productElmtInitTemp = array_reverse($productElmtInitTemp);
-
         return compact('meshGeneration', 'elements', 'elmtMeshPositions', 'productIsoTemp', 'nbMeshPointElmt', 'productElmtInitTemp', 'initTempPositions');
     }
 
-    public function generateMesh($idProd) {
+    public function generateMesh($idProd) 
+    {
         /** @var Product $product */
         $product = Product::findOrFail($idProd);
 
@@ -448,7 +448,7 @@ class Products extends Controller
         $product = Product::findOrFail($idProd);
         $study = $product->study;
         $input = $this->request->json()->all();
-        // var_dump($input); die('initNon');
+        var_dump($input); die('initNon');
 
         // short ldNodeNb1, ldNodeNb2, ldNodeNb3;
         $ldNodeNb1 = $ldNodeNb2 = $ldNodeNb3 = 0;
@@ -526,6 +526,7 @@ class Products extends Controller
                             // 1D
                             $this->productElmts->PropagationTempProdElmtIso($pe, false);
                         }
+
                         $pb->PROD_ELMT_ISO = $this->values->PRODELT_ISOTHERM;// save Flag ProdElmtISO to 1
                         $pb->save();//updateProductELMT
                             
@@ -544,9 +545,10 @@ class Products extends Controller
                             // log . error("BREADED PARALLELEPIPED: product element must be isotherm");
                             throw new \Exception("BREADED PARALLELEPIPED: product element must be isotherm");
                         }
-                            //=============== PROdELMT MESHPOINT
-                            //search meshpoints on axis 2
-                        /*ArrayList < Short >*/ $pointMeshOrder2 = $this->product->searchNbPtforElmt($pb, 2)['points'];
+                        //=============== PROdELMT MESHPOINT
+                        //search meshpoints on axis 2
+                        /*ArrayList < Short >*/ 
+                        $pointMeshOrder2 = $this->product->searchNbPtforElmt($pb, 2)['points'];
                         // $pb->pointMeshOrder2 = pointMeshOrder2;
 
                         // ArrayList < Double > t = $pb->tempMeshPoint;
@@ -566,7 +568,7 @@ class Products extends Controller
                         }
 
                         if ($this->studies->isStudyHasParent($study)) {
-                                //	3D: dispatch this temp
+                            //	3D: dispatch this temp
                             $ldNodeNb1 = $prodMeshgene->MESH_1_NB;
                             $ldNodeNb3 = $prodMeshgene->MESH_3_NB;
                             switch ($pb->ID_SHAPE) {
@@ -586,19 +588,17 @@ class Products extends Controller
                                     break;
                             }
                         } else {
-                                //	1D
+                            //  1D
                             $ldNodeNb1 = $ldNodeNb3 = 1;
                         }
+
                         for ($i = 0; $i < count($t); $i ++) {
                             if (isset($pointMeshOrder2['points'][$i])) {
                                 $ldNodeNb2 = $pointMeshOrder2['points'][$i];
-
-                                //============get the temp
-                                /*Double*/ $Dt = $t[$i];
-
+                                // ============get the temp
+                                $Dt = $t[$i];
                                 $this->product->PropagationTempElmt($product, $ldNodeNb1, $ldNodeNb2, $ldNodeNb3, $Dt);
                             }
-                            
                         }
                                 
                         // save Flag ProdElmt NON ISO to 2
@@ -606,10 +606,9 @@ class Products extends Controller
                         $pb->save();//updateProductELMT
                     }
                 }
-            } //end of foreach
+            } // end of foreach
             
-            
-            //indicates that temperature are defined
+            // indicates that temperature are defined
             $tempIsdefine = true;
 
             $bSave = true;
