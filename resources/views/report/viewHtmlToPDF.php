@@ -94,7 +94,7 @@
         <h3 style ="background-color:#268EE2">Chaining synthesis</h3>
         <div class="table-responsive">
             <table class ="table table-bordered" border="1">
-                <table border="0.5">
+                <table border="1">
                     <tr>
                         <th colspan="2">Study Name</th>
                         <th colspan="2">Equipment</th>
