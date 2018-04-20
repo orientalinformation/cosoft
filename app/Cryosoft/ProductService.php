@@ -208,19 +208,19 @@ class ProductService
             return null;
         }
 
-        /*double*/ $lfPasTemp = 0;
-        /*double[]*/ $BorneTemp = $this->getTemperatureBorne($listOfElmtId, $idProduction);
+        $lfPasTemp = 0;
+        $BorneTemp = $this->getTemperatureBorne($listOfElmtId, $idProduction);
         $BorneTemp[$this->values->ID_TMIN] = $this->units->prodTemperature($BorneTemp[$this->values->ID_TMIN]);
         $BorneTemp[$this->values->ID_TMAX] = $this->units->prodTemperature($BorneTemp[$this->values->ID_TMAX]);
 
-        /*double[]*/ $res = $this->calculatePasTemp($BorneTemp[$this->values->ID_TMIN], $BorneTemp[$this->values->ID_TMAX]);
+        $res = $this->calculatePasTemp($BorneTemp[$this->values->ID_TMIN], $BorneTemp[$this->values->ID_TMAX]);
         $BorneTemp[$this->values->ID_TMIN] = $res[$this->values->ID_TMIN];
         $BorneTemp[$this->values->ID_TMAX] = res[$this->values->ID_TMAX];
         $lfPasTemp = $res[$this->values->ID_PAS];
 
-        /*double*/ $zStep = $lfPasTemp;
-        /*double*/ $zStart = $BorneTemp[$this->values->ID_TMIN];
-        /*double*/ $zEnd = $BorneTemp[$this->values->ID_TMAX];
+        $zStep = $lfPasTemp;
+        $zStart = $BorneTemp[$this->values->ID_TMIN];
+        $zEnd = $BorneTemp[$this->values->ID_TMAX];
 
         //     Grid myGrid = getGrideByPlan(listOfElmtId, idProduction, ldAxe[0], ldAxe[1], ldAxe[2]);
         //     if (myGrid == null || myGrid . getNbColumn() == 0 || myGrid . getNbLine() == 0) {
