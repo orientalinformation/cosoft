@@ -34,11 +34,14 @@ class InputInitial extends Controller
 	 * @var Illuminate\Contracts\Auth\Factory
 	 */
 	protected $auth;
+	protected $cal;
 
-	public function __construct(Request $request, Auth $auth)
+	public function __construct(\Laravel\Lumen\Application $app)
 	{
-		$this->request = $request;
-		$this->auth = $auth;
+		$this->app = $app;
+		$this->auth = $app['Illuminate\\Contracts\\Auth\\Factory'];
+		$this->request = $app['Illuminate\\Http\\Request'];
+		$this->cal = $app['App\\Cryosoft\\CalculateService'];
 	}
 
 	public function initTempRecordPts($idStudy)
@@ -312,6 +315,7 @@ class InputInitial extends Controller
 			}
 			$tempRecordPts->save();
 
+			$this->cal->saveTempRecordPtsToReport($idStudy);
 		}
 	}
 
