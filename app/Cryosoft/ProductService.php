@@ -13,8 +13,6 @@ use App\Models\InitialTemperature;
 class ProductService
 {
     
-    protected $prodElmt;
-
     public function __construct(\Laravel\Lumen\Application $app)
     {
         $this->app = $app;
@@ -23,7 +21,6 @@ class ProductService
         $this->units = app('App\\Cryosoft\\UnitsConverterService');
         $this->studies = app('App\\Cryosoft\\StudyService');
         $this->stdeqp = app('App\\Cryosoft\\StudyEquipmentService');
-        $this->prodElmt = $app['App\\Cryosoft\\ProductElementsService'];
 
     }
 
@@ -321,8 +318,8 @@ class ProductService
 
         try {
             if ($this->studies->isStudyHasParent($study) && 
-                $this->prodElmt->IsMeshPositionCalculate($idProductElmt) && 
-                (!$this->prodElmt->IsThereSomeInitialTemperature($production->ID_PRODUCTION))) {
+                $this->IsMeshPositionCalculate($idProductElmt) && 
+                (!$this->IsThereSomeInitialTemperature($production->ID_PRODUCTION))) {
 
                 echo "study has parent\n";
 
@@ -495,5 +492,27 @@ class ProductService
         }
         // save temperature inDB 
         // DBInitialTemperature . insertList(listTemp);
+    }
+
+    public function IsMeshPositionCalculate($idProductionElmt)
+    {   
+        $etat = false;
+        $meshPosition = MeshPosition::where('ID_PRODUCT_ELMT', $idProductionElmt)->first();
+        if ($meshPosition) {
+            $etat = true;
+        }
+
+        return $etat;
+    }
+
+    public function IsThereSomeInitialTemperature($idProduction)
+    {
+        $etat = false;
+        $initialTemperatures = InitialTemperature::where('ID_PRODUCTION', $idProduction)->get();
+        if (count($initialTemperatures) > 0) {
+            $etat = true;
+        }
+
+        return $etat;
     }
 }

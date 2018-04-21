@@ -293,26 +293,4 @@ class ProductElementsService
             }
         }
     }
-
-    public function IsMeshPositionCalculate($idProductionElmt)
-    {   
-        $etat = false;
-        $meshPosition = MeshPosition::where('ID_PRODUCT_ELMT', $idProductionElmt)->first();
-        if ($meshPosition) {
-            $etat = true;
-        }
-
-        return $etat;
-    }
-
-    public function IsThereSomeInitialTemperature($idProduction)
-    {
-        $etat = false;
-        $initialTemperatures = INITIAL_TEMPERATURE::where('ID_PRODUCTION', $idProduction)->get();
-        if (count($initialTemperatures) > 0) {
-            $etat = true;
-        }
-
-        return $etat;
-    }
 }
