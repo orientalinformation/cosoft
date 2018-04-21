@@ -13,6 +13,7 @@ use App\Models\InitialTemperature;
 class ProductService
 {
     
+    protected $prodElmt;
 
     public function __construct(\Laravel\Lumen\Application $app)
     {
@@ -22,6 +23,8 @@ class ProductService
         $this->units = app('App\\Cryosoft\\UnitsConverterService');
         $this->studies = app('App\\Cryosoft\\StudyService');
         $this->stdeqp = app('App\\Cryosoft\\StudyEquipmentService');
+        $this->prodElmt = $app['App\\Cryosoft\\ProductElementsService'];
+
     }
 
     public function getAllCompFamily()
@@ -311,16 +314,18 @@ class ProductService
         echo "start save matrix from parent\n";
         
         $bret = false;
-        //	save matrix temperature issue from parent study
+        // save matrix temperature issue from parent study
         $study = $product->study;
         $production = $study->productions->first();
-        // try {
-            if ($this->studies->isStudyHasParent($study)
-                // && IsMeshPositionCalculate()
-                // && !IsThereSomeInitialTemperature()
-            ) {
+        $idProductElmt = $product->productElmts->first()->ID_PRODUCT_ELMT;
+
+        try {
+            if ($this->studies->isStudyHasParent($study) && 
+                $this->prodElmt->IsMeshPositionCalculate($idProductElmt) && 
+                (!$this->prodElmt->IsThereSomeInitialTemperature($production->ID_PRODUCTION))) {
+
                 echo "study has parent\n";
-                
+
                 $productElmt = null;
                 // loop on all product element (from the first inserted to the last excepted for breaded)
                 if ($product->productElmts->first()->ID_SHAPE != $this->values->PARALLELEPIPED_BREADED) {
@@ -440,10 +445,9 @@ class ProductService
                     }
                 }
             }
-        // } catch (\Exception $qe) {
-        //     // log . warn("Exception while saving Temperature", qe);
-        //     throw new \Exception("Exception while saving Temperature");
-        // }
+        } catch (\Exception $qe) {
+            throw new \Exception("Exception while saving Temperature");
+        }
 
         return $bret;
     }
