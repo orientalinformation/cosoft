@@ -236,6 +236,20 @@ class BrainCalculateService
         return $loadingRate;
     }
 
+    public function getVc($idStudyEquipments)
+    {
+        $studEqpPrms = $this->loadStudEqpPrm($idStudyEquipments, 100);
+        $tR = array();
+
+        if (!empty($studEqpPrms)) {
+            foreach ($studEqpPrms as $prms) {
+                array_push($tR, $prms->VALUE);
+             } 
+        }
+
+        return $tR;
+    }
+
     public function getListTr($idStudyEquipments)
     {
         $studEqpPrms = $this->loadStudEqpPrm($idStudyEquipments, 300);

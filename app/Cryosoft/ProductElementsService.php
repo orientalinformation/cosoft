@@ -5,6 +5,7 @@ namespace App\Cryosoft;
 use Illuminate\Contracts\Auth\Factory as Auth;
 use App\Models\ProductElmt;
 use App\Models\InitialTemperature;
+use App\Models\MeshPosition;
 
 class ProductElementsService
 {
@@ -37,11 +38,11 @@ class ProductElementsService
     }
 
     /**
-     * @return array // double
+     * @return array 
      */
     public function searchTempMeshPoint(ProductElmt &$productElmt, $pointMeshOrder2 = null)
     {
-        // ArrayList < Double > listtemp = new ArrayList < Double > ();
+  
         $listtemp = [];
         try {
             //search the mesh2 order point
@@ -290,6 +291,28 @@ class ProductElementsService
             foreach ($slices as $slice) {
                 InitialTemperature::insert($slice);
             }
-        } // if breaded
+        }
+    }
+
+    public function IsMeshPositionCalculate($idProductionElmt)
+    {   
+        $etat = false;
+        $meshPosition = MeshPosition::where('ID_PRODUCT_ELMT', $idProductionElmt)->first();
+        if ($meshPosition) {
+            $etat = true;
+        }
+
+        return $etat;
+    }
+
+    public function IsThereSomeInitialTemperature($idProduction)
+    {
+        $etat = false;
+        $initialTemperatures = INITIAL_TEMPERATURE::where('ID_PRODUCTION', $idProduction)->get();
+        if (count($initialTemperatures) > 0) {
+            $etat = true;
+        }
+
+        return $etat;
     }
 }

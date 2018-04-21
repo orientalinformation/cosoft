@@ -170,7 +170,6 @@ class StudyEquipmentService
     public function findStudyEquipmentsByStudy(&$study)
     {
         $studyEquipments = StudyEquipment::where('ID_STUDY', $study->ID_STUDY)->with('equipment')->get();
-        // var_dump($study);die;
         $returnStudyEquipments = [];
 
         foreach ($studyEquipments as $studyEquipment) {
@@ -561,8 +560,7 @@ class StudyEquipmentService
                     }
                 }
             }
-
-            // var_dump(count($listTemp));
+            
             $slices = array_chunk($listTemp, 100);
             foreach ($slices as $slice) {
                 InitialTemperature::insert($slice);

@@ -10,6 +10,7 @@ use App\Models\LayoutGeneration;
 use App\Models\RecordPosition;
 use App\Cryosoft\EquipmentsService;
 use App\Cryosoft\UnitsConverterService;
+use App\Cryosoft\BrainCalculateService;
 
 class StudyEquipments extends Controller
 {
@@ -30,12 +31,13 @@ class StudyEquipments extends Controller
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth, EquipmentsService $equip, UnitsConverterService $unit)
+    public function __construct(Request $request, Auth $auth, EquipmentsService $equip, UnitsConverterService $unit, BrainCalculateService $brain)
     {
         $this->request = $request;
         $this->auth = $auth;
         $this->equip = $equip;
         $this->unit = $unit;
+        $this->brain = $brain;
     }
 
     public function getStudyEquipmentById($id)
@@ -133,5 +135,15 @@ class StudyEquipments extends Controller
 
         //runSizingCalculator
         return 1;
+    }
+
+    public function getOperatingSetting($id)
+    {
+        $studyEquipment = StudyEquipment::where('ID_STUDY_EQUIPMENTS', $id)->first();
+        $vc = $this->brain->getVc();
+        $tr = $this->brain->getListTr();
+        $ts = $this->brain->getListTs();
+
+        return compact('vc', 'tr', 'ts');
     }
 }
