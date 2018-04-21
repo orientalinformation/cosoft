@@ -325,31 +325,18 @@ class ProductService
 
                 $productElmt = null;
                 // loop on all product element (from the first inserted to the last excepted for breaded)
+                $productElmts = ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2', 'DESC')->get();
                 if ($product->productElmts->first()->ID_SHAPE != $this->values->PARALLELEPIPED_BREADED) {
-                    $productElmts = \App\Models\ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2')->get();
-                    // for (int i = vProductElmtBean . size() - 1; i >= 0; i --) {
-                    //     productElmt = ((ProductElmtBean) vProductElmtBean . get(i)) . getProductElmt ();
-                    //     if (productElmt . getInsertLineOrder() != $this->studies->getSelectedStudy()) {
-                    //         break;
-                    //     }
-                    // }//for
-                    foreach ($productElmts as $pElmt) {
-                        if ($pElmt->INSERT_LINE_ORDER != $study->ID_STUDY) {
-                            $productElmt = $pElmt;
+                    for ($i = (count($productElmts) - 1); $i >= 0; $i--) {
+                        $productElmt = $productElmts[$i];
+                        if ($productElmts[$i]->INSERT_LINE_ORDER != $study->ID_STUDY) {
                             break;
-                        }                        
+                        }
                     }
                 } else {
-                    $productElmts = \App\Models\ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2', 'DESC')->get();
-                    // for (int i = 0; i < vProductElmtBean . size(); i ++) {
-                    //     productElmt = ((ProductElmtBean) vProductElmtBean . get(i)) . getProductElmt ();
-                    //     if (productElmt . getInsertLineOrder() != $this->studies->getSelectedStudy()) {
-                    //         break;
-                    //     }
-                    // }//for
-                    foreach ($productElmts as $pElmt) {
-                        if ($pElmt->INSERT_LINE_ORDER != $study->ID_STUDY) {
-                            $productElmt = $pElmt;
+                    for ($i = 0; $i < count($productElmts); $i++) {
+                        $productElmt = $productElmts[$i];
+                        if ($productElmts[$i]->INSERT_LINE_ORDER != $study->ID_STUDY) {
                             break;
                         }
                     }
