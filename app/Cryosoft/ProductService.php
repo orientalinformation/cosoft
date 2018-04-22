@@ -396,27 +396,30 @@ class ProductService
                         }
 
                         if ($bNum) {
-                            // log . debug(".....from numerical results");
-                            $this->stdeqp->setInitialTempFromNumericalResults(
+                            echo ".....from numerical results";
+                            $this->stdeqp->setInitialTempFromNumericalResults1(
                                 $sequip,
                                 $productElmt->ID_SHAPE,
+                                $offset,
                                 $parentProduct,
                                 $production
                             );
                         } else if ($bAna) {
                             if ($study->CALCULATION_MODE == ($this->values->STUDY_ESTIMATION_MODE)) {
-                                // log . debug(".....from analogic results (estimation)");
+                                echo ".....from analogic results (estimation)\n";
                                 $this->stdeqp->setInitialTempFromAnalogicalResults(
                                     $sequip,
                                     $productElmt->ID_SHAPE,
+                                    $offset,
                                     $parentProduct,
                                     $production
                                 );
                             } else {
-                                // log . debug(".....from analogic results (optimum/selected)");
-                                $this->stdeqp->setInitialTempFromSimpleNumericalResults(
+                                echo ".....from analogic results (optimum/selected)\n";
+                                $this->stdeqp->setInitialTempFromSimpleNumericalResults1(
                                     $sequip,
                                     $productElmt->ID_SHAPE,
+                                    $offset,
                                     $parentProduct,
                                     $production
                                 );
@@ -424,7 +427,7 @@ class ProductService
                         }
                         $bret = true;
                     } else {
-                        // log . error("Parent study equipments are not exist - may be deleted");
+                        echo "Parent study equipments are not exist - may be deleted";
                         throw new \Exception("Parent study equipments are not exist - may be deleted");
                     }
                 }
