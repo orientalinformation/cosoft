@@ -396,7 +396,7 @@ class ProductService
                         }
 
                         if ($bNum) {
-                            echo ".....from numerical results";
+                            echo ".....from numerical results\n";
                             $this->stdeqp->setInitialTempFromNumericalResults1(
                                 $sequip,
                                 $productElmt->ID_SHAPE,
@@ -407,7 +407,7 @@ class ProductService
                         } else if ($bAna) {
                             if ($study->CALCULATION_MODE == ($this->values->STUDY_ESTIMATION_MODE)) {
                                 echo ".....from analogic results (estimation)\n";
-                                $this->stdeqp->setInitialTempFromAnalogicalResults(
+                                $this->stdeqp->setInitialTempFromAnalogicalResults1(
                                     $sequip,
                                     $productElmt->ID_SHAPE,
                                     $offset,
