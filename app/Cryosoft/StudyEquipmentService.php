@@ -512,6 +512,8 @@ class StudyEquipmentService
     // new setInitialTempFromNumericalResults 5 parameter add by oriental
     public function setInitialTempFromNumericalResults1 (StudyEquipment &$sequip, $shape, $offset, Product &$product, Production &$production)
     {
+        $bret = true;
+        $counter = 0;
 
         try {
             $recPos = RecordPosition::where('ID_STUDY_EQUIPMENTS', $sequip->ID_STUDY_EQUIPMENTS)
