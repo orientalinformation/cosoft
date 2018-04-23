@@ -489,7 +489,6 @@ class Products extends Controller
                     $this->product->propagationTempProdIso($product, $ldNodeNb1, $ldNodeNb2, $ldNodeNb3, $stemp);
                 }
 
-
                 $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY);
                 $ktOk = $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 4);
             } else {
