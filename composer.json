@@ -16,7 +16,8 @@
         "sofa/eloquence-mutable": "^5.5",
         "elibyy/tcpdf-laravel": "5.5.3",
         "plank/laravel-mediable": "^2.6",
-        "szymach/c-pchart": "^3.0"
+        "szymach/c-pchart": "^3.0",
+        "songphi/javaobjs": "dev-master"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
@@ -27,7 +28,8 @@
     },
     "autoload": {
         "psr-4": {
-            "App\\": "app/"
+            "App\\": "app/",
+            "com\\": "legacy/com/"
         },
         "files": [
             "app/helpers.php",
