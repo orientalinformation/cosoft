@@ -332,8 +332,8 @@ class ReferenceData extends Controller
         if (isset($input['GLUCID'])) $GLUCID = floatval($input['GLUCID']);
         if (isset($input['LIPID'])) $LIPID = floatval($input['LIPID']);
         if (isset($input['CONDUCT_TYPE'])) $CONDUCT_TYPE = intval($input['CONDUCT_TYPE']);
-        if (isset($input['COMP_VERSION'])) $COMP_VERSION = intval($input['COMP_VERSION']);
-        if (isset($input['COMP_VERSION_NEW'])) $COMP_VERSION_NEW = intval($input['COMP_VERSION_NEW']);
+        if (isset($input['COMP_VERSION'])) $COMP_VERSION = floatval($input['COMP_VERSION']);
+        if (isset($input['COMP_VERSION_NEW'])) $COMP_VERSION_NEW = floatval($input['COMP_VERSION_NEW']);
         if (isset($input['FATTYPE'])) $FATTYPE = intval($input['FATTYPE']);
         if (isset($input['NATURE_TYPE'])) $NATURE_TYPE = intval($input['NATURE_TYPE']);
         if (isset($input['PRODUCT_TYPE'])) $PRODUCT_TYPE = intval($input['PRODUCT_TYPE']);
@@ -457,8 +457,8 @@ class ReferenceData extends Controller
         if (isset($input['GLUCID'])) $GLUCID = floatval($input['GLUCID']);
         if (isset($input['LIPID'])) $LIPID = floatval($input['LIPID']);
         if (isset($input['CONDUCT_TYPE'])) $CONDUCT_TYPE = intval($input['CONDUCT_TYPE']);
-        if (isset($input['COMP_VERSION'])) $COMP_VERSION = intval($input['COMP_VERSION']);
-        if (isset($input['COMP_VERSION_NEW'])) $COMP_VERSION_NEW = intval($input['COMP_VERSION_NEW']);
+        if (isset($input['COMP_VERSION'])) $COMP_VERSION = floatval($input['COMP_VERSION']);
+        if (isset($input['COMP_VERSION_NEW'])) $COMP_VERSION_NEW = floatval($input['COMP_VERSION_NEW']);
         if (isset($input['FATTYPE'])) $FATTYPE = intval($input['FATTYPE']);
         if (isset($input['NATURE_TYPE'])) $NATURE_TYPE = intval($input['NATURE_TYPE']);
         if (isset($input['PRODUCT_TYPE'])) $PRODUCT_TYPE = intval($input['PRODUCT_TYPE']);
@@ -696,7 +696,7 @@ class ReferenceData extends Controller
         $SALT = $AIR = $NON_FROZEN_WATER = 0;
 
         if (isset($input['COMP_NAME'])) $COMP_NAME = $input['COMP_NAME'];
-        if (isset($input['COMP_VERSION'])) $COMP_VERSION = intval($input['COMP_VERSION']);
+        if (isset($input['COMP_VERSION'])) $COMP_VERSION = floatval($input['COMP_VERSION']);
 
         if (isset($input['FREEZE_TEMP'])) $FREEZE_TEMP = floatval($input['FREEZE_TEMP']);
         if (isset($input['WATER'])) $WATER = floatval($input['WATER']);

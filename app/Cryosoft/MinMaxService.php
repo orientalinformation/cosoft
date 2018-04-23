@@ -234,5 +234,15 @@ class MinMaxService
         return $minMax; 
     }
 
+    public function getMinMaxLimitItemRelaxCoef($limitItem, $decimal)
+    {  
+        $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
+        $minMax->LIMIT_MAX = number_format((float)$minMax->LIMIT_MAX, 0, '.', '');
+        $minMax->LIMIT_MIN = number_format((float)$minMax->LIMIT_MIN, 0, '.', '');
+        $minMax->DEFAULT_VALUE = number_format((float)$minMax->DEFAULT_VALUE, 0, '.', '');
+
+        return $minMax; 
+    }
+
     // end HAIDT
 }
