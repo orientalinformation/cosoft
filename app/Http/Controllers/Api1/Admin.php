@@ -305,7 +305,6 @@ class Admin extends Controller
 		$current = Carbon::now();
 		$current->timezone = 'Asia/Ho_Chi_Minh';
 
-		// var_dump($current->toDateTimeString());die;
 		Connection::where('ID_USER', $idUser)
 			->where('DATE_DISCONNECTION', null)
 			->update(['DATE_DISCONNECTION' => $current->toDateTimeString(), 'TYPE_DISCONNECTION' => 3]);

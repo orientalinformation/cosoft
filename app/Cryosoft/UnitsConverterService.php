@@ -520,12 +520,12 @@ class UnitsConverterService
         return $this->convertUnitSave($value, $unit->COEFF_A, $unit->COEFF_B, 3);
     }
 
-    public function controlTemperature($value) {
+    public function controlTemperature($value, $options = null) {
         $unit = Unit::where('TYPE_UNIT', $this->value->TEMPERATURE)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
-        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 0);
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 0, $options);
     }
 
     public function prodTemperature($value, $options = null) {
@@ -536,12 +536,12 @@ class UnitsConverterService
         return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 1, $options);
     }
 
-    public function time($value) {
+    public function time($value, $options = null) {
         $unit = Unit::where('TYPE_UNIT', $this->value->TIME)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
-        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 1);
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 1, $options);
     }
 
     public function enthalpy($value) {
@@ -568,12 +568,12 @@ class UnitsConverterService
         return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 2, $options);
     }
 
-    public function convectionSpeed($value) {
+    public function convectionSpeed($value, $options = null) {
         $unit = Unit::where('TYPE_UNIT', $this->value->CONV_SPEED)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
-        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 1);
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 1, $options);
     }
 
     public function timeUnit($value)
@@ -602,12 +602,12 @@ class UnitsConverterService
         return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 2, $options);
     }
 
-    public function convectionCoeff($value) {
+    public function convectionCoeff($value, $options = null) {
         $unit = Unit::where('TYPE_UNIT', $this->value->CONV_COEFF)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
-        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B);
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 2, $options);
     }
 
     public function meshesUnit($value) {
@@ -662,12 +662,12 @@ class UnitsConverterService
         ->first();
         return $this->convertUnitSave($value, $unit->COEFF_A, $unit->COEFF_B);
     }
-    public function exhaustTemperature($value) {
+    public function exhaustTemperature($value, $options) {
         $unit = Unit::where('TYPE_UNIT', $this->value->TEMPERATURE)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
-        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 0);
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 0, $options);
     }
     public function packingThickness($value, $options = null) {
         $unit = Unit::where('TYPE_UNIT', $this->value->THICKNESS_PACKING)

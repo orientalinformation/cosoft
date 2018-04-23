@@ -129,6 +129,14 @@ $router->GET('/api/v1/studyEquipment/{id}/recordPosition', 'Api1\\StudyEquipment
 $router->POST('/api/v1/studyEquipment/{id}/saveEquipSizing', 'Api1\\StudyEquipments@saveEquipSizing');
 
 /**
+ * GET getOperatingSetting
+ * Summary: 
+ * Notes: get Operating Settings
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/studyEquipment/{id}/operatingSetting', 'Api1\\StudyEquipments@getOperatingSetting');
+
+/**
  * GET units
  * Summary: 
  * Notes: get Admin Units

@@ -13,7 +13,6 @@ use App\Models\InitialTemperature;
 class ProductService
 {
     
-
     public function __construct(\Laravel\Lumen\Application $app)
     {
         $this->app = $app;
@@ -22,6 +21,7 @@ class ProductService
         $this->units = app('App\\Cryosoft\\UnitsConverterService');
         $this->studies = app('App\\Cryosoft\\StudyService');
         $this->stdeqp = app('App\\Cryosoft\\StudyEquipmentService');
+
     }
 
     public function getAllCompFamily()
@@ -311,43 +311,32 @@ class ProductService
         echo "start save matrix from parent\n";
         
         $bret = false;
-        //	save matrix temperature issue from parent study
+        // save matrix temperature issue from parent study
         $study = $product->study;
         $production = $study->productions->first();
-        // try {
-            if ($this->studies->isStudyHasParent($study)
-                // && IsMeshPositionCalculate()
-                // && !IsThereSomeInitialTemperature()
-            ) {
+        $idProductElmt = $product->productElmts->first()->ID_PRODUCT_ELMT;
+
+        try {
+            if ($this->studies->isStudyHasParent($study) && 
+                $this->IsMeshPositionCalculate($idProductElmt) && 
+                (!$this->IsThereSomeInitialTemperature($production->ID_PRODUCTION))) {
+
                 echo "study has parent\n";
-                
+
                 $productElmt = null;
                 // loop on all product element (from the first inserted to the last excepted for breaded)
+                $productElmts = ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2', 'DESC')->get();
                 if ($product->productElmts->first()->ID_SHAPE != $this->values->PARALLELEPIPED_BREADED) {
-                    $productElmts = \App\Models\ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2')->get();
-                    // for (int i = vProductElmtBean . size() - 1; i >= 0; i --) {
-                    //     productElmt = ((ProductElmtBean) vProductElmtBean . get(i)) . getProductElmt ();
-                    //     if (productElmt . getInsertLineOrder() != $this->studies->getSelectedStudy()) {
-                    //         break;
-                    //     }
-                    // }//for
-                    foreach ($productElmts as $pElmt) {
-                        if ($pElmt->INSERT_LINE_ORDER != $study->ID_STUDY) {
-                            $productElmt = $pElmt;
+                    for ($i = (count($productElmts) - 1); $i >= 0; $i--) {
+                        $productElmt = $productElmts[$i];
+                        if ($productElmts[$i]->INSERT_LINE_ORDER != $study->ID_STUDY) {
                             break;
-                        }                        
+                        }
                     }
                 } else {
-                    $productElmts = \App\Models\ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2', 'DESC')->get();
-                    // for (int i = 0; i < vProductElmtBean . size(); i ++) {
-                    //     productElmt = ((ProductElmtBean) vProductElmtBean . get(i)) . getProductElmt ();
-                    //     if (productElmt . getInsertLineOrder() != $this->studies->getSelectedStudy()) {
-                    //         break;
-                    //     }
-                    // }//for
-                    foreach ($productElmts as $pElmt) {
-                        if ($pElmt->INSERT_LINE_ORDER != $study->ID_STUDY) {
-                            $productElmt = $pElmt;
+                    for ($i = 0; $i < count($productElmts); $i++) {
+                        $productElmt = $productElmts[$i];
+                        if ($productElmts[$i]->INSERT_LINE_ORDER != $study->ID_STUDY) {
                             break;
                         }
                     }
@@ -407,27 +396,30 @@ class ProductService
                         }
 
                         if ($bNum) {
-                            // log . debug(".....from numerical results");
-                            $this->stdeqp->setInitialTempFromNumericalResults(
+                            echo ".....from numerical results\n";
+                            $this->stdeqp->setInitialTempFromNumericalResults1(
                                 $sequip,
                                 $productElmt->ID_SHAPE,
+                                $offset,
                                 $parentProduct,
                                 $production
                             );
                         } else if ($bAna) {
                             if ($study->CALCULATION_MODE == ($this->values->STUDY_ESTIMATION_MODE)) {
-                                // log . debug(".....from analogic results (estimation)");
-                                $this->stdeqp->setInitialTempFromAnalogicalResults(
+                                echo ".....from analogic results (estimation)\n";
+                                $this->stdeqp->setInitialTempFromAnalogicalResults1(
                                     $sequip,
                                     $productElmt->ID_SHAPE,
+                                    $offset,
                                     $parentProduct,
                                     $production
                                 );
                             } else {
-                                // log . debug(".....from analogic results (optimum/selected)");
-                                $this->stdeqp->setInitialTempFromSimpleNumericalResults(
+                                echo ".....from analogic results (optimum/selected)\n";
+                                $this->stdeqp->setInitialTempFromSimpleNumericalResults1(
                                     $sequip,
                                     $productElmt->ID_SHAPE,
+                                    $offset,
                                     $parentProduct,
                                     $production
                                 );
@@ -435,15 +427,14 @@ class ProductService
                         }
                         $bret = true;
                     } else {
-                        // log . error("Parent study equipments are not exist - may be deleted");
+                        echo "Parent study equipments are not exist - may be deleted";
                         throw new \Exception("Parent study equipments are not exist - may be deleted");
                     }
                 }
             }
-        // } catch (\Exception $qe) {
-        //     // log . warn("Exception while saving Temperature", qe);
-        //     throw new \Exception("Exception while saving Temperature");
-        // }
+        } catch (\Exception $qe) {
+            throw new \Exception("Exception while saving Temperature");
+        }
 
         return $bret;
     }
@@ -491,5 +482,27 @@ class ProductService
         }
         // save temperature inDB 
         // DBInitialTemperature . insertList(listTemp);
+    }
+
+    public function IsMeshPositionCalculate($idProductionElmt)
+    {   
+        $etat = false;
+        $meshPosition = MeshPosition::where('ID_PRODUCT_ELMT', $idProductionElmt)->first();
+        if ($meshPosition) {
+            $etat = true;
+        }
+
+        return $etat;
+    }
+
+    public function IsThereSomeInitialTemperature($idProduction)
+    {
+        $etat = false;
+        $initialTemperatures = InitialTemperature::where('ID_PRODUCTION', $idProduction)->get();
+        if (count($initialTemperatures) > 0) {
+            $etat = true;
+        }
+
+        return $etat;
     }
 }

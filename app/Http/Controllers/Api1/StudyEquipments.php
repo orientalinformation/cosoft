@@ -8,8 +8,11 @@ use Illuminate\Contracts\Auth\Factory as Auth;
 use App\Models\StudyEquipment;
 use App\Models\LayoutGeneration;
 use App\Models\RecordPosition;
+use App\Models\MinMax;
 use App\Cryosoft\EquipmentsService;
 use App\Cryosoft\UnitsConverterService;
+use App\Cryosoft\BrainCalculateService;
+
 
 class StudyEquipments extends Controller
 {
@@ -30,12 +33,13 @@ class StudyEquipments extends Controller
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth, EquipmentsService $equip, UnitsConverterService $unit)
+    public function __construct(Request $request, Auth $auth, EquipmentsService $equip, UnitsConverterService $unit, BrainCalculateService $brain)
     {
         $this->request = $request;
         $this->auth = $auth;
         $this->equip = $equip;
         $this->unit = $unit;
+        $this->brain = $brain;
     }
 
     public function getStudyEquipmentById($id)
@@ -133,5 +137,46 @@ class StudyEquipments extends Controller
 
         //runSizingCalculator
         return 1;
+    }
+
+    public function getOperatingSetting($id)
+    {
+        $studyEquipment = StudyEquipment::where('ID_STUDY_EQUIPMENTS', $id)->first();
+        $studyEquipment->tr = $this->brain->getListTr($id);
+        $studyEquipment->ts = $this->brain->getListTs($id);
+        $studyEquipment->vc = $this->brain->getVc($id);
+
+        $studyEquipment->ldSetpointmax = (count($studyEquipment->ts) > count($studyEquipment->tr)) ? (count($studyEquipment->ts) > count($studyEquipment->vc)) ? count($studyEquipment->ts) : count($studyEquipment->vc) : (count($studyEquipment->tr) > count($studyEquipment->vc)) ? count($studyEquipment->tr) : count($studyEquipment->vc);
+
+        $mmTr = MinMax::where("LIMIT_ITEM", $studyEquipment->ITEM_TR)->first();
+        $studyEquipment->minMaxTr = [
+            'LIMIT_MIN' => $this->unit->controlTemperature($mmTr->LIMIT_MIN, ['format' => false]),
+            'LIMIT_MAX' => $this->unit->controlTemperature($mmTr->LIMIT_MAX, ['format' => false]),
+        ];
+
+        $mm = MinMax::where("LIMIT_ITEM", $studyEquipment->ITEM_TS)->first();
+        $studyEquipment->minMaxTs = [
+            'LIMIT_MIN' => $this->unit->time($mm->LIMIT_MIN, ['format' => false]),
+            'LIMIT_MAX' => $this->unit->time($mm->LIMIT_MAX, ['format' => false]),
+        ];
+
+        $mm = MinMax::where("LIMIT_ITEM", 1037)->first();
+        $studyEquipment->minMaxVc = [
+            'LIMIT_MIN' => $this->unit->convectionSpeed($mm->LIMIT_MIN, ['format' => false]),
+            'LIMIT_MAX' => $this->unit->convectionSpeed($mm->LIMIT_MAX, ['format' => false]),
+        ];
+
+        $mm = MinMax::where("LIMIT_ITEM", 1018)->first();
+        $studyEquipment->minMaxAlpha = [
+            'LIMIT_MIN' => $this->unit->convectionCoeff($mm->LIMIT_MIN, ['format' => false]),
+            'LIMIT_MAX' => $this->unit->convectionCoeff($mm->LIMIT_MAX, ['format' => false]),
+        ];
+
+        $studyEquipment->minMaxText = [
+            'LIMIT_MIN' => $this->unit->exhaustTemperature($mmTr->LIMIT_MIN, ['format' => false]),
+            'LIMIT_MAX' => 0,
+        ];
+
+        return $studyEquipment;
     }
 }

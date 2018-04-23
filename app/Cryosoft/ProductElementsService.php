@@ -5,6 +5,7 @@ namespace App\Cryosoft;
 use Illuminate\Contracts\Auth\Factory as Auth;
 use App\Models\ProductElmt;
 use App\Models\InitialTemperature;
+use App\Models\MeshPosition;
 
 class ProductElementsService
 {
@@ -37,11 +38,11 @@ class ProductElementsService
     }
 
     /**
-     * @return array // double
+     * @return array 
      */
     public function searchTempMeshPoint(ProductElmt &$productElmt, $pointMeshOrder2 = null)
     {
-        // ArrayList < Double > listtemp = new ArrayList < Double > ();
+  
         $listtemp = [];
         try {
             //search the mesh2 order point
@@ -53,6 +54,7 @@ class ProductElementsService
             if (count($pointMeshOrder2) == 0) {
                 return null;
             }
+
             // put the array in String
             // StringBuffer sb = new StringBuffer();
             // while (iter . hasNext()) {
@@ -73,6 +75,7 @@ class ProductElementsService
             $idProduction = $productElmt->product->study->ID_PRODUCTION;
             $it = InitialTemperature::where('ID_PRODUCTION', $idProduction)->whereIn('MESH_2_ORDER', $pointMeshOrder2)
                 ->where('MESH_1_ORDER', 0)->where('MESH_3_ORDER', 0)->orderBy('MESH_2_ORDER')->get();
+
             // Iterator < QueryResult > it = query . getIterator();
             // while (it . hasNext()) {
             //     QueryResult qr = (QueryResult) it . next();
@@ -88,6 +91,7 @@ class ProductElementsService
         } catch (\Exception $e) {
             // log . error("Unexpected exception  search datatbase", e);
         }
+
         return $listtemp;
     }
 
@@ -287,6 +291,6 @@ class ProductElementsService
             foreach ($slices as $slice) {
                 InitialTemperature::insert($slice);
             }
-        } // if breaded
+        }
     }
 }

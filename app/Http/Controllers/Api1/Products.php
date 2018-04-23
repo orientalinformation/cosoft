@@ -448,7 +448,7 @@ class Products extends Controller
         $product = Product::findOrFail($idProd);
         $study = $product->study;
         $input = $this->request->json()->all();
-        var_dump($input); die('initNon');
+        // var_dump($input); die('initNon');
 
         // short ldNodeNb1, ldNodeNb2, ldNodeNb3;
         $ldNodeNb1 = $ldNodeNb2 = $ldNodeNb3 = 0;
@@ -489,7 +489,6 @@ class Products extends Controller
             //     prodMeshgene . LoadMeshGeneration();
             // }
             $prodMeshgene = $product->meshGenerations->first();
-            
             //========= soit PRODELMTISO soit MESHPOINT
             $product->PROD_ISO = $this->values->PROD_NOT_ISOTHERM;//reinit Flag ProdISO
 
