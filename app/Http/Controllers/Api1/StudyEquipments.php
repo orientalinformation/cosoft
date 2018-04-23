@@ -146,6 +146,7 @@ class StudyEquipments extends Controller
         $studyEquipment->tr = $this->brain->getListTr($id);
         $studyEquipment->ts = $this->brain->getListTs($id);
         $studyEquipment->vc = $this->brain->getVc($id);
+        $studyEquipment->TExt = $this->unit->exhaustTemperature($this->brain->getTExt($id));
 
         $studyEquipment->ldSetpointmax = (count($studyEquipment->ts) > count($studyEquipment->tr)) ? (count($studyEquipment->ts) > count($studyEquipment->vc)) ? count($studyEquipment->ts) : count($studyEquipment->vc) : (count($studyEquipment->tr) > count($studyEquipment->vc)) ? count($studyEquipment->tr) : count($studyEquipment->vc);
 
