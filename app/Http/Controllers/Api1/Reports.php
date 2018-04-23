@@ -943,8 +943,14 @@ class Reports extends Controller
         PDF::AddPage();
         if (($study['CHAINING_CONTROLS'] == 1) && ($study['PARENT_ID'] != 0)) {
             if (!empty($calModeHeadBalance)) {
+                PDF::SetFont('times', 'B', 16);
                 PDF::Bookmark('CHAINING SYNTHESIS', 0, 0, '', 'B', array(0,64,128));
-                $html = '<h3 style ="background-color:#268EE2">Chaining synthesis</h3>
+                PDF::SetFillColor(38, 142, 226);
+                PDF::SetTextColor(0,0,0);
+                $content ='Chaining synthesis';
+                PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
+                PDF::SetFont('times', 'B', 10);
+                $html = '
             <div class="chaining">
                 <div class="table table-bordered">
                     <table border="1">
@@ -981,10 +987,15 @@ class Reports extends Controller
         
         if ($REP_CUSTOMER == 1)  {
             if (!empty($production)) {
+                PDF::SetFont('times', 'B', 16);
                 PDF::Bookmark('PRODUCTION DATA', 0, 0, '', 'B', array(0,64,128));
-                // PDF::Cell(0, 10, '', 0, 1, 'L');
+                PDF::SetFillColor(38, 142, 226);
+                PDF::SetTextColor(0,0,0);
+                $content ='Production Data';
+                PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
+                PDF::SetFont('times', 'B', 10);
                 $html = '';
-                $html .= '<h3 style ="background-color:#268EE2">Production Data</h3>
+                $html .= '
                 <div class="production">
                     <div class="table table-bordered">
                         <table border="0.5">
@@ -1037,9 +1048,14 @@ class Reports extends Controller
         }
         
         if ($PROD_LIST == 1) {
+            PDF::SetFont('times', 'B', 16);
             PDF::Bookmark('PRODUCT DATA', 0, 0, '', 'B', array(0,64,128));
-            // PDF::Cell(0, 10, '', 0, 1, 'L');
-            $html = '<h3 style ="background-color:#268EE2">Product Data</h3>
+            PDF::SetFillColor(38, 142, 226);
+            PDF::SetTextColor(0,0,0);
+            $content ='Product Data';
+            PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
+            PDF::SetFont('times', 'B', 10);
+            $html = '
             <h4>Composition of the product and its components</h4>
             <div class="pro-data">
                 <div class="table table-bordered">
@@ -1145,11 +1161,21 @@ class Reports extends Controller
         }
         
         if ($PROD_3D == 1) {
+            PDF::SetFont('times', 'B', 16);
             PDF::Bookmark('PRODUCT 3D', 0, 0, '', 'B', array(0,64,128));
-            // PDF::Cell(0, 10, '', 0, 1, 'L');
-            $html = '<h3 style ="background-color:#268EE2">Product 3D</h3>';
+            PDF::SetFillColor(38, 142, 226);
+            PDF::SetTextColor(0,0,0);
+            $content ='Product 3D';
+            PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
+            PDF::SetFont('times', 'B', 10);
+            $html = '';
             if ($PACKING == 1) {
-                $html .= '<h3 style ="background-color:#268EE2">&& Packing Data</h3>';
+                PDF::SetFont('times', 'B', 16);
+                PDF::SetFillColor(38, 142, 226);
+                PDF::SetTextColor(0,0,0);
+                $content ='Packing Data';
+                PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
+                PDF::SetFont('times', 'B', 10);
             }
             $html .='<div class="pro-data">
             <div class="table table-bordered">
@@ -1241,10 +1267,14 @@ class Reports extends Controller
                             
         if ($EQUIP_LIST == 1) {
             if (!empty($equipData)) {
+                PDF::SetFont('times', 'B', 16);
                 PDF::Bookmark('EQUIPMENT DATA', 0, 0, '', 'B', array(0,64,128));
-                // PDF::Cell(0, 10, '', 0, 1, 'L');
-                $html ='';
-                $html .= '<h3 style ="background-color:#268EE2">Equipment Data</h3>
+                PDF::SetFillColor(38, 142, 226);
+                PDF::SetTextColor(0,0,0);
+                $content ='Equipment Data';
+                PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
+                PDF::SetFont('times', 'B', 10);
+                $html = '
                 <div class="equipment-data">
                     <div class="table table-bordered">
                         <table border="0.5">
@@ -1279,10 +1309,14 @@ class Reports extends Controller
         }
         
         if ($ASSES_ECO == 1) {
+            PDF::SetFont('times', 'B', 16);
             PDF::Bookmark('BELT OR SHELVES LAYOUT', 0, 0, '', 'B', array(0,64,128));
-            // PDF::Cell(0, 10, '', 0, 1, 'L');
+            PDF::SetFillColor(38, 142, 226);
+            PDF::SetTextColor(0,0,0);
+            $content ='Belt or Shelves Layout';
+            PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
+            PDF::SetFont('times', 'B', 10);
             $html ='';
-            $html .='<h3 style ="background-color:#268EE2">Belt or Shelves Layout</h3>';
             foreach ($equipData as $resequipDatas) {
                 PDF::Bookmark($resequipDatas['displayName'], 1, 0, '', '', array(128,0,0));
                 // PDF::Cell(0, 10, '', 0, 1, 'L');
@@ -1342,10 +1376,15 @@ class Reports extends Controller
         if ($PIPELINE == 1) {
             if (!empty($cryogenPipeline)) {
                 if ($study->OPTION_CRYOPIPELINE == 1) {
+                    PDF::SetFont('times', 'B', 16);
                     PDF::Bookmark('CRYOGENIC PIPELINE', 0, 0, '', 'B', array(0,64,128));
-                    // PDF::Cell(0, 10, '', 0, 1, 'L');
+                    PDF::SetFillColor(38, 142, 226);
+                    PDF::SetTextColor(0,0,0);
+                    $content ='Cryogenic Pipe';
+                    PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
+                    PDF::SetFont('times', 'B', 10);
                     $html = '';
-                    $html .= '<h3 style ="background-color:#268EE2">Cryogenic Pipe</h3>
+                    $html .= '
                     <div class="consum-esti">
                         <div class="table table-bordered">
                             <table border="0.5">
@@ -1401,10 +1440,15 @@ class Reports extends Controller
         }
 
         if ($PROD_3D != 1 && $PACKING == 1) {
+
+            PDF::SetFont('times', 'B', 16);
             PDF::Bookmark('PACKING DATA', 0, 0, '', 'B', array(0,64,128));
-            PDF::Cell(0, 10, 'Packing Data', 0, 1, 'L');
-            $html ='';
-            $html .='<h3 style ="background-color:#268EE2">Packing Data</h3>
+            PDF::SetFillColor(38, 142, 226);
+            PDF::SetTextColor(0,0,0);
+            $content ='Packing Data';
+            PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
+            PDF::SetFont('times', 'B', 10);
+            $html ='
             <div class="pro-data">
             <div class="table table-bordered">
                 <table border="0.5" align="center">
@@ -1482,10 +1526,14 @@ class Reports extends Controller
         if ($CONS_OVERALL == 1 || $CONS_TOTAL ==1 || $CONS_SPECIFIC  == 1 || $CONS_HOUR ==1 || $CONS_DAY == 1||
         $CONS_WEEK == 1 || $CONS_MONTH == 1 || $CONS_YEAR ==1 || $CONS_EQUIP ==1 || $CONS_PIPE == 1 || $CONS_TANK ==1) {
             if (!empty($consumptions )) {
+                PDF::SetFont('times', 'B', 16);
                 PDF::Bookmark('CONSUMPTIONS / ECONOMICS ASSESSMENTS', 0, 0, '', 'B', array(0,64,128));
-                // PDF::Cell(0, 10, '', 0, 1, 'L');
-                $html ='';
-                $html .='<h3 style ="background-color:#268EE2">Consumptions / Economics assessments</h3>
+                PDF::SetFillColor(38, 142, 226);
+                PDF::SetTextColor(0,0,0);
+                $content ='Consumptions / Economics assessments';
+                PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
+                PDF::SetFont('times', 'B', 10);
+                $html ='
                 <h4>Values</h4>
                 <div class="consum-esti">
                     <div class="table table-bordered">
@@ -1718,13 +1766,18 @@ class Reports extends Controller
         }
 
         if (($isSizingValuesChosen == 1) || ($isSizingValuesMax == 1) || ($SIZING_GRAPHE == 1)) {
+            PDF::SetFont('times', 'B', 16);
             PDF::Bookmark('HEAT BALANCE / SIZING RESULTS', 0, 0, '', 'B', array(0,64,128));
-            // PDF::Cell(0, 10, '', 0, 1, 'L');
-            $html ='<h3 style ="background-color:#268EE2">Heat balance / sizing results</h3>';
+            PDF::SetFillColor(38, 142, 226);
+            PDF::SetTextColor(0,0,0);
+            $content ='Heat balance / sizing results';
+            PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
+            PDF::SetFont('times', 'B', 10);
+            $html='';
             if ($isSizingValuesChosen == 1) {
                 PDF::Bookmark('Chosen product flowrate', 1, 0, '', '', array(128,0,0));
-                // PDF::Cell(0, 10, '', 0, 1, 'L');
-                $html .='<h3>Chosen product flowrate</h3>
+                PDF::Cell(0, 10, 'Chosen product flowrate', 0, 1, 'L');
+                $html .='
                 <div class="heat-balance-sizing">
                     <div class="table table-bordered">
                         <table border="0.5">
@@ -1744,7 +1797,6 @@ class Reports extends Controller
                                 <td align="center">Conveyor coverage or quantity of product per batch</td>
                             </tr>';
                             foreach($calModeHeadBalance as $resoptHeads) { 
-                            $html ='';
                             $html .='
                                 <tr>
                                     <td align="center" colspan="2"> '. $resoptHeads['equipName'] .' </td>
@@ -1769,9 +1821,8 @@ class Reports extends Controller
 
             if ($isSizingValuesMax == 1) {
                 PDF::Bookmark(' Maximum product flowrate', 1, 0, '', '', array(128,0,0));
-                // PDF::Cell(0, 10, '', 0, 1, 'L');
-                $html .= '';
-                $html .= '<h3> Maximum product flowrate</h3>
+                PDF::Cell(0, 10, 'Maximum product flowrate', 0, 1, 'L');
+                $html = '
                 <div class="Max-prod-flowrate">
                     <div class="table table-bordered">
                         <table border="0.5">
@@ -1814,9 +1865,8 @@ class Reports extends Controller
 
             if ($SIZING_GRAPHE == 1) {
                 PDF::Bookmark(' Graphic', 1, 0, '', '', array(128,0,0));
-                PDF::Cell(0, 10, ' ', 0, 1, 'L');
-                $html .= '';
-                $html .= '<h3>Graphic</h3>
+                PDF::Cell(0, 10, 'Graphic', 0, 1, 'L');
+                $html = '
                 <div align="center">
                     <img  width="640" height="450" src="'. $public_path .'/sizing/'. $study['USERNAM'].'/'. $study['ID_STUDY'] .'.png"></div>';
                 PDF::writeHTML($html, true, false, true, false, '');
@@ -1826,17 +1876,20 @@ class Reports extends Controller
 
         if (!empty($heatexchange)) {
             if (($ENTHALPY_V == 1) || ($ENTHALPY_G ==1)) {
+                PDF::SetFont('times', 'B', 16);
                 PDF::Bookmark('HEAT EXCHANGE', 0, 0, '', 'B', array(0,64,128));
-                // PDF::Cell(0, 10, '', 0, 1, 'L');
-                $html = '<h3 style ="background-color:#268EE2">Heat Exchange</h3>';
+                PDF::SetFillColor(38, 142, 226);
+                PDF::SetTextColor(0,0,0);
+                $content ='Heat Exchange';
+                PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
+                PDF::SetFont('times', 'B', 10);
+                $html='';
                 foreach ($heatexchange as $resheatexchanges) {
-                    $html = '';
+                    $html ='';
                     PDF::Bookmark($resheatexchanges['equipName'] , 1, 0, '', '', array(128,0,0));
-                    // PDF::Cell(0, 10, '', 0, 1, 'L');
-                    $html .='<h3>'. $resheatexchanges['equipName'] .'</h3>';
+                    PDF::Cell(0, 10, $resheatexchanges['equipName'], 0, 1, 'L');
                     if ($ENTHALPY_V == 1) {
-                        $html .='
-                        <h3>Values</h3>
+                        $html ='<h3>Values</h3>
                         <div class="heat-exchange">
                             <table border="0.5">
                                 <tr>
@@ -1848,7 +1901,7 @@ class Reports extends Controller
                                 </tr>
                                 <tr>
                                     <td colspan="2"> '. $resheatexchanges['equipName'] .'  </td>';
-                                    foreach($resheatexchanges['result'] as $result) { 
+                                    foreach($resheatexchanges['result'] as $result) {
                                         $html .=' <th align="center"> '. $result['y'] .'</th>';
                                     }
                                     $html .='     
@@ -1858,12 +1911,13 @@ class Reports extends Controller
                         PDF::writeHTML($html, true, false, true, false, '');
                     }
                     if ($ENTHALPY_G ==1) {
-                        $html .='<h3>Graphic</h3>
+                        $html ='<h3>Graphic</h3>
                         <div align="center">
-                            <img width="640" height="450" src="'. $public_path .'/heatExchange/'. $study['USERNAM'] .'/'. $resheatexchanges['idStudyEquipment'] .'.png">
+                        <img width="640" height="450" src="'. $public_path .'/heatExchange/'. $study['USERNAM'] .'/'. $resheatexchanges['idStudyEquipment'] .'.png">
                         </div>';
                         PDF::writeHTML($html, true, false, true, false, '');
                     }
+                    
                 }
                 PDF::AddPage();
             }
@@ -1872,26 +1926,31 @@ class Reports extends Controller
         if (!empty($proSections)) {
             if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
                 PDF::Bookmark('PRODUCT SECTION', 0, 0, '', 'B', array(0,64,128));
-                // PDF::Cell(0, 10, '', 0, 1, 'L');
-                $html = '<h3 style ="background-color:#268EE2">Product Section</h3>';
+                PDF::SetFont('times', 'B', 16);
+                PDF::SetFillColor(38, 142, 226);
+                PDF::SetTextColor(0,0,0);
+                $content ='Product Section';
+                PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
+                PDF::SetFont('times', 'B', 10);
+                $html='';
                 foreach ($proSections as $resproSections) {
-                    $html = '';
+                    $html ='';
                     PDF::Bookmark($resproSections['equipName'] , 1, 0, '', '', array(128,0,0));
-                    PDF::Cell(0, 10, '' , 0, 1, 'L');
+                    // PDF::Cell(0, 10, '' , 0, 1, 'L');
                     $html .='<h3>'. $resproSections['equipName'] .'</h3>';
                     if ($ISOCHRONE_V == 1) {
                         if ($resproSections['selectedAxe'] == 1) {
                             PDF::Bookmark('Values - Dimension' . $resproSections['selectedAxe'] . '(' . '*,' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][1] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
                             // PDF::Cell(0, 10, '', 0, 1, 'L');
-                            $html .='<h3> Values - Dimension'. $resproSections['selectedAxe'] . '(' . '*,' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][1] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>';
+                            $html ='<h3> Values - Dimension'. $resproSections['selectedAxe'] . '(' . '*,' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][1] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>';
                         } else if ($resproSections['selectedAxe'] == 2) {
                             PDF::Bookmark('Values - Dimension' . $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',*,' . $resproSections['axeTemp'][1] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
                             PDF::Cell(0, 10, '' , 0, 1, 'L');
-                            $html .='<h3> Values - Dimension'. $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',*,' . $resproSections['axeTemp'][1] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>';
+                            $html ='<h3> Values - Dimension'. $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',*,' . $resproSections['axeTemp'][1] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>';
                         } else if ($resproSections['selectedAxe'] == 3) {
                             PDF::Bookmark('Values - Dimension' . $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][1] . ',*' . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
                             // PDF::Cell(0, 10, '', 0, 1, 'L');
-                            $html .='<h3> Values - Dimension'. $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][1] . ',*' . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>';
+                            $html='<h3> Values - Dimension'. $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][1] . ',*' . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>';
                         }
                         $html .='
                         <div class="values-dim2">
@@ -1918,26 +1977,25 @@ class Reports extends Controller
                         </div>';
                         PDF::writeHTML($html, true, false, true, false, '');
                     }
-                    $html ='';
                     if ($ISOCHRONE_G == 1) {
                         if ($resproSections['selectedAxe'] == 1) {
                             PDF::Bookmark('Graphic - Dimension' . $resproSections['selectedAxe'] . '(' . '*,' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][1] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
                             // PDF::Cell(0, 10, '', 0, 1, 'L');
-                            $html .='<h3> Graphic - Dimension'. $resproSections['selectedAxe'] . '(' . '*,' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][1] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>
+                            $html ='<h3> Graphic - Dimension'. $resproSections['selectedAxe'] . '(' . '*,' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][1] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>
                             <div align="center">
                             <img width="640" height="450" src="'. $public_path .'/productSection/'. $study['USERNAM'] .'/'. $resproSections['idStudyEquipment'] .'-'. $resproSections['selectedAxe'] .'.png"></div>';
                             PDF::writeHTML($html, true, false, true, false, '');
                         } else if ($resproSections['selectedAxe'] == 2) {
                             PDF::Bookmark('Graphic - Dimension' . $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',*,' . $resproSections['axeTemp'][1] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
                             // PDF::Cell(0, 10, '', 0, 1, 'L');
-                            $html .='<h3> Graphic - Dimension'. $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',*,' . $resproSections['axeTemp'][1] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>
+                            $html ='<h3> Graphic - Dimension'. $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',*,' . $resproSections['axeTemp'][1] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>
                             <div align="center">
                             <img width="640" height="450" src="'. $public_path .'/productSection/'. $study['USERNAM'] .'/'. $resproSections['idStudyEquipment'] .'-'. $resproSections['selectedAxe'] .'.png"></div>';
                             PDF::writeHTML($html, true, false, true, false, '');
                         } else if ($resproSections['selectedAxe'] == 3) {
                             PDF::Bookmark('Graphic - Dimension' . $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][1] . ',*' . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
                             // PDF::Cell(0, 10, '', 0, 1, 'L');
-                            $html .='<h3> Graphic - Dimension'. $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][1] . ',*' . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>
+                            $html ='<h3> Graphic - Dimension'. $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][1] . ',*' . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>
                             <div align="center">
                             <img width="640" height="450" src="'. $public_path .'/productSection/'. $study['USERNAM'] .'/'. $resproSections['idStudyEquipment'] .'-'. $resproSections['selectedAxe'] .'.png"></div>';
                             PDF::writeHTML($html, true, false, true, false, '');
@@ -1950,11 +2008,16 @@ class Reports extends Controller
 
         if (!empty($timeBase)) {
             if ($ISOVALUE_V == 1 || $ISOVALUE_G == 1) {
+                PDF::SetFont('times', 'B', 16);
                 PDF::Bookmark('PRODUCT GRAPH - TIME BASED', 0, 0, '', 'B', array(0,64,128));
-                // PDF::Cell(0, 10, '', 0, 1, 'L');
-                $html = '<h3 style ="background-color:#268EE2">Product Graph - Time Based</h3>';
-                $html .= '';
+                PDF::SetFillColor(38, 142, 226);
+                PDF::SetTextColor(0,0,0);
+                $content ='Product Graph - Time Based';
+                PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
+                PDF::SetFont('times', 'B', 10);
+                $html='';
                 foreach($timeBase as $timeBases) {
+                    $html = '';
                     PDF::Bookmark($timeBases['equipName'] , 1, 0, '', '', array(128,0,0));
                     // PDF::Cell(0, 10, '', 0, 1, 'L');
                     $html .='<h3>'. $timeBases['equipName'] .'</h3>';
@@ -2018,8 +2081,14 @@ class Reports extends Controller
         
         if (!empty($pro2Dchart)) {
             if ($CONTOUR2D_G == 1) {
+                PDF::SetFont('times', 'B', 16);
                 PDF::Bookmark('2D OUTLINES', 0, 0, '', 'B', array(0,64,128));
-                // PDF::Cell(0, 10, '', 0, 1, 'L');
+                PDF::SetFillColor(38, 142, 226);
+                PDF::SetTextColor(0,0,0);
+                $content ='2D Outlines';
+                PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
+                PDF::SetFont('times', 'B', 10);
+                $html='';
                 $html = '<h3 style ="background-color:#268EE2">2D Outlines</h3>';
                 foreach ($pro2Dchart as $key => $pro2Dcharts) {
                     $html = '';
@@ -2058,10 +2127,15 @@ class Reports extends Controller
             }
         }
 
-        PDF::Bookmark('COMMENTS ', 0, 0, '', 'B', array(0,64,128));
-        // PDF::Cell(0, 10, '', 0, 1, 'L');
         $html ='';
-        $html .= '<h3 style ="background-color:#268EE2">Comments </h3>
+        PDF::SetFont('times', 'B', 16);
+        PDF::Bookmark('COMMENTS ', 0, 0, '', 'B', array(0,64,128));
+        PDF::SetFillColor(38, 142, 226);
+        PDF::SetTextColor(0,0,0);
+        $content ='Comments';
+        PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
+        PDF::SetFont('times', 'B', 10);
+        $html .= '
         <div class="comment">
              <p>
                 <textarea  rows="5"> '. $REPORT_COMMENT .' </textarea>
