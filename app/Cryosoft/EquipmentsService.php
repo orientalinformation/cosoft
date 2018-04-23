@@ -189,4 +189,8 @@ class EquipmentsService
 
         return $this->unit->unitConvertUserSave($snrjUnitLabel, $value);
     }
+
+    public function loadExhaustGasTemperature(&$studyEquipment) {
+        var_dump($studyEquipment);
+    }
 }
