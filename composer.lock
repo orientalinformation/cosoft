@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "1adc2b3c14bfa9aec3dea156327b9613",
+    "content-hash": "0379bac31a194f51e84b2f31e6a804d4",
     "packages": [
         {
             "name": "doctrine/inflector",
@@ -2352,6 +2352,45 @@
                 "laravel"
             ],
             "time": "2018-03-03T02:55:49+00:00"
+        },
+        {
+            "name": "songphi/javaobjs",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/SongPhi/javaobjs.git",
+                "reference": "24776e32b45c75064637e789e885c3d35d165fc9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/SongPhi/javaobjs/zipball/24776e32b45c75064637e789e885c3d35d165fc9",
+                "reference": "24776e32b45c75064637e789e885c3d35d165fc9",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^6"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Thao Le",
+                    "email": "thaolt@songphi.com"
+                }
+            ],
+            "description": "provide some basic classes equivalent to Java classes, such as String, StringBuffer, StringTokenizer, Vector",
+            "time": "2018-04-23T08:44:55+00:00"
         },
         {
             "name": "symfony/console",
@@ -5819,7 +5858,8 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "tymon/jwt-auth": 20
+        "tymon/jwt-auth": 20,
+        "songphi/javaobjs": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

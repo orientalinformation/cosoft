@@ -720,4 +720,26 @@ class StudyEquipmentService
             throw new Exception("Error while writing initial temp from analogical results");
         }
     }
+
+    public function generateLayoutPreview() {
+        $base64img = '';
+        // Create an image with the specified dimensions
+        $image = imageCreate(300, 200);
+ 
+        // Create a color (this first call to imageColorAllocate
+        //  also automatically sets the image background color)
+        $colorRed = imageColorAllocate($image, 255, 0, 0);
+        // Create another color
+        $colorYellow = imageColorAllocate($image, 255, 255, 0);
+        
+        // Draw a rectangle
+        imageFilledRectangle($image, 50, 50, 250, 150, $colorYellow);
+        
+        // Set type of image and send the output
+        $base64img = base64_encode( imageJpeg($image) );
+        
+        // Release memory
+        imageDestroy($image);
+        return response($base64img)->header('Content-Type', 'text/plain');
+    }
 }
