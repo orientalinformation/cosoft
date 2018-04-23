@@ -191,3 +191,6 @@ define('MIN_MAX_PRODUCT_DIM1', 1102);
 define('MIN_MAX_PRODUCT_DIM2', 1103);
 define('MIN_MAX_PRODUCT_DIM3', 1104);
 define('MIN_MAX_ENERGY_PRICE', 1105);
+
+//svg
+define('W_CARPET_SHELVES', 22);
