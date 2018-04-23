@@ -142,6 +142,7 @@ class StudyEquipments extends Controller
     public function getOperatingSetting($id)
     {
         $studyEquipment = StudyEquipment::where('ID_STUDY_EQUIPMENTS', $id)->first();
+
         $studyEquipment->tr = $this->brain->getListTr($id);
         $studyEquipment->ts = $this->brain->getListTs($id);
         $studyEquipment->vc = $this->brain->getVc($id);
@@ -177,6 +178,19 @@ class StudyEquipments extends Controller
             'LIMIT_MAX' => 0,
         ];
 
-        return $studyEquipment;
+        $tempExts = $this->equip->loadExhaustGasTemperature($studyEquipment);
+        $resultTempExts = [];
+        if (count($tempExts) > 0) {
+            foreach ($tempExts as $tempExt) {
+                if ($tempExt->TR <= $studyEquipment->minMaxTr['LIMIT_MAX'] && $tempExt->TR >= $studyEquipment->minMaxTr['LIMIT_MIN']) {
+                    $item['TR'] = $this->unit->controlTemperature($tempExt->TR, ['format' => false]);
+                    $item['T_EXT'] = $this->unit->controlTemperature($tempExt->T_EXT, ['format' => false]);
+                    $resultTempExts[] = $item;
+                }
+            }
+        }
+
+
+        return compact('resultTempExts', 'studyEquipment');
     }
 }
