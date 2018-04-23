@@ -474,9 +474,6 @@ class Products extends Controller
                     $pb = ProductElmt::findOrFail($elmt['ID_PRODUCT_ELMT']);
                     $pb->PROD_ELMT_ISO = $this->values->PRODELT_UNDEFINED;
                     $pb->save();
-
-                    $idx++;
-                    $stemp = $input['productElmtInitTemp'][$idx][0];
                 }
 
                 if ($this->studies->isStudyHasParent($study)) {
@@ -486,8 +483,12 @@ class Products extends Controller
 
                 $ldNodeNb1 = $ldNodeNb3 = 1;
                 $ldNodeNb2 = $prodMeshgene->MESH_2_NB;
+                foreach ($input['elements'] as $elmt) {
+                    $idx++;
+                    $stemp = $input['productElmtInitTemp'][$idx][0];
+                    $this->product->propagationTempProdIso($product, $ldNodeNb1, $ldNodeNb2, $ldNodeNb3, $stemp);
+                }
 
-                $this->product->propagationTempProdIso($product, $ldNodeNb1, $ldNodeNb2, $ldNodeNb3, $stemp);
 
                 $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY);
                 $ktOk = $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 4);
