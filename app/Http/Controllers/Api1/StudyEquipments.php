@@ -12,6 +12,7 @@ use App\Models\MinMax;
 use App\Cryosoft\EquipmentsService;
 use App\Cryosoft\UnitsConverterService;
 use App\Cryosoft\BrainCalculateService;
+use App\Cryosoft\StudyEquipmentService;
 
 
 class StudyEquipments extends Controller
@@ -33,13 +34,14 @@ class StudyEquipments extends Controller
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth, EquipmentsService $equip, UnitsConverterService $unit, BrainCalculateService $brain)
+    public function __construct(Request $request, Auth $auth, EquipmentsService $equip, UnitsConverterService $unit, BrainCalculateService $brain, StudyEquipmentService $studyEquip)
     {
         $this->request = $request;
         $this->auth = $auth;
         $this->equip = $equip;
         $this->unit = $unit;
         $this->brain = $brain;
+        $this->studyEquip = $studyEquip;
     }
 
     public function getStudyEquipmentById($id)
@@ -146,7 +148,15 @@ class StudyEquipments extends Controller
         $studyEquipment->tr = $this->brain->getListTr($id);
         $studyEquipment->ts = $this->brain->getListTs($id);
         $studyEquipment->vc = $this->brain->getVc($id);
+        $studyEquipment->alpha = $this->studyEquip->loadAlphaCoef($studyEquipment);
         $studyEquipment->TExt = $this->unit->exhaustTemperature($this->brain->getTExt($id));
+        $calculationParameter = $studyEquipment->calculationParameters->first();
+        $calculationParameter->STUDY_ALPHA_TOP_FIXED = ($calculationParameter->STUDY_ALPHA_TOP_FIXE == 1) ? true : false;
+        $calculationParameter->STUDY_ALPHA_BOTTOM_FIXED = ($calculationParameter->STUDY_ALPHA_BOTTOM_FIXED == 1) ? true : false;
+        $calculationParameter->STUDY_ALPHA_LEFT_FIXED = ($calculationParameter->STUDY_ALPHA_LEFT_FIXED == 1) ? true : false;
+        $calculationParameter->STUDY_ALPHA_RIGHT_FIXED = ($calculationParameter->STUDY_ALPHA_RIGHT_FIXED == 1) ? true : false;
+        $calculationParameter->STUDY_ALPHA_FRONT_FIXED = ($calculationParameter->STUDY_ALPHA_FRONT_FIXED == 1) ? true : false;
+        $calculationParameter->STUDY_ALPHA_REAR_FIXED = ($calculationParameter->STUDY_ALPHA_REAR_FIXED == 1) ? true : false;
 
         $studyEquipment->ldSetpointmax = (count($studyEquipment->ts) > count($studyEquipment->tr)) ? (count($studyEquipment->ts) > count($studyEquipment->vc)) ? count($studyEquipment->ts) : count($studyEquipment->vc) : (count($studyEquipment->tr) > count($studyEquipment->vc)) ? count($studyEquipment->tr) : count($studyEquipment->vc);
 
@@ -179,7 +189,7 @@ class StudyEquipments extends Controller
             'LIMIT_MAX' => 0,
         ];
 
-        $tempExts = $this->equip->loadExhaustGasTemperature($studyEquipment);
+        $tempExts = $this->studyEquip->loadExhaustGasTemperature($studyEquipment);
         $resultTempExts = [];
         if (count($tempExts) > 0) {
             foreach ($tempExts as $tempExt) {
