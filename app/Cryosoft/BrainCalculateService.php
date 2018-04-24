@@ -250,6 +250,16 @@ class BrainCalculateService
         return $tR;
     }
 
+    public function getTExt($idStudyEquipments)
+    {
+        $studEqpPrms = $this->loadStudEqpPrm($idStudyEquipments, 500);
+        if (count($studEqpPrms) > 0) {
+            return $studEqpPrms[0]->VALUE;
+        } else {
+            return 0;
+        }
+    }
+
     public function getListTr($idStudyEquipments)
     {
         $studEqpPrms = $this->loadStudEqpPrm($idStudyEquipments, 300);

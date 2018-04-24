@@ -505,4 +505,32 @@ class ProductService
 
         return $etat;
     }
+
+    public function propagationTempProdIso($product, $x, $y, $z, $stemp)
+    {
+        $listTemp = [];
+        $i = $j = $k = 0;
+        $t = null;
+        $study = $product->study;
+        $lfTemp = floatval($this->units->prodTemperature($stemp));
+
+        for ($i = 0; $i < $x; $i++) {
+            for ($j = 0; $j < $y; $j++) {
+                for ($k = 0; $k < $z; $k++) {
+                    $t = new InitialTemperature();
+                    $t->ID_PRODUCTION = ($study->ID_PRODUCTION);
+                    $t->MESH_1_ORDER = $i;
+                    $t->MESH_2_ORDER = $j;
+                    $t->MESH_3_ORDER = $k;
+                    $t->INITIAL_T = $lfTemp;
+                    array_push($listTemp, $t->toArray());
+                }
+            }
+        }
+
+        $slices = array_chunk($listTemp, 100);
+        foreach ($slices as $slice) {
+            InitialTemperature::insert($slice);
+        }
+    }
 }

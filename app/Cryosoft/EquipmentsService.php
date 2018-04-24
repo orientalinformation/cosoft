@@ -10,6 +10,8 @@ use App\Models\Study;
 use App\Models\StudEqpPrm;
 use App\Models\MinMax;
 use App\Models\Equipment;
+use App\Models\EquipGeneration;
+use App\Models\TempExt;
 
 
 class EquipmentsService
@@ -188,5 +190,33 @@ class EquipmentsService
         }
 
         return $this->unit->unitConvertUserSave($snrjUnitLabel, $value);
+    }
+
+    public function loadExhaustGasTemperature(&$studyEquipment) {
+        if ($studyEquipment->STD == 1) {
+            $idEquipSeries = $studyEquipment->ID_EQUIPSERIES;
+        } else {
+            $idEquipSeries = 0;
+
+            $equipGenerations = EquipGeneration::where('ID_EQUIP', $studyEquipment->ID_EQUIP)->get();
+            if (count($equipGenerations) > 0) {
+                foreach ($equipGenerations as $equipGeneration) {
+                    $equipment = Equipment::where('ID_EQUIP', $equipGeneration->ID_ORIG_EQUIP1)->first();
+                    if ($equipment) {
+                        if ($equipment->STD == 1) {
+                            $idEquipSeries = $equipment->ID_EQUIPSERIES;
+                        }
+                    }
+                }
+            }
+        }
+
+        $tempExts = [];
+
+        if ($idEquipSeries != 0) {
+            $tempExts = TempExt::where('ID_EQUIPSERIES', $idEquipSeries)->get(); 
+        }
+
+        return $tempExts;
     }
 }

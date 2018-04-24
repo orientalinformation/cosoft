@@ -610,6 +610,22 @@ class UnitsConverterService
         return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 2, $options);
     }
 
+    public function carpetWidthSVG($value, $options = null) {
+        $unit = Unit::where('TYPE_UNIT', W_CARPET_SHELVES)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 4, $options);
+    }
+
+    public function shelvesWidthSVG($value, $options = null) {
+        $unit = Unit::where('TYPE_UNIT', W_CARPET_SHELVES)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 4, $options);
+    }
+
     public function meshesUnit($value) {
         $unit = Unit::where('TYPE_UNIT', $this->value->MESH_CUT)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
@@ -662,7 +678,7 @@ class UnitsConverterService
         ->first();
         return $this->convertUnitSave($value, $unit->COEFF_A, $unit->COEFF_B);
     }
-    public function exhaustTemperature($value, $options) {
+    public function exhaustTemperature($value, $options = null) {
         $unit = Unit::where('TYPE_UNIT', $this->value->TEMPERATURE)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
