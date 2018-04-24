@@ -12,6 +12,7 @@ use App\Models\MinMax;
 use App\Cryosoft\EquipmentsService;
 use App\Cryosoft\UnitsConverterService;
 use App\Cryosoft\BrainCalculateService;
+use App\Cryosoft\StudyEquipmentService;
 
 
 class StudyEquipments extends Controller
@@ -27,19 +28,29 @@ class StudyEquipments extends Controller
      */
     protected $auth;
 
+    /**
+     * @var App\Cryosoft\StudyEquipmentService
+     */
+    protected $stdeqp;
+
 
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth, EquipmentsService $equip, UnitsConverterService $unit, BrainCalculateService $brain)
+    public function __construct(Request $request, Auth $auth, 
+        EquipmentsService $equip, UnitsConverterService $unit, 
+        BrainCalculateService $brain,
+        StudyEquipmentService $stdeqp
+    )
     {
         $this->request = $request;
         $this->auth = $auth;
         $this->equip = $equip;
         $this->unit = $unit;
         $this->brain = $brain;
+        $this->stdeqp = $stdeqp;
     }
 
     public function getStudyEquipmentById($id)
@@ -178,5 +189,10 @@ class StudyEquipments extends Controller
         ];
 
         return $studyEquipment;
+    }
+
+    public function getStudyEquipmentLayout($id) {
+        return response($this->stdeqp->generateLayoutPreview())
+            ->header('Content-Type', 'text/plain');
     }
 }

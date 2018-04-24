@@ -740,6 +740,6 @@ class StudyEquipmentService
         
         // Release memory
         imageDestroy($image);
-        return response($base64img)->header('Content-Type', 'text/plain');
+        return $base64img;
     }
 }
