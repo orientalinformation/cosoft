@@ -478,3 +478,11 @@ $router->POST('/api/v1/referencedata/checkredrawcurves', 'Api1\\Equipments@check
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/referencedata/checktempsetpoint', 'Api1\\Equipments@checkBuildForNewTR');
+
+/**
+ * GET Data component
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/referencedata/components/{id}', 'Api1\\ReferenceData@getComponentById');

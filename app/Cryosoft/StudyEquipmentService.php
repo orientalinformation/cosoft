@@ -13,6 +13,8 @@ use App\Models\Production;
 use App\Models\TempRecordData;
 use App\Models\InitialTemperature;
 use App\Models\ProductElement;
+use App\Models\EquipGeneration;
+use App\Models\TempExt;
 
 class StudyEquipmentService
 {
@@ -741,5 +743,80 @@ class StudyEquipmentService
         // Release memory
         imageDestroy($image);
         return $base64img;
+    }
+
+    public function loadExhaustGasTemperature(&$studyEquipment)
+    {
+        if ($studyEquipment->STD == 1) {
+            $idEquipSeries = $studyEquipment->ID_EQUIPSERIES;
+        } else {
+            $idEquipSeries = 0;
+
+            $equipGenerations = EquipGeneration::where('ID_EQUIP', $studyEquipment->ID_EQUIP)->get();
+            if (count($equipGenerations) > 0) {
+                foreach ($equipGenerations as $equipGeneration) {
+                    $equipment = Equipment::where('ID_EQUIP', $equipGeneration->ID_ORIG_EQUIP1)->first();
+                    if ($equipment) {
+                        if ($equipment->STD == 1) {
+                            $idEquipSeries = $equipment->ID_EQUIPSERIES;
+                        }
+                    }
+                }
+            }
+        }
+
+        $tempExts = [];
+
+        if ($idEquipSeries != 0) {
+            $tempExts = TempExt::where('ID_EQUIPSERIES', $idEquipSeries)->get(); 
+        }
+
+        return $tempExts;
+    }
+
+    public function loadAlphaCoef(&$studyEquipment)
+    {
+        $alpha = new \SplFixedArray(6);
+        $calcParams = $studyEquipment->calculationParameters->first();
+
+        if ($calcParams) {
+            if ($calcParams->STUDY_ALPHA_TOP_FIXED == true) {
+                $alpha[0] = $this->convert->convectionCoeff($calcParams->STUDY_ALPHA_TOP);
+            } else {
+                $alpha[0] = $this->convert->convectionCoeff(0.0);
+            }
+
+            if ($calcParams->STUDY_ALPHA_BOTTOM_FIXED == true) {
+                $alpha[1] = $calcParams->STUDY_ALPHA_BOTTOM;
+            } else {
+                $alpha[1] = $this->convert->convectionCoeff(0.0);
+            }
+
+            if ($calcParams->STUDY_ALPHA_LEFT_FIXED == true) {
+                $alpha[2] = $calcParams->STUDY_ALPHA_LEFT;
+            } else {
+                $alpha[2] = $this->convert->convectionCoeff(0.0);
+            }
+
+            if ($calcParams->STUDY_ALPHA_RIGHT_FIXED == true) {
+                $alpha[3] = $calcParams->STUDY_ALPHA_RIGHT;
+            } else {
+                $alpha[3] = $this->convert->convectionCoeff(0.0);
+            }
+
+            if ($calcParams->STUDY_ALPHA_FRONT_FIXED == true) {
+                $alpha[4] = $calcParams->STUDY_ALPHA_FRONT;
+            } else {
+                $alpha[4] = $this->convert->convectionCoeff(0.0);
+            }
+
+            if ($calcParams->STUDY_ALPHA_REAR_FIXED == true) {
+                $alpha[5] = $calcParams->STUDY_ALPHA_REAR;
+            } else {
+                $alpha[5] = $this->convert->convectionCoeff(0.0);
+            }
+        }
+
+        return $alpha;
     }
 }

@@ -200,6 +200,23 @@ class ReferenceData extends Controller
         return compact('mine', 'others');
     }
 
+    public function getComponentById($id) 
+    {
+
+        $comp = Component::join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')
+        ->where('Translation.TRANS_TYPE', 1)
+        ->where('Translation.ID_TRANSLATION', '914')
+        ->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->first();
+
+        if ($comp) {
+            $comp->AIR = round(($comp->AIR / 0.01205));
+            $comp->FREEZE_TEMP = $this->units->temperature($comp->FREEZE_TEMP, 2, 1);
+            $comp->NON_FROZEN_WATER = number_format((float)$comp->NON_FROZEN_WATER, 2, '.', '');
+        }
+
+        return $comp;
+    }
+
     public function saveDataComponent()
     {
         $result = $this->saveComponent($this->request, 0);

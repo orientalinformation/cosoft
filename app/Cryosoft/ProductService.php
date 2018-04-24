@@ -442,26 +442,15 @@ class ProductService
     public function PropagationTempElmt (\App\Models\Product &$product, $X, $valueY, $Z, $stemp)
     {
         $study = $product->study;
-        /* MODIF: ETUDE SANS CHAINING OU SANS ETUDES FILLES:
-         * 	pour que l'enregistrement des températures initiales soit un
-         * 	peu plus rapide, étant donné qu'aujourd'hui l'IHM ne permet de saisir
-         * 	les températures que suivant l'axe2, l'enregistrement des températures
-         * 	dans la base se fera aussi que suivant l'axe 2. Le kernel se chargera 
-         * 	de la propagation des températures sur les autres axes => kernel + rapide
-         * ETUDE AVEC ENFANT: enregistrement de la matrice 3D
-         */
 
         $lfTemp = floatval($this->units->prodTemperature($stemp));
 
-        // short i, k;
         $i = $k = 0;
 
-        // list < InitialTemperature > listTemp = new ArrayList < InitialTemperature > ();
         $listTemp = [];
-        // InitialTemperature temp = null;
 
-        for ($i = 0; $i < $X; $i ++) {
-            for ($k = 0; $k < $Z; $k ++) {
+        for ($i = 0; $i < $X; $i++) {
+            for ($k = 0; $k < $Z; $k++) {
                 // save node temperature
                 $temp = new InitialTemperature();
                 $temp->ID_PRODUCTION = ($study->ID_PRODUCTION);
@@ -470,18 +459,14 @@ class ProductService
                 $temp->MESH_3_ORDER = ($k);
                 $temp->INITIAL_T = ($lfTemp);
                 
-                // add in initial list
-                // $listTemp . add(temp);
                 array_push($listTemp, $temp->toArray());
-            } // for axis 2
-        } // for axis 1
+            } 
+        } 
 
         $slices = array_chunk($listTemp, 100);
         foreach ($slices as $slice) {
             InitialTemperature::insert($slice);
         }
-        // save temperature inDB 
-        // DBInitialTemperature . insertList(listTemp);
     }
 
     public function IsMeshPositionCalculate($idProductionElmt)
@@ -504,5 +489,33 @@ class ProductService
         }
 
         return $etat;
+    }
+
+    public function propagationTempProdIso(\App\Models\Product &$product, $x, $y, $z, $stemp)
+    {
+        $listTemp = [];
+        $i = $j = $k = 0;
+        $t = null;
+        $study = $product->study;
+        $lfTemp = floatval($this->units->prodTemperature($stemp));
+
+        for ($i = 0; $i < $x; $i++) {
+            for ($j = 0; $j < $y; $j++) {
+                for ($k = 0; $k < $z; $k++) {
+                    $t = new InitialTemperature();
+                    $t->ID_PRODUCTION = ($study->ID_PRODUCTION);
+                    $t->MESH_1_ORDER = $i;
+                    $t->MESH_2_ORDER = $j;
+                    $t->MESH_3_ORDER = $k;
+                    $t->INITIAL_T = $lfTemp;
+                    array_push($listTemp, $t->toArray());
+                }
+            }
+        }
+
+        $slices = array_chunk($listTemp, 100);
+        foreach ($slices as $slice) {
+            InitialTemperature::insert($slice);
+        }
     }
 }
