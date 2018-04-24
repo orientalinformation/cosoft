@@ -1395,42 +1395,42 @@ class Reports extends Controller
                                 </tr>
                                 <tr>
                                     <td colspan="2">Insulated line</td>
-                                    <td colspan="4" align="center">'. (!empty($cryogenPipeline['dataResultExist']['insulatedline']) ?? "") .'</td>
-                                    <td colspan="2" align="center">'. (!empty($cryogenPipeline['dataResultExist']['insulllenght']) ?? "") .'</td>
+                                    <td colspan="4" align="center">'. ($cryogenPipeline['dataResultExist']['insulLabel']) .'</td>
+                                    <td colspan="2" align="center">'. ($cryogenPipeline['dataResultExist']['insulllenght']) .'</td>
                                 </tr>
                                 <tr>
                                     <td colspan="2">Insulated valves</td>
-                                    <td colspan="4" align="center">'. (!empty($cryogenPipeline['dataResultExist']['insulatedlineval']) ?? "") .'</td>
-                                    <td colspan="2" align="center">'. (!empty($cryogenPipeline['dataResultExist']['insulvallenght']) ?? "") .'</td>
+                                    <td colspan="4" align="center">'. ($cryogenPipeline['dataResultExist']['insulvalLabel']) .'</td>
+                                    <td colspan="2" align="center">'. ($cryogenPipeline['dataResultExist']['insulvallenght']) .'</td>
                                 </tr>
                                 <tr>
                                     <td colspan="2">Elbows</td>
-                                    <td colspan="4" align="center">'. (!empty($cryogenPipeline['dataResultExist']['elbows']) ?? "") .'</td>
-                                    <td colspan="2" align="center">'. (!empty($cryogenPipeline['dataResultExist']['elbowsnumber']) ?? "") .'</td>
+                                    <td colspan="4" align="center">'. ($cryogenPipeline['dataResultExist']['elbowLabel']) .'</td>
+                                    <td colspan="2" align="center">'. ($cryogenPipeline['dataResultExist']['elbowsnumber']) .'</td>
                                 </tr>
                                 <tr>
                                     <td colspan="2">Tees</td>
-                                    <td colspan="4" align="center">'. (!empty($cryogenPipeline['dataResultExist']['tee']) ?? "") .'</td>
-                                    <td colspan="2" align="center">'. (!empty($cryogenPipeline['dataResultExist']['teenumber']) ?? "") .'</td>
+                                    <td colspan="4" align="center">'. ($cryogenPipeline['dataResultExist']['teeLabel']) .'</td>
+                                    <td colspan="2" align="center">'. ($cryogenPipeline['dataResultExist']['teenumber']) .'</td>
                                 </tr>
                                 <tr>
                                     <td colspan="2">Non-insulated line</td>
-                                    <td colspan="4" align="center">'. (!empty($cryogenPipeline['dataResultExist']['non_insulated_line']) ?? "") .'</td>
-                                    <td colspan="2" align="center">'. (!empty($cryogenPipeline['dataResultExist']['noninsullenght']) ?? "") .'</td>
+                                    <td colspan="4" align="center">'. ($cryogenPipeline['dataResultExist']['noninsulLabel']) .'</td>
+                                    <td colspan="2" align="center">'. ($cryogenPipeline['dataResultExist']['noninsullenght']) .'</td>
                                 </tr>
                                 <tr>
                                     <td colspan="2">Non-insulated valves</td>
-                                    <td colspan="4" align="center">'. (!empty($cryogenPipeline['dataResultExist']['non_insulated_valves']) ?? "") .'</td>
-                                    <td colspan="2"align="center">'. (!empty($cryogenPipeline['dataResultExist']['noninsulatevallenght']) ?? "") .'</td>
+                                    <td colspan="4" align="center">'. ($cryogenPipeline['dataResultExist']['noninsulvalLabel']) .'</td>
+                                    <td colspan="2"align="center">'. ($cryogenPipeline['dataResultExist']['noninsulatevallenght']) .'</td>
                                 </tr>
                                 <tr>
                                     <td colspan="2">Storage tank</td>
-                                    <td colspan="4" align="center">'. (!empty($cryogenPipeline['dataResultExist']['storageTankName']) ?? "") .'</td>
+                                    <td colspan="4" align="center">'. ($cryogenPipeline['dataResultExist']['storageTankName']) .'</td>
                                     <td colspan="2" align="center"></td>
                                 </tr>
                             </table>
-                            <div id="pressuer"><strong>Tank pressure :</strong> '. (!empty($cryogenPipeline['dataResultExist']['pressuer']) ?? "") .' (Bar)</div>
-                            <div id="height"><strong>Equipment elevation above tank outlet. :</strong>'. (!empty($cryogenPipeline['dataResultExist']['height']) ?? "") .' (m)</div>
+                            <div id="pressuer"><strong>Tank pressure :</strong> '. ($cryogenPipeline['dataResultExist']['pressuer']) .' ('.$symbol['pressureSymbol'].')</div>
+                            <div id="height"><strong>Equipment elevation above tank outlet. :</strong>'. ($cryogenPipeline['dataResultExist']['height']) .' ('.$symbol['materialRiseSymbol'].')</div>
                         </div>
                     </div>';
                     PDF::writeHTML($html, true, false, true, false, '');

@@ -77,6 +77,14 @@ class LineService
         }
     }
 
+    public function getLabelByIdPipeELMT ($idPipeElmt) {
+        $label = LineElmt::select('LABEL','LINE_RELEASE')
+        ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
+        ->where('Translation.TRANS_TYPE', 27)->where('ID_PIPELINE_ELMT', $idPipeElmt)
+        ->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
+        return $label;
+    }
+
     public function getdiameter($coolingFamily, $insulationType, $study) {
 
         $diameter = LineElmt::distinct()->select('ELT_SIZE')
