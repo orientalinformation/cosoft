@@ -63,12 +63,15 @@ class PipeLine extends Controller
 
         foreach ($mine as $key) {
             $key->ELMT_PRICE = $this->units->monetary($key->ELMT_PRICE, 3, 1);
+            $key->ELT_LOSSES_1 = number_format((float)$key->ELT_LOSSES_1, 2, '.', '');
+            $key->ELT_LOSSES_2 = number_format((float)$key->ELT_LOSSES_2, 2, '.', '');
 
             if ($key->ELT_TYPE == 3) {
-                $key->ELT_SIZE = $this->units->tankCapacity($key->ELT_SIZE, $this->value->RESERVOIR_CAPACITY_CO2, 3, 1);
+                $key->ELT_SIZE = $this->units->tankCapacity($key->ELT_SIZE, $this->value->RESERVOIR_CAPACITY_CO2, 2, 1);
             } else {
-                $key->ELT_SIZE = $this->units->lineDimension($key->ELT_SIZE, 3, 1);
-            }            
+                $key->ELT_SIZE = $this->units->lineDimension($key->ELT_SIZE, 2, 1);
+            }
+            $key->ELT_SIZE = number_format((float)$key->ELT_SIZE, 2, '.', '');            
         }
         
         $others = LineElmt::where('ID_USER', '!=', $this->auth->user()->ID_USER)
@@ -78,12 +81,15 @@ class PipeLine extends Controller
 
         foreach ($others as $key) {
             $key->ELMT_PRICE = $this->units->monetary($key->ELMT_PRICE, 3, 1);
+            $key->ELT_LOSSES_1 = number_format((float)$key->ELT_LOSSES_1, 2, '.', '');
+            $key->ELT_LOSSES_2 = number_format((float)$key->ELT_LOSSES_2, 2, '.', '');
 
             if ($key->ELT_TYPE == 3) {
                 $key->ELT_SIZE = $this->units->tankCapacity($key->ELT_SIZE, $this->value->RESERVOIR_CAPACITY_CO2, 3, 1);
             } else {
                 $key->ELT_SIZE = $this->units->lineDimension($key->ELT_SIZE, 3, 1);
-            }            
+            } 
+            $key->ELT_SIZE = number_format((float)$key->ELT_SIZE, 2, '.', '');           
         }
 
         return compact('mine', 'others');
