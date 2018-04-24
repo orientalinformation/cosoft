@@ -444,7 +444,7 @@ class Products extends Controller
         DB::connection()->disableQueryLog();
         set_time_limit(300);
         ini_set('max_execution_time', 300);
-        $bSave = false;
+        $bSave = $saveTemp = false;
         $ETATTEMPERATURE = 1;
         $product = Product::findOrFail($idProd);
         $study = $product->study;
@@ -489,8 +489,7 @@ class Products extends Controller
                     $this->product->propagationTempProdIso($product, $ldNodeNb1, $ldNodeNb2, $ldNodeNb3, $stemp);
                 }
 
-                $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY);
-                $ktOk = $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 4);
+                $saveTemp = true;
             } else {
                 $product->PROD_ISO = $this->values->PROD_NOT_ISOTHERM;
                 $idx = -1;
@@ -585,6 +584,12 @@ class Products extends Controller
                         }
                     }
                 } // end of foreach
+                $saveTemp = true;
+            }
+
+            if ($saveTemp) {
+                $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY);
+                $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 4);
             }
             
             // indicates that temperature are defined
