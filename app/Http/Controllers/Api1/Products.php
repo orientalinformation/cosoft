@@ -453,8 +453,7 @@ class Products extends Controller
         $ldNodeNb1 = $ldNodeNb2 = $ldNodeNb3 = 0;
         
         $this->studies->RunStudyCleaner($study->ID_STUDY, SC_CLEAN_OUTPUT_PRODUCTION);
-        
-        ($product->PROD_ISO != 0) ? ($ETATTEMPERATURE = 1) : ($ETATTEMPERATURE = 0);
+
         // Test if the user has given initial temperature
         if ($this->product->CheckInitialTemperature($product)) {
             //	clean the Initialtemperature Table
@@ -465,127 +464,98 @@ class Products extends Controller
 
             $prodMeshgene = $product->meshGenerations->first();
 
-            if ($ETATTEMPERATURE == 1) {
-                $product->PROD_ISO = $this->values->PROD_NOT_ISOTHERM;
-                $stemp = 0;
-                $idx = -1;
+            $product->PROD_ISO = $this->values->PROD_NOT_ISOTHERM;
+            $product->save();
+            $idx = -1;
 
-                foreach ($input['elements'] as $elmt) {
-                    $pb = ProductElmt::findOrFail($elmt['ID_PRODUCT_ELMT']);
-                    $pb->PROD_ELMT_ISO = $this->values->PRODELT_UNDEFINED;
-                    $pb->save();
-                }
+            foreach ($input['elements'] as $pe) {
+                $idx++;
+                $pe['initTemp'] = $input['productElmtInitTemp'][$idx];
+                
+                $pb = \App\Models\ProductElmt::findOrFail($pe['ID_PRODUCT_ELMT']);
 
-                if ($this->studies->isStudyHasParent($study)) {
-                    echo ("CHILD STUDY: product must be non isotherm");
-                    throw new \Exception("ERROR_CHILD_PRODUCT_TEMP");
-                }
-
-                $ldNodeNb1 = $ldNodeNb3 = 1;
-                $ldNodeNb2 = $prodMeshgene->MESH_2_NB;
-                foreach ($input['elements'] as $elmt) {
-                    $idx++;
-                    $stemp = $input['productElmtInitTemp'][$idx][0];
-                    $this->product->propagationTempProdIso($product, $ldNodeNb1, $ldNodeNb2, $ldNodeNb3, $stemp);
-                }
-
-                $saveTemp = true;
-            } else {
-                $product->PROD_ISO = $this->values->PROD_NOT_ISOTHERM;
-                $idx = -1;
-
-                foreach ($input['elements'] as $pe) {
-                    $idx++;
-                    $pe['initTemp'] = $input['productElmtInitTemp'][$idx];
-                    // ProductElmtBean pb = it . next();
-                    $pb = \App\Models\ProductElmt::findOrFail($pe['ID_PRODUCT_ELMT']);
-
-                    if (!$this->studies->isStudyHasParent($study)
-                        || ($pb->INSERT_LINE_ORDER == $study->ID_STUDY)) {
-                            
-                        if ( $pe['PROD_ELMT_ISO'] == $this->values->PRODELT_ISOTHERM) {
-                            //============= ProdELMT ISO
-                            if ($this->studies->isStudyHasParent($study)) {
-                                // 3D
-                                if ($pb->ID_SHAPE != $this->values->PARALLELEPIPED_BREADED) {
-                                    // propagation on axis 1 and 3
-                                    $this->productElmts->PropagationTempProdElmtIso($pe, true);
-                                } else {
-                                    // propagation special for breaded
-                                    $this->productElmts->PropagationTempProdElmtIsoForBreaded($pe);
-                                }
+                if (!$this->studies->isStudyHasParent($study)
+                    || ($pb->INSERT_LINE_ORDER == $study->ID_STUDY)) {
+                        
+                    if ( $pe['PROD_ELMT_ISO'] == $this->values->PRODELT_ISOTHERM) {
+                        if ($this->studies->isStudyHasParent($study)) {
+                            if ($pb->ID_SHAPE != $this->values->PARALLELEPIPED_BREADED) {
+                                // propagation on axis 1 and 3
+                                $this->productElmts->PropagationTempProdElmtIso($pe, true);
                             } else {
-                                $this->productElmts->PropagationTempProdElmtIso($pe, false);
+                                // propagation special for breaded
+                                $this->productElmts->PropagationTempProdElmtIsoForBreaded($pe);
                             }
-
-                            $pb->PROD_ELMT_ISO = $this->values->PRODELT_ISOTHERM;
-                            $pb->save();
-                                
                         } else {
-                            if ($pb->ID_SHAPE == $this->values->PARALLELEPIPED_BREADED) {
-                                // log . error("BREADED PARALLELEPIPED: product element must be isotherm");
-                                throw new \Exception("BREADED PARALLELEPIPED: product element must be isotherm");
-                            }
-               
-                            $pointMeshOrder2 = $this->product->searchNbPtforElmt($pb, 2)['points'];
-
-                            $t = $pe['initTemp'];
-                            $t2 = [];
-                            
-                            if ((count($t) != count($pointMeshOrder2)) || ($t == null)) {
-                                // in case of new mesh generation without T°ini, intiliaze T° in to zero
-                                for ($i = 0; $i < count($pointMeshOrder2); $i++) {
-                                    if ($i < count($t)) {
-                                        $t2[] = $t[$i];
-                                    } else {
-                                        $t2[] = 0;
-                                    }
-                                }
-                                $t = $t2;
-                            }
-
-                            if ($this->studies->isStudyHasParent($study)) {
-                                //  3D: dispatch this temp
-                                $ldNodeNb1 = $prodMeshgene->MESH_1_NB;
-                                $ldNodeNb3 = $prodMeshgene->MESH_3_NB;
-                                switch ($pb->ID_SHAPE) {
-                                    case $this->values->SLAB:
-                                    case $this->values->SPHERE:
-                                        $ldNodeNb1 = $ldNodeNb3 = 1;
-                                        break;
-                                    case $this->values->CYLINDER_STANDING:
-                                    case $this->values->CYLINDER_CONCENTRIC_LAYING:
-                                    case $this->values->CYLINDER_LAYING:
-                                    case $this->values->CYLINDER_CONCENTRIC_STANDING:
-                                        $ldNodeNb3 = 1;
-                                        break;
-                                    case $this->values->PARALLELEPIPED_STANDING:
-                                    case $this->values->PARALLELEPIPED_BREADED:
-                                    case $this->values->PARALLELEPIPED_LAYING:
-                                        break;
-                                }
-                            } else {
-                                //  1D
-                                $ldNodeNb1 = $ldNodeNb3 = 1;
-                            }
-
-                            for ($i = 0; $i < count($t); $i ++) {
-                                if (isset($pointMeshOrder2['points'][$i])) {
-                                    $ldNodeNb2 = $pointMeshOrder2['points'][$i];
-                                    // ============get the temp
-                                    $Dt = $t[$i];
-                                    $this->product->PropagationTempElmt($product, $ldNodeNb1, $ldNodeNb2, $ldNodeNb3, $Dt);
-                                }
-                            }
-                                    
-                            // save Flag ProdElmt NON ISO to 2
-                            $pb->PROD_ELMT_ISO = $this->values->PRODELT_NOT_ISOTHERM;
-                            $pb->save();//updateProductELMT
+                            $this->productElmts->PropagationTempProdElmtIso($pe, false);
                         }
+
+                        $pb->PROD_ELMT_ISO = $this->values->PRODELT_ISOTHERM;
+                        $pb->save();
+                            
+                    } else {
+                        if ($pb->ID_SHAPE == $this->values->PARALLELEPIPED_BREADED) {
+                            throw new \Exception("BREADED PARALLELEPIPED: product element must be isotherm");
+                        }
+           
+                        $pointMeshOrder2 = $this->product->searchNbPtforElmt($pb, 2)['points'];
+
+                        $t = $pe['initTemp'];
+                        $t2 = [];
+                        
+                        if ((count($t) != count($pointMeshOrder2)) || ($t == null)) {
+                            // in case of new mesh generation without T°ini, intiliaze T° in to zero
+                            for ($i = 0; $i < count($pointMeshOrder2); $i++) {
+                                if ($i < count($t)) {
+                                    $t2[] = $t[$i];
+                                } else {
+                                    $t2[] = 0;
+                                }
+                            }
+                            $t = $t2;
+                        }
+
+                        if ($this->studies->isStudyHasParent($study)) {
+                            //  3D: dispatch this temp
+                            $ldNodeNb1 = $prodMeshgene->MESH_1_NB;
+                            $ldNodeNb3 = $prodMeshgene->MESH_3_NB;
+                            switch ($pb->ID_SHAPE) {
+                                case $this->values->SLAB:
+                                case $this->values->SPHERE:
+                                    $ldNodeNb1 = $ldNodeNb3 = 1;
+                                    break;
+                                case $this->values->CYLINDER_STANDING:
+                                case $this->values->CYLINDER_CONCENTRIC_LAYING:
+                                case $this->values->CYLINDER_LAYING:
+                                case $this->values->CYLINDER_CONCENTRIC_STANDING:
+                                    $ldNodeNb3 = 1;
+                                    break;
+                                case $this->values->PARALLELEPIPED_STANDING:
+                                case $this->values->PARALLELEPIPED_BREADED:
+                                case $this->values->PARALLELEPIPED_LAYING:
+                                    break;
+                            }
+                        } else {
+                            $ldNodeNb1 = $ldNodeNb3 = 1;
+                        }
+
+                        for ($i = 0; $i < count($t); $i ++) {
+                            if (isset($pointMeshOrder2['points'][$i])) {
+                                $ldNodeNb2 = $pointMeshOrder2['points'][$i];
+                                // ============get the temp
+                                $Dt = $t[$i];
+                                $this->product->PropagationTempElmt($product, $ldNodeNb1, $ldNodeNb2, $ldNodeNb3, $Dt);
+                            }
+                        }
+                                
+                        // save Flag ProdElmt NON ISO to 2
+                        $pb->PROD_ELMT_ISO = $this->values->PRODELT_NOT_ISOTHERM;
+                        $pb->save();
                     }
-                } // end of foreach
-                $saveTemp = true;
-            }
+                }
+            } // end of foreach
+            $saveTemp = true;
+
 
             if ($saveTemp) {
                 $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY);
