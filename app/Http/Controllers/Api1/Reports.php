@@ -2481,6 +2481,7 @@ class Reports extends Controller
         $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
         $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase, 
         $symbol, $host, $pro2Dchart, $params, $shapeCode, $economic);
+        // file_put_contents("/home/huytd/adasd", $economic);
         fwrite($myfile, $html);
         fclose($myfile);
         $url = ["url" => "$host/reports/$study->USERNAM/$name_report"];
