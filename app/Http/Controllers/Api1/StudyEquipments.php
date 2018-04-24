@@ -50,7 +50,7 @@ class StudyEquipments extends Controller
         $this->equip = $equip;
         $this->unit = $unit;
         $this->brain = $brain;
-        $this->studyEquip = $studyEquip;
+        $this->stdeqp = $stdeqp;
     }
 
     public function getStudyEquipmentById($id)
@@ -157,7 +157,7 @@ class StudyEquipments extends Controller
         $studyEquipment->tr = $this->brain->getListTr($id);
         $studyEquipment->ts = $this->brain->getListTs($id);
         $studyEquipment->vc = $this->brain->getVc($id);
-        $studyEquipment->alpha = $this->studyEquip->loadAlphaCoef($studyEquipment);
+        $studyEquipment->alpha = $this->stdeqp->loadAlphaCoef($studyEquipment);
         $studyEquipment->TExt = $this->unit->exhaustTemperature($this->brain->getTExt($id));
         $calculationParameter = $studyEquipment->calculationParameters->first();
         $calculationParameter->STUDY_ALPHA_TOP_FIXED = ($calculationParameter->STUDY_ALPHA_TOP_FIXE == 1) ? true : false;
@@ -198,7 +198,7 @@ class StudyEquipments extends Controller
             'LIMIT_MAX' => 0,
         ];
 
-        $tempExts = $this->studyEquip->loadExhaustGasTemperature($studyEquipment);
+        $tempExts = $this->stdeqp->loadExhaustGasTemperature($studyEquipment);
         $resultTempExts = [];
         if (count($tempExts) > 0) {
             foreach ($tempExts as $tempExt) {
