@@ -540,8 +540,8 @@ class Products extends Controller
                         }
 
                         for ($i = 0; $i < count($t); $i ++) {
-                            if (isset($pointMeshOrder2['points'][$i])) {
-                                $ldNodeNb2 = $pointMeshOrder2['points'][$i];
+                            if (isset($pointMeshOrder2[$i])) {
+                                $ldNodeNb2 = $pointMeshOrder2[$i];
                                 // ============get the temp
                                 $Dt = $t[$i];
                                 $this->product->PropagationTempElmt($product, $ldNodeNb1, $ldNodeNb2, $ldNodeNb3, $Dt);
