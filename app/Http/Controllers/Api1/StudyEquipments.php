@@ -154,7 +154,12 @@ class StudyEquipments extends Controller
     {
         $studyEquipment = StudyEquipment::where('ID_STUDY_EQUIPMENTS', $id)->first();
 
-        $studyEquipment->tr = $this->brain->getListTr($id);
+        $listTr = $this->brain->getListTr($id);
+        $trResult = [];
+        foreach ($listTr as $tr) {
+            $trResult[] = $this->unit->controlTemperature($tr);
+        }
+        $studyEquipment->tr = $trResult;
         $studyEquipment->ts = $this->brain->getListTs($id);
         $studyEquipment->vc = $this->brain->getVc($id);
         $studyEquipment->alpha = $this->stdeqp->loadAlphaCoef($studyEquipment);
