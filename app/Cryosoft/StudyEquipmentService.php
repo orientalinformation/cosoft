@@ -31,6 +31,8 @@ class StudyEquipmentService
         $this->value = $app['App\\Cryosoft\\ValueListService'];
         $this->convert = $app['App\\Cryosoft\\UnitsConverterService'];
         $this->kernel = $app['App\\Kernel\\KernelService'];
+        $this->equip = $app['App\\Cryosoft\\EquipmentsService'];
+        $this->brain = $app['App\\Cryosoft\\BrainCalculateService'];
     }
 
     public function calculateEquipmentParams(StudyEquipment &$sEquip) 
@@ -783,40 +785,140 @@ class StudyEquipmentService
             if ($calcParams->STUDY_ALPHA_TOP_FIXED == true) {
                 $alpha[0] = $this->convert->convectionCoeff($calcParams->STUDY_ALPHA_TOP);
             } else {
-                $alpha[0] = $this->convert->convectionCoeff(0.0);
+                $alpha[0] = $this->convert->convectionCoeff(0.00);
             }
 
             if ($calcParams->STUDY_ALPHA_BOTTOM_FIXED == true) {
                 $alpha[1] = $calcParams->STUDY_ALPHA_BOTTOM;
             } else {
-                $alpha[1] = $this->convert->convectionCoeff(0.0);
+                $alpha[1] = $this->convert->convectionCoeff(0.00);
             }
 
             if ($calcParams->STUDY_ALPHA_LEFT_FIXED == true) {
                 $alpha[2] = $calcParams->STUDY_ALPHA_LEFT;
             } else {
-                $alpha[2] = $this->convert->convectionCoeff(0.0);
+                $alpha[2] = $this->convert->convectionCoeff(0.00);
             }
 
             if ($calcParams->STUDY_ALPHA_RIGHT_FIXED == true) {
                 $alpha[3] = $calcParams->STUDY_ALPHA_RIGHT;
             } else {
-                $alpha[3] = $this->convert->convectionCoeff(0.0);
+                $alpha[3] = $this->convert->convectionCoeff(0.00);
             }
 
             if ($calcParams->STUDY_ALPHA_FRONT_FIXED == true) {
                 $alpha[4] = $calcParams->STUDY_ALPHA_FRONT;
             } else {
-                $alpha[4] = $this->convert->convectionCoeff(0.0);
+                $alpha[4] = $this->convert->convectionCoeff(0.00);
             }
 
             if ($calcParams->STUDY_ALPHA_REAR_FIXED == true) {
                 $alpha[5] = $calcParams->STUDY_ALPHA_REAR;
             } else {
-                $alpha[5] = $this->convert->convectionCoeff(0.0);
+                $alpha[5] = $this->convert->convectionCoeff(0.00);
             }
         }
 
         return $alpha;
+    }
+
+    public function updateEquipmentData(&$studyEquipment)
+    {
+        if ($this->equip->getCapability($studyEquipment->CAPABILITIES, 1) && !empty($studyEquipment->tr)) {
+            $this->cleanSpecificEqpPrm($studyEquipment->ID_STUDY_EQUIPMENTS, 300);
+            $i = 0;
+            foreach ($studyEquipment->tr as $tr) {
+                $studEqpPrm = new StudEqpPrm();
+                $studEqpPrm->ID_STUDY_EQUIPMENTS = $studyEquipment->ID_STUDY_EQUIPMENTS;
+                $studEqpPrm->VALUE_TYPE = 300 + $i;
+                $studEqpPrm->VALUE = doubleval($tr);
+                $studEqpPrm->save();
+                $i++;
+            }
+        }
+
+        if (!empty($studyEquipment->ts)) {
+            $this->cleanSpecificEqpPrm($studyEquipment->ID_STUDY_EQUIPMENTS, 200);
+            $i = 0;
+            foreach ($studyEquipment->ts as $ts) {
+                $studEqpPrm = new StudEqpPrm();
+                $studEqpPrm->ID_STUDY_EQUIPMENTS = $studyEquipment->ID_STUDY_EQUIPMENTS;
+                $studEqpPrm->VALUE_TYPE = 200 + $i;
+                $studEqpPrm->VALUE = doubleval($ts);
+                $studEqpPrm->save();
+                $i++;
+            }
+        }
+
+        if ($this->equip->getCapability($studyEquipment->CAPABILITIES, 4) && !empty($studyEquipment->vc)) {
+            $this->cleanSpecificEqpPrm($studyEquipment->ID_STUDY_EQUIPMENTS, 300);
+            $i = 0;
+            foreach ($studyEquipment->vc as $vc) {
+                $studEqpPrm = new StudEqpPrm();
+                $studEqpPrm->ID_STUDY_EQUIPMENTS = $studyEquipment->ID_STUDY_EQUIPMENTS;
+                $studEqpPrm->VALUE_TYPE = 100 + $i;
+                $studEqpPrm->VALUE = doubleval($vc);
+                $studEqpPrm->save();
+                $i++;
+            }
+        }
+
+        if (!empty($studyEquipment->dh)) {
+            $this->cleanSpecificEqpPrm($studyEquipment->ID_STUDY_EQUIPMENTS, 400);
+            $i = 0;
+            foreach ($studyEquipment->dh as $dh) {
+                $studEqpPrm = new StudEqpPrm();
+                $studEqpPrm->ID_STUDY_EQUIPMENTS = $studyEquipment->ID_STUDY_EQUIPMENTS;
+                $studEqpPrm->VALUE_TYPE = 400 + $i;
+                $studEqpPrm->VALUE = doubleval($dh);
+                $studEqpPrm->save();
+                $i++;
+            }
+        }
+
+        if ($this->equip->getCapability($studyEquipment->CAPABILITIES, 512) && !empty($studyEquipment->tExt)) {
+            $this->cleanSpecificEqpPrm($studyEquipment->ID_STUDY_EQUIPMENTS, 500);
+            $studEqpPrm = new StudEqpPrm();
+            $studEqpPrm->ID_STUDY_EQUIPMENTS = $studyEquipment->ID_STUDY_EQUIPMENTS;
+            $studEqpPrm->VALUE_TYPE = 500;
+            $studEqpPrm->VALUE = doubleval($studyEquipment->tExt);
+            $studEqpPrm->save();
+        }
+
+        //data value
+        $calculationParameters = $studyEquipment->calculationParameters->first();
+        //post value
+        $calculationParameter = $studyEquipment->calculation_parameter;
+        //update value
+        $calculationParameters->STUDY_ALPHA_TOP_FIXED = ($calculationParameter->STUDY_ALPHA_TOP_FIXED) ? 1 : 0;
+        $calculationParameters->STUDY_ALPHA_BOTTOM_FIXED = ($calculationParameter->STUDY_ALPHA_BOTTOM_FIXED) ? 1 : 0;
+        $calculationParameters->STUDY_ALPHA_LEFT_FIXED = ($calculationParameter->STUDY_ALPHA_LEFT_FIXED) ? 1 : 0;
+        $calculationParameters->STUDY_ALPHA_RIGHT_FIXED = ($calculationParameter->STUDY_ALPHA_RIGHT_FIXED) ? 1 : 0;
+        $calculationParameters->STUDY_ALPHA_FRONT_FIXED = ($calculationParameter->STUDY_ALPHA_FRONT_FIXED) ? 1 : 0;
+        $calculationParameters->STUDY_ALPHA_REAR_FIXED = ($calculationParameter->STUDY_ALPHA_REAR_FIXED) ? 1 : 0;
+        $calculationParameters->STUDY_ALPHA_TOP = ($calculationParameter->STUDY_ALPHA_TOP_FIXED) ? doubleval($this->convert->convectionCoeff($calculationParameter->STUDY_ALPHA_TOP, ['save' => true])) : '0.0';
+        $calculationParameters->STUDY_ALPHA_BOTTOM = ($calculationParameter->STUDY_ALPHA_BOTTOM_FIXED) ? doubleval($this->convert->convectionCoeff($calculationParameter->STUDY_ALPHA_BOTTOM, ['save' => true])) : '0.0';
+        $calculationParameters->STUDY_ALPHA_LEFT = ($calculationParameter->STUDY_ALPHA_LEFT_FIXED) ? doubleval($this->convert->convectionCoeff($calculationParameter->STUDY_ALPHA_LEFT, ['save' => true])) : '0.0';
+        $calculationParameters->STUDY_ALPHA_RIGHT = ($calculationParameter->STUDY_ALPHA_RIGHT_FIXED) ? doubleval($this->convert->convectionCoeff($calculationParameter->STUDY_ALPHA_RIGHT, ['save' => true])) : '0.0';
+        $calculationParameters->STUDY_ALPHA_FRONT = ($calculationParameter->STUDY_ALPHA_FRONT_FIXED) ? doubleval($this->convert->convectionCoeff($calculationParameter->STUDY_ALPHA_FRONT, ['save' => true])) : '0.0';
+        $calculationParameters->STUDY_ALPHA_REAR = ($calculationParameter->STUDY_ALPHA_REAR_FIXED) ? doubleval($this->convert->convectionCoeff($calculationParameter->STUDY_ALPHA_REAR, ['save' => true])) : '0.0';
+        $calculationParameters->save();
+    }
+
+    public function cleanSpecificEqpPrm($idStudyEquipment, $valueType) {
+        $studEqpPrm = StudEqpPrm::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->where('VALUE_TYPE', '>=', $valueType)->where('VALUE_TYPE', '<', $valueType + 100)->delete();
+    }
+
+    public function runStudyCleaner($idStudy, $idStudyEquipment, $number)
+    {
+        $ret = 0;
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
+        $ret = $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, $number);
+
+        if ($ret == 0 && $this->cal->isStudyHasChilds($idStudy)) {
+            $this->cal->getCalculableStudyEquipments($idStudy, $idStudyEquipment);
+        }
+
+        return $ret;    
     }
 }

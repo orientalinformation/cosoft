@@ -165,7 +165,7 @@ class StudyEquipments extends Controller
         $studyEquipment->alpha = $this->stdeqp->loadAlphaCoef($studyEquipment);
         $studyEquipment->TExt = $this->unit->exhaustTemperature($this->brain->getTExt($id));
         $calculationParameter = $studyEquipment->calculationParameters->first();
-        $calculationParameter->STUDY_ALPHA_TOP_FIXED = ($calculationParameter->STUDY_ALPHA_TOP_FIXE == 1) ? true : false;
+        $calculationParameter->STUDY_ALPHA_TOP_FIXED = ($calculationParameter->STUDY_ALPHA_TOP_FIXED == 1) ? true : false;
         $calculationParameter->STUDY_ALPHA_BOTTOM_FIXED = ($calculationParameter->STUDY_ALPHA_BOTTOM_FIXED == 1) ? true : false;
         $calculationParameter->STUDY_ALPHA_LEFT_FIXED = ($calculationParameter->STUDY_ALPHA_LEFT_FIXED == 1) ? true : false;
         $calculationParameter->STUDY_ALPHA_RIGHT_FIXED = ($calculationParameter->STUDY_ALPHA_RIGHT_FIXED == 1) ? true : false;
@@ -217,6 +217,20 @@ class StudyEquipments extends Controller
 
 
         return compact('resultTempExts', 'studyEquipment');
+    }
+
+    public function saveEquipmentData($id)
+    {
+        $studyEquipment = StudyEquipment::where('ID_STUDY_EQUIPMENTS', $id)->first();
+        $input = $this->request->all();
+        $studyEquipment->ts = $input['ts'];
+        $studyEquipment->tr = $input['tr'];
+        $studyEquipment->vc = $input['vc'];
+        $studyEquipment->tExt = $input['TExt'];
+        $studyEquipment->calculation_parameter = (object) $input['calculation_parameter'];
+        $this->stdeqp->updateEquipmentData($studyEquipment);
+        return 1;
+        // $this->stdeqp->runStudyCleaner($studyEquipment->ID_STUDY, $id, 54);
     }
 
     public function getStudyEquipmentLayout($id) 
