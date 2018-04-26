@@ -34,6 +34,7 @@ use Symfony\Component\HttpFoundation\UploadedFile;
 use Symfony\Component\HttpFoundation\File;
 use Psr\Http\Message\StreamInterface;
 use  Illuminate\Database\Query\Builder;
+use App\Cryosoft\UnitsService;
 // end HAIDT
 
 
@@ -80,6 +81,10 @@ class Reports extends Controller
      * @var \App\CryoSoft\StudyService
      */
     protected $study;
+    /**
+	 * @var App\Cryosoft\UnitsService
+	 */
+    protected $units;
 
     /**
      * Create a new controller instance.
@@ -88,7 +93,7 @@ class Reports extends Controller
      */
     public function __construct(Request $request, Auth $auth, UnitsConverterService $convert, 
     ValueListService $value, StudyEquipmentService $stdeqp, Lines $pipelines, 
-    ReportService $reportserv, MinMaxService $minmax, StudyService $study)
+    ReportService $reportserv, MinMaxService $minmax, StudyService $study, UnitsService $units)
     {
         $this->request = $request;
         $this->auth = $auth;
@@ -99,6 +104,7 @@ class Reports extends Controller
         $this->reportserv = $reportserv;
         $this->minmax = $minmax;
         $this->study = $study;
+        $this->units = $units;
     }
 
     public function writeProgressFile($fileName, $content) {
@@ -123,7 +129,9 @@ class Reports extends Controller
         $report = Report::where('ID_STUDY', $id)->first();
 
         if ($report) {
-            $report->consumptionSymbol = $this->convert->consumptionSymbolUser(2, 1);
+
+            $report->consumptionSymbol = $this->units->consumptionSymbol($stuequip->ID_COOLING_FAMILY, 1);
+
             $report->isSizingValuesChosen = ($report->SIZING_VALUES & 1);
             $report->isSizingValuesMax = ($report->SIZING_VALUES & 16);
             $studyEquip = StudyEquipment::where('ID_STUDY', $id)->where('BRAIN_TYPE', 4)->get();
@@ -138,15 +146,19 @@ class Reports extends Controller
             $report->productElmt = $productElmt;
             $report->temperatureSymbol = $this->convert->temperatureSymbolUser();
             $report->CONTOUR2D_TEMP_STEP = doubleval($report->CONTOUR2D_TEMP_STEP);
-            $report->CONTOUR2D_TEMP_MIN = doubleval($this->convert->prodTemperature($report->CONTOUR2D_TEMP_MIN));
-            $report->CONTOUR2D_TEMP_MAX = doubleval($this->convert->prodTemperature($report->CONTOUR2D_TEMP_MAX));
+
+            $report->CONTOUR2D_TEMP_MIN = $this->units->prodTemperature($report->CONTOUR2D_TEMP_MIN, 1, 1);
+            $report->CONTOUR2D_TEMP_MAX = $this->units->prodTemperature($report->CONTOUR2D_TEMP_MAX, 1, 1);
+
+
             $borne = $this->getReportTemperatureBorne($id); 
-            $report->refContRep2DTempMinRef = $this->convert->prodTemperature($borne[0]->MIN_TEMP);
-            $report->refContRep2DTempMaxRef = $this->convert->prodTemperature($borne[0]->MAX_TEMP);
+            $report->refContRep2DTempMinRef = doubleval($borne[0]->MIN_TEMP);
+            $report->refContRep2DTempMaxRef = doubleval($borne[0]->MAX_TEMP);
 
             $pasTemp = $this->calculatePasTemp($report->refContRep2DTempMinRef, $report->refContRep2DTempMaxRef, true);
-            $report->refContRep2DTempMinRef = doubleval($pasTemp['dTmin']);
-            $report->refContRep2DTempMaxRef = doubleval($pasTemp['dTMax']);
+            $report->refContRep2DTempMinRef = $this->units->prodTemperature(doubleval($pasTemp['dTmin']), 1, 1);
+            $report->refContRep2DTempMaxRef = $this->units->prodTemperature(doubleval($pasTemp['dTMax']), 1, 1);
+
             $report->refContRep2DTempStepRef = doubleval($pasTemp['dpas']);
 
         } else {
@@ -219,6 +231,17 @@ class Reports extends Controller
             $report->PLAN_Z = 0;
             $report->ASSES_ECO = 0;
             $report->save();
+
+            $report->consumptionSymbol = $this->units->consumptionSymbol($stuequip->ID_COOLING_FAMILY, 1);
+            $report->temperatureSymbol = $this->convert->temperatureSymbolUser();
+
+            $report->refContRep2DTempMinRef = 0;
+            $report->refContRep2DTempMaxRef = 0;
+
+            $report->refContRep2DTempMinRef = 0;
+            $report->refContRep2DTempMaxRef = 0;
+            $report->refContRep2DTempStepRef = 0;
+
         }
         // HAIDT
         $report->ip = getenv('APP_URL');
