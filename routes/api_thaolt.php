@@ -73,6 +73,14 @@ $router->GET('/api/v1/recentStudies', 'Api1\\Studies@recentStudies');
 $router->GET('/api/v1/studyEquipment/{id}', 'Api1\\StudyEquipments@getStudyEquipmentById');
 
 /**
+ * GET StudyEquipments
+ * Summary: 
+ * Notes: get study equipment by id
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/studyEquipment/{id}/layout', 'Api1\\StudyEquipments@getStudyEquipmentLayout');
+
+/**
  * PUT addEquipment
  * Summary: 
  * Notes: 

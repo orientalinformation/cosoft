@@ -28,20 +28,29 @@ class StudyEquipments extends Controller
      */
     protected $auth;
 
+    /**
+     * @var App\Cryosoft\StudyEquipmentService
+     */
+    protected $stdeqp;
+
 
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth, EquipmentsService $equip, UnitsConverterService $unit, BrainCalculateService $brain, StudyEquipmentService $studyEquip)
+    public function __construct(Request $request, Auth $auth, 
+        EquipmentsService $equip, UnitsConverterService $unit, 
+        BrainCalculateService $brain,
+        StudyEquipmentService $stdeqp
+    )
     {
         $this->request = $request;
         $this->auth = $auth;
         $this->equip = $equip;
         $this->unit = $unit;
         $this->brain = $brain;
-        $this->studyEquip = $studyEquip;
+        $this->stdeqp = $stdeqp;
     }
 
     public function getStudyEquipmentById($id)
@@ -148,7 +157,7 @@ class StudyEquipments extends Controller
         $studyEquipment->tr = $this->brain->getListTr($id);
         $studyEquipment->ts = $this->brain->getListTs($id);
         $studyEquipment->vc = $this->brain->getVc($id);
-        $studyEquipment->alpha = $this->studyEquip->loadAlphaCoef($studyEquipment);
+        $studyEquipment->alpha = $this->stdeqp->loadAlphaCoef($studyEquipment);
         $studyEquipment->TExt = $this->unit->exhaustTemperature($this->brain->getTExt($id));
         $calculationParameter = $studyEquipment->calculationParameters->first();
         $calculationParameter->STUDY_ALPHA_TOP_FIXED = ($calculationParameter->STUDY_ALPHA_TOP_FIXE == 1) ? true : false;
@@ -189,7 +198,7 @@ class StudyEquipments extends Controller
             'LIMIT_MAX' => 0,
         ];
 
-        $tempExts = $this->studyEquip->loadExhaustGasTemperature($studyEquipment);
+        $tempExts = $this->stdeqp->loadExhaustGasTemperature($studyEquipment);
         $resultTempExts = [];
         if (count($tempExts) > 0) {
             foreach ($tempExts as $tempExt) {
@@ -203,5 +212,11 @@ class StudyEquipments extends Controller
 
 
         return compact('resultTempExts', 'studyEquipment');
+    }
+
+    public function getStudyEquipmentLayout($id) 
+    {
+        return response($this->stdeqp->generateLayoutPreview())
+            ->header('Content-Type', 'text/plain');
     }
 }
