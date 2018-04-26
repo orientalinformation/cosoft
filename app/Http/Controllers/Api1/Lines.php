@@ -469,7 +469,7 @@ class Lines extends Controller
         $tees = $input['TEESVALUE'];
         $elbows = $input['ELBOWSVALUE'];
         $storageTank = $input['STORAGE_TANK'];
-        $insulatedLineLength = ($input['INSULLINE_LENGHT'] == 0) ? 0 : $this->convert->lineDimensionSave($input['INSULLINE_LENGHT']);
+        $insulatedLineLength = $input['INSULLINE_LENGHT'] == 0 ? 0 : $this->convert->lineDimensionSave($input['INSULLINE_LENGHT']);
         $nonInsulatedLineLength = ($input['NOINSULLINE_LENGHT'] == 0) ? 0 : $this->convert->lineDimensionSave($input['NOINSULLINE_LENGHT']);
         $insulatedValvesQuantity = $input['INSUL_VALVES'];
         $nonInsulatedValvesQuantity = $input['NOINSUL_VALVES'];
@@ -511,7 +511,7 @@ class Lines extends Controller
             }
             
             if ($checkValueInsulllenght) {
-                if ((is_float($insulatedLineLength)) || $insulatedLineLength == "") {
+                if ((preg_match('/[0-9]/', $input['INSULLINE_LENGHT']))) {
                     $pipegen->INSULLINE_LENGHT = $insulatedLineLength;
                 } else {
                     return response("Not a valid number in Length !" ,406);
@@ -522,7 +522,7 @@ class Lines extends Controller
             }
 
             if ($checkValueNoninsullenght) {
-                if (is_float($nonInsulatedLineLength) || $nonInsulatedLineLength == "") {
+                if ((preg_match('/[0-9]/', $input['NOINSULLINE_LENGHT']))) {
                     $pipegen->NOINSULLINE_LENGHT = $nonInsulatedLineLength;
                 } else {
                     return response("Not a valid number in Length !" ,406);
