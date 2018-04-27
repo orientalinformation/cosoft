@@ -235,9 +235,10 @@ class StudyEquipments extends Controller
 
     public function getStudyEquipmentLayout($id) 
     {
+        $input = $this->request->all();
         $stdeqp = StudyEquipment::findOrFail($id);
 
-        return response('data:image/jpeg;base64,'.$this->stdeqp->generateLayoutPreview($stdeqp))
+        return response('data:image/jpeg;base64,'.$this->stdeqp->generateLayoutPreview($stdeqp, $input))
             ->header('Content-Type', 'text/plain');
     }
 }
