@@ -197,11 +197,21 @@ class Products extends Controller
 
         $products = \App\Models\ProductElmt::where('ID_PROD', $id)->orderBy('SHAPE_POS2', 'DESC')->get();
         $specificDimension = 0.0;
+        $count = count($products);
 
         $elements = [];
         foreach ($products as $key => $pr) {
             $elements[$key] = $pr;
-            $specificDimension += $pr->SHAPE_PARAM2;
+
+            if ($pr->ID_SHAPE == $this->values->CYLINDER_CONCENTRIC_STANDING || $pr->ID_SHAPE == $this->values->CYLINDER_CONCENTRIC_LAYING) {
+                if ($key < $count - 1)
+                    $specificDimension += $pr->SHAPE_PARAM2 * 2;
+                else
+                    $specificDimension += $pr->SHAPE_PARAM2;
+            } else {
+                $specificDimension += $pr->SHAPE_PARAM2;
+            }
+
             $elements[$key]['SHAPE_PARAM1'] = $this->unit->prodDimension($pr->SHAPE_PARAM1);
             $elements[$key]['SHAPE_PARAM2'] = $this->unit->prodDimension($pr->SHAPE_PARAM2);
             $elements[$key]['SHAPE_PARAM3'] = $this->unit->prodDimension($pr->SHAPE_PARAM3);
