@@ -1096,4 +1096,17 @@ class UnitsConverterService
 
         return $sValue;
     }
+
+    public function convertToDouble($value)
+    {
+        return floatval($value);
+    }
+
+    public function carpetWidth ($value) {
+        $unit = Unit::where('TYPE_UNIT', W_CARPET_SHELVES)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B);
+    }
 }

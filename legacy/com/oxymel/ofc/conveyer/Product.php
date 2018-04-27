@@ -1,4 +1,8 @@
 <?php
+
+namespace com\oxymel\ofcconveyer;
+use java\lang\StringBuffer;
+
 class Product {
     protected $_height;	// double
     protected $_width;	// double
@@ -14,6 +18,7 @@ class Product {
     public static $CYLINDER_CONCENTRIC_STANDING;	// short
     public static $CYLINDER_CONCENTRIC_LAYING;	// short
     public static $PARALLELEPIPED_BREADED;	// short
+
     private function __init() { // default class members
         $this->_svgHeight = 0;
         $this->_svgWidth = 0;
@@ -38,15 +43,18 @@ class Product {
         $me->_shape = $shape;
         return $me;
     }
-    protected function getHeight () 
+
+    public function getHeight () 
     {
         return $this->_svgHeight;
     }
-    protected function getWidth () 
+
+    public function getWidth () 
     {
         return $this->_svgWidth;
     }
-    protected function scale ($containerHeight, $containerWidth, $realHeight, $realWidth, $isParallel) // [double containerHeight, double containerWidth, double realHeight, double realWidth, boolean isParallel]
+
+    public function scale ($containerHeight, $containerWidth, $realHeight, $realWidth, $isParallel) // [double containerHeight, double containerWidth, double realHeight, double realWidth, boolean isParallel]
     {
         $tmpy = null;
         $tmpx = null;
@@ -63,7 +71,8 @@ class Product {
         $this->_svgHeight = ((($containerHeight * $tmpy)) / $realHeight);
         $this->_svgWidth = ((($containerWidth * $tmpx)) / $realWidth);
     }
-    protected function getSVG ($x, $y) // [double x, double y]
+
+    public function getSVG ($x, $y) // [double x, double y]
     {
         $tmp = new StringBuffer();
         $r = null;
@@ -89,10 +98,12 @@ class Product {
         }
         return $tmp;
     }
+
     public function get_shape () 
     {
         return $this->_shape;
     }
+    
     public function set_shape ($s) // [short s]
     {
         $this->_shape = $s;
