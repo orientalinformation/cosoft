@@ -205,7 +205,7 @@ class ReferenceData extends Controller
 
         $comp = Component::join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')
         ->where('Translation.TRANS_TYPE', 1)
-        ->where('Translation.ID_TRANSLATION', '914')
+        ->where('Translation.ID_TRANSLATION', $id)
         ->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->first();
 
         if ($comp) {
@@ -395,7 +395,13 @@ class ReferenceData extends Controller
         } else {
             $component->COMP_VERSION = $COMP_VERSION;
         }
-        $component->COMP_RELEASE = $release;
+
+        if ($TYPE_COMP == 3) {
+            $component->COMP_RELEASE = 7;
+        } else {
+            $component->COMP_RELEASE = $release;
+        }
+        
         $component->COMP_NATURE = $NATURE_TYPE;
         $component->FAT_TYPE = $FATTYPE;
         $component->CLASS_TYPE = $PRODUCT_TYPE;
