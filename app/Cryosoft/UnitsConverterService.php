@@ -341,16 +341,7 @@ class UnitsConverterService
 
     public function carpetWidthSymbol()
     {
-        $unit = Unit::where('TYPE_UNIT', W_CARPET_SHELVES)
-        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
-        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
-        ->first();
-        return $unit->SYMBOL;
-    }
-
-    public function shelvesWidthSymbol()
-    {
-        $unit = Unit::where('TYPE_UNIT', W_CARPET_SHELVES)
+        $unit = Unit::where('TYPE_UNIT', $this->value->W_CARPET_SHELVES)
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
@@ -362,7 +353,6 @@ class UnitsConverterService
         $uMoney = $this->uMoney();
         return $uMoney["symbol"];
     }
-
 
     public function consumptionSymbol($energy, $type) 
     {
