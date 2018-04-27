@@ -467,9 +467,16 @@
                     <td colspan="4" align="center"><?php echo $cryogenPipeline['dataResultExist']['storageTankName'] ?></td>
                     <td colspan="2" align="center"><?php echo "" ?></td>
                 </tr>
+                <tr>
+                    <td colspan="6"><b>Tank pressure :</b> </td>
+                    <td colspan="2" align="center"><?php echo $cryogenPipeline['dataResultExist']['pressuer'] ?> <?php echo "(" . $arrayParam['symbol']['pressureSymbol'] . " )" ?></td>
+                </tr>
+                <tr>
+                    <td colspan="6"><b>Equipment elevation above tank outlet. :</b></td>
+                    <td colspan="2" align="center"><?php echo $cryogenPipeline['dataResultExist']['height'] ?> <?php echo "(" . $arrayParam['symbol']['materialRiseSymbol'] . " )" ?></td>
+                </tr>
+
             </table>
-            <div id="pressuer"><b>Tank pressure :</b> <?php echo $cryogenPipeline['dataResultExist']['pressuer'] ?> <?php echo "(" . $arrayParam['symbol']['pressureSymbol'] . " )" ?></div>
-            <div id="height"><b>Equipment elevation above tank outlet. :</b><?php echo $cryogenPipeline['dataResultExist']['height'] ?> <?php echo "(" . $arrayParam['symbol']['materialRiseSymbol'] . " )" ?></div>
             </div>
         </div>
         <?php } ?>

@@ -1451,9 +1451,15 @@ class Reports extends Controller
                                     <td colspan="4" align="center">'. ($cryogenPipeline['dataResultExist']['storageTankName']) .'</td>
                                     <td colspan="2" align="center"></td>
                                 </tr>
+                                <tr>
+                                    <td colspan="6"><strong>Tank pressure :</strong> </td>
+                                    <td colspan="2" align="center">'. ($cryogenPipeline['dataResultExist']['pressuer']) .' ('.$symbol['pressureSymbol'].')</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="6"><strong>Equipment elevation above tank outlet. :</strong></td>
+                                    <td colspan="2" align="center">'. ($cryogenPipeline['dataResultExist']['height']) .' ('.$symbol['materialRiseSymbol'].')</td>
+                                </tr>
                             </table>
-                            <div id="pressuer"><strong>Tank pressure :</strong> '. ($cryogenPipeline['dataResultExist']['pressuer']) .' ('.$symbol['pressureSymbol'].')</div>
-                            <div id="height"><strong>Equipment elevation above tank outlet. :</strong>'. ($cryogenPipeline['dataResultExist']['height']) .' ('.$symbol['materialRiseSymbol'].')</div>
                         </div>
                     </div>';
                     PDF::writeHTML($html, true, false, true, false, '');
