@@ -6,6 +6,8 @@
     "type": "project",
     "require": {
         "php": ">=7.0",
+        "ext-gd": "*",
+        "ext-imagick": "*",
         "laravel/lumen-framework": "5.5.*",
         "vlucas/phpdotenv": "~2.2",
         "nordsoftware/lumen-cors": "^2.2",

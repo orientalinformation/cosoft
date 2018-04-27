@@ -847,7 +847,7 @@ class StudyEquipmentService
             throw new Exception("Unable to generate SVG image");
         }
 
-        file_put_contents('/home/thaolt/test.svg', $svg);
+        // file_put_contents('/home/thaolt/test.svg', $svg);
 
         $image = new \Imagick();
         $image->readImageBlob($svg);
@@ -1034,5 +1034,11 @@ class StudyEquipmentService
         }
 
         return $ret;    
+    }
+
+    public function runSizingCalculator($idStudy, $idStudyEquipment)
+    {
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
+        return $this->kernel->getKernelObject('DimMatCalculator')->DMCCalculation($conf, 2);
     }
 }
