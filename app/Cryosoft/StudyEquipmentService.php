@@ -740,10 +740,12 @@ class StudyEquipmentService
         imageFilledRectangle($image, 50, 50, 250, 150, $colorYellow);
         
         // Set type of image and send the output
-        $base64img = base64_encode( imageJpeg($image) );
-        
+        ob_start();
+        imagejpeg($image, null, 100);
         // Release memory
         imageDestroy($image);
+        $base64img = base64_encode( ob_get_clean() );
+        
         return $base64img;
     }
 

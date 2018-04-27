@@ -215,7 +215,6 @@ class StudyEquipments extends Controller
             }
         }
 
-
         return compact('resultTempExts', 'studyEquipment');
     }
 
@@ -235,7 +234,7 @@ class StudyEquipments extends Controller
 
     public function getStudyEquipmentLayout($id) 
     {
-        return response($this->stdeqp->generateLayoutPreview())
+        return response('data:image/gif;base64,'.$this->stdeqp->generateLayoutPreview())
             ->header('Content-Type', 'text/plain');
     }
 }
