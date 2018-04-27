@@ -236,7 +236,7 @@ class StudyEquipments extends Controller
     {
         $stdeqp = StudyEquipment::findOrFail($id);
 
-        return response('data:image/gif;base64,'.$this->stdeqp->generateLayoutPreview($stdeqp))
+        return response('data:image/jpeg;base64,'.$this->stdeqp->generateLayoutPreview($stdeqp))
             ->header('Content-Type', 'text/plain');
     }
 }
