@@ -751,7 +751,6 @@ class StudyEquipmentService
         // imageDestroy($image);
         // $base64img = base64_encode( ob_get_clean() );
 
-        /** @var ConveyerTemplate */
         $cb = null;
         $equip = $sequip->equipment;
         $lfEquipLength = 0.0; // double
@@ -792,8 +791,8 @@ class StudyEquipmentService
         }
 
         // We find back the product length and width from other values
-        $plength = 0; // double
-        $pwidth = 0; // double
+        $plength = 0.0; // double
+        $pwidth = 0.0; // double
 
         $pwidth = ($lfEquipWidth - 2 * $layoutRes->LEFT_RIGHT_INTERVAL
             - $layoutGeneration->WIDTH_INTERVAL * ($layoutRes->NUMBER_IN_WIDTH - 1)) / $layoutRes->NUMBER_IN_WIDTH;
@@ -843,15 +842,17 @@ class StudyEquipmentService
         $svg = '';
 
         try {
-            $svg = $cb->getSVGImage_I_I($this->value->IMG_LAYOUTRES_HEIGHT, $this->value->IMG_LAYOUTRES_WIDTH);
+            $svg = $cb->getSVGImage_I_I(800, 800);
         } catch (Exception $e) {
             throw new Exception("Unable to generate SVG image");
         }
 
+        file_put_contents('/home/thaolt/test.svg', $svg);
+
         $image = new \Imagick();
         $image->readImageBlob($svg);
         $image->setImageFormat("jpeg");
-        $image->resizeImage($this->value->IMG_LAYOUTRES_WIDTH, $this->value->IMG_LAYOUTRES_HEIGHT, \imagick::FILTER_LANCZOS, 1);
+        $image->resizeImage(800, 800, \imagick::FILTER_LANCZOS, 1, true);
         // $image->writeImage('image.png');
         $base64img = base64_encode($image);
 
