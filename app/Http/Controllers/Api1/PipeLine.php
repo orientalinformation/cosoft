@@ -282,7 +282,7 @@ class PipeLine extends Controller
             if ($type != 2) $losses1 = 0; 
         }
 
-        if ($comment == '') $comment =  'Created on ' . $current->toDateTimeString() . ' by '. $this->auth->user()->USERNAM ;
+        // if ($comment == '') $comment =  'Created on ' . $current->toDateTimeString() . ' by '. $this->auth->user()->USERNAM ;
 
         $lineElmt = LineElmt::find($idPipeLine);
 
@@ -474,7 +474,7 @@ class PipeLine extends Controller
             $size = $this->units->tankCapacity($size, $this->value->RESERVOIR_CAPACITY_CO2, 3, 0);
             $checksize = $this->minmax->checkMinMaxValue($size, 1110);
             if ( !$checksize ) {
-                $mm = $this->minmax->getMinMaxTankCapacity(1110, 3);//getMinMaxLimitItem
+                $mm = $this->minmax->getMinMaxTankCapacity(1110, $this->value->RESERVOIR_CAPACITY_CO2, 3);//getMinMaxLimitItem
                 return  [
                     "Message" => "Value out of range in  Size (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
                 ];

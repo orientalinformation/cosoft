@@ -449,5 +449,63 @@ class UnitsService
         $uPercent = $this->uPercent();
         return $this->convertCalculator($value, $uPercent["coeffA"], $uPercent["coeffB"], $decimal, $status);
     }
+
+    public function consumptionSymbol($energy, $type) 
+    {
+        $sValue = "";
+        $sUnitLabel = "";
+
+        if ($energy == 2) {
+            switch ($type) {
+                case 1:
+                    $sUnitLabel = $this->value->CONSUMPTION_UNIT_LN2;
+                    break;
+                case 2:
+                    $sUnitLabel = $this->value->CONSUM_MAINTIEN_LN2;
+                    break;
+                case 3:
+                    $sUnitLabel = $this->value->CONSUM_MEF_LN2;
+                    break;
+                default:
+                    $sUnitLabel = $this->value->CONSUMPTION_UNIT_LN2;
+                    break;
+            }
+
+        } else if ($energy == 3) {
+            switch ($type) {
+                case 1:
+                    $sUnitLabel = $this->value->CONSUMPTION_UNIT_CO2;
+                    break;
+                case 2:
+                    $sUnitLabel = $this->value->CONSUM_MAINTIEN_CO2;
+                    break;
+                case 3:
+                    $sUnitLabel = $this->value->CONSUM_MEF_CO2;
+                    break;
+                default:
+                    $sUnitLabel = $this->value->CONSUMPTION_UNIT_CO2;
+                    break;
+            }
+        } else {
+            switch ($type) {
+                case 1:
+                    $sUnitLabel = $this->value->CONSUMPTION_UNIT;
+                    break;
+                case 2:
+                    $sUnitLabel = $this->value->CONSUM_MAINTIEN;
+                    break;
+                case 3:
+                    $sUnitLabel = $this->value->CONSUM_MEF;
+                    break;
+                default:
+                    $sUnitLabel = $this->value->CONSUMPTION_UNIT;
+            }
+        }
+        $user = $this->auth->user();
+        $unit = UserUnit::join('unit', 'user_unit.ID_UNIT', '=', 'unit.ID_UNIT')->where('ID_USER', $user->ID_USER)
+        ->where("unit.TYPE_UNIT", $sUnitLabel)->first();
+
+        return $unit->SYMBOL;
+    }
     // HAIDT
 }

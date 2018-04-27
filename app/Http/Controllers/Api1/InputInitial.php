@@ -35,6 +35,8 @@ class InputInitial extends Controller
 	 */
 	protected $auth;
 	protected $cal;
+	protected $product;
+	protected $productElmts;
 
 	public function __construct(\Laravel\Lumen\Application $app)
 	{
@@ -42,6 +44,8 @@ class InputInitial extends Controller
 		$this->auth = $app['Illuminate\\Contracts\\Auth\\Factory'];
 		$this->request = $app['Illuminate\\Http\\Request'];
 		$this->cal = $app['App\\Cryosoft\\CalculateService'];
+		$this->product = $app['App\\Cryosoft\\ProductService'];
+		$this->productElmts = $app['App\\Cryosoft\\ProductElementsService'];
 	}
 
 	public function initTempRecordPts($idStudy)
@@ -362,5 +366,50 @@ class InputInitial extends Controller
 		}
 
 		return $index;
+	}
+
+	public function getDataTempoint()
+	{
+		$input = $this->request->all();
+
+		if (isset($input['ID_PROD'])) $ID_PROD = intval($input['ID_PROD']);
+		if (isset($input['INDEX_TEMP'])) $INDEX_TEMP = intval($input['INDEX_TEMP']);
+
+		$product = Product::findOrFail($ID_PROD);
+
+        if (!$product)
+            throw new \Exception("Error Processing Request. Product ID not found", 1);
+        $elements = ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2', 'DESC')->get();
+
+        $elmtMeshPositions = [];
+        $productElmtInitTemp = [];
+        $initTempPositions = [];
+        $nbMeshPointElmt = [];
+
+        foreach ($elements as $elmt) {
+            $meshPositions = \App\Models\MeshPosition::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->orderBy('MESH_ORDER')->get();
+            array_push($elmtMeshPositions, $meshPositions);
+
+            $pointMeshOrder2 = $this->product->searchNbPtforElmt($elmt, 2);
+            array_push($initTempPositions, $pointMeshOrder2['positions']);
+            array_push($nbMeshPointElmt, count($pointMeshOrder2['points']));
+
+            $elmtInitTemp = $this->productElmts->searchTempMeshPoint($elmt, $pointMeshOrder2['points']);
+            array_push($productElmtInitTemp, $elmtInitTemp);
+        }
+
+        $tempPoints = array();
+		$item = array();
+        if (count($productElmtInitTemp) > 0) {
+        	for($i = 0; $i < count($productElmtInitTemp[$INDEX_TEMP]); $i++) {
+        		$item['value'] = $productElmtInitTemp[$INDEX_TEMP][$i];
+        		array_push($tempPoints, $item);
+        	}
+        }
+
+		$array = [
+			'tempPoints' => $tempPoints 
+		];
+		return $array;
 	}
 }
