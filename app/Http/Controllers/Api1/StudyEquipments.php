@@ -147,6 +147,7 @@ class StudyEquipments extends Controller
         $layoutResult->save();
 
         //runSizingCalculator
+        $this->stdeqp->runSizingCalculator($studyEquipment->ID_STUDY, $id);       
         return 1;
     }
 
