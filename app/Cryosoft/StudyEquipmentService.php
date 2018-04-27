@@ -831,7 +831,7 @@ class StudyEquipmentService
                 $studEqpPrm = new StudEqpPrm();
                 $studEqpPrm->ID_STUDY_EQUIPMENTS = $studyEquipment->ID_STUDY_EQUIPMENTS;
                 $studEqpPrm->VALUE_TYPE = 300 + $i;
-                $studEqpPrm->VALUE = doubleval($tr);
+                $studEqpPrm->VALUE = doubleval($this->convert->controlTemperature($tr, ['save' => true]));
                 $studEqpPrm->save();
                 $i++;
             }
@@ -844,7 +844,7 @@ class StudyEquipmentService
                 $studEqpPrm = new StudEqpPrm();
                 $studEqpPrm->ID_STUDY_EQUIPMENTS = $studyEquipment->ID_STUDY_EQUIPMENTS;
                 $studEqpPrm->VALUE_TYPE = 200 + $i;
-                $studEqpPrm->VALUE = doubleval($ts);
+                $studEqpPrm->VALUE = doubleval($this->convert->time($ts, ['save' => true]));
                 $studEqpPrm->save();
                 $i++;
             }
@@ -857,7 +857,7 @@ class StudyEquipmentService
                 $studEqpPrm = new StudEqpPrm();
                 $studEqpPrm->ID_STUDY_EQUIPMENTS = $studyEquipment->ID_STUDY_EQUIPMENTS;
                 $studEqpPrm->VALUE_TYPE = 100 + $i;
-                $studEqpPrm->VALUE = doubleval($vc);
+                $studEqpPrm->VALUE = doubleval($this->convert->convectionSpeed($vc, ['save' => true]));
                 $studEqpPrm->save();
                 $i++;
             }
@@ -881,7 +881,7 @@ class StudyEquipmentService
             $studEqpPrm = new StudEqpPrm();
             $studEqpPrm->ID_STUDY_EQUIPMENTS = $studyEquipment->ID_STUDY_EQUIPMENTS;
             $studEqpPrm->VALUE_TYPE = 500;
-            $studEqpPrm->VALUE = doubleval($studyEquipment->tExt);
+            $studEqpPrm->VALUE = doubleval($this->convert->exhaustTemperature($studyEquipment->tExt, ['save' => true]));
             $studEqpPrm->save();
         }
 
