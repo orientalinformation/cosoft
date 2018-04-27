@@ -15,6 +15,11 @@ use App\Models\InitialTemperature;
 use App\Models\ProductElement;
 use App\Models\EquipGeneration;
 use App\Models\TempExt;
+use com\oxymel\ofcconveyer\Crate;
+use com\oxymel\ofcconveyer\ConveyerTemplate;
+use com\oxymel\ofcconveyer\ConveyerBelt;
+use com\oxymel\ofcconveyer\SVGGenerator;
+
 
 class StudyEquipmentService
 {
@@ -725,26 +730,132 @@ class StudyEquipmentService
         }
     }
 
-    public function generateLayoutPreview() {
+    public function generateLayoutPreview(StudyEquipment &$sequip) {
         $base64img = '';
         // Create an image with the specified dimensions
-        $image = imageCreate(300, 200);
+        // $image = imageCreate(300, 200);
  
-        // Create a color (this first call to imageColorAllocate
-        //  also automatically sets the image background color)
-        $colorRed = imageColorAllocate($image, 255, 0, 0);
-        // Create another color
-        $colorYellow = imageColorAllocate($image, 255, 255, 0);
+        // // Create a color (this first call to imageColorAllocate
+        // //  also automatically sets the image background color)
+        // $colorRed = imageColorAllocate($image, 255, 0, 0);
+        // // Create another color
+        // $colorYellow = imageColorAllocate($image, 255, 255, 0);
         
-        // Draw a rectangle
-        imageFilledRectangle($image, 50, 50, 250, 150, $colorYellow);
+        // // Draw a rectangle
+        // imageFilledRectangle($image, 50, 50, 250, 150, $colorYellow);
         
-        // Set type of image and send the output
-        ob_start();
-        imagejpeg($image, null, 100);
-        // Release memory
-        imageDestroy($image);
-        $base64img = base64_encode( ob_get_clean() );
+        // // Set type of image and send the output
+        // ob_start();
+        // imagejpeg($image, null, 100);
+        // // Release memory
+        // imageDestroy($image);
+        // $base64img = base64_encode( ob_get_clean() );
+
+        /** @var ConveyerTemplate */
+        $cb = null;
+        $equip = $sequip->equipment;
+        $lfEquipLength = 0.0; // double
+        $lfEquipWidth = 0.0; // double
+        $layoutGeneration = $sequip->layoutGenerations->first();
+        $layoutRes = $sequip->layoutResults->first();
+        $prodShape = $sequip->study->products->first()->productElmts->first()->ID_SHAPE;
+
+        if ($sequip->BATCH_PROCESS) {
+            $lfEquipLength = $layoutGeneration->SHELVES_LENGTH;
+            $lfEquipWidth = $layoutGeneration->SHELVES_WIDTH;
+            
+            $cb = Crate::constructor__I_D_D_S(
+                ConveyerTemplate::$M,
+                $this->convert->convertToDouble($this->convert->shelvesWidthSVG($lfEquipLength)),
+                $this->convert->convertToDouble($this->convert->shelvesWidthSVG($lfEquipWidth)),
+                $prodShape
+            );
+            $cb->setCoordinateLegend($this->convert->carpetWidthSymbol());
+        } else {
+            $equipWithSpecificSize = ($sequip->STDEQP_WIDTH != $this->value->NO_SPECIFIC_SIZE)
+                && ($sequip->STDEQP_LENGTH != $this->value->NO_SPECIFIC_SIZE);
+
+            $lfEquipLength = 1.0;
+            if ($equipWithSpecificSize) {
+                $lfEquipWidth = $sequip->STDEQP_WIDTH;
+            } else {
+                $lfEquipWidth = $equip->EQP_WIDTH;
+            }
+            
+            $cb = ConveyerBelt::constructor__D_D_S_String(
+                $this->convert->convertToDouble($this->convert->carpetWidth($lfEquipLength)),
+                $this->convert->convertToDouble($this->convert->carpetWidth($lfEquipWidth)),
+                $prodShape,
+                $this->convert->carpetWidthSymbol()
+            );
+            // var_dump($cb); die('har');
+        }
+
+        // We find back the product length and width from other values
+        $plength = 0; // double
+        $pwidth = 0; // double
+
+        $pwidth = ($lfEquipWidth - 2 * $layoutRes->LEFT_RIGHT_INTERVAL
+            - $layoutGeneration->WIDTH_INTERVAL * ($layoutRes->NUMBER_IN_WIDTH - 1)) / $layoutRes->NUMBER_IN_WIDTH;
+
+        $plength = $lfEquipLength / $layoutRes->NUMBER_PER_M - $layoutGeneration->LENGTH_INTERVAL;
+
+        if ($sequip->BATCH_PROCESS) {
+            //convert
+            $pwidth = $this->convert->convertToDouble($this->convert->shelvesWidthSVG($pwidth));
+            $plength = $this->convert->convertToDouble($this->convert->shelvesWidthSVG($plength));
+        } else {
+            // convert
+            $pwidth = $this->convert->convertToDouble($this->convert->carpetWidthSVG($pwidth));
+            $plength = $this->convert->convertToDouble($this->convert->carpetWidthSVG($plength));
+        }
+        
+        // Since we have computed the width and length back from the values
+        // nb_in_width and nb_in_one_meter, we must consider we're parallel.
+        $cb->setParallelePlacement(true);
+        $cb->setProduct($plength, $pwidth, $prodShape);
+        $numM = intval($layoutRes->NUMBER_PER_M);
+        $hmargin = 0;
+        $lengthInter = 0;
+        $widthInter = 0;
+        $borderInter = 0;
+        if ($sequip->BATCH_PROCESS) {
+            $hmargin = ($this->convert->convertToDouble($this->convert->shelvesWidthSVG($lfEquipLength))
+                - $numM * ($plength + $this->convert->convertToDouble($this->convert->shelvesWidthSVG($layoutGeneration->LENGTH_INTERVAL)))) / 2;
+            
+            // convert
+            $lengthInter = $this->convert->convertToDouble($this->convert->shelvesWidthSVG($layoutGeneration->LENGTH_INTERVAL));
+            $widthInter = $this->convert->convertToDouble($this->convert->shelvesWidthSVG($layoutGeneration->WIDTH_INTERVAL));
+            $borderInter = $this->convert->convertToDouble($this->convert->shelvesWidthSVG($layoutRes->LEFT_RIGHT_INTERVAL));
+        } else {
+            $hmargin = ($this->convert->convertToDouble($this->convert->carpetWidthSVG($lfEquipLength))
+                - $numM * ($plength + $this->convert->convertToDouble($this->convert->carpetWidthSVG($layoutGeneration->LENGTH_INTERVAL)))) / 2;
+            // convert
+            $lengthInter = $this->convert->convertToDouble($this->convert->carpetWidthSVG($layoutGeneration->LENGTH_INTERVAL));
+            $widthInter = $this->convert->convertToDouble($this->convert->carpetWidthSVG($layoutGeneration->WIDTH_INTERVAL));
+            $borderInter = $this->convert->convertToDouble($this->convert->carpetWidthSVG($layoutRes->LEFT_RIGHT_INTERVAL));
+        }
+
+        $cb->setNbElements( intval ($layoutRes->NUMBER_PER_M), intval ($layoutRes->NUMBER_IN_WIDTH));
+        $cb->setEdgeInterval($hmargin, $borderInter);
+        $cb->setProductsInterval($lengthInter, $widthInter);
+
+        $svg = '';
+
+        try {
+            $svg = $cb->getSVGImage_I_I($this->value->IMG_LAYOUTRES_HEIGHT, $this->value->IMG_LAYOUTRES_WIDTH);
+        } catch (Exception $e) {
+            throw new Exception("Unable to generate SVG image");
+        }
+
+        $image = new \Imagick();
+        $image->readImageBlob($svg);
+        $image->setImageFormat("jpeg");
+        $image->resizeImage($this->value->IMG_LAYOUTRES_WIDTH, $this->value->IMG_LAYOUTRES_HEIGHT, \imagick::FILTER_LANCZOS, 1);
+        // $image->writeImage('image.png');
+        $base64img = base64_encode($image);
+
+        $image->destroy();
         
         return $base64img;
     }

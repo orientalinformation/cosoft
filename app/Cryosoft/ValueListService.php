@@ -265,4 +265,8 @@ class ValueListService
     public $MESH_AXIS_1                 = 1;    //axe 1
     public $MESH_AXIS_2                 = 2;    //axe 2
     public $MESH_AXIS_3                 = 3;    //axe 3
+
+    public $IMG_LAYOUTRES_HEIGHT        = 300;            //graph type VerticalLinePlot height
+    public $IMG_LAYOUTRES_WIDTH         = 300;            //graph type VerticalLinePlot width
+
 }

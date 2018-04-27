@@ -1,8 +1,11 @@
 <?php
 
+namespace com\oxymel\ofcconveyer;
+
 use java\io\Writer;
 use java\io\File;
 use java\io\FileWriter;
+use java\lang\StringBuffer;
 
 class ConveyerTemplate {
     public static $MM;	// int
@@ -24,6 +27,7 @@ class ConveyerTemplate {
     protected $_nbPInWidth;	// int
     protected $_parallel;	// boolean
     protected $_coordinateLegends;	// String
+
     private function __init() { // default class members
         $this->_parallel =  TRUE ;
         $this->_coordinateLegends = "mm";
@@ -48,35 +52,27 @@ class ConveyerTemplate {
     }
     public static function constructor__D_D_D_D_S ($he, $wi, $productHeight, $productWidth, $productShape) // [double he, double wi, double productHeight, double productWidth, short productShape]
     {
-        $me = new self();
-        $me->__init();
-        self::constructor__D_D_S($he, $wi, $productShape);
+        $me = self::constructor__D_D_S($he, $wi, $productShape);
         $me->_product = Product::constructor__D_D_S($productHeight, $productWidth, $productShape);
         return $me;
     }
     public static function constructor__D_D_D_D_S_D_D ($he, $wi, $productHeight, $productWidth, $productShape, $heightInterval, $widthInterval) // [double he, double wi, double productHeight, double productWidth, short productShape, double heightInterval, double widthInterval]
     {
-        $me = new self();
-        $me->__init();
-        self::constructor__D_D_D_D_S($he, $wi, $productHeight, $productWidth, $productShape);
+        $me = self::constructor__D_D_D_D_S($he, $wi, $productHeight, $productWidth, $productShape);
         $me->_heightBetweenProducts = $heightInterval;
         $me->_widthBetweenProducts = $widthInterval;
         return $me;
     }
     public static function constructor__D_D_D_D_S_D_D_D_D ($he, $wi, $productHeight, $productWidth, $productShape, $heightInterval, $widthInterval, $heightEdge, $widthEdge) // [double he, double wi, double productHeight, double productWidth, short productShape, double heightInterval, double widthInterval, double heightEdge, double widthEdge]
     {
-        $me = new self();
-        $me->__init();
-        self::constructor__D_D_D_D_S_D_D($he, $wi, $productHeight, $productWidth, $productShape, $heightInterval, $widthInterval);
+        $me = self::constructor__D_D_D_D_S_D_D($he, $wi, $productHeight, $productWidth, $productShape, $heightInterval, $widthInterval);
         $me->_widthBetweenEdgeAndProducts = $widthEdge;
         $me->_heightBetweenEdgeAndProducts = $heightEdge;
         return $me;
     }
     public static function constructor__D_D_D_D_S_D_D_D_D_I_I ($he, $wi, $productHeight, $productWidth, $productShape, $heightInterval, $widthInterval, $heightEdge, $widthEdge, $nbProductsInHeight, $nbProductsInWidth) // [double he, double wi, double productHeight, double productWidth, short productShape, double heightInterval, double widthInterval, double heightEdge, double widthEdge, int nbProductsInHeight, int nbProductsInWidth]
     {
-        $me = new self();
-        $me->__init();
-        self::constructor__D_D_D_D_S_D_D_D_D($he, $wi, $productHeight, $productWidth, $productShape, $heightInterval, $widthInterval, $heightEdge, $widthEdge);
+        $me = self::constructor__D_D_D_D_S_D_D_D_D($he, $wi, $productHeight, $productWidth, $productShape, $heightInterval, $widthInterval, $heightEdge, $widthEdge);
         $me->_nbPInHeight = $nbProductsInHeight;
         $me->_nbPInWidth = $nbProductsInWidth;
         return $me;
