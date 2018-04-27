@@ -163,9 +163,46 @@ class Lines extends Controller
                 $noninsulval = $this->lineE->getIdlineElmtformLineDef($pipeGen->ID_PIPE_GEN, 6);
                 $teeval = $this->lineE->getIdlineElmtformLineDef($pipeGen->ID_PIPE_GEN, 4);
                 $elbowval = $this->lineE->getIdlineElmtformLineDef($pipeGen->ID_PIPE_GEN, 3);
+                if (!empty($insul->ID_PIPELINE_ELMT)) {
+                    $insulLabel = $this->lineE->getLabelByIdPipeELMT($insul->ID_PIPELINE_ELMT);
+                } else {
+                    $insulLabel ="";
+                }
+                if (!empty($noninsul->ID_PIPELINE_ELMT)) {
+                    $noninsulLabel = $this->lineE->getLabelByIdPipeELMT($noninsul->ID_PIPELINE_ELMT);
+                } else {
+                    $noninsulLabel ="";
+                }
+                if (!empty($insulval->ID_PIPELINE_ELMT)) {
+                    $insulvalLabel = $this->lineE->getLabelByIdPipeELMT($insulval->ID_PIPELINE_ELMT);
+                } else {
+                    $insulvalLabel ="";
+                }
+                if (!empty($noninsulval->ID_PIPELINE_ELMT)) {
+                    $noninsulvalLabel = $this->lineE->getLabelByIdPipeELMT($noninsulval->ID_PIPELINE_ELMT);
+                } else {
+                    $noninsulvalLabel ="";
+                }
+                if (!empty($teeval->ID_PIPELINE_ELMT)) {
+                    $teeLabel = $this->lineE->getLabelByIdPipeELMT($teeval->ID_PIPELINE_ELMT);
+                } else {
+                    $teeLabel ="";
+                }
+                if (!empty($elbowLabel->ID_PIPELINE_ELMT)) {
+                    $elbowLabel = $this->lineE->getLabelByIdPipeELMT($elbowval->ID_PIPELINE_ELMT);
+                } else {
+                    $elbowLabel ="";
+                }
+
                 $arrLabel = [];
                 $arrLabel["idPipeELMT"] = $arrPipeElmt;
                 $arrLabel["idcooling"] = $coolingFamily;
+                $arrLabel["insulLabel"] = !empty($insulLabel) ? $insulLabel->LABEL ."-". $this->lineE->getStatus($insulLabel->LINE_RELEASE) : "";
+                $arrLabel["noninsulLabel"] = !empty($noninsulLabel) ? $noninsulLabel->LABEL ."-". $this->lineE->getStatus($noninsulLabel->LINE_RELEASE) : "";
+                $arrLabel["insulvalLabel"] = !empty($insulvalLabel) ? $insulvalLabel->LABEL ."-". $this->lineE->getStatus($insulvalLabel->LINE_RELEASE) : "";
+                $arrLabel["noninsulvalLabel"] = !empty($noninsulvalLabel) ? $noninsulvalLabel->LABEL ."-". $this->lineE->getStatus($noninsulvalLabel->LINE_RELEASE) : "";
+                $arrLabel["teeLabel"] = !empty($teeLabel) ? $teeLabel->LABEL ."-". $this->lineE->getStatus($teeLabel->LINE_RELEASE) : "";
+                $arrLabel["elbowLabel"] = !empty($elbowLabel) ? $elbowLabel->LABEL ."-". $this->lineE->getStatus($elbowLabel->LINE_RELEASE) : "";
                 $arrLabel["insulationLineSub"] = !empty($insulSubLabel) ? $insulSubLabel : "";
                 $arrLabel["non_insulated_lineSub"] = !empty($non_insullineSubsLabel) ? $non_insullineSubsLabel : "";
                 $arrLabel["insulatedlinevalSub"] = !empty($insullvalSubsLabel) ? $insullvalSubsLabel : "";
@@ -197,7 +234,7 @@ class Lines extends Controller
 
                 $getLabels = [];
                 foreach ($arrPipeElmt as $idPipeElmt) {
-                    $getLabels = LineElmt::select('ELT_TYPE','INSULATION_TYPE','LABEL','ID_PIPELINE_ELMT','LINE_RELEASE')->where('ID_USER', '!=', $this->auth->user()->ID_USER)
+                    $getLabels = LineElmt::select('ELT_TYPE','INSULATION_TYPE','LABEL','ID_PIPELINE_ELMT','LINE_RELEASE')
                     ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
                     ->where('Translation.TRANS_TYPE', 27)->where('ID_PIPELINE_ELMT', $idPipeElmt)
                     ->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->get();
@@ -432,7 +469,7 @@ class Lines extends Controller
         $tees = $input['TEESVALUE'];
         $elbows = $input['ELBOWSVALUE'];
         $storageTank = $input['STORAGE_TANK'];
-        $insulatedLineLength = ($input['INSULLINE_LENGHT'] == 0) ? 0 : $this->convert->lineDimensionSave($input['INSULLINE_LENGHT']);
+        $insulatedLineLength = $input['INSULLINE_LENGHT'] == 0 ? 0 : $this->convert->lineDimensionSave($input['INSULLINE_LENGHT']);
         $nonInsulatedLineLength = ($input['NOINSULLINE_LENGHT'] == 0) ? 0 : $this->convert->lineDimensionSave($input['NOINSULLINE_LENGHT']);
         $insulatedValvesQuantity = $input['INSUL_VALVES'];
         $nonInsulatedValvesQuantity = $input['NOINSUL_VALVES'];
@@ -474,10 +511,10 @@ class Lines extends Controller
             }
             
             if ($checkValueInsulllenght) {
-                if (is_int($insulatedLineLength) && $insulatedLineLength != "") {
-                    return response("Not a valid number in Length !" ,406);
-                } else {
+                if ((preg_match('/[0-9]/', $input['INSULLINE_LENGHT']))) {
                     $pipegen->INSULLINE_LENGHT = $insulatedLineLength;
+                } else {
+                    return response("Not a valid number in Length !" ,406);
                 }
             } else {
                 $mm = $this->minmax->getMinMaxNoneLine($this->value->MIN_MAX_STUDY_LINE_INSULATEDLINE_LENGHT);
@@ -485,10 +522,10 @@ class Lines extends Controller
             }
 
             if ($checkValueNoninsullenght) {
-                if (is_int($nonInsulatedLineLength) && $nonInsulatedLineLength != "") {
-                    return response("Not a valid number in Length !" ,406);
-                } else {
+                if ((preg_match('/[0-9]/', $input['NOINSULLINE_LENGHT']))) {
                     $pipegen->NOINSULLINE_LENGHT = $nonInsulatedLineLength;
+                } else {
+                    return response("Not a valid number in Length !" ,406);
                 }
             } else {
                 $mm = $this->minmax->getMinMaxLineDimention($this->value->MIN_MAX_STUDY_LINE_NON_INSULATEDLINE_LENGHT);
@@ -551,10 +588,10 @@ class Lines extends Controller
             }
 
             if ($checkValueHeight) {
-                if (is_int($height) && $height != 0) {
-                    return response("Not a valid number in Number !" ,406);
-                } else {
+                if (!is_int($height) && $height != 0) {
                     $pipegen->HEIGHT = $height;
+                } else {
+                    return response("Not a valid number in Number !" ,406);
                 }
             } else {
                 $mm = $this->minmax->getMinMaxHeight($this->value->MIN_MAX_STUDY_LINE_HEIGHT);

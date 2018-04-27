@@ -1121,12 +1121,14 @@ class ReportService
         $consumSymbol = $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1);
         $consumMaintienSymbol = $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 2);
         $mefSymbol = $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 3);
-
+        $pressureSymbol = $this->unit->pressureSymbol();
+        $materialRiseSymbol = $this->unit->materialRiseSymbol();
         $ret = compact("productFlowSymbol", "massSymbol", "temperatureSymbol", 
         "percentSymbol", "timeSymbol", "perUnitOfMassSymbol", "enthalpySymbol", 
         "monetarySymbol", "equipDimensionSymbol", "convectionSpeedSymbol", "convectionCoeffSymbol", 
         "timePositionSymbol", "prodDimensionSymbol", "meshesSymbol", "packingThicknessSymbol", 
-        "shelvesWidthSymbol", "prodchartDimensionSymbol", "consumSymbol", "consumMaintienSymbol", "mefSymbol");
+        "shelvesWidthSymbol", "prodchartDimensionSymbol", "consumSymbol", 
+        "consumMaintienSymbol", "mefSymbol", "pressureSymbol", "materialRiseSymbol");
         // var_dump($ret);
         return $ret;
     }
