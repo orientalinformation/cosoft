@@ -409,11 +409,14 @@ class InputInitial extends Controller
 
         if (count($tempPoints) == 0) {
             if (count($initTempPositions) > 0) {
-                for ($i = 0; $i < count($initTempPositions); $i++) {
-                    for ($j = 0; $j < count($initTempPositions[$i]); $j++) {
-                        $item['value'] = 0;
-                        array_push($tempPoints, $item);
-                    }
+                for ($i = 0; $i < count($initTempPositions[$INDEX_TEMP]); $i++) {
+                    $item['value'] = 0;
+                    array_push($tempPoints, $item);
+                }
+            } else {
+                for ($i = 0; $i < count($nbMeshPointElmt[$INDEX_TEMP]); $i++) {
+                    $item['value'] = 0;
+                    array_push($tempPoints, $item);
                 }
             }
         }
