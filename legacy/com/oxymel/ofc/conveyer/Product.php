@@ -70,6 +70,7 @@ class Product {
         }
         $this->_svgHeight = ((($containerHeight * $tmpy)) / $realHeight);
         $this->_svgWidth = ((($containerWidth * $tmpx)) / $realWidth);
+        // var_dump($this); die('asdasda');
     }
 
     public function getSVG ($x, $y) // [double x, double y]
@@ -83,6 +84,7 @@ class Product {
             case self::$PARALLELEPIPED_BREADED:
             case self::$CYLINDER_LAYING:
             case self::$CYLINDER_CONCENTRIC_LAYING:
+                // var_dump($this); die('asw');
                 $tmp->append((((((((("\t<rect x=\"" . $x) . "\" y=\"") . $y) . "\" width=\"") . $this->_svgWidth) . "\" height=\"") . $this->_svgHeight) . "\" fill=\"gray\" stroke=\"black\" stroke-width=\"1\"/>\n"));
                 break;
             case self::$CYLINDER_STANDING:
@@ -103,7 +105,7 @@ class Product {
     {
         return $this->_shape;
     }
-    
+
     public function set_shape ($s) // [short s]
     {
         $this->_shape = $s;

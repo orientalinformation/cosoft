@@ -147,6 +147,7 @@ class StudyEquipments extends Controller
         $layoutResult->save();
 
         //runSizingCalculator
+        $this->stdeqp->runSizingCalculator($studyEquipment->ID_STUDY, $id);       
         return 1;
     }
 
@@ -234,9 +235,10 @@ class StudyEquipments extends Controller
 
     public function getStudyEquipmentLayout($id) 
     {
+        $input = $this->request->all();
         $stdeqp = StudyEquipment::findOrFail($id);
 
-        return response('data:image/gif;base64,'.$this->stdeqp->generateLayoutPreview($stdeqp))
+        return response('data:image/jpeg;base64,'.$this->stdeqp->generateLayoutPreview($stdeqp, $input))
             ->header('Content-Type', 'text/plain');
     }
 }

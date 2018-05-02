@@ -730,7 +730,7 @@ class StudyEquipmentService
         }
     }
 
-    public function generateLayoutPreview(StudyEquipment &$sequip) {
+    public function generateLayoutPreview(StudyEquipment &$sequip, $input) {
         $base64img = '';
         // Create an image with the specified dimensions
         // $image = imageCreate(300, 200);
@@ -750,8 +750,9 @@ class StudyEquipmentService
         // // Release memory
         // imageDestroy($image);
         // $base64img = base64_encode( ob_get_clean() );
+        $widthInterVal = $this->convert->prodDimensionSave($input['WIDTHINTERVAL']);
+        $lengthInterVal = $this->convert->prodDimensionSave($input['LENGTHINTERVAL']);
 
-        /** @var ConveyerTemplate */
         $cb = null;
         $equip = $sequip->equipment;
         $lfEquipLength = 0.0; // double
@@ -792,13 +793,13 @@ class StudyEquipmentService
         }
 
         // We find back the product length and width from other values
-        $plength = 0; // double
-        $pwidth = 0; // double
+        $plength = 0.0; // double
+        $pwidth = 0.0; // double
 
         $pwidth = ($lfEquipWidth - 2 * $layoutRes->LEFT_RIGHT_INTERVAL
-            - $layoutGeneration->WIDTH_INTERVAL * ($layoutRes->NUMBER_IN_WIDTH - 1)) / $layoutRes->NUMBER_IN_WIDTH;
+            - $widthInterVal * ($layoutRes->NUMBER_IN_WIDTH - 1)) / $layoutRes->NUMBER_IN_WIDTH;
 
-        $plength = $lfEquipLength / $layoutRes->NUMBER_PER_M - $layoutGeneration->LENGTH_INTERVAL;
+        $plength = $lfEquipLength / $layoutRes->NUMBER_PER_M - $lengthInterVal;
 
         if ($sequip->BATCH_PROCESS) {
             //convert
@@ -821,18 +822,18 @@ class StudyEquipmentService
         $borderInter = 0;
         if ($sequip->BATCH_PROCESS) {
             $hmargin = ($this->convert->convertToDouble($this->convert->shelvesWidthSVG($lfEquipLength))
-                - $numM * ($plength + $this->convert->convertToDouble($this->convert->shelvesWidthSVG($layoutGeneration->LENGTH_INTERVAL)))) / 2;
+                - $numM * ($plength + $this->convert->convertToDouble($this->convert->shelvesWidthSVG($lengthInterVal)))) / 2;
             
             // convert
-            $lengthInter = $this->convert->convertToDouble($this->convert->shelvesWidthSVG($layoutGeneration->LENGTH_INTERVAL));
-            $widthInter = $this->convert->convertToDouble($this->convert->shelvesWidthSVG($layoutGeneration->WIDTH_INTERVAL));
+            $lengthInter = $this->convert->convertToDouble($this->convert->shelvesWidthSVG($lengthInterVal));
+            $widthInter = $this->convert->convertToDouble($this->convert->shelvesWidthSVG($widthInterVal));
             $borderInter = $this->convert->convertToDouble($this->convert->shelvesWidthSVG($layoutRes->LEFT_RIGHT_INTERVAL));
         } else {
             $hmargin = ($this->convert->convertToDouble($this->convert->carpetWidthSVG($lfEquipLength))
-                - $numM * ($plength + $this->convert->convertToDouble($this->convert->carpetWidthSVG($layoutGeneration->LENGTH_INTERVAL)))) / 2;
+                - $numM * ($plength + $this->convert->convertToDouble($this->convert->carpetWidthSVG($lengthInterVal)))) / 2;
             // convert
-            $lengthInter = $this->convert->convertToDouble($this->convert->carpetWidthSVG($layoutGeneration->LENGTH_INTERVAL));
-            $widthInter = $this->convert->convertToDouble($this->convert->carpetWidthSVG($layoutGeneration->WIDTH_INTERVAL));
+            $lengthInter = $this->convert->convertToDouble($this->convert->carpetWidthSVG($lengthInterVal));
+            $widthInter = $this->convert->convertToDouble($this->convert->carpetWidthSVG($widthInterVal));
             $borderInter = $this->convert->convertToDouble($this->convert->carpetWidthSVG($layoutRes->LEFT_RIGHT_INTERVAL));
         }
 
@@ -843,15 +844,17 @@ class StudyEquipmentService
         $svg = '';
 
         try {
-            $svg = $cb->getSVGImage_I_I($this->value->IMG_LAYOUTRES_HEIGHT, $this->value->IMG_LAYOUTRES_WIDTH);
+            $svg = $cb->getSVGImage_I_I(800, 800);
         } catch (Exception $e) {
             throw new Exception("Unable to generate SVG image");
         }
 
+        // file_put_contents('/home/thaolt/test.svg', $svg);
+
         $image = new \Imagick();
         $image->readImageBlob($svg);
         $image->setImageFormat("jpeg");
-        $image->resizeImage($this->value->IMG_LAYOUTRES_WIDTH, $this->value->IMG_LAYOUTRES_HEIGHT, \imagick::FILTER_LANCZOS, 1);
+        $image->resizeImage(800, 800, \imagick::FILTER_LANCZOS, 1, true);
         // $image->writeImage('image.png');
         $base64img = base64_encode($image);
 
@@ -1033,5 +1036,11 @@ class StudyEquipmentService
         }
 
         return $ret;    
+    }
+
+    public function runSizingCalculator($idStudy, $idStudyEquipment)
+    {
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
+        return $this->kernel->getKernelObject('DimMatCalculator')->DMCCalculation($conf, 2);
     }
 }

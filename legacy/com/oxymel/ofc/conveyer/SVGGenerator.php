@@ -47,7 +47,7 @@ class SVGGenerator {
     public static function getLegends ($type, $height, $width, $coordinate) // [double[] type, double height, double width, String coordinate]
     {
         $tmp = new StringBuffer();
-        $tmp->append(((((((("\t<text x=\"500\" y=\"" . $type[25]) . 15) . "\" font-size=\"25\"  text-anchor=\"middle\" >") . $width) . " ") . $coordinate) . "</text>\n"));
+        $tmp->append(((((((("\t<text x=\"500\" y=\"" . ($type[25] + 15))) . "\" font-size=\"25\"  text-anchor=\"middle\" >") . $width) . " ") . $coordinate) . "</text>\n"));
         $tmp->append((("\t<g transform=\"translate(" . ($type[48])) . " 500)\">\n"));
         $tmp->append((((("\t\t<text x=\"0\" y=\"0\" text-anchor=\"middle\" font-size=\"25\" transform=\"rotate(90)\">" . $height) . " ") . $coordinate) . "</text>\n"));
         $tmp->append("\t</g>\n");
@@ -97,7 +97,7 @@ class SVGGenerator {
         }
         else
         {
-            foreach (range(0, (51 + 0)) as $_upto) $type[$_upto] = self::$INF_DEF[$_upto - (0) + 0]; /* from: System.arraycopy(INF_DEF, 0, type, 0, 52) */;
+            foreach (range(0, 51) as $_upto) $type[$_upto] = self::$INF_DEF[$_upto]; /* from: System.arraycopy(INF_DEF, 0, type, 0, 52) */;
             $type[3] = (((800 * $height)) / $width);
             $type[1] = (((1000 - $type[3])) / 2);
             for ($i = 5; ($i < 26); $i = ($i + 4)) 
