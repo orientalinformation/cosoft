@@ -25,43 +25,43 @@ use App\Models\Equipment;
 class BrainCalculateService
 {
     /**
-	 * @var App\Cryosoft\ValueListService
-	 */
+     * @var App\Cryosoft\ValueListService
+     */
     protected $auth;
     
-	/**
-	 * @var App\Cryosoft\ValueListService
-	 */
-	protected $value;
+    /**
+     * @var App\Cryosoft\ValueListService
+     */
+    protected $value;
 
-	/**
-	 * @var App\Cryosoft\ValueListService
-	 */
+    /**
+     * @var App\Cryosoft\ValueListService
+     */
     protected $convert;
     
     /**
-	 * @var App\Cryosoft\UnitsService
-	 */
-	protected $units;
+     * @var App\Cryosoft\UnitsService
+     */
+    protected $units;
 
     public function __construct(\Laravel\Lumen\Application $app) 
     {
-		$this->app = $app;
-		$this->auth = $app['Illuminate\\Contracts\\Auth\\Factory'];
-		$this->value = $app['App\\Cryosoft\\ValueListService'];
-		$this->convert = $app['App\\Cryosoft\\UnitsConverterService'];
-		$this->units = $app['App\\Cryosoft\\UnitsService'];
+        $this->app = $app;
+        $this->auth = $app['Illuminate\\Contracts\\Auth\\Factory'];
+        $this->value = $app['App\\Cryosoft\\ValueListService'];
+        $this->convert = $app['App\\Cryosoft\\UnitsConverterService'];
+        $this->units = $app['App\\Cryosoft\\UnitsService'];
 
-	}
+    }
 
-	public function getCalcParams($idStudyEquipments)
-	{
-		$calcParameter = CalculationParameter::where('ID_STUDY_EQUIPMENTS', $idStudyEquipments)->first();
+    public function getCalcParams($idStudyEquipments)
+    {
+        $calcParameter = CalculationParameter::where('ID_STUDY_EQUIPMENTS', $idStudyEquipments)->first();
 
-		return $calcParameter;
-	}
+        return $calcParameter;
+    }
 
-	public function getHradioOn($idStudyEquipments) 
+    public function getHradioOn($idStudyEquipments) 
     {
         $etat = 0;
         $calcParameter = $this->getCalcParams($idStudyEquipments);
@@ -215,10 +215,10 @@ class BrainCalculateService
         return $this->units->timeStep($lfStep, 3, 1);
     }
 
-	public function getMinMax($limitItem) 
+    public function getMinMax($limitItem) 
     {
-		return MinMax::where('LIMIT_ITEM', $limitItem)->first();
-	}
+        return MinMax::where('LIMIT_ITEM', $limitItem)->first();
+    }
 
     public function getLoadingRate($idStudyEquipment, $idStudy, $brainMode)
     {
