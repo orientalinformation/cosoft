@@ -866,19 +866,14 @@ class Reports extends Controller
 
         // set document information
         PDF::SetTitle('Cryosoft Report');
-        PDF::SetSubject('UserName - StudyName');
+        PDF::SetHeaderMargin(5);
+        PDF::SetFooterMargin(150);
         
         // set default header data
         PDF::setPageOrientation('L', 'A4');
         // set margins
-        PDF::SetMargins(10, 10, 10, true);
-        PDF::SetHeaderMargin(5);
-        PDF::SetFooterMargin(10);
+        PDF::SetMargins(15, 15, 15, true);
         PDF::setHeaderFont(Array('helvetica', '', 10));
-        PDF::SetHeaderData($host . "/" . $public_path . "/uploads/" . 'logo_cryosoft.png', 30, $study->STUDY_NAME,'Report', array(0,64,128), array(0,64,128));
-        PDF::setFooterData(array(0,64,0), array(0,64,128));
-        // set header and footer fonts
-
         // set default monospaced font
         PDF::SetDefaultMonospacedFont('courier');
         // set auto page breaks
@@ -887,22 +882,45 @@ class Reports extends Controller
         // set image scale factor
         PDF::setImageScale(1.25);
         
-        // set some language-dependent strings (optional)
-        // ---------------------------------------------------------
+        // PDF::setHeaderData($host.'/'.$public_path.'/uploads/logo_cryosoft.png', 'ddd', array(173,173,173));
+        PDF::setHeaderCallback(function($pdf) {
+
+            // Set font
+            $pdf->SetTextColor(173,173,173);
+            $pdf->SetFont('helvetica', '', 10);
+            // Title
+            $html = '<img style="max-width: 640px" src="/home/huytd/Workspaces/web_services/public/uploads/logo_cryosoft.png">';
+            $pdf->Image('/home/huytd/Workspaces/web_services/public/uploads/logo_cryosoft.png', 15, 10, 20, 40, 'PNG', '','T', true, 10,'', false, false, 1, false, false, false);
+            $pdf->Cell(0, 15, $study->STUDY_NAME.'-'. date("d/m/Y") , 0, false, 'C', 0, '', 0, false, 'M', 'M');
+    
+        });
+        PDF::setFooterCallback(function($pdf) {
+
+            // Position at 15 mm from bottom
+            $pdf->SetTextColor(173,173,173);
+            $pdf->SetY(-15);
+            // Set font
+            $pdf->SetFont('helvetica', '', 8);
+            // Page number
+            $pdf->Cell(0, 10, 'Air Liquide confidential information', 0, false, 'L', 0, '', 0, false, 'T', 'M');
+            $pdf->Cell(0, 10, 'Air Liquide solutions provider for the food industry ', 0, false, 'R', 0, '', 0, false, 'T', 'M');
+            $pdf->Cell(0, 10, 'Page '.$pdf->getAliasNumPage().'/'.$pdf->getAliasNbPages(), 0, false, 'C', 0, '', 0, false, 'T', 'M');
+        });
+        
         PDF::AddPage();
-        PDF::SetFont('times', 'B', 10);
+        PDF::SetTextColor(0,0,0);
         PDF::Bookmark('CONTENT ', 0, 0, '', 'B', array(0,64,128));
         $html = '';
-        $html .= '<div class="logo">';
-                    if (!empty($CUSTOMER_PATH)) { 
-                        $html .= '<img style="max-width: 640px" src="'. $study['reports'][0]['CUSTOMER_PATH'] .'">';
-                    }
-        $html .= '</div>
-        <div class="info-company">
+        if (!empty($CUSTOMER_PATH)) { 
+        $html .= '
+        <div class="logo">
+            <img style="max-width: 640px" src="'. $study['reports'][0]['CUSTOMER_PATH'] .'">
+        </div>';
+        }
+        $html .= '
             <div align="center">
                     <img style="max-width: 640px" src="'.$public_path.'/images/banner_cryosoft.png">
             </div>
-            <div class="table-responsive">
                 <table class="table table-bordered" border="1">
                     <tr>
                         <th colspan="6">Customer</th>
@@ -928,7 +946,6 @@ class Reports extends Controller
                         <td colspan="2">'. date("d/m/Y") .' </td>
                     </tr>
                 </table>
-            </div>
             <div align="center">
                 <p>';
                 if (!empty($study['reports'][0]['PHOTO_PATH'])) {
@@ -937,8 +954,7 @@ class Reports extends Controller
                     $html .= '<img src="'. $public_path.'/images/globe_food.gif">';
                 }
                 $html .= '</p>
-            <div class="table-responsive" style="color:red">
-                <table class ="table table-bordered" border="1">
+            <table class ="table table-bordered" border="1" style="color:red">
                 <tr>
                     <th align="center" colspan="3"><h3>Study of the product:</h3> '. $study['STUDY_NAME'] .' </th>
                 </tr>
@@ -959,9 +975,7 @@ class Reports extends Controller
                     <td align="center">'. ($study['CHAINING_CONTROLS'] == 1 ? 'YES' : 'NO') .' </td>
                     <td align="center">'.  (($study['CHAINING_CONTROLS'] == 1) && ($study['HAS_CHILD'] != 0) && ($study['PARENT_ID'] != 0) ? 'This study is a child' : '') .' </td>
                 </tr>
-                </table>
-            </div>
-        </div>';
+            </table>';
         PDF::writeHTML($html, true, false, true, false, '');
         PDF::AddPage();
         if (($study['CHAINING_CONTROLS'] == 1) && ($study['PARENT_ID'] != 0)) {
@@ -990,7 +1004,7 @@ class Reports extends Controller
                         foreach ($calModeHeadBalance as $key => $resoptHeads) { 
                         $html .= '<tr>
                             <td colspan="2" align="center"> '. $resoptHeads['stuName'] .' </td>
-                            <td colspan="2" align="center"> '. "TODO" .' </td>
+                            <td colspan="2" align="center"> TODO</td>
                             <td align="center"> '. $resoptHeads['tr'] .' </td>
                             <td align="center"> '. $resoptHeads['ts'] .' </td>
                             <td align="center"> '. $equipData[$key]['tr'][0] .' </td>
