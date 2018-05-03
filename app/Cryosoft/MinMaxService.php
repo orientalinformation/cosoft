@@ -137,7 +137,7 @@ class MinMaxService
 
     public function getMinMaxUPercent($limitItem)
     {
-        $uPercent = $this->units->uPercent();		
+        $uPercent = $this->units->uPercent();       
         $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
         $minMax->LIMIT_MAX =  $this->units->convertCalculator($minMax->LIMIT_MAX, $uPercent["coeffA"], $uPercent["coeffB"], 2, 1);
         $minMax->LIMIT_MIN = $this->units->convertCalculator($minMax->LIMIT_MIN, $uPercent["coeffA"], $uPercent["coeffB"], 2, 1);
@@ -148,7 +148,7 @@ class MinMaxService
 
     public function getMinMaxUPercentNone($limitItem)
     {
-        $uPercent = $this->units->uPercent();		
+        $uPercent = $this->units->uPercent();       
         $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
         return $minMax; 
     }
@@ -184,7 +184,7 @@ class MinMaxService
     }
 
     public function getMinMaxCoeff($limitItem, $decimal)
-    {	
+    {   
         $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
         $minMax->LIMIT_MAX =  $this->units->convectionCoeff($minMax->LIMIT_MAX, $decimal, 1);
         $minMax->LIMIT_MIN = $this->units->convectionCoeff($minMax->LIMIT_MIN, $decimal, 1);

@@ -33,14 +33,14 @@ class Settings extends Controller
     protected $auth;
 
     /**
-	 * @var App\Cryosoft\UnitsService
-	 */
+     * @var App\Cryosoft\UnitsService
+     */
     protected $units;
     
         /**
-	 * @var App\Cryosoft\MinMaxService
-	 */
-	protected $minmax;
+     * @var App\Cryosoft\MinMaxService
+     */
+    protected $minmax;
 
     /**
      * Create a new controller instance.

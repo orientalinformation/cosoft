@@ -452,7 +452,7 @@ class Calculator extends Controller
         }
         
 
-        $sdisableCalculate 	= $this->cal->disableCalculate($idStudy);
+        $sdisableCalculate  = $this->cal->disableCalculate($idStudy);
         $sdisableFields = $this->cal->disableFields($idStudy);
         
         $sdisableTS = $sdisableTR = $sdisableTOC = $sdisableOptim = $sdisableNbOptim = $sdisableStorage = 0;
@@ -466,13 +466,13 @@ class Calculator extends Controller
         if ($sdisableFields == 0) {
             switch($brainMode)
             {
-                case $this->value->BRAIN_MODE_ESTIMATION 		: 
+                case $this->value->BRAIN_MODE_ESTIMATION        : 
                 case $this->value->BRAIN_MODE_ESTIMATION_OPTIM : 
                     $sdisableTS = $sdisableTR = $sdisableTOC = $sdisableNbOptim = $sdisableStorage = 1;
                     $scheckOptim = $scheckStorage = 0;
                     break;
                 case $this->value->BRAIN_MODE_OPTIMUM_CALCULATE:
-                case $this->value->BRAIN_MODE_OPTIMUM_FULL 	: 
+                case $this->value->BRAIN_MODE_OPTIMUM_FULL  : 
                 case $this->value->BRAIN_MODE_SELECTED_FULL : 
                     $sdisableTS = $sdisableTR = $sdisableNbOptim = $sdisableStorage = 0;
                     $sdisableTOC = 1;
@@ -480,16 +480,16 @@ class Calculator extends Controller
                     $scheckStorage = 1;
                     break;
                     
-                case $this->value->BRAIN_MODE_OPTIMUM_REFINE 	: 
-                case $this->value->BRAIN_MODE_SELECTED_REFINE 	: 
+                case $this->value->BRAIN_MODE_OPTIMUM_REFINE    : 
+                case $this->value->BRAIN_MODE_SELECTED_REFINE   : 
                     $sdisableTS = $sdisableTR = $sdisableNbOptim = 0;
                     $sdisableTOC = $sdisableStorage = 1;
                     $scheckOptim = 1;
                     $scheckStorage = 0;
                     break;
                 
-                case $this->value->BRAIN_MODE_OPTIMUM_DHPMAX 	: 
-                case $this->value->BRAIN_MODE_SELECTED_DHPMAX 	: 
+                case $this->value->BRAIN_MODE_OPTIMUM_DHPMAX    : 
+                case $this->value->BRAIN_MODE_SELECTED_DHPMAX   : 
                     $sdisableTR = $sdisableTOC = 0;
                     $sdisableTS = $sdisableNbOptim = $sdisableStorage = 1;
                     $scheckOptim = 1;
@@ -499,7 +499,7 @@ class Calculator extends Controller
                 default :
                     $sdisableTS = $sdisableTR = $sdisableTOC = $sdisableNbOptim = $sdisableStorage = 1;
                     $scheckOptim = $scheckStorage = 0;
-            }	
+            }   
 
             if ($equipment) {
                 if (!$this->equipment->getCapability($equipment->CAPABILITIES, $this->value->CAP_OPTIM_ENABLE)) {
@@ -1094,7 +1094,7 @@ class Calculator extends Controller
             $this->cal->getCalculableStudyEquipments($idStudy, $idStudyEquipment);
         }
 
-        return $ret;	
+        return $ret;    
     }
 
     public function startBrainNumericalCalculation($idStudy, $idStudyEquipment, $brainMode)
@@ -1631,7 +1631,7 @@ class Calculator extends Controller
             if (intval($scheckStorage) == 1) {
                 $mm = $this->minmax->getMinMaxTimeStep(1013, 2);
                 $mm->LIMIT_MAX = $mm->LIMIT_MAX *  $timeStep;
-                $mm->LIMIT_MIN = $mm->LIMIT_MIN *  $timeStep;				
+                $mm->LIMIT_MIN = $mm->LIMIT_MIN *  $timeStep;               
 
                 if (doubleval($mm->LIMIT_MAX) > doubleval($countTS)) {
                     $mm->LIMIT_MAX = $countTS;
@@ -1817,7 +1817,7 @@ class Calculator extends Controller
 
             $mm = $this->minmax->getMinMaxTimeStep(1106, 2);
             $mm->LIMIT_MAX = $mm->LIMIT_MAX *  $timeStep;
-            $mm->LIMIT_MIN = $mm->LIMIT_MIN *  $timeStep;				
+            $mm->LIMIT_MIN = $mm->LIMIT_MIN *  $timeStep;               
 
             if (doubleval($mm->LIMIT_MAX) > doubleval($countTS)) {
                 $mm->LIMIT_MAX = $countTS;

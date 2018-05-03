@@ -136,8 +136,8 @@ class MinMaxs extends Controller
 
     public function getMinMaxEquipment($id)
     {
-    	$energy = $this->equip->initEnergyDef($id);
-		$mm = MinMax::where("LIMIT_ITEM", MIN_MAX_ENERGY_PRICE)->first();
+        $energy = $this->equip->initEnergyDef($id);
+        $mm = MinMax::where("LIMIT_ITEM", MIN_MAX_ENERGY_PRICE)->first();
         $mmPrice = [
             'LIMIT_MIN' => $this->unit->cryogenPrice($mm->LIMIT_MIN, $energy, ['format' => false]),
             'LIMIT_MAX' => $this->unit->cryogenPrice($mm->LIMIT_MAX, $energy, ['format' => false]),
@@ -154,8 +154,8 @@ class MinMaxs extends Controller
             'LIMIT_MIN' => $this->unit->prodDimension($mm->LIMIT_MIN, ['format' => false]),
             'LIMIT_MAX' => $this->unit->prodDimension($mm->LIMIT_MAX, ['format' => false]),
         ];
-    	
-    	return compact('mmPrice', 'mmLInterval', 'mmWInterval');
+        
+        return compact('mmPrice', 'mmLInterval', 'mmWInterval');
     }
 
 }
