@@ -891,13 +891,12 @@ class Reports extends Controller
             $pdf->Image($host.'/'.$public_path.'/uploads/logo_cryosoft.png',90, 5, 40, '', 'PNG', '', 'T', false, 300, 'R', false, false, 0, false, false, false);
     
         });
-        PDF::setFooterCallback(function($pdf) {
+        PDF::setSFooterCallback(function($pdf) {
             $pdf->SetTextColor(173,173,173);
             // Position at 15 mm from bottom
             $pdf->SetY(-15);
             // Set font
             $pdf->SetFont('helvetica', '', 8);
-            // Page number
             $pdf->Cell(0,10,'Air Liquide confidential information',0,0,'L');
             $pdf->SetX(11.5);
             $pdf->Cell(0,10,'Page '.$pdf->getAliasNumPage().'/'.$pdf->getAliasNbPages(),0,0,'C');
@@ -1396,7 +1395,7 @@ class Reports extends Controller
                             </tr>
                         </table>
                     </div>
-                    image
+                    imageddddd
                 </div>';
             }
             PDF::writeHTML($html, true, false, true, false, '');
