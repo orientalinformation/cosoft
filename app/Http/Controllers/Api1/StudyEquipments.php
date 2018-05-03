@@ -56,7 +56,9 @@ class StudyEquipments extends Controller
     public function getStudyEquipmentById($id)
     {
         $studyEquipment = \App\Models\StudyEquipment::find($id);
-        return $studyEquipment;
+        $equip = $this->stdeqp->getDisplayStudyEquipment($studyEquipment);
+        $equip['displayName'] = $this->equip->getResultsEquipName($studyEquipment->ID_STUDY_EQUIPMENTS);
+        return $equip;
     }
 
     public function getstudyEquipmentProductChart($idStudy)
@@ -235,10 +237,9 @@ class StudyEquipments extends Controller
 
     public function getStudyEquipmentLayout($id) 
     {
-        $input = $this->request->all();
         $stdeqp = StudyEquipment::findOrFail($id);
 
-        return response('data:image/jpeg;base64,'.$this->stdeqp->generateLayoutPreview($stdeqp, $input))
+        return response('data:image/jpeg;base64,'.$this->stdeqp->generateLayoutPreview($stdeqp))
             ->header('Content-Type', 'text/plain');
     }
 }

@@ -292,6 +292,7 @@ class Products extends Controller
         $productElmtInitTemp = [];
         $initTempPositions = [];
         $nbMeshPointElmt = [];
+        $heights = [];
 
         foreach ($elements as $elmt) {
             $meshPositions = \App\Models\MeshPosition::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->orderBy('MESH_ORDER')->get();
@@ -303,6 +304,9 @@ class Products extends Controller
 
             $elmtInitTemp = $this->productElmts->searchTempMeshPoint($elmt, $pointMeshOrder2['points']);
             array_push($productElmtInitTemp, $elmtInitTemp);
+
+            $shapeParam2 = $this->productElmts->getProdElmtthickness($elmt->ID_PRODUCT_ELMT);
+            array_push($heights, $shapeParam2);
         }
 
         $productIsoTemp = null;
@@ -317,7 +321,7 @@ class Products extends Controller
         }
 
         // $productElmtInitTemp = array_reverse($productElmtInitTemp);
-        return compact('meshGeneration', 'elements', 'elmtMeshPositions', 'productIsoTemp', 'nbMeshPointElmt', 'productElmtInitTemp', 'initTempPositions');
+        return compact('meshGeneration', 'elements', 'elmtMeshPositions', 'productIsoTemp', 'nbMeshPointElmt', 'productElmtInitTemp', 'initTempPositions', 'heights');
     }
 
     public function generateMesh($idProd) 
