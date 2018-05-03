@@ -56,7 +56,9 @@ class StudyEquipments extends Controller
     public function getStudyEquipmentById($id)
     {
         $studyEquipment = \App\Models\StudyEquipment::find($id);
-        return $studyEquipment;
+        $equip = $this->stdeqp->getDisplayStudyEquipment($studyEquipment);
+        $equip['displayName'] = $this->equip->getResultsEquipName($studyEquipment->ID_STUDY_EQUIPMENTS);
+        return $equip;
     }
 
     public function getstudyEquipmentProductChart($idStudy)
