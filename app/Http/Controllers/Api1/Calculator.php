@@ -747,7 +747,7 @@ class Calculator extends Controller
                 $this->cal->setChildsStudiesToRecalculate($idStudy, $idStudyEquipment);
             }
 
-            $this->runStudyCleaner($idStudy, $idStudyEquipment, 53);
+            // $this->runStudyCleaner($idStudy, $idStudyEquipment, 53);
 
             $study = Study::find($idStudy);
             if ($study->OPTION_CRYOPIPELINE == 1) {
@@ -760,7 +760,7 @@ class Calculator extends Controller
             $runType = $this->startBrainNumericalCalculation($idStudy, $idStudyEquipment, $brainMode);
 
             if ($runType == 259) {
-                sleep(45);
+                sleep(60);
                 return 0;
             }
         }
