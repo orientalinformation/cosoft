@@ -866,8 +866,9 @@ class Reports extends Controller
 
         // set document information
         PDF::SetTitle('Cryosoft Report');
-        PDF::SetHeaderMargin(5);
-        PDF::SetFooterMargin(150);
+        
+        PDF::SetFooterMargin(15);
+        PDF::setHeaderMargin(5);
         
         // set default header data
         PDF::setPageOrientation('L', 'A4');
@@ -878,33 +879,30 @@ class Reports extends Controller
         PDF::SetDefaultMonospacedFont('courier');
         // set auto page breaks
         PDF::SetAutoPageBreak(TRUE, 15);
-
         // set image scale factor
         PDF::setImageScale(1.25);
-        
-        // PDF::setHeaderData($host.'/'.$public_path.'/uploads/logo_cryosoft.png', 'ddd', array(173,173,173));
-        PDF::setHeaderCallback(function($pdf) {
-
+        PDF::setHeaderCallback(function($pdf) use($study, $host, $public_path){
             // Set font
             $pdf->SetTextColor(173,173,173);
             $pdf->SetFont('helvetica', '', 10);
             // Title
-            $html = '<img style="max-width: 640px" src="/home/huytd/Workspaces/web_services/public/uploads/logo_cryosoft.png">';
-            $pdf->Image('/home/huytd/Workspaces/web_services/public/uploads/logo_cryosoft.png', 15, 10, 20, 40, 'PNG', '','T', true, 10,'', false, false, 1, false, false, false);
-            $pdf->Cell(0, 15, $study->STUDY_NAME.'-'. date("d/m/Y") , 0, false, 'C', 0, '', 0, false, 'M', 'M');
+            $pdf->Cell(0, 10, $study->STUDY_NAME.'-'. date("d/m/Y"), 0, false, 'C', 0, '', 0, false, 'T', 'M');
+            PDF::SetMargins(15, 25, 15, true);
+            $pdf->Image($host.'/'.$public_path.'/uploads/logo_cryosoft.png',90, 5, 40, '', 'PNG', '', 'T', false, 300, 'R', false, false, 0, false, false, false);
     
         });
         PDF::setFooterCallback(function($pdf) {
-
-            // Position at 15 mm from bottom
             $pdf->SetTextColor(173,173,173);
+            // Position at 15 mm from bottom
             $pdf->SetY(-15);
             // Set font
             $pdf->SetFont('helvetica', '', 8);
             // Page number
-            $pdf->Cell(0, 10, 'Air Liquide confidential information', 0, false, 'L', 0, '', 0, false, 'T', 'M');
-            $pdf->Cell(0, 10, 'Air Liquide solutions provider for the food industry ', 0, false, 'R', 0, '', 0, false, 'T', 'M');
-            $pdf->Cell(0, 10, 'Page '.$pdf->getAliasNumPage().'/'.$pdf->getAliasNbPages(), 0, false, 'C', 0, '', 0, false, 'T', 'M');
+            $pdf->Cell(0,10,'Air Liquide confidential information',0,0,'L');
+            $pdf->SetX(11.5);
+            $pdf->Cell(0,10,'Page '.$pdf->getAliasNumPage().'/'.$pdf->getAliasNbPages(),0,0,'C');
+            $pdf->SetX(11.5);
+            $pdf->Cell( 0, 10, 'Air Liquide solutions provider for the food industry ', 0, 0, 'R' ); 
         });
         
         PDF::AddPage();
@@ -918,6 +916,7 @@ class Reports extends Controller
         </div>';
         }
         $html .= '
+        <br></br>
             <div align="center">
                     <img style="max-width: 640px" src="'.$public_path.'/images/banner_cryosoft.png">
             </div>
@@ -1359,51 +1358,45 @@ class Reports extends Controller
                 // PDF::Cell(0, 10, '', 0, 1, 'L');
                 $html .='<h3>'. $resequipDatas['displayName'] .'</h3>
                 <div class="layout">
-                    <div class = "row">
-                        <div class="md-col-6">
-                            <div class="table table-bordered">
-                                <table border="0.5">
-                                    <tr>
-                                        <th colspan="2" align="center">Inputs</th>
-                                    </tr>
-                                    <tr>
-                                        <td>Space (length) ( '. $symbol['prodDimensionSymbol'] .' )</td>
-                                        <td align="center"> User not define </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Space (width) ( '. $symbol['prodDimensionSymbol'] .' )</td>
-                                        <td align="center"> User not define </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Orientation</td>
-                                        <td align="center"> '. ($resequipDatas['ORIENTATION'] == 1 ? 'Parallel' : 'Perpendicular') .' </td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="2" align="center">Outputs</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Space in width ( '. $symbol['prodDimensionSymbol'] .' )</td>
-                                        <td align="center"> '. $resequipDatas['layoutResults']['LEFT_RIGHT_INTERVAL'] .' </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Number per meter</td>
-                                        <td align="center"> '. $resequipDatas['layoutResults']['NUMBER_PER_M'] .' </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Number in width</td>
-                                        <td align="center"> '. $resequipDatas['layoutResults']['NUMBER_IN_WIDTH'] .' </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Conveyor coverage or quantity of product per batch</td>
-                                        <td align="center"> '. $resequipDatas['top_or_QperBatch'] .' </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="md-col-6">
-                            image
-                        </div>
+                    <div class="table table-bordered">
+                        <table border="0.5">
+                            <tr>
+                                <th colspan="2" align="center">Inputs</th>
+                            </tr>
+                            <tr>
+                                <td>Space (length) ( '. $symbol['prodDimensionSymbol'] .' )</td>
+                                <td align="center"> User not define </td>
+                            </tr>
+                            <tr>
+                                <td>Space (width) ( '. $symbol['prodDimensionSymbol'] .' )</td>
+                                <td align="center"> User not define </td>
+                            </tr>
+                            <tr>
+                                <td>Orientation</td>
+                                <td align="center"> '. ($resequipDatas['ORIENTATION'] == 1 ? 'Parallel' : 'Perpendicular') .' </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" align="center">Outputs</td>
+                            </tr>
+                            <tr>
+                                <td>Space in width ( '. $symbol['prodDimensionSymbol'] .' )</td>
+                                <td align="center"> '. $resequipDatas['layoutResults']['LEFT_RIGHT_INTERVAL'] .' </td>
+                            </tr>
+                            <tr>
+                                <td>Number per meter</td>
+                                <td align="center"> '. $resequipDatas['layoutResults']['NUMBER_PER_M'] .' </td>
+                            </tr>
+                            <tr>
+                                <td>Number in width</td>
+                                <td align="center"> '. $resequipDatas['layoutResults']['NUMBER_IN_WIDTH'] .' </td>
+                            </tr>
+                            <tr>
+                                <td>Conveyor coverage or quantity of product per batch</td>
+                                <td align="center"> '. $resequipDatas['top_or_QperBatch'] .' </td>
+                            </tr>
+                        </table>
                     </div>
+                    image
                 </div>';
             }
             PDF::writeHTML($html, true, false, true, false, '');
