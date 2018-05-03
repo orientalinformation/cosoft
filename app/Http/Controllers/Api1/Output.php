@@ -738,7 +738,8 @@ class Output extends Controller
             $maxSurf = $maxWidth * $maxLength;
 
             $disabled = false;
-            if (!($this->study->isMyStudy($studyEquipment->ID_STUDY)) || ($this->auth->user()->USERPRIO < $this->value->PROFIL_EXPERT)) {
+            // if (!($this->study->isMyStudy($studyEquipment->ID_STUDY)) || ($this->auth->user()->USERPRIO < $this->value->PROFIL_EXPERT)) {
+            if (!($this->study->isMyStudy($studyEquipment->ID_STUDY))) {
                 $disabled = true;
             }
 
