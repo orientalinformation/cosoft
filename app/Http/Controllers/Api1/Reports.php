@@ -246,7 +246,6 @@ class Reports extends Controller
         // HAIDT
         $report->ip = getenv('APP_URL');
         // end HAIDT
-        
         return $report;
     }
 
@@ -643,6 +642,10 @@ class Reports extends Controller
         
         $product = Product::Where('ID_STUDY', $id)->first();
         $proElmt = ProductElmt::Where('ID_PROD', $product->ID_PROD)->first();
+        foreach ($study->studyEquipments as $sequip) {
+            $layout = $this->stdeqp->generateLayoutPreview($sequip);
+        }
+        $nameLayout = $study->ID_STUDY.'-'.$study->STUDY_NAME.'-StdeqpLayout-';
         $idComArr = [];
         $comprelease = [];
         
@@ -891,7 +894,7 @@ class Reports extends Controller
             $pdf->Image($host.'/'.$public_path.'/uploads/logo_cryosoft.png',90, 5, 40, '', 'PNG', '', 'T', false, 300, 'R', false, false, 0, false, false, false);
     
         });
-        PDF::setSFooterCallback(function($pdf) {
+        PDF::setFooterCallback(function($pdf) {
             $pdf->SetTextColor(173,173,173);
             // Position at 15 mm from bottom
             $pdf->SetY(-15);
@@ -1361,10 +1364,12 @@ class Reports extends Controller
                         <table border="0.5">
                             <tr>
                                 <th colspan="2" align="center">Inputs</th>
+                                <th align="center">Image</th>
                             </tr>
                             <tr>
                                 <td>Space (length) ( '. $symbol['prodDimensionSymbol'] .' )</td>
                                 <td align="center"> User not define </td>
+                                <td rowspan="8" align="center"><img style="width: 340px; height: 460px"  src="'. $public_path . "/reports/" . $study->USERNAM ."/". $nameLayout.$resequipDatas['ID_STUDY_EQUIPMENTS'].".jpg".'"></td>
                             </tr>
                             <tr>
                                 <td>Space (width) ( '. $symbol['prodDimensionSymbol'] .' )</td>
@@ -1395,8 +1400,8 @@ class Reports extends Controller
                             </tr>
                         </table>
                     </div>
-                    imageddddd
-                </div>';
+                </div>
+                <br></br><br></br><br></br>';
             }
             PDF::writeHTML($html, true, false, true, false, '');
             PDF::AddPage();
@@ -2294,6 +2299,10 @@ class Reports extends Controller
         
         $product = Product::Where('ID_STUDY', $id)->first();
         $proElmt = ProductElmt::Where('ID_PROD', $product->ID_PROD)->first();
+        foreach ($study->studyEquipments as $sequip) {
+            $layout = $this->stdeqp->generateLayoutPreview($sequip);
+        }
+        $nameLayout = $study->ID_STUDY.'-'.$study->STUDY_NAME.'-StdeqpLayout-';
         $idComArr = [];
         $comprelease = [];
         foreach ($product->productElmts as $productElmt) {
