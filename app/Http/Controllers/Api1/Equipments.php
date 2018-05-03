@@ -1347,10 +1347,6 @@ class Equipments extends Controller
 
         $energy = $this->equip->initEnergyDef($id);
 
-        if ($intervalW != 0) $intervalW = $intervalW;
-
-        if ($intervalL != 0) $intervalL =$intervalL;
-
         $res = [
             'Price' => $this->equip->cryogenPrice($priceEnergy, $energy),
             'IntervalWidth' => $this->convert->prodDimension(doubleval($intervalW)),
