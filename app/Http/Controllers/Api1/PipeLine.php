@@ -155,7 +155,13 @@ class PipeLine extends Controller
             if ($type != 2) $losses1 = 0; 
         }
 
-        if ($comment == '') $comment =  'Created on ' . $current->toDateTimeString() . ' by '. $this->auth->user()->USERNAM ;
+        if (count($comment) == 0) {
+            $comment = 'Create on ' . $current->toDateTimeString() . ' by ' . $this->auth->user()->USERNAM;
+        } else if (count($comment) < 2100) {
+            $comment = $comment. "\r\nCreate on " . $current->toDateTimeString() . " by " . $this->auth->user()->USERNAM;
+        } else {
+            $comment = substr($comment, 0, 1999) . '. Create on ' . $current->toDateTimeString() . ' by ' . $this->auth->user()->USERNAM;
+        }
 
         $listLabelLine = Translation::where('TRANS_TYPE', 27)->get();
 
