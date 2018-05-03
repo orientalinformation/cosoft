@@ -87,9 +87,9 @@ class Equipments extends Controller
     protected $units;
     
         /**
-	 * @var App\Cryosoft\MinMaxService
-	 */
-	protected $minmax;
+     * @var App\Cryosoft\MinMaxService
+     */
+    protected $minmax;
 
 
     /**
@@ -1438,7 +1438,7 @@ class Equipments extends Controller
     public function saveEquipment()
     {
         $input = $this->request->all();
-
+        
         $ID_EQUIP = $EQUIP_NAME = $EQUIP_VERSION = $EQUIP_RELEASE = $EQUIP_COMMENT = $EQP_LENGTH = $EQP_WIDTH = $EQP_HEIGHT = $NB_TR = $NB_TS = $NB_VC = $MAX_FLOW_RATE = $TMP_REGUL_MIN = $MAX_NOZZLES_BY_RAMP = $MAX_RAMPS = $Ramps = $Shelves = $Consumptions = null;
 
         if (isset($input['ID_EQUIP'])) $ID_EQUIP = intval($input['ID_EQUIP']);
@@ -2065,7 +2065,7 @@ class Equipments extends Controller
             }
         } else {
             for ($i = 1; $i <= intval($numberOfZone); $i++) {
-                $equipGenZone = new EquipGenZone();	
+                $equipGenZone = new EquipGenZone(); 
                 $equipGenZone->ID_EQUIPGENERATION = $idEquipGeneration;
                 $equipGenZone->ZONE_NUMBER = $i;
                 $equipGenZone->TEMP_SENSOR = 0;
