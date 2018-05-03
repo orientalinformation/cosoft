@@ -13,6 +13,7 @@ use App\Models\Production;
 use App\Models\TempRecordData;
 use App\Models\InitialTemperature;
 use App\Models\ProductElement;
+use App\Models\PrecalcLdgRatePrm;
 use App\Models\EquipGeneration;
 use App\Models\TempExt;
 use com\oxymel\ofcconveyer\Crate;
@@ -730,7 +731,24 @@ class StudyEquipmentService
         }
     }
 
-    public function generateLayoutPreview(StudyEquipment &$sequip, $input) {
+    public function generateLayoutPreview(StudyEquipment &$sequip) {
+        $study = $sequip->study;
+
+        $idRatePrm = $study->ID_PRECALC_LDG_RATE_PRM;
+        $intervalW = $intervalL = 0;
+
+        if ($idRatePrm == 0 || !$idRatePrm) {
+            $intervalW = $intervalL = 0;
+        } else {
+            $precalcLdgRatePrm = PrecalcLdgRatePrm::find($idRatePrm);
+
+            if ($precalcLdgRatePrm) {
+                $intervalW = $precalcLdgRatePrm->W_INTERVAL;
+                $intervalL = $precalcLdgRatePrm->L_INTERVAL;
+            }
+        }
+
+
         $base64img = '';
         // Create an image with the specified dimensions
         // $image = imageCreate(300, 200);
@@ -750,8 +768,6 @@ class StudyEquipmentService
         // // Release memory
         // imageDestroy($image);
         // $base64img = base64_encode( ob_get_clean() );
-        $widthInterVal = $this->convert->prodDimensionSave($input['WIDTHINTERVAL']);
-        $lengthInterVal = $this->convert->prodDimensionSave($input['LENGTHINTERVAL']);
 
         $cb = null;
         $equip = $sequip->equipment;
@@ -760,6 +776,9 @@ class StudyEquipmentService
         $layoutGeneration = $sequip->layoutGenerations->first();
         $layoutRes = $sequip->layoutResults->first();
         $prodShape = $sequip->study->products->first()->productElmts->first()->ID_SHAPE;
+
+        $widthInterVal = ($layoutGeneration->WIDTH_INTERVAL < 0) ? doubleval($intervalW) : $layoutGeneration->WIDTH_INTERVAL;
+        $lengthInterVal = ($layoutGeneration->LENGTH_INTERVAL < 0) ? doubleval($intervalL) : $layoutGeneration->LENGTH_INTERVAL;
 
         if ($sequip->BATCH_PROCESS) {
             $lfEquipLength = $layoutGeneration->SHELVES_LENGTH;
