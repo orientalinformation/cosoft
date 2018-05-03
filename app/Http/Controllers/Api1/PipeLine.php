@@ -29,13 +29,13 @@ class PipeLine extends Controller
     protected $auth;
     
     /**
-	 * @var App\Cryosoft\UnitsService
-	 */
+     * @var App\Cryosoft\UnitsService
+     */
     protected $units;
     
         /**
-	 * @var App\Cryosoft\MinMaxService
-	 */
+     * @var App\Cryosoft\MinMaxService
+     */
     protected $minmax;
     
     protected $value;
@@ -167,7 +167,7 @@ class PipeLine extends Controller
 
         for ($i = 0; $i < count($listLabelLine); $i++) { 
 
-			if ($listLabelLine[$i]->LABEL == $name) {
+            if ($listLabelLine[$i]->LABEL == $name) {
                 $lineExist = LineElmt::find(intval($listLabelLine[$i]->ID_TRANSLATION));
 
                 if ($lineExist) {
@@ -177,7 +177,7 @@ class PipeLine extends Controller
                         return 0;
                     }
                 }
-			}
+            }
         }
 
         $lineElmt = new LineElmt();
@@ -379,7 +379,7 @@ class PipeLine extends Controller
 
         for ($i = 0; $i < count($listLabelLine); $i++) { 
 
-			if ($listLabelLine[$i]->LABEL == $name) {
+            if ($listLabelLine[$i]->LABEL == $name) {
                 $idLineExist = $listLabelLine[$i]->ID_TRANSLATION;
                 $lineExist = LineElmt::find(intval($idLineExist));
 
@@ -390,7 +390,7 @@ class PipeLine extends Controller
                         return 0;
                     }
                 }
-			}
+            }
         }
         $lineElmt = new LineElmt();
         $lineElmt->LINE_VERSION = 0;
