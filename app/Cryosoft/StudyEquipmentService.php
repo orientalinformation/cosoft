@@ -795,7 +795,7 @@ class StudyEquipmentService
         // We find back the product length and width from other values
         $plength = 0.0; // double
         $pwidth = 0.0; // double
-
+ 
         $pwidth = ($lfEquipWidth - 2 * $layoutRes->LEFT_RIGHT_INTERVAL
             - $widthInterVal * ($layoutRes->NUMBER_IN_WIDTH - 1)) / $layoutRes->NUMBER_IN_WIDTH;
 
@@ -855,7 +855,12 @@ class StudyEquipmentService
         $image->readImageBlob($svg);
         $image->setImageFormat("jpeg");
         $image->resizeImage(800, 800, \imagick::FILTER_LANCZOS, 1, true);
-        // $image->writeImage('image.png');
+        $public_path = rtrim(app()->basePath("public/"), '/');
+        $nameImgLayout = $sequip->study->ID_STUDY.'-'.$sequip->study->STUDY_NAME.'-StdeqpLayout-'.$sequip->ID_STUDY_EQUIPMENTS.'.jpg';
+        if (!is_dir($public_path . "/reports/" . $sequip->study->USERNAM)) {
+            mkdir($public_path . "/reports/" . $sequip->study->USERNAM, 0777, true);
+        } 
+        $image->writeImage($public_path . "/reports/" . $sequip->study->USERNAM ."/". $nameImgLayout);
         $base64img = base64_encode($image);
 
         $image->destroy();
