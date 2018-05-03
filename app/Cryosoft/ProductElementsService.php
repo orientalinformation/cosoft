@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\Factory as Auth;
 use App\Models\ProductElmt;
 use App\Models\InitialTemperature;
 use App\Models\MeshPosition;
+use App\Models\Product;
 
 class ProductElementsService
 {
@@ -71,13 +72,12 @@ class ProductElementsService
         return $listtemp;
     }
 
-    public function PropagationTempProdElmtIso ($pb, $b3D)
+    public function PropagationTempProdElmtIso($pb, $b3D)
     {
         $pe = \App\Models\ProductElmt::find($pb['ID_PRODUCT_ELMT']);
         $product = \App\Models\Product::find($pb['ID_PROD']);
         $study = $product->study;
         $prodMeshgene = $product->meshGenerations()->first();
-        // log . debug("PropagationTempProdElmtIso / 3D?:" + b3D);
         
         // search nb point in axe X Z
         $nbPointaxe1 = 1;
@@ -147,7 +147,7 @@ class ProductElementsService
         }
     }
 
-    public function PropagationTempProdElmtIsoForBreaded ($pb)
+    public function PropagationTempProdElmtIsoForBreaded($pb)
     {
         $pe = \App\Models\ProductElmt::find($pb['ID_PRODUCT_ELMT']);
         $product = \App\Models\Product::find($pb['ID_PROD']);
@@ -223,7 +223,7 @@ class ProductElementsService
                 }
             }
             
-            //	first mesh order (node number) on each axis ( -1 => for following loop)
+            //  first mesh order (node number) on each axis ( -1 => for following loop)
             $firstMesh1 = $pointMeshOrder1[0];
             $firstMesh2 = $pointMeshOrder2[0];
             $firstMesh3 = $pointMeshOrder3[0];
@@ -245,7 +245,7 @@ class ProductElementsService
                         if (!(($i >= $firstIntNode1) && ($i <= $lastIntNode1)
                             && ($j >= $firstIntNode2) && ($j <= $lastIntNode2)
                             && ($k >= $firstIntNode3) && ($k <= $lastIntNode3))) {
-                            //	save node temperature
+                            //  save node temperature
                             $temp = new InitialTemperature();
                             $temp->ID_PRODUCTION = ($study->ID_PRODUCTION);
                             $temp->MESH_1_ORDER = ($i);
@@ -268,5 +268,38 @@ class ProductElementsService
                 InitialTemperature::insert($slice);
             }
         }
+    }
+
+    public function getProdElmtthickness($ID_PRODUCT_ELMT) 
+    { 
+        $lfheight = null;
+
+        $prodElmt = ProductElmt::find($ID_PRODUCT_ELMT);
+
+        if ($prodElmt) {
+            $lfheight = doubleval($prodElmt->SHAPE_PARAM2);
+            $shapepos = doubleval($prodElmt->SHAPE_POS2);
+
+            switch ($prodElmt->ID_SHAPE) {
+              case 1: 
+              case 2: 
+              case 3: 
+              case 4: 
+              case 5: 
+              case 9: 
+                break;
+              
+              case 6: 
+              case 7: 
+              case 8: 
+                if ($shapepos == 0.0) {
+                  $lfheight /= 2.0;
+                }
+                break;
+            }
+            $lfheight = $this->units->prodDimension($lfheight);
+        }
+
+        return $lfheight;
     }
 }
