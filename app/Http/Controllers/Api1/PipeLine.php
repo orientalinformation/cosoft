@@ -33,7 +33,7 @@ class PipeLine extends Controller
      */
     protected $units;
     
-        /**
+    /**
      * @var App\Cryosoft\MinMaxService
      */
     protected $minmax;
@@ -297,29 +297,24 @@ class PipeLine extends Controller
         } else {
             $lineCurr = Translation::where('TRANS_TYPE', 27)->where('ID_TRANSLATION', $idPipeLine)->first();
             if ($lineCurr) {
-
                 if ($lineCurr->LABEL != $name) {
                     $listLabelLine = Translation::where('TRANS_TYPE', 27)->get();
                     $idLineExist = 0;
-
                     for ($i = 0; $i < count($listLabelLine); $i++) { 
-
                         if ($listLabelLine[$i]->LABEL == $name) {
                             $idLineExist = $listLabelLine[$i]->ID_TRANSLATION;
                             $lineExist = LineElmt::find(intval($idLineExist));
 
                             if ($lineExist) {
-
                                 if (doubleval($lineExist->LINE_VERSION) == doubleval($version)) {
-
                                     return 0;
                                 }
                             }
                         }
                     }
                 }
-                Translation::where('TRANS_TYPE', 27)->where('ID_TRANSLATION', $idPipeLine)->update(['LABEL' => $name]);
 
+                Translation::where('TRANS_TYPE', 27)->where('ID_TRANSLATION', $idPipeLine)->update(['LABEL' => $name]);
 
                 if ($type == 3) {
                     $size = $this->units->tankCapacity($size, $this->value->RESERVOIR_CAPACITY_CO2, 3, 0);
@@ -357,7 +352,6 @@ class PipeLine extends Controller
             } else {
                 $rs->ELT_SIZE = $this->units->lineDimension($rs->ELT_SIZE, 3, 1);
             }
-
         }
     }
 
@@ -371,27 +365,23 @@ class PipeLine extends Controller
 
         if (isset($input['LABEL'])) $name = $input['LABEL'];
 
-
         $lineElmtOld = LineElmt::find($idOldLine);
         $comment = $lineElmtOld->LINE_COMMENT;
         $listLabelLine = Translation::where('TRANS_TYPE', 27)->get();
         $idLineExist = 0;
 
         for ($i = 0; $i < count($listLabelLine); $i++) { 
-
             if ($listLabelLine[$i]->LABEL == $name) {
                 $idLineExist = $listLabelLine[$i]->ID_TRANSLATION;
                 $lineExist = LineElmt::find(intval($idLineExist));
-
                 if ($lineExist) {
-
                     if (doubleval($lineExist->LINE_VERSION) == doubleval(0)) {
-
                         return 0;
                     }
                 }
             }
         }
+
         $lineElmt = new LineElmt();
         $lineElmt->LINE_VERSION = 0;
         $lineElmt->LINE_RELEASE = 1;
@@ -430,7 +420,6 @@ class PipeLine extends Controller
         } else {
             $rs->ELT_SIZE = $this->units->lineDimension($rs->ELT_SIZE, 3, 1);
         }
-
     }
 
     public function checkPipeline()
@@ -488,7 +477,6 @@ class PipeLine extends Controller
         }
 
         if (intval($type) < 3) {
-
             if (intval($type) != 2) {
                 $checklosses1 = $this->minmax->checkMinMaxValue($losses1, 1111);
                 if ( !$checklosses1 ) {
