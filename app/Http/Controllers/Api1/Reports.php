@@ -2302,7 +2302,7 @@ class Reports extends Controller
         foreach ($study->studyEquipments as $sequip) {
             $layout = $this->stdeqp->generateLayoutPreview($sequip);
         }
-        $nameLayout = $study->ID_STUDY.'-'.$study->STUDY_NAME.'-StdeqpLayout-';
+        // $nameLayout = $study->ID_STUDY.'-'.$study->STUDY_NAME.'-StdeqpLayout-';
         $idComArr = [];
         $comprelease = [];
         foreach ($product->productElmts as $productElmt) {
