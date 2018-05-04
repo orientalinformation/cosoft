@@ -78,7 +78,8 @@ class StudyEquipmentService
         $sEquip->fresh();
 
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($sEquip->ID_STUDY), $sEquip->ID_STUDY_EQUIPMENTS);
-        return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 43);
+        // return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 43);
+        return 1;
     }
 
     /**
