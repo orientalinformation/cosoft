@@ -29,13 +29,13 @@ class PipeLine extends Controller
     protected $auth;
     
     /**
-	 * @var App\Cryosoft\UnitsService
-	 */
+     * @var App\Cryosoft\UnitsService
+     */
     protected $units;
     
         /**
-	 * @var App\Cryosoft\MinMaxService
-	 */
+     * @var App\Cryosoft\MinMaxService
+     */
     protected $minmax;
     
     protected $value;
@@ -155,13 +155,19 @@ class PipeLine extends Controller
             if ($type != 2) $losses1 = 0; 
         }
 
-        if ($comment == '') $comment =  'Created on ' . $current->toDateTimeString() . ' by '. $this->auth->user()->USERNAM ;
+        if (count($comment) == 0) {
+            $comment = 'Create on ' . $current->toDateTimeString() . ' by ' . $this->auth->user()->USERNAM;
+        } else if (count($comment) < 2100) {
+            $comment = $comment. "\r\nCreate on " . $current->toDateTimeString() . " by " . $this->auth->user()->USERNAM;
+        } else {
+            $comment = substr($comment, 0, 1999) . '. Create on ' . $current->toDateTimeString() . ' by ' . $this->auth->user()->USERNAM;
+        }
 
         $listLabelLine = Translation::where('TRANS_TYPE', 27)->get();
 
         for ($i = 0; $i < count($listLabelLine); $i++) { 
 
-			if ($listLabelLine[$i]->LABEL == $name) {
+            if ($listLabelLine[$i]->LABEL == $name) {
                 $lineExist = LineElmt::find(intval($listLabelLine[$i]->ID_TRANSLATION));
 
                 if ($lineExist) {
@@ -171,7 +177,7 @@ class PipeLine extends Controller
                         return 0;
                     }
                 }
-			}
+            }
         }
 
         $lineElmt = new LineElmt();
@@ -373,7 +379,7 @@ class PipeLine extends Controller
 
         for ($i = 0; $i < count($listLabelLine); $i++) { 
 
-			if ($listLabelLine[$i]->LABEL == $name) {
+            if ($listLabelLine[$i]->LABEL == $name) {
                 $idLineExist = $listLabelLine[$i]->ID_TRANSLATION;
                 $lineExist = LineElmt::find(intval($idLineExist));
 
@@ -384,7 +390,7 @@ class PipeLine extends Controller
                         return 0;
                     }
                 }
-			}
+            }
         }
         $lineElmt = new LineElmt();
         $lineElmt->LINE_VERSION = 0;

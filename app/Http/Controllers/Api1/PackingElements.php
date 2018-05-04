@@ -27,14 +27,14 @@ class PackingElements extends Controller
     protected $auth;
     
     /**
-	 * @var App\Cryosoft\UnitsService
-	 */
+     * @var App\Cryosoft\UnitsService
+     */
     protected $units;
     
         /**
-	 * @var App\Cryosoft\MinMaxService
-	 */
-	protected $minmax;
+     * @var App\Cryosoft\MinMaxService
+     */
+    protected $minmax;
 
     /**
      * Create a new controller instance.
@@ -94,14 +94,20 @@ class PackingElements extends Controller
 
         if (isset($input['PACKING_RELEASE'])) $release = $input['PACKING_RELEASE'];
 
-        if ($comment == '') $comment =  'Created on ' . $current->toDateTimeString() . ' by '. $this->auth->user()->USERNAM ;
+        if (count($comment) == 0) {
+            $comment = 'Create on ' . $current->toDateTimeString() . ' by ' . $this->auth->user()->USERNAM;
+        } else if (count($comment) < 2100) {
+            $comment = $comment. "\r\nCreate on " . $current->toDateTimeString() . " by " . $this->auth->user()->USERNAM;
+        } else {
+            $comment = substr($comment, 0, 1999) . '. Create on ' . $current->toDateTimeString() . ' by ' . $this->auth->user()->USERNAM;
+        }
 
         $packingElmts = Translation::where('TRANS_TYPE', 3)->get();
         $idPackExist = 0;
 
         for ($i = 0; $i < count($packingElmts); $i++) { 
 
-			if ($packingElmts[$i]->LABEL == $name) {
+            if ($packingElmts[$i]->LABEL == $name) {
                 $idPackExist = $packingElmts[$i]->ID_TRANSLATION;
                 $packExist = PackingElmt::find(intval($idPackExist));
 
@@ -112,7 +118,7 @@ class PackingElements extends Controller
                         return 0;
                     }
                 }
-			}
+            }
         }
         
         $packingElmt = new PackingElmt();
@@ -253,7 +259,7 @@ class PackingElements extends Controller
 
         for ($i = 0; $i < count($listLabelPacking); $i++) { 
 
-			if ($listLabelPacking[$i]->LABEL == $name) {
+            if ($listLabelPacking[$i]->LABEL == $name) {
                 $idPackExist = $listLabelPacking[$i]->ID_TRANSLATION;
                 $packExist = PackingElmt::find(intval($idPackExist));
 
@@ -264,7 +270,7 @@ class PackingElements extends Controller
                         return 0;
                     }
                 }
-			}
+            }
         }
         $current = Carbon::now('Asia/Ho_Chi_Minh');
         $idUserLogon = $this->auth->user()->ID_USER;
