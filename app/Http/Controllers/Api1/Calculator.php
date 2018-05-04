@@ -737,6 +737,7 @@ class Calculator extends Controller
             $this->saveCalculationParameters($this->request, $idStudyEquipment, $brainMode);
             $this->saveTempRecordPts($this->request, $idStudy);
             //resetBrainStudyError(); not using
+
             $runType = $this->startMaxCapacityCalculation($this->request, $idStudy, $idStudyEquipment);
         } else {
             $this->saveEquipmentSettings($this->request, $idStudyEquipment);
@@ -1250,7 +1251,7 @@ class Calculator extends Controller
             if (isset($input['temperatures'])) {
                 $temperatures = $input['temperatures'];
                 if (count($temperatures) > 0) {
-                    $lfControlTemp = doubleval($temperatures[0]['value']);
+                    $lfControlTemp = doubleval($this->convert->controlTemperature($temperatures[0]['value']));
                 }
             } 
         } else {
