@@ -16,6 +16,8 @@ use Sofa\Eloquence\Mappable; // extension trait
  * @property mixed $SHAPE_PARAM1
  * @property mixed $SHAPE_PARAM2
  * @property mixed $SHAPE_PARAM3
+ * @property mixed $SHAPE_PARAM4
+ * @property mixed $SHAPE_PARAM5
  * @property mixed $PROD_DEHYD
  * @property mixed $PROD_DEHYD_COST
  * @property mixed $SHAPE_POS1
@@ -50,7 +52,7 @@ class ProductElmt extends Model
     /**
      * @var array
      */
-    protected $fillable = ['ID_PRODUCT_ELMT', 'ID_PROD', 'ID_SHAPE', 'ID_COMP', 'PROD_ELMT_NAME', 'SHAPE_PARAM1', 'SHAPE_PARAM2', 'SHAPE_PARAM3', 'PROD_DEHYD', 'PROD_DEHYD_COST', 'SHAPE_POS1', 'SHAPE_POS2', 'SHAPE_POS3', 'PROD_ELMT_ISO', 'ORIGINAL_THICK', 'NODE_DECIM', 'INSERT_LINE_ORDER', 'PROD_ELMT_WEIGHT', 'PROD_ELMT_REALWEIGHT'];
+    protected $fillable = ['ID_PRODUCT_ELMT', 'ID_PROD', 'ID_SHAPE', 'ID_COMP', 'PROD_ELMT_NAME', 'SHAPE_PARAM1', 'SHAPE_PARAM2', 'SHAPE_PARAM3', 'SHAPE_PARAM4','SHAPE_PARAM5','PROD_DEHYD', 'PROD_DEHYD_COST', 'SHAPE_POS1', 'SHAPE_POS2', 'SHAPE_POS3', 'PROD_ELMT_ISO', 'ORIGINAL_THICK', 'NODE_DECIM', 'INSERT_LINE_ORDER', 'PROD_ELMT_WEIGHT', 'PROD_ELMT_REALWEIGHT'];
 
     /*protected $casts = [
         'SHAPE_PARAM3' => 'double',
