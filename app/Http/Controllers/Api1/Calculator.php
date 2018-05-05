@@ -316,7 +316,7 @@ class Calculator extends Controller
             }
         }
         $this->saveTempRecordPts($this->request, $idStudy);
-        $this->cal->saveTempRecordPtsToReport($idStudy);
+        //$this->cal->saveTempRecordPtsToReport($idStudy);
 
         return $this->startNumericalCalculation($idStudy);
     }
