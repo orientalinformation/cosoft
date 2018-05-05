@@ -310,21 +310,11 @@ class Studies extends Controller
             if (!empty($input['name']) || ($study->STUDY_NAME  != null)) {
 
                 //duplicate study already exsits
-                $study->STUDY_NAME = $input['name'];
+                $study = $studyCurrent->replicate();
+                unset($study->STUDY_NAME);
+                unset($study->ID_USER);
                 $study->ID_USER = $this->auth->user()->ID_USER;
-                $study->OPTION_ECO = $studyCurrent->OPTION_ECO;
-                $study->CALCULATION_MODE = $studyCurrent->CALCULATION_MODE;
-                $study->COMMENT_TXT = $studyCurrent->COMMENT_TXT;
-                $study->OPTION_CRYOPIPELINE = $studyCurrent->OPTION_CRYOPIPELINE;
-                $study->OPTION_EXHAUSTPIPELINE = $studyCurrent->OPTION_EXHAUSTPIPELINE;
-                $study->CHAINING_CONTROLS = $studyCurrent->CHAINING_CONTROLS;
-                $study->CHAINING_ADD_COMP_ENABLE = $studyCurrent->CHAINING_ADD_COMP_ENABLE;
-                $study->CHAINING_NODE_DECIM_ENABLE = $studyCurrent->CHAINING_NODE_DECIM_ENABLE;
-                $study->HAS_CHILD = 0;
-                $study->PARENT_ID = $studyCurrent->PARENT_ID;
-                $study->PARENT_STUD_EQP_ID = $studyCurrent->PARENT_STUD_EQP_ID;
-                $study->CALCULATION_STATUS = $studyCurrent->CALCULATION_STATUS;
-                $study->TO_RECALCULATE = $studyCurrent->TO_RECALCULATE;
+                $study->STUDY_NAME = $input['name'];
                 $study->save();
 
                 //duplicate TempRecordPts already exsits

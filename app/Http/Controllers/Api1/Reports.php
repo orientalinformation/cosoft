@@ -145,22 +145,32 @@ class Reports extends Controller
             $productElmt = ProductElmt::where('ID_STUDY', $id)->first();
             $report->productElmt = $productElmt;
             $report->temperatureSymbol = $this->convert->temperatureSymbolUser();
-            $report->CONTOUR2D_TEMP_STEP = doubleval($report->CONTOUR2D_TEMP_STEP);
-
-            $report->CONTOUR2D_TEMP_MIN = $this->units->prodTemperature($report->CONTOUR2D_TEMP_MIN, 1, 1);
-            $report->CONTOUR2D_TEMP_MAX = $this->units->prodTemperature($report->CONTOUR2D_TEMP_MAX, 1, 1);
-
-
+            
             $borne = $this->getReportTemperatureBorne($id); 
             $report->refContRep2DTempMinRef = doubleval($borne[0]->MIN_TEMP);
             $report->refContRep2DTempMaxRef = doubleval($borne[0]->MAX_TEMP);
-
             $pasTemp = $this->calculatePasTemp($report->refContRep2DTempMinRef, $report->refContRep2DTempMaxRef, true);
-            $report->refContRep2DTempMinRef = $this->units->prodTemperature(doubleval($pasTemp['dTmin']), 1, 1);
-            $report->refContRep2DTempMaxRef = $this->units->prodTemperature(doubleval($pasTemp['dTMax']), 1, 1);
-
+            // $report->refContRep2DTempMinRef = $this->units->prodTemperature(doubleval($pasTemp['dTmin']), 1, 1);
+            // $report->refContRep2DTempMaxRef = $this->units->prodTemperature(doubleval($pasTemp['dTMax']), 1, 1);
             $report->refContRep2DTempStepRef = doubleval($pasTemp['dpas']);
 
+            if ($report->CONTOUR2D_TEMP_STEP == 0) {
+                $report->CONTOUR2D_TEMP_STEP = doubleval($pasTemp['dpas']);
+            } else {
+                $report->CONTOUR2D_TEMP_STEP = doubleval($report->CONTOUR2D_TEMP_STEP);
+            }
+
+            if ($report->CONTOUR2D_TEMP_MIN == 0) {
+                $report->CONTOUR2D_TEMP_MIN = doubleval($borne[0]->MIN_TEMP);
+            } else {
+                $report->CONTOUR2D_TEMP_MIN = $this->units->prodTemperature($report->CONTOUR2D_TEMP_MIN, 1, 1);
+            }
+
+            if ($report->CONTOUR2D_TEMP_MAX == 0) {
+                $report->CONTOUR2D_TEMP_MAX = doubleval($borne[0]->MAX_TEMP);
+            } else {
+                $report->CONTOUR2D_TEMP_MAX = $this->units->prodTemperature($report->CONTOUR2D_TEMP_MAX, 1, 1);
+            }
         } else {
             $minMaxSample = MinMax::where('LIMIT_ITEM', 1116)->first();
             $report = new Report();
