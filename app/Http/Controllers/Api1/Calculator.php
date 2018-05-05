@@ -456,7 +456,7 @@ class Calculator extends Controller
         $sdisableFields = $this->cal->disableFields($idStudy);
         
         $sdisableTS = $sdisableTR = $sdisableTOC = $sdisableOptim = $sdisableNbOptim = $sdisableStorage = 0;
-        $scheckOptim = $scheckStorage = 0;
+        $scheckOptim = $scheckStorage = $CAP_VARIABLE_TR = 0;
 
         $studyEquipment = StudyEquipment::find($idStudyEquipment);
         if ($studyEquipment) {
@@ -507,6 +507,10 @@ class Calculator extends Controller
                     $scheckOptim = 0;
                 } else {
                     $sdisableOptim = 0;
+                }
+
+                if (!$this->equipment->getCapability($equipment->CAPABILITIES, $this->value->CAP_VARIABLE_TR)) {
+                    $CAP_VARIABLE_TR = 1;
                 }
             }
         } else {
@@ -649,6 +653,7 @@ class Calculator extends Controller
             'sdisableStorage' => $sdisableStorage,
             'sdisableTS' => $sdisableTS,
             'sdisableTR' => $sdisableTR,
+            'CAP_VARIABLE_TR' => $CAP_VARIABLE_TR,
 
             'dwellingTimes' => $dwellingTimes,
             'temperatures' => $temperatures,
