@@ -160,19 +160,19 @@ class Reports extends Controller
             $report->refContRep2DTempMaxRef = $this->units->prodTemperature($getTemp['chartTempInterval'][1]);
             
             if ($report->CONTOUR2D_TEMP_STEP == 0) {
-                $report->CONTOUR2D_TEMP_STEP = $this->units->prodTemperature($proSections['chartTempInterval'][2]);
+                $report->CONTOUR2D_TEMP_STEP = $this->units->prodTemperature($getTemp['chartTempInterval'][2]);
             } else {
                 $report->CONTOUR2D_TEMP_STEP = doubleval($report->CONTOUR2D_TEMP_STEP);
             }
 
             if ($report->CONTOUR2D_TEMP_MIN == 0) {
-                $report->CONTOUR2D_TEMP_MIN =$this->units->prodTemperature($proSections['chartTempInterval'][0]);
+                $report->CONTOUR2D_TEMP_MIN =$this->units->prodTemperature($getTemp['chartTempInterval'][0]);
             } else {
                 $report->CONTOUR2D_TEMP_MIN = $this->units->prodTemperature($report->CONTOUR2D_TEMP_MIN, 1, 1);
             }
 
             if ($report->CONTOUR2D_TEMP_MAX == 0) {
-                $report->CONTOUR2D_TEMP_MAX = $this->units->prodTemperature($proSections['chartTempInterval'][1]);
+                $report->CONTOUR2D_TEMP_MAX = $this->units->prodTemperature($getTemp['chartTempInterval'][1]);
             } else {
                 $report->CONTOUR2D_TEMP_MAX = $this->units->prodTemperature($report->CONTOUR2D_TEMP_MAX, 1, 1);
             }
