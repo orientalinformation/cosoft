@@ -231,8 +231,8 @@ class StudyEquipments extends Controller
         $studyEquipment->tExt = $input['TExt'];
         $studyEquipment->calculation_parameter = (object) $input['calculation_parameter'];
         $this->stdeqp->updateEquipmentData($studyEquipment);
+        $this->stdeqp->applyStudyCleaner($studyEquipment->ID_STUDY, $id, 43);
         return 1;
-        // $this->stdeqp->runStudyCleaner($studyEquipment->ID_STUDY, $id, 54);
     }
 
     public function getStudyEquipmentLayout($id) 
