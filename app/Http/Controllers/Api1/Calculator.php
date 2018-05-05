@@ -658,7 +658,8 @@ class Calculator extends Controller
             'dwellingTimes' => $dwellingTimes,
             'temperatures' => $temperatures,
             'toc' => $toc,
-
+            
+            'scheckOptim' => $scheckOptim,
             'checkOptim' => $checkOptim,
             'epsilonTemp' => $epsilonTemp,
             'epsilonEnth' => $epsilonEnth,
