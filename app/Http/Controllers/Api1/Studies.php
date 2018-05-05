@@ -315,6 +315,7 @@ class Studies extends Controller
                 unset($study->ID_USER);
                 $study->ID_USER = $this->auth->user()->ID_USER;
                 $study->STUDY_NAME = $input['name'];
+                $study->COMMENT_TXT = $studyCurrent->COMMENT_TXT .'</br>'. 'Created on ' . date("D M j G:i:s T Y") . ' by ' . $this->auth->user()->USERNAM;
                 $study->save();
 
                 //duplicate TempRecordPts already exsits
@@ -820,11 +821,11 @@ class Studies extends Controller
         $study->ID_USER = $this->auth->user()->ID_USER;
         $study->OPTION_ECO = isset($input['OPTION_ECO'])?$input['OPTION_ECO']:0;
         $study->CALCULATION_MODE = $input['CALCULATION_MODE'];
-        $study->COMMENT_TXT = isset($input['COMMENT_TXT'])?$input['COMMENT_TXT']:'';
-        $study->OPTION_CRYOPIPELINE = false;
-        $study->OPTION_EXHAUSTPIPELINE = false;
-        $study->CHAINING_CONTROLS = false;
-        $study->CHAINING_ADD_COMP_ENABLE = false;
+        $study->COMMENT_TXT = isset($input['COMMENT_TXT'])?$input['COMMENT_TXT'] . '</br>' . 'Created on ' . date("D M j G:i:s T Y") . ' by ' . $this->auth->user()->USERNAM . '</br>': 'Created on ' . date("D M j G:i:s T Y") . ' by ' . $this->auth->user()->USERNAM;
+        $study->OPTION_CRYOPIPELINE = isset($input['OPTION_CRYOPIPELINE'])?$input['OPTION_CRYOPIPELINE']:'';
+        $study->OPTION_EXHAUSTPIPELINE = isset($input['OPTION_EXHAUSTPIPELINE'])?$input['OPTION_EXHAUSTPIPELINE']:'';
+        $study->CHAINING_CONTROLS = isset($input['CHAINING_CONTROLS'])?$input['CHAINING_CONTROLS']:'';
+        $study->CHAINING_ADD_COMP_ENABLE = isset($input['CHAINING_ADD_COMP_ENABLE'])?$input['CHAINING_ADD_COMP_ENABLE']:'';
         $study->CHAINING_NODE_DECIM_ENABLE = 0;
         $study->HAS_CHILD = 0;
         $study->TO_RECALCULATE = 0;
