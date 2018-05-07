@@ -352,6 +352,8 @@ class PipeLine extends Controller
             } else {
                 $rs->ELT_SIZE = $this->units->lineDimension($rs->ELT_SIZE, 3, 1);
             }
+
+            return $rs;
         }
     }
 
