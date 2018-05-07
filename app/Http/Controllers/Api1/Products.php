@@ -217,6 +217,7 @@ class Products extends Controller
             $elements[$key]['SHAPE_PARAM3'] = $this->unit->prodDimension($pr->SHAPE_PARAM3);
             $elements[$key]['PROD_ELMT_WEIGHT'] = $this->unit->mass($pr->PROD_ELMT_WEIGHT);
             $elements[$key]['PROD_ELMT_REALWEIGHT'] = $this->unit->mass($pr->PROD_ELMT_REALWEIGHT);
+            $elements[$key]['componentName'] = $this->product->getComponentDisplayName($pr->ID_COMP);
         }
 
         $specificDimension = $this->unit->prodDimension($specificDimension);
