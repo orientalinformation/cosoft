@@ -1320,6 +1320,9 @@ class Studies extends Controller
         $layoutGen->save();
 
         $this->stdeqp->calculateEquipmentParams($sEquip);
+        if ($input['studyClean'] == true) {
+            $this->stdeqp->applyStudyCleaner($sEquip->ID_STUDY, $id, 43);
+        }
     }
 
     public function getChainingModel($id) 
