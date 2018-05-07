@@ -164,12 +164,6 @@ class Products extends Controller
         $oldRealMass = $nElements->PROD_ELMT_REALWEIGHT;
         $oldDim2 = round(doubleval($nElements->SHAPE_PARAM2), 4);
 
-        $nElements->PROD_ELMT_NAME = $description;
-        $nElements->SHAPE_PARAM2 = $this->unit->prodDimensionSave($dim2);
-        $nElements->PROD_ELMT_WEIGHT = $this->unit->massSave($computedmass);
-        $nElements->PROD_ELMT_REALWEIGHT = $this->unit->massSave($realmass);
-        $nElements->save();
-
         $ok1 = $ok2 = 0;
 
         if ($oldDim2 != $dim2) {
@@ -184,6 +178,12 @@ class Products extends Controller
             $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $id, $idElement);
             $ok2 = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($product->ID_STUDY, $conf, 3);
         }
+
+        $nElements->PROD_ELMT_NAME = $description;
+        $nElements->SHAPE_PARAM2 = $this->unit->prodDimensionSave($dim2);
+        $nElements->PROD_ELMT_WEIGHT = $this->unit->massSave($computedmass);
+        $nElements->PROD_ELMT_REALWEIGHT = $this->unit->massSave($realmass);
+        $nElements->save();
 
         return compact('oldDim2', 'dim2', 'ok1', 'ok2', 'idElement');
     }
