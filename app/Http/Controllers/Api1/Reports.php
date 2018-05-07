@@ -150,8 +150,8 @@ class Reports extends Controller
             // $report->refContRep2DTempMinRef = doubleval($borne[0]->MIN_TEMP);
             // $report->refContRep2DTempMaxRef = doubleval($borne[0]->MAX_TEMP);
             // $pasTemp = $this->calculatePasTemp($report->refContRep2DTempMinRef, $report->refContRep2DTempMaxRef, true);
-            // // $report->refContRep2DTempMinRef = $this->units->prodTemperature(doubleval($pasTemp['dTmin']), 1, 1);
-            // // $report->refContRep2DTempMaxRef = $this->units->prodTemperature(doubleval($pasTemp['dTMax']), 1, 1);
+            // $report->refContRep2DTempMinRef = $this->units->prodTemperature(doubleval($pasTemp['dTmin']), 1, 1);
+            // $report->refContRep2DTempMaxRef = $this->units->prodTemperature(doubleval($pasTemp['dTMax']), 1, 1);
             // $report->refContRep2DTempStepRef = doubleval($pasTemp['dpas']);
             $idstudyequips = $study->studyEquipments;
             $getTemp = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips[0]->ID_STUDY_EQUIPMENTS, 1);
@@ -162,7 +162,7 @@ class Reports extends Controller
             if ($report->CONTOUR2D_TEMP_STEP == 0) {
                 $report->CONTOUR2D_TEMP_STEP = $this->units->prodTemperature($getTemp['chartTempInterval'][2]);
             } else {
-                $report->CONTOUR2D_TEMP_STEP = doubleval($report->CONTOUR2D_TEMP_STEP);
+                $report->CONTOUR2D_TEMP_STEP = $this->units->prodTemperature($report->CONTOUR2D_TEMP_STEP, 1, 1);
             }
 
             if ($report->CONTOUR2D_TEMP_MIN == 0) {
