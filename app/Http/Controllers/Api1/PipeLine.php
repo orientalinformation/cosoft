@@ -460,7 +460,7 @@ class PipeLine extends Controller
             $size = $this->units->lineDimension($size, 3, 0);
             $checksize = $this->minmax->checkMinMaxValue($size, 1109);
             if ( !$checksize ) {
-                $mm = $this->minmax->getMinMaxLineDimension(1109, 3);//getMinMaxLimitItem
+                $mm = $this->minmax->getMinMaxLineDimension(1109, 3);
                 return  [
                     "Message" => "Value out of range in  Size (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
                 ];
