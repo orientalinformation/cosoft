@@ -166,6 +166,18 @@ class ProductService
         return $result;
     }
 
+    public function getComponentDisplayName($idComp)
+    {
+        $component = Translation::select('Translation.ID_TRANSLATION', 'Translation.LABEL', 'component.ID_USER', 'component.COMP_RELEASE', 'component.COMP_VERSION', 'component.OPEN_BY_OWNER', 'component.ID_COMP', 'ln2user.USERNAM')
+        ->join('component', 'Translation.ID_TRANSLATION', '=', 'component.ID_COMP')
+        ->join('ln2user', 'component.ID_USER', '=', 'ln2user.ID_USER')
+        ->where('Translation.TRANS_TYPE', 1)
+        ->where('component.ID_COMP', $idComp)
+        ->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->first();
+
+        return $component->LABEL . ' - ' . $component->COMP_VERSION . ' (Active)';;
+    }
+
     // search mesh order for one elment on an axis
     public function searchNbPtforElmt(ProductElmt &$elmt, $axe = 2)
     {
