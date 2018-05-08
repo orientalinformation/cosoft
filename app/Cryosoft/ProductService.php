@@ -19,6 +19,7 @@ class ProductService
         $this->auth = $app['Illuminate\\Contracts\\Auth\\Factory'];
         $this->values = app('App\\Cryosoft\\ValueListService');
         $this->units = app('App\\Cryosoft\\UnitsConverterService');
+        $this->convert = app('App\\Cryosoft\\UnitsService');
         $this->studies = app('App\\Cryosoft\\StudyService');
         $this->stdeqp = app('App\\Cryosoft\\StudyEquipmentService');
 
@@ -455,7 +456,7 @@ class ProductService
     {
         $study = $product->study;
 
-        $lfTemp = floatval($this->units->prodTemperature($stemp));
+        $lfTemp = floatval($this->convert->prodTemperature($stemp, 1, 0));
 
         $i = $k = 0;
 
