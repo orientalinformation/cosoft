@@ -456,7 +456,7 @@ class ProductService
     {
         $study = $product->study;
 
-        $lfTemp = floatval($this->convert->prodTemperature($stemp, 1, 0));
+        $lfTemp = floatval($this->convert->prodTemperature($stemp, 0, 0));
 
         $i = $k = 0;
 

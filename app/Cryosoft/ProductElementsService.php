@@ -225,7 +225,7 @@ class ProductElementsService
             $lastMesh3 = $pointMeshOrder3[$nbPointaxe3 - 1];
             
             // save temperature
-            $lfTemp = $this->convert->prodTemperature(floatval($pb['initTemp'][0]), 1, 0);
+            $lfTemp = $this->convert->prodTemperature(floatval($pb['initTemp'][0]), 0, 0);
 
             $listTemp = [];
  
