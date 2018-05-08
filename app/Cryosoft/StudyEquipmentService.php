@@ -39,6 +39,7 @@ class StudyEquipmentService
         $this->kernel = $app['App\\Kernel\\KernelService'];
         $this->equip = $app['App\\Cryosoft\\EquipmentsService'];
         $this->brain = $app['App\\Cryosoft\\BrainCalculateService'];
+        $this->cal = $app['App\\Cryosoft\\CalculateService'];
     }
 
     public function calculateEquipmentParams(StudyEquipment &$sEquip) 
@@ -1055,7 +1056,7 @@ class StudyEquipmentService
         $ret = $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, $number);
 
         if ($ret == 0 && $this->cal->isStudyHasChilds($idStudy)) {
-            $this->cal->getCalculableStudyEquipments($idStudy, $idStudyEquipment);
+            $this->cal->setChildsStudiesToRecalculate($idStudy, $idStudyEquipment);
         }
 
         return $ret;    
@@ -1072,4 +1073,140 @@ class StudyEquipmentService
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
         return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, $number);
     }
+
+    public function afterStudyCleaner($idStudy, $idStudyEquipment, $mode, $bNewText = false, $bNewTr = false, $bNewTs = false, $bNewVc = false)
+    {
+        $bRecalcPhamCast = false;
+        $bRecalcEco = false;
+        $bRecalcExhaust = false;
+        $bRecalcTS = false;
+        $bRecalcTOC = false;
+
+        switch ($mode) {
+            case 43:
+                $bRecalcTOC = $bRecalcTS = $bRecalcPhamCast = $bRecalcExhaust = $bRecalcEco = false;
+                break;
+
+            case 41:
+            case 42:
+                $bRecalcTOC = $bRecalcTS = $true;
+                $bRecalcPhamCast = $bRecalcExhaust = $bRecalcEco = false;
+                break;
+
+            case 48:
+                $bRecalcTOC = true;
+                $bRecalcTS = true;
+                $bRecalcPhamCast = $bRecalcExhaust = true;
+                $bRecalcEco = false;
+                break;
+            case 45:
+                $bRecalcTOC = $bRecalcTS = $bRecalcPhamCast = $bRecalcExhaust = false;
+                $bRecalcEco = true;
+                break;
+            case 44:
+            case 46:
+            case 47:
+            default:
+                $bRecalcTOC = $bRecalcTS = $bRecalcPhamCast = $bRecalcExhaust = true;
+                $bRecalcEco = false;
+                break;
+
+            $this->recalculateEquipment($idStudy, $idStudyEquipment, $bRecalcTOC, $bRecalcTS, $bRecalcPhamCast, $bRecalcExhaust, $bRecalcEco);
+        }
+    }
+
+
+    public function recalculateEquipment($idStudy, $idStudyEquipment, $bRecalcTOC, $bRecalcTS, $bRecalcPhamCast, $bRecalcExhaust, $bRecalcEco)
+    {
+        $bExPhamCast = false;
+        $bExExhaust = false;
+        $bExTOC = false;
+        $bExTS = false;
+        $bExEco = false;
+
+        $studyEquipments = StudyEquipment::where('ID_STUDY', $idStudy)->get();
+        if (count($studyEquipments) > 0) {
+            foreach ($studyEquipments as $studyEquipment) {
+                $capability = $studyEquipment->CAPABILITIES;
+                if (($idStudyEquipment == -1) || ($studyEquipment->ID_STUDY_EQUIPMENTS == $idStudyEquipment)) {
+                    if ($bRecalcTOC) {
+                        try {
+                            // dbdata.getEquipmentLayout(sequip);
+                            $this->runLayoutCalculator($idStudy, $studyEquipment->ID_STUDY_EQUIPMENTS);
+                        } catch (Exception $e) {
+                            $bExTOC = true;
+                        }
+                    }
+
+                    if (($bRecalcTS) && (!$bExTOC)) {
+
+                        if ($this->equip->getCapability($capability, 2) && $this->equip->getCapability($capability, 131072)) {
+                            try {
+                                // dbdata.getEquipmentLayout(sequip);
+                                $this->runTSCalculator($idStudy, $studyEquipment->ID_STUDY_EQUIPMENTS);
+                            } catch (OXException $e) {
+                                $bExTS = true;
+                            }
+                        }
+                    }
+
+                    $doTR = false;
+                    if (($bRecalcPhamCast) && (!$bExTOC) && (!$bExTS)) {
+                        if (($this->equip->getCapability($capability, 1)) && ($this->equip->getCapability($capability, 524288)) && ($this->equip->getCapability($capability, 8))) {
+                            $doTR = true;
+
+                            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
+                            $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, !$doTR);
+                        }
+                    }
+
+                    if (($bRecalcTS) && ($bRecalcPhamCast) && (!$bExTOC) && (!$bExTS) && (!$bExPhamCast)) {
+
+                        if ((!$doTR) && ($this->equip->getCapability($capability, 2)) && ($this->equip->getCapability($capability, 262144)) && ($this->equip->getCapability($capability, 8))) {
+
+                            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
+                            $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, !$doTR);
+                        }
+                    }
+
+                    if (($bRecalcExhaust) && (!$bExTOC) && (!$bExTS) && (!$bExPhamCast)) {
+                        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
+                        $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 1);
+                    }
+
+                    if (($bRecalcEco) && (!$bExTOC) && (!$bExTS) && (!$bExPhamCast)) {
+                        try {
+                            $this->runEcoCalculator($studyEquipment);
+                        } catch (Exception $e) {
+                            $bExEco = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public function runLayoutCalculator($idStudy, $idStudyEquipment)
+    {
+        $idStudyEquipment = $studyEquipment->ID_STUDY_EQUIPMENTS;
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\layout-trace.txt');
+        $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, 1);
+
+        
+    }
+
+    public function runTSCalculator($idStudy, $idStudyEquipment)
+    {
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\layout-ts-trace.txt');
+        $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, 2);
+    }
+
+    public function runEcoCalculator(StudyEquipment &$studyEquipment)
+    {
+        if (count($studyEquipment->economicResults) > 0) {
+            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
+            $this->kernel->getKernelObject('KernelToolCalculator')->ECCalculator($conf, 1);
+        }
+    }
+
 }

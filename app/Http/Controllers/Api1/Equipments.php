@@ -1620,11 +1620,11 @@ class Equipments extends Controller
     public function reCalculate($id)
     {
         $study = Study::find($id);
-
         $studyEquipments = $study->studyEquipments;
-
+        $this->stdeqp->runStudyCleaner($id, -1, 48);
         if (count($studyEquipments) > 0) {
             foreach ($studyEquipments as $sEquip) {
+                
                 $sEquip->BRAIN_SAVETODB = 0;
                 $sEquip->BRAIN_TYPE = 0;
                 $sEquip->EQUIP_STATUS = 0;
@@ -1636,6 +1636,7 @@ class Equipments extends Controller
                 $sEquip->save();
             }
         }
+        $this->stdeqp->afterStudyCleaner($id, -1, 48, false, false, false, false);
 
         return 1;
     }
