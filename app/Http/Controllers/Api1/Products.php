@@ -204,7 +204,7 @@ class Products extends Controller
             $elements[$key] = $pr;
 
             if ($pr->ID_SHAPE == $this->values->SPHERE || $this->values->CYLINDER_CONCENTRIC_STANDING || $pr->ID_SHAPE == $this->values->CYLINDER_CONCENTRIC_LAYING || $this->values->PARALLELEPIPED_BREADED) {
-                if ($key > 0)
+                if ($key < $count - 1)
                     $specificDimension += $pr->SHAPE_PARAM2 * 2;
                 else
                     $specificDimension += $pr->SHAPE_PARAM2;
