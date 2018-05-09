@@ -201,13 +201,14 @@ class Products extends Controller
 
         $elements = [];
         foreach ($products as $key => $pr) {
-            $elements[$key] = $pr;
+            $elements[] = $pr;
 
-            if ($pr->ID_SHAPE == $this->values->SPHERE || $this->values->CYLINDER_CONCENTRIC_STANDING || $pr->ID_SHAPE == $this->values->CYLINDER_CONCENTRIC_LAYING || $this->values->PARALLELEPIPED_BREADED) {
-                if ($key < $count - 1)
+            if ($pr->ID_SHAPE == $this->values->SPHERE || $pr->ID_SHAPE == $this->values->CYLINDER_CONCENTRIC_STANDING || $pr->ID_SHAPE == $this->values->CYLINDER_CONCENTRIC_LAYING || $pr->ID_SHAPE == $this->values->PARALLELEPIPED_BREADED) {
+                if ($key < $count - 1) {
                     $specificDimension += $pr->SHAPE_PARAM2 * 2;
-                else
+                } else {
                     $specificDimension += $pr->SHAPE_PARAM2;
+                }
             } else {
                 $specificDimension += $pr->SHAPE_PARAM2;
             }
@@ -225,7 +226,7 @@ class Products extends Controller
         $subFamily = $this->product->getAllSubFamily();
         $waterPercentList = $this->product->getWaterPercentList();
 
-        return compact('product', 'elements', 'specificDimension', 'compFamily', 'subFamily', 'waterPercentList');
+        return compact('product', 'products', 'elements', 'specificDimension', 'compFamily', 'subFamily', 'waterPercentList');
     }
 
     public function getSubfamily($compFamily)
