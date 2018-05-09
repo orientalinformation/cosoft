@@ -237,7 +237,7 @@ class StudyEquipmentService
                 
                 case REGULATION_TEMP:
                 case EXHAUST_TEMP:
-                    $data[] = $this->convert->temperature($row);
+                    $data[] = $this->convert->controlTemperature($row);
                     break;
 
                 case ENTHALPY_VAR:
