@@ -555,8 +555,33 @@ class Equipments extends Controller
                 $this->getDecryptBinary($equipment1->ID_EQUIP, $newEquip->ID_EQUIP);
             }
 
+            // add paramester equip generation
             $minMaxAvg = $this->getMinMax(1066);
             $minMaxDwell = $this->getMinMax($equipment1->ITEM_TS);
+            $minMaxTemp = $this->getMinMax(1093);
+            $equipGen = EquipGeneration::find($equipment1->ID_EQUIPGENERATION);
+            $eqpGenLoadRate = $avgProdintemp = $rotate = $posChange = null;
+
+            if ($typeEquipment == 0) {
+                $minMaxTemp = $this->getMinMax($equipment1->ITEM_TR);
+                $tempSetPoint = $this->units->controlTemperature(floatval($minMaxTemp->DEFAULT_VALUE), 2, 0);
+            } else if ($typeEquipment == 1) {
+                if ($equipGen) {
+                    $tempSetPoint = $equipGen->TEMP_SETPOINT;
+                    $dwellingTime = $equipGen->DWELLING_TIME;
+                    $eqpGenLoadRate = $equipGen->EQP_GEN_LOADRATE;
+                    $avgProdintemp = $equipGen->AVG_PRODINTEMP;
+                    $posChange = 1;
+                }
+            } else if ($typeEquipment == 2) {
+                if ($equipGen) {
+                    $tempSetPoint = $equipGen->TEMP_SETPOINT;
+                    $dwellingTime = $equipGen->DWELLING_TIME;
+                    $eqpGenLoadRate = $equipGen->EQP_GEN_LOADRATE;
+                    $avgProdintemp = $equipGen->AVG_PRODINTEMP;
+                    $rotate  = 1;
+                }
+            }
 
             $equipGeneration = new EquipGeneration();
             $equipGeneration->ID_EQUIP = $newEquip->ID_EQUIP;
@@ -567,11 +592,11 @@ class Equipments extends Controller
             $equipGeneration->DWELLING_TIME = ($dwellingTime > 0) ? $dwellingTime : $minMaxDwell->DEFAULT_VALUE;
             $equipGeneration->MOVING_CHANGE = 0;
             $equipGeneration->MOVING_POS = 0;
-            $equipGeneration->ROTATE = 0;
-            $equipGeneration->POS_CHANGE = 0;
+            $equipGeneration->ROTATE = ($rotate > 0) ? $rotate : 0;;
+            $equipGeneration->POS_CHANGE = ($posChange > 0) ? $posChange : 0;
             $equipGeneration->NEW_POS = ($newPos != null) ? $newPos : 0;
             $equipGeneration->EQP_GEN_STATUS = 0;
-            $equipGeneration->EQP_GEN_LOADRATE = 0;
+            $equipGeneration->EQP_GEN_LOADRATE = ($eqpGenLoadRate > 0) ? $eqpGenLoadRate : 0;
             $equipGeneration->save();
             Equipment::where('ID_EQUIP', $newEquip->ID_EQUIP)->update(['ID_EQUIPGENERATION' => $equipGeneration->ID_EQUIPGENERATION]);
 
@@ -1620,11 +1645,11 @@ class Equipments extends Controller
     public function reCalculate($id)
     {
         $study = Study::find($id);
-
         $studyEquipments = $study->studyEquipments;
-
+        $this->stdeqp->runStudyCleaner($id, -1, 48);
         if (count($studyEquipments) > 0) {
             foreach ($studyEquipments as $sEquip) {
+                
                 $sEquip->BRAIN_SAVETODB = 0;
                 $sEquip->BRAIN_TYPE = 0;
                 $sEquip->EQUIP_STATUS = 0;
@@ -1636,6 +1661,7 @@ class Equipments extends Controller
                 $sEquip->save();
             }
         }
+        $this->stdeqp->afterStudyCleaner($id, -1, 48, false, false, false, false);
 
         return 1;
     }
@@ -1859,7 +1885,7 @@ class Equipments extends Controller
 
     private function runEquipmentCalculation($IdEquipgeneration)
     {
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $IdEquipgeneration);
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $IdEquipgeneration, 0, 1, 1, 'c:\\temp\\equipment_builder_log.txt');
         return $this->kernel->getKernelObject('EquipmentBuilder')->EBEquipmentCalculation($conf);
     }
 

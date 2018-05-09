@@ -203,8 +203,8 @@ class Products extends Controller
         foreach ($products as $key => $pr) {
             $elements[$key] = $pr;
 
-            if ($pr->ID_SHAPE == $this->values->CYLINDER_CONCENTRIC_STANDING || $pr->ID_SHAPE == $this->values->CYLINDER_CONCENTRIC_LAYING) {
-                if ($key < $count - 1)
+            if ($pr->ID_SHAPE == $this->values->SPHERE || $this->values->CYLINDER_CONCENTRIC_STANDING || $pr->ID_SHAPE == $this->values->CYLINDER_CONCENTRIC_LAYING || $this->values->PARALLELEPIPED_BREADED) {
+                if ($key > 0)
                     $specificDimension += $pr->SHAPE_PARAM2 * 2;
                 else
                     $specificDimension += $pr->SHAPE_PARAM2;
