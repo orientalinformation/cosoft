@@ -12,6 +12,7 @@
 namespace App\Cryosoft;
 use App\Models\LineElmt;
 use App\Models\LineDefinition;
+use App\Models\User;
 use DB;
 
 class LineService
@@ -46,7 +47,7 @@ class LineService
     }
     
 	public function getNameComboBox($elt_type,$insideDiameter, $coolingFamily, $sort) {
-            $sname = LineElmt::select('ID_PIPELINE_ELMT', 'LABEL', 'LINE_RELEASE')
+            $sname = LineElmt::select('ID_PIPELINE_ELMT', 'LABEL', 'LINE_RELEASE', 'ID_USER')
             ->join('Translation','ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
             ->where('Translation.TRANS_TYPE', 27)->where('ELT_TYPE', '=', $elt_type)->where('INSULATION_TYPE', $sort)
             ->where('ELT_SIZE','=',$insideDiameter)->where('ID_COOLING_FAMILY', $coolingFamily)
@@ -57,7 +58,7 @@ class LineService
 
 	public function getNonLine($elt_type, $insideDiameter, $coolingFamily) {
         
-        $nonName = LineElmt::select('ID_PIPELINE_ELMT', 'LABEL', 'LINE_RELEASE')
+        $nonName = LineElmt::select('ID_PIPELINE_ELMT', 'LABEL', 'LINE_RELEASE', 'ID_USER')
             ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
             ->where('Translation.TRANS_TYPE', 27)->where('ELT_TYPE', '=', $elt_type)
             ->where('ELT_SIZE',$insideDiameter)->where('ID_COOLING_FAMILY', $coolingFamily)
@@ -77,6 +78,10 @@ class LineService
         }
     }
 
+    public function getUserLabel($idUser) {
+        $idUserLabel = User::select('USERNAM')->Where('ID_USER', $idUser)->first();
+        return $idUserLabel->USERNAM;
+    }
     public function getLabelByIdPipeELMT ($idPipeElmt) {
         $label = LineElmt::select('LABEL','LINE_RELEASE')
         ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
@@ -85,23 +90,23 @@ class LineService
         return $label;
     }
 
-    public function getdiameter($coolingFamily, $insulationType, $study) {
+    public function getdiameter($coolingFamily, $insulationType) {
 
         $diameter = LineElmt::distinct()->select('ELT_SIZE')
             ->where('ID_COOLING_FAMILY', $coolingFamily)->where('ELT_TYPE', '<>', 2)
-            ->where('INSULATION_TYPE', '=' , $insulationType)
-            ->whereRaw(DB::RAW('( [LINE_RELEASE] = 3 or [LINE_RELEASE] = 4 or [LINE_RELEASE] = 2 )'))
-            ->whereRaw(DB::RAW('( [ELT_IMP_ID_STUDY] = 0  or [ELT_IMP_ID_STUDY] =  '. $study .')'))->get();
+            ->where('INSULATION_TYPE', '=' , $insulationType)->get();
+            // ->whereRaw(DB::RAW('( [LINE_RELEASE] = 3 or [LINE_RELEASE] = 4 or [LINE_RELEASE] = 2 )'))
+            // ->whereRaw(DB::RAW('( [ELT_IMP_ID_STUDY] = 0  or [ELT_IMP_ID_STUDY] =  '. $study .')'))->get();
         
         return $diameter;
     }
 
-    public function getStorageTank($coolingFamily, $insulationType, $study) {
+    public function getStorageTank($coolingFamily, $insulationType) {
         $storageTank = LineElmt::distinct()->select('ELT_SIZE')
             ->where('ID_COOLING_FAMILY', $coolingFamily)->where('ELT_TYPE', '=', 2)
-            ->where('INSULATION_TYPE', '=' , $insulationType)
-            ->whereRaw(DB::RAW('( [LINE_RELEASE] = 3 or [LINE_RELEASE] = 4 or [LINE_RELEASE] = 2 )'))
-            ->whereRaw(DB::RAW('( [ELT_IMP_ID_STUDY] = 0  or [ELT_IMP_ID_STUDY] =  '. $study .')'))->get();
+            ->where('INSULATION_TYPE', '=' , $insulationType)->get();
+            // ->whereRaw(DB::RAW('( [LINE_RELEASE] = 3 or [LINE_RELEASE] = 4 or [LINE_RELEASE] = 2 )'))
+            // ->whereRaw(DB::RAW('( [ELT_IMP_ID_STUDY] = 0  or [ELT_IMP_ID_STUDY] =  '. $study .')'))->get();
         return $storageTank;
     }
 

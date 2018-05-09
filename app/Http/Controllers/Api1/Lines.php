@@ -119,37 +119,61 @@ class Lines extends Controller
                 $insulSubLabel = [];
                 $insulineSubValue = [];
                 foreach ($insulineSubs as $insulineSub) {
-                    $insulSubLabel[] = $insulineSub->LABEL ."-". $this->lineE->getStatus($insulineSub->LINE_RELEASE);
+                    if ($insulineSub->ID_USER == 1) {
+                        $insulSubLabel[] = $insulineSub->LABEL ."-". $this->lineE->getStatus($insulineSub->LINE_RELEASE);
+                    } else {
+                        $insulSubLabel[] = $insulineSub->LABEL ."-". $this->lineE->getStatus($insulineSub->LINE_RELEASE) ." - ". $this->lineE->getUserLabel($insulineSub->ID_USER);
+                    }
                     $insulineSubValue[] = $insulineSub->ID_PIPELINE_ELMT;
                 }
                 $non_insullineSubsLabel = [];
                 $non_insullineSubsValue = [];
                 foreach ($non_insullineSubs as $non_insullineSub) {
-                    $non_insullineSubsLabel[] = $non_insullineSub->LABEL ."-". $this->lineE->getStatus($non_insullineSub->LINE_RELEASE);
+                    if ($non_insullineSub->ID_USER == 1) {
+                        $non_insullineSubsLabel[] = $non_insullineSub->LABEL ."-". $this->lineE->getStatus($non_insullineSub->LINE_RELEASE);
+                    } else {
+                        $non_insullineSubsLabel[] = $non_insullineSub->LABEL ."-". $this->lineE->getStatus($non_insullineSub->LINE_RELEASE) ." - ". $this->lineE->getUserLabel($non_insullineSub->ID_USER);
+                    }
                     $non_insullineSubsValue[] = $non_insullineSub->ID_PIPELINE_ELMT;
                 }
                 $insullvalSubsLabel = [];
                 $insullvalSubsValue = [];
                 foreach ($insullvalSubs as $insullvalSub) {
-                    $insullvalSubsLabel[] = $insullvalSub->LABEL ."-". $this->lineE->getStatus($insullvalSub->LINE_RELEASE);
+                    if ($insullvalSub->ID_USER == 1) {
+                        $insullvalSubsLabel[] = $insullvalSub->LABEL ."-". $this->lineE->getStatus($insullvalSub->LINE_RELEASE);
+                    } else {
+                        $insullvalSubsLabel[] = $insullvalSub->LABEL ."-". $this->lineE->getStatus($insullvalSub->LINE_RELEASE)  ." - ". $this->lineE->getUserLabel($insullvalSub->ID_USER);
+                    }
                     $insullvalSubsValue[] = $insullvalSub->ID_PIPELINE_ELMT;
                 }
                 $non_insul_valSubsLabel = [];
                 $non_insul_valSubsValue = [];
                 foreach ($non_insul_valSubs as $non_insul_valSub) {
-                    $non_insul_valSubsLabel[] = $non_insul_valSub->LABEL ."-". $this->lineE->getStatus($non_insul_valSub->LINE_RELEASE);
+                    if ($non_insul_valSub->ID_USER == 1) {
+                        $non_insul_valSubsLabel[] = $non_insul_valSub->LABEL ."-". $this->lineE->getStatus($non_insul_valSub->LINE_RELEASE);
+                    } else {
+                        $non_insul_valSubsLabel[] = $non_insul_valSub->LABEL ."-". $this->lineE->getStatus($non_insul_valSub->LINE_RELEASE) ." - ". $this->lineE->getUserLabel($non_insul_valSub->ID_USER);
+                    }
                     $non_insul_valSubsValue[] = $non_insul_valSub->ID_PIPELINE_ELMT;
                 }
                 $teeSubsLabel = [];
                 $teeSubsValue = [];
                 foreach ($teeSubs as $teeSub) {
-                    $teeSubsLabel[] = $teeSub->LABEL ."-". $this->lineE->getStatus($teeSub->LINE_RELEASE);
+                    if ($teeSub->ID_USER == 1) {
+                        $teeSubsLabel[] = $teeSub->LABEL ."-". $this->lineE->getStatus($teeSub->LINE_RELEASE);
+                    } else {
+                        $teeSubsLabel[] = $teeSub->LABEL ."-". $this->lineE->getStatus($teeSub->LINE_RELEASE) ." - ". $this->lineE->getUserLabel($insulineSub->ID_USER);
+                    }
                     $teeSubsValue[] = $teeSub->ID_PIPELINE_ELMT;
                 }
                 $elbowsSubsLabel = [];
                 $elbowsSubsValue = [];
                 foreach ($elbowsSubs as $elbowsSub) {
-                    $elbowsSubsLabel[] = $elbowsSub->LABEL ."-". $this->lineE->getStatus($elbowsSub->LINE_RELEASE);
+                    if ($elbowsSub->ID_USER == 1) {
+                        $elbowsSubsLabel[] = $elbowsSub->LABEL ."-". $this->lineE->getStatus($elbowsSub->LINE_RELEASE);
+                    } else {
+                        $elbowsSubsLabel[] = $elbowsSub->LABEL ."-". $this->lineE->getStatus($elbowsSub->LINE_RELEASE)." - ". $this->lineE->getUserLabel($elbowsSub->ID_USER);
+                    }
                     $elbowsSubsValue[] = $elbowsSub->ID_PIPELINE_ELMT;
                 }
 
@@ -234,7 +258,7 @@ class Lines extends Controller
 
                 $getLabels = [];
                 foreach ($arrPipeElmt as $idPipeElmt) {
-                    $getLabels = LineElmt::select('ELT_TYPE','INSULATION_TYPE','LABEL','ID_PIPELINE_ELMT','LINE_RELEASE')
+                    $getLabels = LineElmt::select('ELT_TYPE','INSULATION_TYPE','LABEL','ID_PIPELINE_ELMT','LINE_RELEASE', 'ID_USER')
                     ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
                     ->where('Translation.TRANS_TYPE', 27)->where('ID_PIPELINE_ELMT', $idPipeElmt)
                     ->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->get();
@@ -242,10 +266,19 @@ class Lines extends Controller
                 if (count($getLabels) > 0) {
                     foreach ($getLabels as $getLabelName) {
                         if ($getLabelName['ELT_TYPE'] !=2 ) {
-                            $arrLabel[$this->eltTypeString($getLabelName['ELT_TYPE'],$getLabelName['INSULATION_TYPE'] )] = $getLabelName['LABEL'] ."-". $this->lineE->getStatus($getLabelName['LINE_RELEASE']);
+                            if ($getLabelName['ID_USER'] == 1) {
+                                $arrLabel[$this->eltTypeString($getLabelName['ELT_TYPE'],$getLabelName['INSULATION_TYPE'] )] = $getLabelName['LABEL'] ."-". $this->lineE->getStatus($getLabelName['LINE_RELEASE']);
+                            } else {
+                                $arrLabel[$this->eltTypeString($getLabelName['ELT_TYPE'],$getLabelName['INSULATION_TYPE'] )] = $getLabelName['LABEL'] 
+                                ."-". $this->lineE->getStatus($getLabelName['LINE_RELEASE']) ." - ". $this->lineE->getUserLabel($getLabelName['ID_USER']);
+                            }
                         } else {
                             $arrLabel[$this->eltTypeString($getLabelName['ELT_TYPE'],$getLabelName['INSULATION_TYPE'])] = $getLabelName['ID_PIPELINE_ELMT'];
-                            $arrLabel['storageTankName'] = $getLabelName['LABEL'] ."-". $this->lineE->getStatus($getLabelName['LINE_RELEASE']);
+                            if ($getLabelName['ID_USER'] == 1) {
+                                $arrLabel['storageTankName'] = $getLabelName['LABEL'] ."-". $this->lineE->getStatus($getLabelName['LINE_RELEASE']);
+                            } else {
+                                $arrLabel['storageTankName'] = $getLabelName['LABEL'] ."-". $this->lineE->getStatus($getLabelName['LINE_RELEASE'])." - ". $this->lineE->getUserLabel($getLabelName['ID_USER']);
+                            }
                         }
                         if ($lineElmts[0]->ELT_TYPE != 2) {
                             $arrLabel["diameter"] = $this->convert->lineDimension($lineElmts[0]->ELT_SIZE);
@@ -268,7 +301,11 @@ class Lines extends Controller
                 foreach ($stParams as $stParam) {
                     $stLabels = $this->lineE->getNameComboBox(2,$stParam, $coolingFamily,$lineElmts[0]->INSULATION_TYPE);
                     foreach ($stLabels as $stLabel) {
-                        $storageTLabel[] = $stLabel->LABEL . "-" .  $this->lineE->getStatus($stLabel->LINE_RELEASE);
+                        if ($stLabel->ID_USER == 1) {
+                            $storageTLabel[] = $stLabel->LABEL . "-" .  $this->lineE->getStatus($stLabel->LINE_RELEASE);
+                        } else {
+                            $storageTLabel[] = $stLabel->LABEL . "-" .  $this->lineE->getStatus($stLabel->LINE_RELEASE)." - ". $this->lineE->getUserLabel($stLabel->ID_USER);
+                        }
                         $storageTValue[] = $stLabel->ID_PIPELINE_ELMT;
                     }
                 } 
@@ -351,7 +388,12 @@ class Lines extends Controller
                 $insulatedlineLabel = [];
                 $insulationlineValue = [];
                 foreach ($insulatedlines as $insulatedline) {
-                    $insulatedlineLabel[] = $insulatedline->LABEL ."-". $this->lineE->getStatus($insulatedline->LINE_RELEASE);
+                    if ($insulatedline->ID_USER == 1) {
+                        $insulatedlineLabel[] = $insulatedline->LABEL ."-". $this->lineE->getStatus($insulatedline->LINE_RELEASE);
+                    } else {
+                        $insulatedlineLabel[] = $insulatedline->LABEL ."-". $this->lineE->getStatus($insulatedline->LINE_RELEASE)." - ". $this->lineE->getUserLabel($insulatedline->ID_USER);
+                        
+                    }
                     $insulationlineValue[] = $insulatedline->ID_PIPELINE_ELMT;
                 } 
             } else {
@@ -362,7 +404,11 @@ class Lines extends Controller
                 $non_insulated_lineLabel = [];
                 $non_insulated_lineValue = [];
                 foreach ($non_insulated_lines as $non_insulated_line) {
-                    $non_insulated_lineLabel[] = $non_insulated_line->LABEL ."-". $this->lineE->getStatus($non_insulated_line->LINE_RELEASE);
+                    if ($non_insulated_line->ID_USER == 1) {
+                        $non_insulated_lineLabel[] = $non_insulated_line->LABEL ."-". $this->lineE->getStatus($non_insulated_line->LINE_RELEASE);
+                    } else {
+                        $non_insulated_lineLabel[] = $non_insulated_line->LABEL ."-". $this->lineE->getStatus($non_insulated_line->LINE_RELEASE)." - ". $this->lineE->getUserLabel($non_insulated_line->ID_USER);
+                    }
                     $non_insulated_lineValue[] = $non_insulated_line->ID_PIPELINE_ELMT;
                 }
             }else {
@@ -373,7 +419,11 @@ class Lines extends Controller
                 $insulatedlinevalLabel = [];
                 $insulatedlinevalValue = [];
                 foreach ($insulatedlinevals as $insulatedlineval) {
-                    $insulatedlinevalLabel[] = $insulatedlineval->LABEL ."-". $this->lineE->getStatus($insulatedlineval->LINE_RELEASE);
+                    if ($insulatedlineval->ID_USER == 1) {
+                        $insulatedlinevalLabel[] = $insulatedlineval->LABEL ."-". $this->lineE->getStatus($insulatedlineval->LINE_RELEASE);
+                    } else {
+                        $insulatedlinevalLabel[] = $insulatedlineval->LABEL ."-". $this->lineE->getStatus($insulatedlineval->LINE_RELEASE)." - ". $this->lineE->getUserLabel($insulatedlineval->ID_USER);
+                    }
                     $insulatedlinevalValue[] = $insulatedlineval->ID_PIPELINE_ELMT;
                 }
             } else {
@@ -384,7 +434,11 @@ class Lines extends Controller
                 $non_insulated_valvesLabel = [];
                 $non_insulated_valValue = [];
                 foreach ($non_insulated_valves as $non_insulated_valve) {
-                    $non_insulated_valvesLabel[] = $non_insulated_valve->LABEL ."-". $this->lineE->getStatus($non_insulated_valve->LINE_RELEASE);
+                    if ($non_insulated_valve->ID_USER == 1) {
+                        $non_insulated_valvesLabel[] = $non_insulated_valve->LABEL ."-". $this->lineE->getStatus($non_insulated_valve->LINE_RELEASE);
+                    } else {
+                        $non_insulated_valvesLabel[] = $non_insulated_valve->LABEL ."-". $this->lineE->getStatus($non_insulated_valve->LINE_RELEASE) ." - ". $this->lineE->getUserLabel($non_insulated_valve->ID_USER);
+                    }
                     $non_insulated_valValue[] = $non_insulated_valve->ID_PIPELINE_ELMT;
                 }
             } else {
@@ -396,7 +450,11 @@ class Lines extends Controller
                 $teeLabel = [];
                 $teeValue = [];
                 foreach ($tees as $tee) {
-                    $teeLabel[] = $tee->LABEL ."-". $this->lineE->getStatus($tee->LINE_RELEASE);
+                    if ($tee->ID_USER == 1) {
+                        $teeLabel[] = $tee->LABEL ."-". $this->lineE->getStatus($tee->LINE_RELEASE);
+                    } else {
+                        $teeLabel[] = $tee->LABEL ."-". $this->lineE->getStatus($tee->LINE_RELEASE)." - ". $this->lineE->getUserLabel($tee->ID_USER);
+                    }
                     $teeValue[] = $tee->ID_PIPELINE_ELMT;
                 }
             } else {
@@ -407,7 +465,11 @@ class Lines extends Controller
                 $elbowsLabel = [];
                 $elbowsValue = [];
                 foreach ($elbows as $elbow) {
-                    $elbowsLabel[] = $elbow->LABEL ."-". $this->lineE->getStatus($elbow->LINE_RELEASE);
+                    if ($elbow->ID_USER == 1) {
+                        $elbowsLabel[] = $elbow->LABEL ."-". $this->lineE->getStatus($elbow->LINE_RELEASE);
+                    } else {
+                        $elbowsLabel[] = $elbow->LABEL ."-". $this->lineE->getStatus($elbow->LINE_RELEASE)." - ". $this->lineE->getUserLabel($elbow->ID_USER);
+                    }
                     $elbowsValue[] = $elbow->ID_PIPELINE_ELMT;
                 }
             } else {
@@ -419,7 +481,12 @@ class Lines extends Controller
             foreach ($resStogeTs as $resStogeT) {
                 $itemRes = $this->lineE->getNameComboBox(2, $resStogeT, $coolingFamily, $sort);
                 foreach ($itemRes as $rowItem) {
-                    $itemResult[] = $rowItem->LABEL ."-". $this->lineE->getStatus($rowItem->LINE_RELEASE);
+                    if ($rowItem->ID_USER == 1) {
+                        $itemResult[] = $rowItem->LABEL ."-". $this->lineE->getStatus($rowItem->LINE_RELEASE);
+                    } else {
+                        $itemResult[] = $rowItem->LABEL ."-". $this->lineE->getStatus($rowItem->LINE_RELEASE)." - ". $this->lineE->getUserLabel($rowItem->ID_USER);
+                        
+                    }
                     $itemResultVal[] = $rowItem->ID_PIPELINE_ELMT;
                 }
             }
@@ -489,7 +556,7 @@ class Lines extends Controller
                 $pipegen = PipeGen::where('ID_PIPE_GEN',$pipeGen->ID_PIPE_GEN)->first();
             }
         
-            $pipegen->GAS_TEMP = $gasTemperature;
+            $pipegen->GAS_TEMP = -40;  
             $pipegen->FLUID = $coolingFamily;
             $pipegen->MATHIGHER = 0;
             
