@@ -1059,7 +1059,14 @@ class Studies extends Controller
         
         if ($equip->STD != EQUIP_STANDARD) {
             // TODO: generated non-standard equipment is not supported yet
-            throw new \Exception('Non standard equipment is not yet supported', 500);
+            // throw new \Exception('Non standard equipment is not yet supported', 500);
+            if ($this->equip->getCapability($equip->CAPABILITIES, 65536)) {
+                $tr = $this->getEqpPrmInitialData(array_fill(0, $equip->NB_TR, 0.0), $TRType, false);
+                $ts = $this->setEqpPrmInitialData(array_fill(0, $equip->NB_TS, 0.0), $equip->equipGenerations->first()->DWELLING_TIME);
+            } else {
+                $tr = $this->setEqpPrmInitialData(array_fill(0, $equip->NB_TR, 0.0), $equip->equipGenerations->first()->TEMP_SETPOINT);
+                $ts = $this->getEqpPrmInitialData(array_fill(0, $equip->NB_TS, 0.0), $TSType, true);
+            }
         } else {
             // standard equipment
             $tr = $this->getEqpPrmInitialData(array_fill(0, $equip->NB_TR, 0.0), $TRType, false);
@@ -1208,6 +1215,13 @@ class Studies extends Controller
             }
         }
 
+        return $dd;
+    }
+
+    private function setEqpPrmInitialData($dd, $value) {
+        for ($i = 0; $i < count($dd); $i++) {
+            $dd[$i] = $value;
+        }
         return $dd;
     }
 
