@@ -278,17 +278,32 @@ class Products extends Controller
         if (!$product)
             throw new \Exception("Error Processing Request. Product ID not found", 1);
 
+        $elements = ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2', 'DESC')->get();
         $meshGeneration = $product->meshGenerations->first();
         if ($meshGeneration) {
-            $meshGeneration->MESH_1_SIZE = $this->unit->meshesUnit($meshGeneration->MESH_1_SIZE);
-            $meshGeneration->MESH_2_SIZE = $this->unit->meshesUnit($meshGeneration->MESH_2_SIZE);
-            $meshGeneration->MESH_3_SIZE = $this->unit->meshesUnit($meshGeneration->MESH_3_SIZE);
-            $meshGeneration->MESH_1_INT = $this->unit->meshesUnit($meshGeneration->MESH_1_INT);
-            $meshGeneration->MESH_2_INT = $this->unit->meshesUnit($meshGeneration->MESH_2_INT);
-            $meshGeneration->MESH_3_INT = $this->unit->meshesUnit($meshGeneration->MESH_3_INT);
+            if ($elements[0]->ID_SHAPE == 1 || $elements[0]->ID_SHAPE == 6 ) {
+                $meshGeneration->MESH_1_SIZE = doubleval(0);
+                $meshGeneration->MESH_1_INT = doubleval(0);
+            } else {
+                $meshGeneration->MESH_1_SIZE = $this->unit->meshesUnit($meshGeneration->MESH_1_SIZE);
+                $meshGeneration->MESH_1_INT = $this->unit->meshesUnit($meshGeneration->MESH_1_INT);
+            }
+            if ($meshGeneration->MESH_3_INT != 0 || $meshGeneration->MESH_3_SIZE !=  0) {
+                $meshGeneration->MESH_3_INT = $this->unit->meshesUnit($meshGeneration->MESH_3_INT);
+                $meshGeneration->MESH_3_SIZE = $this->unit->meshesUnit($meshGeneration->MESH_3_SIZE);
+            } else {
+                $meshGeneration->MESH_3_SIZE = doubleval(0);
+                $meshGeneration->MESH_3_INT = doubleval(0);
+            }
+            if ($meshGeneration->MESH_2_INT != 0 || $meshGeneration->MESH_2_SIZE != 0) {
+                $meshGeneration->MESH_2_INT = $this->unit->meshesUnit($meshGeneration->MESH_2_INT);
+                $meshGeneration->MESH_2_SIZE = $this->unit->meshesUnit($meshGeneration->MESH_2_SIZE);
+            } else {
+                $meshGeneration->MESH_2_INT = doubleval(0);
+                $meshGeneration->MESH_2_SIZE = doubleval(0);
+            }
         }
 
-        $elements = ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2', 'DESC')->get();
         $elmtMeshPositions = [];
         $productElmtInitTemp = [];
         $initTempPositions = [];
