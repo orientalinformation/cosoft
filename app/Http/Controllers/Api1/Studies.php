@@ -31,6 +31,7 @@ use App\Models\CalculationParametersDef;
 use App\Models\CalculationParameter;
 use App\Cryosoft\CalculateService;
 use App\Cryosoft\StudyService;
+use App\Cryosoft\EquipmentsService;
 use App\Models\TempRecordPts;
 use App\Models\TempRecordPtsDef;
 use App\Models\MeshPosition;
@@ -100,7 +101,7 @@ class Studies extends Controller
      */
     public function __construct(Request $request, Auth $auth, KernelService $kernel, UnitsConverterService $convert,
         ValueListService $value, LineService $lineE, StudyEquipmentService $stdeqp, PackingService $packing, StudyService $study,
-        MeshService $mesh)
+        MeshService $mesh, EquipmentsService $equip)
     {
         $this->request = $request;
         $this->auth = $auth;
@@ -112,6 +113,7 @@ class Studies extends Controller
         $this->packing = $packing;
         $this->study = $study;
         $this->mesh = $mesh;
+        $this->equip = $equip;
     }
 
     public function findStudies()
