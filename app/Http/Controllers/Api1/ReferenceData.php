@@ -21,6 +21,7 @@ use App\Models\EquipGenZone;
 use App\Models\EquipZone;
 use App\Cryosoft\UnitsService;
 use App\Cryosoft\MinMaxService;
+use App\Cryosoft\EquipmentsService;
 
 class ReferenceData extends Controller
 {
@@ -59,13 +60,14 @@ class ReferenceData extends Controller
      */
     protected $minmax;
 
+    protected $equip;
     /**
      * Create a new controller instance.
      *
      * @return void
      */
     public function __construct(Request $request, Auth $auth, UnitsConverterService $convert, ValueListService $value, 
-    KernelService $kernel, UnitsService $units, MinMaxService $minmax)
+    KernelService $kernel, UnitsService $units, MinMaxService $minmax, EquipmentsService $equip)
     {
         $this->request = $request;
         $this->auth = $auth;
@@ -74,6 +76,7 @@ class ReferenceData extends Controller
         $this->kernel = $kernel;
         $this->units = $units;
         $this->minmax = $minmax;
+        $this->equip = $equip;
     }
 
     public function getFamilyTranslations($transType)
@@ -838,4 +841,20 @@ class ReferenceData extends Controller
         return 1;
     }
 
+    public function getCapabitity($idEquip)
+    {   
+        $capabilities = null;
+        $equipment = Equipment::find($idEquip);
+        if ($equipment) {
+            $capabilities = $equipment->CAPABILITIES;
+        }
+
+        $CAP_EQP_DEPEND_ON_TS = $this->equip->getCapability($capabilities, 65536);
+
+        $array = [
+            'CAP_EQP_DEPEND_ON_TS' => $CAP_EQP_DEPEND_ON_TS,
+        ];
+
+        return $array;
+    }
 }

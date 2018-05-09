@@ -328,3 +328,11 @@ $router->GET('/api/v1/input/tempprofile', 'Api1\\TempProfiles@getDataSvgTemperat
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/input/temppoint', 'Api1\\InputInitial@getDataTempoint');
+
+/**
+ * GET Data capability
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/referencedata/capability/{idEquip}', 'Api1\\ReferenceData@getCapabitity');
