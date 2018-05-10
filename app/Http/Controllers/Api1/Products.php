@@ -180,12 +180,20 @@ class Products extends Controller
         }
 
         $nElements->PROD_ELMT_NAME = $description;
-        $nElements->SHAPE_PARAM2 = $this->unit->prodDimensionSave($dim2);
-        $nElements->PROD_ELMT_WEIGHT = $this->unit->massSave($computedmass);
-        $nElements->PROD_ELMT_REALWEIGHT = $this->unit->massSave($realmass);
+        $nElements->SHAPE_PARAM2 = $this->unit->prodDimension($dim2, ['save' => true]);
+        $nElements->PROD_ELMT_WEIGHT = $this->unit->mass($computedmass, ['save' => true]);
+        $nElements->PROD_ELMT_REALWEIGHT = $this->unit->mass($realmass, ['save' => true]);
         $nElements->save();
 
-        return compact('oldDim2', 'dim2', 'ok1', 'ok2', 'idElement');
+        $products = \App\Models\ProductElmt::where('ID_PROD', $id)->get();
+        $prodRealWeight = 0;
+        foreach ($products as $pr) {
+            $prodRealWeight += $pr->PROD_ELMT_REALWEIGHT;
+        }
+        $product->PROD_REALWEIGHT = $prodRealWeight;
+        $product->save();
+
+        return compact('oldDim2', 'dim2', 'ok1', 'ok2', 'idElement', 'products');
     }
 
     public function getProductViewModel($id) 
@@ -193,7 +201,6 @@ class Products extends Controller
         $product = Product::findOrFail($id);
         $product->PROD_WEIGHT = $this->unit->mass($product->PROD_WEIGHT);
         $product->PROD_REALWEIGHT = $this->unit->mass($product->PROD_REALWEIGHT);
-
 
         $products = \App\Models\ProductElmt::where('ID_PROD', $id)->orderBy('SHAPE_POS2', 'DESC')->get();
         $specificDimension = 0.0;
@@ -226,7 +233,7 @@ class Products extends Controller
         $subFamily = $this->product->getAllSubFamily();
         $waterPercentList = $this->product->getWaterPercentList();
 
-        return compact('product', 'products', 'elements', 'specificDimension', 'compFamily', 'subFamily', 'waterPercentList');
+        return compact('product', 'elements', 'specificDimension', 'compFamily', 'subFamily', 'waterPercentList');
     }
 
     public function getSubfamily($compFamily)
