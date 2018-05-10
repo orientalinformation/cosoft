@@ -655,14 +655,10 @@ class Lines extends Controller
             }
 
             if ($checkValueHeight) {
-                if ($height == "") {
-                    $pipegen->HEIGHT = 0;
+                if ((preg_match('/[0-9]/', $input['HEIGHT']))) {
+                    $pipegen->HEIGHT = $height;
                 } else {
-                    if ((preg_match('/[0-9]/', $input['HEIGHT']))) {
-                        $pipegen->HEIGHT = $height;
-                    } else {
-                        return response("Not a valid number in Number !" ,406);
-                    }
+                    return response("Not a valid number in Number !" ,406);
                 }
             } else {
                 $mm = $this->minmax->getMinMaxHeight($this->value->MIN_MAX_STUDY_LINE_HEIGHT);
