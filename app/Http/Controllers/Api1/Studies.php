@@ -31,6 +31,7 @@ use App\Models\CalculationParametersDef;
 use App\Models\CalculationParameter;
 use App\Cryosoft\CalculateService;
 use App\Cryosoft\StudyService;
+use App\Cryosoft\EquipmentsService;
 use App\Models\TempRecordPts;
 use App\Models\TempRecordPtsDef;
 use App\Models\MeshPosition;
@@ -100,7 +101,7 @@ class Studies extends Controller
      */
     public function __construct(Request $request, Auth $auth, KernelService $kernel, UnitsConverterService $convert,
         ValueListService $value, LineService $lineE, StudyEquipmentService $stdeqp, PackingService $packing, StudyService $study,
-        MeshService $mesh)
+        MeshService $mesh, EquipmentsService $equip)
     {
         $this->request = $request;
         $this->auth = $auth;
@@ -112,6 +113,7 @@ class Studies extends Controller
         $this->packing = $packing;
         $this->study = $study;
         $this->mesh = $mesh;
+        $this->equip = $equip;
     }
 
     public function findStudies()
@@ -1059,7 +1061,14 @@ class Studies extends Controller
         
         if ($equip->STD != EQUIP_STANDARD) {
             // TODO: generated non-standard equipment is not supported yet
-            throw new \Exception('Non standard equipment is not yet supported', 500);
+            // throw new \Exception('Non standard equipment is not yet supported', 500);
+            if ($this->equip->getCapability($equip->CAPABILITIES, 65536)) {
+                $tr = $this->getEqpPrmInitialData(array_fill(0, $equip->NB_TR, 0.0), $TRType, false);
+                $ts = $this->setEqpPrmInitialData(array_fill(0, $equip->NB_TS, 0.0), $equip->equipGenerations->first()->DWELLING_TIME);
+            } else {
+                $tr = $this->setEqpPrmInitialData(array_fill(0, $equip->NB_TR, 0.0), $equip->equipGenerations->first()->TEMP_SETPOINT);
+                $ts = $this->getEqpPrmInitialData(array_fill(0, $equip->NB_TS, 0.0), $TSType, true);
+            }
         } else {
             // standard equipment
             $tr = $this->getEqpPrmInitialData(array_fill(0, $equip->NB_TR, 0.0), $TRType, false);
@@ -1208,6 +1217,13 @@ class Studies extends Controller
             }
         }
 
+        return $dd;
+    }
+
+    private function setEqpPrmInitialData($dd, $value) {
+        for ($i = 0; $i < count($dd); $i++) {
+            $dd[$i] = $value;
+        }
         return $dd;
     }
 

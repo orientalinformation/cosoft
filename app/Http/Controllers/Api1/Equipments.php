@@ -1160,7 +1160,11 @@ class Equipments extends Controller
         for($i = 0; $i < count($listOfPoints); $i++) {
     
             $listOfPoints[$i]['X_POSITION'] = $this->svg->getAxisXPos(doubleval($listOfPoints[$i]['X_POSITION']));
-            $listOfPoints[$i]['Y_POINT'] = $this->svg->getAxisYPos(doubleval($listOfPoints[$i]['Y_POINT']), $miniMum, $maxiMum);
+            // $listOfPoints[$i]['Y_POINT'] = $this->svg->getAxisYPos(doubleval($listOfPoints[$i]['Y_POINT']), $miniMum, $maxiMum);
+            $listOfPoints[$i]['Y_POINT'] = $this->svg->getAxisYPos(
+                $this->convert->convertIdent(doubleval($listOfPoints[$i]['Y_POINT']), $unitIdent), 
+                $miniMum, 
+                $maxiMum);
 
             array_push($posTabY, $listOfPoints[$i]['Y_POINT']);
             if ($i == 0) {
