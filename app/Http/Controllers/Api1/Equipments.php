@@ -86,11 +86,10 @@ class Equipments extends Controller
      */
     protected $units;
     
-        /**
+    /**
      * @var App\Cryosoft\MinMaxService
      */
     protected $minmax;
-
 
     /**
      * Create a new controller instance.
