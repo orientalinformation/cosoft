@@ -260,17 +260,27 @@ class Products extends Controller
 
         $elements = \App\Models\ProductElmt::where('ID_PROD', $id)->orderBy('SHAPE_POS2')->get();
 
-        foreach ($elements as $index => $elmt) {
-            $elmt->SHAPE_POS2 = floatval($index) / 100;
-            $elmt->push();
+        if (count($elements) > 0) {
+            foreach ($elements as $index => $elmt) {
+                $elmt->SHAPE_POS2 = floatval($index) / 100;
+                $elmt->push();
+            }
+        } else {
+            $product = Product::find($id);
+            $product->PROD_WEIGHT = 0;
+            $product->PROD_REALWEIGHT = 0;
+            $product->save();
         }
+        
+
+       
 
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id));
         $ok = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($studyId, $conf, 4);
 
         $this->mesh->rebuildMesh($element->product->study);
         
-        return compact('ok');
+        return compact('ok', 'product');
     }
 
     /**
