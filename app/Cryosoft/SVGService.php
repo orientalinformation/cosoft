@@ -318,7 +318,7 @@ class SVGService
             $item['y2'] = $y2;
             $item['textX'] = $textX;
             $item['textY'] = $textY;
-            $item['position'] = $this->convert->convertIdent($lfValue, $unitIdent);
+            $item['position'] = $lfValue;
             array_push($listOfGraduation, $item);
 
             $lfValue += $offset;
