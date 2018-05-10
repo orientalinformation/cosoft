@@ -68,7 +68,7 @@ class Translations extends Controller
             'de' => 4,
             'it' => 5
         ];
-        $translations = \App\Models\Translation::get();
+        $translations = \App\Models\Translation::where('CODE_LANGUE', $langIds)->get();
         return $translations;
     }
 }
