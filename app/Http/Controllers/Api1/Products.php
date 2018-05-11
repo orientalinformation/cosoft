@@ -155,18 +155,22 @@ class Products extends Controller
             throw new \Exception("Error Processing Request", 1);            
 
         $idElement = $input['elementId'];
-        $dim2 = round(doubleval($input['dim2']), 4);
+        $dim2 = $input['dim2'];
         $description = $input['description'];
         $computedmass = $input['computedmass'];
         $realmass = $input['realmass'];
         
         $nElements = \App\Models\ProductElmt::find($idElement);
-        $oldRealMass = $nElements->PROD_ELMT_REALWEIGHT;
-        $oldDim2 = round(doubleval($nElements->SHAPE_PARAM2), 4);
-
+        $oldRealMass = (double) $this->unit->mass($nElements->PROD_ELMT_REALWEIGHT);
+        $oldDim2 = (double) $this->unit->prodDimension($nElements->SHAPE_PARAM2);
         $ok1 = $ok2 = 0;
 
+        $nElements->PROD_ELMT_NAME = $description;
+        // $nElements->PROD_ELMT_WEIGHT = $this->unit->mass($computedmass, ['save' => true]);
+
         if ($oldDim2 != $dim2) {
+            $nElements->SHAPE_PARAM2 = $this->unit->prodDimension($dim2, ['save' => true]);
+            $nElements->save();
             $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $id, $idElement);
             $ok1 = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($product->ID_STUDY, $conf, 2);
 
@@ -175,25 +179,13 @@ class Products extends Controller
 
             $this->mesh->rebuildMesh($product->study);
         } elseif ($oldRealMass != $realmass) {
+            $nElements->PROD_ELMT_REALWEIGHT = $this->unit->mass($realmass, ['save' => true]);
+            $nElements->save();
             $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $id, $idElement);
             $ok2 = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($product->ID_STUDY, $conf, 3);
         }
 
-        $nElements->PROD_ELMT_NAME = $description;
-        $nElements->SHAPE_PARAM2 = $this->unit->prodDimension($dim2, ['save' => true]);
-        $nElements->PROD_ELMT_WEIGHT = $this->unit->mass($computedmass, ['save' => true]);
-        $nElements->PROD_ELMT_REALWEIGHT = $this->unit->mass($realmass, ['save' => true]);
-        $nElements->save();
-
-        $products = \App\Models\ProductElmt::where('ID_PROD', $id)->get();
-        $prodRealWeight = 0;
-        foreach ($products as $pr) {
-            $prodRealWeight += $pr->PROD_ELMT_REALWEIGHT;
-        }
-        $product->PROD_REALWEIGHT = $prodRealWeight;
-        $product->save();
-
-        return compact('oldDim2', 'dim2', 'ok1', 'ok2', 'idElement', 'products');
+        return compact('oldDim2', 'dim2', 'ok1', 'ok2', 'idElement');
     }
 
     public function getProductViewModel($id) 
@@ -272,9 +264,7 @@ class Products extends Controller
             $product->save();
         }
         
-
        
-
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id));
         $ok = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($studyId, $conf, 4);
 
