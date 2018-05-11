@@ -1030,7 +1030,7 @@ class Equipments extends Controller
         }
 
         if ($profileFace == 0) {
-            $checkTop = 0;
+            $checkTop = true;
         } else if ($profileFace == 1) {
             $checkButton = 1;
         } else if ($profileFace == 2) {
