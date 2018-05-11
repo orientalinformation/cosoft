@@ -341,6 +341,7 @@ class Products extends Controller
 
             $shapeParam2 = $this->productElmts->getProdElmtthickness($elmt->ID_PRODUCT_ELMT);
             array_push($heights, $shapeParam2);
+            $elmt->componentName = $this->product->getComponentDisplayName($elmt->ID_COMP);
         }
 
         $productIsoTemp = null;
