@@ -86,11 +86,10 @@ class Equipments extends Controller
      */
     protected $units;
     
-        /**
+    /**
      * @var App\Cryosoft\MinMaxService
      */
     protected $minmax;
-
 
     /**
      * Create a new controller instance.
@@ -1108,6 +1107,7 @@ class Equipments extends Controller
         }
 
         $lfOffset = abs($maxValueY - $minValueY) * 0.15;
+
         if ($lfOffset > 0.0) {
             $minScaleY = $minValueY - $lfOffset;
             $maxScaleY = $maxValueY + $lfOffset;
@@ -1124,19 +1124,22 @@ class Equipments extends Controller
             $maxScaleY = $maxValueY + $lfOffset;
         }
 
-        $minScaleYtmp = round($this->convert->convertIdent($minScaleY, $unitIdent));
-        $maxScaleYtmp = round($this->convert->convertIdent($maxScaleY, $unitIdent));
-
+        $minScaleYtmp = $minScaleY;
+        $maxScaleYtmp = $maxScaleY;
+   
         if ($minScaleYtmp != $maxScaleYtmp) {
             $minScaleY = $minScaleYtmp;
             $maxScaleY = $maxScaleYtmp;
         }
 
-        if ($minScaleY < $minMax->LIMIT_MIN) $minScaleY = $minMax->LIMIT_MIN;
-        if ($maxScaleY > $minMax->LIMIT_MAX) $maxScaleY = $minMax->LIMIT_MAX;
+        $tempMin = $minMax->LIMIT_MIN;
+        $tempMax = $minMax->LIMIT_MAX;
 
-        $miniMum = $this->convert->convertIdent($minScaleY, $unitIdent);
-        $maxiMum = $this->convert->convertIdent($maxScaleY, $unitIdent);
+        if ($minScaleY < $tempMin) $minScaleY = $minMax->LIMIT_MIN;
+        if ($maxScaleY > $tempMax) $maxScaleY = $minMax->LIMIT_MAX;
+
+        $miniMum = round($this->convert->convertIdent($minScaleY, $unitIdent));
+        $maxiMum = round($this->convert->convertIdent($maxScaleY, $unitIdent));
 
         //refresh
         if ($typeChart == 1) {
