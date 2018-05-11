@@ -61,14 +61,11 @@ class Translations extends Controller
     }
 
     public function filterTrans() {
-        $langIds = [
-            'en' => 1,
-            'fr' => 2,
-            'es' => 3,
-            'de' => 4,
-            'it' => 5
-        ];
-        $translations = \App\Models\Translation::where('CODE_LANGUE', $langIds)->get();
-        return $translations;
+        $referenceLangs = \App\Models\Language::Select('CODE_LANGUE','LANG_NAME')->get();
+        $translation = [];
+        foreach ($referenceLangs as $referenceLang) {
+            $translationLangs[$referenceLang->CODE_LANGUE] = \App\Models\Translation::where('CODE_LANGUE', $referenceLang->CODE_LANGUE)->orderBy('TRANS_TYPE', 'ASC')->orderBy('ID_TRANSLATION', 'ASC')->get();
+        }
+        return compact("referenceLangs", "translationLangs"); 
     }
 }

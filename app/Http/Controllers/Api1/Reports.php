@@ -133,7 +133,7 @@ class Reports extends Controller
     
                 $report->isSizingValuesChosen = ($report->SIZING_VALUES & 1);
                 $report->isSizingValuesMax = ($report->SIZING_VALUES & 16);
-                $studyEquip = StudyEquipment::where('ID_STUDY', $id)->where('BRAIN_TYPE', 4)->get();
+                $studyEquip = StudyEquipment::where('ID_STUDY', $id)->where('BRAIN_TYPE', '=', 4)->get();
     
                 if (count($studyEquip) > 0) {
                     $report->isThereCompleteNumericalResults = true;
@@ -220,7 +220,7 @@ class Reports extends Controller
                     $report->AXE2_X = $tempRecordPts->AXIS1_AX_2;
                 }
                 if ($report->AXE2_Z == 0) {
-                    $report->AXE2_z = $tempRecordPts->AXIS3_AX_2;
+                    $report->AXE2_Z = $tempRecordPts->AXIS3_AX_2;
                 }
 
                 if ($report->AXE3_Y == 0) {
@@ -228,6 +228,16 @@ class Reports extends Controller
                 }
                 if ($report->AXE3_Z == 0) {
                     $report->AXE3_Z = $tempRecordPts->AXIS2_AX_3;
+                }
+
+                if ($report->PLAN_X == 0) {
+                    $report->PLAN_X = $tempRecordPts->AXIS1_PL_2_3;
+                }
+                if ($report->PLAN_Y == 0) {
+                    $report->PLAN_Y = $tempRecordPts->AXIS2_PL_1_3;
+                }
+                if ($report->PLAN_Z == 0) {
+                    $report->PLAN_Z = $tempRecordPts->AXIS3_PL_1_2;
                 }
                 
             } else {
@@ -790,14 +800,14 @@ class Reports extends Controller
                 
             } else if ($study->CALCULATION_MODE == 1) {
                 $calModeHeadBalance = $this->reportserv->getEstimationHeadBalance($study->ID_STUDY, 1);
-                $calModeHbMax = "";
+                $calModeHbMax = [];
                 $graphicSizing = $this->reportserv->sizingEstimationResult($study->ID_STUDY);
             }
             $progress .= "\nSizing";
             $this->writeProgressFile($progressFile, $progress);
         } else {
             $calModeHeadBalance = "";
-            $calModeHbMax = "";
+            $calModeHbMax = [];
             $graphicSizing = "";
         }
 
@@ -1930,49 +1940,50 @@ class Reports extends Controller
                 PDF::writeHTML($html, true, false, true, false, '');
                 PDF::AddPage();
             }
-
-            if ($isSizingValuesMax == 1) {
-                PDF::Bookmark(' Maximum product flowrate', 1, 0, '', '', array(128,0,0));
-                PDF::Cell(0, 10, 'Maximum product flowrate', 0, 1, 'L');
-                $html = '
-                <div class="Max-prod-flowrate">
-                    <div class="table table-bordered">
-                        <table border="0.5">
-                            <tr>
-                                <th colspan="2" rowspan="2">Equipment</th>
-                                <th rowspan="2">Average initial temperature ( '. $symbol['temperatureSymbol'] .' ) </th>
-                                <th rowspan="2">Final Average Product temperature ( '. $symbol['temperatureSymbol'] .' ) </th>
-                                <th rowspan="2">Control temperature ( '. $symbol['temperatureSymbol'] .' ) </th>
-                                <th rowspan="2">Residence / Dwell time   ( '. $symbol['timeSymbol'] .' ) </th>
-                                <th rowspan="2">Product Heat Load ( '. $symbol['enthalpySymbol'] .' ) </th>
-                                <th colspan="4">Maximum product flowrate </th>
-                                <th rowspan="2">Precision of the high level calculation. (%)</th>
-                            </tr>
-                            <tr>
-                                <td>Hourly production capacity ( '. $symbol['productFlowSymbol'] .' ) </td>
-                                <td colspan="2">Cryogen consumption (product + equipment heat load) ( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .'  </td>
-                                <td>Conveyor coverage or quantity of product per batch</td>
-                            </tr>';
-                            foreach($calModeHbMax  as $resoptimumHbMax) { 
+            if (!empty($calModeHbMax)) {
+                if ($isSizingValuesMax == 1) {
+                    PDF::Bookmark(' Maximum product flowrate', 1, 0, '', '', array(128,0,0));
+                    PDF::Cell(0, 10, 'Maximum product flowrate', 0, 1, 'L');
+                    $html = '
+                    <div class="Max-prod-flowrate">
+                        <div class="table table-bordered">
+                            <table border="0.5">
+                                <tr>
+                                    <th colspan="2" rowspan="2">Equipment</th>
+                                    <th rowspan="2">Average initial temperature ( '. $symbol['temperatureSymbol'] .' ) </th>
+                                    <th rowspan="2">Final Average Product temperature ( '. $symbol['temperatureSymbol'] .' ) </th>
+                                    <th rowspan="2">Control temperature ( '. $symbol['temperatureSymbol'] .' ) </th>
+                                    <th rowspan="2">Residence / Dwell time   ( '. $symbol['timeSymbol'] .' ) </th>
+                                    <th rowspan="2">Product Heat Load ( '. $symbol['enthalpySymbol'] .' ) </th>
+                                    <th colspan="4">Maximum product flowrate </th>
+                                    <th rowspan="2">Precision of the high level calculation. (%)</th>
+                                </tr>
+                                <tr>
+                                    <td>Hourly production capacity ( '. $symbol['productFlowSymbol'] .' ) </td>
+                                    <td colspan="2">Cryogen consumption (product + equipment heat load) ( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .'  </td>
+                                    <td>Conveyor coverage or quantity of product per batch</td>
+                                </tr>';
+                                foreach($calModeHbMax  as $resoptimumHbMax) { 
                                 $html ='';
-                            $html .='<tr>
-                                <td align="center" colspan="2"> '. $resoptimumHbMax['equipName'] .' </td>
-                                <td align="center" > '. $proInfoStudy['avgTInitial'] .' </td>
-                                <td align="center">'. $resoptimumHbMax['tfp'] .' </td>
-                                <td align="center">'. $resoptimumHbMax['tr']  .'</td>
-                                <td align="center">'. $resoptimumHbMax['ts']  .'</td>
-                                <td align="center">'. $resoptimumHbMax['vep'] .' </td>
-                                <td align="center">'. $resoptimumHbMax['dhp'] .' </td>
-                                <td align="center" colspan="2"> '. $resoptimumHbMax['conso'] .' </td>
-                                <td align="center"> '. $resoptimumHbMax['toc'] .'</td>
-                                <td align="center"> '. $resoptimumHbMax['precision'] .' </td>
-                            </tr>';
-                            }
-                        $html .='</table>
-                    </div>
-                </div>';
-                PDF::writeHTML($html, true, false, true, false, '');
-                PDF::AddPage();
+                                $html .='<tr>
+                                    <td align="center" colspan="2"> '. $resoptimumHbMax['equipName'] .' </td>
+                                    <td align="center" > '. $proInfoStudy['avgTInitial'] .' </td>
+                                    <td align="center">'. $resoptimumHbMax['tfp'] .' </td>
+                                    <td align="center">'. $resoptimumHbMax['tr']  .'</td>
+                                    <td align="center">'. $resoptimumHbMax['ts']  .'</td>
+                                    <td align="center">'. $resoptimumHbMax['vep'] .' </td>
+                                    <td align="center">'. $resoptimumHbMax['dhp'] .' </td>
+                                    <td align="center"> '. $resoptimumHbMax['conso'] .' </td>
+                                    <td align="center"> '. $resoptimumHbMax['toc'] .'</td>
+                                    <td align="center"> '. $resoptimumHbMax['precision'] .' </td>
+                                </tr>';
+                                }
+                            $html .='</table>
+                        </div>
+                    </div>';
+                    PDF::writeHTML($html, true, false, true, false, '');
+                    PDF::AddPage();
+                }
             }
 
             if ($SIZING_GRAPHE == 1) {
