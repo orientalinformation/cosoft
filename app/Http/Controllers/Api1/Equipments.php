@@ -1062,7 +1062,6 @@ class Equipments extends Controller
                     if ($value != '') {
                         if ($profileType == 1) {
                             $listOfPoints[$i]['Y_POINT'] = $this->convert->convectionCoeff($value);
-                            // echo $listOfPoints[$i]['Y_POINT']. "\n";
                         } else {
                             $listOfPoints[$i]['Y_POINT'] = $this->convert->temperature($value);
                         }
@@ -1072,7 +1071,6 @@ class Equipments extends Controller
 
                     $start = $end + 1;
                 }
-                // die;
 
                 $listOfPoints = $this->svg->generateNewProfile($listofPointsOld, $listOfPoints, $minMax->LIMIT_MIN, $minMax->LIMIT_MAX);
             }
@@ -1082,7 +1080,7 @@ class Equipments extends Controller
         if (count($listOfPoints) > 0) {
             for($i = 0; $i < count($listOfPoints); $i++) {
                 array_push($valuesTabX, $listOfPoints[$i]['X_POSITION']);
-                array_push($valuesTabY, round($listOfPoints[$i]['Y_POINT'], 2));
+                array_push($valuesTabY, round($this->convert->convertIdent($listOfPoints[$i]['Y_POINT'], $unitIdent), 2));
                 array_push($selectedPoints, 1);
 
                 if (doubleval($listOfPoints[$i]['Y_POINT']) < $minValueY) {
@@ -1260,9 +1258,9 @@ class Equipments extends Controller
                 
                 if ($value != '') {
                     if ($profileType == 1) {
-                        $listOfPoints[$i]['Y_POINT'] = $this->convert->convectionCoeff($value);
+                        $listOfPoints[$i]['Y_POINT'] = $this->units->convectionCoeff($value, 2, 0);
                     } else {
-                        $listOfPoints[$i]['Y_POINT'] = $this->convert->temperature($value);
+                        $listOfPoints[$i]['Y_POINT'] = $this->units->temperature($value, 2, 0);
                     }
                 } else {
                     $listOfPoints[$i]['Y_POINT'] = DOUBLE_MIN_VALUE;
