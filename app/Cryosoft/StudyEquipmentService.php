@@ -125,6 +125,7 @@ class StudyEquipmentService
         $equip = [
             'ID_STUDY_EQUIPMENTS' => $studyEquipment->ID_STUDY_EQUIPMENTS,
             'EQUIP_NAME' => $studyEquipment->EQUIP_NAME,
+            'CAPABILITIES' => $studyEquipment->CAPABILITIES,
             'ID_EQUIP' => $studyEquipment->ID_EQUIP,
             'EQP_LENGTH' => $studyEquipment->EQP_LENGTH,
             'EQP_WIDTH' => $studyEquipment->EQP_WIDTH,
