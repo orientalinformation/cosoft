@@ -1333,8 +1333,6 @@ class Studies extends Controller
         // $layoutGen->ORI
         $layoutGen->PROD_POSITION = $input['orientation'];
        
-        
-
         $oldLoadingRate = (double) $this->convert->toc($sEquip->layoutResults->first()->LOADING_RATE);
 
         if ($loadingRate != $oldLoadingRate) {
