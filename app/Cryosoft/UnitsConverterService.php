@@ -720,10 +720,10 @@ class UnitsConverterService
         return $this->convertCalculator($value, $uNone["coeffA"], $uNone["coeffB"], 2, $options);
     }
 
-    public function toc($value) 
+    public function toc($value, $options = null) 
     {
         $uPercent = $this->uPercent();
-        return $this->convertCalculator($value, $uPercent["coeffA"], $uPercent["coeffB"], 1);
+        return $this->convertCalculator($value, $uPercent["coeffA"], $uPercent["coeffB"], 1, $options);
     }
 
     public function precision($value) {
