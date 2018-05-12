@@ -383,9 +383,9 @@ class SVGService
 
             if (floatval($xA) != floatval($xB)) {
                 $coefA = (floatval($yB) - floatval($yA)) / (floatval($xB) - floatval($xA));
-                $coefB = floatval($yB) - (floatval($coefA) * floatval($xB));
+                $coefB = floatval($yB) - floatval($coefA) * floatval($xB);
 
-                $value = (floatval($coefA) * floatval($X_POSITION)) + floatval($coefB);
+                $value = floatval($coefA) * floatval($X_POSITION) + floatval($coefB);
             } else {
                 $value = floatval($yA);
             }
@@ -413,5 +413,37 @@ class SVGService
         }
 
         return $nbGraduation;
+    }
+
+    public function lagrangeInterpValue($listOfSelectedPoints, $minValue, $maxValue, $X_POSITION) 
+    {
+        $value = 0;
+        $lagrange = $posi = $vali = $posj = null;
+        
+        $size = count($listOfSelectedPoints);
+        
+        for($i = 0; $i < $size; ++$i ) {
+            $lagrange = 1;
+            $posi = $listOfSelectedPoints[$i]['X_POSITION'];
+            $vali = $listOfSelectedPoints[$i]['Y_POINT'];
+            
+            // Compute the numerator and d�nominator
+            for($j = 0; $j < $size; ++$j ) {
+                if($i!= $j) {
+                    $posj = $listOfSelectedPoints[$j]['X_POSITION'];
+                    $lagrange *= ($X_POSITION - $posj) / ($posi - $posj);
+                }
+            }
+            
+            $value += $vali * $lagrange;
+        }
+
+        if($value < $minValue ){
+            $value = $minValue;
+        } else if($value > $maxValue ) {
+            $value = $maxValue;
+        }
+            
+        return $value;
     }
 }

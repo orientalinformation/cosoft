@@ -1058,7 +1058,7 @@ class Equipments extends Controller
                 for($i = 0; $i < count($listOfPoints); $i++) {
                     $end = strpos($newProfil, '_', $start);
                     $value = substr($newProfil, $start, $end);
-                    // echo ($value . "\n");
+
                     if ($value != '') {
                         if ($profileType == 1) {
                             $listOfPoints[$i]['Y_POINT'] = $this->convert->convectionCoeff($value);
@@ -1077,6 +1077,7 @@ class Equipments extends Controller
                 $listOfPoints = $this->svg->generateNewProfile($listofPointsOld, $listOfPoints, $minMax->LIMIT_MIN, $minMax->LIMIT_MAX);
             }
         }
+        // End generate new profile
         
         if (count($listOfPoints) > 0) {
             for($i = 0; $i < count($listOfPoints); $i++) {
