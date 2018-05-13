@@ -16,6 +16,7 @@ use App\Models\ProductElement;
 use App\Models\PrecalcLdgRatePrm;
 use App\Models\EquipGeneration;
 use App\Models\TempExt;
+use App\Models\Equipment;
 use com\oxymel\ofcconveyer\Crate;
 use com\oxymel\ofcconveyer\ConveyerTemplate;
 use com\oxymel\ofcconveyer\ConveyerBelt;
