@@ -338,7 +338,8 @@ class SVGService
         if (count($listOfSelectedPoints) > 0) {
             for ($i = 0; $i < count($listOfSelectedPoints); $i++) {
                 if (floatval($listOfSelectedPoints[$i]['Y_POINT']) == floatval(0)) {
-                    $listOfSelectedPoints[$i]['Y_POINT'] = $this->linearInterpValue($listOfSelectedPoints, $minValue, $maxValue, $listOfPointsOld[$i]['X_POSITION']);
+                    // $listOfSelectedPoints[$i]['Y_POINT'] = $this->linearInterpValue($listOfSelectedPoints, $minValue, $maxValue, $listOfPointsOld[$i]['X_POSITION']);
+                    $listOfSelectedPoints[$i]['Y_POINT'] = $this->calculatorPoint($listOfSelectedPoints, $listOfSelectedPoints[$i]['X_POSITION']);
                 }
             }
 
@@ -346,6 +347,32 @@ class SVGService
         }
 
         return $result;
+    }
+
+    private function calculatorPoint($listOfSelectedPoints, $indexX) 
+    {
+        $valueA = $indexA = $valueB = $indexB = null;
+        $count = 0;
+
+        if (count($listOfSelectedPoints) > 0) {
+            for ($i = 0; $i < count($listOfSelectedPoints); $i++) {
+                if (($indexX  > $i) && (floatval($listOfSelectedPoints[$i]['Y_POINT']) != floatval(0))) {
+                    $valueA = floatval($listOfSelectedPoints[$i]['Y_POINT']);
+                    $indexA = $i;
+                }
+
+                if (($indexX < $i) && (floatval($listOfSelectedPoints[$i]['Y_POINT']) != floatval(0)) 
+                    && ($count == 0)) {
+                    $valueB = floatval($listOfSelectedPoints[$i]['Y_POINT']);
+                    $indexB = $i;
+                    $count++;
+                }
+            }
+        }
+        // calculator
+        $valueX = (($valueA * ($indexB - $indexX)) + ($valueB * ($indexX - $indexA))) / ($indexB - $indexA);
+
+        return $valueX;
     }
 
     private function linearInterpValue($listOfSelectedPoints, $minValue, $maxValue, $X_POSITION) 
