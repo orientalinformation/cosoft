@@ -114,8 +114,8 @@ class StudyEquipmentService
 
             $layoutGen->save();
         } else {
-            $layoutGen->LENGTH_INTERVAL = $this->convert->prodDimension(doubleval($layoutGen->LENGTH_INTERVAL));
-            $layoutGen->WIDTH_INTERVAL = $this->convert->prodDimension(doubleval($layoutGen->WIDTH_INTERVAL));
+            $layoutGen->LENGTH_INTERVAL = ($layoutGen->LENGTH_INTERVAL != -1.0) ? $this->convert->prodDimension(doubleval($layoutGen->LENGTH_INTERVAL)) : $layoutGen->LENGTH_INTERVAL;
+            $layoutGen->WIDTH_INTERVAL = ($layoutGen->WIDTH_INTERVAL != -1.0) ? $this->convert->prodDimension(doubleval($layoutGen->WIDTH_INTERVAL)) : $layoutGen->WIDTH_INTERVAL;
         }
         return $layoutGen;
     }
