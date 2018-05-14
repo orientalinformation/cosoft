@@ -1327,17 +1327,33 @@ class Studies extends Controller
     public function updateStudyEquipmentLayout($id) {
         $sEquip = StudyEquipment::findOrFail($id);
         $input = $this->request->json()->all();    
+        $loadingRate = $input['toc'];
 
         $layoutGen = $this->stdeqp->getStudyEquipmentLayoutGen($sEquip);
         // $layoutGen->ORI
         $layoutGen->PROD_POSITION = $input['orientation'];
-        $layoutGen->WIDTH_INTERVAL = $this->convert->prodDimensionSave($input['widthInterval']);
-        $layoutGen->LENGTH_INTERVAL = $this->convert->prodDimensionSave($input['lengthInterval']);
+       
+        $oldLoadingRate = (double) $this->convert->toc($sEquip->layoutResults->first()->LOADING_RATE);
+
+        if ($loadingRate != $oldLoadingRate) {
+            $layoutResult = LayoutResults::where('ID_STUDY_EQUIPMENTS', $id)->first();
+            $layoutResult->LOADING_RATE = $this->convert->toc($loadingRate, ['save' => true]);
+            $layoutResult->LEFT_RIGHT_INTERVAL = 0.0;
+            $layoutResult->NUMBER_IN_WIDTH = 0.0;
+            $layoutResult->NUMBER_PER_M = 0.0;
+            $layoutResult->save();
+
+            $layoutGen->WIDTH_INTERVAL = -2.0;
+            $layoutGen->LENGTH_INTERVAL = -2.0;
+        } else {
+            $layoutGen->WIDTH_INTERVAL = $this->convert->prodDimensionSave($input['widthInterval']);
+            $layoutGen->LENGTH_INTERVAL = $this->convert->prodDimensionSave($input['lengthInterval']);
+        }
         $layoutGen->save();
 
-        $this->stdeqp->calculateEquipmentParams($sEquip);
+        // $this->stdeqp->calculateEquipmentParams($sEquip);
         if ($input['studyClean'] == true) {
-            $this->stdeqp->applyStudyCleaner($sEquip->ID_STUDY, $id, 43);
+            $this->stdeqp->applyStudyCleaner($sEquip->ID_STUDY, $id, 48);
         }
     }
 
