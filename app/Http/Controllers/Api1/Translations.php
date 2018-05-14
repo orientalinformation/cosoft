@@ -76,14 +76,17 @@ class Translations extends Controller
     }
 
     public function changeLabels() {
-        $input = $this->request->all();
-        $langID = $input['CODE_LANGUE'];
-        $id_trans = $input['ID_TRANSLATION'];
-        $trans_type = $input['TRANS_TYPE'];
-        // $langIDs = \App\Models\Language::Select('CODE_LANGUE','LANG_NAME')->get();
-        $getLabels = \App\Models\Translation::where('CODE_LANGUE', $langID)
-        ->where('ID_TRANSLATION', $id_trans)->where('TRANS_TYPE', $trans_type)->first();
-        $getLabels->LABEL = $label;
-        $getLabels->save();
+        $inputs = $this->request->all();
+        foreach ($inputs['translationLangs'] as $input) {
+            $langID = $input['CODE_LANGUE'];
+            $id_trans = $input['ID_TRANSLATION'];
+            $trans_type = $input['TRANS_TYPE'];
+            $label = $input['LABEL'];
+            $getLabels = \App\Models\Translation::where('CODE_LANGUE', $langID)->where('ID_TRANSLATION', $id_trans)
+            ->where('TRANS_TYPE', $trans_type)->first();
+            $getLabels->LABEL = $label;
+            $getLabels->save();
+        }
+        return $getLabels;
     }
 }
