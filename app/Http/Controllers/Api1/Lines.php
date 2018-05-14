@@ -668,9 +668,14 @@ class Lines extends Controller
             if ($pipegen->ID_STUDY_EQUIPMENTS == null) {
                 $pipegen->ID_STUDY_EQUIPMENTS =  $studyEquip->ID_STUDY_EQUIPMENTS;
                 $pipegen->save();
+                $studyEquip->ID_PIPE_GEN = $pipegen->ID_PIPE_GEN;
+                $studyEquip->save();
                 
             } else {
+                $studyEquip->ID_PIPE_GEN = $pipegen->ID_PIPE_GEN;
+                return $studyEquip->ID_PIPE_GEN;
                 $pipegen->save();
+                $studyEquip->save();
             }
             if (($insulatedLine != 0) && ($insulatedLineLength != 0.0)) {
                 $this->lineE->createLineDefinition($pipegen->ID_PIPE_GEN, $insulatedLine, 1);

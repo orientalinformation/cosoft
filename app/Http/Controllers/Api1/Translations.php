@@ -77,6 +77,7 @@ class Translations extends Controller
 
     public function changeLabels() {
         $inputs = $this->request->all();
+        return $inputs;
         foreach ($inputs['translationLangs'] as $input) {
             $langID = $input['CODE_LANGUE'];
             $id_trans = $input['ID_TRANSLATION'];
@@ -87,6 +88,5 @@ class Translations extends Controller
             $getLabels->LABEL = $label;
             $getLabels->save();
         }
-        return $getLabels;
     }
 }

@@ -579,6 +579,8 @@ class Studies extends Controller
                 foreach ($study->studyEquipments as $studyEquip) {
                     $pipeGen = $studyEquip->pipeGens->first();
                     if ($pipeGen != null) {
+                        $studyEquip->ID_PIPE_GEN = 0;
+                        $studyEquip->save();
                         $pipeDefition = $pipeGen->lineDefinitions;
                         foreach ($pipeDefition as $pipeDefitions) {
                             $pipeDefitions->delete();
