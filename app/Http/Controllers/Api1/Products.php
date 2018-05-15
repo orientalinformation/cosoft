@@ -219,6 +219,8 @@ class Products extends Controller
             $elements[$key]['PROD_ELMT_WEIGHT'] = $this->unit->mass($pr->PROD_ELMT_WEIGHT);
             $elements[$key]['PROD_ELMT_REALWEIGHT'] = $this->unit->mass($pr->PROD_ELMT_REALWEIGHT);
             $elements[$key]['componentName'] = $this->product->getComponentDisplayName($pr->ID_COMP);
+            $prodcharColor = ProdcharColor::where('ID_PROD', $id)->where('LAYER_ORDER', $key + 1)->first();
+            $elements[$key]['prodcharColor'] = $prodcharColor;
         }
 
         $specificDimension = $this->unit->prodDimension($specificDimension);
@@ -619,9 +621,7 @@ class Products extends Controller
     {
         $input = $this->request->all();
 
-        $product = Product::find($id);
-
-        $prodcharColor = ProdcharColor::where('ID_PROD', $id)->first();
+        $prodcharColor = ProdcharColor::where('ID_PROD', $id)->where('LAYER_ORDER', $input['LAYER_ORDER'])->first();
         if ($prodcharColor) {
             $prodcharColor->ID_PROD = $id;
             $prodcharColor->ID_COLOR = $input['ID_COLOR'];
