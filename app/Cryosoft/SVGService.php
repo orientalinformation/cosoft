@@ -321,7 +321,7 @@ class SVGService
             $item['y2'] = $y2;
             $item['textX'] = $textX;
             $item['textY'] = $textY;
-            $item['position'] = $lfValue;
+            $item['position'] = round($lfValue, 2);
             array_push($listOfGraduation, $item);
 
             $lfValue += $offset;
