@@ -1515,43 +1515,66 @@ class Studies extends Controller
             $planResult = $this->study->convertPointForDB($shape, $orientation, $plan);
 
             $tempRecordPts->NB_STEPS = $nbSteps;
-            $tempRecordPts->AXIS1_PT_TOP_SURF = $report->POINT1_X = $pointTopResult[0];
-            $tempRecordPts->AXIS2_PT_TOP_SURF = $report->POINT1_Y = $pointTopResult[1];
-            $tempRecordPts->AXIS3_PT_TOP_SURF = $report->POINT1_Z = $pointTopResult[2];
+            $tempRecordPts->AXIS1_PT_TOP_SURF = $pointTopResult[0];
+            $tempRecordPts->AXIS2_PT_TOP_SURF = $pointTopResult[1];
+            $tempRecordPts->AXIS3_PT_TOP_SURF = $pointTopResult[2];
 
-            $tempRecordPts->AXIS1_PT_INT_PT = $report->POINT2_X = $pointIntResult[0];
-            $tempRecordPts->AXIS2_PT_INT_PT = $report->POINT2_Y = $pointIntResult[1];
-            $tempRecordPts->AXIS3_PT_INT_PT = $report->POINT2_Z = $pointIntResult[2];
+            $tempRecordPts->AXIS1_PT_INT_PT = $pointIntResult[0];
+            $tempRecordPts->AXIS2_PT_INT_PT = $pointIntResult[1];
+            $tempRecordPts->AXIS3_PT_INT_PT = $pointIntResult[2];
 
             $tempRecordPts->AXIS1_PT_BOT_SURF = $report->POINT3_X = $pointBotResult[0];
             $tempRecordPts->AXIS2_PT_BOT_SURF = $report->POINT3_Y = $pointBotResult[1];
             $tempRecordPts->AXIS3_PT_BOT_SURF = $report->POINT3_Z = $pointBotResult[2];
 
+            if ($report) {
+                $report->POINT1_X = $pointTopResult[0];
+                $report->POINT1_Y = $pointTopResult[1];
+                $report->POINT1_Z = $pointTopResult[2];
+                $report->POINT2_X = $pointIntResult[0];
+                $report->POINT2_Y = $pointIntResult[1];
+                $report->POINT2_Z = $pointIntResult[2];
+                $report->POINT3_X = $pointBotResult[0];
+                $report->POINT3_Y = $pointBotResult[1];
+                $report->POINT3_Z = $pointBotResult[2];
+            }
+
             if (isset($axisResult[0]['y'])) {
-                $tempRecordPts->AXIS2_AX_1 = $report->AXE1_X = $axisResult[0]['y'];
+                $tempRecordPts->AXIS2_AX_1 = $axisResult[0]['y'];
+                if ($report) $report->AXE1_X = $axisResult[0]['y'];
             }
             if (isset($axisResult[0]['z'])) {
-                $tempRecordPts->AXIS3_AX_1 = $report->AXE1_Y = $axisResult[0]['z'];
+                $tempRecordPts->AXIS3_AX_1 = $axisResult[0]['z'];
+                if ($report) $report->AXE1_Y = $axisResult[0]['z'];
             }
             if (isset($axisResult[1]['x'])) {
-                $tempRecordPts->AXIS1_AX_2 = $report->AXE2_X = $axisResult[1]['x'];
+                $tempRecordPts->AXIS1_AX_2 = $axisResult[1]['x'];
+                if ($report) $report->AXE2_X = $axisResult[1]['x'];
             }
             if (isset($axisResult[1]['z'])) {
-                $tempRecordPts->AXIS3_AX_2 = $report->AXE2_Z = $axisResult[1]['z'];
+                $tempRecordPts->AXIS3_AX_2 = $axisResult[1]['z'];
+                if ($report) $report->AXE2_Z = $axisResult[1]['z'];
             }
             if (isset($axisResult[2]['x'])) {
-                $tempRecordPts->AXIS1_AX_3 = $report->AXE3_Y = $axisResult[2]['x'];
+                $tempRecordPts->AXIS1_AX_3 = $axisResult[2]['x'];
+                if ($report) $report->AXE3_Y = $axisResult[2]['x'];
             }
             if (isset($axisResult[2]['y'])) {
-                $tempRecordPts->AXIS2_AX_3 = $report->AXE3_Z = $axisResult[2]['y'];
+                $tempRecordPts->AXIS2_AX_3 = $axisResult[2]['y'];
+                if ($report) $report->AXE3_Y = $axisResult[2]['y'];
             }
 
-            $tempRecordPts->AXIS1_PL_2_3 = $report->PLAN_X = $planResult[0];
-            $tempRecordPts->AXIS2_PL_1_3 = $report->PLAN_Y = $planResult[1];
-            $tempRecordPts->AXIS3_PL_1_2 = $report->PLAN_Z = $planResult[2];
+            $tempRecordPts->AXIS1_PL_2_3 = $planResult[0];
+            $tempRecordPts->AXIS2_PL_1_3 = $planResult[1];
+            $tempRecordPts->AXIS3_PL_1_2 = $planResult[2];
+            if ($report) {
+                $report->PLAN_X = $planResult[0];
+                $report->PLAN_Y = $planResult[1];
+                $report->PLAN_Z = $planResult[2];
+            }
 
             $tempRecordPts->save();
-            $report->save();
+            if ($report) $report->save();
         }
 
         return 1;
