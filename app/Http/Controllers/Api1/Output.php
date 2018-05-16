@@ -102,8 +102,8 @@ class Output extends Controller
         $production = Production::select("PROD_FLOW_RATE", "AVG_T_INITIAL")->where("ID_STUDY", $idStudy)->first();
         $product = Product::select("PROD_REALWEIGHT")->where("ID_STUDY", $idStudy)->first();
 
-        $prodFlowRate = $production->PROD_FLOW_RATE;
-        $avgTInitial = $production->AVG_T_INITIAL;
+        $prodFlowRate = $this->unit->productFlow($production->PROD_FLOW_RATE);
+        $avgTInitial = $this->unit->prodTemperature($production->AVG_T_INITIAL);
         $prodElmtRealweight = $this->unit->mass($product->PROD_REALWEIGHT);
 
         return compact("prodFlowRate", "prodElmtRealweight", "avgTInitial");
@@ -261,9 +261,8 @@ class Output extends Controller
 
         $lfcoef = $this->unit->unitConvert($this->value->MASS_PER_UNIT, 1.0);
 
-
-
         $result = array();
+        // return $studyEquipments;
 
         foreach ($studyEquipments as $row) {
             $capabilitie = $row->CAPABILITIES;
@@ -282,12 +281,17 @@ class Output extends Controller
 
             if (!($this->equip->getCapability($capabilitie, 128))) {
                 $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $conso_warning = $toc = $precision = "****";
-            } else if ($dimaResult == null) {
+            } else if (!$dimaResult) {
                 $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $conso_warning = $toc = $precision = "";
             } else {
-                $calculWarning = $this->dima->getCalculationWarning($dimaResult->DIMA_STATUS);
+                $ldError = $this->dima->getCalculationWarning($dimaResult->DIMA_STATUS);
+                $ldWarning = 0;
+                if (($ldError == 282) || ($ldError == 283) || ($ldError == 284) || ($ldError == 285) || ($ldError == 286)) {
+                    $ldWarning = $ldError;
+                    $ldError = 0;
+                }
 
-                if ($calculWarning != 0) {
+                if ($ldError != 0) {
                     $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $conso_warning = $toc = $precision = "****";
                 } else {
                     $tr = $this->unit->controlTemperature($dimaResult->SETPOINT);
@@ -336,7 +340,7 @@ class Output extends Controller
                 }
             }
 
-            $item["calculWarning"] = $calculWarning;
+            $item["calculWarning"] = $ldWarning;
             $item["tr"] = $tr;
             $item["ts"] = $ts;
             $item["vc"] = $vc;
