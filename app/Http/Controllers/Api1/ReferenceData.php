@@ -194,6 +194,7 @@ class ReferenceData extends Controller
             ->where('Translation.TRANS_TYPE', 1)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
             ->where('Component.ID_USER', '!=', $this->auth->user()->ID_USER)
             ->orderBy('LABEL', 'ASC')->get();
+
         foreach ($others as $other) {
             $other->AIR = round(($other->AIR / 0.01205));
             $other->FREEZE_TEMP = $this->units->temperature($other->FREEZE_TEMP, 2, 1);
@@ -205,7 +206,6 @@ class ReferenceData extends Controller
 
     public function getComponentById($id) 
     {
-
         $comp = Component::join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')
         ->where('Translation.TRANS_TYPE', 1)
         ->where('Translation.ID_TRANSLATION', $id)

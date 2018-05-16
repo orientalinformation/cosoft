@@ -1077,7 +1077,7 @@ class Equipments extends Controller
             }
         }
         // End generate new profile
-        
+
         if (count($listOfPoints) > 0) {
             for($i = 0; $i < count($listOfPoints); $i++) {
                 array_push($valuesTabX, $listOfPoints[$i]['X_POSITION']);
@@ -1140,8 +1140,8 @@ class Equipments extends Controller
         if ($minScaleY < $tempMin) $minScaleY = $minMax->LIMIT_MIN;
         if ($maxScaleY > $tempMax) $maxScaleY = $minMax->LIMIT_MAX;
 
-        $miniMum = round($this->convert->convertIdent($minScaleY, $unitIdent));
-        $maxiMum = round($this->convert->convertIdent($maxScaleY, $unitIdent));
+        $miniMum = round($this->convert->convertIdent($minScaleY, $unitIdent), 2);
+        $maxiMum = round($this->convert->convertIdent($maxScaleY, $unitIdent), 2);
 
         //refresh
         if ($typeChart == 1) {

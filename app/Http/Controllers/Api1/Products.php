@@ -13,6 +13,7 @@ use App\Models\Production;
 use App\Models\InitialTemperature;
 use App\Models\Study;
 use App\Models\StudyEquipment;
+use App\Models\ProdcharColor;
 use App\Cryosoft\MeshService;
 use App\Cryosoft\UnitsConverterService;
 use App\Cryosoft\ProductService;
@@ -218,6 +219,8 @@ class Products extends Controller
             $elements[$key]['PROD_ELMT_WEIGHT'] = $this->unit->mass($pr->PROD_ELMT_WEIGHT);
             $elements[$key]['PROD_ELMT_REALWEIGHT'] = $this->unit->mass($pr->PROD_ELMT_REALWEIGHT);
             $elements[$key]['componentName'] = $this->product->getComponentDisplayName($pr->ID_COMP);
+            $prodcharColor = ProdcharColor::where('ID_PROD', $id)->where('LAYER_ORDER', $key + 1)->first();
+            $elements[$key]['prodcharColor'] = $prodcharColor;
         }
 
         $specificDimension = $this->unit->prodDimension($specificDimension);
@@ -611,6 +614,29 @@ class Products extends Controller
             throw new \Exception("ERROR_NOVALID_TEMP");
         }
             
+        return 1;
+    }
+
+    public function updateProductCharColor($id)
+    {
+        $input = $this->request->all();
+
+        $prodcharColor = ProdcharColor::where('ID_PROD', $id)->where('LAYER_ORDER', $input['LAYER_ORDER'])->first();
+        if ($prodcharColor) {
+            $prodcharColor->ID_PROD = $id;
+            $prodcharColor->ID_COLOR = $input['ID_COLOR'];
+            $prodcharColor->LAYER_ORDER = $input['LAYER_ORDER'];
+            $prodcharColor->save();
+        } else {
+            $prodcharColor = new ProdcharColor();
+            $prodcharColor->ID_PROD = $id;
+            $prodcharColor->ID_COLOR = $input['ID_COLOR'];
+            $prodcharColor->LAYER_ORDER = $input['LAYER_ORDER'];
+            $prodcharColor->save();
+        }
+        
+        
+
         return 1;
     }
 }

@@ -321,7 +321,7 @@ class SVGService
             $item['y2'] = $y2;
             $item['textX'] = $textX;
             $item['textY'] = $textY;
-            $item['position'] = $lfValue;
+            $item['position'] = round($lfValue, 2);
             array_push($listOfGraduation, $item);
 
             $lfValue += $offset;
@@ -338,7 +338,9 @@ class SVGService
     public function generateNewProfile($listOfPointsOld, $listOfSelectedPoints, $minValue, $maxValue, $profileType)
     {   
         $result = null;
-        $listOfPoints = $this->calculatorConvert($listOfSelectedPoints, $profileType);
+        $firstPoint = round($listOfPointsOld[0]['Y_POINT'], 2);
+        $endPoint = round($listOfPointsOld[count($listOfPointsOld) - 1]['Y_POINT'], 2);
+        $listOfPoints = $this->calculatorConvert($listOfSelectedPoints, $profileType, $firstPoint, $endPoint);
         if (count($listOfPoints) > 0) {
             for ($i = 0; $i < count($listOfPoints); $i++) {
                 if (floatval($listOfPoints[$i]['Y_POINT']) == floatval(0)) {
@@ -378,9 +380,10 @@ class SVGService
         return $valueX;
     }
 
-    private function calculatorConvert($listOfSelectedPoints, $profileType) 
+    private function calculatorConvert($listOfSelectedPoints, $profileType, $firstPoint, $endPoint) 
     {
-  
+        $size = count($listOfSelectedPoints) - 1;
+        
         if (count($listOfSelectedPoints) > 0) {
             for ($i = 1; $i < count($listOfSelectedPoints) - 1; $i++) {
                 if (floatval($listOfSelectedPoints[$i]['Y_POINT']) != floatval(0)) {
@@ -391,7 +394,22 @@ class SVGService
                     }
                 }
             }
-    
+
+            if (round($listOfSelectedPoints[0]['Y_POINT'], 2) > $firstPoint) {
+                if ($profileType == 1) {
+                    $listOfSelectedPoints[0]['Y_POINT'] = $this->units->convectionCoeff($listOfSelectedPoints[0]['Y_POINT'], 2, 0);
+                } else {
+                    $listOfSelectedPoints[0]['Y_POINT'] = $this->units->temperature($listOfSelectedPoints[0]['Y_POINT'], 2, 0);
+                }
+            }
+
+            if (round($listOfSelectedPoints[$size]['Y_POINT'], 2) > $endPoint) {
+                if ($profileType == 1) {
+                    $listOfSelectedPoints[$size]['Y_POINT'] = $this->units->convectionCoeff($listOfSelectedPoints[$size]['Y_POINT'], 2, 0);
+                } else {
+                    $listOfSelectedPoints[$size]['Y_POINT'] = $this->units->temperature($listOfSelectedPoints[$size]['Y_POINT'], 2, 0);
+                }
+            }
         }
 
         return $listOfSelectedPoints;

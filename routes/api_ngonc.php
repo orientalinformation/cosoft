@@ -97,6 +97,22 @@ $router->GET('/api/v1/minMaxs/productMeshPacking', 'Api1\\MinMaxs@getMinMaxProdu
 $router->GET('/api/v1/minMaxs/{id}/equipment', 'Api1\\MinMaxs@getMinMaxEquipment');
 
 /**
+ * GET findColorPalettes
+ * Summary: 
+ * Notes: get color palettes
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/colorPalettes', 'Api1\\ColorPalettes@findColorPalettes');
+
+/**
+ * POST updateProductCharColor
+ * Summary: 
+ * Notes: update product char color
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/products/{id}/productCharColor', 'Api1\\Products@updateProductCharColor');
+
+/**
  * GET getstudyEquipmentProductChart
  * Summary: 
  * Notes: get Study Equipment Product Chart
