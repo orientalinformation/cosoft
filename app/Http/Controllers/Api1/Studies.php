@@ -1596,7 +1596,6 @@ class Studies extends Controller
         $report = new Report();
         $precalcLdgRatePrm = new PrecalcLdgRatePrm();
         $packing = new Packing();
-
         $isNumerical = ($stdEqp->BRAIN_TYPE == $this->value->BRAIN_RUN_FULL_YES) ? true : false;
         $isAnalogical = false;
         if ($study->CALCULATION_MODE == $this->value->STUDY_ESTIMATION_MODE) {
@@ -1604,7 +1603,7 @@ class Studies extends Controller
             $isAnalogical = $this->stdeqp->isAnalogicResults($stdEqp);
         } else {
             // selected or optimum
-            $isAnalogical = $stdEqp->BRAIN_TYPE == $this->value->BRAIN_RUN_NONE ? true : false;
+            $isAnalogical = $stdEqp->BRAIN_TYPE != $this->value->BRAIN_RUN_NONE ? true : false;
         }
         
         // @class: \App\Models\Study
@@ -1776,6 +1775,7 @@ class Studies extends Controller
                         $this->stdeqp->setInitialTempFromSimpleNumericalResults($stdEqp, $shapeId, $product, $production);
                     }
                 }
+
 
                 $study->ID_TEMP_RECORD_PTS = $temprecordpst->ID_TEMP_RECORD_PTS;
                 $study->ID_PRODUCTION = $production->ID_PRODUCTION;

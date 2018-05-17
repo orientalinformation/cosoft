@@ -352,7 +352,7 @@ class StudyEquipmentService
             // query . addParameter(sequip . getIdStudyEquipments());
             // query . addParameter(ValuesList . DIMA_TYPE_DHP_CHOSEN);
             $dimaResults = DimaResults::where('ID_STUDY_EQUIPMENTS', $sequip->ID_STUDY_EQUIPMENTS)
-                ->where('DIMA_TYPE', $this->value->DIMA_TYPE_DHP_CHOSEN)->first();
+                ->where('DIMA_TYPE', 1)->first();
 
             // TODO: Check if dima result exists before create child study
 
