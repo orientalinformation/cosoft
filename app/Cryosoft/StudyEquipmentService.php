@@ -816,11 +816,15 @@ class StudyEquipmentService
         // We find back the product length and width from other values
         $plength = 0.0; // double
         $pwidth = 0.0; // double
- 
-        $pwidth = ($lfEquipWidth - 2 * $layoutRes->LEFT_RIGHT_INTERVAL
+        
+        if (($layoutRes->NUMBER_IN_WIDTH != 0)) {
+            $pwidth = ($lfEquipWidth - 2 * $layoutRes->LEFT_RIGHT_INTERVAL
             - $widthInterVal * ($layoutRes->NUMBER_IN_WIDTH - 1)) / $layoutRes->NUMBER_IN_WIDTH;
-
-        $plength = $lfEquipLength / $layoutRes->NUMBER_PER_M - $lengthInterVal;
+        }
+        
+        if (($layoutRes->NUMBER_PER_M - $lengthInterVal != 0)) {
+            $plength = $lfEquipLength / $layoutRes->NUMBER_PER_M - $lengthInterVal;
+        }
 
         if ($sequip->BATCH_PROCESS) {
             //convert
