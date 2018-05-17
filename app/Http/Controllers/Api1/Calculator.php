@@ -1257,7 +1257,7 @@ class Calculator extends Controller
             if (isset($input['temperatures'])) {
                 $temperatures = $input['temperatures'];
                 if (count($temperatures) > 0) {
-                    $lfControlTemp = doubleval($this->convert->controlTemperature($temperatures[0]['value']));
+                    $lfControlTemp = doubleval($this->units->controlTemperature($temperatures[0]['value'], 2, 0));
                 }
             } 
         } else {
