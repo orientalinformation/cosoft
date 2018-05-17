@@ -755,8 +755,7 @@ class Studies extends Controller
         if ($packing) {
             $packingLayers = PackingLayer::where('ID_PACKING', $packing->ID_PACKING)->get();
             for ($i = 0; $i < count($packingLayers); $i++) { 
-                // $value = $this->units->packingThickness($packingLayers[$i]->THICKNESS, 2, 1);
-                $value = $this->convert->unitConvert(16, $packingLayers[$i]->THICKNESS);
+                $value = $this->units->packingThickness($packingLayers[$i]->THICKNESS, 2, 1);
                 $packingLayers[$i]->THICKNESS = $value;
             }
         }
@@ -768,27 +767,28 @@ class Studies extends Controller
     {
         $input = $this->request->all();
         
-        $packing = \App\Models\Packing::where('ID_STUDY', $id)->first();
+        $packing = Packing::where('ID_STUDY', $id)->first();
         if (empty($packing)) {
             $packing = new \App\Models\Packing();
             $packing->ID_SHAPE = $input['packing']['ID_SHAPE'];
             $packing->ID_STUDY = $id;
         }
+
         if (!isset($input['packing']['NOMEMBMAT']))
             $input['packing']['NOMEMBMAT'] = "";
 
         $packing->NOMEMBMAT = $input['packing']['NOMEMBMAT'];
         $packing->save();
 
-        $packingLayer = \App\Models\PackingLayer::where('ID_PACKING', $packing->ID_PACKING)->delete();
+        $packingLayer = PackingLayer::where('ID_PACKING', $packing->ID_PACKING)->delete();
 
         foreach ($input['packingLayers'] as $key => $value) {
-            $packingLayer = new \App\Models\PackingLayer();
+            $packingLayer = new PackingLayer();
             $packingLayer->ID_PACKING = $packing->ID_PACKING;
-            $packingLayer->ID_PACKING_ELMT = $value['ID_PACKING_ELMT'];
-            $packingLayer->THICKNESS = $value['THICKNESS'] / 1000000;
-            $packingLayer->PACKING_SIDE_NUMBER = $value['PACKING_SIDE_NUMBER'];
-            $packingLayer->PACKING_LAYER_ORDER = $value['PACKING_LAYER_ORDER'];
+            if (isset($value['ID_PACKING_ELMT'])) $packingLayer->ID_PACKING_ELMT = $value['ID_PACKING_ELMT'];
+            if (isset($value['THICKNESS'])) $packingLayer->THICKNESS = $this->units->packingThickness($value['THICKNESS'], 5, 0);
+            if (isset($value['PACKING_SIDE_NUMBER'])) $packingLayer->PACKING_SIDE_NUMBER = $value['PACKING_SIDE_NUMBER'];
+            if (isset($value['PACKING_LAYER_ORDER'])) $packingLayer->PACKING_LAYER_ORDER = $value['PACKING_LAYER_ORDER'];
             $packingLayer->save();
         }
         return 1;
