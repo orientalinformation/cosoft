@@ -388,7 +388,6 @@ class Studies extends Controller
                     }
                 }
                     
-                
                 //duplicate Price already exsits
                 if (count($priceCurr) > 0) {
                     $price = $priceCurr->replicate();
@@ -555,13 +554,8 @@ class Studies extends Controller
         }
     }
 
-    /**
-     * @param $id
-     * @return int
-     */
     public function saveStudy($id)
     {
-        // @class: \App\Models\Study
         $study = Study::find($id);
         $update = (object) $this->request->json()->all();
 
@@ -630,7 +624,6 @@ class Studies extends Controller
 
     public function openStudy($id)
     {
-        // 165 : tempRecordPts = new TempRecordPtsBean(userPrivateData, convert, this);
         $study = Study::find($id);
 
         $tempRecordPts = TempRecordPts::where('ID_STUDY', $id)->first();
@@ -680,9 +673,6 @@ class Studies extends Controller
         return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 10);
     }
 
-    /**
-    * 
-    **/
     public function getStudyEquipments($id) 
     {
         $study = \App\Models\Study::findOrFail($id);
@@ -760,11 +750,10 @@ class Studies extends Controller
 
     public function getStudyPackingLayers($id)
     {
-        $packing = \App\Models\Packing::where('ID_STUDY', $id)->first();
+        $packing = Packing::where('ID_STUDY', $id)->first();
         $packingLayers = null;
-
-        if ($packing != null) {
-            $packingLayers = \App\Models\PackingLayer::where('ID_PACKING', $packing->ID_PACKING)->get();
+        if ($packing) {
+            $packingLayers = PackingLayer::where('ID_PACKING', $packing->ID_PACKING)->get();
             for ($i = 0; $i < count($packingLayers); $i++) { 
                 // $value = $this->units->packingThickness($packingLayers[$i]->THICKNESS, 2, 1);
                 $value = $this->convert->unitConvert(16, $packingLayers[$i]->THICKNESS);
@@ -968,7 +957,7 @@ class Studies extends Controller
     public function getDefaultTimeStep ($itemTimeStep)
     {
         $limitItem = 0;
-        $defaultTimeStep = 1;       // s
+        $defaultTimeStep = 1;
         $FirstItem = 1241;
 
         $limitItem = $FirstItem + $itemTimeStep - 1;
@@ -978,9 +967,6 @@ class Studies extends Controller
         return ($defaultTimeStep);
     }
 
-    /**
-     * @param $id
-     */
     public function addEquipment($id)
     {
         $input = $this->request->all();
@@ -1206,7 +1192,8 @@ class Studies extends Controller
      * @param int
      * @param boolean
      */
-    private function getEqpPrmInitialData (array $dd, int $type, $isTS) {
+    private function getEqpPrmInitialData (array $dd, int $type, $isTS)
+    {
         // MinMax mm = (MinMax) retrieveApplValueList(type, 0, ValuesList . MINMAX);
         $mm = MinMax::where('LIMIT_ITEM', $type)->first();
         for ($i=0; $i < count($dd); $i++) {
@@ -1228,7 +1215,8 @@ class Studies extends Controller
         return $dd;
     }
 
-    private function setEqpPrmInitialData($dd, $value) {
+    private function setEqpPrmInitialData($dd, $value) 
+    {
         for ($i = 0; $i < count($dd); $i++) {
             $dd[$i] = $value;
         }
@@ -1236,7 +1224,8 @@ class Studies extends Controller
     }
 
 
-    public function removeStudyEquipment($id, $idEquip) {
+    public function removeStudyEquipment($id, $idEquip) 
+    {
         $study = \App\Models\Study::findOrFail($id);
 
         if (!$study) {
@@ -1314,13 +1303,14 @@ class Studies extends Controller
         return $tfMesh;
     }
 
-    public function getStudyComment($id) {
+    public function getStudyComment($id) 
+    {
         // @class: \App\Models\Study
         $study = Study::find($id);
     }
 
-    public function postStudyComment($id) {
-        // @class: \App\Models\Study
+    public function postStudyComment($id)
+    {
         $study = Study::find($id);
         $input = $this->request->json()->all();
 
@@ -1332,7 +1322,8 @@ class Studies extends Controller
         return $study;
     }
 
-    public function updateStudyEquipmentLayout($id) {
+    public function updateStudyEquipmentLayout($id)
+    {
         $sEquip = StudyEquipment::findOrFail($id);
         $input = $this->request->json()->all();    
         $loadingRate = $input['toc'];
@@ -1359,7 +1350,6 @@ class Studies extends Controller
         }
         $layoutGen->save();
 
-        // $this->stdeqp->calculateEquipmentParams($sEquip);
         if ($input['studyClean'] == true) {
             $this->stdeqp->applyStudyCleaner($sEquip->ID_STUDY, $id, 48);
         }
@@ -1367,7 +1357,6 @@ class Studies extends Controller
 
     public function getChainingModel($id) 
     {
-        /** @var \App\Models\Study */
         $study = Study::findOrFail($id);
         
         // $chaining = [
@@ -1587,7 +1576,8 @@ class Studies extends Controller
     }
 
 
-    public function createChildStudy($id) {
+    public function createChildStudy($id) 
+    {
         $input = $this->request->all();
         $childStudyName = $input['studyName'];
         $stdEqpId = $input['stdEqpId'];
@@ -1781,7 +1771,6 @@ class Studies extends Controller
                         $this->stdeqp->setInitialTempFromSimpleNumericalResults($stdEqp, $shapeId, $product, $production);
                     }
                 }
-
 
                 $study->ID_TEMP_RECORD_PTS = $temprecordpst->ID_TEMP_RECORD_PTS;
                 $study->ID_PRODUCTION = $production->ID_PRODUCTION;
