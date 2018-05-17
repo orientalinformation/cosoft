@@ -72,36 +72,35 @@ class Translations extends Controller
     public function getDefaultLanguage() {
         $langIDs = Language::Select('CODE_LANGUE','LANG_NAME')->get();
         $userIdLang = User::Select('CODE_LANGUE')->Where('USERNAM', '=' ,'KERNEL')->first();
-        $referenceLangs[$userIdLang->CODE_LANGUE] = Translation::where('CODE_LANGUE', $userIdLang->CODE_LANGUE)
+        $referenceLangs = Translation::where('CODE_LANGUE', $userIdLang->CODE_LANGUE)
         ->orderBy('TRANS_TYPE', 'ASC')->get();
-        $translationLangs[$userIdLang->CODE_LANGUE] = Translation::where('CODE_LANGUE', $userIdLang->CODE_LANGUE)
+        $translationLangs = Translation::where('CODE_LANGUE', $userIdLang->CODE_LANGUE)
         ->orderBy('TRANS_TYPE', 'ASC')->get();
         return compact("referenceLangs", "translationLangs", "langIDs"); 
     }
 
     public function changeLabels() {
         $inputs = $this->request->all();
-        // return $inputs;
         foreach ($inputs as $input) {
             $langID = $input['CODE_LANGUE'];
             $id_trans = $input['ID_TRANSLATION'];
             $trans_type = $input['TRANS_TYPE'];
             $label = $input['LABEL'];
-            $getLabels = Translation::where('CODE_LANGUE', $langID)->where('ID_TRANSLATION', $id_trans)
-            ->where('TRANS_TYPE', $trans_type)->first();
-            if ($getLabels) {
-                $getLabels->CODE_LANGUE = $langID;
-                $getLabels->ID_TRANSLATION = $id_trans;
-                $getLabels->TRANS_TYPE = $trans_type;
-                $getLabels->LABEL = $label;
-            } else {
-                $getLabels = new Translation();
-                $getLabels->CODE_LANGUE = $langID;
-                $getLabels->ID_TRANSLATION = $id_trans;
-                $getLabels->TRANS_TYPE = $trans_type;
-                $getLabels->LABEL = $label;
-            }
-            $getLabels->save();  
+            DB::table('Translation')->where('CODE_LANGUE', $langID)->where('TRANS_TYPE', $id_trans)
+            ->where('ID_TRANSLATION', $trans_type)->update(['LABEL' => $label]);
+            // if ($getLabels) {
+            //     if ($getLabels->LABEL != $label) {
+            //         $getLabels->LABEL = $label;
+            //         $getLabels->save();
+            //     }
+            // } else {
+            //     $getLabels = new Translation();
+            //     $getLabels->CODE_LANGUE = $langID;
+            //     $getLabels->ID_TRANSLATION = $id_trans;
+            //     $getLabels->TRANS_TYPE = $trans_type;
+            //     $getLabels->LABEL = $label;
+            //     $getLabels->save();  
+            // }
         }
     }
 
@@ -112,7 +111,7 @@ class Translations extends Controller
         $referenceLangs = Translation::where('CODE_LANGUE', $id)->orderBy('TRANS_TYPE', 'ASC')->get();
         if (count($referenceLangs) > 0) {
             foreach ($referenceLangs as $referenceLang) {
-                $translations = Translation::Select('LABEL')->where('ID_TRANSLATION', $referenceLang->ID_TRANSLATION)
+                $translations = Translation::where('ID_TRANSLATION', $referenceLang->ID_TRANSLATION)
                 ->where('TRANS_TYPE', $referenceLang->TRANS_TYPE)->where('CODE_LANGUE', $idtrans)->orderBy('TRANS_TYPE', 'ASC')->first();
                 if ($translations) {
                     $translation[] = $translations;
