@@ -4,6 +4,10 @@ namespace App\Http\Controllers\Api1;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Translation;
+use App\Models\Language;
+use App\Models\User;
+use DB;
 
 class Translations extends Controller
 {
@@ -32,7 +36,7 @@ class Translations extends Controller
             'de' => 4,
             'it' => 5
         ];
-        $translations = \App\Models\Translation::where('TRANS_TYPE',1)
+        $translations = Translation::where('TRANS_TYPE',1)
             ->where('CODE_LANGUE',$langIds[$lang])
             ->get();
         
@@ -53,7 +57,7 @@ class Translations extends Controller
             'de' => 4,
             'it' => 5
         ];
-        $translations = \App\Models\Translation::where('TRANS_TYPE',3)
+        $translations = Translation::where('TRANS_TYPE',3)
             ->where('CODE_LANGUE',$langIds[$lang])
             ->get();
         
@@ -65,31 +69,38 @@ class Translations extends Controller
         return $translations;
     }
 
-    public function filterRef() {
-        $langIDs = \App\Models\Language::Select('CODE_LANGUE','LANG_NAME')->get();
-        foreach ($langIDs as $langID) {
-            $referenceLangs[$langID->CODE_LANGUE] = \App\Models\Translation::where('CODE_LANGUE', $langID->CODE_LANGUE)
-            ->orderBy('TRANS_TYPE', 'ASC')->get();
-        }
-        foreach ($langIDs as $langID) {
-            $translationLangs[$langID->CODE_LANGUE] = \App\Models\Translation::where('CODE_LANGUE', $langID->CODE_LANGUE)
-            ->orderBy('TRANS_TYPE', 'ASC')->get();
-        }
+    public function getDefaultLanguage() {
+        $langIDs = Language::Select('CODE_LANGUE','LANG_NAME')->get();
+        $userIdLang = User::Select('CODE_LANGUE')->Where('USERNAM', '=' ,'KERNEL')->first();
+        $referenceLangs = Translation::where('CODE_LANGUE', $userIdLang->CODE_LANGUE)
+        ->orderBy('TRANS_TYPE', 'ASC')->get();
+        $translationLangs = Translation::where('CODE_LANGUE', $userIdLang->CODE_LANGUE)
+        ->orderBy('TRANS_TYPE', 'ASC')->get();
         return compact("referenceLangs", "translationLangs", "langIDs"); 
     }
 
     public function changeLabels() {
         $inputs = $this->request->all();
-        // return $inputs;
-        foreach ($inputs['translationLangs'] as $input) {
+        foreach ($inputs as $input) {
             $langID = $input['CODE_LANGUE'];
             $id_trans = $input['ID_TRANSLATION'];
             $trans_type = $input['TRANS_TYPE'];
             $label = $input['LABEL'];
-            $getLabels = \App\Models\Translation::where('CODE_LANGUE', $langID)->where('ID_TRANSLATION', $id_trans)
-            ->where('TRANS_TYPE', $trans_type)->first();
-            $getLabels->LABEL = $label;
-            $getLabels->save();
+            DB::table('Translation')->where('CODE_LANGUE', $langID)->where('TRANS_TYPE', $id_trans)
+            ->where('ID_TRANSLATION', $trans_type)->update(['LABEL' => $label]);
+            // if ($getLabels) {
+            //     if ($getLabels->LABEL != $label) {
+            //         $getLabels->LABEL = $label;
+            //         $getLabels->save();
+            //     }
+            // } else {
+            //     $getLabels = new Translation();
+            //     $getLabels->CODE_LANGUE = $langID;
+            //     $getLabels->ID_TRANSLATION = $id_trans;
+            //     $getLabels->TRANS_TYPE = $trans_type;
+            //     $getLabels->LABEL = $label;
+            //     $getLabels->save();  
+            // }
         }
     }
 
@@ -97,12 +108,11 @@ class Translations extends Controller
         $input = $this->request->all();
         $id = $input['id'];
         $idtrans = $input['idtrans'];
-        $referenceLangs = \App\Models\Translation::where('CODE_LANGUE', $id)->orderBy('TRANS_TYPE', 'ASC')->get();      
+        $referenceLangs = Translation::where('CODE_LANGUE', $id)->orderBy('TRANS_TYPE', 'ASC')->get();
         if (count($referenceLangs) > 0) {
             foreach ($referenceLangs as $referenceLang) {
-                $translations = \App\Models\Translation::where('ID_TRANSLATION', $referenceLang->ID_TRANSLATION)
+                $translations = Translation::where('ID_TRANSLATION', $referenceLang->ID_TRANSLATION)
                 ->where('TRANS_TYPE', $referenceLang->TRANS_TYPE)->where('CODE_LANGUE', $idtrans)->orderBy('TRANS_TYPE', 'ASC')->first();
-                // return $translation;
                 if ($translations) {
                     $translation[] = $translations;
                 } else {
