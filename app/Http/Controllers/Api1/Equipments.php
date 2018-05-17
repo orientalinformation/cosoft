@@ -125,30 +125,29 @@ class Equipments extends Controller
         
         $querys = Equipment::query();
 
-
         if ($energy != -1) {
             $querys->where('ID_COOLING_FAMILY', $energy);
         }
 
         $querys->where(function($query) use ($idStudy) {
-             $query->where('EQP_IMP_ID_STUDY', $idStudy)
-            ->orWhere('EQP_IMP_ID_STUDY', 0);
+            $query->where('EQP_IMP_ID_STUDY', $idStudy)
+                ->orWhere('EQP_IMP_ID_STUDY', 0);
         });
 
         $querys->where(function ($query) use ($idStudy) {
             $query->where('EQP_IMP_ID_STUDY', $idStudy)
-               ->orWhere('EQP_IMP_ID_STUDY', 0);
+                ->orWhere('EQP_IMP_ID_STUDY', 0);
 
             $query->where(function ($q) {
                 $q->where('ID_USER', $this->auth->user()->ID_USER)
-                      ->where('EQUIP_RELEASE', 2);
+                    ->where('EQUIP_RELEASE', 2);
             });
+
             $query->orWhere(function ($q) {
                 $q->where('EQUIP_RELEASE', 3)
-                      ->orWhere('EQUIP_RELEASE', 4);
+                    ->orWhere('EQUIP_RELEASE', 4);
             });
         });
-
 
         if ($size != '') {
             $sizeLabel = explode('x', $size);
@@ -174,12 +173,11 @@ class Equipments extends Controller
             $querys->where('CONSTRUCTOR', $manufacturer);
         }
 
+        $querys->where('EQUIP_RELEASE', '<>', 1);
         $querys->orderBy('EQUIP_NAME');
-
 
         $equipments = $querys->get();
 
-        // return $querys->toSql();
         return $equipments;
     }
 
