@@ -44,7 +44,8 @@ use App\Models\PipeRes;
 use App\Models\LineElmt;
 use App\Models\LineDefinition;
 use App\Cryosoft\MeshService;
-// use DB;
+use App\Cryosoft\UnitsService;
+
 
 class Studies extends Controller
 {
@@ -94,14 +95,17 @@ class Studies extends Controller
      */
     protected $mesh;
 
+    protected $units;
+
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth, KernelService $kernel, UnitsConverterService $convert,
-        ValueListService $value, LineService $lineE, StudyEquipmentService $stdeqp, PackingService $packing, StudyService $study,
-        MeshService $mesh, EquipmentsService $equip)
+    public function __construct(Request $request, Auth $auth, KernelService $kernel, 
+        UnitsConverterService $convert, ValueListService $value, LineService $lineE, 
+        StudyEquipmentService $stdeqp, PackingService $packing, StudyService $study, 
+        UnitsService $units, MeshService $mesh, EquipmentsService $equip)
     {
         $this->request = $request;
         $this->auth = $auth;
@@ -114,6 +118,7 @@ class Studies extends Controller
         $this->study = $study;
         $this->mesh = $mesh;
         $this->equip = $equip;
+        $this->units = $units;
     }
 
     public function findStudies()
@@ -616,7 +621,8 @@ class Studies extends Controller
         return (int) $study->save();
     }
 
-    public function refreshMesh($id) {
+    public function refreshMesh($id)
+    {
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $id, 10);
         
         return $this->kernel->getKernelObject('MeshBuilder')->MBMeshBuild($conf);
@@ -760,6 +766,7 @@ class Studies extends Controller
         if ($packing != null) {
             $packingLayers = \App\Models\PackingLayer::where('ID_PACKING', $packing->ID_PACKING)->get();
             for ($i = 0; $i < count($packingLayers); $i++) { 
+                // $value = $this->units->packingThickness($packingLayers[$i]->THICKNESS, 2, 1);
                 $value = $this->convert->unitConvert(16, $packingLayers[$i]->THICKNESS);
                 $packingLayers[$i]->THICKNESS = $value;
             }
@@ -768,14 +775,10 @@ class Studies extends Controller
         return compact('packing', 'packingLayers');
     }
 
-    
-    
-    /**
-     * 
-     */
     public function savePacking($id)
     {
         $input = $this->request->all();
+        
         $packing = \App\Models\Packing::where('ID_STUDY', $id)->first();
         if (empty($packing)) {
             $packing = new \App\Models\Packing();
@@ -836,14 +839,14 @@ class Studies extends Controller
         $study->ID_REPORT = 0;
         $study->save();
 
-        $nbMF 					= (float) MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_DAILY_STARTUP)->first()->DEFAULT_VALUE;
-        $nbWeekPeryear 		    = (float) MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_PROD_WEEK_PER_YEAR)->first()->DEFAULT_VALUE;
-        $nbheures 			    = (float) MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_PRODUCT_DURATION)->first()->DEFAULT_VALUE;
-        $nbjours 				= (float) MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_WEEKLY_PRODUCTION)->first()->DEFAULT_VALUE;
-        $humidity 			    = (float) MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_AMBIENT_HUM)->first()->DEFAULT_VALUE;
-        $dailyProductFlow 	    = (float) MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_FLOW_RATE)->first()->DEFAULT_VALUE;
-        $avTempDesired 		    = (float) MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_AVG_TEMPERATURE_DES)->first()->DEFAULT_VALUE;
-        $temp 					= (float) MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_TEMP_AMBIANT)->first()->DEFAULT_VALUE;
+        $nbMF                   = (float) MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_DAILY_STARTUP)->first()->DEFAULT_VALUE;
+        $nbWeekPeryear          = (float) MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_PROD_WEEK_PER_YEAR)->first()->DEFAULT_VALUE;
+        $nbheures               = (float) MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_PRODUCT_DURATION)->first()->DEFAULT_VALUE;
+        $nbjours                = (float) MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_WEEKLY_PRODUCTION)->first()->DEFAULT_VALUE;
+        $humidity               = (float) MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_AMBIENT_HUM)->first()->DEFAULT_VALUE;
+        $dailyProductFlow       = (float) MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_FLOW_RATE)->first()->DEFAULT_VALUE;
+        $avTempDesired          = (float) MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_AVG_TEMPERATURE_DES)->first()->DEFAULT_VALUE;
+        $temp                   = (float) MinMax::where('LIMIT_ITEM', $this->value->MIN_MAX_TEMP_AMBIANT)->first()->DEFAULT_VALUE;
 
         $production->DAILY_STARTUP          = $nbMF;
         $production->DAILY_PROD             = $nbheures;
@@ -917,12 +920,14 @@ class Studies extends Controller
         return $study;
     }
 
-    public function recentStudies() {
+    public function recentStudies()
+    {
         $studies = Study::where('ID_USER',$this->auth->user()->ID_USER)->orderBy('ID_STUDY', 'desc')->take(5)->get();
         return $studies;
     }
 
-    function getDefaultPrecision ($productshape, $nbComp, $itemPrecis) {
+    function getDefaultPrecision ($productshape, $nbComp, $itemPrecis)
+    {
         $limitItem = 0;
         $defaultPrecis = 0.005;
         $FirstItemMonoComp = [
@@ -960,9 +965,10 @@ class Studies extends Controller
         return ($defaultPrecis);
     }
 
-    public function getDefaultTimeStep ($itemTimeStep) {
+    public function getDefaultTimeStep ($itemTimeStep)
+    {
         $limitItem = 0;
-        $defaultTimeStep = 1;		// s
+        $defaultTimeStep = 1;       // s
         $FirstItem = 1241;
 
         $limitItem = $FirstItem + $itemTimeStep - 1;
@@ -1078,7 +1084,7 @@ class Studies extends Controller
         }
 
         $vc = $this->getEqpPrmInitialData(array_fill(0, $equip->NB_VC, 0.0), $VCType, false);
-		//number of DH = number of TR
+        //number of DH = number of TR
         $dh = $this->getEqpPrmInitialData(array_fill(0, $equip->NB_TR, 0.0), 0, false);
         $TExt = doubleval($tr[0]);
 
@@ -1129,10 +1135,10 @@ class Studies extends Controller
         $position = POSITION_PARALLEL;
         
         // if (this . stdBean . isStudyHasParent()) {
-		// 	// Chaining : use orientation from parent equip
+        //  // Chaining : use orientation from parent equip
         //     position = stdBean . ParentProdPosition;
         // } else {
-			// no chaining : force standard orientation depending on the shape
+            // no chaining : force standard orientation depending on the shape
         $position = (($productshape == CYLINDER_LAYING)
             || ($productshape == CYLINDER_CONCENTRIC_LAYING)
             || ($productshape == PARALLELEPIPED_LAYING))
@@ -1210,8 +1216,8 @@ class Studies extends Controller
                 $dd[$i] = 0.0;
             }
         }
-		
-		// Special for multi_tr : apply a simple coeff : find something better in the future
+        
+        // Special for multi_tr : apply a simple coeff : find something better in the future
         if (($isTS) && (count($dd) > 1)) {
             $MultiTRRatio = MinMax::where('LIMIT_ITEM', MIN_MAX_MULTI_TR_RATIO)->first();
             if ($MultiTRRatio != null) {

@@ -16,12 +16,12 @@ $router->GET('/api/v1/lines/{id}/getListLine', 'Api1\\Lines@loadPipeline');
 $router->POST('/api/v1/lines/saveLines', 'Api1\\Lines@savePipelines');
 
 /**
- * GET filterRef
+ * GET getDefaultLanguage
  * Summary: 
  * Notes: 
  * Output-Formats: [application/json]
  */
-$router->GET('/api/v1/translations/filterRef', 'Api1\\Translations@filterRef');
+$router->GET('/api/v1/translations/getDefaultLanguage', 'Api1\\Translations@getDefaultLanguage');
 
 /**
  * GET filterTrans
