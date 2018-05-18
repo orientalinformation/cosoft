@@ -363,9 +363,9 @@ class Products extends Controller
         $input = $this->request->json()->all();
         $mesh_type = intval($input['mesh_type']);
         // @TODO: implement unit service
-        $size1 = floatval($input['size1']) /1000;
-        $size2 = floatval($input['size2']) /1000;
-        $size3 = floatval($input['size3']) /1000;
+        $size1 = floatval($input['size1']) / 1000;
+        $size2 = floatval($input['size2']) / 1000;
+        $size3 = floatval($input['size3']) / 1000;
 
         /** @var MeshGeneration $meshGeneration */
         $meshGeneration = $this->mesh->findGenerationByProduct($product);
@@ -397,17 +397,6 @@ class Products extends Controller
         $meshGeneration = $this->mesh->findGenerationByProduct($product);
         
         $this->mesh->generate($meshGeneration, MeshService::REGULAR_MESH, MeshService::MAILLAGE_MODE_REGULAR);
-
-        // KernelToolsCalculation kerneltools = new KernelToolsCalculation(
-        //     CryosoftDB . CRYOSOFT_DB_ODBCNAME,
-        //     username,
-        //     password,
-        //     sLogsDir,
-        //     getUserID(),
-        //     $this->studies->getSelectedStudy(),
-        //     0,
-        //     0
-        // );
     }
 
     /**
@@ -519,7 +508,7 @@ class Products extends Controller
                 if (!$this->studies->isStudyHasParent($study)
                     || ($pb->INSERT_LINE_ORDER == $study->ID_STUDY)) {
                         
-                    if ( $pe['PROD_ELMT_ISO'] == $this->values->PRODELT_ISOTHERM) {
+                    if ($pe['PROD_ELMT_ISO'] == $this->values->PRODELT_ISOTHERM) {
                         if ($this->studies->isStudyHasParent($study)) {
                             if ($pb->ID_SHAPE != $this->values->PARALLELEPIPED_BREADED) {
                                 // propagation on axis 1 and 3
@@ -635,8 +624,6 @@ class Products extends Controller
             $prodcharColor->save();
         }
         
-        
-
         return 1;
     }
 }

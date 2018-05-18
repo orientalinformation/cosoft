@@ -647,25 +647,13 @@ class StudyEquipmentService
         return $bret;
     }
 
-    private function saveInitialTemperature (/*int*/ $shape, array $offset, /*double*/ $lfTemp, Product &$product, Production &$production)
+    private function saveInitialTemperature ($shape, array $offset, $lfTemp, Product &$product, Production &$production)
     {
-        // // V4 : use oxymel connection to update
-        // Transaction tx = dbmgr . getTransaction();
-        // // V4 : use standard connection to insert data
-        // Connection connection = null;
-
-        // InitialTemperature initTemp = null;
-        // long counter = 0;
+        
         $initTemp = null;
         $counter = 0;
-        
-        // Increase value to show still alive
-        // cryoRun . nextCRRStatus(true);
 
         try {
-            // V4: use standard connection to insert data
-            // connection = CryosoftDB . getDatasource() . getConnection();
-            
             // dispatch this temp
             $nbNode1 = $product->meshGenerations->first()->MESH_1_NB;
             $nbNode2 = $product->meshGenerations->first()->MESH_2_NB;
@@ -702,13 +690,6 @@ class StudyEquipmentService
                         $initTemp->MESH_2_ORDER = (($j + $offset[1]));
                         $initTemp->MESH_3_ORDER = (($k + $offset[2]));
                         array_push($listTemp, $initTemp->toArray());
-                        // CryosoftDB . create($initTemp, connection);
-                        // $initTemp->save();
-
-                        // if ((++counter % NB_TEMP_FOR_NEXTSTATUS) == 0) {
-                        //     // Increase value to show still alive
-                        //     cryoRun . nextCRRStatus(true);
-                        // }
                     }
                 }
             }
@@ -718,22 +699,18 @@ class StudyEquipmentService
                 InitialTemperature::insert($slice);
             }
             
-            // Increase value to show still alive
-            // cryoRun . nextCRRStatus(true);
-            
             // update production to set avg initial temp
             $production->AVG_T_INITIAL = $lfTemp;
             $production->save();
             
-            // Increase value to show still alive
-            // cryoRun . nextCRRStatus(true);
         } catch (Exception $e) {
             // LOG . error("Error while writing initial temp from analogical results", e);
             throw new Exception("Error while writing initial temp from analogical results");
         }
     }
 
-    public function generateLayoutPreview(StudyEquipment &$sequip) {
+    public function generateLayoutPreview(StudyEquipment &$sequip)
+    {
         $study = $sequip->study;
 
         $idRatePrm = $study->ID_PRECALC_LDG_RATE_PRM;
