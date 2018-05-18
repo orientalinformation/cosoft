@@ -1518,9 +1518,9 @@ class Studies extends Controller
             $tempRecordPts->AXIS2_PT_INT_PT = $pointIntResult[1];
             $tempRecordPts->AXIS3_PT_INT_PT = $pointIntResult[2];
 
-            $tempRecordPts->AXIS1_PT_BOT_SURF = $report->POINT3_X = $pointBotResult[0];
-            $tempRecordPts->AXIS2_PT_BOT_SURF = $report->POINT3_Y = $pointBotResult[1];
-            $tempRecordPts->AXIS3_PT_BOT_SURF = $report->POINT3_Z = $pointBotResult[2];
+            $tempRecordPts->AXIS1_PT_BOT_SURF = $pointBotResult[0];
+            $tempRecordPts->AXIS2_PT_BOT_SURF = $pointBotResult[1];
+            $tempRecordPts->AXIS3_PT_BOT_SURF = $pointBotResult[2];
 
             if ($report) {
                 $report->POINT1_X = $pointTopResult[0];
