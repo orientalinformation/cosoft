@@ -14,6 +14,7 @@ use App\Models\InitialTemperature;
 use App\Models\Study;
 use App\Models\StudyEquipment;
 use App\Models\ProdcharColor;
+use App\Models\ProdcharColorsDef;
 use App\Cryosoft\MeshService;
 use App\Cryosoft\UnitsConverterService;
 use App\Cryosoft\ProductService;
@@ -143,6 +144,18 @@ class Products extends Controller
         
         $this->mesh->rebuildMesh($product->study);
 
+        $layerColor = ProdcharColor::where('ID_PROD', $product->ID_PROD)->where('LAYER_ORDER', $nElements+1)->first();
+        $defaultColor = ProdcharColorsDef::where('ID_USER', $this->auth->user()->ID_USER)->where('LAYER_ORDER', $nElements+1)->first();
+        
+        if (!$layerColor) {
+            $layerColor = new ProdcharColor();
+            $layerColor->ID_PROD = $product->ID_PROD;
+            $layerColor->LAYER_ORDER = $nElements+1;
+        }
+
+        $layerColor->ID_COLOR = $defaultColor->ID_COLOR;
+        $layerColor->save();
+
         return compact('ok1', 'ok2', 'elmtId');
     }
 
@@ -219,7 +232,7 @@ class Products extends Controller
             $elements[$key]['PROD_ELMT_WEIGHT'] = $this->unit->mass($pr->PROD_ELMT_WEIGHT);
             $elements[$key]['PROD_ELMT_REALWEIGHT'] = $this->unit->mass($pr->PROD_ELMT_REALWEIGHT);
             $elements[$key]['componentName'] = $this->product->getComponentDisplayName($pr->ID_COMP);
-            $prodcharColor = ProdcharColor::where('ID_PROD', $id)->where('LAYER_ORDER', $key + 1)->first();
+            $prodcharColor = ProdcharColor::where('ID_PROD', $id)->where('LAYER_ORDER', $count - $key)->first();
             $elements[$key]['prodcharColor'] = $prodcharColor;
         }
 
