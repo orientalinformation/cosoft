@@ -268,7 +268,7 @@ class Output extends Controller
             $capabilitie = $row->CAPABILITIES;
             $equipStatus = $row->EQUIP_STATUS;
             $brainType = $row->BRAIN_TYPE;
-            $calculWarning = "";
+            $ldWarning = 0;
             $item["id"] = $idStudyEquipment = $row->ID_STUDY_EQUIPMENTS;
             $sSpecificSize = "";
             if ($this->equip->getCapability($capabilitie , 2097152)) {
