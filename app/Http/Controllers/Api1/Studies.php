@@ -799,17 +799,13 @@ class Studies extends Controller
      */
     public function createStudy()
     {
-        /** @var Study $study */
         $study = new Study();
 
-        /** @var Production $production */
         $production = new Production();
 
-        /** @var PrecalcLdgRatePrm $precalc */
         $precalc = new PrecalcLdgRatePrm();
 
         $tempRecordPts = new TempRecordPts();
-
 
         $input = $this->request->json()->all();
 
@@ -1602,7 +1598,6 @@ class Studies extends Controller
             $isAnalogical = $stdEqp->BRAIN_TYPE != $this->value->BRAIN_RUN_NONE ? true : false;
         }
         
-        // @class: \App\Models\Study
         $studyCurrent = Study::findOrFail($id);
         $studyCurrent->HAS_CHILD = 1;
         $studyCurrent->save();
@@ -1619,21 +1614,13 @@ class Studies extends Controller
 
         if ($studyCurrent != null) {
 
-            // @class: \App\Models\TempRecordPts
             $temprecordpstCurr = TempRecordPts::where('ID_STUDY', $studyCurrent->ID_STUDY)->first();
-            // @class: \App\Models\Production
             $productionCurr = Production::where('ID_STUDY', $studyCurrent->ID_STUDY)->first(); 
-            // @class: \App\Models\Product
             $productCurr = Product::where('ID_STUDY', $studyCurrent->ID_STUDY)->first();
-            // @class: \App\Models\Price
             $priceCurr = Price::where('ID_STUDY', $studyCurrent->ID_STUDY)->first(); 
-            // @class: \App\Models\Price
             $reportCurr = Report::where('ID_STUDY', $studyCurrent->ID_STUDY)->first(); 
-            // @class: \App\Models\PrecalcLdgRatePrm
             $precalcLdgRatePrmCurr = PrecalcLdgRatePrm::where('ID_STUDY', $studyCurrent->ID_STUDY)->first();
-            // @class: \App\Models\Packing
             $packingCurr = Packing::where('ID_STUDY', $studyCurrent->ID_STUDY)->first(); 
-            
 
             if (!empty($childStudyName)) {
                 //duplicate study already exsits
@@ -1665,7 +1652,6 @@ class Studies extends Controller
 
                 //duplicate Production already exsits
                 if (count($productionCurr) > 0) {
-
                     $production = $productionCurr->replicate();
                     $production->ID_STUDY = $study->ID_STUDY;
                     unset($production->ID_PRODUCTION);
@@ -1685,9 +1671,8 @@ class Studies extends Controller
                     unset($product->ID_PROD);
                     $product->save();
 
-                    // @class: \App\Models\MeshGeneration
+
                     $meshgenerationCurr = MeshGeneration::where('ID_PROD', $productCurr->ID_PROD)->first(); 
-                    // @class: \App\Models\ProductEmlt
                     $productemltCurr = ProductElmt::where('ID_PROD', $productCurr->ID_PROD)->get(); 
                     //duplicate MeshGeneration already exsits
                     if (count($meshgenerationCurr) > 0) {
@@ -1714,7 +1699,6 @@ class Studies extends Controller
                     }
                 }
                     
-                
                 //duplicate Price already exsits
                 if (count($priceCurr) > 0) {
                     $price = $priceCurr->replicate();

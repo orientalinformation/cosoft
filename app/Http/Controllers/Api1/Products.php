@@ -545,6 +545,9 @@ class Products extends Controller
                         $pointMeshOrder2 = $this->product->searchNbPtforElmt($pb, 2)['points'];
 
                         $t = $pe['initTemp'];
+
+                        $t = array_reverse($t);
+                        
                         $t2 = [];
                         
                         if ((count($t) != count($pointMeshOrder2)) || ($t == null)) {
