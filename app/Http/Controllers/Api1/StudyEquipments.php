@@ -242,4 +242,13 @@ class StudyEquipments extends Controller
         return response('data:image/jpeg;base64,'.$this->stdeqp->generateLayoutPreview($stdeqp))
             ->header('Content-Type', 'text/plain');
     }
+
+    public function addConsPieToReport($id)
+    {
+        $input = $this->request->all();
+        $stdeqp = StudyEquipment::find($id);
+        $stdeqp->ENABLE_CONS_PIE = ($input['ENABLE_CONS_PIE'] == true) ? 1 : 0;
+        $stdeqp->save();
+        return 1;
+    }
 }

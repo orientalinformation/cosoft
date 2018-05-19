@@ -606,6 +606,7 @@ class Output extends Controller
                     $item["percentEquipmentPerm"] = $percentEquipmentPerm;
                     $item["percentEquipmentDown"] = $percentEquipmentDown;
                     $item["percentLine"] = $percentLine;
+                    $item['ENABLE_CONS_PIE'] = $row->ENABLE_CONS_PIE;
 
                     $result[] = $item;
                 }
