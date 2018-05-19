@@ -545,6 +545,9 @@ class Products extends Controller
                         $pointMeshOrder2 = $this->product->searchNbPtforElmt($pb, 2)['points'];
 
                         $t = $pe['initTemp'];
+
+                        $t = array_reverse($t);
+                        
                         $t2 = [];
                         
                         if ((count($t) != count($pointMeshOrder2)) || ($t == null)) {
@@ -598,10 +601,10 @@ class Products extends Controller
                     }
                 }
             } // end of foreach
-            $saveTemp = true;
 
+            $saveTemp = $this->product->checkRunKernelToolCalculator($study->ID_STUDY);
 
-            if ($saveTemp) {
+            if (!$saveTemp) {
                 $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY);
                 $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 4);
             }
