@@ -615,11 +615,11 @@ class StudyEquipmentService
                     foreach ($slices as $slice) {
                         InitialTemperature::insert($slice);
                     }
-
                     // update production to set avg initial temp
-                    $production->AVG_T_INITIAL = $sequip->AVERAGE_PRODUCT_TEMP;
+                    $t = floatval($sequip->AVERAGE_PRODUCT_TEMP);
+                    $production->AVG_T_INITIAL = $t;
                     $production->save();
-                    
+
                     // Increase value to show still alive
                 } else {
                     $bret = false;

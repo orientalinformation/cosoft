@@ -601,10 +601,10 @@ class Products extends Controller
                     }
                 }
             } // end of foreach
-            $saveTemp = true;
 
+            $saveTemp = $this->product->checkRunKernelToolCalculator($study->ID_STUDY);
 
-            if ($saveTemp) {
+            if (!$saveTemp) {
                 $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY);
                 $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 4);
             }

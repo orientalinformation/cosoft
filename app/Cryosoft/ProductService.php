@@ -531,4 +531,27 @@ class ProductService
             InitialTemperature::insert($slice);
         }
     }
+
+    public function checkRunKernelToolCalculator($ID_STUDY)
+    {
+        $check = false;
+        $study = Study::find($ID_STUDY);
+        $idParentStudy = null;
+        if ($study) {
+            $idParentStudy = $study->PARENT_ID;
+            if ($idParentStudy != 0) {
+                $productCurrent = Product::where('ID_STUDY', $ID_STUDY)->first();
+                $productParent = Product::where('ID_STUDY', $idParentStudy)->first();
+                if ($productCurrent && $productParent) {
+                    $emltCurrents = ProductElmt::where('ID_PROD', $productCurrent->ID_PROD)->get();
+                    $emltParents = ProductElmt::where('ID_PROD', $productParent->ID_PROD)->get();
+                    if (count($emltCurrents) == count($emltParents)) {
+                        $check = true;
+                    }
+                }
+            }
+        }
+
+        return $check;
+    }
 }
