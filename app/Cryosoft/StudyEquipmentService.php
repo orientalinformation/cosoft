@@ -340,32 +340,20 @@ class StudyEquipmentService
         $dimaResults = null;
 
         $lfTemp = 0.0;
-        
-        // Increase value to show still alive
-        // cryoRun . nextCRRStatus(true);
 
-        try {		
-            //get TFP from Dima Results
-            // UnnamedObjectQuery query = new UnnamedObjectQuery(DimaResults . class,"WHERE ID_STUDY_EQUIPMENTS = ?"
-            //     + " AND DIMA_TYPE = ?" ,"II")
-            // ;
-            // query . addParameter(sequip . getIdStudyEquipments());
-            // query . addParameter(ValuesList . DIMA_TYPE_DHP_CHOSEN);
+        try {
+
             $dimaResults = DimaResults::where('ID_STUDY_EQUIPMENTS', $sequip->ID_STUDY_EQUIPMENTS)
                 ->where('DIMA_TYPE', 1)->first();
 
             // TODO: Check if dima result exists before create child study
 
-            // Increase value to show still alive
-            // cryoRun . nextCRRStatus(true);
-
             $lfTemp = $dimaResults->DIMA_TFP;
             
             // save initial temperature
             $this->saveInitialTemperature($shape, $offset, $lfTemp, $product, $production);
-        } catch (Exception $e) {
-            // LOG . error("Error while writing initial temp from analogical results", e);
-            throw new Exception("Error while writing initial temp from analogical results");
+        } catch (\Exception $e) {
+            throw new \Exception("Error while writing initial temp from analogical results");
         }
 
         return $bret;
@@ -450,7 +438,7 @@ class StudyEquipmentService
                             switch ($shape) {
                                 case $this->value->SLAB:
                                     $initTemp->MESH_1_ORDER =  $i;
-                                    $initTemp->MESH_2_ORDER = ($trd->REC_AXIS_Y_POS +$offset[1]);
+                                    $initTemp->MESH_2_ORDER = ($trd->REC_AXIS_Y_POS + $offset[1]);
                                     $initTemp->MESH_3_ORDER =  $trd->REC_AXIS_X_POS;
                                     break;
                                 case $this->value->PARALLELEPIPED_STANDING:
@@ -462,7 +450,7 @@ class StudyEquipmentService
                                     } else {
                                         $initTemp->MESH_1_ORDER = ($trd->REC_AXIS_X_POS + $offset[0]);
                                         $initTemp->MESH_2_ORDER = ($trd->REC_AXIS_Y_POS + $offset[1]);
-                                        $initTemp->MESH_3_ORDER = ($i +$offset[2]);
+                                        $initTemp->MESH_3_ORDER = ($i + $offset[2]);
                                     }
                                     break;
                                 case $this->value->PARALLELEPIPED_LAYING:
@@ -492,7 +480,6 @@ class StudyEquipmentService
                             }
                             
                             //create initial temperature
-                            // $initTemp->save();
                             array_push($listTemp, $initTemp->toArray());
                         } // end for
                         
@@ -628,11 +615,11 @@ class StudyEquipmentService
                     foreach ($slices as $slice) {
                         InitialTemperature::insert($slice);
                     }
-
                     // update production to set avg initial temp
-                    $production->AVG_T_INITIAL = $sequip->AVERAGE_PRODUCT_TEMP;
+                    $t = floatval($sequip->AVERAGE_PRODUCT_TEMP);
+                    $production->AVG_T_INITIAL = $t;
                     $production->save();
-                    
+
                     // Increase value to show still alive
                 } else {
                     $bret = false;
@@ -647,31 +634,17 @@ class StudyEquipmentService
         return $bret;
     }
 
-    private function saveInitialTemperature (/*int*/ $shape, array $offset, /*double*/ $lfTemp, Product &$product, Production &$production)
+    private function saveInitialTemperature ($shape, array $offset, $lfTemp, Product &$product, Production &$production)
     {
-        // // V4 : use oxymel connection to update
-        // Transaction tx = dbmgr . getTransaction();
-        // // V4 : use standard connection to insert data
-        // Connection connection = null;
-
-        // InitialTemperature initTemp = null;
-        // long counter = 0;
         $initTemp = null;
         $counter = 0;
         
-        // Increase value to show still alive
-        // cryoRun . nextCRRStatus(true);
-
         try {
-            // V4: use standard connection to insert data
-            // connection = CryosoftDB . getDatasource() . getConnection();
-            
             // dispatch this temp
             $nbNode1 = $product->meshGenerations->first()->MESH_1_NB;
             $nbNode2 = $product->meshGenerations->first()->MESH_2_NB;
             $nbNode3 = $product->meshGenerations->first()->MESH_3_NB;
 
-            // short i, j, k;
             $i = $j = $k = 0;
             switch ($shape) {
                 case $this->value->SLAB:
@@ -692,9 +665,9 @@ class StudyEquipmentService
 
             $listTemp = [];
 
-            for ($i = 0; $i < $nbNode1; $i ++) {
-                for ($j = 0; $j < $nbNode2; $j ++) {
-                    for ($k = 0; $k < $nbNode3; $k ++) {
+            for ($i = 0; $i < $nbNode1; $i++) {
+                for ($j = 0; $j < $nbNode2; $j++) {
+                    for ($k = 0; $k < $nbNode3; $k++) {
                         $initTemp = new InitialTemperature();
                         $initTemp->ID_PRODUCTION = $production->ID_PRODUCTION;
                         $initTemp->INITIAL_T = $lfTemp;
@@ -702,13 +675,6 @@ class StudyEquipmentService
                         $initTemp->MESH_2_ORDER = (($j + $offset[1]));
                         $initTemp->MESH_3_ORDER = (($k + $offset[2]));
                         array_push($listTemp, $initTemp->toArray());
-                        // CryosoftDB . create($initTemp, connection);
-                        // $initTemp->save();
-
-                        // if ((++counter % NB_TEMP_FOR_NEXTSTATUS) == 0) {
-                        //     // Increase value to show still alive
-                        //     cryoRun . nextCRRStatus(true);
-                        // }
                     }
                 }
             }
@@ -719,17 +685,14 @@ class StudyEquipmentService
             }
             
             // Increase value to show still alive
-            // cryoRun . nextCRRStatus(true);
             
             // update production to set avg initial temp
             $production->AVG_T_INITIAL = $lfTemp;
             $production->save();
             
             // Increase value to show still alive
-            // cryoRun . nextCRRStatus(true);
-        } catch (Exception $e) {
-            // LOG . error("Error while writing initial temp from analogical results", e);
-            throw new Exception("Error while writing initial temp from analogical results");
+        } catch (\Exception $e) {
+            throw new \Exception("Error while writing initial temp from analogical results");
         }
     }
 

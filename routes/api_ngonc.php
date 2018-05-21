@@ -145,6 +145,14 @@ $router->GET('/api/v1/studyEquipment/{id}/recordPosition', 'Api1\\StudyEquipment
 $router->POST('/api/v1/studyEquipment/{id}/saveEquipSizing', 'Api1\\StudyEquipments@saveEquipSizing');
 
 /**
+ * POST addConsPieToReport
+ * Summary: 
+ * Notes: add Consumption Pie To Report
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/studyEquipment/{id}/addConsPieToReport', 'Api1\\StudyEquipments@addConsPieToReport');
+
+/**
  * GET getOperatingSetting
  * Summary: 
  * Notes: get Operating Settings

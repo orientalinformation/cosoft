@@ -14,6 +14,7 @@ use App\Models\InitialTemperature;
 use App\Models\Study;
 use App\Models\StudyEquipment;
 use App\Models\ProdcharColor;
+use App\Models\ProdcharColorsDef;
 use App\Cryosoft\MeshService;
 use App\Cryosoft\UnitsConverterService;
 use App\Cryosoft\ProductService;
@@ -143,6 +144,18 @@ class Products extends Controller
         
         $this->mesh->rebuildMesh($product->study);
 
+        $layerColor = ProdcharColor::where('ID_PROD', $product->ID_PROD)->where('LAYER_ORDER', $nElements+1)->first();
+        $defaultColor = ProdcharColorsDef::where('ID_USER', $this->auth->user()->ID_USER)->where('LAYER_ORDER', $nElements+1)->first();
+        
+        if (!$layerColor) {
+            $layerColor = new ProdcharColor();
+            $layerColor->ID_PROD = $product->ID_PROD;
+            $layerColor->LAYER_ORDER = $nElements+1;
+        }
+
+        $layerColor->ID_COLOR = $defaultColor->ID_COLOR;
+        $layerColor->save();
+
         return compact('ok1', 'ok2', 'elmtId');
     }
 
@@ -219,7 +232,7 @@ class Products extends Controller
             $elements[$key]['PROD_ELMT_WEIGHT'] = $this->unit->mass($pr->PROD_ELMT_WEIGHT);
             $elements[$key]['PROD_ELMT_REALWEIGHT'] = $this->unit->mass($pr->PROD_ELMT_REALWEIGHT);
             $elements[$key]['componentName'] = $this->product->getComponentDisplayName($pr->ID_COMP);
-            $prodcharColor = ProdcharColor::where('ID_PROD', $id)->where('LAYER_ORDER', $key + 1)->first();
+            $prodcharColor = ProdcharColor::where('ID_PROD', $id)->where('LAYER_ORDER', $count - $key)->first();
             $elements[$key]['prodcharColor'] = $prodcharColor;
         }
 
@@ -363,9 +376,9 @@ class Products extends Controller
         $input = $this->request->json()->all();
         $mesh_type = intval($input['mesh_type']);
         // @TODO: implement unit service
-        $size1 = floatval($input['size1']) /1000;
-        $size2 = floatval($input['size2']) /1000;
-        $size3 = floatval($input['size3']) /1000;
+        $size1 = floatval($input['size1']) / 1000;
+        $size2 = floatval($input['size2']) / 1000;
+        $size3 = floatval($input['size3']) / 1000;
 
         /** @var MeshGeneration $meshGeneration */
         $meshGeneration = $this->mesh->findGenerationByProduct($product);
@@ -397,17 +410,6 @@ class Products extends Controller
         $meshGeneration = $this->mesh->findGenerationByProduct($product);
         
         $this->mesh->generate($meshGeneration, MeshService::REGULAR_MESH, MeshService::MAILLAGE_MODE_REGULAR);
-
-        // KernelToolsCalculation kerneltools = new KernelToolsCalculation(
-        //     CryosoftDB . CRYOSOFT_DB_ODBCNAME,
-        //     username,
-        //     password,
-        //     sLogsDir,
-        //     getUserID(),
-        //     $this->studies->getSelectedStudy(),
-        //     0,
-        //     0
-        // );
     }
 
     /**
@@ -519,7 +521,7 @@ class Products extends Controller
                 if (!$this->studies->isStudyHasParent($study)
                     || ($pb->INSERT_LINE_ORDER == $study->ID_STUDY)) {
                         
-                    if ( $pe['PROD_ELMT_ISO'] == $this->values->PRODELT_ISOTHERM) {
+                    if ($pe['PROD_ELMT_ISO'] == $this->values->PRODELT_ISOTHERM) {
                         if ($this->studies->isStudyHasParent($study)) {
                             if ($pb->ID_SHAPE != $this->values->PARALLELEPIPED_BREADED) {
                                 // propagation on axis 1 and 3
@@ -543,6 +545,9 @@ class Products extends Controller
                         $pointMeshOrder2 = $this->product->searchNbPtforElmt($pb, 2)['points'];
 
                         $t = $pe['initTemp'];
+
+                        $t = array_reverse($t);
+                        
                         $t2 = [];
                         
                         if ((count($t) != count($pointMeshOrder2)) || ($t == null)) {
@@ -596,10 +601,10 @@ class Products extends Controller
                     }
                 }
             } // end of foreach
-            $saveTemp = true;
 
+            $saveTemp = $this->product->checkRunKernelToolCalculator($study->ID_STUDY);
 
-            if ($saveTemp) {
+            if (!$saveTemp) {
                 $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY);
                 $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 4);
             }
@@ -635,8 +640,6 @@ class Products extends Controller
             $prodcharColor->save();
         }
         
-        
-
         return 1;
     }
 }
