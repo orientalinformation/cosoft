@@ -673,7 +673,6 @@ class Lines extends Controller
                 
             } else {
                 $studyEquip->ID_PIPE_GEN = $pipegen->ID_PIPE_GEN;
-                return $studyEquip->ID_PIPE_GEN;
                 $pipegen->save();
                 $studyEquip->save();
             }
