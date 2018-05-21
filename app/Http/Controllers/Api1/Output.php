@@ -1036,7 +1036,7 @@ class Output extends Controller
             
                 $dataGrapChart[] =  $itemChart;   
 
-                fputs($f, '"' . trim($itemChart["equipName"]) . '"' . ' ' . (double) $itemChart["dhp"] . ' ' . (double) $itemChart["dhpMax"] . ' ' . (double) $itemChart["conso"] . ' ' . (double) $itemChart["consoMax"] . "\n" ); 
+                fputs($f, '"'. trim($itemChart["equipName"]) .'"' . ' '. (double) $itemChart["dhp"] .' '. (double) $itemChart["dhpMax"] .' '. (double) $itemChart["conso"] .' '. (double) $itemChart["consoMax"] . "\n"); 
             }
             fclose($f);
 
@@ -1177,9 +1177,10 @@ class Output extends Controller
             $result[] = $item;
         }
 
-        $f = fopen("/tmp/sizing.inp", "w");
-        fputs($f, '"Equip Name" "Product flowrate" "Maximum product flowrate" "Cryogen consumption (product + equipment heat losses)" "Maximum cryogen consumption (product + equipment heat losses)"' . "\n");
+        
         foreach ($studyEquipments as $row) {
+            $f = fopen("/tmp/sizing.inp", "w");
+            fputs($f, '"Equip Name" "Product flowrate" "Maximum product flowrate" "Cryogen consumption (product + equipment heat losses)" "Maximum cryogen consumption (product + equipment heat losses)"' . "\n");
             $capabilitie = $row->CAPABILITIES;
             $equipStatus = $row->EQUIP_STATUS;
             $brainType = $row->BRAIN_TYPE;
@@ -1238,11 +1239,12 @@ class Output extends Controller
                 $itemGrap["data"][$key]["dhp"] = (double) $dhp;
                 $itemGrap["data"][$key]["conso"] = (double) $conso;
                 $itemGrap["data"][$key]["dhpMax"] = (double) $dhpMax;
-                $itemGrap["data"][$key]["consoMax"] = (double) $consoMax;
-                fputs($f, '"'. $trName .'"' . ' ' . (double) $dhp . ' ' . (double) $dhpMax . ' ' . (double) $conso . ' ' . (double) $consoMax . "\n" );
+                $itemGrap["data"][$key]["consoMax"] = (double) $consoMax; 
+                fputs($f, '"'. $trName .'" '. (double) $dhp .' '. (double) $dhpMax .' '. (double) $conso .' '. (double) $consoMax .'');
+                fputs($f, "\n");               
             } 
-
             $dataGraphChart[] =  $itemGrap;
+            
             fclose($f);
 
             $sizingFolder = $this->output->public_path('sizing');
