@@ -202,21 +202,11 @@ class ProductService
         $listOfElmtId = ProductElmt::where('ID_PROD', $product->ID_PROD)->where('INSERT_LINE_ORDER', '!=', $study->ID_STUDY)
             ->pluck('ID_PRODUCT_ELMT')->toArray();
         
-        // 	// delete old
-        //     String sChartPrefix = CONTOUR2D_FILENAME + getUserID() + "_" + idProduction;
-        //     deleteCharts(sChartPrefix);
-
-        //     if ((imgType != $this->values->JPG_TYPE)
-        //         && (imgType != $this->values->PNG_TYPE)
-        //         && (imgType != $this->values->SVG_TYPE))
-        //         return null;
-
         if (!count($listOfElmtId)>0) {
             return null;
         }
 
-        // /*int*/ $ldAxe[] = $this->getPlanFor2DContour(productBean . idShapeencours, $listOfElmtId, $idProduction);
-        /*int*/ $ldAxe[] = $this->getPlanFor2DContour($product, $listOfElmtId, $idProduction);
+        $ldAxe[] = $this->getPlanFor2DContour($product, $listOfElmtId, $idProduction);
         if (($ldAxe[0] < $this->values->MESH_AXIS_1) || ($ldAxe[1] < $this->values->MESH_AXIS_1)) {
             return null;
         }
@@ -456,7 +446,7 @@ class ProductService
     {
         $study = $product->study;
 
-        $lfTemp = floatval($this->convert->prodTemperature($stemp, 2, 0));
+        $lfTemp = doubleval($this->convert->prodTemperature($stemp, 16, 0));
 
         $i = $k = 0;
 

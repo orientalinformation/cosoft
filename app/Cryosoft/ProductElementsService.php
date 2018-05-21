@@ -130,8 +130,6 @@ class ProductElementsService
             } // for axis 1
         } // for axis 2
         
-        // save temperature inDB 
-        // DBInitialTemperature . insertList(listTemp);
         $slices = array_chunk($listTemp, 100);
         foreach ($slices as $slice) {
             InitialTemperature::insert($slice);
@@ -225,7 +223,7 @@ class ProductElementsService
             $lastMesh3 = $pointMeshOrder3[$nbPointaxe3 - 1];
             
             // save temperature
-            $lfTemp = $this->convert->prodTemperature(floatval($pb['initTemp'][0]), 2, 0);
+            $lfTemp = $this->convert->prodTemperature(doubleval($pb['initTemp'][0]), 16, 0);
 
             $listTemp = [];
  
