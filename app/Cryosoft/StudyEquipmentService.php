@@ -616,7 +616,7 @@ class StudyEquipmentService
                         InitialTemperature::insert($slice);
                     }
                     // update production to set avg initial temp
-                    $t = floatval($sequip->AVERAGE_PRODUCT_TEMP);
+                    $t = doubleval($sequip->AVERAGE_PRODUCT_TEMP);
                     $production->AVG_T_INITIAL = $t;
                     $production->save();
 

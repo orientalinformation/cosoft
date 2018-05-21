@@ -107,7 +107,7 @@ class ProductElementsService
         // pb . pointMeshOrder2 = pointMeshOrder2;
         $nbPointaxe2 = count($pointMeshOrder2['points']);
         
-        $lfTemp = floatval($this->convert->prodTemperature(floatval($pb['initTemp'][0]), 2, 0));
+        $lfTemp = doubleval($this->convert->prodTemperature(doubleval($pb['initTemp'][0]), 16, 0));
         
         $i = $j = $k = 0;
 
