@@ -325,25 +325,15 @@ class InputInitial extends Controller
 
     private function initListPoints($idStudy, $axe)
     {
-        $product = Product::where('ID_STUDY', $idStudy)->first();
-        $productElmt = $meshPositions = null;
+        $meshPositions = null;
         $results = array();
 
-        // MeshPosition::join('product_elmt', 'mesh_position.ID_PRODUCT_ELMT', '=', 'product_elmt.ID_PRODUCT_ELMT')
-        // ->join('product', 'product_elmt.ID_PROD' , '=', 'product.ID_PROD')
-        // ->where('product.ID_STUDY', $id)->where('MESH_AXIS', $axe)->distinct()->orderBy('MESH_AXIS_POS', 'ASC')->get();
-
-        if ($product) {
-            $idProd = $product->ID_PROD;
-            $productElmt = ProductElmt::where('ID_PROD', $idProd)->first();
-            if ($productElmt) {
-                $idProductElmt = $productElmt->ID_PRODUCT_ELMT;
-                $meshPositions = MeshPosition::select('MESH_AXIS_POS')
-                    ->where('MESH_AXIS', '=', $axe)
-                    ->where('ID_PRODUCT_ELMT', '=', $idProductElmt)
-                    ->orderBy('MESH_AXIS_POS', 'ASC')->distinct()->get();
-            }
-        }
+        $meshPositions = MeshPosition::distinct()->select('mesh_position.MESH_AXIS_POS')
+        ->join('product_elmt', 'mesh_position.ID_PRODUCT_ELMT', '=', 'product_elmt.ID_PRODUCT_ELMT')
+        ->join('product', 'product_elmt.ID_PROD' , '=', 'product.ID_PROD')
+        ->where('product.ID_STUDY', $idStudy)
+        ->where('MESH_AXIS', $axe)
+        ->orderBy('MESH_AXIS_POS', 'ASC')->get();
 
         if (count($meshPositions) > 0) {
             foreach ($meshPositions as $mesh) {
