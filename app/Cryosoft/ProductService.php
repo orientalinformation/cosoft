@@ -180,7 +180,9 @@ class ProductService
         ->where('component.ID_COMP', $idComp)
         ->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->first();
 
-        return $component->LABEL . ' - ' . $component->COMP_VERSION . ' (Active)';;
+        $libValue = $this->getLibValue(100, $component->COMP_RELEASE);
+
+        return $component->LABEL . ' - ' . $component->COMP_VERSION . ' ('. $libValue .')';;
     }
 
     public function getLibValue($tid, $id) {
