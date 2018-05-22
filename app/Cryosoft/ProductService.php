@@ -185,8 +185,11 @@ class ProductService
         return $component->LABEL . ' - ' . $component->COMP_VERSION . ' ('. $libValue .')';;
     }
 
-    public function getLibValue($tid, $id) {
-        $translation = Translation::where('TRANS_TYPE', $tid)->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->where('ID_TRANSLATION', $id)->first();
+    public function getLibValue($tid, $id)
+    {
+        $translation = Translation::where('TRANS_TYPE', $tid)
+        ->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+        ->where('ID_TRANSLATION', $id)->first();
         if ($translation) return $translation->LABEL;
     }
 
@@ -209,7 +212,7 @@ class ProductService
     {
         $idProduction = $study->productions->first()->ID_PRODUCTION;
         $product = $study->products->first();
-        //     ArrayList < Integer > listOfElmtId = getProdElmtComeFromParentProduct();
+        
         $listOfElmtId = ProductElmt::where('ID_PROD', $product->ID_PROD)->where('INSERT_LINE_ORDER', '!=', $study->ID_STUDY)
             ->pluck('ID_PRODUCT_ELMT')->toArray();
         
@@ -235,76 +238,6 @@ class ProductService
         $zStep = $lfPasTemp;
         $zStart = $BorneTemp[$this->values->ID_TMIN];
         $zEnd = $BorneTemp[$this->values->ID_TMAX];
-
-        //     Grid myGrid = getGrideByPlan(listOfElmtId, idProduction, ldAxe[0], ldAxe[1], ldAxe[2]);
-        //     if (myGrid == null || myGrid . getNbColumn() == 0 || myGrid . getNbLine() == 0) {
-        //         return null;
-        //     }
-
-        //     HorizontalNumberAxis axisX = new HorizontalNumberAxis(this . getLabel("OUT_2D_DIM")
-        //         + " " + ldAxe[0]
-        //         + " (" + convert . prodchartDimensionSymbol() + ")");
-        //     axisX . setLabelPosition(HorizontalNumberAxis . LABEL_POSITION_HORIZONTAL_RIGHT_CENTER);
-        //     axisX . disableArrow();
-        //     axisX . setIntermediaryGapIndicatorVisible(true);
-
-        //     VerticalNumberAxis axisY = new VerticalNumberAxis(this . getLabel("OUT_2D_DIM")
-        //         + " " + ldAxe[1]
-        //         + " (" + convert . prodchartDimensionSymbol() + ")");
-        //     axisY . setLabelPosition(VerticalNumberAxis . LABEL_POSITION_VERTICAL_LEFT_CENTER);
-        //     axisY . disableArrow();
-        //     axisY . setIntermediaryGapIndicatorVisible(true);
-
-        //     int imageHeight = $this->values->IMG2D_HEIGHT;;
-        //     int imageWidth = $this->values->IMG2D_WIDTH;
-
-        //     Contour2D coutour2d = new Contour2D(
-        //         imageWidth,
-        //         imageHeight,
-        //         axisX,
-        //         axisY,
-        //         myGrid,
-        //         zStart,
-        //         zEnd,
-        //         zStep
-        //     );
-
-        //     String sFileName = Ln2Servlet . GEN_IMG_DIR + $this->values->FILE_SEPARATOR
-        //         + sChartPrefix;
-        //     try {
-        // 		//	couleur de fond
-        //         coutour2d . setGraphicBackgroundColor($this->values->GRAPHIC_BACKGROUND);
-        //         coutour2d . setImageBackgroundColor($this->values->IMG_BACKGROUND);
-        //         coutour2d . setBackgroundColorVisible(true);
-        //         if (imgType == $this->values->JPG_TYPE) {
-        //             sFileName += $this->values->JPG_EXTENSION;
-        //             File fimg = new File(Ln2Servlet . getWebAppPath() + $this->values->FILE_SEPARATOR + sFileName);
-        //             FileOutputStream fos = new FileOutputStream(fimg);
-        //             coutour2d . drawJPEG(fos);
-        //             fos . flush();
-        //             fos . close();
-        //         } else if (imgType == $this->values->PNG_TYPE) {
-        //             sFileName += $this->values->PNG_EXTENSION;
-        //             File fimg = new File(Ln2Servlet . getWebAppPath() + $this->values->FILE_SEPARATOR + sFileName);
-        //             FileOutputStream fos = new FileOutputStream(fimg);
-        //             coutour2d . drawPNG(fos);
-        //             fos . flush();
-        //             fos . close();
-        //         } else // if( imgType == ValuesList.SVG_TYPE )  
-        //         {
-        //             sFileName += $this->values->SVG_EXTENSION;
-        //             File fimg = new File(Ln2Servlet . getWebAppPath() + $this->values->FILE_SEPARATOR + sFileName);
-        //             FileOutputStream fos = new FileOutputStream(fimg);
-        //             coutour2d . drawSVG(fos);
-        //             fos . flush();
-        //             fos . close();
-        //         }
-
-        //     } catch (Exception ex) {
-        //         log . error("Error generating an image", ex);
-        //         return null;
-        //     }
-        //     return sFileName;
     }
 
     public function CheckInitialTemperature(\App\Models\Product &$product) 
