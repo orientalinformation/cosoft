@@ -79,13 +79,14 @@ class ProductService
                 $query->where('component.COMP_IMP_ID_STUDY', 0)
                     ->orWhere('component.COMP_IMP_ID_STUDY', $idStudy);
             })->where(function($query) {
-                $query->where('component.COMP_RELEASE', 3)
+                $query->where(function($q) {
+                    $q->where('component.COMP_RELEASE', 3)
                     ->orWhere('component.COMP_RELEASE', 4)
-                    ->orWhere('component.COMP_RELEASE', 8)
-                    ->orWhere(function($q){
-                        $q->where('component.COMP_RELEASE', 2)
-                        ->where('component.ID_USER', $this->auth->user()->ID_USER);
-                    });
+                    ->orWhere('component.COMP_RELEASE', 8);
+                })->orWhere(function($q){
+                    $q->where('component.COMP_RELEASE', 2)
+                    ->where('component.ID_USER', $this->auth->user()->ID_USER);
+                });
             });  
         } else {
             $querys->where('component.COMP_RELEASE', '<>', 6);   
@@ -113,7 +114,8 @@ class ProductService
             $i = 0;
             foreach ($components as $cp) {
                 if ($cp->COMP_RELEASE != 9 || $cp->ID_USER == $this->auth->user()->ID_USER || $this->auth->user()->USERPRIO <= 1) {
-                    $displayName = $cp->LABEL . ' - ' . $cp->COMP_VERSION . ' (Active)';
+                    $libValue = $this->getLibValue(100, $cp->COMP_RELEASE);
+                    $displayName = $cp->LABEL . ' - ' . $cp->COMP_VERSION . ' ('. $libValue .')';
                     if ($cp->USERNAM != 'KERNEL') {
                         $displayName .= ' - ' . $cp->USERNAM; 
                     }
@@ -157,10 +159,12 @@ class ProductService
         if (count($components) > 0) {
             $i = 0;
             foreach ($components as $cp) {
-                $displayName = $cp->LABEL . ' - ' . $cp->COMP_VERSION;
-                $result[$i]['ID_COMP'] = $cp->ID_COMP; 
-                $result[$i]['displayName'] = trim($displayName);
-                $i++;
+                if (($cp->ID_TRANSLATION != 9) || ($cp->ID_USER == $this->auth->user()->ID_USER) || ($this->auth->user()->USERPRIO <= 1)) {
+                    $displayName = $cp->LABEL . ' - ' . $cp->COMP_VERSION;
+                    $result[$i]['ID_COMP'] = $cp->ID_COMP; 
+                    $result[$i]['displayName'] = trim($displayName);
+                    $i++;
+                }
             }
         }
 
@@ -176,7 +180,14 @@ class ProductService
         ->where('component.ID_COMP', $idComp)
         ->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->first();
 
-        return $component->LABEL . ' - ' . $component->COMP_VERSION . ' (Active)';;
+        $libValue = $this->getLibValue(100, $component->COMP_RELEASE);
+
+        return $component->LABEL . ' - ' . $component->COMP_VERSION . ' ('. $libValue .')';;
+    }
+
+    public function getLibValue($tid, $id) {
+        $translation = Translation::where('TRANS_TYPE', $tid)->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->where('ID_TRANSLATION', $id)->first();
+        if ($translation) return $translation->LABEL;
     }
 
     // search mesh order for one elment on an axis
