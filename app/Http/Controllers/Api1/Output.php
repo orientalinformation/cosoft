@@ -1053,7 +1053,9 @@ class Output extends Controller
             system('gnuplot -c '. $this->plotFolder .'/sizing.plot "Flowrate '. $this->unit->productFlowSymbol() .'" "Conso '. $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1) .'/'. $this->unit->perUnitOfMassSymbol() .'" "'. $sizingFolder . '/' . $userName . '" '. $idStudy .' '. $productFlowRate .' "Custom Flowrate"');
         }
 
-        return compact("result", "selectedEquipment", "availableEquipment", "dataGrapChart", "productFlowRate");
+        $imageSizing = getenv('APP_URL') . '/sizing/' . $userName . '/' . $idStudy . '.png?time=' . time();
+
+        return compact("result", "selectedEquipment", "availableEquipment", "dataGrapChart", "productFlowRate", "imageSizing");
     }
 
     public function sizingEstimationResult() 
