@@ -447,7 +447,7 @@ class OutputService
                     $tempInterval[1] = $tempResult[1];
                 }
             }
-            $bornesTemp = [$this->unit->prodTemperature($tempInterval[0]), $this->unit->prodTemperature($tempInterval[1])];
+            $bornesTemp = [$this->unit->prodTemperature($tempInterval[0], ['save' => true]), $this->unit->prodTemperature($tempInterval[1], ['save' => true])];
 
             $result = $this->calculatePasTemp($bornesTemp[0], $bornesTemp[1], false, $pasTemp);
         }
