@@ -17,6 +17,7 @@ set yr[0:YMAX]
 set tics nomirror scale 2
 set y2tics
 set xtics scale 0 offset 0,-0.5 font ",12"
+set y2r[0:]
 set border 1 lw 3
 set offset -0.3,-0.3,0,0
 set tmargin at screen 0.9;
