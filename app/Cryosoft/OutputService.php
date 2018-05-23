@@ -872,17 +872,17 @@ class OutputService
         switch ($shape) {
             case 1:
                 if ($orientation == 1) {
-                    $axisValue['axis1BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 3)->MESH_ORDER;
-                    $axisValue['axis1IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 3)->MESH_ORDER;
-                    $axisValue['axis1TopPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 3)->MESH_ORDER;
+                    $axisValue['axis1BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 3);
+                    $axisValue['axis1IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 3);
+                    $axisValue['axis1TopPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 3);
 
                     $axisValue['axis2BotPos'] = $meshPosBot->MESH_ORDER;
                     $axisValue['axis2IntPos'] = $meshPosInt->MESH_ORDER;
                     $axisValue['axis2TopPos'] = $meshPosTop->MESH_ORDER;
 
-                    $axisValue['axis3BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 1)->MESH_ORDER;
-                    $axisValue['axis3IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 1)->MESH_ORDER;
-                    $axisValue['axis3TopSurfPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 1)->MESH_ORDER;
+                    $axisValue['axis3BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 1);
+                    $axisValue['axis3IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 1);
+                    $axisValue['axis3TopSurfPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 1);
                 } else {
                     $axisValue['axis1BotPos'] = $axisValue['axis1IntPos'] = $axisValue['axis1TopPos'] = $axisValue['axis2BotPos'] = $axisValue['axis2IntPos']  = $axisValue['axis2TopPos'] = $axisValue['axis3BotPos'] = $axisValue['axis3IntPos'] = $axisValue['axis3TopSurfPos'] = 0;
                 }
@@ -895,21 +895,21 @@ class OutputService
                 $axisValue['axis2TopPos'] = $meshPosTop->MESH_ORDER;
 
                 if ($orientation == 1) {
-                    $axisValue['axis1BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 3)->MESH_ORDER;
-                    $axisValue['axis1IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 3)->MESH_ORDER;
-                    $axisValue['axis1TopPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 3)->MESH_ORDER;
+                    $axisValue['axis1BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 3);
+                    $axisValue['axis1IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 3);
+                    $axisValue['axis1TopPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 3);
 
-                    $axisValue['axis3BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 1)->MESH_ORDER;
-                    $axisValue['axis3IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 1)->MESH_ORDER;
-                    $axisValue['axis3TopSurfPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 1)->MESH_ORDER;
+                    $axisValue['axis3BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 1);
+                    $axisValue['axis3IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 1);
+                    $axisValue['axis3TopSurfPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 1);
                 } else {
-                    $axisValue['axis1BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 1)->MESH_ORDER;
-                    $axisValue['axis1IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 1)->MESH_ORDER;
-                    $axisValue['axis1TopPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 1)->MESH_ORDER;
+                    $axisValue['axis1BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 1);
+                    $axisValue['axis1IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 1);
+                    $axisValue['axis1TopPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 1);
 
-                    $axisValue['axis3BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 3)->MESH_ORDER;
-                    $axisValue['axis3IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 3)->MESH_ORDER;
-                    $axisValue['axis3TopSurfPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 3)->MESH_ORDER;
+                    $axisValue['axis3BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 3);
+                    $axisValue['axis3IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 3);
+                    $axisValue['axis3TopSurfPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 3);
                 }
 
                 break;
@@ -919,29 +919,29 @@ class OutputService
                 $axisValue['axis1IntPos'] = $meshPosInt->MESH_ORDER;
                 $axisValue['axis1TopPos'] = $meshPosTop->MESH_ORDER;
 
-                $axisValue['axis2BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 1)->MESH_ORDER;
-                $axisValue['axis2IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 1)->MESH_ORDER;
-                $axisValue['axis2TopPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 1)->MESH_ORDER;
+                $axisValue['axis2BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 1);
+                $axisValue['axis2IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 1);
+                $axisValue['axis2TopPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 1);
 
-                $axisValue['axis3BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 3)->MESH_ORDER;
-                $axisValue['axis3IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 3)->MESH_ORDER;
-                $axisValue['axis3TopSurfPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 3)->MESH_ORDER;
+                $axisValue['axis3BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 3);
+                $axisValue['axis3IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 3);
+                $axisValue['axis3TopSurfPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 3);
 
                 break;
 
             case 4:
             case 8:
-                $axisValue['axis1BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 1)->MESH_ORDER;
-                $axisValue['axis1IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 1)->MESH_ORDER;
-                $axisValue['axis1TopPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 1)->MESH_ORDER;
+                $axisValue['axis1BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 1);
+                $axisValue['axis1IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 1);
+                $axisValue['axis1TopPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 1);
 
                 $axisValue['axis2BotPos'] = $meshPosBot->MESH_ORDER;
                 $axisValue['axis2IntPos'] = $meshPosInt->MESH_ORDER;
                 $axisValue['axis2TopPos'] = $meshPosTop->MESH_ORDER;
 
-                $axisValue['axis3BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 3)->MESH_ORDER;
-                $axisValue['axis3IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 3)->MESH_ORDER;
-                $axisValue['axis3TopSurfPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 3)->MESH_ORDER;
+                $axisValue['axis3BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 3);
+                $axisValue['axis3IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 3);
+                $axisValue['axis3TopSurfPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 3);
 
                 break;
 
@@ -951,13 +951,13 @@ class OutputService
                 $axisValue['axis1IntPos'] = $meshPosInt->MESH_ORDER;
                 $axisValue['axis1TopPos'] = $meshPosTop->MESH_ORDER;
 
-                $axisValue['axis2BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 1)->MESH_ORDER;
-                $axisValue['axis2IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 1)->MESH_ORDER;
-                $axisValue['axis2TopPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 1)->MESH_ORDER;
+                $axisValue['axis2BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 1);
+                $axisValue['axis2IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 1);
+                $axisValue['axis2TopPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 1);
 
-                $axisValue['axis3BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 3)->MESH_ORDER;
-                $axisValue['axis3IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 3)->MESH_ORDER;
-                $axisValue['axis3TopSurfPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 3)->MESH_ORDER;
+                $axisValue['axis3BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 3);
+                $axisValue['axis3IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 3);
+                $axisValue['axis3TopSurfPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 3);
 
                 break;
 
@@ -966,13 +966,13 @@ class OutputService
                 $axisValue['axis2IntPos'] = $meshPosInt->MESH_ORDER;
                 $axisValue['axis2TopPos'] = $meshPosTop->MESH_ORDER;
 
-                $axisValue['axis1BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 3)->MESH_ORDER;
-                $axisValue['axis1IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 3)->MESH_ORDER;
-                $axisValue['axis1TopPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 3)->MESH_ORDER;
+                $axisValue['axis1BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 3);
+                $axisValue['axis1IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 3);
+                $axisValue['axis1TopPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 3);
 
-                $axisValue['axis3BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 1)->MESH_ORDER;
-                $axisValue['axis3IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 1)->MESH_ORDER;
-                $axisValue['axis3TopSurfPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 1)->MESH_ORDER;
+                $axisValue['axis3BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 1);
+                $axisValue['axis3IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 1);
+                $axisValue['axis3TopSurfPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 1);
 
                 break;
             
@@ -987,7 +987,7 @@ class OutputService
     public function getPositionForSelectedPoint($selectedPoint, $idProdElt, $axis)
     {
         $meshPosition = MeshPosition::where('ID_PRODUCT_ELMT', $idProdElt)->where('MESH_AXIS', $axis)->where('MESH_AXIS_POS', $selectedPoint)->first();
-        return $meshPosition;
+        return ($meshPosition) ? $meshPosition->MESH_ORDER : 0;
     }
 
     public function base_path($path=null)
