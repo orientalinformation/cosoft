@@ -215,6 +215,23 @@ $router->PATCH('/api/v1/monetaryCurrency', 'Api1\\MonetaryCurrencies@saveMonetar
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/monetaryCurrency/{id}', 'Api1\\MonetaryCurrencies@getMonetaryCurrencyById');
+
+/**
+ * GET sizingOptimumResult
+ * Summary: 
+ * Notes: 
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/output/sizingresult/{idStudy}/optimum', 'Api1\\Output@sizingOptimumResult');
+
+/**
+ * POST sizingOptimumResult
+ * Summary: 
+ * Notes: 
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/output/sizingresult/{idStudy}/optimum', 'Api1\\Output@sizingOptimumDraw');
+
 /**
  * GET sizingEstimationResult
  * Summary: 

@@ -1058,6 +1058,43 @@ class Output extends Controller
         return compact("result", "selectedEquipment", "availableEquipment", "dataGrapChart", "productFlowRate", "imageSizing");
     }
 
+    public function sizingOptimumDraw($idStudy)
+    {
+        $inputs = $this->request->all();
+        $study = Study::find($idStudy);
+        $production = Production::where("ID_STUDY", $idStudy)->first();
+        $productFlowRate = (double) $production->PROD_FLOW_RATE;
+
+        if (!empty($inputs)) {
+            $f = fopen("/tmp/sizing.inp", "w");
+            fputs($f, '"Equip Name" "Product flowrate" "Maximum product flowrate" "Cryogen consumption (product + equipment heat losses)" "Maximum cryogen consumption (product + equipment heat losses)"' . "\n");
+            $chartName = '';
+            $i = 0;
+            foreach ($inputs as $input) {   
+                $chartName .= $input['id'];
+                if ($i < count($inputs) - 1) $chartName .= '-';
+                fputs($f, '"'. trim($input["equipName"]) .'"' . ' '. $input["dhp"] .' '. $input["dhpMax"] .' '. $input["conso"] .' '. $input["consoMax"] . "\n"); 
+                $i++;
+            }
+            fclose($f);
+
+            $sizingFolder = $this->output->public_path('sizing');
+
+            $userName = $study->USERNAM;
+            if (!is_dir($sizingFolder)) {
+                mkdir($sizingFolder, 0777);
+            }
+            if (!is_dir($sizingFolder . '/' . $userName)) {
+                mkdir($sizingFolder . '/' . $userName, 0777);
+            }
+
+            system('gnuplot -c '. $this->plotFolder .'/sizing.plot "Flowrate '. $this->unit->productFlowSymbol() .'" "Conso '. $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1) .'/'. $this->unit->perUnitOfMassSymbol() .'" "'. $sizingFolder . '/' . $userName . '" '. $chartName .' '. $productFlowRate .' "Custom Flowrate"');
+        }
+
+        $imageSizing = getenv('APP_URL') . '/sizing/' . $userName . '/' . $chartName . '.png?time=' . time();
+        return $imageSizing;
+    }
+
     public function sizingEstimationResult() 
     {
         $idStudy = $this->request->input('idStudy');
