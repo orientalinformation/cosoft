@@ -647,7 +647,7 @@ class Lines extends Controller
                 if (!is_string($pressure) || $pressure == 0) {
                     $pipegen->PRESSURE = $pressure;
                 } else {
-                    return response("Not a valid number in Number !" ,406);
+                    return response("Enter a value (number) in Tank pressure !" ,406);
                 }
             } else {
                 $mm = $this->minmax->getMinMaxPressure($this->value->MIN_MAX_STUDY_LINE_PRESSURE);
@@ -658,11 +658,11 @@ class Lines extends Controller
                 if ((preg_match('/[0-9]/', $input['HEIGHT']))) {
                     $pipegen->HEIGHT = $height;
                 } else {
-                    return response("Not a valid number in Number !" ,406);
+                    return response("Enter a value (number) in Equipment elevation above tank outlet. !" ,406);
                 }
             } else {
                 $mm = $this->minmax->getMinMaxHeight($this->value->MIN_MAX_STUDY_LINE_HEIGHT);
-                return response("Value out of range in Tank pressure (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ") !" , 406); // Status code here
+                return response("Value out of range in Equipment elevation above tank outlet. (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ") !" , 406); // Status code here
             }
             
             if ($pipegen->ID_STUDY_EQUIPMENTS == null) {
