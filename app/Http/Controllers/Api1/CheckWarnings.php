@@ -32,8 +32,16 @@ class CheckWarnings extends Controller
 
     public function checkWarningEquipment()
     {
-    	$message = null;
-    	
+    	$message = 1;
+    	$check = false;
+    	if ($check) {
+    		$message = 'This equipment does not allow to use the assistant of calculation of the couple
+						"dwelling time/temperature setpoint". 
+						Displayed values are default values of couple "dwelling time/temperature setpoint"';
+			return [
+				'Message' => $message,
+			];
+    	}
     	return $message;
     }
 }

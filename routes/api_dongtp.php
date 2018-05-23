@@ -336,3 +336,11 @@ $router->GET('/api/v1/input/temppoint', 'Api1\\InputInitial@getDataTempoint');
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/referencedata/capability/{idEquip}', 'Api1\\ReferenceData@getCapabitity');
+
+/**
+ * POST warning
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/input/warningequipment', 'Api1\\CheckWarnings@checkWarningEquipment');
