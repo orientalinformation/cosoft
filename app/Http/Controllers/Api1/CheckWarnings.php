@@ -40,6 +40,7 @@ class CheckWarnings extends Controller
         $message = 1;
         $check = false;
         if (isset($input['idEquip'])) $idEquip = $input['idEquip'];
+        if (isset($input['idStudy'])) $idStudy = $input['idStudy'];
 
         $equipment = Equipment::find($idEquip);
         if ($equipment) {
@@ -70,14 +71,11 @@ class CheckWarnings extends Controller
                 $message = 'This equipment does not allow to use the assistant of calculation of the couple
                             "dwelling time/temperature setpoint". 
                             Displayed values are default values of couple "dwelling time/temperature setpoint"';
-                    return [
+                return [
                     'Message' => $message,
                 ];
             }
         }
-        // var_dump($equipment->CAPABILITIES); 
-        // var_dump($check);
-        // die;
         
         if ($check) {
             return [
