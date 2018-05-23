@@ -4,7 +4,7 @@ OUTPUT = ARG3."/".ARG4.".png"
 
 set term unknown
 plot DATAFILE using 2:xtic(1) ti col, '' using 3 ti col
-YMAX = GPVAL_DATA_Y_MAX
+YMAX = ceil(GPVAL_DATA_Y_MAX) + 0.0
 CUS_POS = ARG5/YMAX
 
 set terminal png size 1575,700  background rgb "white"
@@ -13,7 +13,7 @@ set output OUTPUT
 
 set label  ARG1 center at graph 0, graph 1.1
 set label  ARG2 center at graph 1.0, graph 1.1
-set yr[0:]
+set yr[0:YMAX]
 set tics nomirror scale 2
 set y2tics
 set xtics scale 0 offset 0,-0.5 font ",12"
