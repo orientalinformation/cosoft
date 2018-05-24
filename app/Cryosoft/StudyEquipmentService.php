@@ -785,7 +785,7 @@ class StudyEquipmentService
             - $widthInterVal * ($layoutRes->NUMBER_IN_WIDTH - 1)) / $layoutRes->NUMBER_IN_WIDTH;
         }
         
-        if (($layoutRes->NUMBER_PER_M - $lengthInterVal) != 0) {
+        if ($layoutRes->NUMBER_PER_M  != 0) {
             $plength = $lfEquipLength / $layoutRes->NUMBER_PER_M - $lengthInterVal;
         }
 
