@@ -344,3 +344,11 @@ $router->GET('/api/v1/referencedata/capability/{idEquip}', 'Api1\\ReferenceData@
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/input/warningequipment', 'Api1\\CheckWarnings@checkWarningEquipment');
+
+/**
+ * POST warning
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/input/phamcast', 'Api1\\CheckWarnings@checkPhamCast');
