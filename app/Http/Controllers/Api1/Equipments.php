@@ -561,7 +561,15 @@ class Equipments extends Controller
 
             if ($typeEquipment == 0) {
                 $minMaxTemp = $this->getMinMax($equipment1->ITEM_TR);
-                $tempSetPoint = $this->units->controlTemperature(floatval($minMaxTemp->DEFAULT_VALUE), 2, 0);
+                $tempSetPoint = floatval($minMaxTemp->DEFAULT_VALUE);
+                $dwellingTime = floatval($minMaxDwell->DEFAULT_VALUE);
+
+                if ($this->equip->getCapability($equipment1->CAPABILITIES, 65536)) {
+                    $dwellingTime = $this->units->time(floatval($input['tempSetPoint']), 2, 0);
+                } else {
+                    $tempSetPoint = $this->units->controlTemperature(floatval($input['tempSetPoint']), 2, 0);
+                }
+
             } else if ($typeEquipment == 1) {
                 if ($equipGen) {
                     $tempSetPoint = $equipGen->TEMP_SETPOINT;
