@@ -586,6 +586,21 @@ class Equipments extends Controller
                     $avgProdintemp = $equipGen->AVG_PRODINTEMP;
                     $rotate  = 1;
                 }
+            } else if ($typeEquipment == 3) {
+                $minMaxTemp = $this->getMinMax($equipment1->ITEM_TR);
+                $tempSetPoint = floatval($minMaxTemp->DEFAULT_VALUE);
+                $dwellingTime = floatval($minMaxDwell->DEFAULT_VALUE);
+
+                $_equip1 = Equipment::find($equipId1);
+                $_equip2 = Equipment::find($equipId2);
+
+                if ($_equip1 && $_equip2 &&
+                    $this->equip->getCapability($_equip1->CAPABILITIES, 65536) &&
+                    $this->equip->getCapability($_equip2->CAPABILITIES, 65536)) {
+                    $dwellingTime = $this->units->time(floatval($input['tempSetPoint']), 2, 0);
+                } else {
+                    $tempSetPoint = $this->units->controlTemperature(floatval($input['tempSetPoint']), 2, 0);
+                }
             }
 
             $equipGeneration = new EquipGeneration();
