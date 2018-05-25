@@ -998,6 +998,8 @@ class Output extends Controller
             }
         }
 
+        $imageSizing = '';
+
         if (!empty($selectedEquipment)) {
             $f = fopen("/tmp/sizing.inp", "w");
             fputs($f, '"Equip Name" "Product flowrate" "Maximum product flowrate" "Cryogen consumption (product + equipment heat losses)" "Maximum cryogen consumption (product + equipment heat losses)"' . "\n");
@@ -1046,14 +1048,19 @@ class Output extends Controller
             if (!is_dir($sizingFolder)) {
                 mkdir($sizingFolder, 0777);
             }
+
             if (!is_dir($sizingFolder . '/' . $userName)) {
                 mkdir($sizingFolder . '/' . $userName, 0777);
             }
 
-            system('gnuplot -c '. $this->plotFolder .'/sizing.plot "Flowrate '. $this->unit->productFlowSymbol() .'" "Conso '. $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1) .'/'. $this->unit->perUnitOfMassSymbol() .'" "'. $sizingFolder . '/' . $userName . '" '. $idStudy .' '. $productFlowRate .' "Custom Flowrate"');
-        }
+            if (!is_dir($sizingFolder . '/' . $userName . '/' . $idStudy)) {
+                mkdir($sizingFolder . '/' . $userName . '/' . $idStudy, 0777);
+            }
+            
+            system('gnuplot -c '. $this->plotFolder .'/sizing.plot "Flowrate '. $this->unit->productFlowSymbol() .'" "Conso '. $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1) .'/'. $this->unit->perUnitOfMassSymbol() .'" "'. $sizingFolder . '/' . $userName . '/' . $idStudy . '" '. $idStudy .' '. $productFlowRate .' "Custom Flowrate"');
 
-        $imageSizing = getenv('APP_URL') . '/sizing/' . $userName . '/' . $idStudy . '.png?time=' . time();
+            $imageSizing = getenv('APP_URL') . '/sizing/' . $userName . '/' . $idStudy . '/' . $idStudy . '.png?time=' . time();
+        }
 
         return compact("result", "selectedEquipment", "availableEquipment", "dataGrapChart", "productFlowRate", "imageSizing");
     }
@@ -1084,15 +1091,21 @@ class Output extends Controller
             if (!is_dir($sizingFolder)) {
                 mkdir($sizingFolder, 0777);
             }
+
             if (!is_dir($sizingFolder . '/' . $userName)) {
                 mkdir($sizingFolder . '/' . $userName, 0777);
             }
 
-            system('gnuplot -c '. $this->plotFolder .'/sizing.plot "Flowrate '. $this->unit->productFlowSymbol() .'" "Conso '. $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1) .'/'. $this->unit->perUnitOfMassSymbol() .'" "'. $sizingFolder . '/' . $userName . '" '. $chartName .' '. $productFlowRate .' "Custom Flowrate"');
+            if (!is_dir($sizingFolder . '/' . $userName . '/' . $idStudy)) {
+                mkdir($sizingFolder . '/' . $userName . '/' . $idStudy, 0777);
+            }
+
+            system('gnuplot -c '. $this->plotFolder .'/sizing.plot "Flowrate '. $this->unit->productFlowSymbol() .'" "Conso '. $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1) .'/'. $this->unit->perUnitOfMassSymbol() .'" "'. $sizingFolder . '/' . $userName . '/' . $idStudy . '" '. $chartName .' '. $productFlowRate .' "Custom Flowrate"');
+
+            $imageSizing = getenv('APP_URL') . '/sizing/' . $userName . '/' . $idStudy . '/' . $chartName . '.png?time=' . time();
+            return $imageSizing;
         }
 
-        $imageSizing = getenv('APP_URL') . '/sizing/' . $userName . '/' . $chartName . '.png?time=' . time();
-        return $imageSizing;
     }
 
     public function sizingEstimationResult() 
@@ -1216,10 +1229,25 @@ class Output extends Controller
             $result[] = $item;
         }
 
+        $sizingFolder = $this->output->public_path('sizing');
+
+        $userName = $study->USERNAM;
+        if (!is_dir($sizingFolder)) {
+            mkdir($sizingFolder, 0777);
+        }
+        if (!is_dir($sizingFolder . '/' . $userName)) {
+            mkdir($sizingFolder . '/' . $userName, 0777);
+        }
+
+        if (!is_dir($sizingFolder . '/' . $userName . '/' . $idStudy)) {
+            mkdir($sizingFolder . '/' . $userName . '/' . $idStudy, 0777);
+        }
         
         foreach ($studyEquipments as $row) {
-            $f = fopen("/tmp/sizing.inp", "w");
-            fputs($f, '"Equip Name" "Product flowrate" "Maximum product flowrate" "Cryogen consumption (product + equipment heat losses)" "Maximum cryogen consumption (product + equipment heat losses)"' . "\n");
+            $f = '/tmp/sizing.inp';
+            file_put_contents($f, '');
+            file_put_contents($f, '"Equip Name" "Product flowrate" "Maximum product flowrate" "Cryogen consumption (product + equipment heat losses)" "Maximum cryogen consumption (product + equipment heat losses)"'. "\n" .'');
+
             $capabilitie = $row->CAPABILITIES;
             $equipStatus = $row->EQUIP_STATUS;
             $brainType = $row->BRAIN_TYPE;
@@ -1279,24 +1307,14 @@ class Output extends Controller
                 $itemGrap["data"][$key]["conso"] = (double) $conso;
                 $itemGrap["data"][$key]["dhpMax"] = (double) $dhpMax;
                 $itemGrap["data"][$key]["consoMax"] = (double) $consoMax; 
-                fputs($f, '"'. $trName .'" '. (double) $dhp .' '. (double) $dhpMax .' '. (double) $conso .' '. (double) $consoMax .'');
-                fputs($f, "\n");               
+                file_put_contents($f, '"'. $trName .'" '. (double) $dhp .' '. (double) $dhpMax .' '. (double) $conso .' '. (double) $consoMax .'' . "\n", FILE_APPEND);  
+
+                $chartName =  $idStudy . '-' . $row->ID_STUDY_EQUIPMENTS;
+
+                system('gnuplot -c '. $this->plotFolder .'/sizing.plot "Flowrate '. $this->unit->productFlowSymbol() .'" "Conso '. $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1) .'/'. $this->unit->perUnitOfMassSymbol() .'" "'. $sizingFolder . '/' . $userName . '/' . $idStudy . '" '. $chartName .' '. $productFlowRate .' "Custom Flowrate"');
+                $itemGrap['image'] = $imageSizing = getenv('APP_URL') . '/sizing/' . $userName . '/' . $idStudy . '/' . $chartName . '.png?time=' . time();                     
             } 
             $dataGraphChart[] =  $itemGrap;
-            
-            fclose($f);
-
-            $sizingFolder = $this->output->public_path('sizing');
-
-            $userName = $study->USERNAM;
-            if (!is_dir($sizingFolder)) {
-                mkdir($sizingFolder, 0777);
-            }
-            if (!is_dir($sizingFolder . '/' . $userName)) {
-                mkdir($sizingFolder . '/' . $userName, 0777);
-            }
-
-            system('gnuplot -c '. $this->plotFolder .'/sizing.plot "Flowrate '. $this->unit->productFlowSymbol() .'" "Conso '. $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1) .'/'. $this->unit->perUnitOfMassSymbol() .'" "'. $sizingFolder . '/' . $userName . '" '. $idStudy .' '. $productFlowRate .' "Custom Flowrate"');
         }
 
         return compact("result", "dataGraphChart", "productFlowRate");
