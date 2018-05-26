@@ -327,16 +327,12 @@ class InputInitial extends Controller
                 if ($tempRecordPtsDef->AXIS3_PL_1_2_DEF == 0) {
                     $tempRecordPts->AXIS3_PL_1_2 = $listAxis3[$this->getIndex($sizeList3, $tempRecordPtsDef->AXIS3_PL_1_2_DEF)];
                 }
-                /*var_dump($sizeList2);
-                var_dump($tempRecordPtsDef->AXIS2_PT_TOP_SURF_DEF);
-                var_dump($this->getIndex($sizeList2, $tempRecordPtsDef->AXIS2_PT_TOP_SURF_DEF));
-                var_dump($listAxis2[$this->getIndex($sizeList2, $tempRecordPtsDef->AXIS2_PT_TOP_SURF_DEF)]);die;*/
+                
                 $tempRecordPts->save();
 
                 $this->cal->saveTempRecordPtsToReport($idStudy);
             }
         }
-        
     }
 
     private function initListPoints($idStudy, $axe)
