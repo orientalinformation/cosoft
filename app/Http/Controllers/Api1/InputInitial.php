@@ -82,245 +82,261 @@ class InputInitial extends Controller
             $sizeList3 = count($listAxis3);
         }
 
-        if (($tempRecordPtsDef) && ($tempRecordPts) && 
+        if ($tempRecordPts->AXIS1_PT_TOP_SURF == 0 && $tempRecordPts->AXIS2_PT_TOP_SURF == 0 && 
+            $tempRecordPts->AXIS3_PT_TOP_SURF == 0 && $tempRecordPts->AXIS1_PT_INT_PT == 0 &&
+            $tempRecordPts->AXIS2_PT_INT_PT == 0 && $tempRecordPts->AXIS3_PT_INT_PT == 0 &&
+            $tempRecordPts->AXIS1_PT_BOT_SURF == 0 && $tempRecordPts->AXIS2_PT_BOT_SURF == 0 &&
+            $tempRecordPts->AXIS3_PT_BOT_SURF == 0 && $tempRecordPts->AXIS2_AX_1 == 0 &&
+            $tempRecordPts->AXIS3_AX_1 == 0 && $tempRecordPts->AXIS1_AX_2 == 0 &&
+            $tempRecordPts->AXIS3_AX_2 == 0 && $tempRecordPts->AXIS1_AX_3 == 0 &&
+            $tempRecordPts->AXIS2_AX_3 == 0 && $tempRecordPts->AXIS1_PL_2_3 == 0 &&
+            $tempRecordPts->AXIS2_PL_1_3 == 0 && $tempRecordPts->AXIS3_PL_1_2 == 0
+        ) {
+            if (($tempRecordPtsDef) && ($tempRecordPts) && 
             ($sizeList1 > 0) && ($sizeList2 > 0) && ($sizeList3 > 0)) {
-            if ($idShape == 7) {
-              $temp2 = 0;
-              $temp = $tempRecordPtsDef->AXIS1_PT_TOP_SURF_DEF;
-              $tempRecordPtsDef->AXIS1_PT_TOP_SURF_DEF = $tempRecordPtsDef->AXIS2_PT_TOP_SURF_DEF;
-              $tempRecordPtsDef->AXIS2_PT_TOP_SURF_DEF = $temp;
-              
-              $temp = $tempRecordPtsDef->AXIS1_PT_INT_PT_DEF;
-              $tempRecordPtsDef->AXIS1_PT_INT_PT_DEF = $tempRecordPtsDef->AXIS2_PT_INT_PT_DEF;
-              $tempRecordPtsDef->AXIS2_PT_INT_PT_DEF = $temp;
-              
-              $temp = $tempRecordPtsDef->AXIS1_PT_BOT_SURF_DEF;
-              $tempRecordPtsDef->AXIS1_PT_BOT_SURF_DEF = $tempRecordPtsDef->AXIS2_PT_BOT_SURF_DEF;
-              $tempRecordPtsDef->AXIS2_PT_BOT_SURF_DEF = $temp;
-              
-              $temp = $tempRecordPtsDef->AXIS2_AX_1_DEF;
-              $temp2 = $tempRecordPtsDef->AXIS3_AX_1_DEF;
-              $tempRecordPtsDef->AXIS2_AX_1_DEF = $tempRecordPtsDef->AXIS1_AX_2_DEF;
-              $tempRecordPtsDef->AXIS3_AX_1_DEF = $tempRecordPtsDef->AXIS3_AX_2_DEF;
-              $tempRecordPtsDef->AXIS1_AX_2_DEF = $temp;
-              $tempRecordPtsDef->AXIS3_AX_2_DEF = $temp2;
-              
-              $temp = $tempRecordPtsDef->AXIS1_PL_2_3_DEF;
-              $tempRecordPtsDef->AXIS1_PL_2_3_DEF = $tempRecordPtsDef->AXIS2_PL_1_3_DEF;
-              $tempRecordPtsDef->AXIS2_PL_1_3_DEF = $temp;
-            }
-
-            if (($tempRecordPtsDef->AXIS1_PT_TOP_SURF_DEF == 0) && ($tempRecordPtsDef->AXIS2_PT_TOP_SURF_DEF == 0) && ($tempRecordPtsDef->AXIS3_PT_TOP_SURF_DEF == 0)) {
-                switch ($idShape) {
-                    case 4:
-                    case 5:
-                        $tempRecordPts->AXIS1_PT_TOP_SURF = $listAxis1[$this->getIndex($sizeList1, 0)];
-                        $tempRecordPts->AXIS2_PT_TOP_SURF = $listAxis2[$this->getIndex($sizeList2, 100)];
-                        break;
-
-                    case 7:
-                        $tempRecordPts->AXIS1_PT_TOP_SURF = $listAxis1[$this->getIndex($sizeList1, 100)];
-                        $tempRecordPts->AXIS2_PT_TOP_SURF = $listAxis2[$this->getIndex($sizeList2, 0)];
-                        break;
-                    case 6:
-                    default:
-                        $tempRecordPts->AXIS1_PT_TOP_SURF = $listAxis1[$this->getIndex($sizeList1, 50)];
-                        $tempRecordPts->AXIS2_PT_TOP_SURF = $listAxis2[$this->getIndex($sizeList2, 100)];
-                        break;
+                if ($idShape == 7) {
+                  $temp2 = 0;
+                  $temp = $tempRecordPtsDef->AXIS1_PT_TOP_SURF_DEF;
+                  $tempRecordPtsDef->AXIS1_PT_TOP_SURF_DEF = $tempRecordPtsDef->AXIS2_PT_TOP_SURF_DEF;
+                  $tempRecordPtsDef->AXIS2_PT_TOP_SURF_DEF = $temp;
+                  
+                  $temp = $tempRecordPtsDef->AXIS1_PT_INT_PT_DEF;
+                  $tempRecordPtsDef->AXIS1_PT_INT_PT_DEF = $tempRecordPtsDef->AXIS2_PT_INT_PT_DEF;
+                  $tempRecordPtsDef->AXIS2_PT_INT_PT_DEF = $temp;
+                  
+                  $temp = $tempRecordPtsDef->AXIS1_PT_BOT_SURF_DEF;
+                  $tempRecordPtsDef->AXIS1_PT_BOT_SURF_DEF = $tempRecordPtsDef->AXIS2_PT_BOT_SURF_DEF;
+                  $tempRecordPtsDef->AXIS2_PT_BOT_SURF_DEF = $temp;
+                  
+                  $temp = $tempRecordPtsDef->AXIS2_AX_1_DEF;
+                  $temp2 = $tempRecordPtsDef->AXIS3_AX_1_DEF;
+                  $tempRecordPtsDef->AXIS2_AX_1_DEF = $tempRecordPtsDef->AXIS1_AX_2_DEF;
+                  $tempRecordPtsDef->AXIS3_AX_1_DEF = $tempRecordPtsDef->AXIS3_AX_2_DEF;
+                  $tempRecordPtsDef->AXIS1_AX_2_DEF = $temp;
+                  $tempRecordPtsDef->AXIS3_AX_2_DEF = $temp2;
+                  
+                  $temp = $tempRecordPtsDef->AXIS1_PL_2_3_DEF;
+                  $tempRecordPtsDef->AXIS1_PL_2_3_DEF = $tempRecordPtsDef->AXIS2_PL_1_3_DEF;
+                  $tempRecordPtsDef->AXIS2_PL_1_3_DEF = $temp;
                 }
-                $tempRecordPts->AXIS3_PT_TOP_SURF = $listAxis3[$this->getIndex($sizeList3, 50)];
-            } else {
-                switch ($idShape) {
-                    case 4:
-                    case 5:
-                        $percent = (abs(floatval($tempRecordPtsDef->AXIS1_PT_TOP_SURF_DEF) - 50) * 2);
-                        $offset = $listAxis1[$this->getIndex($sizeList1, $percent)];
-                        $tempRecordPts->AXIS1_PT_TOP_SURF = $offset;
-                        $tempRecordPts->AXIS2_PT_TOP_SURF = $listAxis2[$this->getIndex($sizeList2, $tempRecordPtsDef->AXIS2_PT_TOP_SURF_DEF)];
-                        break;
 
-                    case 7:
-                        $percent = (abs(floatval($tempRecordPtsDef->AXIS2_PT_TOP_SURF_DEF) - 50) * 2);
-                        $offset = $listAxis2[$this->getIndex($sizeList2, $percent)];
-                        $tempRecordPts->AXIS1_PT_TOP_SURF = $listAxis1[$this->getIndex($sizeList1, $tempRecordPtsDef->AXIS1_PT_TOP_SURF_DEF)];
-                        $tempRecordPts->AXIS2_PT_TOP_SURF = $offset;
-                        break;
-                    case 6:
-                    default:
-                        $tempRecordPts->AXIS1_PT_TOP_SURF = $listAxis1[$this->getIndex($sizeList1, $tempRecordPtsDef->AXIS1_PT_TOP_SURF_DEF)];
-                        $tempRecordPts->AXIS2_PT_TOP_SURF = $listAxis2[$this->getIndex($sizeList2, $tempRecordPtsDef->AXIS2_PT_TOP_SURF_DEF)];
-                        break;
+                if (($tempRecordPtsDef->AXIS1_PT_TOP_SURF_DEF == 0) && ($tempRecordPtsDef->AXIS2_PT_TOP_SURF_DEF == 0) && ($tempRecordPtsDef->AXIS3_PT_TOP_SURF_DEF == 0)) {
+                    switch ($idShape) {
+                        case 4:
+                        case 5:
+                            $tempRecordPts->AXIS1_PT_TOP_SURF = $listAxis1[$this->getIndex($sizeList1, 0)];
+                            $tempRecordPts->AXIS2_PT_TOP_SURF = $listAxis2[$this->getIndex($sizeList2, 100)];
+                            break;
+
+                        case 7:
+                            $tempRecordPts->AXIS1_PT_TOP_SURF = $listAxis1[$this->getIndex($sizeList1, 100)];
+                            $tempRecordPts->AXIS2_PT_TOP_SURF = $listAxis2[$this->getIndex($sizeList2, 0)];
+                            break;
+                        case 6:
+                        default:
+                            $tempRecordPts->AXIS1_PT_TOP_SURF = $listAxis1[$this->getIndex($sizeList1, 50)];
+                            $tempRecordPts->AXIS2_PT_TOP_SURF = $listAxis2[$this->getIndex($sizeList2, 100)];
+                            break;
+                    }
+                    $tempRecordPts->AXIS3_PT_TOP_SURF = $listAxis3[$this->getIndex($sizeList3, 50)];
+                } else {
+                    switch ($idShape) {
+                        case 4:
+                        case 5:
+                            $percent = (abs(floatval($tempRecordPtsDef->AXIS1_PT_TOP_SURF_DEF) - 50) * 2);
+                            $offset = $listAxis1[$this->getIndex($sizeList1, $percent)];
+                            $tempRecordPts->AXIS1_PT_TOP_SURF = $offset;
+                            $tempRecordPts->AXIS2_PT_TOP_SURF = $listAxis2[$this->getIndex($sizeList2, $tempRecordPtsDef->AXIS2_PT_TOP_SURF_DEF)];
+                            break;
+
+                        case 7:
+                            $percent = (abs(floatval($tempRecordPtsDef->AXIS2_PT_TOP_SURF_DEF) - 50) * 2);
+                            $offset = $listAxis2[$this->getIndex($sizeList2, $percent)];
+                            $tempRecordPts->AXIS1_PT_TOP_SURF = $listAxis1[$this->getIndex($sizeList1, $tempRecordPtsDef->AXIS1_PT_TOP_SURF_DEF)];
+                            $tempRecordPts->AXIS2_PT_TOP_SURF = $offset;
+                            break;
+                        case 6:
+                        default:
+                            $tempRecordPts->AXIS1_PT_TOP_SURF = $listAxis1[$this->getIndex($sizeList1, $tempRecordPtsDef->AXIS1_PT_TOP_SURF_DEF)];
+                            $tempRecordPts->AXIS2_PT_TOP_SURF = $listAxis2[$this->getIndex($sizeList2, $tempRecordPtsDef->AXIS2_PT_TOP_SURF_DEF)];
+                            break;
+                    }
+                    $tempRecordPts->AXIS3_PT_TOP_SURF = $listAxis3[$this->getIndex($sizeList3, $tempRecordPtsDef->AXIS3_PT_TOP_SURF_DEF)];
                 }
-                $tempRecordPts->AXIS3_PT_TOP_SURF = $listAxis3[$this->getIndex($sizeList3, $tempRecordPtsDef->AXIS3_PT_TOP_SURF_DEF)];
-            }
 
-            if (($tempRecordPtsDef->AXIS1_PT_INT_PT_DEF == 0) && ($tempRecordPtsDef->AXIS2_PT_INT_PT_DEF == 0) && ($tempRecordPtsDef->AXIS3_PT_INT_PT_DEF == 0)) {
-                switch ($idShape) {
-                    case 4:
-                    case 5:
-                        $tempRecordPts->AXIS1_PT_INT_PT = $listAxis1[$this->getIndex($sizeList1, 0)];
-                        $tempRecordPts->AXIS2_PT_INT_PT = $listAxis2[$this->getIndex($sizeList2, 50)];
-                        break;
+                if (($tempRecordPtsDef->AXIS1_PT_INT_PT_DEF == 0) && ($tempRecordPtsDef->AXIS2_PT_INT_PT_DEF == 0) && ($tempRecordPtsDef->AXIS3_PT_INT_PT_DEF == 0)) {
+                    switch ($idShape) {
+                        case 4:
+                        case 5:
+                            $tempRecordPts->AXIS1_PT_INT_PT = $listAxis1[$this->getIndex($sizeList1, 0)];
+                            $tempRecordPts->AXIS2_PT_INT_PT = $listAxis2[$this->getIndex($sizeList2, 50)];
+                            break;
 
-                    case 7:
-                        $tempRecordPts->AXIS1_PT_INT_PT = $listAxis1[$this->getIndex($sizeList1, 50)];
-                        $tempRecordPts->AXIS2_PT_INT_PT = $listAxis2[$this->getIndex($sizeList2, 0)];
-                        break;
-                    case 6:
-                    default:
-                        $tempRecordPts->AXIS1_PT_INT_PT = $listAxis1[$this->getIndex($sizeList1, 50)];
-                        $tempRecordPts->AXIS2_PT_INT_PT = $listAxis2[$this->getIndex($sizeList2, 50)];
-                        break;
+                        case 7:
+                            $tempRecordPts->AXIS1_PT_INT_PT = $listAxis1[$this->getIndex($sizeList1, 50)];
+                            $tempRecordPts->AXIS2_PT_INT_PT = $listAxis2[$this->getIndex($sizeList2, 0)];
+                            break;
+                        case 6:
+                        default:
+                            $tempRecordPts->AXIS1_PT_INT_PT = $listAxis1[$this->getIndex($sizeList1, 50)];
+                            $tempRecordPts->AXIS2_PT_INT_PT = $listAxis2[$this->getIndex($sizeList2, 50)];
+                            break;
+                    }
+                    $tempRecordPts->AXIS3_PT_INT_PT = $listAxis3[$this->getIndex($sizeList3, 50)];
+                } else {
+                    switch ($idShape) {
+                        case 4:
+                        case 5:
+                            $percent = (abs($tempRecordPtsDef->AXIS1_PT_INT_PT_DEF - 50) * 2);
+                            $offset = $listAxis1[$this->getIndex($sizeList1, $percent)];
+                            $tempRecordPts->AXIS1_PT_INT_PT = $offset;
+                            $tempRecordPts->AXIS2_PT_INT_PT = $listAxis2[$this->getIndex($sizeList2, $tempRecordPtsDef->AXIS2_PT_INT_PT_DEF)];
+                            break;
+
+                        case 7:
+                            $percent = (abs($tempRecordPtsDef->AXIS2_PT_INT_PT_DEF - 50) * 2);
+                            $offset = $listAxis2[$this->getIndex($sizeList2, $percent)];
+                            $tempRecordPts->AXIS1_PT_INT_PT = $listAxis1[$this->getIndex($sizeList1, $tempRecordPtsDef->AXIS1_PT_INT_PT_DEF)];
+                            $tempRecordPts->AXIS2_PT_INT_PT = $offset;
+                            break;
+                        case 6:
+                        default:
+                            $tempRecordPts->AXIS1_PT_INT_PT = $listAxis1[$this->getIndex($sizeList1, $tempRecordPtsDef->AXIS1_PT_INT_PT_DEF)];
+                            $tempRecordPts->AXIS2_PT_INT_PT = $listAxis2[$this->getIndex($sizeList2, $tempRecordPtsDef->AXIS2_PT_INT_PT_DEF)];
+                            break;
+                    }
+                    $tempRecordPts->AXIS3_PT_INT_PT = $listAxis3[$this->getIndex($sizeList3, $tempRecordPtsDef->AXIS3_PT_INT_PT_DEF)];
                 }
-                $tempRecordPts->AXIS3_PT_INT_PT = $listAxis3[$this->getIndex($sizeList3, 50)];
-            } else {
-                switch ($idShape) {
-                    case 4:
-                    case 5:
-                        $percent = (abs($tempRecordPtsDef->AXIS1_PT_INT_PT_DEF - 50) * 2);
-                        $offset = $listAxis1[$this->getIndex($sizeList1, $percent)];
-                        $tempRecordPts->AXIS1_PT_INT_PT = $offset;
-                        $tempRecordPts->AXIS2_PT_INT_PT = $listAxis2[$this->getIndex($sizeList2, $tempRecordPtsDef->AXIS2_PT_INT_PT_DEF)];
-                        break;
 
-                    case 7:
-                        $percent = (abs($tempRecordPtsDef->AXIS2_PT_INT_PT_DEF - 50) * 2);
-                        $offset = $listAxis2[$this->getIndex($sizeList2, $percent)];
-                        $tempRecordPts->AXIS1_PT_INT_PT = $listAxis1[$this->getIndex($sizeList1, $tempRecordPtsDef->AXIS1_PT_INT_PT_DEF)];
-                        $tempRecordPts->AXIS2_PT_INT_PT = $offset;
-                        break;
-                    case 6:
-                    default:
-                        $tempRecordPts->AXIS1_PT_INT_PT = $listAxis1[$this->getIndex($sizeList1, $tempRecordPtsDef->AXIS1_PT_INT_PT_DEF)];
-                        $tempRecordPts->AXIS2_PT_INT_PT = $listAxis2[$this->getIndex($sizeList2, $tempRecordPtsDef->AXIS2_PT_INT_PT_DEF)];
-                        break;
+                if (($tempRecordPtsDef->AXIS1_PT_BOT_SURF_DEF == 0) && ($tempRecordPtsDef->AXIS2_PT_BOT_SURF_DEF == 0) && ($tempRecordPtsDef->AXIS3_PT_BOT_SURF_DEF == 0)) {
+                    switch ($idShape) {
+                        case 4:
+                        case 5:
+                            $tempRecordPts->AXIS1_PT_BOT_SURF = $listAxis1[$this->getIndex($sizeList1, 0)];
+                            $tempRecordPts->AXIS2_PT_BOT_SURF = $listAxis2[$this->getIndex($sizeList2, 0)];
+                            break;
+                        case 7:
+                            $tempRecordPts->AXIS1_PT_BOT_SURF = $listAxis1[$this->getIndex($sizeList1, 0)];
+                            $tempRecordPts->AXIS2_PT_BOT_SURF = $listAxis2[$this->getIndex($sizeList2, 0)];
+                            break;
+                        case 6:
+                        default:
+                            $tempRecordPts->AXIS1_PT_BOT_SURF = $listAxis1[$this->getIndex($sizeList1, 50)];
+                            $tempRecordPts->AXIS2_PT_BOT_SURF = $listAxis2[$this->getIndex($sizeList2, 0)];
+                            break;
+                    }
+                    $tempRecordPts->AXIS3_PT_BOT_SURF = $listAxis3[$this->getIndex($sizeList3, 0)];
+                } else {
+                    switch ($idShape) {
+                        case 4:
+                        case 5:
+                            $percent = (abs($tempRecordPtsDef->AXIS1_PT_BOT_SURF_DEF - 50) * 2);
+                            $offset = $listAxis1[($this->getIndex($sizeList1, $percent))];
+                            $tempRecordPts->AXIS1_PT_BOT_SURF = $offset;
+                            $tempRecordPts->AXIS2_PT_BOT_SURF = $listAxis2[$this->getIndex($sizeList2, $percent)];
+                            break;
+                        case 7:
+                            $percent = (abs($tempRecordPtsDef->AXIS2_PT_BOT_SURF_DEF - 50) * 2);
+                            $offset = $listAxis2[($this->getIndex($sizeList2, $percent))];
+                            $tempRecordPts->AXIS1_PT_BOT_SURF = $listAxis1[$this->getIndex($sizeList1, $percent)];
+                            $tempRecordPts->AXIS2_PT_BOT_SURF = $offset;
+                            break;
+                        case 6:
+                        default:
+                            $tempRecordPts->AXIS1_PT_BOT_SURF = $listAxis1[$this->getIndex($sizeList1, $tempRecordPtsDef->AXIS1_PT_BOT_SURF_DEF)];
+                            $tempRecordPts->AXIS2_PT_BOT_SURF = $listAxis2[$this->getIndex($sizeList2, $tempRecordPtsDef->AXIS2_PT_BOT_SURF_DEF)];
+                            break;
+                    }
+                    $tempRecordPts->AXIS3_PT_BOT_SURF = $listAxis3[$this->getIndex($sizeList3, $tempRecordPtsDef->AXIS3_PT_BOT_SURF_DEF)];
                 }
-                $tempRecordPts->AXIS3_PT_INT_PT = $listAxis3[$this->getIndex($sizeList3, $tempRecordPtsDef->AXIS3_PT_INT_PT_DEF)];
-            }
 
-            if (($tempRecordPtsDef->AXIS1_PT_BOT_SURF_DEF == 0) && ($tempRecordPtsDef->AXIS2_PT_BOT_SURF_DEF == 0) && ($tempRecordPtsDef->AXIS3_PT_BOT_SURF_DEF == 0)) {
-                switch ($idShape) {
-                    case 4:
-                    case 5:
-                        $tempRecordPts->AXIS1_PT_BOT_SURF = $listAxis1[$this->getIndex($sizeList1, 0)];
-                        $tempRecordPts->AXIS2_PT_BOT_SURF = $listAxis2[$this->getIndex($sizeList2, 0)];
-                        break;
-                    case 7:
-                        $tempRecordPts->AXIS1_PT_BOT_SURF = $listAxis1[$this->getIndex($sizeList1, 0)];
-                        $tempRecordPts->AXIS2_PT_BOT_SURF = $listAxis2[$this->getIndex($sizeList2, 0)];
-                        break;
-                    case 6:
-                    default:
-                        $tempRecordPts->AXIS1_PT_BOT_SURF = $listAxis1[$this->getIndex($sizeList1, 50)];
-                        $tempRecordPts->AXIS2_PT_BOT_SURF = $listAxis2[$this->getIndex($sizeList2, 0)];
-                        break;
+                if (($tempRecordPtsDef->AXIS2_AX_1_DEF == 0) && ($tempRecordPtsDef->AXIS3_AX_1_DEF == 0)) {
+                    switch ($idShape) {
+                        case 7:
+                            $tempRecordPts->AXIS2_AX_1 = $listAxis2[$this->getIndex($sizeList2, 0)];
+                            break;
+                        
+                        default:
+                            $tempRecordPts->AXIS2_AX_1 = $listAxis2[$this->getIndex($sizeList2, 50)];
+                            break;
+                    }
+                    $tempRecordPts->AXIS3_AX_1 = $listAxis3[$this->getIndex($sizeList3, 50)];
+                } else {
+                    switch ($idShape) {
+                        case 7:
+                            $percent = (abs($tempRecordPtsDef->AXIS2_AX_1 - 50) * 2);
+                            $offset = $listAxis2[$this->getIndex($sizeList2, $percent)];
+                            $tempRecordPts->AXIS2_AX_1 = $offset;
+                            break;
+                        
+                        default:
+                            $tempRecordPts->AXIS2_AX_1 = $listAxis2[$this->getIndex($sizeList2, $tempRecordPtsDef->AXIS2_AX_1_DEF)];
+                            break;
+                    }
+                    $tempRecordPts->AXIS3_AX_1 = $listAxis3[$this->getIndex($sizeList3, $tempRecordPtsDef->AXIS3_AX_1_DEF)];
                 }
-                $tempRecordPts->AXIS3_PT_BOT_SURF = $listAxis3[$this->getIndex($sizeList3, 0)];
-            } else {
-                switch ($idShape) {
-                    case 4:
-                    case 5:
-                        $percent = (abs($tempRecordPtsDef->AXIS1_PT_BOT_SURF_DEF - 50) * 2);
-                        $offset = $listAxis1[($this->getIndex($sizeList1, $percent))];
-                        $tempRecordPts->AXIS1_PT_BOT_SURF = $offset;
-                        $tempRecordPts->AXIS2_PT_BOT_SURF = $listAxis2[$this->getIndex($sizeList2, $percent)];
-                        break;
-                    case 7:
-                        $percent = (abs($tempRecordPtsDef->AXIS2_PT_BOT_SURF_DEF - 50) * 2);
-                        $offset = $listAxis2[($this->getIndex($sizeList2, $percent))];
-                        $tempRecordPts->AXIS1_PT_BOT_SURF = $listAxis1[$this->getIndex($sizeList1, $percent)];
-                        $tempRecordPts->AXIS2_PT_BOT_SURF = $offset;
-                        break;
-                    case 6:
-                    default:
-                        $tempRecordPts->AXIS1_PT_BOT_SURF = $listAxis1[$this->getIndex($sizeList1, $tempRecordPtsDef->AXIS1_PT_BOT_SURF_DEF)];
-                        $tempRecordPts->AXIS2_PT_BOT_SURF = $listAxis2[$this->getIndex($sizeList2, $tempRecordPtsDef->AXIS2_PT_BOT_SURF_DEF)];
-                        break;
+
+                if (($tempRecordPtsDef->AXIS1_AX_2_DEF == 0) && ($tempRecordPtsDef->AXIS3_AX_2_DEF == 0)) {
+                    switch ($idShape) {
+                        case 4:
+                        case 5:
+                            $tempRecordPts->AXIS1_AX_2 = $listAxis1[$this->getIndex($sizeList1, 0)];
+                            break;
+                        
+                        default:
+                            $tempRecordPts->AXIS1_AX_2 = $listAxis1[$this->getIndex($sizeList1, 50)];
+                            break;
+                    }
+                    $tempRecordPts->AXIS3_AX_2 = $listAxis3[$this->getIndex($sizeList3, 50)];
+                } else {
+                    switch ($idShape) {
+                        case 4:
+                        case 5:
+                            $percent = (abs($tempRecordPtsDef->AXIS1_AX_2_DEF - 50) * 2);
+                            $offset = $listAxis1[$this->getIndex($sizeList1, $percent)];
+                            $tempRecordPts->AXIS1_AX_2 = $offset;
+                            break;
+                        
+                        default:
+                            $tempRecordPts->AXIS1_AX_2 = $listAxis1[$this->getIndex($sizeList1, $tempRecordPtsDef->AXIS1_AX_2_DEF)];
+                            break;
+                    }
+                    $tempRecordPts->AXIS3_AX_2 = $listAxis3[$this->getIndex($sizeList3, $tempRecordPtsDef->AXIS3_AX_2_DEF)];
                 }
-                $tempRecordPts->AXIS3_PT_BOT_SURF = $listAxis3[$this->getIndex($sizeList3, $tempRecordPtsDef->AXIS3_PT_BOT_SURF_DEF)];
-            }
 
-            if (($tempRecordPtsDef->AXIS2_AX_1_DEF == 0) && ($tempRecordPtsDef->AXIS3_AX_1_DEF == 0)) {
-                switch ($idShape) {
-                    case 7:
-                        $tempRecordPts->AXIS2_AX_1 = $listAxis2[$this->getIndex($sizeList2, 0)];
-                        break;
-                    
-                    default:
-                        $tempRecordPts->AXIS2_AX_1 = $listAxis2[$this->getIndex($sizeList2, 50)];
-                        break;
+                if (($tempRecordPtsDef->AXIS1_AX_3_DEF == 0) && ($tempRecordPtsDef->AXIS2_AX_3_DEF == 0)) {
+                    $tempRecordPts->AXIS1_AX_3 = $listAxis1[$this->getIndex($sizeList1, 50)];
+                    $tempRecordPts->AXIS2_AX_3 = $listAxis2[$this->getIndex($sizeList2, 50)];
+                } else {
+                    $tempRecordPts->AXIS1_AX_3 = $listAxis1[$this->getIndex($sizeList1, $tempRecordPtsDef->AXIS1_AX_3_DEF)];
+                    $tempRecordPts->AXIS2_AX_3 = $listAxis2[$this->getIndex($sizeList2, $tempRecordPtsDef->AXIS2_AX_3_DEF)];
                 }
-                $tempRecordPts->AXIS3_AX_1 = $listAxis3[$this->getIndex($sizeList3, 50)];
-            } else {
-                switch ($idShape) {
-                    case 7:
-                        $percent = (abs($tempRecordPtsDef->AXIS2_AX_1 - 50) * 2);
-                        $offset = $listAxis2[$this->getIndex($sizeList2, $percent)];
-                        $tempRecordPts->AXIS2_AX_1 = $offset;
-                        break;
-                    
-                    default:
-                        $tempRecordPts->AXIS2_AX_1 = $listAxis2[$this->getIndex($sizeList2, $tempRecordPtsDef->AXIS2_AX_1_DEF)];
-                        break;
+
+                if ($tempRecordPtsDef->AXIS1_PL_2_3_DEF == 0) {
+                    $tempRecordPts->AXIS1_PL_2_3 = $listAxis1[$this->getIndex($sizeList1, 50)];
+                } else {
+                    $tempRecordPts->AXIS1_PL_2_3 = $listAxis1[$this->getIndex($sizeList1, $tempRecordPtsDef->AXIS1_PL_2_3_DEF)];
                 }
-                $tempRecordPts->AXIS3_AX_1 = $listAxis3[$this->getIndex($sizeList3, $tempRecordPtsDef->AXIS3_AX_1_DEF)];
-            }
 
-            if (($tempRecordPtsDef->AXIS1_AX_2_DEF == 0) && ($tempRecordPtsDef->AXIS3_AX_2_DEF == 0)) {
-                switch ($idShape) {
-                    case 4:
-                    case 5:
-                        $tempRecordPts->AXIS1_AX_2 = $listAxis1[$this->getIndex($sizeList1, 0)];
-                        break;
-                    
-                    default:
-                        $tempRecordPts->AXIS1_AX_2 = $listAxis1[$this->getIndex($sizeList1, 50)];
-                        break;
+                if ($tempRecordPtsDef->AXIS2_PL_1_3_DEF == 0) {
+                    $tempRecordPts->AXIS2_PL_1_3 = $listAxis2[$this->getIndex($sizeList2, 50)];
+                } else {
+                    $tempRecordPts->AXIS2_PL_1_3 = $listAxis2[$this->getIndex($sizeList2, $tempRecordPtsDef->AXIS2_PL_1_3_DEF)];
                 }
-                $tempRecordPts->AXIS3_AX_2 = $listAxis3[$this->getIndex($sizeList3, 50)];
-            } else {
-                switch ($idShape) {
-                    case 4:
-                    case 5:
-                        $percent = (abs($tempRecordPtsDef->AXIS1_AX_2_DEF - 50) * 2);
-                        $offset = $listAxis1[$this->getIndex($sizeList1, $percent)];
-                        $tempRecordPts->AXIS1_AX_2 = $offset;
-                        break;
-                    
-                    default:
-                        $tempRecordPts->AXIS1_AX_2 = $listAxis1[$this->getIndex($sizeList1, $tempRecordPtsDef->AXIS1_AX_2_DEF)];
-                        break;
+
+                if ($tempRecordPtsDef->AXIS3_PL_1_2_DEF == 0) {
+                    $tempRecordPts->AXIS3_PL_1_2 = $listAxis3[$this->getIndex($sizeList3, $tempRecordPtsDef->AXIS3_PL_1_2_DEF)];
                 }
-                $tempRecordPts->AXIS3_AX_2 = $listAxis3[$this->getIndex($sizeList3, $tempRecordPtsDef->AXIS3_AX_2_DEF)];
-            }
+                /*var_dump($sizeList2);
+                var_dump($tempRecordPtsDef->AXIS2_PT_TOP_SURF_DEF);
+                var_dump($this->getIndex($sizeList2, $tempRecordPtsDef->AXIS2_PT_TOP_SURF_DEF));
+                var_dump($listAxis2[$this->getIndex($sizeList2, $tempRecordPtsDef->AXIS2_PT_TOP_SURF_DEF)]);die;*/
+                $tempRecordPts->save();
 
-            if (($tempRecordPtsDef->AXIS1_AX_3_DEF == 0) && ($tempRecordPtsDef->AXIS2_AX_3_DEF == 0)) {
-                $tempRecordPts->AXIS1_AX_3 = $listAxis1[$this->getIndex($sizeList1, 50)];
-                $tempRecordPts->AXIS2_AX_3 = $listAxis2[$this->getIndex($sizeList2, 50)];
-            } else {
-                $tempRecordPts->AXIS1_AX_3 = $listAxis1[$this->getIndex($sizeList1, $tempRecordPtsDef->AXIS1_AX_3_DEF)];
-                $tempRecordPts->AXIS2_AX_3 = $listAxis2[$this->getIndex($sizeList2, $tempRecordPtsDef->AXIS2_AX_3_DEF)];
+                $this->cal->saveTempRecordPtsToReport($idStudy);
             }
-
-            if ($tempRecordPtsDef->AXIS1_PL_2_3_DEF == 0) {
-                $tempRecordPts->AXIS1_PL_2_3 = $listAxis1[$this->getIndex($sizeList1, 50)];
-            } else {
-                $tempRecordPts->AXIS1_PL_2_3 = $listAxis1[$this->getIndex($sizeList1, $tempRecordPtsDef->AXIS1_PL_2_3_DEF)];
-            }
-
-            if ($tempRecordPtsDef->AXIS2_PL_1_3_DEF == 0) {
-                $tempRecordPts->AXIS2_PL_1_3 = $listAxis2[$this->getIndex($sizeList2, 50)];
-            } else {
-                $tempRecordPts->AXIS2_PL_1_3 = $listAxis2[$this->getIndex($sizeList2, $tempRecordPtsDef->AXIS2_PL_1_3_DEF)];
-            }
-
-            if ($tempRecordPtsDef->AXIS3_PL_1_2_DEF == 0) {
-                $tempRecordPts->AXIS3_PL_1_2 = $listAxis3[$this->getIndex($sizeList3, $tempRecordPtsDef->AXIS3_PL_1_2_DEF)];
-            }
-            $tempRecordPts->save();
-
-            $this->cal->saveTempRecordPtsToReport($idStudy);
         }
+        
     }
 
     private function initListPoints($idStudy, $axe)
