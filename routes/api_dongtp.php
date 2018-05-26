@@ -352,3 +352,11 @@ $router->POST('/api/v1/input/warningequipment', 'Api1\\CheckWarnings@checkWarnin
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/input/phamcast', 'Api1\\CheckWarnings@checkPhamCast');
+
+/**
+ * PUT study 
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->PUT('/api/v1/input/update/{idStudy}', 'Api1\\Studies@updateStudy');
