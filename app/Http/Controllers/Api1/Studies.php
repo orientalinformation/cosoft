@@ -675,7 +675,7 @@ class Studies extends Controller
 
     public function getStudyEquipments($id) 
     {
-        $study = \App\Models\Study::findOrFail($id);
+        $study = Study::findOrFail($id);
         return $this->stdeqp->findStudyEquipmentsByStudy($study);
     }
 
@@ -1198,14 +1198,8 @@ class Studies extends Controller
         return $productElmt;
     }
 
-    /**
-     * @param double[]
-     * @param int
-     * @param boolean
-     */
-    private function getEqpPrmInitialData (array $dd, int $type, $isTS)
+    private function getEqpPrmInitialData (array $dd, $type, $isTS)
     {
-        // MinMax mm = (MinMax) retrieveApplValueList(type, 0, ValuesList . MINMAX);
         $mm = MinMax::where('LIMIT_ITEM', $type)->first();
         for ($i=0; $i < count($dd); $i++) {
             if ((($type > 0) && ($mm != null))) {
@@ -1233,7 +1227,6 @@ class Studies extends Controller
         }
         return $dd;
     }
-
 
     public function removeStudyEquipment($id, $idEquip) 
     {
