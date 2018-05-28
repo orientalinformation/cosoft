@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api1;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Contracts\Auth\Factory as Auth;
 use App\Models\Translation;
 use App\Models\Language;
 use App\Models\User;
@@ -15,14 +16,20 @@ class Translations extends Controller
      * @var Illuminate\Http\Request
      */
     protected $request;
+
+    /**
+     * @var Illuminate\Contracts\Auth\Factory
+     */
+    protected $auth;
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct(Request $request)
+    public function __construct(Request $request, Auth $auth)
     {
         $this->request = $request;
+        $this->auth = $auth;
     }
 
     //
@@ -70,13 +77,13 @@ class Translations extends Controller
     }
 
     public function getDefaultLanguage() {
-        $langIDs = Language::Select('CODE_LANGUE','LANG_NAME')->get();
         $userIdLang = User::Select('CODE_LANGUE')->Where('USERNAM', '=' ,'KERNEL')->first();
+        $langName = Translation::where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->where('TRANS_TYPE', 9)->get();
         $referenceLangs = Translation::where('CODE_LANGUE', $userIdLang->CODE_LANGUE)
-        ->orderBy('TRANS_TYPE', 'ASC')->get();
+        ->orderBy('TRANS_TYPE', 'ASC')->orderBy('LABEL', 'ASC')->get();
         $translationLangs = Translation::where('CODE_LANGUE', $userIdLang->CODE_LANGUE)
-        ->orderBy('TRANS_TYPE', 'ASC')->get();
-        return compact("referenceLangs", "translationLangs", "langIDs"); 
+        ->orderBy('TRANS_TYPE', 'ASC')->orderBy('LABEL', 'ASC')->get();
+        return compact("referenceLangs", "translationLangs", "langName"); 
     }
 
     public function changeLabels() {
@@ -86,21 +93,8 @@ class Translations extends Controller
             $id_trans = $input['ID_TRANSLATION'];
             $trans_type = $input['TRANS_TYPE'];
             $label = $input['LABEL'];
-            DB::table('Translation')->where('CODE_LANGUE', $langID)->where('TRANS_TYPE', $id_trans)
-            ->where('ID_TRANSLATION', $trans_type)->update(['LABEL' => $label]);
-            // if ($getLabels) {
-            //     if ($getLabels->LABEL != $label) {
-            //         $getLabels->LABEL = $label;
-            //         $getLabels->save();
-            //     }
-            // } else {
-            //     $getLabels = new Translation();
-            //     $getLabels->CODE_LANGUE = $langID;
-            //     $getLabels->ID_TRANSLATION = $id_trans;
-            //     $getLabels->TRANS_TYPE = $trans_type;
-            //     $getLabels->LABEL = $label;
-            //     $getLabels->save();  
-            // }
+            DB::table('Translation')->where('CODE_LANGUE', $langID)->where('ID_TRANSLATION', $id_trans)
+            ->where('TRANS_TYPE', $trans_type)->update(['LABEL' => $label]);
         }
     }
 
@@ -108,11 +102,11 @@ class Translations extends Controller
         $input = $this->request->all();
         $id = $input['id'];
         $idtrans = $input['idtrans'];
-        $referenceLangs = Translation::where('CODE_LANGUE', $id)->orderBy('TRANS_TYPE', 'ASC')->get();
+        $referenceLangs = Translation::where('CODE_LANGUE', $id)->orderBy('TRANS_TYPE', 'ASC')->orderBy('LABEL', 'ASC')->get();
         if (count($referenceLangs) > 0) {
             foreach ($referenceLangs as $referenceLang) {
                 $translations = Translation::where('ID_TRANSLATION', $referenceLang->ID_TRANSLATION)
-                ->where('TRANS_TYPE', $referenceLang->TRANS_TYPE)->where('CODE_LANGUE', $idtrans)->orderBy('TRANS_TYPE', 'ASC')->first();
+                ->where('TRANS_TYPE', $referenceLang->TRANS_TYPE)->where('CODE_LANGUE', $idtrans)->orderBy('TRANS_TYPE', 'ASC')->orderBy('LABEL', 'ASC')->first();
                 if ($translations) {
                     $translation[] = $translations;
                 } else {
