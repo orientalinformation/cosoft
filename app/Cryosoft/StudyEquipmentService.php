@@ -132,6 +132,7 @@ class StudyEquipmentService
             'EQP_WIDTH' => $studyEquipment->EQP_WIDTH,
             'EQUIP_VERSION' => $studyEquipment->EQUIP_VERSION,
             'layoutGen' => null,
+            'BRAIN_TYPE' => intval($studyEquipment->BRAIN_TYPE)
         ];
 
         $layoutGen = $this->getStudyEquipmentLayoutGen($studyEquipment);
