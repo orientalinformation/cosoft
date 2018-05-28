@@ -162,13 +162,13 @@ class Lines extends Controller
                     if ($teeSub->ID_USER == 1) {
                         $teeSubsLabel[] = $teeSub->LABEL ."-". $this->lineE->getStatus($teeSub->LINE_RELEASE);
                     } else {
-                        $teeSubsLabel[] = $teeSub->LABEL ."-". $this->lineE->getStatus($teeSub->LINE_RELEASE) ." - ". $this->lineE->getUserLabel($insulineSub->ID_USER);
+                        $teeSubsLabel[] = $teeSub->LABEL ."-". $this->lineE->getStatus($teeSub->LINE_RELEASE) ." - ". $this->lineE->getUserLabel($teeSub->ID_USER);
                     }
                     $teeSubsValue[] = $teeSub->ID_PIPELINE_ELMT;
                 }
                 $elbowsSubsLabel = [];
                 $elbowsSubsValue = [];
-                foreach ($elbowsSubs as $elbowsSub) {
+                foreach ($elbowsSubs as $teeSub) {
                     if ($elbowsSub->ID_USER == 1) {
                         $elbowsSubsLabel[] = $elbowsSub->LABEL ."-". $this->lineE->getStatus($elbowsSub->LINE_RELEASE);
                     } else {
