@@ -1290,7 +1290,7 @@ class Output extends Controller
             $itemGrap["equipName"] = $equipName = $this->equip->getSpecificEquipName($idStudyEquipment);
 
             $dimaResults = DimaResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("SETPOINT", "DESC")->get();
-            $dhp = $conso = $dhpMax = $consoMax = "";
+            $dhp = $conso = $dhpMax = $consoMax = $chartName = "";
 
             foreach ($dimaResults as $key => $dimaR) {
                 $dhp = $this->unit->productFlow($production->PROD_FLOW_RATE);
@@ -1346,8 +1346,9 @@ class Output extends Controller
                 $chartName =  $idStudy . '-' . $row->ID_STUDY_EQUIPMENTS;
 
                 system('gnuplot -c '. $this->plotFolder .'/sizing.plot "Flowrate '. $this->unit->productFlowSymbol() .'" "Conso '. $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1) .'/'. $this->unit->perUnitOfMassSymbol() .'" "'. $sizingFolder . '/' . $userName . '/' . $idStudy . '" '. $chartName .' '. $productFlowRate .' "Custom Flowrate"');
-                $itemGrap['image'] = $imageSizing = getenv('APP_URL') . '/sizing/' . $userName . '/' . $idStudy . '/' . $chartName . '.png?time=' . time();                     
+                $itemGrap['image'] = $imageSizing = getenv('APP_URL') . '/sizing/' . $userName . '/' . $idStudy . '/' . $chartName . '.png?time=' . time();                
             } 
+            
             $dataGraphChart[] =  $itemGrap;
         }
 
