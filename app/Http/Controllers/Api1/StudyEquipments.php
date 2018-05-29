@@ -167,6 +167,24 @@ class StudyEquipments extends Controller
         foreach ($listTr as $tr) {
             $trResult[] = $this->unit->controlTemperature($tr);
         }
+        $studyEquipment->displayName = trim($this->equip->getResultsEquipName($studyEquipment->ID_STUDY_EQUIPMENTS));
+        if ($studyEquipment->equipment->STD
+        && !($studyEquipment->equipment->CAPABILITIES & CAP_DISPLAY_DB_NAME != 0)
+        && !($studyEquipment->equipment->CAPABILITIES & CAP_EQUIP_SPECIFIC_SIZE != 0)) {
+        $studyEquipment->displayName = $studyEquipment->EQUIP_NAME . " - "
+            . number_format($studyEquipment->equipment->EQP_LENGTH + ($studyEquipment->NB_MODUL * $studyEquipment->equipment->MODUL_LENGTH), 2)
+            . "x" . number_format($studyEquipment->equipment->EQP_WIDTH, 2) . " (v" . ($studyEquipment->EQUIP_VERSION) . ")"
+            . ($studyEquipment->EQUIP_RELEASE == 3 ? ' / Active' : ''); // @TODO: translate
+    } else if (($studyEquipment->equipment->CAPABILITIES & CAP_EQUIP_SPECIFIC_SIZE != 0)
+        && ($studyEquipment->equipment->STDEQP_LENGTH != NO_SPECIFIC_SIZE)
+        && ($studyEquipment->equipment->STDEQP_WIDTH != NO_SPECIFIC_SIZE)) {
+        $studyEquipment->displayName = $studyEquipment->EQUIP_NAME
+            . " (v" . ($studyEquipment->EQUIP_VERSION) . ")"
+            . ($studyEquipment->EQUIP_RELEASE == 3 ? ' / Active' : ''); // @TODO: translate
+    } else {
+        $studyEquipment->displayName = $studyEquipment->EQUIP_NAME
+            . ($studyEquipment->EQUIP_RELEASE == 3 ? ' / Active' : ''); // @TODO: translate
+    }
         $studyEquipment->tr = $trResult;
         $studyEquipment->ts = $this->brain->getListTs($id);
         $studyEquipment->vc = $this->brain->getVc($id);

@@ -30,6 +30,8 @@ use App\Cryosoft\DimaResultsService;
 use App\Cryosoft\EconomicResultsService;
 use App\Cryosoft\StudyService;
 use App\Cryosoft\OutputService;
+use App\Cryosoft\StudyEquipmentService;
+use App\Cryosoft\BrainCalculateService;
 use App\Models\LayoutGeneration;
 
 
@@ -53,7 +55,7 @@ class Output extends Controller
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth, UnitsConverterService $unit, EquipmentsService $equip, DimaResultsService $dima, ValueListService $value, EconomicResultsService $eco, StudyService $study, OutputService $output)
+    public function __construct(Request $request, Auth $auth, UnitsConverterService $unit, EquipmentsService $equip, DimaResultsService $dima, ValueListService $value, EconomicResultsService $eco, StudyService $study, OutputService $output, StudyEquipmentService $stdeqp, BrainCalculateService $brain)
     {
         $this->request = $request;
         $this->auth = $auth;
@@ -64,6 +66,8 @@ class Output extends Controller
         $this->eco = $eco;
         $this->study = $study;
         $this->output = $output;
+        $this->stdeqp = $stdeqp;
+        $this->brain = $brain;
         $this->plotFolder = $this->output->base_path('scripts');
     }
 
@@ -793,6 +797,36 @@ class Output extends Controller
 
             return compact("equipName", "dimaResult");
         }
+    }
+
+    public function computeTrTs($idStudyEquipment)
+    {
+        $input = $this->request->all();
+        $studyEquipment = StudyEquipment::find($idStudyEquipment);
+
+        $sTR = $input['TR'];
+        $sTS = $input['TS'];
+        $sVC = $input['VC'];
+        $sTE = $input['TE'];
+        $doTr = $input['doTr'];
+
+        $this->output->saveTR_TS_VC($studyEquipment, $sTR, $sTS, $sVC, $null, $sTE, $doTr);
+        $this->stdeqp->startPhamCastCalculator($studyEquipment, $doTr);
+        $this->stdeqp->startExhaustGasTemp($studyEquipment);
+
+        $listTr = $this->brain->getListTr($idStudyEquipment);
+        $trResult = [];
+        foreach ($listTr as $tr) {
+            $trResult[] = $this->unit->controlTemperature($tr);
+        }
+
+        $studyEquipment->tr = $trResult;
+        $studyEquipment->ts = $this->brain->getListTs($idStudyEquipment);
+        $studyEquipment->vc = $this->brain->getVc($idStudyEquipment);
+        $studyEquipment->dhp = $this->brain->getListDh($idStudyEquipment);
+        $studyEquipment->TExt = $this->unit->exhaustTemperature($this->brain->getTExt($idStudyEquipment));
+
+        return $studyEquipment;
     }
 
     public function sizingOptimumResult($idStudy)
