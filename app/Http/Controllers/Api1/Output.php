@@ -30,6 +30,8 @@ use App\Cryosoft\DimaResultsService;
 use App\Cryosoft\EconomicResultsService;
 use App\Cryosoft\StudyService;
 use App\Cryosoft\OutputService;
+use App\Cryosoft\StudyEquipmentService;
+use App\Cryosoft\BrainCalculateService;
 use App\Models\LayoutGeneration;
 
 
@@ -53,7 +55,7 @@ class Output extends Controller
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth, UnitsConverterService $unit, EquipmentsService $equip, DimaResultsService $dima, ValueListService $value, EconomicResultsService $eco, StudyService $study, OutputService $output)
+    public function __construct(Request $request, Auth $auth, UnitsConverterService $unit, EquipmentsService $equip, DimaResultsService $dima, ValueListService $value, EconomicResultsService $eco, StudyService $study, OutputService $output, StudyEquipmentService $stdeqp, BrainCalculateService $brain)
     {
         $this->request = $request;
         $this->auth = $auth;
@@ -64,6 +66,8 @@ class Output extends Controller
         $this->eco = $eco;
         $this->study = $study;
         $this->output = $output;
+        $this->stdeqp = $stdeqp;
+        $this->brain = $brain;
         $this->plotFolder = $this->output->base_path('scripts');
     }
 
@@ -795,6 +799,36 @@ class Output extends Controller
         }
     }
 
+    public function computeTrTs($idStudyEquipment)
+    {
+        $input = $this->request->all();
+        $studyEquipment = StudyEquipment::find($idStudyEquipment);
+
+        $sTR = $input['TR'];
+        $sTS = $input['TS'];
+        $sVC = $input['VC'];
+        $sTE = $input['TE'];
+        $doTr = $input['doTr'];
+
+        $this->output->saveTR_TS_VC($studyEquipment, $sTR, $sTS, $sVC, $null, $sTE, $doTr);
+        $this->stdeqp->startPhamCastCalculator($studyEquipment, $doTr);
+        $this->stdeqp->startExhaustGasTemp($studyEquipment);
+
+        $listTr = $this->brain->getListTr($idStudyEquipment);
+        $trResult = [];
+        foreach ($listTr as $tr) {
+            $trResult[] = $this->unit->controlTemperature($tr);
+        }
+
+        $studyEquipment->tr = $trResult;
+        $studyEquipment->ts = $this->brain->getListTs($idStudyEquipment);
+        $studyEquipment->vc = $this->brain->getVc($idStudyEquipment);
+        $studyEquipment->dhp = $this->brain->getListDh($idStudyEquipment);
+        $studyEquipment->TExt = $this->unit->exhaustTemperature($this->brain->getTExt($idStudyEquipment));
+
+        return $studyEquipment;
+    }
+
     public function sizingOptimumResult($idStudy)
     {
         $study = Study::find($idStudy);
@@ -1256,7 +1290,7 @@ class Output extends Controller
             $itemGrap["equipName"] = $equipName = $this->equip->getSpecificEquipName($idStudyEquipment);
 
             $dimaResults = DimaResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("SETPOINT", "DESC")->get();
-            $dhp = $conso = $dhpMax = $consoMax = "";
+            $dhp = $conso = $dhpMax = $consoMax = $chartName = "";
 
             foreach ($dimaResults as $key => $dimaR) {
                 $dhp = $this->unit->productFlow($production->PROD_FLOW_RATE);
@@ -1312,8 +1346,9 @@ class Output extends Controller
                 $chartName =  $idStudy . '-' . $row->ID_STUDY_EQUIPMENTS;
 
                 system('gnuplot -c '. $this->plotFolder .'/sizing.plot "Flowrate '. $this->unit->productFlowSymbol() .'" "Conso '. $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1) .'/'. $this->unit->perUnitOfMassSymbol() .'" "'. $sizingFolder . '/' . $userName . '/' . $idStudy . '" '. $chartName .' '. $productFlowRate .' "Custom Flowrate"');
-                $itemGrap['image'] = $imageSizing = getenv('APP_URL') . '/sizing/' . $userName . '/' . $idStudy . '/' . $chartName . '.png?time=' . time();                     
+                $itemGrap['image'] = $imageSizing = getenv('APP_URL') . '/sizing/' . $userName . '/' . $idStudy . '/' . $chartName . '.png?time=' . time();                
             } 
+            
             $dataGraphChart[] =  $itemGrap;
         }
 

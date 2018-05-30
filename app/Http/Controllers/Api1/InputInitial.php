@@ -326,6 +326,8 @@ class InputInitial extends Controller
 
                 if ($tempRecordPtsDef->AXIS3_PL_1_2_DEF == 0) {
                     $tempRecordPts->AXIS3_PL_1_2 = $listAxis3[$this->getIndex($sizeList3, $tempRecordPtsDef->AXIS3_PL_1_2_DEF)];
+                } else {
+                    $tempRecordPts->AXIS3_PL_1_2 = $listAxis3[$this->getIndex($sizeList3, $tempRecordPtsDef->AXIS3_PL_1_3_DEF)];
                 }
                 
                 $tempRecordPts->save();

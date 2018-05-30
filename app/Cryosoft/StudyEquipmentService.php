@@ -132,6 +132,7 @@ class StudyEquipmentService
             'EQP_WIDTH' => $studyEquipment->EQP_WIDTH,
             'EQUIP_VERSION' => $studyEquipment->EQUIP_VERSION,
             'layoutGen' => null,
+            'BRAIN_TYPE' => intval($studyEquipment->BRAIN_TYPE)
         ];
 
         $layoutGen = $this->getStudyEquipmentLayoutGen($studyEquipment);
@@ -960,7 +961,7 @@ class StudyEquipmentService
         }
 
         if ($this->equip->getCapability($studyEquipment->CAPABILITIES, 4) && !empty($studyEquipment->vc)) {
-            $this->cleanSpecificEqpPrm($studyEquipment->ID_STUDY_EQUIPMENTS, 300);
+            $this->cleanSpecificEqpPrm($studyEquipment->ID_STUDY_EQUIPMENTS, 100);
             $i = 0;
             foreach ($studyEquipment->vc as $vc) {
                 $studEqpPrm = new StudEqpPrm();
@@ -1174,6 +1175,16 @@ class StudyEquipmentService
             $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
             $this->kernel->getKernelObject('KernelToolCalculator')->ECCalculator($conf, 1);
         }
+    }
+
+    public function startPhamCastCalculator(StudyEquipment &$studyEquipment, $doTr) {
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
+        $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, !$doTR);
+    }
+
+    public function startExhaustGasTemp(StudyEquipment &$studyEquipment) {
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $StudyEquipment->ID_STUDY, $StudyEquipment->ID_STUDY_EQUIPMENTS);
+        $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 1);
     }
 
 }

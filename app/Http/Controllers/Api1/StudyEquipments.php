@@ -13,6 +13,8 @@ use App\Cryosoft\EquipmentsService;
 use App\Cryosoft\UnitsConverterService;
 use App\Cryosoft\BrainCalculateService;
 use App\Cryosoft\StudyEquipmentService;
+use App\Cryosoft\ValueListService;
+use App\Models\Equipment;
 
 
 class StudyEquipments extends Controller
@@ -32,6 +34,7 @@ class StudyEquipments extends Controller
      * @var App\Cryosoft\StudyEquipmentService
      */
     protected $stdeqp;
+    protected $value;
 
 
     /**
@@ -42,7 +45,8 @@ class StudyEquipments extends Controller
     public function __construct(Request $request, Auth $auth, 
         EquipmentsService $equip, UnitsConverterService $unit, 
         BrainCalculateService $brain,
-        StudyEquipmentService $stdeqp
+        StudyEquipmentService $stdeqp,
+        ValueListService $value
     )
     {
         $this->request = $request;
@@ -51,6 +55,7 @@ class StudyEquipments extends Controller
         $this->unit = $unit;
         $this->brain = $brain;
         $this->stdeqp = $stdeqp;
+        $this->value = $value;
     }
 
     public function getStudyEquipmentById($id)
@@ -156,12 +161,30 @@ class StudyEquipments extends Controller
     public function getOperatingSetting($id)
     {
         $studyEquipment = StudyEquipment::where('ID_STUDY_EQUIPMENTS', $id)->first();
-
+        $changeTr = false;
         $listTr = $this->brain->getListTr($id);
         $trResult = [];
         foreach ($listTr as $tr) {
             $trResult[] = $this->unit->controlTemperature($tr);
         }
+        $studyEquipment->displayName = trim($this->equip->getResultsEquipName($studyEquipment->ID_STUDY_EQUIPMENTS));
+        if ($studyEquipment->equipment->STD
+        && !($studyEquipment->equipment->CAPABILITIES & CAP_DISPLAY_DB_NAME != 0)
+        && !($studyEquipment->equipment->CAPABILITIES & CAP_EQUIP_SPECIFIC_SIZE != 0)) {
+        $studyEquipment->displayName = $studyEquipment->EQUIP_NAME . " - "
+            . number_format($studyEquipment->equipment->EQP_LENGTH + ($studyEquipment->NB_MODUL * $studyEquipment->equipment->MODUL_LENGTH), 2)
+            . "x" . number_format($studyEquipment->equipment->EQP_WIDTH, 2) . " (v" . ($studyEquipment->EQUIP_VERSION) . ")"
+            . ($studyEquipment->EQUIP_RELEASE == 3 ? ' / Active' : ''); // @TODO: translate
+    } else if (($studyEquipment->equipment->CAPABILITIES & CAP_EQUIP_SPECIFIC_SIZE != 0)
+        && ($studyEquipment->equipment->STDEQP_LENGTH != NO_SPECIFIC_SIZE)
+        && ($studyEquipment->equipment->STDEQP_WIDTH != NO_SPECIFIC_SIZE)) {
+        $studyEquipment->displayName = $studyEquipment->EQUIP_NAME
+            . " (v" . ($studyEquipment->EQUIP_VERSION) . ")"
+            . ($studyEquipment->EQUIP_RELEASE == 3 ? ' / Active' : ''); // @TODO: translate
+    } else {
+        $studyEquipment->displayName = $studyEquipment->EQUIP_NAME
+            . ($studyEquipment->EQUIP_RELEASE == 3 ? ' / Active' : ''); // @TODO: translate
+    }
         $studyEquipment->tr = $trResult;
         $studyEquipment->ts = $this->brain->getListTs($id);
         $studyEquipment->vc = $this->brain->getVc($id);
@@ -218,7 +241,17 @@ class StudyEquipments extends Controller
             }
         }
 
-        return compact('resultTempExts', 'studyEquipment');
+        // add by oriental
+        $equipment = Equipment::find($studyEquipment->ID_EQUIP);
+        if ($equipment) {
+            if (($equipment->STD == $this->value->EQUIP_NOT_STANDARD) &&
+            (!$this->equip->getCapability($equipment->CAPABILITIES, $this->value->CAP_VARIABLE_TR)) &&
+            (!$this->equip->getCapability($equipment->CAPABILITIES, $this->value->CAP_EQP_DEPEND_ON_TS))) {
+                $changeTr = true;
+            }
+        }
+
+        return compact('resultTempExts', 'studyEquipment', 'changeTr');
     }
 
     public function saveEquipmentData($id)

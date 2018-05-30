@@ -12,6 +12,7 @@ use App\Models\StudyEquipment;
 use App\Models\RecordPosition;
 use App\Models\ProductElmt;
 use App\Models\LayoutGeneration;
+use App\Models\StudEqpPrm;
 
 class OutputService
 {
@@ -21,6 +22,8 @@ class OutputService
         $this->auth = $app['Illuminate\\Contracts\\Auth\\Factory'];
         $this->value = $app['App\\Cryosoft\\ValueListService'];
         $this->unit = $app['App\\Cryosoft\\UnitsConverterService'];
+        $this->stdeqp = $app['App\\Cryosoft\\StudyEquipmentService'];
+        $this->equip = $app['App\\Cryosoft\\EquipmentsService'];
     }
 
 
@@ -988,6 +991,70 @@ class OutputService
     {
         $meshPosition = MeshPosition::where('ID_PRODUCT_ELMT', $idProdElt)->where('MESH_AXIS', $axis)->where('MESH_AXIS_POS', $selectedPoint)->first();
         return ($meshPosition) ? $meshPosition->MESH_ORDER : 0;
+    }
+
+    public function saveTR_TS_VC(StudyEquipment $studyEquipment, $dtr, $dts, $dvc, $dhs, $dtext)
+    {
+        if ($this->equip->getCapability($studyEquipment->CAPABILITIES, 1) && !empty($dtr)) {
+            $this->stdeqp->cleanSpecificEqpPrm($studyEquipment->ID_STUDY_EQUIPMENTS, 300);
+            $i = 0;
+            foreach ($dtr as $tr) {
+                $studEqpPrm = new StudEqpPrm();
+                $studEqpPrm->ID_STUDY_EQUIPMENTS = $studyEquipment->ID_STUDY_EQUIPMENTS;
+                $studEqpPrm->VALUE_TYPE = 300 + $i;
+                $studEqpPrm->VALUE = doubleval($this->unit->controlTemperature($tr, ['save' => true]));
+                $studEqpPrm->save();
+                $i++;
+            }
+        }
+
+        if(!empty($dts)) {
+            $this->stdeqp->cleanSpecificEqpPrm($studyEquipment->ID_STUDY_EQUIPMENTS, 200);
+            $i = 0;
+            foreach ($dts as $ts) {
+                $studEqpPrm = new StudEqpPrm();
+                $studEqpPrm->ID_STUDY_EQUIPMENTS = $studyEquipment->ID_STUDY_EQUIPMENTS;
+                $studEqpPrm->VALUE_TYPE = 200 + $i;
+                $studEqpPrm->VALUE = doubleval($this->unit->time($ts, ['save' => true]));
+                $studEqpPrm->save();
+                $i++;
+            }
+        }
+
+        if ($this->equip->getCapability($studyEquipment->CAPABILITIES, 4) && !empty($dvc)) {
+            $this->stdeqp->cleanSpecificEqpPrm($studyEquipment->ID_STUDY_EQUIPMENTS, 100);
+            $i = 0;
+            foreach ($dvc as $vc) {
+                $studEqpPrm = new StudEqpPrm();
+                $studEqpPrm->ID_STUDY_EQUIPMENTS = $studyEquipment->ID_STUDY_EQUIPMENTS;
+                $studEqpPrm->VALUE_TYPE = 100 + $i;
+                $studEqpPrm->VALUE = doubleval($this->unit->convectionSpeed($vc, ['save' => true]));
+                $studEqpPrm->save();
+                $i++;
+            }
+        }
+
+        if(!empty($dhs)) {
+            $this->stdeqp->cleanSpecificEqpPrm($studyEquipment->ID_STUDY_EQUIPMENTS, 400);
+            $i = 0;
+            foreach ($dhs as $dh) {
+                $studEqpPrm = new StudEqpPrm();
+                $studEqpPrm->ID_STUDY_EQUIPMENTS = $studyEquipment->ID_STUDY_EQUIPMENTS;
+                $studEqpPrm->VALUE_TYPE = 400 + $i;
+                $studEqpPrm->VALUE = doubleval($dh);
+                $studEqpPrm->save();
+                $i++;
+            }
+        }
+
+        if ($this->equip->getCapability($studyEquipment->CAPABILITIES, 512) && !empty($dtext)) {
+            $this->cleanSpecificEqpPrm($studyEquipment->ID_STUDY_EQUIPMENTS, 500);
+            $studEqpPrm = new StudEqpPrm();
+            $studEqpPrm->ID_STUDY_EQUIPMENTS = $studyEquipment->ID_STUDY_EQUIPMENTS;
+            $studEqpPrm->VALUE_TYPE = 500;
+            $studEqpPrm->VALUE = doubleval($this->unit->exhaustTemperature($studyEquipment->tExt, ['save' => true]));
+            $studEqpPrm->save();
+        }
     }
 
     public function base_path($path=null)

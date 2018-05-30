@@ -422,7 +422,7 @@ class UnitsConverterService
         ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
-        if (!empty($unit)) 
+        if ($unit) 
             return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B,  $decimal);
         else 
             return $value;
@@ -479,7 +479,10 @@ class UnitsConverterService
         $monetaryUnit = MonetaryCurrency::where("ID_MONETARY_CURRENCY", $user->ID_MONETARY_CURRENCY)->first();
 
         // $unit = Unit::where("TYPE_UNIT", 27)->where("SYMBOL", "like", "%" . $monetaryUnit->MONEY_TEXT . "%")->first();
-        $unit = Unit::where("TYPE_UNIT", 27)->where("SYMBOL", $monetaryUnit->MONEY_SYMB)->first();
+        $unit = Unit::where("TYPE_UNIT", 27)->where("SYMBOL", $monetaryUnit->MONEY_SYMB)
+        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
 
         $result = array();
 
@@ -842,7 +845,7 @@ class UnitsConverterService
                 break;
         }
 
-        $lfCoef = $this->unitConvert($snrjUnitLabel, $value);
+        $lfCoef = $this->unitConvert($snrjUnitLabel, 1);
         $lfValue = $value;
         if ($lfCoef != 0) {
             $lfValue /= $lfCoef;
