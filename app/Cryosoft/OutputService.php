@@ -1048,7 +1048,7 @@ class OutputService
         }
 
         if ($this->equip->getCapability($studyEquipment->CAPABILITIES, 512) && !empty($dtext)) {
-            $this->cleanSpecificEqpPrm($studyEquipment->ID_STUDY_EQUIPMENTS, 500);
+            $this->stdeqp->cleanSpecificEqpPrm($studyEquipment->ID_STUDY_EQUIPMENTS, 500);
             $studEqpPrm = new StudEqpPrm();
             $studEqpPrm->ID_STUDY_EQUIPMENTS = $studyEquipment->ID_STUDY_EQUIPMENTS;
             $studEqpPrm->VALUE_TYPE = 500;

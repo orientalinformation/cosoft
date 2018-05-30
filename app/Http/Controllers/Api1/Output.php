@@ -810,7 +810,7 @@ class Output extends Controller
         $sTE = $input['TE'];
         $doTr = $input['doTr'];
 
-        $this->output->saveTR_TS_VC($studyEquipment, $sTR, $sTS, $sVC, $null, $sTE, $doTr);
+        $this->output->saveTR_TS_VC($studyEquipment, $sTR, $sTS, $sVC, NULL, $sTE, $doTr);
         $this->stdeqp->startPhamCastCalculator($studyEquipment, $doTr);
         $this->stdeqp->startExhaustGasTemp($studyEquipment);
 
