@@ -360,3 +360,11 @@ $router->POST('/api/v1/input/phamcast', 'Api1\\CheckWarnings@checkPhamCast');
  * Output-Formats: [application/json]
  */
 $router->PUT('/api/v1/input/update/{idStudy}', 'Api1\\Studies@updateStudy');
+
+/**
+ * GET Data equipment
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/referencedata/inputequipment/{idEquip}', 'Api1\\Equipments@getInputEquipment');
