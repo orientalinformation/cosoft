@@ -304,3 +304,10 @@ $router->POST('/api/v1/output/productchart2DAnim', 'Api1\\Output@productchart2DA
  */
 $router->GET('/api/v1/output/readDataContour/{idStudyEquipment}', 'Api1\\Output@readDataContour');
 
+/**
+ * POST computeTrTs
+ * Summary: 
+ * Notes: compute Tr Ts Output
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/output/{id}/computeTrTs', 'Api1\\Output@computeTrTs');

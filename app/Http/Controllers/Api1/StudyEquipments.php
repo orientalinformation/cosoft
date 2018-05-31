@@ -167,6 +167,19 @@ class StudyEquipments extends Controller
         foreach ($listTr as $tr) {
             $trResult[] = $this->unit->controlTemperature($tr);
         }
+
+        $listTs = $this->brain->getListTs($id);
+        $tsResult = [];
+        foreach ($listTs as $ts) {
+            $tsResult[] = $this->unit->time($ts);
+        }
+
+        $listVc = $this->brain->getVc($id);
+        $vcResult = [];
+        foreach ($listVc as $vc) {
+            $vcResult[] = $this->unit->convectionSpeed($vc);
+        }
+        
         $studyEquipment->displayName = trim($this->equip->getResultsEquipName($studyEquipment->ID_STUDY_EQUIPMENTS));
         if ($studyEquipment->equipment->STD
         && !($studyEquipment->equipment->CAPABILITIES & CAP_DISPLAY_DB_NAME != 0)
@@ -186,8 +199,8 @@ class StudyEquipments extends Controller
             . ($studyEquipment->EQUIP_RELEASE == 3 ? ' / Active' : ''); // @TODO: translate
     }
         $studyEquipment->tr = $trResult;
-        $studyEquipment->ts = $this->brain->getListTs($id);
-        $studyEquipment->vc = $this->brain->getVc($id);
+        $studyEquipment->ts = $tsResult;
+        $studyEquipment->vc = $vcResult;
         $studyEquipment->alpha = $this->stdeqp->loadAlphaCoef($studyEquipment);
         $studyEquipment->TExt = $this->unit->exhaustTemperature($this->brain->getTExt($id));
         $calculationParameter = $studyEquipment->calculationParameters->first();

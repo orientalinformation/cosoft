@@ -268,11 +268,6 @@ class StudyEquipmentService
                 "" : $this->convert->toc($lr->LOADING_RATE) . " %";
         }
 
-        // if ((lg . getWidthInterval() != $this->value->INTERVAL_UNDEFINED)
-        //     || (lg . getLengthInterval() != $this->value->INTERVAL_UNDEFINED)) {
-        //     String simg = "<br><img src=\"/cryosoft/jspPages/img/icon_info.gif\" alt=\"\" border=\"0\">";
-        //     out . println(simg);
-        // }
         return $returnStr;
     }
 
@@ -1177,13 +1172,15 @@ class StudyEquipmentService
         }
     }
 
-    public function startPhamCastCalculator(StudyEquipment &$studyEquipment, $doTr) {
+    public function startPhamCastCalculator(StudyEquipment &$studyEquipment, $doTr)
+    {
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
-        $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, !$doTR);
+        $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, $doTr);
     }
 
-    public function startExhaustGasTemp(StudyEquipment &$studyEquipment) {
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $StudyEquipment->ID_STUDY, $StudyEquipment->ID_STUDY_EQUIPMENTS);
+    public function startExhaustGasTemp(StudyEquipment &$studyEquipment)
+    {
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
         $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 1);
     }
 

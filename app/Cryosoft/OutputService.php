@@ -24,6 +24,7 @@ class OutputService
         $this->unit = $app['App\\Cryosoft\\UnitsConverterService'];
         $this->stdeqp = $app['App\\Cryosoft\\StudyEquipmentService'];
         $this->equip = $app['App\\Cryosoft\\EquipmentsService'];
+        $this->brain = $app['App\\Cryosoft\\BrainCalculateService'];
     }
 
 
@@ -1048,13 +1049,71 @@ class OutputService
         }
 
         if ($this->equip->getCapability($studyEquipment->CAPABILITIES, 512) && !empty($dtext)) {
-            $this->cleanSpecificEqpPrm($studyEquipment->ID_STUDY_EQUIPMENTS, 500);
+            $this->stdeqp->cleanSpecificEqpPrm($studyEquipment->ID_STUDY_EQUIPMENTS, 500);
             $studEqpPrm = new StudEqpPrm();
             $studEqpPrm->ID_STUDY_EQUIPMENTS = $studyEquipment->ID_STUDY_EQUIPMENTS;
             $studEqpPrm->VALUE_TYPE = 500;
             $studEqpPrm->VALUE = doubleval($this->unit->exhaustTemperature($studyEquipment->tExt, ['save' => true]));
             $studEqpPrm->save();
         }
+    }
+
+    public function applyStudyCleaner($input, StudyEquipment &$studyEquipment)
+    {
+        $idStudy = $studyEquipment->ID_STUDY;
+        $idStudyEquipment = $studyEquipment->ID_STUDY_EQUIPMENTS;
+        $bisApplied = false;
+
+        $listTr = $this->brain->getListTr($idStudyEquipment);
+        $listTs = $this->brain->getListTs($idStudyEquipment);
+        $listVc = $this->brain->getVc($idStudyEquipment);
+        $listTe = $this->brain->getTExt($idStudyEquipment);
+        
+        if (!$bisApplied) {
+            for ($i = 0; $i < count($listTr); $i++) { 
+                $oldTr = $this->unit->controlTemperature($listTr[$i]);
+                $newTr = $input['TR'][$i];
+                if ($oldTr != $newTr) {
+                    $bisApplied = true;
+                }
+            }
+        }
+        
+        if (!$bisApplied) {
+            for ($i = 0; $i < count($listTs); $i++) { 
+                $oldTs = $this->unit->time($listTs[$i]);
+                $newTs = $input['TS'][$i];
+                if ($oldTs != $newTs) {
+                    $bisApplied = true;
+                }
+            }
+        }
+
+        if (!$bisApplied) {
+            for ($i = 0; $i < count($listVc); $i++) { 
+                $oldVc = $this->unit->convectionSpeed($listVc[$i]);
+                $newVc = $input['VC'][$i];
+                if ($oldVc != $newVc) {
+                    $bisApplied = true;
+                }
+            }
+        }
+
+        if (!$bisApplied) {
+            if ($this->unit->exhaustTemperature($listTe) != $input['TE']) {
+                $bisApplied = true;
+            }
+        }
+
+        if ($bisApplied) {
+            if ($this->stdeqp->runStudyCleaner($idStudy, $idStudyEquipment, 43) != 0) {
+                $bisApplied = false;
+            }
+
+            $this->stdeqp->afterStudyCleaner($idStudy, $idStudyEquipment, 43);
+        }
+
+        return $bisApplied;
     }
 
     public function base_path($path=null)

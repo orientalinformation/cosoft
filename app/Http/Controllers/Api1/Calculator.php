@@ -1083,10 +1083,20 @@ class Calculator extends Controller
         }
 
         $oldLTr = $this->brainCal->getListTr($idStudyEquipment);
-        for ($i = 0; $i < count($oldLTr); $i++) { 
-            if ($oldLTr[$i] != $newLTr[$i]['value']) {
-                $oldLTr[$i] = $newLTr[$i]['value'];
-                $this->brainCal->setTr($idStudyEquipment, doubleval($oldLTr[$i]), $i);
+        $studyEquipment = StudyEquipment::find($idStudyEquipment);
+        if ($studyEquipment) {
+            $equipment = Equipment::find($studyEquipment->ID_EQUIP);
+            if ($equipment) {
+                if ($this->equipment->getCapability($equipment->CAPABILITIES, 1)) {
+                    for ($i = 0; $i < count($oldLTr); $i++) { 
+                        $old = $this->units->controlTemperature($oldLTr[$i], 0, 0); 
+                        $new = $this->units->controlTemperature($newLTr[$i]['value'], 0, 0);
+                        if ($old != $new) {
+                            $oldLTr[$i] = $this->units->controlTemperature($newLTr[$i]['value'], 16, 0);
+                            $this->brainCal->setTr($idStudyEquipment, doubleval($oldLTr[$i]), $i);
+                        }
+                    }
+                }
             }
         }
     }
