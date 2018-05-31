@@ -820,9 +820,21 @@ class Output extends Controller
             $trResult[] = $this->unit->controlTemperature($tr);
         }
 
+        $listTs = $this->brain->getListTs($idStudyEquipment);
+        $tsResult = [];
+        foreach ($listTs as $ts) {
+            $tsResult[] = $this->unit->time($ts);
+        }
+
+        $listVc = $this->brain->getVc($idStudyEquipment);
+        $vcResult = [];
+        foreach ($listVc as $vc) {
+            $vcResult[] = $this->unit->convectionSpeed($vc);
+        }
+
         $studyEquipment->tr = $trResult;
-        $studyEquipment->ts = $this->brain->getListTs($idStudyEquipment);
-        $studyEquipment->vc = $this->brain->getVc($idStudyEquipment);
+        $studyEquipment->ts = $tsResult;
+        $studyEquipment->vc = $vcResult;
         $studyEquipment->dhp = $this->brain->getListDh($idStudyEquipment);
         $studyEquipment->TExt = $this->unit->exhaustTemperature($this->brain->getTExt($idStudyEquipment));
 
