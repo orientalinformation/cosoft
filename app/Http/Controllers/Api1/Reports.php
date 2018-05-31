@@ -926,7 +926,7 @@ class Reports extends Controller
                 $heatexchange = [];
                 $timeBase = [];
             }
-            // return $pro2Dchart;
+            // return $timeBase;
         }
         if ($idstudyequips->BRAIN_TYPE == 4) {
             if ($ENTHALPY_V == 1 || $ENTHALPY_G == 1) {
@@ -1990,11 +1990,23 @@ class Reports extends Controller
             if ($SIZING_GRAPHE == 1) {
                 PDF::Bookmark(' Graphic', 1, 0, '', '', array(128,0,0));
                 PDF::Cell(0, 10, 'Graphic', 0, 1, 'L');
-                $html = '
-                <div align="center">
-                    <img  width="640" height="450" src="'. $public_path .'/sizing/'. $study['USERNAM'].'/'. $study['ID_STUDY'] .'.png"></div>';
-                PDF::writeHTML($html, true, false, true, false, '');
-                PDF::AddPage();
+                if ($study['CALCULATION_MODE'] == 3) {
+                    $html = '
+                    <div align="center">
+                        <img  width="640" height="450" src="'. $public_path .'/sizing/'. $study['USERNAM'].'/'. $study['ID_STUDY'].'/'. $study['ID_STUDY'] .'.png">
+                    </div>';
+                    PDF::writeHTML($html, true, false, true, false, '');
+                    PDF::AddPage();
+                } else if($study['CALCULATION_MODE'] == 1) {
+                    foreach ($calModeHeadBalance as $resoptHeads) {
+                        $html = '
+                        <div align="center">
+                            <img  width="640" height="450" src="'. $public_path .'/sizing/'. $study['USERNAM'].'/'. $study['ID_STUDY'].'/'. $study['ID_STUDY'] ."-".$resoptHeads['id'] .'.png">
+                        </div>';
+                        PDF::writeHTML($html, true, false, true, false, '');
+                        PDF::AddPage();
+                    }
+                }
             }
         }
 
@@ -2183,7 +2195,7 @@ class Reports extends Controller
                                     <td align="center">Avg. Temp.</td>
                                     <td align="center">( '. $timeBases['temperatureSymbol'] .' )</td>';
                                     foreach ($timeBases['result'] as $avgs) {
-                                        $html .='<td align="center"> '. $bottoms['average'] .'</td>';
+                                        $html .='<td align="center"> '. $avgs['average'] .'</td>';
                                     }
                                     $html .='</tr>
                             </table>

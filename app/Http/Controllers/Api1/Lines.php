@@ -168,7 +168,7 @@ class Lines extends Controller
                 }
                 $elbowsSubsLabel = [];
                 $elbowsSubsValue = [];
-                foreach ($elbowsSubs as $teeSub) {
+                foreach ($elbowsSubs as $elbowsSub) {
                     if ($elbowsSub->ID_USER == 1) {
                         $elbowsSubsLabel[] = $elbowsSub->LABEL ."-". $this->lineE->getStatus($elbowsSub->LINE_RELEASE);
                     } else {
