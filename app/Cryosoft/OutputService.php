@@ -25,6 +25,7 @@ class OutputService
         $this->stdeqp = $app['App\\Cryosoft\\StudyEquipmentService'];
         $this->equip = $app['App\\Cryosoft\\EquipmentsService'];
         $this->brain = $app['App\\Cryosoft\\BrainCalculateService'];
+        $this->cal = $app['App\\Cryosoft\\CalculateService'];
     }
 
 
@@ -994,7 +995,7 @@ class OutputService
         return ($meshPosition) ? $meshPosition->MESH_ORDER : 0;
     }
 
-    public function saveTR_TS_VC(StudyEquipment $studyEquipment, $dtr, $dts, $dvc, $dhs, $dtext)
+    public function saveTR_TS_VC(StudyEquipment &$studyEquipment, $dtr, $dts, $dvc, $dhs, $dtext)
     {
         if ($this->equip->getCapability($studyEquipment->CAPABILITIES, 1) && !empty($dtr)) {
             $this->stdeqp->cleanSpecificEqpPrm($studyEquipment->ID_STUDY_EQUIPMENTS, 300);
@@ -1114,6 +1115,34 @@ class OutputService
         }
 
         return $bisApplied;
+    }
+
+    public function executeSequence(StudyEquipment &$studyEquipment)
+    {
+        $error = '';
+        if ($this->stdeqp->startDimMat($studyEquipment) == 0) {
+            if ($studyEquipment->study->OPTION_CRYOPIPELINE == 1) {
+                if ($this->stdeqp->startPipe($studyEquipment) == 0) {
+                    $error = "errorPIPE_Kernel";
+                }
+            }
+
+            if ($studyEquipment->study->OPTION_ECO == 1) {
+                if ($this->stdeqp->startEconomic($studyEquipment) == 0) {
+                    $error = "errorECO_Kernel";
+                }
+            }
+
+            if ($this->stdeqp->startConsumptionEconomic($studyEquipment) == 0) {
+                $error = "errorECO_Kernel";
+            }
+        } else {
+            $error = "errorDimMat_Kernel";
+        }
+
+        if ($error == '' && $this->cal->isStudyHasChilds($studyEquipment->study->ID_STUDY)) {
+            $this->cal->setChildsStudiesToRecalculate($studyEquipment->study->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
+        }
     }
 
     public function base_path($path=null)

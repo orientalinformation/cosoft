@@ -1177,14 +1177,38 @@ class StudyEquipmentService
         }
     }
 
-    public function startPhamCastCalculator(StudyEquipment &$studyEquipment, $doTr) {
+    public function startPhamCastCalculator(StudyEquipment &$studyEquipment, $doTr) 
+    {
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
         $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, $doTr);
     }
 
-    public function startExhaustGasTemp(StudyEquipment &$studyEquipment) {
+    public function startExhaustGasTemp(StudyEquipment &$studyEquipment) 
+    {
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
         $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 1);
     }
 
+    public function startDimMat(StudyEquipment &$studyEquipment)
+    {
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
+        return $this->kernel->getKernelObject('DimMatCalculator')->DMCCalculation($conf, 1);
+    }
+
+    public function startPipe(StudyEquipment &$studyEquipment)
+    {
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
+        return $this->kernel->getKernelObject('PipelineCalculator')->PCCCalculation($conf);
+    }
+
+    public function startEconomic(StudyEquipment &$studyEquipment) {
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
+        return $this->kernel->getKernelObject('EconomicCalculator')->ECCalculation($conf);
+    }
+
+    public function startConsumptionEconomic(StudyEquipment &$studyEquipment)
+    {
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
+        return $this->kernel->getKernelObject('EconomicCalculator')->ECConsumptionCalculation($conf);
+    }
 }

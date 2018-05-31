@@ -810,7 +810,7 @@ class Output extends Controller
         $sTE = $input['TE'];
         $doTr = $input['doTr'];
 
-        $this->output->saveTR_TS_VC($studyEquipment, $sTR, $sTS, $sVC, NULL, $sTE, $doTr);
+        $this->output->saveTR_TS_VC($studyEquipment, $sTR, $sTS, $sVC, NULL, $sTE);
         $this->stdeqp->startPhamCastCalculator($studyEquipment, $doTr);
         $this->stdeqp->startExhaustGasTemp($studyEquipment);
 
@@ -839,6 +839,24 @@ class Output extends Controller
         $studyEquipment->TExt = $this->unit->exhaustTemperature($this->brain->getTExt($idStudyEquipment));
 
         return $studyEquipment;
+    }
+
+    public function runSequenceCalculation($idStudyEquipment)
+    {
+        $input = $this->request->all();
+        $studyEquipment = StudyEquipment::find($idStudyEquipment);
+
+        if ($this->output->applyStudyCleaner($input, $studyEquipment)) {
+            $sTR = $input['TR'];
+            $sTS = $input['TS'];
+            $sVC = $input['VC'];
+            $sTE = $input['TE'];
+
+            $this->output->saveTR_TS_VC($studyEquipment, $sTR, $sTS, $sVC, NULL, $sTE);
+            $this->output->executeSequence($studyEquipment);
+        }
+
+        return 1;
     }
 
     public function sizingOptimumResult($idStudy)
