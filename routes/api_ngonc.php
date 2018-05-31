@@ -311,3 +311,11 @@ $router->GET('/api/v1/output/readDataContour/{idStudyEquipment}', 'Api1\\Output@
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/output/{id}/computeTrTs', 'Api1\\Output@computeTrTs');
+
+/**
+ * POST runSequenceCalculation
+ * Summary: 
+ * Notes: run Sequence Calculation
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/output/{id}/runSequenceCalculation', 'Api1\\Output@runSequenceCalculation');
