@@ -1561,7 +1561,7 @@ class Studies extends Controller
             }
             if (isset($axisResult[2]['y'])) {
                 $tempRecordPts->AXIS2_AX_3 = $axisResult[2]['y'];
-                if ($report) $report->AXE3_Y = $axisResult[2]['y'];
+                if ($report) $report->AXE3_Z = $axisResult[2]['y'];
             }
 
             $tempRecordPts->AXIS1_PL_2_3 = $planResult[0];
