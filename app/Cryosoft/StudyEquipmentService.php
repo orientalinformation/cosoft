@@ -1203,12 +1203,12 @@ class StudyEquipmentService
 
     public function startEconomic(StudyEquipment &$studyEquipment) {
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
-        return $this->kernel->getKernelObject('EconomicCalculator')->ECCalculation($conf);
+        return $this->kernel->getKernelObject('EconomicCalculator')->ECEconomicCalculation($conf);
     }
 
     public function startConsumptionEconomic(StudyEquipment &$studyEquipment)
     {
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
-        return $this->kernel->getKernelObject('EconomicCalculator')->ECConsumptionCalculation($conf);
+        return $this->kernel->getKernelObject('ConsumptionCalculator')->COCConsumptionCalculation($conf);
     }
 }
