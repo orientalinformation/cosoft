@@ -32,6 +32,7 @@ use App\Models\CoolingFamily;
 use App\Cryosoft\SVGService;
 use App\Cryosoft\UnitsService;
 use App\Cryosoft\MinMaxService;
+use App\Cryosoft\CalculateService;
 
 
 class Equipments extends Controller
@@ -90,6 +91,7 @@ class Equipments extends Controller
      * @var App\Cryosoft\MinMaxService
      */
     protected $minmax;
+    protected $cal;
 
     /**
      * Create a new controller instance.
@@ -97,7 +99,7 @@ class Equipments extends Controller
      * @return void
      */
     public function __construct(Request $request, Auth $auth, UnitsConverterService $convert, EquipmentsService $equip
-    , KernelService $kernel, StudyService $studies, StudyEquipmentService $stdeqp, SVGService $svg, UnitsService $units, MinMaxService $minmax)
+    , KernelService $kernel, StudyService $studies, StudyEquipmentService $stdeqp, SVGService $svg, UnitsService $units, MinMaxService $minmax, CalculateService  $cal)
     {
         $this->request = $request;
         $this->auth = $auth;
@@ -109,6 +111,7 @@ class Equipments extends Controller
         $this->svg = $svg;
         $this->units = $units;
         $this->minmax = $minmax;
+        $this->cal = $cal;
     }
 
     public function getEquipments()
@@ -1799,24 +1802,25 @@ class Equipments extends Controller
         $input = $this->request->all();
 
         $lfOldTR = $lfNewTR = $ID_STUDY = $ID_EQUIP = $equipment = $equipGeneration = $result = null;
-        $nbStudies = $lastIdStudy = $id_equip = 0;
+        $nbStudies = $lastIdStudy = $id_equip_ = 0;
 
         if (isset($input['ID_EQUIP'])) $ID_EQUIP = intval($input['ID_EQUIP']);
         if (isset($input['ID_STUDY'])) $ID_STUDY = intval($input['ID_STUDY']);
         if (isset($input['tr_current'])) $lfOldTR = floatval($input['tr_current']);
         if (isset($input['tr_new'])) $lfNewTR = floatval($input['tr_new']);
+        if (isset($input['isComefromStudy'])) $isComefromStudy = intval($input['isComefromStudy']);
 
         $equipment = Equipment::find($ID_EQUIP);
         if ($equipment) {
             $equipGeneration = EquipGeneration::where('ID_EQUIP', $equipment->ID_EQUIP)->first();
 
             if (abs($lfOldTR - $lfNewTR) > 0.01) {
-                $id_equip = $ID_EQUIP;
+                $id_equip_ = $ID_EQUIP;
                 $studyEquipments = null;
 
-                // if ($this->isComefromStudy()) {
+                // if ($isComefromStudy == 1) {
                 //     $studyEquipments = StudyEquipment::where('ID_EQUIP', $ID_EQUIP)
-                //                         ->where('ID_STUDY', $ID_EQUIP)->get();
+                //                         ->where('ID_STUDY', $ID_STUDY)->get();
                 // } else {
                 //     $studyEquipments = StudyEquipment::where('ID_EQUIP', $ID_EQUIP)->get();
                 // }
@@ -1855,7 +1859,32 @@ class Equipments extends Controller
                     $equipGeneration->save();
 
                     $result = $this->runEquipmentCalculation($equipGeneration->ID_EQUIPGENERATION);
+
+                    // update study equipment
+                    if ($isComefromStudy == 1) {
+                        $studyEquipments = StudyEquipment::where('ID_EQUIP', $ID_EQUIP)
+                                            ->where('ID_STUDY', $ID_STUDY)->get();
+                        if (count($studyEquipments) > 0) {
+                            for ($i = 0; $i < count($studyEquipments); $i++) {
+                                if ($studyEquipments[$i]->ID_EQUIP == $id_equip_) {
+                                    $idStudyEquipment = $studyEquipments[$i]->ID_STUDY_EQUIPMENTS;
+                                    $this->studies->RunStudyCleaner($ID_STUDY, 43, $idStudyEquipment);
+
+                                    $this->cal->setChildsStudiesToRecalculate($ID_STUDY, $idStudyEquipment);
+
+                                    try {
+                                        $this->studies->updateStudyEquipmentAfterChangeTR($idStudyEquipment, $ID_EQUIP);
+                                    } catch (\Exception $e) {
+                                        echo ("Exception while updating study equipment: " . $e);
+                                    }
+                                }
+
+                            }
+                        }
+                    }
                 }
+            } else {
+                echo 'No change in temperature : nothing to do';
             }
         }
         $equipRs =  Equipment::find($ID_EQUIP);
@@ -1891,12 +1920,6 @@ class Equipments extends Controller
             "RefEquipment" => $equipRs,
             "CheckKernel" => $result
         ];
-    }
-
-    public function isComefromStudy()
-    {
-        //some code here (if exist ID_EQUIP in study load)
-        return false;
     }
 
     private function changeNameAndVersionForNewTR($equipment, $lfNewTR, $bDuplicate)
