@@ -810,7 +810,7 @@
         <?php if ($arrayParam['params']['SIZING_GRAPHE'] == 1) { ?> 
         <h4>Graphic</h4>
         <div class ="graphic" align="center">
-            <img src="<?php echo $arrayParam['host'] . "/sizing/" . $arrayParam['study']['USERNAM'] . "/" .  $arrayParam['study']['ID_STUDY'] . ".png" ?>" style="max-width: 640px">
+            <img src="<?php echo $arrayParam['host'] . "/sizing/" . $arrayParam['study']['USERNAM'] . "/" .  $arrayParam['study']['ID_STUDY'] . "/" .  $arrayParam['study']['ID_STUDY'].".png" ?>" style="max-width: 640px">
         </div>
         <?php } ?>
         <?php } ?>

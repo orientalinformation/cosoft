@@ -1965,10 +1965,9 @@ class Reports extends Controller
                                     <td>Conveyor coverage or quantity of product per batch</td>
                                 </tr>';
                                 foreach($calModeHbMax  as $resoptimumHbMax) { 
-                                $html ='';
                                 $html .='<tr>
                                     <td align="center" colspan="2"> '. $resoptimumHbMax['equipName'] .' </td>
-                                    <td align="center" > '. $proInfoStudy['avgTInitial'] .' </td>
+                                    <td align="center"> '. $proInfoStudy['avgTInitial'] .' </td>
                                     <td align="center">'. $resoptimumHbMax['tfp'] .' </td>
                                     <td align="center">'. $resoptimumHbMax['tr']  .'</td>
                                     <td align="center">'. $resoptimumHbMax['ts']  .'</td>
