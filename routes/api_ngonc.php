@@ -169,6 +169,14 @@ $router->GET('/api/v1/studyEquipment/{id}/operatingSetting', 'Api1\\StudyEquipme
 $router->POST('/api/v1/studyEquipment/{id}/saveEquipmentData', 'Api1\\StudyEquipments@saveEquipmentData');
 
 /**
+ * POST computeTrTs
+ * Summary: 
+ * Notes: compute Tr Ts Equiment
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/studyEquipment/{id}/computeTrTsConfig', 'Api1\\StudyEquipments@computeTrTsConfig');
+
+/**
  * GET units
  * Summary: 
  * Notes: get Admin Units
