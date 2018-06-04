@@ -273,11 +273,9 @@ class StudyEquipments extends Controller
         $studyEquipment = StudyEquipment::find($id);
         $studyEquipment->ts = $input['ts'];
         $studyEquipment->tr = $input['tr'];
-        $studyEquipment->vc = $input['vc'];
-        $studyEquipment->tExt = $input['TExt'];
-        $studyEquipment->calculation_parameter = (object) $input['calculation_parameter'];
+
         $this->stdeqp->updateEquipmentData($studyEquipment);
-        
+
         if ($this->equip->getCapability($studyEquipment->CAPABILITIES, 8)) {
             $this->stdeqp->startPhamCastCalculator($studyEquipment, $input['doTr']);
         }
