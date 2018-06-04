@@ -142,7 +142,7 @@ class Output extends Controller
             
             $item["equipName"] = $this->equip->getResultsEquipName($idStudyEquipment);
             $calculate = "";
-            $tr = $ts = $vc = $vep = $tfp = $dhp = $conso= $conso_warning = $toc = $precision = "";
+            $background = $tr = $ts = $vc = $vep = $tfp = $dhp = $conso= $conso_warning = $toc = $precision = "";
 
             $item["runBrainPopup"] = false;
             if ($this->equip->getCapability($capabilitie, 128)) {
@@ -150,36 +150,44 @@ class Output extends Controller
             }
 
             if (!($this->equip->getCapability($capabilitie, 128))) {
+                $background = '#FFFFFF';
                 $tr = $ts = $vc = $vep = $tfp = $dhp = $conso= $conso_warning = $toc = $precision = "";
                 $calculate = "disabled";
             } else if (($equipStatus != 0) && ($equipStatus != 1) && ($equipStatus != 100000)) {
+                $background = '#FFFFFF';
                 $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $conso_warning = $toc = $precision = "****";
                 $calculate = "disabled";
             } else if ($equipStatus == 10000) {
+                $background = '#FFFFFF';
                 $tr = $ts = $vc = $vep = $tfp = $dhp = $conso= $conso_warning = $toc = $precision = "";
                 $calculate = "disabled";
             } else {
                 $dimaResult = DimaResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("DIMA_TYPE", 1)->first();
                 if ($dimaResult == null) {
+                    $background = '#FFFFFF';
                     $tr = $ts = $vc = $vep = $tfp = $dhp = $conso= $conso_warning = $toc = $precision = "";
                 } else {
                     switch ($brainType) {
                         case 0:
                             $calculate = true;
+                            $background = '#FFFFFF';
                             break;
 
                         case 1:
                         case 2:
                         case 3:
                             $calculate = false;
+                            $background = '#FFFFCC';
                             break;
 
                         case 4:
                             $calculate = false;
+                            $background = '#FFFFEE';
                             break;
 
                         default:
-                            $calculate = "";
+                            $calculate = true;
+                            $background = '#FFFFFF';
                             break;
                     }
 
@@ -233,6 +241,7 @@ class Output extends Controller
                 }
             }
 
+            $item["background"] = $background;
             $item["calculWarning"] = $calculWarning;
             $item["calculate"] = $calculate;
             $item["tr"] = $tr;
@@ -284,8 +293,10 @@ class Output extends Controller
             $dimaResult = DimaResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("DIMA_TYPE", 16)->first();
 
             if (!($this->equip->getCapability($capabilitie, 128))) {
+                $background = '#FFFFFF';
                 $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $conso_warning = $toc = $precision = "****";
             } else if (!$dimaResult) {
+                $background = '#FFFFFF';
                 $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $conso_warning = $toc = $precision = "";
             } else {
                 $ldError = $this->dima->getCalculationWarning($dimaResult->DIMA_STATUS);
@@ -296,8 +307,10 @@ class Output extends Controller
                 }
 
                 if ($ldError != 0) {
+                    $background = '#FFFFFF';
                     $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $conso_warning = $toc = $precision = "****";
                 } else {
+                    $background = '#FFFFCC';
                     $tr = $this->unit->controlTemperature($dimaResult->SETPOINT);
                     $ts = $this->unit->time($dimaResult->DIMA_TS);
                     $vc = $this->unit->convectionSpeed($dimaResult->DIMA_VC);
@@ -344,6 +357,7 @@ class Output extends Controller
                 }
             }
 
+            $item["background"] = $background;
             $item["calculWarning"] = $ldWarning;
             $item["tr"] = $tr;
             $item["ts"] = $ts;
@@ -390,6 +404,7 @@ class Output extends Controller
                 $item["specificSize"] = $this->equip->getSpecificEquipSize($idStudyEquipment);
                 $item["equipName"] = $this->equip->getResultsEquipName($idStudyEquipment);
 
+                $background = '#FFFFFF';
                 $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $toc = $tocMax = $consoMax = $precision = "";
 
                 $studEqpPrm = StudEqpPrm::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("VALUE_TYPE", 300)->first();
@@ -418,6 +433,9 @@ class Output extends Controller
                             $dimaR = $dimaResults[$trSelect];
 
                             if (!empty($dimaR)) {
+                                if (($row->BRAIN_TYPE != 0) && ($trSelect == 1)) {
+                                    $background = "#FFFFEE";
+                                }
                                 $tr = $this->unit->controlTemperature($dimaR->SETPOINT);
                                 $ts = $this->unit->time($dimaR->DIMA_TS);
 
@@ -479,6 +497,7 @@ class Output extends Controller
                 }
                 
 
+                $item["background"] = $background;
                 $item["tr"] = $tr;
                 $item["ts"] = $ts;
                 $item["vc"] = $vc;
