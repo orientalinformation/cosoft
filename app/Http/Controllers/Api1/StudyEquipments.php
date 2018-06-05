@@ -267,6 +267,106 @@ class StudyEquipments extends Controller
         return compact('resultTempExts', 'studyEquipment', 'changeTr');
     }
 
+    public function computeTrTsConfig($id)
+    {
+        $input = $this->request->all();
+        $studyEquipment = StudyEquipment::find($id);
+        $studyEquipment->ts = $input['ts'];
+        $studyEquipment->tr = $input['tr'];
+
+        $this->stdeqp->updateEquipmentData($studyEquipment);
+
+        if ($this->equip->getCapability($studyEquipment->CAPABILITIES, 8)) {
+            $this->stdeqp->startPhamCastCalculator($studyEquipment, $input['doTr']);
+        }
+
+        if ($this->equip->getCapability($studyEquipment->CAPABILITIES, 512)) {
+            $this->stdeqp->startExhaustGasTemp($studyEquipment);
+        }
+
+        $listTr = $this->brain->getListTr($id);
+        $trResult = [];
+        foreach ($listTr as $tr) {
+            $trResult[] = $this->unit->controlTemperature($tr);
+        }
+
+        $listTs = $this->brain->getListTs($id);
+        $tsResult = [];
+        foreach ($listTs as $ts) {
+            $tsResult[] = $this->unit->time($ts);
+        }
+
+        $listVc = $this->brain->getVc($id);
+        $vcResult = [];
+        foreach ($listVc as $vc) {
+            $vcResult[] = $this->unit->convectionSpeed($vc);
+        }
+        
+        $studyEquipment->displayName = trim($this->equip->getResultsEquipName($studyEquipment->ID_STUDY_EQUIPMENTS));
+        if ($studyEquipment->equipment->STD
+            && !($studyEquipment->equipment->CAPABILITIES & CAP_DISPLAY_DB_NAME != 0)
+            && !($studyEquipment->equipment->CAPABILITIES & CAP_EQUIP_SPECIFIC_SIZE != 0)) {
+            $studyEquipment->displayName = $studyEquipment->EQUIP_NAME . " - "
+                . number_format($studyEquipment->equipment->EQP_LENGTH + ($studyEquipment->NB_MODUL * $studyEquipment->equipment->MODUL_LENGTH), 2)
+                . "x" . number_format($studyEquipment->equipment->EQP_WIDTH, 2) . " (v" . ($studyEquipment->EQUIP_VERSION) . ")"
+                . ($studyEquipment->EQUIP_RELEASE == 3 ? ' / Active' : ''); // @TODO: translate
+        } else if (($studyEquipment->equipment->CAPABILITIES & CAP_EQUIP_SPECIFIC_SIZE != 0)
+            && ($studyEquipment->equipment->STDEQP_LENGTH != NO_SPECIFIC_SIZE)
+            && ($studyEquipment->equipment->STDEQP_WIDTH != NO_SPECIFIC_SIZE)) {
+            $studyEquipment->displayName = $studyEquipment->EQUIP_NAME
+                . " (v" . ($studyEquipment->EQUIP_VERSION) . ")"
+                . ($studyEquipment->EQUIP_RELEASE == 3 ? ' / Active' : ''); // @TODO: translate
+        } else {
+            $studyEquipment->displayName = $studyEquipment->EQUIP_NAME
+                . ($studyEquipment->EQUIP_RELEASE == 3 ? ' / Active' : ''); // @TODO: translate
+        }
+        $studyEquipment->tr = $trResult;
+        $studyEquipment->ts = $tsResult;
+        $studyEquipment->vc = $vcResult;
+        $studyEquipment->alpha = $this->stdeqp->loadAlphaCoef($studyEquipment);
+        $studyEquipment->TExt = $this->unit->exhaustTemperature($this->brain->getTExt($id));
+        $calculationParameter = $studyEquipment->calculationParameters->first();
+        $calculationParameter->STUDY_ALPHA_TOP_FIXED = ($calculationParameter->STUDY_ALPHA_TOP_FIXED == 1) ? true : false;
+        $calculationParameter->STUDY_ALPHA_BOTTOM_FIXED = ($calculationParameter->STUDY_ALPHA_BOTTOM_FIXED == 1) ? true : false;
+        $calculationParameter->STUDY_ALPHA_LEFT_FIXED = ($calculationParameter->STUDY_ALPHA_LEFT_FIXED == 1) ? true : false;
+        $calculationParameter->STUDY_ALPHA_RIGHT_FIXED = ($calculationParameter->STUDY_ALPHA_RIGHT_FIXED == 1) ? true : false;
+        $calculationParameter->STUDY_ALPHA_FRONT_FIXED = ($calculationParameter->STUDY_ALPHA_FRONT_FIXED == 1) ? true : false;
+        $calculationParameter->STUDY_ALPHA_REAR_FIXED = ($calculationParameter->STUDY_ALPHA_REAR_FIXED == 1) ? true : false;
+
+        $studyEquipment->ldSetpointmax = (count($studyEquipment->ts) > count($studyEquipment->tr)) ? (count($studyEquipment->ts) > count($studyEquipment->vc)) ? count($studyEquipment->ts) : count($studyEquipment->vc) : (count($studyEquipment->tr) > count($studyEquipment->vc)) ? count($studyEquipment->tr) : count($studyEquipment->vc);
+
+        $mmTr = MinMax::where("LIMIT_ITEM", $studyEquipment->ITEM_TR)->first();
+        $studyEquipment->minMaxTr = [
+            'LIMIT_MIN' => $this->unit->controlTemperature($mmTr->LIMIT_MIN, ['format' => false]),
+            'LIMIT_MAX' => $this->unit->controlTemperature($mmTr->LIMIT_MAX, ['format' => false]),
+        ];
+
+        $mm = MinMax::where("LIMIT_ITEM", $studyEquipment->ITEM_TS)->first();
+        $studyEquipment->minMaxTs = [
+            'LIMIT_MIN' => $this->unit->time($mm->LIMIT_MIN, ['format' => false]),
+            'LIMIT_MAX' => $this->unit->time($mm->LIMIT_MAX, ['format' => false]),
+        ];
+
+        $mm = MinMax::where("LIMIT_ITEM", 1037)->first();
+        $studyEquipment->minMaxVc = [
+            'LIMIT_MIN' => $this->unit->convectionSpeed($mm->LIMIT_MIN, ['format' => false]),
+            'LIMIT_MAX' => $this->unit->convectionSpeed($mm->LIMIT_MAX, ['format' => false]),
+        ];
+
+        $mm = MinMax::where("LIMIT_ITEM", 1018)->first();
+        $studyEquipment->minMaxAlpha = [
+            'LIMIT_MIN' => $this->unit->convectionCoeff($mm->LIMIT_MIN, ['format' => false]),
+            'LIMIT_MAX' => $this->unit->convectionCoeff($mm->LIMIT_MAX, ['format' => false]),
+        ];
+
+        $studyEquipment->minMaxText = [
+            'LIMIT_MIN' => $this->unit->exhaustTemperature($mmTr->LIMIT_MIN, ['format' => false]),
+            'LIMIT_MAX' => 0,
+        ];
+
+        return $studyEquipment;
+    }
+
     public function saveEquipmentData($id)
     {
         $studyEquipment = StudyEquipment::where('ID_STUDY_EQUIPMENTS', $id)->first();

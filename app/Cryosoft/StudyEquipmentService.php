@@ -981,6 +981,7 @@ class StudyEquipmentService
             }
         }
 
+
         if ($this->equip->getCapability($studyEquipment->CAPABILITIES, 512) && !empty($studyEquipment->tExt)) {
             $this->cleanSpecificEqpPrm($studyEquipment->ID_STUDY_EQUIPMENTS, 500);
             $studEqpPrm = new StudEqpPrm();
@@ -990,24 +991,27 @@ class StudyEquipmentService
             $studEqpPrm->save();
         }
 
-        //data value
-        $calculationParameters = $studyEquipment->calculationParameters->first();
-        //post value
-        $calculationParameter = $studyEquipment->calculation_parameter;
-        //update value
-        $calculationParameters->STUDY_ALPHA_TOP_FIXED = ($calculationParameter->STUDY_ALPHA_TOP_FIXED) ? 1 : 0;
-        $calculationParameters->STUDY_ALPHA_BOTTOM_FIXED = ($calculationParameter->STUDY_ALPHA_BOTTOM_FIXED) ? 1 : 0;
-        $calculationParameters->STUDY_ALPHA_LEFT_FIXED = ($calculationParameter->STUDY_ALPHA_LEFT_FIXED) ? 1 : 0;
-        $calculationParameters->STUDY_ALPHA_RIGHT_FIXED = ($calculationParameter->STUDY_ALPHA_RIGHT_FIXED) ? 1 : 0;
-        $calculationParameters->STUDY_ALPHA_FRONT_FIXED = ($calculationParameter->STUDY_ALPHA_FRONT_FIXED) ? 1 : 0;
-        $calculationParameters->STUDY_ALPHA_REAR_FIXED = ($calculationParameter->STUDY_ALPHA_REAR_FIXED) ? 1 : 0;
-        $calculationParameters->STUDY_ALPHA_TOP = ($calculationParameter->STUDY_ALPHA_TOP_FIXED) ? doubleval($this->convert->convectionCoeff($calculationParameter->STUDY_ALPHA_TOP, ['save' => true])) : '0.0';
-        $calculationParameters->STUDY_ALPHA_BOTTOM = ($calculationParameter->STUDY_ALPHA_BOTTOM_FIXED) ? doubleval($this->convert->convectionCoeff($calculationParameter->STUDY_ALPHA_BOTTOM, ['save' => true])) : '0.0';
-        $calculationParameters->STUDY_ALPHA_LEFT = ($calculationParameter->STUDY_ALPHA_LEFT_FIXED) ? doubleval($this->convert->convectionCoeff($calculationParameter->STUDY_ALPHA_LEFT, ['save' => true])) : '0.0';
-        $calculationParameters->STUDY_ALPHA_RIGHT = ($calculationParameter->STUDY_ALPHA_RIGHT_FIXED) ? doubleval($this->convert->convectionCoeff($calculationParameter->STUDY_ALPHA_RIGHT, ['save' => true])) : '0.0';
-        $calculationParameters->STUDY_ALPHA_FRONT = ($calculationParameter->STUDY_ALPHA_FRONT_FIXED) ? doubleval($this->convert->convectionCoeff($calculationParameter->STUDY_ALPHA_FRONT, ['save' => true])) : '0.0';
-        $calculationParameters->STUDY_ALPHA_REAR = ($calculationParameter->STUDY_ALPHA_REAR_FIXED) ? doubleval($this->convert->convectionCoeff($calculationParameter->STUDY_ALPHA_REAR, ['save' => true])) : '0.0';
-        $calculationParameters->save();
+
+        if (!empty($studyEquipment->calculation_parameter)) {
+            //data value
+            $calculationParameters = $studyEquipment->calculationParameters->first();
+            //post value
+            $calculationParameter = $studyEquipment->calculation_parameter;
+            //update value
+            $calculationParameters->STUDY_ALPHA_TOP_FIXED = ($calculationParameter->STUDY_ALPHA_TOP_FIXED) ? 1 : 0;
+            $calculationParameters->STUDY_ALPHA_BOTTOM_FIXED = ($calculationParameter->STUDY_ALPHA_BOTTOM_FIXED) ? 1 : 0;
+            $calculationParameters->STUDY_ALPHA_LEFT_FIXED = ($calculationParameter->STUDY_ALPHA_LEFT_FIXED) ? 1 : 0;
+            $calculationParameters->STUDY_ALPHA_RIGHT_FIXED = ($calculationParameter->STUDY_ALPHA_RIGHT_FIXED) ? 1 : 0;
+            $calculationParameters->STUDY_ALPHA_FRONT_FIXED = ($calculationParameter->STUDY_ALPHA_FRONT_FIXED) ? 1 : 0;
+            $calculationParameters->STUDY_ALPHA_REAR_FIXED = ($calculationParameter->STUDY_ALPHA_REAR_FIXED) ? 1 : 0;
+            $calculationParameters->STUDY_ALPHA_TOP = ($calculationParameter->STUDY_ALPHA_TOP_FIXED) ? doubleval($this->convert->convectionCoeff($calculationParameter->STUDY_ALPHA_TOP, ['save' => true])) : '0.0';
+            $calculationParameters->STUDY_ALPHA_BOTTOM = ($calculationParameter->STUDY_ALPHA_BOTTOM_FIXED) ? doubleval($this->convert->convectionCoeff($calculationParameter->STUDY_ALPHA_BOTTOM, ['save' => true])) : '0.0';
+            $calculationParameters->STUDY_ALPHA_LEFT = ($calculationParameter->STUDY_ALPHA_LEFT_FIXED) ? doubleval($this->convert->convectionCoeff($calculationParameter->STUDY_ALPHA_LEFT, ['save' => true])) : '0.0';
+            $calculationParameters->STUDY_ALPHA_RIGHT = ($calculationParameter->STUDY_ALPHA_RIGHT_FIXED) ? doubleval($this->convert->convectionCoeff($calculationParameter->STUDY_ALPHA_RIGHT, ['save' => true])) : '0.0';
+            $calculationParameters->STUDY_ALPHA_FRONT = ($calculationParameter->STUDY_ALPHA_FRONT_FIXED) ? doubleval($this->convert->convectionCoeff($calculationParameter->STUDY_ALPHA_FRONT, ['save' => true])) : '0.0';
+            $calculationParameters->STUDY_ALPHA_REAR = ($calculationParameter->STUDY_ALPHA_REAR_FIXED) ? doubleval($this->convert->convectionCoeff($calculationParameter->STUDY_ALPHA_REAR, ['save' => true])) : '0.0';
+            $calculationParameters->save();
+        }
     }
 
     public function cleanSpecificEqpPrm($idStudyEquipment, $valueType) {
@@ -1175,7 +1179,7 @@ class StudyEquipmentService
     public function startPhamCastCalculator(StudyEquipment &$studyEquipment, $doTr)
     {
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
-        $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, $doTr);
+        $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, !$doTr);
     }
 
     public function startExhaustGasTemp(StudyEquipment &$studyEquipment)
