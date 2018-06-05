@@ -19,15 +19,11 @@ class ProductElementsService
 
     protected $value;
 
-    /**
-     * @var App\Cryosoft\ProductService
-     */
     protected $products;
 
-    /**
-     * @var App\Cryosoft\UnitsService
-     */
     protected $units;
+
+    protected $convert;
 
     public function __construct(\Laravel\Lumen\Application $app)
     {
@@ -35,6 +31,7 @@ class ProductElementsService
         $this->auth = app('Illuminate\\Contracts\\Auth\\Factory');
         $this->value = app('App\\Cryosoft\\ValueListService');
         $this->units = app('App\\Cryosoft\\UnitsConverterService');
+        $this->convert = app('App\\Cryosoft\\UnitsService');
         $this->products = app('App\\Cryosoft\\ProductService');
     }
 
@@ -110,17 +107,13 @@ class ProductElementsService
         // pb . pointMeshOrder2 = pointMeshOrder2;
         $nbPointaxe2 = count($pointMeshOrder2['points']);
         
-        $lfTemp = floatval($this->units->prodTemperature(floatval($pb['initTemp'][0])));
+        $lfTemp = doubleval($this->convert->prodTemperature(doubleval($pb['initTemp'][0]), 16, 0));
         
-        // short i, j, k;
         $i = $j = $k = 0;
 
-        // /*list < InitialTemperature > */$listTemp = [];//new ArrayList < InitialTemperature > ();
-        /*InitialTemperature */
         $listTemp = [];
 
         for ($j = 0; $j < $nbPointaxe2; $j ++) {
-            // $s = (Short) pb . pointMeshOrder2 . get(j);// recup
             $meshOrderaxe2 = $pointMeshOrder2['points'][$j];
 
             for ($i = 0; $i < $nbPointaxe1; $i ++) {
@@ -131,16 +124,12 @@ class ProductElementsService
                     $temp->MESH_2_ORDER = ($meshOrderaxe2);
                     $temp->MESH_3_ORDER = ($k);
                     $temp->INITIAL_T = ($lfTemp);
-                    // $temp->save();
-                    // add in initial list
-                    // listTemp . add(temp);
+
                     array_push($listTemp, $temp->toArray());
                 } // for axis 3
             } // for axis 1
         } // for axis 2
         
-        // save temperature inDB 
-        // DBInitialTemperature . insertList(listTemp);
         $slices = array_chunk($listTemp, 100);
         foreach ($slices as $slice) {
             InitialTemperature::insert($slice);
@@ -234,11 +223,10 @@ class ProductElementsService
             $lastMesh3 = $pointMeshOrder3[$nbPointaxe3 - 1];
             
             // save temperature
-            $lfTemp = $this->units->prodTemperature( floatval($pb['initTemp'][0]) );
+            $lfTemp = $this->convert->prodTemperature(doubleval($pb['initTemp'][0]), 16, 0);
 
-            // list < InitialTemperature > listTemp = new ArrayList < InitialTemperature > ();
             $listTemp = [];
-            // /*InitialTemperature */$temp = null;
+ 
             for ($i = $firstMesh1; $i <= $lastMesh1; $i ++) {
                 for ($j = $firstMesh2; $j <= $lastMesh2; $j ++) {
                     for ($k = $firstMesh3; $k <= $lastMesh3; $k ++) {
@@ -253,16 +241,12 @@ class ProductElementsService
                             $temp->MESH_3_ORDER = ($k);
                             $temp->INITIAL_T = ($lfTemp);
                             
-                            // add in initial list
-                            // listTemp . add(temp);
                             array_push($listTemp, $temp->toArray());
                         }
                     }  // for axis 3
                 } // for axis 2
             } // for axis 1
             
-            // save temperature inDB 
-            // DBInitialTemperature . insertList(listTemp);
             $slices = array_chunk($listTemp, 100);
             foreach ($slices as $slice) {
                 InitialTemperature::insert($slice);

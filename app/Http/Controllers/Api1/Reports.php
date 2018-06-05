@@ -118,135 +118,218 @@ class Reports extends Controller
     {
         $study = Study::where('ID_STUDY', $id)->first();
         $stuequip = $study->studyEquipments->first();
+        
         if ($stuequip != null) {
             if ($study->CALCULATION_MODE == 1 && $stuequip->BRAIN_TYPE != 4) {
                     return response("Report is available only when equipments are calculated numerically", 406);
             } else if ($study->CALCULATION_MODE != 1 && $stuequip->BRAIN_TYPE == 0) {
                     return response("Report is available only when equipments are calculated numerically", 406);
             }
-        }
+            $report = Report::where('ID_STUDY', $id)->first();
+    
+            if ($report) {
+    
+                $report->consumptionSymbol = $this->units->consumptionSymbol($stuequip->ID_COOLING_FAMILY, 1);
+    
+                $report->isSizingValuesChosen = ($report->SIZING_VALUES & 1);
+                $report->isSizingValuesMax = ($report->SIZING_VALUES & 16);
+                $studyEquip = StudyEquipment::where('ID_STUDY', $id)->where('BRAIN_TYPE', '=', 4)->get();
+    
+                if (count($studyEquip) > 0) {
+                    $report->isThereCompleteNumericalResults = true;
+                } else {
+                    $report->isThereCompleteNumericalResults = false;
+                }
+    
+                $productElmt = ProductElmt::where('ID_STUDY', $id)->first();
+                $report->productElmt = $productElmt;
+                $report->temperatureSymbol = $this->convert->temperatureSymbolUser();
+                
+                // $borne = $this->getReportTemperatureBorne($id); 
+                // $report->refContRep2DTempMinRef = doubleval($borne[0]->MIN_TEMP);
+                // $report->refContRep2DTempMaxRef = doubleval($borne[0]->MAX_TEMP);
+                // $pasTemp = $this->calculatePasTemp($report->refContRep2DTempMinRef, $report->refContRep2DTempMaxRef, true);
+                // $report->refContRep2DTempMinRef = $this->units->prodTemperature(doubleval($pasTemp['dTmin']), 1, 1);
+                // $report->refContRep2DTempMaxRef = $this->units->prodTemperature(doubleval($pasTemp['dTMax']), 1, 1);
+                // $report->refContRep2DTempStepRef = doubleval($pasTemp['dpas']);
+                $idstudyequips = $study->studyEquipments;
+                if ($stuequip->BRAIN_TYPE == 4) {
+                    $getTemp = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips[0]->ID_STUDY_EQUIPMENTS, 1);
+                    
+                    $report->refContRep2DTempStepRef = $this->units->prodTemperature($getTemp['chartTempInterval'][2]);
+                    $report->refContRep2DTempMinRef = $this->units->prodTemperature($getTemp['chartTempInterval'][0]);
+                    $report->refContRep2DTempMaxRef = $this->units->prodTemperature($getTemp['chartTempInterval'][1]);
+                    
+                    if ($report->CONTOUR2D_TEMP_STEP == 0) {
+                        $report->CONTOUR2D_TEMP_STEP = $this->units->prodTemperature($getTemp['chartTempInterval'][2]);
+                    } else {
+                        $report->CONTOUR2D_TEMP_STEP = $this->units->prodTemperature($report->CONTOUR2D_TEMP_STEP, 1, 1);
+                    }
         
-        $report = Report::where('ID_STUDY', $id)->first();
+                    if ($report->CONTOUR2D_TEMP_MIN == 0) {
+                        $report->CONTOUR2D_TEMP_MIN =$this->units->prodTemperature($getTemp['chartTempInterval'][0]);
+                    } else {
+                        $report->CONTOUR2D_TEMP_MIN = $this->units->prodTemperature($report->CONTOUR2D_TEMP_MIN, 1, 1);
+                    }
+        
+                    if ($report->CONTOUR2D_TEMP_MAX == 0) {
+                        $report->CONTOUR2D_TEMP_MAX = $this->units->prodTemperature($getTemp['chartTempInterval'][1]);
+                    } else {
+                        $report->CONTOUR2D_TEMP_MAX = $this->units->prodTemperature($report->CONTOUR2D_TEMP_MAX, 1, 1);
+                    }
+                }
+                $tempRecordPts = TempRecordPts::where("ID_STUDY", $study->ID_STUDY)->first();
+                if ($report->POINT1_X == 0) {
+                    $report->POINT1_X = $tempRecordPts->AXIS1_PT_TOP_SURF;
+                }
+                if ($report->POINT1_Y == 0) {
+                    $report->POINT1_Y = $tempRecordPts->AXIS1_PT_INT_PT;
+                }
+                if ($report->POINT1_Z == 0) {
+                    $report->POINT1_Z = $tempRecordPts->AXIS1_PT_BOT_SURF;
+                }
+                
+                
+                if ($report->POINT2_X == 0) {
+                    $report->POINT2_X = $tempRecordPts->AXIS2_PT_TOP_SURF;
+                }
+                if ($report->POINT2_Y == 0) {
+                    $report->POINT2_Y = $tempRecordPts->AXIS2_PT_INT_PT;
+                }
+                if ($report->POINT2_Z == 0) {
+                    $report->POINT2_Z = $tempRecordPts->AXIS2_PT_BOT_SURF;
+                }
+                
+                if ($report->POINT3_X == 0) {
+                    $report->POINT3_X = $tempRecordPts->AXIS3_PT_TOP_SURF;
+                }
+                if ($report->POINT3_Y == 0) {
+                    $report->POINT3_Y = $tempRecordPts->AXIS3_PT_INT_PT;
+                }
+                if ($report->POINT3_Z == 0) {
+                    $report->POINT3_Z = $tempRecordPts->AXIS3_PT_BOT_SURF;
+                }
 
-        if ($report) {
+                if ($report->AXE1_X == 0) {
+                    $report->AXE1_X = $tempRecordPts->AXIS2_AX_1;
+                }
+                if ($report->AXE1_Y == 0) {
+                    $report->AXE1_Y = $tempRecordPts->AXIS3_AX_1;
+                }
 
-            $report->consumptionSymbol = $this->units->consumptionSymbol($stuequip->ID_COOLING_FAMILY, 1);
+                if ($report->AXE2_X == 0) {
+                    $report->AXE2_X = $tempRecordPts->AXIS1_AX_2;
+                }
+                if ($report->AXE2_Z == 0) {
+                    $report->AXE2_Z = $tempRecordPts->AXIS3_AX_2;
+                }
 
-            $report->isSizingValuesChosen = ($report->SIZING_VALUES & 1);
-            $report->isSizingValuesMax = ($report->SIZING_VALUES & 16);
-            $studyEquip = StudyEquipment::where('ID_STUDY', $id)->where('BRAIN_TYPE', 4)->get();
+                if ($report->AXE3_Y == 0) {
+                    $report->AXE3_Y = $tempRecordPts->AXIS1_AX_3;
+                }
+                if ($report->AXE3_Z == 0) {
+                    $report->AXE3_Z = $tempRecordPts->AXIS2_AX_3;
+                }
 
-            if (count($studyEquip) > 0) {
-                $report->isThereCompleteNumericalResults = true;
+                if ($report->PLAN_X == 0) {
+                    $report->PLAN_X = $tempRecordPts->AXIS1_PL_2_3;
+                }
+                if ($report->PLAN_Y == 0) {
+                    $report->PLAN_Y = $tempRecordPts->AXIS2_PL_1_3;
+                }
+                if ($report->PLAN_Z == 0) {
+                    $report->PLAN_Z = $tempRecordPts->AXIS3_PL_1_2;
+                }
+                
             } else {
-                $report->isThereCompleteNumericalResults = false;
+                $minMaxSample = MinMax::where('LIMIT_ITEM', 1116)->first();
+                $report = new Report();
+                $report->ID_STUDY = $id;
+                $report->DEST_NAME = "";
+                $report->DEST_SURNAME = "";
+                $report->DEST_FUNCTION = "";
+                $report->DEST_COORD = "";
+                $report->WRITER_NAME = "";
+                $report->WRITER_SURNAME = "";
+                $report->WRITER_FUNCTION = "";
+                $report->WRITER_COORD = "";
+                $report->CUSTOMER_LOGO = "";
+                $report->PHOTO_PATH = "";
+                $report->REPORT_COMMENT = "";
+                $report->PROD_LIST = 1;
+                $report->PROD_3D = 1;
+                $report->EQUIP_LIST = 1;
+                $report->REP_CUSTOMER = 1;
+                $report->PACKING = 0;
+                $report->PIPELINE = 0;
+                $report->ASSES_CONSUMP = 0;
+                $report->CONS_SPECIFIC = 0;
+                $report->CONS_OVERALL = 0;
+                $report->CONS_TOTAL = 0;
+                $report->CONS_HOUR = 0;
+                $report->CONS_DAY = 0;
+                $report->CONS_WEEK = 0;
+                $report->CONS_MONTH = 0;
+                $report->CONS_YEAR = 0;
+                $report->CONS_EQUIP = 0;
+                $report->CONS_PIPE = 0;
+                $report->CONS_TANK = 0;
+                $report->REP_CONS_PIE = 0;
+                $report->SIZING_VALUES = 0;
+                $report->SIZING_GRAPHE = 0;
+                $report->SIZING_TR = 1;
+                $report->ENTHALPY_G = 0;
+                $report->ENTHALPY_V = 0;
+                $report->ENTHALPY_SAMPLE = intval(round($minMaxSample->DEFAULT_VALUE));
+                $report->ISOCHRONE_G = 0;
+                $report->ISOCHRONE_V = 0;
+                $report->ISOCHRONE_SAMPLE = intval(round($minMaxSample->DEFAULT_VALUE));
+                $report->ISOVALUE_G = 0;
+                $report->ISOVALUE_V = 0;
+                $report->ISOVALUE_SAMPLE = intval(round($minMaxSample->DEFAULT_VALUE));
+                $report->CONTOUR2D_G = 0;
+                $report->CONTOUR2D_TEMP_STEP = 0;
+                $report->CONTOUR2D_TEMP_MIN = 0;
+                $report->CONTOUR2D_TEMP_MAX = 0;
+                $report->POINT1_X = 0;
+                $report->POINT1_Y = 0;
+                $report->POINT1_Z = 0;
+                $report->POINT2_X = 0;
+                $report->POINT2_Y = 0;
+                $report->POINT2_Z = 0;
+                $report->POINT3_X = 0;
+                $report->POINT3_Y = 0;
+                $report->POINT3_Z = 0;
+                $report->AXE1_X = 0;
+                $report->AXE1_Y = 0;
+                $report->AXE2_X = 0;
+                $report->AXE2_Z = 0;
+                $report->AXE3_Y = 0;
+                $report->AXE3_Z = 0;
+                $report->PLAN_X = 0;
+                $report->PLAN_Y = 0;
+                $report->PLAN_Z = 0;
+                $report->ASSES_ECO = 0;
+                $report->save();
+    
+                $report->consumptionSymbol = $this->units->consumptionSymbol($stuequip->ID_COOLING_FAMILY, 1);
+                $report->temperatureSymbol = $this->convert->temperatureSymbolUser();
+    
+                $report->refContRep2DTempMinRef = 0;
+                $report->refContRep2DTempMaxRef = 0;
+    
+                $report->refContRep2DTempMinRef = 0;
+                $report->refContRep2DTempMaxRef = 0;
+                $report->refContRep2DTempStepRef = 0;
+    
             }
-
-            $productElmt = ProductElmt::where('ID_STUDY', $id)->first();
-            $report->productElmt = $productElmt;
-            $report->temperatureSymbol = $this->convert->temperatureSymbolUser();
-            $report->CONTOUR2D_TEMP_STEP = doubleval($report->CONTOUR2D_TEMP_STEP);
-
-            $report->CONTOUR2D_TEMP_MIN = $this->units->prodTemperature($report->CONTOUR2D_TEMP_MIN, 1, 1);
-            $report->CONTOUR2D_TEMP_MAX = $this->units->prodTemperature($report->CONTOUR2D_TEMP_MAX, 1, 1);
-
-
-            $borne = $this->getReportTemperatureBorne($id); 
-            $report->refContRep2DTempMinRef = doubleval($borne[0]->MIN_TEMP);
-            $report->refContRep2DTempMaxRef = doubleval($borne[0]->MAX_TEMP);
-
-            $pasTemp = $this->calculatePasTemp($report->refContRep2DTempMinRef, $report->refContRep2DTempMaxRef, true);
-            $report->refContRep2DTempMinRef = $this->units->prodTemperature(doubleval($pasTemp['dTmin']), 1, 1);
-            $report->refContRep2DTempMaxRef = $this->units->prodTemperature(doubleval($pasTemp['dTMax']), 1, 1);
-
-            $report->refContRep2DTempStepRef = doubleval($pasTemp['dpas']);
-
+            $report->ip = getenv('APP_URL');
+            return $report;
         } else {
-            $minMaxSample = MinMax::where('LIMIT_ITEM', 1116)->first();
-            $report = new Report();
-            $report->ID_STUDY = $id;
-            $report->DEST_NAME = "";
-            $report->DEST_SURNAME = "";
-            $report->DEST_FUNCTION = "";
-            $report->DEST_COORD = "";
-            $report->WRITER_NAME = "";
-            $report->WRITER_SURNAME = "";
-            $report->WRITER_FUNCTION = "";
-            $report->WRITER_COORD = "";
-            $report->CUSTOMER_LOGO = "";
-            $report->PHOTO_PATH = "";
-            $report->REPORT_COMMENT = "";
-            $report->PROD_LIST = 1;
-            $report->PROD_3D = 1;
-            $report->EQUIP_LIST = 1;
-            $report->REP_CUSTOMER = 1;
-            $report->PACKING = 0;
-            $report->PIPELINE = 0;
-            $report->ASSES_CONSUMP = 0;
-            $report->CONS_SPECIFIC = 0;
-            $report->CONS_OVERALL = 0;
-            $report->CONS_TOTAL = 0;
-            $report->CONS_HOUR = 0;
-            $report->CONS_DAY = 0;
-            $report->CONS_WEEK = 0;
-            $report->CONS_MONTH = 0;
-            $report->CONS_YEAR = 0;
-            $report->CONS_EQUIP = 0;
-            $report->CONS_PIPE = 0;
-            $report->CONS_TANK = 0;
-            $report->REP_CONS_PIE = 0;
-            $report->SIZING_VALUES = 0;
-            $report->SIZING_GRAPHE = 0;
-            $report->SIZING_TR = 1;
-            $report->ENTHALPY_G = 0;
-            $report->ENTHALPY_V = 0;
-            $report->ENTHALPY_SAMPLE = intval(round($minMaxSample->DEFAULT_VALUE));
-            $report->ISOCHRONE_G = 0;
-            $report->ISOCHRONE_V = 0;
-            $report->ISOCHRONE_SAMPLE = intval(round($minMaxSample->DEFAULT_VALUE));
-            $report->ISOVALUE_G = 0;
-            $report->ISOVALUE_V = 0;
-            $report->ISOVALUE_SAMPLE = intval(round($minMaxSample->DEFAULT_VALUE));
-            $report->CONTOUR2D_G = 0;
-            $report->CONTOUR2D_TEMP_STEP = 0;
-            $report->CONTOUR2D_TEMP_MIN = 0;
-            $report->CONTOUR2D_TEMP_MAX = 0;
-            $report->POINT1_X = 0;
-            $report->POINT1_Y = 0;
-            $report->POINT1_Z = 0;
-            $report->POINT2_X = 0;
-            $report->POINT2_Y = 0;
-            $report->POINT2_Z = 0;
-            $report->POINT3_X = 0;
-            $report->POINT3_Y = 0;
-            $report->POINT3_Z = 0;
-            $report->AXE1_X = 0;
-            $report->AXE1_Y = 0;
-            $report->AXE2_X = 0;
-            $report->AXE2_Z = 0;
-            $report->AXE3_Y = 0;
-            $report->AXE3_Z = 0;
-            $report->PLAN_X = 0;
-            $report->PLAN_Y = 0;
-            $report->PLAN_Z = 0;
-            $report->ASSES_ECO = 0;
-            $report->save();
-
-            $report->consumptionSymbol = $this->units->consumptionSymbol($stuequip->ID_COOLING_FAMILY, 1);
-            $report->temperatureSymbol = $this->convert->temperatureSymbolUser();
-
-            $report->refContRep2DTempMinRef = 0;
-            $report->refContRep2DTempMaxRef = 0;
-
-            $report->refContRep2DTempMinRef = 0;
-            $report->refContRep2DTempMaxRef = 0;
-            $report->refContRep2DTempStepRef = 0;
-
+            return response("Report is available only when equipments are calculated numerically", 406);
         }
         // HAIDT
-        $report->ip = getenv('APP_URL');
         // end HAIDT
-        return $report;
     }
 
     public function getReportTemperatureBorne($id)
@@ -718,14 +801,14 @@ class Reports extends Controller
                 
             } else if ($study->CALCULATION_MODE == 1) {
                 $calModeHeadBalance = $this->reportserv->getEstimationHeadBalance($study->ID_STUDY, 1);
-                $calModeHbMax = "";
+                $calModeHbMax = [];
                 $graphicSizing = $this->reportserv->sizingEstimationResult($study->ID_STUDY);
             }
             $progress .= "\nSizing";
             $this->writeProgressFile($progressFile, $progress);
         } else {
             $calModeHeadBalance = "";
-            $calModeHbMax = "";
+            $calModeHbMax = [];
             $graphicSizing = "";
         }
 
@@ -843,7 +926,7 @@ class Reports extends Controller
                 $heatexchange = [];
                 $timeBase = [];
             }
-            // return $pro2Dchart;
+            // return $timeBase;
         }
         if ($idstudyequips->BRAIN_TYPE == 4) {
             if ($ENTHALPY_V == 1 || $ENTHALPY_G == 1) {
@@ -1858,59 +1941,72 @@ class Reports extends Controller
                 PDF::writeHTML($html, true, false, true, false, '');
                 PDF::AddPage();
             }
-
-            if ($isSizingValuesMax == 1) {
-                PDF::Bookmark(' Maximum product flowrate', 1, 0, '', '', array(128,0,0));
-                PDF::Cell(0, 10, 'Maximum product flowrate', 0, 1, 'L');
-                $html = '
-                <div class="Max-prod-flowrate">
-                    <div class="table table-bordered">
-                        <table border="0.5">
-                            <tr>
-                                <th colspan="2" rowspan="2">Equipment</th>
-                                <th rowspan="2">Average initial temperature ( '. $symbol['temperatureSymbol'] .' ) </th>
-                                <th rowspan="2">Final Average Product temperature ( '. $symbol['temperatureSymbol'] .' ) </th>
-                                <th rowspan="2">Control temperature ( '. $symbol['temperatureSymbol'] .' ) </th>
-                                <th rowspan="2">Residence / Dwell time   ( '. $symbol['timeSymbol'] .' ) </th>
-                                <th rowspan="2">Product Heat Load ( '. $symbol['enthalpySymbol'] .' ) </th>
-                                <th colspan="4">Maximum product flowrate </th>
-                                <th rowspan="2">Precision of the high level calculation. (%)</th>
-                            </tr>
-                            <tr>
-                                <td>Hourly production capacity ( '. $symbol['productFlowSymbol'] .' ) </td>
-                                <td colspan="2">Cryogen consumption (product + equipment heat load) ( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .'  </td>
-                                <td>Conveyor coverage or quantity of product per batch</td>
-                            </tr>';
-                            foreach($calModeHbMax  as $resoptimumHbMax) { 
+            if (!empty($calModeHbMax)) {
+                if ($isSizingValuesMax == 1) {
+                    PDF::Bookmark(' Maximum product flowrate', 1, 0, '', '', array(128,0,0));
+                    PDF::Cell(0, 10, 'Maximum product flowrate', 0, 1, 'L');
+                    $html = '
+                    <div class="Max-prod-flowrate">
+                        <div class="table table-bordered">
+                            <table border="0.5">
+                                <tr>
+                                    <th colspan="2" rowspan="2">Equipment</th>
+                                    <th rowspan="2">Average initial temperature ( '. $symbol['temperatureSymbol'] .' ) </th>
+                                    <th rowspan="2">Final Average Product temperature ( '. $symbol['temperatureSymbol'] .' ) </th>
+                                    <th rowspan="2">Control temperature ( '. $symbol['temperatureSymbol'] .' ) </th>
+                                    <th rowspan="2">Residence / Dwell time   ( '. $symbol['timeSymbol'] .' ) </th>
+                                    <th rowspan="2">Product Heat Load ( '. $symbol['enthalpySymbol'] .' ) </th>
+                                    <th colspan="4">Maximum product flowrate </th>
+                                    <th rowspan="2">Precision of the high level calculation. (%)</th>
+                                </tr>
+                                <tr>
+                                    <td>Hourly production capacity ( '. $symbol['productFlowSymbol'] .' ) </td>
+                                    <td colspan="2">Cryogen consumption (product + equipment heat load) ( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .'  </td>
+                                    <td>Conveyor coverage or quantity of product per batch</td>
+                                </tr>';
+                                foreach($calModeHbMax  as $resoptimumHbMax) { 
                                 $html ='';
-                            $html .='<tr>
-                                <td align="center" colspan="2"> '. $resoptimumHbMax['equipName'] .' </td>
-                                <td align="center" > '. $proInfoStudy['avgTInitial'] .' </td>
-                                <td align="center">'. $resoptimumHbMax['tfp'] .' </td>
-                                <td align="center">'. $resoptimumHbMax['tr']  .'</td>
-                                <td align="center">'. $resoptimumHbMax['ts']  .'</td>
-                                <td align="center">'. $resoptimumHbMax['vep'] .' </td>
-                                <td align="center">'. $resoptimumHbMax['dhp'] .' </td>
-                                <td align="center" colspan="2"> '. $resoptimumHbMax['conso'] .' </td>
-                                <td align="center"> '. $resoptimumHbMax['toc'] .'</td>
-                                <td align="center"> '. $resoptimumHbMax['precision'] .' </td>
-                            </tr>';
-                            }
-                        $html .='</table>
-                    </div>
-                </div>';
-                PDF::writeHTML($html, true, false, true, false, '');
-                PDF::AddPage();
+                                $html .='<tr>
+                                    <td align="center" colspan="2"> '. $resoptimumHbMax['equipName'] .' </td>
+                                    <td align="center" > '. $proInfoStudy['avgTInitial'] .' </td>
+                                    <td align="center">'. $resoptimumHbMax['tfp'] .' </td>
+                                    <td align="center">'. $resoptimumHbMax['tr']  .'</td>
+                                    <td align="center">'. $resoptimumHbMax['ts']  .'</td>
+                                    <td align="center">'. $resoptimumHbMax['vep'] .' </td>
+                                    <td align="center">'. $resoptimumHbMax['dhp'] .' </td>
+                                    <td align="center"> '. $resoptimumHbMax['conso'] .' </td>
+                                    <td align="center"> '. $resoptimumHbMax['toc'] .'</td>
+                                    <td align="center"> '. $resoptimumHbMax['precision'] .' </td>
+                                </tr>';
+                                }
+                            $html .='</table>
+                        </div>
+                    </div>';
+                    PDF::writeHTML($html, true, false, true, false, '');
+                    PDF::AddPage();
+                }
             }
 
             if ($SIZING_GRAPHE == 1) {
                 PDF::Bookmark(' Graphic', 1, 0, '', '', array(128,0,0));
                 PDF::Cell(0, 10, 'Graphic', 0, 1, 'L');
-                $html = '
-                <div align="center">
-                    <img  width="640" height="450" src="'. $public_path .'/sizing/'. $study['USERNAM'].'/'. $study['ID_STUDY'] .'.png"></div>';
-                PDF::writeHTML($html, true, false, true, false, '');
-                PDF::AddPage();
+                if ($study['CALCULATION_MODE'] == 3) {
+                    $html = '
+                    <div align="center">
+                        <img  width="640" height="450" src="'. $public_path .'/sizing/'. $study['USERNAM'].'/'. $study['ID_STUDY'].'/'. $study['ID_STUDY'] .'.png">
+                    </div>';
+                    PDF::writeHTML($html, true, false, true, false, '');
+                    PDF::AddPage();
+                } else if($study['CALCULATION_MODE'] == 1) {
+                    foreach ($calModeHeadBalance as $resoptHeads) {
+                        $html = '
+                        <div align="center">
+                            <img  width="640" height="450" src="'. $public_path .'/sizing/'. $study['USERNAM'].'/'. $study['ID_STUDY'].'/'. $study['ID_STUDY'] ."-".$resoptHeads['id'] .'.png">
+                        </div>';
+                        PDF::writeHTML($html, true, false, true, false, '');
+                        PDF::AddPage();
+                    }
+                }
             }
         }
 
@@ -2099,7 +2195,7 @@ class Reports extends Controller
                                     <td align="center">Avg. Temp.</td>
                                     <td align="center">( '. $timeBases['temperatureSymbol'] .' )</td>';
                                     foreach ($timeBases['result'] as $avgs) {
-                                        $html .='<td align="center"> '. $bottoms['average'] .'</td>';
+                                        $html .='<td align="center"> '. $avgs['average'] .'</td>';
                                     }
                                     $html .='</tr>
                             </table>
@@ -2302,7 +2398,7 @@ class Reports extends Controller
         foreach ($study->studyEquipments as $sequip) {
             $layout = $this->stdeqp->generateLayoutPreview($sequip);
         }
-        $nameLayout = $study->ID_STUDY.'-'.$study->STUDY_NAME.'-StdeqpLayout-';
+        // $nameLayout = $study->ID_STUDY.'-'.$study->STUDY_NAME.'-StdeqpLayout-';
         $idComArr = [];
         $comprelease = [];
         foreach ($product->productElmts as $productElmt) {

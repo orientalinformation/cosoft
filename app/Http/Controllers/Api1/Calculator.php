@@ -316,7 +316,7 @@ class Calculator extends Controller
             }
         }
         $this->saveTempRecordPts($this->request, $idStudy);
-        $this->cal->saveTempRecordPtsToReport($idStudy);
+        //$this->cal->saveTempRecordPtsToReport($idStudy);
 
         return $this->startNumericalCalculation($idStudy);
     }
@@ -456,7 +456,7 @@ class Calculator extends Controller
         $sdisableFields = $this->cal->disableFields($idStudy);
         
         $sdisableTS = $sdisableTR = $sdisableTOC = $sdisableOptim = $sdisableNbOptim = $sdisableStorage = 0;
-        $scheckOptim = $scheckStorage = 0;
+        $scheckOptim = $scheckStorage = $CAP_VARIABLE_TR = 0;
 
         $studyEquipment = StudyEquipment::find($idStudyEquipment);
         if ($studyEquipment) {
@@ -507,6 +507,10 @@ class Calculator extends Controller
                     $scheckOptim = 0;
                 } else {
                     $sdisableOptim = 0;
+                }
+
+                if (!$this->equipment->getCapability($equipment->CAPABILITIES, $this->value->CAP_VARIABLE_TR)) {
+                    $CAP_VARIABLE_TR = 1;
                 }
             }
         } else {
@@ -649,11 +653,13 @@ class Calculator extends Controller
             'sdisableStorage' => $sdisableStorage,
             'sdisableTS' => $sdisableTS,
             'sdisableTR' => $sdisableTR,
+            'CAP_VARIABLE_TR' => $CAP_VARIABLE_TR,
 
             'dwellingTimes' => $dwellingTimes,
             'temperatures' => $temperatures,
             'toc' => $toc,
-
+            
+            'scheckOptim' => $scheckOptim,
             'checkOptim' => $checkOptim,
             'epsilonTemp' => $epsilonTemp,
             'epsilonEnth' => $epsilonEnth,
@@ -737,6 +743,7 @@ class Calculator extends Controller
             $this->saveCalculationParameters($this->request, $idStudyEquipment, $brainMode);
             $this->saveTempRecordPts($this->request, $idStudy);
             //resetBrainStudyError(); not using
+
             $runType = $this->startMaxCapacityCalculation($this->request, $idStudy, $idStudyEquipment);
         } else {
             $this->saveEquipmentSettings($this->request, $idStudyEquipment);
@@ -1076,10 +1083,20 @@ class Calculator extends Controller
         }
 
         $oldLTr = $this->brainCal->getListTr($idStudyEquipment);
-        for ($i = 0; $i < count($oldLTr); $i++) { 
-            if ($oldLTr[$i] != $newLTr[$i]['value']) {
-                $oldLTr[$i] = $newLTr[$i]['value'];
-                $this->brainCal->setTr($idStudyEquipment, doubleval($oldLTr[$i]), $i);
+        $studyEquipment = StudyEquipment::find($idStudyEquipment);
+        if ($studyEquipment) {
+            $equipment = Equipment::find($studyEquipment->ID_EQUIP);
+            if ($equipment) {
+                if ($this->equipment->getCapability($equipment->CAPABILITIES, 1)) {
+                    for ($i = 0; $i < count($oldLTr); $i++) { 
+                        $old = $this->units->controlTemperature($oldLTr[$i], 0, 0); 
+                        $new = $this->units->controlTemperature($newLTr[$i]['value'], 0, 0);
+                        if ($old != $new) {
+                            $oldLTr[$i] = $this->units->controlTemperature($newLTr[$i]['value'], 16, 0);
+                            $this->brainCal->setTr($idStudyEquipment, doubleval($oldLTr[$i]), $i);
+                        }
+                    }
+                }
             }
         }
     }
@@ -1250,7 +1267,7 @@ class Calculator extends Controller
             if (isset($input['temperatures'])) {
                 $temperatures = $input['temperatures'];
                 if (count($temperatures) > 0) {
-                    $lfControlTemp = doubleval($temperatures[0]['value']);
+                    $lfControlTemp = doubleval($this->units->controlTemperature($temperatures[0]['value'], 2, 0));
                 }
             } 
         } else {
@@ -1262,7 +1279,7 @@ class Calculator extends Controller
 
         if (isset($input['toc'])) {
             $toc = $input['toc'];
-            $lfLoadingRateMax = doubleval($toc);
+            $lfLoadingRateMax = doubleval($toc) / 100;
         }
 
         $this->runStudyCleaner($idStudy, $idStudyEquipment, 54);

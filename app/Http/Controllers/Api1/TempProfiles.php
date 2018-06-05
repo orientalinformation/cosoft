@@ -24,12 +24,15 @@ class TempProfiles extends Controller
     protected $app;
 
     protected $value;
+
+    protected $units;
     
     public function __construct(\Laravel\Lumen\Application $app)
     {
         $this->app = $app;
         $this->auth = $app['Illuminate\\Contracts\\Auth\\Factory'];
         $this->value = $app['App\\Cryosoft\\ValueListService'];
+        $this->units = $app['App\\Cryosoft\\UnitsService'];
     }
 
     public function getDataSvgTemperature()
@@ -55,6 +58,8 @@ class TempProfiles extends Controller
         $getXArrowRight = $getRightLimit + 5;
         $getYMediumSVG = $svgYsize / 2;
         $getTextArrow = $getRightLimit + 16;
+        $getTempMin = $this->units->temperature(-100, 1, 1);
+        $getTempMax = $this->units->temperature(100, 1, 1);
         
         $array = [
             'svgXsize' => $svgXsize,
@@ -77,13 +82,10 @@ class TempProfiles extends Controller
             'getXArrowLeft' =>  $getXArrowLeft,
             'getXArrowRight' => $getXArrowRight,
             'getYMediumSVG' => $getYMediumSVG,
-            'getTextArrow' => $getTextArrow
+            'getTextArrow' => $getTextArrow,
+            'getTempMin' => $getTempMin,
+            'getTempMax' => $getTempMax,
         ];
         return $array;
-    }
-
-    public function initLines($listofPoints)
-    {
-        
     }
 }

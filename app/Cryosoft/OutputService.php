@@ -10,6 +10,9 @@ use App\Models\TempRecordPtsDef;
 use App\Models\MeshPosition;
 use App\Models\StudyEquipment;
 use App\Models\RecordPosition;
+use App\Models\ProductElmt;
+use App\Models\LayoutGeneration;
+use App\Models\StudEqpPrm;
 
 class OutputService
 {
@@ -19,6 +22,10 @@ class OutputService
         $this->auth = $app['Illuminate\\Contracts\\Auth\\Factory'];
         $this->value = $app['App\\Cryosoft\\ValueListService'];
         $this->unit = $app['App\\Cryosoft\\UnitsConverterService'];
+        $this->stdeqp = $app['App\\Cryosoft\\StudyEquipmentService'];
+        $this->equip = $app['App\\Cryosoft\\EquipmentsService'];
+        $this->brain = $app['App\\Cryosoft\\BrainCalculateService'];
+        $this->cal = $app['App\\Cryosoft\\CalculateService'];
     }
 
 
@@ -47,7 +54,6 @@ class OutputService
 
     public function getTemperaturePosition($idRecPos, $axis1, $axis2)
     {
-
         return TempRecordData::where("ID_REC_POS", $idRecPos)->where("REC_AXIS_X_POS", $axis1)->where("REC_AXIS_Y_POS", $axis2)->where("REC_AXIS_Z_POS", 0)->first();
     }
 
@@ -291,7 +297,7 @@ class OutputService
 
     public function getTempRecordData($idRecPos, $idStudy, $axeTempRecordData, $selectedAxe, $shape, $orientation)
     {
-        $result = [];
+        $result = "";
 
         if ($axeTempRecordData[$selectedAxe][0] == -1.0) {
             switch ($shape) {
@@ -446,7 +452,7 @@ class OutputService
                     $tempInterval[1] = $tempResult[1];
                 }
             }
-            $bornesTemp = [$this->unit->prodTemperature($tempInterval[0]), $this->unit->prodTemperature($tempInterval[1])];
+            $bornesTemp = [$this->unit->prodTemperature($tempInterval[0], ['save' => true]), $this->unit->prodTemperature($tempInterval[1], ['save' => true])];
 
             $result = $this->calculatePasTemp($bornesTemp[0], $bornesTemp[1], false, $pasTemp);
         }
@@ -487,7 +493,6 @@ class OutputService
             }
 
             $dnbpas = abs($dTMax - $dTMin) / $dpas;
-
         } while ($dnbpas > 16);
 
         $tab = [$this->unit->prodTemperature($dTMin), $this->unit->prodTemperature($dTMax), $dpas];
@@ -855,6 +860,291 @@ class OutputService
         return $result;
     }
 
+    public function getRightPosition($idStudy, $idStudyEquipment)
+    {
+        $productElmt = ProductElmt::where('ID_STUDY', $idStudy)->first();
+        $shape = $productElmt->SHAPECODE;
+        $layoutGen = LayoutGeneration::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
+        $orientation = $layoutGen->PROD_POSITION;
+
+        $tempRecordPts = TempRecordPts::where('ID_STUDY', $idStudy)->first();
+        $meshPosTop = $this->getPositionForAxis2($idStudy, $tempRecordPts->AXIS2_PT_TOP_SURF, 2);
+        $meshPosInt = $this->getPositionForAxis2($idStudy, $tempRecordPts->AXIS2_PT_INT_PT, 2);
+        $meshPosBot = $this->getPositionForAxis2($idStudy, $tempRecordPts->AXIS2_PT_BOT_SURF, 2);
+
+        $axisValue = [];
+
+        switch ($shape) {
+            case 1:
+                if ($orientation == 1) {
+                    $axisValue['axis1BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 3);
+                    $axisValue['axis1IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 3);
+                    $axisValue['axis1TopPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 3);
+
+                    $axisValue['axis2BotPos'] = $meshPosBot->MESH_ORDER;
+                    $axisValue['axis2IntPos'] = $meshPosInt->MESH_ORDER;
+                    $axisValue['axis2TopPos'] = $meshPosTop->MESH_ORDER;
+
+                    $axisValue['axis3BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 1);
+                    $axisValue['axis3IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 1);
+                    $axisValue['axis3TopSurfPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 1);
+                } else {
+                    $axisValue['axis1BotPos'] = $axisValue['axis1IntPos'] = $axisValue['axis1TopPos'] = $axisValue['axis2BotPos'] = $axisValue['axis2IntPos']  = $axisValue['axis2TopPos'] = $axisValue['axis3BotPos'] = $axisValue['axis3IntPos'] = $axisValue['axis3TopSurfPos'] = 0;
+                }
+                break;
+
+            case 2:
+            case 9:
+                $axisValue['axis2BotPos'] = $meshPosBot->MESH_ORDER;
+                $axisValue['axis2IntPos'] = $meshPosInt->MESH_ORDER;
+                $axisValue['axis2TopPos'] = $meshPosTop->MESH_ORDER;
+
+                if ($orientation == 1) {
+                    $axisValue['axis1BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 3);
+                    $axisValue['axis1IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 3);
+                    $axisValue['axis1TopPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 3);
+
+                    $axisValue['axis3BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 1);
+                    $axisValue['axis3IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 1);
+                    $axisValue['axis3TopSurfPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 1);
+                } else {
+                    $axisValue['axis1BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 1);
+                    $axisValue['axis1IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 1);
+                    $axisValue['axis1TopPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 1);
+
+                    $axisValue['axis3BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 3);
+                    $axisValue['axis3IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 3);
+                    $axisValue['axis3TopSurfPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 3);
+                }
+
+                break;
+
+            case 3:
+                $axisValue['axis1BotPos'] = $meshPosBot->MESH_ORDER;
+                $axisValue['axis1IntPos'] = $meshPosInt->MESH_ORDER;
+                $axisValue['axis1TopPos'] = $meshPosTop->MESH_ORDER;
+
+                $axisValue['axis2BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 1);
+                $axisValue['axis2IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 1);
+                $axisValue['axis2TopPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 1);
+
+                $axisValue['axis3BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 3);
+                $axisValue['axis3IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 3);
+                $axisValue['axis3TopSurfPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 3);
+
+                break;
+
+            case 4:
+            case 8:
+                $axisValue['axis1BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 1);
+                $axisValue['axis1IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 1);
+                $axisValue['axis1TopPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 1);
+
+                $axisValue['axis2BotPos'] = $meshPosBot->MESH_ORDER;
+                $axisValue['axis2IntPos'] = $meshPosInt->MESH_ORDER;
+                $axisValue['axis2TopPos'] = $meshPosTop->MESH_ORDER;
+
+                $axisValue['axis3BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 3);
+                $axisValue['axis3IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 3);
+                $axisValue['axis3TopSurfPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 3);
+
+                break;
+
+            case 5:
+            case 7:
+                $axisValue['axis1BotPos'] = $meshPosBot->MESH_ORDER;
+                $axisValue['axis1IntPos'] = $meshPosInt->MESH_ORDER;
+                $axisValue['axis1TopPos'] = $meshPosTop->MESH_ORDER;
+
+                $axisValue['axis2BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 1);
+                $axisValue['axis2IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 1);
+                $axisValue['axis2TopPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 1);
+
+                $axisValue['axis3BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 3);
+                $axisValue['axis3IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 3);
+                $axisValue['axis3TopSurfPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 3);
+
+                break;
+
+            case 6:
+                $axisValue['axis2BotPos'] = $meshPosBot->MESH_ORDER;
+                $axisValue['axis2IntPos'] = $meshPosInt->MESH_ORDER;
+                $axisValue['axis2TopPos'] = $meshPosTop->MESH_ORDER;
+
+                $axisValue['axis1BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 3);
+                $axisValue['axis1IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 3);
+                $axisValue['axis1TopPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS3_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 3);
+
+                $axisValue['axis3BotPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_BOT_SURF, $meshPosBot->ID_PRODUCT_ELMT, 1);
+                $axisValue['axis3IntPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_INT_PT, $meshPosInt->ID_PRODUCT_ELMT, 1);
+                $axisValue['axis3TopSurfPos'] = $this->getPositionForSelectedPoint($tempRecordPts->AXIS1_PT_TOP_SURF, $meshPosTop->ID_PRODUCT_ELMT, 1);
+
+                break;
+            
+            default:
+                $axisValue['axis1BotPos'] = $axisValue['axis1IntPos'] = $axisValue['axis1TopPos'] = $axisValue['axis2BotPos'] = $axisValue['axis2IntPos']  = $axisValue['axis2TopPos'] = $axisValue['axis3BotPos'] = $axisValue['axis3IntPos'] = $axisValue['axis3TopSurfPos'] = 0;
+                break;
+        }
+
+        return $axisValue;
+    }
+
+    public function getPositionForSelectedPoint($selectedPoint, $idProdElt, $axis)
+    {
+        $meshPosition = MeshPosition::where('ID_PRODUCT_ELMT', $idProdElt)->where('MESH_AXIS', $axis)->where('MESH_AXIS_POS', $selectedPoint)->first();
+        return ($meshPosition) ? $meshPosition->MESH_ORDER : 0;
+    }
+
+    public function saveTR_TS_VC(StudyEquipment &$studyEquipment, $dtr, $dts, $dvc, $dhs, $dtext)
+    {
+        if ($this->equip->getCapability($studyEquipment->CAPABILITIES, 1) && !empty($dtr)) {
+            $this->stdeqp->cleanSpecificEqpPrm($studyEquipment->ID_STUDY_EQUIPMENTS, 300);
+            $i = 0;
+            foreach ($dtr as $tr) {
+                $studEqpPrm = new StudEqpPrm();
+                $studEqpPrm->ID_STUDY_EQUIPMENTS = $studyEquipment->ID_STUDY_EQUIPMENTS;
+                $studEqpPrm->VALUE_TYPE = 300 + $i;
+                $studEqpPrm->VALUE = doubleval($this->unit->controlTemperature($tr, ['save' => true]));
+                $studEqpPrm->save();
+                $i++;
+            }
+        }
+
+        if(!empty($dts)) {
+            $this->stdeqp->cleanSpecificEqpPrm($studyEquipment->ID_STUDY_EQUIPMENTS, 200);
+            $i = 0;
+            foreach ($dts as $ts) {
+                $studEqpPrm = new StudEqpPrm();
+                $studEqpPrm->ID_STUDY_EQUIPMENTS = $studyEquipment->ID_STUDY_EQUIPMENTS;
+                $studEqpPrm->VALUE_TYPE = 200 + $i;
+                $studEqpPrm->VALUE = doubleval($this->unit->time($ts, ['save' => true]));
+                $studEqpPrm->save();
+                $i++;
+            }
+        }
+
+        if ($this->equip->getCapability($studyEquipment->CAPABILITIES, 4) && !empty($dvc)) {
+            $this->stdeqp->cleanSpecificEqpPrm($studyEquipment->ID_STUDY_EQUIPMENTS, 100);
+            $i = 0;
+            foreach ($dvc as $vc) {
+                $studEqpPrm = new StudEqpPrm();
+                $studEqpPrm->ID_STUDY_EQUIPMENTS = $studyEquipment->ID_STUDY_EQUIPMENTS;
+                $studEqpPrm->VALUE_TYPE = 100 + $i;
+                $studEqpPrm->VALUE = doubleval($this->unit->convectionSpeed($vc, ['save' => true]));
+                $studEqpPrm->save();
+                $i++;
+            }
+        }
+
+        if(!empty($dhs)) {
+            $this->stdeqp->cleanSpecificEqpPrm($studyEquipment->ID_STUDY_EQUIPMENTS, 400);
+            $i = 0;
+            foreach ($dhs as $dh) {
+                $studEqpPrm = new StudEqpPrm();
+                $studEqpPrm->ID_STUDY_EQUIPMENTS = $studyEquipment->ID_STUDY_EQUIPMENTS;
+                $studEqpPrm->VALUE_TYPE = 400 + $i;
+                $studEqpPrm->VALUE = doubleval($dh);
+                $studEqpPrm->save();
+                $i++;
+            }
+        }
+
+        if ($this->equip->getCapability($studyEquipment->CAPABILITIES, 512) && !empty($dtext)) {
+            $this->stdeqp->cleanSpecificEqpPrm($studyEquipment->ID_STUDY_EQUIPMENTS, 500);
+            $studEqpPrm = new StudEqpPrm();
+            $studEqpPrm->ID_STUDY_EQUIPMENTS = $studyEquipment->ID_STUDY_EQUIPMENTS;
+            $studEqpPrm->VALUE_TYPE = 500;
+            $studEqpPrm->VALUE = doubleval($this->unit->exhaustTemperature($studyEquipment->tExt, ['save' => true]));
+            $studEqpPrm->save();
+        }
+    }
+
+    public function applyStudyCleaner($input, StudyEquipment &$studyEquipment)
+    {
+        $idStudy = $studyEquipment->ID_STUDY;
+        $idStudyEquipment = $studyEquipment->ID_STUDY_EQUIPMENTS;
+        $bisApplied = false;
+
+        $listTr = $this->brain->getListTr($idStudyEquipment);
+        $listTs = $this->brain->getListTs($idStudyEquipment);
+        $listVc = $this->brain->getVc($idStudyEquipment);
+        $listTe = $this->brain->getTExt($idStudyEquipment);
+        
+        if (!$bisApplied) {
+            for ($i = 0; $i < count($listTr); $i++) { 
+                $oldTr = $this->unit->controlTemperature($listTr[$i]);
+                $newTr = $input['TR'][$i];
+                if ($oldTr != $newTr) {
+                    $bisApplied = true;
+                }
+            }
+        }
+        
+        if (!$bisApplied) {
+            for ($i = 0; $i < count($listTs); $i++) { 
+                $oldTs = $this->unit->time($listTs[$i]);
+                $newTs = $input['TS'][$i];
+                if ($oldTs != $newTs) {
+                    $bisApplied = true;
+                }
+            }
+        }
+
+        if (!$bisApplied) {
+            for ($i = 0; $i < count($listVc); $i++) { 
+                $oldVc = $this->unit->convectionSpeed($listVc[$i]);
+                $newVc = $input['VC'][$i];
+                if ($oldVc != $newVc) {
+                    $bisApplied = true;
+                }
+            }
+        }
+
+        if (!$bisApplied) {
+            if ($this->unit->exhaustTemperature($listTe) != $input['TE']) {
+                $bisApplied = true;
+            }
+        }
+
+        if ($bisApplied) {
+            if ($this->stdeqp->runStudyCleaner($idStudy, $idStudyEquipment, 43) != 0) {
+                $bisApplied = false;
+            }
+
+            $this->stdeqp->afterStudyCleaner($idStudy, $idStudyEquipment, 43);
+        }
+
+        return $bisApplied;
+    }
+
+    public function executeSequence(StudyEquipment &$studyEquipment)
+    {
+        $error = '';
+        if ($this->stdeqp->startDimMat($studyEquipment) == 0) {
+            if ($studyEquipment->study->OPTION_CRYOPIPELINE == 1) {
+                if ($this->stdeqp->startPipe($studyEquipment) == 0) {
+                    $error = "errorPIPE_Kernel";
+                }
+            }
+
+            if ($studyEquipment->study->OPTION_ECO == 1) {
+                if ($this->stdeqp->startEconomic($studyEquipment) == 0) {
+                    $error = "errorECO_Kernel";
+                }
+            }
+
+            if ($this->stdeqp->startConsumptionEconomic($studyEquipment) == 0) {
+                $error = "errorECO_Kernel";
+            }
+        } else {
+            $error = "errorDimMat_Kernel";
+        }
+
+        if ($error == '' && $this->cal->isStudyHasChilds($studyEquipment->study->ID_STUDY)) {
+            $this->cal->setChildsStudiesToRecalculate($studyEquipment->study->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
+        }
+    }
+
     public function base_path($path=null)
     {
         return rtrim(app()->basePath($path), '/');
@@ -893,3 +1183,4 @@ class OutputService
             str_pad(dechex($b+($gb*$range)),2,'0',STR_PAD_LEFT);
     }
 }
+
