@@ -328,3 +328,43 @@ $router->GET('/api/v1/input/tempprofile', 'Api1\\TempProfiles@getDataSvgTemperat
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/input/temppoint', 'Api1\\InputInitial@getDataTempoint');
+
+/**
+ * GET Data capability
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/referencedata/capability/{idEquip}', 'Api1\\ReferenceData@getCapabitity');
+
+/**
+ * POST warning
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/input/warningequipment', 'Api1\\CheckWarnings@checkWarningEquipment');
+
+/**
+ * POST warning
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/input/phamcast', 'Api1\\CheckWarnings@checkPhamCast');
+
+/**
+ * PUT study 
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->PUT('/api/v1/input/update/{idStudy}', 'Api1\\Studies@updateStudy');
+
+/**
+ * GET Data equipment
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/referencedata/inputequipment/{idEquip}', 'Api1\\Equipments@getInputEquipment');

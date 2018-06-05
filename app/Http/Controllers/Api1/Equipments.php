@@ -32,6 +32,7 @@ use App\Models\CoolingFamily;
 use App\Cryosoft\SVGService;
 use App\Cryosoft\UnitsService;
 use App\Cryosoft\MinMaxService;
+use App\Cryosoft\CalculateService;
 
 
 class Equipments extends Controller
@@ -86,11 +87,11 @@ class Equipments extends Controller
      */
     protected $units;
     
-        /**
+    /**
      * @var App\Cryosoft\MinMaxService
      */
     protected $minmax;
-
+    protected $cal;
 
     /**
      * Create a new controller instance.
@@ -98,7 +99,7 @@ class Equipments extends Controller
      * @return void
      */
     public function __construct(Request $request, Auth $auth, UnitsConverterService $convert, EquipmentsService $equip
-    , KernelService $kernel, StudyService $studies, StudyEquipmentService $stdeqp, SVGService $svg, UnitsService $units, MinMaxService $minmax)
+    , KernelService $kernel, StudyService $studies, StudyEquipmentService $stdeqp, SVGService $svg, UnitsService $units, MinMaxService $minmax, CalculateService  $cal)
     {
         $this->request = $request;
         $this->auth = $auth;
@@ -110,6 +111,7 @@ class Equipments extends Controller
         $this->svg = $svg;
         $this->units = $units;
         $this->minmax = $minmax;
+        $this->cal = $cal;
     }
 
     public function getEquipments()
@@ -126,30 +128,29 @@ class Equipments extends Controller
         
         $querys = Equipment::query();
 
-
         if ($energy != -1) {
             $querys->where('ID_COOLING_FAMILY', $energy);
         }
 
         $querys->where(function($query) use ($idStudy) {
-             $query->where('EQP_IMP_ID_STUDY', $idStudy)
-            ->orWhere('EQP_IMP_ID_STUDY', 0);
+            $query->where('EQP_IMP_ID_STUDY', $idStudy)
+                ->orWhere('EQP_IMP_ID_STUDY', 0);
         });
 
         $querys->where(function ($query) use ($idStudy) {
             $query->where('EQP_IMP_ID_STUDY', $idStudy)
-               ->orWhere('EQP_IMP_ID_STUDY', 0);
+                ->orWhere('EQP_IMP_ID_STUDY', 0);
 
             $query->where(function ($q) {
                 $q->where('ID_USER', $this->auth->user()->ID_USER)
-                      ->where('EQUIP_RELEASE', 2);
+                    ->where('EQUIP_RELEASE', 2);
             });
+
             $query->orWhere(function ($q) {
                 $q->where('EQUIP_RELEASE', 3)
-                      ->orWhere('EQUIP_RELEASE', 4);
+                    ->orWhere('EQUIP_RELEASE', 4);
             });
         });
-
 
         if ($size != '') {
             $sizeLabel = explode('x', $size);
@@ -175,12 +176,11 @@ class Equipments extends Controller
             $querys->where('CONSTRUCTOR', $manufacturer);
         }
 
+        $querys->where('EQUIP_RELEASE', '<>', 1);
         $querys->orderBy('EQUIP_NAME');
-
 
         $equipments = $querys->get();
 
-        // return $querys->toSql();
         return $equipments;
     }
 
@@ -555,8 +555,56 @@ class Equipments extends Controller
                 $this->getDecryptBinary($equipment1->ID_EQUIP, $newEquip->ID_EQUIP);
             }
 
+            // add paramester equip generation
             $minMaxAvg = $this->getMinMax(1066);
             $minMaxDwell = $this->getMinMax($equipment1->ITEM_TS);
+            $minMaxTemp = $this->getMinMax(1093);
+            $equipGen = EquipGeneration::find($equipment1->ID_EQUIPGENERATION);
+            $eqpGenLoadRate = $avgProdintemp = $rotate = $posChange = null;
+
+            if ($typeEquipment == 0) {
+                $minMaxTemp = $this->getMinMax($equipment1->ITEM_TR);
+                $tempSetPoint = floatval($minMaxTemp->DEFAULT_VALUE);
+                $dwellingTime = floatval($minMaxDwell->DEFAULT_VALUE);
+
+                if ($this->equip->getCapability($equipment1->CAPABILITIES, 65536)) {
+                    $dwellingTime = $this->units->time(floatval($input['tempSetPoint']), 2, 0);
+                } else {
+                    $tempSetPoint = $this->units->controlTemperature(floatval($input['tempSetPoint']), 2, 0);
+                }
+
+            } else if ($typeEquipment == 1) {
+                if ($equipGen) {
+                    $tempSetPoint = $equipGen->TEMP_SETPOINT;
+                    $dwellingTime = $equipGen->DWELLING_TIME;
+                    $eqpGenLoadRate = $equipGen->EQP_GEN_LOADRATE;
+                    $avgProdintemp = $equipGen->AVG_PRODINTEMP;
+                    $posChange = 1;
+                }
+            } else if ($typeEquipment == 2) {
+                if ($equipGen) {
+                    $tempSetPoint = $equipGen->TEMP_SETPOINT;
+                    $dwellingTime = $equipGen->DWELLING_TIME;
+                    $eqpGenLoadRate = $equipGen->EQP_GEN_LOADRATE;
+                    $avgProdintemp = $equipGen->AVG_PRODINTEMP;
+                    $rotate  = 1;
+                }
+            } else if ($typeEquipment == 3) {
+                $minMaxTemp = $this->getMinMax($equipment1->ITEM_TR);
+                $tempSetPoint = floatval($minMaxTemp->DEFAULT_VALUE);
+                $dwellingTime = floatval($minMaxDwell->DEFAULT_VALUE);
+
+                $_equip1 = Equipment::find($equipId1);
+                $_equip2 = Equipment::find($equipId2);
+
+                if ($_equip1 && $_equip2 &&
+                    $this->equip->getCapability($_equip1->CAPABILITIES, 65536) &&
+                    $this->equip->getCapability($_equip2->CAPABILITIES, 65536)) {
+                    $dwellingTime = $this->units->time(floatval($input['tempSetPoint']), 2, 0);
+                } else {
+                    $tempSetPoint = $this->units->controlTemperature(floatval($input['tempSetPoint']), 2, 0);
+                }
+            }
 
             $equipGeneration = new EquipGeneration();
             $equipGeneration->ID_EQUIP = $newEquip->ID_EQUIP;
@@ -567,11 +615,11 @@ class Equipments extends Controller
             $equipGeneration->DWELLING_TIME = ($dwellingTime > 0) ? $dwellingTime : $minMaxDwell->DEFAULT_VALUE;
             $equipGeneration->MOVING_CHANGE = 0;
             $equipGeneration->MOVING_POS = 0;
-            $equipGeneration->ROTATE = 0;
-            $equipGeneration->POS_CHANGE = 0;
+            $equipGeneration->ROTATE = ($rotate > 0) ? $rotate : 0;;
+            $equipGeneration->POS_CHANGE = ($posChange > 0) ? $posChange : 0;
             $equipGeneration->NEW_POS = ($newPos != null) ? $newPos : 0;
             $equipGeneration->EQP_GEN_STATUS = 0;
-            $equipGeneration->EQP_GEN_LOADRATE = 0;
+            $equipGeneration->EQP_GEN_LOADRATE = ($eqpGenLoadRate > 0) ? $eqpGenLoadRate : 0;
             $equipGeneration->save();
             Equipment::where('ID_EQUIP', $newEquip->ID_EQUIP)->update(['ID_EQUIPGENERATION' => $equipGeneration->ID_EQUIPGENERATION]);
 
@@ -619,6 +667,41 @@ class Equipments extends Controller
             $equipGenerRs->NEW_POS = doubleval($this->convert->timeUser($equipGenerRs->NEW_POS));
         }
         $equipRs->equipGeneration = $equipGenerRs;
+
+        return $equipRs;
+    }
+
+    public function getInputEquipment($idEquip)
+    {
+        $equipRs =  Equipment::find($idEquip);
+
+        if ($equipRs) {
+            $equipRs->capabilitiesCalc = $this->equip->getCapability($equipRs->CAPABILITIES, 65536);
+            $equipRs->capabilitiesCalc256 = $this->equip->getCapability($equipRs->CAPABILITIES, 256);
+            $equipRs->timeSymbol = $this->convert->timeSymbolUser();
+            $equipRs->temperatureSymbol = $this->convert->temperatureSymbolUser();
+            $equipRs->dimensionSymbol = $this->convert->equipDimensionSymbolUser();
+            $equipRs->consumptionSymbol1 = $this->convert->consumptionSymbolUser($equipRs->ID_COOLING_FAMILY, 1);
+            $equipRs->consumptionSymbol2 = $this->convert->consumptionSymbolUser($equipRs->ID_COOLING_FAMILY, 2);
+            $equipRs->consumptionSymbol3 = $this->convert->consumptionSymbolUser($equipRs->ID_COOLING_FAMILY, 3);
+            $equipRs->shelvesWidthSymbol = $this->convert->shelvesWidthSymbol();
+            $equipRs->rampsPositionSymbol = $this->convert->rampsPositionSymbol();
+
+            $equipRs->EQP_LENGTH = $this->convert->equipDimensionUser($equipRs->EQP_LENGTH);
+            $equipRs->EQP_WIDTH = $this->convert->equipDimensionUser($equipRs->EQP_WIDTH);
+            $equipRs->EQP_HEIGHT = $this->convert->equipDimensionUser($equipRs->EQP_HEIGHT);
+            $equipRs->MAX_FLOW_RATE = $this->convert->consumptionUser($equipRs->MAX_FLOW_RATE, $equipRs->ID_COOLING_FAMILY, 1);
+            $equipRs->TMP_REGUL_MIN = $this->convert->controlTemperatureUser($equipRs->TMP_REGUL_MIN);
+
+            $equipGenerRs = EquipGeneration::find($equipRs->ID_EQUIPGENERATION);
+        
+            if ($equipGenerRs) { 
+                $equipGenerRs->TEMP_SETPOINT = doubleval($this->convert->controlTemperatureUser($equipGenerRs->TEMP_SETPOINT));
+                $equipGenerRs->DWELLING_TIME = doubleval($this->convert->timeUser($equipGenerRs->DWELLING_TIME));
+                $equipGenerRs->NEW_POS = doubleval($this->convert->timeUser($equipGenerRs->NEW_POS));
+            }
+            $equipRs->equipGeneration = $equipGenerRs;
+        }
 
         return $equipRs;
     }
@@ -1006,7 +1089,7 @@ class Equipments extends Controller
         }
 
         if ($profileFace == 0) {
-            $checkTop = 0;
+            $checkTop = true;
         } else if ($profileFace == 1) {
             $checkButton = 1;
         } else if ($profileFace == 2) {
@@ -1034,12 +1117,12 @@ class Equipments extends Controller
                 for($i = 0; $i < count($listOfPoints); $i++) {
                     $end = strpos($newProfil, '_', $start);
                     $value = substr($newProfil, $start, $end);
-                    
+
                     if ($value != '') {
                         if ($profileType == 1) {
-                            $listOfPoints[$i]['Y_POINT'] = $this->convert->convectionCoeff($value);
+                            $listOfPoints[$i]['Y_POINT'] = doubleval($value);
                         } else {
-                            $listOfPoints[$i]['Y_POINT'] = $this->convert->temperature($value);
+                            $listOfPoints[$i]['Y_POINT'] = doubleval($value);
                         }
                     } else {
                         $listOfPoints[$i]['Y_POINT'] = DOUBLE_MIN_VALUE;
@@ -1048,10 +1131,12 @@ class Equipments extends Controller
                     $start = $end + 1;
                 }
 
-                $listOfPoints = $this->svg->generateNewProfile($listofPointsOld, $listOfPoints, $minMax->LIMIT_MIN, $minMax->LIMIT_MAX);
+                $listOfPoints = $this->svg->generateNewProfile($listofPointsOld, $listOfPoints, $minMax->LIMIT_MIN, $minMax->LIMIT_MAX, $profileType);
+
             }
         }
-        
+        // End generate new profile
+
         if (count($listOfPoints) > 0) {
             for($i = 0; $i < count($listOfPoints); $i++) {
                 array_push($valuesTabX, $listOfPoints[$i]['X_POSITION']);
@@ -1083,6 +1168,7 @@ class Equipments extends Controller
         }
 
         $lfOffset = abs($maxValueY - $minValueY) * 0.15;
+
         if ($lfOffset > 0.0) {
             $minScaleY = $minValueY - $lfOffset;
             $maxScaleY = $maxValueY + $lfOffset;
@@ -1099,19 +1185,22 @@ class Equipments extends Controller
             $maxScaleY = $maxValueY + $lfOffset;
         }
 
-        $minScaleYtmp = round($this->convert->convertIdent($minScaleY, $unitIdent));
-        $maxScaleYtmp = round($this->convert->convertIdent($maxScaleY, $unitIdent));
-
+        $minScaleYtmp = $minScaleY;
+        $maxScaleYtmp = $maxScaleY;
+   
         if ($minScaleYtmp != $maxScaleYtmp) {
             $minScaleY = $minScaleYtmp;
             $maxScaleY = $maxScaleYtmp;
         }
 
-        if ($minScaleY < $minMax->LIMIT_MIN) $minScaleY = $minMax->LIMIT_MIN;
-        if ($maxScaleY > $minMax->LIMIT_MAX) $maxScaleY = $minMax->LIMIT_MAX;
+        $tempMin = $minMax->LIMIT_MIN;
+        $tempMax = $minMax->LIMIT_MAX;
 
-        $miniMum = $this->convert->convertIdent($minScaleY, $unitIdent);
-        $maxiMum = $this->convert->convertIdent($maxScaleY, $unitIdent);
+        if ($minScaleY < $tempMin) $minScaleY = $minMax->LIMIT_MIN;
+        if ($maxScaleY > $tempMax) $maxScaleY = $minMax->LIMIT_MAX;
+
+        $miniMum = round($this->convert->convertIdent($minScaleY, $unitIdent), 2);
+        $maxiMum = round($this->convert->convertIdent($maxScaleY, $unitIdent), 2);
 
         //refresh
         if ($typeChart == 1) {
@@ -1135,7 +1224,11 @@ class Equipments extends Controller
         for($i = 0; $i < count($listOfPoints); $i++) {
     
             $listOfPoints[$i]['X_POSITION'] = $this->svg->getAxisXPos(doubleval($listOfPoints[$i]['X_POSITION']));
-            $listOfPoints[$i]['Y_POINT'] = $this->svg->getAxisYPos(doubleval($listOfPoints[$i]['Y_POINT']), $miniMum, $maxiMum);
+            // $listOfPoints[$i]['Y_POINT'] = $this->svg->getAxisYPos(doubleval($listOfPoints[$i]['Y_POINT']), $miniMum, $maxiMum);
+            $listOfPoints[$i]['Y_POINT'] = $this->svg->getAxisYPos(
+                $this->convert->convertIdent(doubleval($listOfPoints[$i]['Y_POINT']), $unitIdent), 
+                $miniMum, 
+                $maxiMum);
 
             array_push($posTabY, $listOfPoints[$i]['Y_POINT']);
             if ($i == 0) {
@@ -1225,9 +1318,9 @@ class Equipments extends Controller
                 
                 if ($value != '') {
                     if ($profileType == 1) {
-                        $listOfPoints[$i]['Y_POINT'] = $this->convert->convectionCoeff($value);
+                        $listOfPoints[$i]['Y_POINT'] = doubleval($value);
                     } else {
-                        $listOfPoints[$i]['Y_POINT'] = $this->convert->temperature($value);
+                        $listOfPoints[$i]['Y_POINT'] = doubleval($value);
                     }
                 } else {
                     $listOfPoints[$i]['Y_POINT'] = DOUBLE_MIN_VALUE;
@@ -1620,11 +1713,11 @@ class Equipments extends Controller
     public function reCalculate($id)
     {
         $study = Study::find($id);
-
         $studyEquipments = $study->studyEquipments;
-
+        $this->stdeqp->runStudyCleaner($id, -1, 48);
         if (count($studyEquipments) > 0) {
             foreach ($studyEquipments as $sEquip) {
+                
                 $sEquip->BRAIN_SAVETODB = 0;
                 $sEquip->BRAIN_TYPE = 0;
                 $sEquip->EQUIP_STATUS = 0;
@@ -1636,6 +1729,7 @@ class Equipments extends Controller
                 $sEquip->save();
             }
         }
+        $this->stdeqp->afterStudyCleaner($id, -1, 48, false, false, false, false);
 
         return 1;
     }
@@ -1708,24 +1802,25 @@ class Equipments extends Controller
         $input = $this->request->all();
 
         $lfOldTR = $lfNewTR = $ID_STUDY = $ID_EQUIP = $equipment = $equipGeneration = $result = null;
-        $nbStudies = $lastIdStudy = $id_equip = 0;
+        $nbStudies = $lastIdStudy = $id_equip_ = 0;
 
         if (isset($input['ID_EQUIP'])) $ID_EQUIP = intval($input['ID_EQUIP']);
         if (isset($input['ID_STUDY'])) $ID_STUDY = intval($input['ID_STUDY']);
         if (isset($input['tr_current'])) $lfOldTR = floatval($input['tr_current']);
         if (isset($input['tr_new'])) $lfNewTR = floatval($input['tr_new']);
+        if (isset($input['isComefromStudy'])) $isComefromStudy = intval($input['isComefromStudy']);
 
         $equipment = Equipment::find($ID_EQUIP);
         if ($equipment) {
             $equipGeneration = EquipGeneration::where('ID_EQUIP', $equipment->ID_EQUIP)->first();
 
             if (abs($lfOldTR - $lfNewTR) > 0.01) {
-                $id_equip = $ID_EQUIP;
+                $id_equip_ = $ID_EQUIP;
                 $studyEquipments = null;
 
-                // if ($this->isComefromStudy()) {
+                // if ($isComefromStudy == 1) {
                 //     $studyEquipments = StudyEquipment::where('ID_EQUIP', $ID_EQUIP)
-                //                         ->where('ID_STUDY', $ID_EQUIP)->get();
+                //                         ->where('ID_STUDY', $ID_STUDY)->get();
                 // } else {
                 //     $studyEquipments = StudyEquipment::where('ID_EQUIP', $ID_EQUIP)->get();
                 // }
@@ -1764,7 +1859,32 @@ class Equipments extends Controller
                     $equipGeneration->save();
 
                     $result = $this->runEquipmentCalculation($equipGeneration->ID_EQUIPGENERATION);
+
+                    // update study equipment
+                    if ($isComefromStudy == 1) {
+                        $studyEquipments = StudyEquipment::where('ID_EQUIP', $ID_EQUIP)
+                                            ->where('ID_STUDY', $ID_STUDY)->get();
+                        if (count($studyEquipments) > 0) {
+                            for ($i = 0; $i < count($studyEquipments); $i++) {
+                                if ($studyEquipments[$i]->ID_EQUIP == $id_equip_) {
+                                    $idStudyEquipment = $studyEquipments[$i]->ID_STUDY_EQUIPMENTS;
+                                    $this->studies->RunStudyCleaner($ID_STUDY, 43, $idStudyEquipment);
+
+                                    $this->cal->setChildsStudiesToRecalculate($ID_STUDY, $idStudyEquipment);
+
+                                    try {
+                                        $this->studies->updateStudyEquipmentAfterChangeTR($idStudyEquipment, $ID_EQUIP);
+                                    } catch (\Exception $e) {
+                                        echo ("Exception while updating study equipment: " . $e);
+                                    }
+                                }
+
+                            }
+                        }
+                    }
                 }
+            } else {
+                echo 'No change in temperature : nothing to do';
             }
         }
         $equipRs =  Equipment::find($ID_EQUIP);
@@ -1800,12 +1920,6 @@ class Equipments extends Controller
             "RefEquipment" => $equipRs,
             "CheckKernel" => $result
         ];
-    }
-
-    public function isComefromStudy()
-    {
-        //some code here (if exist ID_EQUIP in study load)
-        return false;
     }
 
     private function changeNameAndVersionForNewTR($equipment, $lfNewTR, $bDuplicate)
@@ -1859,7 +1973,7 @@ class Equipments extends Controller
 
     private function runEquipmentCalculation($IdEquipgeneration)
     {
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $IdEquipgeneration);
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $IdEquipgeneration, 0, 1, 1, 'c:\\temp\\equipment_builder_log.txt');
         return $this->kernel->getKernelObject('EquipmentBuilder')->EBEquipmentCalculation($conf);
     }
 

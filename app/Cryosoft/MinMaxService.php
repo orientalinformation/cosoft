@@ -41,7 +41,7 @@ class MinMaxService
     public function checkMinMaxValue($value, $limitItem)
     {
         $minMax = MinMax::where('LIMIT_ITEM', intval($limitItem))->first();
-        if (doubleval($value) < round($minMax->LIMIT_MIN, 2) || doubleval($value) > round($minMax->LIMIT_MAX, 2)) {
+        if (doubleval($value) < round($minMax->LIMIT_MIN, 4) || doubleval($value) > round($minMax->LIMIT_MAX, 4)) {
             return false;
         } else {
             return true;
