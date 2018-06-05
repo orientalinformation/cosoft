@@ -1457,23 +1457,115 @@ class Studies extends Controller
         return $chaining;
     }
 
+
     public function getlocationAxisSelected($id)
     {
         $tempRecordPts = TempRecordPts::where("ID_STUDY", $id)->first();
 
-        $axisTemp["top"] = [$this->convert->meshesUnit($tempRecordPts->AXIS1_PT_TOP_SURF), $this->convert->meshesUnit($tempRecordPts->AXIS2_PT_TOP_SURF), $this->convert->meshesUnit($tempRecordPts->AXIS3_PT_TOP_SURF)];
+        $axisTemp["top"] = [
+            [
+                'name' => $this->convert->meshesUnit($tempRecordPts->AXIS1_PT_TOP_SURF),
+                'value' => $tempRecordPts->AXIS1_PT_TOP_SURF
+            ],
+            [
+                'name' => $this->convert->meshesUnit($tempRecordPts->AXIS2_PT_TOP_SURF),
+                'value' => $tempRecordPts->AXIS2_PT_TOP_SURF
+            ],
+            [
+                'name' => $this->convert->meshesUnit($tempRecordPts->AXIS3_PT_TOP_SURF),
+                'value' => $tempRecordPts->AXIS3_PT_TOP_SURF
+            ],
+        ];
 
-        $axisTemp["int"] = [$this->convert->meshesUnit($tempRecordPts->AXIS1_PT_INT_PT), $this->convert->meshesUnit($tempRecordPts->AXIS2_PT_INT_PT), $this->convert->meshesUnit($tempRecordPts->AXIS3_PT_INT_PT)];
+        $axisTemp["int"] = [
+            [
+                'name' => $this->convert->meshesUnit($tempRecordPts->AXIS1_PT_INT_PT),
+                'value' => $tempRecordPts->AXIS1_PT_INT_PT
+            ],
+            [
+                'name' => $this->convert->meshesUnit($tempRecordPts->AXIS2_PT_INT_PT),
+                'value' => $tempRecordPts->AXIS2_PT_INT_PT
+            ],
+            [
+                'name' => $this->convert->meshesUnit($tempRecordPts->AXIS3_PT_INT_PT),
+                'value' => $tempRecordPts->AXIS3_PT_INT_PT
+            ]
+        ];
 
-        $axisTemp["bot"] = [$this->convert->meshesUnit($tempRecordPts->AXIS1_PT_BOT_SURF), $this->convert->meshesUnit($tempRecordPts->AXIS2_PT_BOT_SURF), $this->convert->meshesUnit($tempRecordPts->AXIS3_PT_BOT_SURF)];
+        $axisTemp["bot"] = [
+            [
+                'name' => $this->convert->meshesUnit($tempRecordPts->AXIS1_PT_BOT_SURF),
+                'value' => $tempRecordPts->AXIS1_PT_BOT_SURF
+            ],
+            [
+                'name' => $this->convert->meshesUnit($tempRecordPts->AXIS2_PT_BOT_SURF),
+                'value' => $tempRecordPts->AXIS2_PT_BOT_SURF
+            ],
+            [
+                'name' => $this->convert->meshesUnit($tempRecordPts->AXIS3_PT_BOT_SURF),
+                'value' => $tempRecordPts->AXIS3_PT_BOT_SURF
+            ]
+        ];
 
-        $axisTemp["axe1"] = [0.0, $this->convert->meshesUnit($tempRecordPts->AXIS2_AX_1), $this->convert->meshesUnit($tempRecordPts->AXIS3_AX_1)];
+        $axisTemp["axe1"] = [
+            [
+                'name' => 0.0,
+                'value' => 0.0
+            ],
+            [
+                'name' => $this->convert->meshesUnit($tempRecordPts->AXIS2_AX_1),
+                'value' => $tempRecordPts->AXIS2_AX_1
+            ],
+            [
+                'name' => $this->convert->meshesUnit($tempRecordPts->AXIS3_AX_1),
+                'value' => $tempRecordPts->AXIS3_AX_1
+            ]
+        ];
 
-        $axisTemp["axe2"] = [$this->convert->meshesUnit($tempRecordPts->AXIS1_AX_2), 0.0, $this->convert->meshesUnit($tempRecordPts->AXIS3_AX_2)];
+        $axisTemp["axe2"] = [
+            [
+                'name' => $this->convert->meshesUnit($tempRecordPts->AXIS1_AX_2),
+                'value' => $tempRecordPts->AXIS1_AX_2
+            ],
+            [
+                'name' => 0.0,
+                'value' => 0.0
+            ],
+            [
+                'name' => $this->convert->meshesUnit($tempRecordPts->AXIS3_AX_2),
+                'value' => $tempRecordPts->AXIS3_AX_2
+            ]
+        ];
 
-        $axisTemp["axe3"] = [$this->convert->meshesUnit($tempRecordPts->AXIS1_AX_3), $this->convert->meshesUnit($tempRecordPts->AXIS2_AX_3), 0.0];
+        $axisTemp["axe3"] = [
+            [
+                'name' => $this->convert->meshesUnit($tempRecordPts->AXIS1_AX_3),
+                'value' => $tempRecordPts->AXIS1_AX_3
+            ],
+            [
+                'name' => $this->convert->meshesUnit($tempRecordPts->AXIS2_AX_3),
+                'value' => $tempRecordPts->AXIS2_AX_3
+            ],
+            [
+                'name' => 0.0,
+                'value' => 0.0
+            ]
+        ];
 
-        $axisTemp["plan"] = [$this->convert->meshesUnit($tempRecordPts->AXIS1_PL_2_3), $this->convert->meshesUnit($tempRecordPts->AXIS2_PL_1_3), $this->convert->meshesUnit($tempRecordPts->AXIS3_PL_1_2)];
+        $axisTemp["plan"] = [
+            [
+                'name' => $this->convert->meshesUnit($tempRecordPts->AXIS1_PL_2_3),
+                'value' => $tempRecordPts->AXIS1_PL_2_3
+            ],
+            [
+                'name' => $this->convert->meshesUnit($tempRecordPts->AXIS2_PL_1_3),
+                'value' => $tempRecordPts->AXIS2_PL_1_3
+            ],
+            [
+                'name' => $this->convert->meshesUnit($tempRecordPts->AXIS3_PL_1_2),
+                'value' => $tempRecordPts->AXIS3_PL_1_2
+            ]
+        ];
 
 
         return $axisTemp;
