@@ -181,30 +181,30 @@ class Reports extends Controller
                 $tempRecordPts = TempRecordPts::where("ID_STUDY", $study->ID_STUDY)->first();
                 if ($report->POINT1_X == 0) {
                     $report->POINT1_X = $tempRecordPts->AXIS1_PT_TOP_SURF;
-                }
+                } 
                 if ($report->POINT1_Y == 0) {
-                    $report->POINT1_Y = $tempRecordPts->AXIS1_PT_INT_PT;
+                    $report->POINT1_Y = $tempRecordPts->AXIS2_PT_TOP_SURF;
                 }
                 if ($report->POINT1_Z == 0) {
-                    $report->POINT1_Z = $tempRecordPts->AXIS1_PT_BOT_SURF;
+                    $report->POINT1_Z = $tempRecordPts->AXIS3_PT_BOT_SURF;
                 }
                 
                 
                 if ($report->POINT2_X == 0) {
-                    $report->POINT2_X = $tempRecordPts->AXIS2_PT_TOP_SURF;
+                    $report->POINT2_X = $tempRecordPts->AXIS1_PT_INT_PT;
                 }
                 if ($report->POINT2_Y == 0) {
                     $report->POINT2_Y = $tempRecordPts->AXIS2_PT_INT_PT;
                 }
                 if ($report->POINT2_Z == 0) {
-                    $report->POINT2_Z = $tempRecordPts->AXIS2_PT_BOT_SURF;
+                    $report->POINT2_Z = $tempRecordPts->AXIS3_PT_INT_PT;
                 }
                 
                 if ($report->POINT3_X == 0) {
-                    $report->POINT3_X = $tempRecordPts->AXIS3_PT_TOP_SURF;
+                    $report->POINT3_X = $tempRecordPts->AXIS1_PT_BOT_SURF;
                 }
                 if ($report->POINT3_Y == 0) {
-                    $report->POINT3_Y = $tempRecordPts->AXIS3_PT_INT_PT;
+                    $report->POINT3_Y = $tempRecordPts->AXIS2_PT_BOT_SURF;
                 }
                 if ($report->POINT3_Z == 0) {
                     $report->POINT3_Z = $tempRecordPts->AXIS3_PT_BOT_SURF;
