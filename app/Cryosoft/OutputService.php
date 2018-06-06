@@ -434,8 +434,8 @@ class OutputService
             $tempRecordDataMax = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->orderBy('TEMP', 'DESC')->first();
             $tempResult = [$tempRecordDataMin->TEMP, $tempRecordDataMax->TEMP];
         } else {
-            $tempRecordDataMin = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->where('RECORD_TIME', $recordTime)->orderBy('TEMP', 'ASC')->first();
-            $tempRecordDataMax = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->where('RECORD_TIME', $recordTime)->orderBy('TEMP', 'DESC')->first();
+            $tempRecordDataMin = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->where('RECORD_TIME', '=','CAST('.$recordTime.' AS DECIMAL)')->orderBy('TEMP', 'ASC')->first();            
+            $tempRecordDataMax = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->where('RECORD_TIME', '=','CAST('.$recordTime.' AS DECIMAL)')->orderBy('TEMP', 'DESC')->first();
             $tempResult = [$tempRecordDataMin->TEMP, $tempRecordDataMax->TEMP];
         }
 
@@ -868,6 +868,7 @@ class OutputService
         $orientation = $layoutGen->PROD_POSITION;
 
         $tempRecordPts = TempRecordPts::where('ID_STUDY', $idStudy)->first();
+        // $tempRecordPts = TempRecordPts::select('CAST(AXIS2_PT_TOP_SURF AS DECIMAL)')->where('ID_STUDY', $idStudy)->first();
         $meshPosTop = $this->getPositionForAxis2($idStudy, $tempRecordPts->AXIS2_PT_TOP_SURF, 2);
         $meshPosInt = $this->getPositionForAxis2($idStudy, $tempRecordPts->AXIS2_PT_INT_PT, 2);
         $meshPosBot = $this->getPositionForAxis2($idStudy, $tempRecordPts->AXIS2_PT_BOT_SURF, 2);
