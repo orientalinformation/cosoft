@@ -929,6 +929,7 @@ class StudyEquipmentService
 
     public function updateEquipmentData(&$studyEquipment)
     {
+        
         if ($this->equip->getCapability($studyEquipment->CAPABILITIES, 1) && !empty($studyEquipment->tr)) {
             $this->cleanSpecificEqpPrm($studyEquipment->ID_STUDY_EQUIPMENTS, 300);
             $i = 0;
@@ -954,20 +955,33 @@ class StudyEquipmentService
                 $i++;
             }
         }
-
-        if ($this->equip->getCapability($studyEquipment->CAPABILITIES, 4) && !empty($studyEquipment->vc)) {
-            $this->cleanSpecificEqpPrm($studyEquipment->ID_STUDY_EQUIPMENTS, 100);
-            $i = 0;
-            foreach ($studyEquipment->vc as $vc) {
-                $studEqpPrm = new StudEqpPrm();
-                $studEqpPrm->ID_STUDY_EQUIPMENTS = $studyEquipment->ID_STUDY_EQUIPMENTS;
-                $studEqpPrm->VALUE_TYPE = 100 + $i;
-                $studEqpPrm->VALUE = doubleval($this->convert->convectionSpeed($vc, ['save' => true]));
-                $studEqpPrm->save();
-                $i++;
+        if (!empty($studyEquipment->vc)) {
+            if ($studyEquipment->ID_EQUIPSERIES != 16 || $studyEquipment->ID_EQUIPSERIES != 17) {
+                $this->cleanSpecificEqpPrm($studyEquipment->ID_STUDY_EQUIPMENTS, 100);
+                $i = 0;
+                foreach ($studyEquipment->vc as $vc) {
+                    $studEqpPrm = new StudEqpPrm();
+                    $studEqpPrm->ID_STUDY_EQUIPMENTS = $studyEquipment->ID_STUDY_EQUIPMENTS;
+                    $studEqpPrm->VALUE_TYPE = 100 + $i;
+                    $studEqpPrm->VALUE = doubleval($this->convert->convectionSpeed($vc, ['save' => true]));
+                    $studEqpPrm->save();
+                    $i++;
+                    
+                }
+            } else if ($this->equip->getCapability($studyEquipment->CAPABILITIES, 4)) {
+                $this->cleanSpecificEqpPrm($studyEquipment->ID_STUDY_EQUIPMENTS, 100);
+                $i = 0;
+                foreach ($studyEquipment->vc as $vc) {
+                    $studEqpPrm = new StudEqpPrm();
+                    $studEqpPrm->ID_STUDY_EQUIPMENTS = $studyEquipment->ID_STUDY_EQUIPMENTS;
+                    $studEqpPrm->VALUE_TYPE = 100 + $i;
+                    $studEqpPrm->VALUE = doubleval($this->convert->convectionSpeed($vc, ['save' => true]));
+                    $studEqpPrm->save();
+                    $i++;
+                    
+                }
             }
         }
-
         if (!empty($studyEquipment->dh)) {
             $this->cleanSpecificEqpPrm($studyEquipment->ID_STUDY_EQUIPMENTS, 400);
             $i = 0;
