@@ -82,16 +82,7 @@ class InputInitial extends Controller
             $sizeList3 = count($listAxis3);
         }
 
-        if ($tempRecordPts->AXIS1_PT_TOP_SURF == 0 && $tempRecordPts->AXIS2_PT_TOP_SURF == 0 && 
-            $tempRecordPts->AXIS3_PT_TOP_SURF == 0 && $tempRecordPts->AXIS1_PT_INT_PT == 0 &&
-            $tempRecordPts->AXIS2_PT_INT_PT == 0 && $tempRecordPts->AXIS3_PT_INT_PT == 0 &&
-            $tempRecordPts->AXIS1_PT_BOT_SURF == 0 && $tempRecordPts->AXIS2_PT_BOT_SURF == 0 &&
-            $tempRecordPts->AXIS3_PT_BOT_SURF == 0 && $tempRecordPts->AXIS2_AX_1 == 0 &&
-            $tempRecordPts->AXIS3_AX_1 == 0 && $tempRecordPts->AXIS1_AX_2 == 0 &&
-            $tempRecordPts->AXIS3_AX_2 == 0 && $tempRecordPts->AXIS1_AX_3 == 0 &&
-            $tempRecordPts->AXIS2_AX_3 == 0 && $tempRecordPts->AXIS1_PL_2_3 == 0 &&
-            $tempRecordPts->AXIS2_PL_1_3 == 0 && $tempRecordPts->AXIS3_PL_1_2 == 0
-        ) {
+        if (!$this->product->IsMeshPositionCalculate($idStudy)) {
             if (($tempRecordPtsDef) && ($tempRecordPts) && 
             ($sizeList1 > 0) && ($sizeList2 > 0) && ($sizeList3 > 0)) {
                 if ($idShape == 7) {
