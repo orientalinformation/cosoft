@@ -241,27 +241,29 @@ class OutputService
     {
         $trp = TempRecordPts::where("ID_STUDY", $idStudy)->first();
         $meshSel = [];
-        $meshSel = array_merge($meshSel, array(
-            $trp->AXIS1_PT_TOP_SURF,
-            $trp->AXIS2_PT_TOP_SURF,
-            $trp->AXIS3_PT_TOP_SURF,
-            $trp->AXIS1_PT_INT_PT,
-            $trp->AXIS2_PT_INT_PT,
-            $trp->AXIS3_PT_INT_PT,
-            $trp->AXIS1_PT_BOT_SURF,
-            $trp->AXIS2_PT_BOT_SURF,
-            $trp->AXIS3_PT_BOT_SURF,
-            $trp->AXIS2_AX_1,
-            $trp->AXIS3_AX_1,
-            $trp->AXIS1_AX_2,
-            $trp->AXIS3_AX_2,
-            $trp->AXIS1_AX_3,
-            $trp->AXIS2_AX_3,
-            $trp->AXIS1_PL_2_3,
-            $trp->AXIS2_PL_1_3,
-            $trp->AXIS3_PL_1_2
-        ));
-
+        if ($trp) {
+            $meshSel = array_merge($meshSel, array(
+                $trp->AXIS1_PT_TOP_SURF,
+                $trp->AXIS2_PT_TOP_SURF,
+                $trp->AXIS3_PT_TOP_SURF,
+                $trp->AXIS1_PT_INT_PT,
+                $trp->AXIS2_PT_INT_PT,
+                $trp->AXIS3_PT_INT_PT,
+                $trp->AXIS1_PT_BOT_SURF,
+                $trp->AXIS2_PT_BOT_SURF,
+                $trp->AXIS3_PT_BOT_SURF,
+                $trp->AXIS2_AX_1,
+                $trp->AXIS3_AX_1,
+                $trp->AXIS1_AX_2,
+                $trp->AXIS3_AX_2,
+                $trp->AXIS1_AX_3,
+                $trp->AXIS2_AX_3,
+                $trp->AXIS1_PL_2_3,
+                $trp->AXIS2_PL_1_3,
+                $trp->AXIS3_PL_1_2
+            ));
+        }
+        
         return $meshSel;   
     }
 
@@ -420,7 +422,7 @@ class OutputService
     {
         $result = "";
         $rMeshPosition = MeshPosition::where('ID_STUDY', $idStudy)->where('MESH_AXIS', $meshAxis)->where('MESH_AXIS_POS', $axis)->first();
-
+        
         return $rMeshPosition;
     }
 
