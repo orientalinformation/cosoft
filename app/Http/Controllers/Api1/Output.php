@@ -554,8 +554,8 @@ class Output extends Controller
                     $dimaR = DimaResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("DIMA_TYPE", 1)->first();
                 }
 
-                if ($economicResult != null) {
-                    if ($dimaR != null) {
+                if ($economicResult) {
+                    if ($dimaR) {
                         $dimaStatus = $this->dima->getCalculationStatus($dimaR->DIMA_STATUS);
                         $equipStatus = $row->EQUIP_STATUS;
                     } else {
