@@ -40,4 +40,3 @@ $router->GET('/api/v1/translations/filterTrans', 'Api1\\Translations@filterTrans
 $router->POST('/api/v1/translations/update', 'Api1\\Translations@changeLabels');
 
 
-

@@ -1183,3 +1183,4 @@ class OutputService
             str_pad(dechex($b+($gb*$range)),2,'0',STR_PAD_LEFT);
     }
 }
+
