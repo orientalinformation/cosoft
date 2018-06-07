@@ -758,17 +758,17 @@ class Calculator extends Controller
                 $this->cal->setChildsStudiesToRecalculate($idStudy, $idStudyEquipment);
             }
 
-            // $this->runStudyCleaner($idStudy, $idStudyEquipment, 53);
+            $this->runStudyCleaner($idStudy, $idStudyEquipment, 53);
 
             $study = Study::find($idStudy);
             if ($study->OPTION_CRYOPIPELINE == 1) {
                 $this->startPipeLine($idStudy, $idStudyEquipment);
             }
                      
+            $runType = $this->startBrainNumericalCalculation($idStudy, $idStudyEquipment, $brainMode);
+
             $this->startEconomic($idStudy, $idStudyEquipment);
             $this->startConsumptionEconomic($idStudy, $idStudyEquipment);
-
-            $runType = $this->startBrainNumericalCalculation($idStudy, $idStudyEquipment, $brainMode);
 
             if ($runType == 259) {
                 sleep(60);
@@ -1152,7 +1152,7 @@ class Calculator extends Controller
         $results = null;
 
         if (count($studyEquipment) > 0) {
-            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\brain_log.txt');
+            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\brain_log_'.$idStudy.'_'.$idStudyEquipment.'_'.$ldMode.'.txt');
             $param = new \Cryosoft\stSKBRParam();
 
             $results = $this->kernel->getKernelObject('BrainCalculator')->BRTeachCalculation($conf, $param, $ldMode);
