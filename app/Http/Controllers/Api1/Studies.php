@@ -43,6 +43,7 @@ use App\Models\PipeGen;
 use App\Models\PipeRes;
 use App\Models\LineElmt;
 use App\Models\LineDefinition;
+use App\Models\RecordPosition;
 use App\Cryosoft\MeshService;
 use App\Cryosoft\UnitsService;
 
@@ -1230,6 +1231,7 @@ class Studies extends Controller
 
     public function removeStudyEquipment($id, $idEquip) 
     {
+
         $study = \App\Models\Study::findOrFail($id);
 
         if (!$study) {
@@ -1240,6 +1242,11 @@ class Studies extends Controller
 
         if (!$equip) {
             throw new \Exception('Study equipment not found', 404);
+        }
+
+        // add by oriental Tran
+        if ($equip) {
+            $this->study->RunStudyCleaner($id, 43, $idEquip);
         }
 
         foreach ($equip->layoutGenerations as $layoutGen) {
