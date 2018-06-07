@@ -366,7 +366,7 @@ class Calculator extends Controller
 
     public function startConsumptionEconomic($idStudy, $idStudyEquipment)
     {
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\Consumption_'.$idStudy.'_'.$idStudyEquipment.'.txt');
         return $this->kernel->getKernelObject('ConsumptionCalculator')->COCConsumptionCalculation($conf);
     }
 
@@ -404,7 +404,11 @@ class Calculator extends Controller
                 $capability = $studyEquipments[$i]->CAPABILITIES;
 
                 if ($this->equipment->getCapability($capability, 128)) {
-                    $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\brain_log'.$i.'.txt');
+
+                    // run study clear
+                    $this->runStudyCleaner($idStudy, $idStudyEquipment, 50);
+
+                    $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\brain_log_'.$idStudy.'_'. $idStudyEquipment.'.txt');
                     $param = new \Cryosoft\stSKBRParam();
                     array_push($results, $this->kernel->getKernelObject('BrainCalculator')->BRTeachCalculation($conf, $param, 10));
                     //add run economic and consumption
@@ -1104,7 +1108,7 @@ class Calculator extends Controller
     public function runStudyCleaner($idStudy, $idStudyEquipment, $number)
     {
         $ret = 0;
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\studyClear_'. $idStudy.'_'.$idStudyEquipment. '_'.$number.'.txt');
         $ret = $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, $number);
 
         if ($ret == 0 && $this->cal->isStudyHasChilds($idStudy)) {
