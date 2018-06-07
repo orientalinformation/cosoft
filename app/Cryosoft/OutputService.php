@@ -422,8 +422,9 @@ class OutputService
     public function getPositionForAxis2($idStudy, $axis, $meshAxis)
     {
         $result = "";
-        $rMeshPosition = MeshPosition::where('ID_STUDY', $idStudy)->where('MESH_AXIS', $meshAxis)->where('MESH_AXIS_POS', $axis)->first();
-        
+        // $rMeshPosition = MeshPosition::where('ID_STUDY', $idStudy)->where('MESH_AXIS', $meshAxis)->where('MESH_AXIS_POS', $axis)->first();
+        $rMeshPosition = DB::table('mesh_position')->whereRaw('MESH_AXIS = '. $meshAxis .' AND CAST(MESH_AXIS_POS AS DECIMAL(10,9)) = CAST('. $axis .' AS DECIMAL(10,9))')->first();
+
         return $rMeshPosition;
     }
 
