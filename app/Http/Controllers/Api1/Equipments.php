@@ -1977,17 +1977,6 @@ class Equipments extends Controller
         return $this->kernel->getKernelObject('EquipmentBuilder')->EBEquipmentCalculation($conf);
     }
 
-    private function createCryosoftDBPublicKey()
-    {
-        $cryosoftDBPublicKey = null;
-
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, 0, 0, 0, 0);
-        $result = $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 5);
-        // $cryosoftDBPublicKey = $result->GetKTLocal();
-
-        return $cryosoftDBPublicKey;
-    }
-
     private function copyRamps($oldIdEquip, $newIdEquip)
     {
         $oldRamps = Ramps::where('ID_EQUIP', $oldIdEquip)->get();
