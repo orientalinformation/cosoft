@@ -1208,7 +1208,7 @@ class Calculator extends Controller
                 $brainMode = 0;
             }
 
-            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
+            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\brain_log_'.$idStudy.'_'.$idStudyEquipment.'_'.$brainMode.'.txt')
             $param = new \Cryosoft\stSKBRParam();
             return $this->kernel->getKernelObject('BrainCalculator')->BRTeachCalculation($conf, $param, $brainMode);
 
@@ -1248,13 +1248,13 @@ class Calculator extends Controller
 
     private function startPhamCastCalculator($idStudy, $idStudyEquipment, $doTr)
     {
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\PhamCast_'.$idStudy.'_'.$idStudyEquipment.'_'.$doTr.'.txt');
         return $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf);
     }
 
     private function startExhaustGasTemp($idStudy, $idStudyEquipment)
     {
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\KernelTool_'.$idStudy.'_'.$idStudyEquipment.'.txt');
         return $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 1);
     }
 
@@ -1288,7 +1288,7 @@ class Calculator extends Controller
 
         $this->runStudyCleaner($idStudy, $idStudyEquipment, 54);
 
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\brain_mode_13.txt');
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\brain_mode_13_'.$idStudy.'_'.$idStudyEquipment.'.txt');
         $param = new \Cryosoft\stSKBRParam($lfControlTemp, $lfLoadingRateMax);
         $ldMode = 13;
 
