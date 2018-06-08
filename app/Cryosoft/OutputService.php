@@ -2,6 +2,7 @@
 
 namespace App\Cryosoft;
 
+use Illuminate\Support\Facades\DB;
 use App\Cryosoft\ValueListService;
 use App\Cryosoft\UnitsConverterService;
 use App\Models\TempRecordPts;
@@ -421,8 +422,9 @@ class OutputService
     public function getPositionForAxis2($idStudy, $axis, $meshAxis)
     {
         $result = "";
-        $rMeshPosition = MeshPosition::where('ID_STUDY', $idStudy)->where('MESH_AXIS', $meshAxis)->where('MESH_AXIS_POS', $axis)->first();
-        
+        // $rMeshPosition = MeshPosition::where('ID_STUDY', $idStudy)->where('MESH_AXIS', $meshAxis)->where('MESH_AXIS_POS', $axis)->first();
+        $rMeshPosition = DB::table('mesh_position')->whereRaw('MESH_AXIS = '. $meshAxis .' AND CAST(MESH_AXIS_POS AS DECIMAL(10,9)) = CAST('. $axis .' AS DECIMAL(10,9))')->first();
+
         return $rMeshPosition;
     }
 
@@ -436,8 +438,20 @@ class OutputService
             $tempRecordDataMax = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->orderBy('TEMP', 'DESC')->first();
             $tempResult = [$tempRecordDataMin->TEMP, $tempRecordDataMax->TEMP];
         } else {
-            $tempRecordDataMin = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->where('RECORD_TIME', '=','CAST('.$recordTime.' AS DECIMAL)')->orderBy('TEMP', 'ASC')->first();            
-            $tempRecordDataMax = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->where('RECORD_TIME', '=','CAST('.$recordTime.' AS DECIMAL)')->orderBy('TEMP', 'DESC')->first();
+            $tempRecordDataMin = DB::table('temp_record_data')
+            ->join('record_position', 'temp_record_data.ID_REC_POS', '=', 'record_position.ID_REC_POS')
+            ->whereRaw('record_position.ID_STUDY_EQUIPMENTS = '. $idStudyEquipment .' AND CAST(record_position.RECORD_TIME AS DECIMAL(10,1)) = '. $recordTime .'')
+            ->orderBy('TEMP', 'ASC')
+            ->first();
+            $tempRecordDataMax = DB::table('temp_record_data')
+            ->join('record_position', 'temp_record_data.ID_REC_POS', '=', 'record_position.ID_REC_POS')
+            ->whereRaw('record_position.ID_STUDY_EQUIPMENTS = '. $idStudyEquipment .' AND CAST(record_position.RECORD_TIME AS DECIMAL(10,1)) = '. $recordTime .'')
+            ->orderBy('TEMP', 'DESC')
+            ->first();
+
+            /*$tempRecordDataMin = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->where('RECORD_TIME', $recordTime)->orderBy('TEMP', 'ASC')->first();
+            $tempRecordDataMax = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->where('RECORD_TIME', $recordTime)->orderBy('TEMP', 'DESC')->first();*/
+
             $tempResult = [$tempRecordDataMin->TEMP, $tempRecordDataMax->TEMP];
         }
 
@@ -574,12 +588,13 @@ class OutputService
 
     public function getGrideByPlan($idStudy, $idStudyEquipment, $time, $lfTmin, $lfTMax, $tempRecordDataPlan, $selectedPlan, $shape, $orientation)
     {
-        $recordPosition = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("RECORD_TIME", $time)->orderBy("RECORD_TIME", "DESC")->first();
+        // $recordPosition = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("RECORD_TIME", $time)->orderBy("RECORD_TIME", "DESC")->first();
+        $recordPosition = DB::table('record_position')->whereRaw('ID_STUDY_EQUIPMENTS = '. $idStudyEquipment .' AND CAST(RECORD_TIME AS DECIMAL(10,1)) = '. $time .'')->orderBy("RECORD_TIME", "DESC")->first();
 
         $result = [];
         $tempRecordDatas = [];
         if (!empty($recordPosition)) {
-            $tiRecPos = $this->getRecAxisPos($recordPosition->ID_REC_POS, $lfTmin, $lfTMax);
+            $tiRecPos = $this->getRecAxisPos($recordPosition->ID_REC_POS, (double) $lfTmin, (double) $lfTMax);
             if (!empty($tiRecPos)) {
                 if ($selectedPlan == 0) {
                     $rMeshPosition = $this->getPositionForAxis2($idStudy, $tempRecordDataPlan[$selectedPlan][0], 1);
@@ -848,14 +863,15 @@ class OutputService
 
     public function getRecAxisPos($idRec_Pos, $lfTmin, $lfTMax)
     {
-        $tempRecordData = TempRecordData::where('ID_REC_POS', $idRec_Pos)->whereBetween('TEMP', [$lfTmin, $lfTMax])->get();
+        // $tempRecordData = TempRecordData::where('ID_REC_POS', $idRec_Pos)->whereBetween('TEMP', [$lfTmin, $lfTMax])->get();
+        $tempRecordData = DB::table('temp_record_data')->whereRaw('ID_REC_POS = '. $idRec_Pos .' AND CAST(TEMP AS DECIMAL) >= '. $lfTmin .' AND CAST(TEMP AS DECIMAL) <= '. $lfTMax .'')->get();
 
         $result = [];
         if (count($tempRecordData) > 0) {
             $result = [
-                'x' => [$tempRecordData[0]['REC_AXIS_X_POS'], $tempRecordData[count($tempRecordData) - 1]['REC_AXIS_X_POS']],
-                'y' => [$tempRecordData[0]['REC_AXIS_Y_POS'], $tempRecordData[count($tempRecordData) - 1]['REC_AXIS_Y_POS']],
-                'z' => [$tempRecordData[0]['REC_AXIS_Z_POS'], $tempRecordData[count($tempRecordData) - 1]['REC_AXIS_Z_POS']],
+                'x' => [$tempRecordData[0]->REC_AXIS_X_POS, $tempRecordData[count($tempRecordData) - 1]->REC_AXIS_X_POS],
+                'y' => [$tempRecordData[0]->REC_AXIS_Y_POS, $tempRecordData[count($tempRecordData) - 1]->REC_AXIS_Y_POS],
+                'z' => [$tempRecordData[0]->REC_AXIS_Z_POS, $tempRecordData[count($tempRecordData) - 1]->REC_AXIS_Z_POS],
             ];
         }
 
