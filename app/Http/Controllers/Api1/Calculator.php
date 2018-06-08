@@ -1208,7 +1208,7 @@ class Calculator extends Controller
                 $brainMode = 0;
             }
 
-            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\brain_log_'.$idStudy.'_'.$idStudyEquipment.'_'.$brainMode.'.txt')
+            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\brain_log_'.$idStudy.'_'.$idStudyEquipment.'_'.$brainMode.'.txt');
             $param = new \Cryosoft\stSKBRParam();
             return $this->kernel->getKernelObject('BrainCalculator')->BRTeachCalculation($conf, $param, $brainMode);
 
