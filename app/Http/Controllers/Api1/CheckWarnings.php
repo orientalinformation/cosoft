@@ -185,19 +185,25 @@ class CheckWarnings extends Controller
 
     private function runPhamCastCalculator($idStudy, $idStudyEquipment, $doTR) 
     {
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\Phamcast_'.$idStudy.'_'.$idStudyEquipment.'_'.$doTR.'.txt');
+        $study = Study::find($idStudy);
+
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\Phamcast_'.$idStudy.'_'.$idStudyEquipment.'_'.$doTR.'.txt');
         return $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, !$doTR);
     }
 
     private function runKernelToolCalculator($idStudy, $idStudyEquipment)
     {
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\ToolCalculator_'.$idStudy.'_'.$idStudyEquipment.'.txt');
+        $study = Study::find($idStudy);
+
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\ToolCalculator_'.$idStudy.'_'.$idStudyEquipment.'.txt');
         return $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 1);
     }
 
     private function runLayoutCalculator($idStudy, $idStudyEquipment, $number)
     {
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\layout-trace_'.$idStudy.'_'.$idStudyEquipment.'_'.$number.'.txt');
+        $study = Study::find($idStudy);
+
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\layout-trace_'.$idStudy.'_'.$idStudyEquipment.'_'.$number.'.txt');
         return $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, $number);
     }
 }
