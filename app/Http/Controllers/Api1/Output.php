@@ -1880,7 +1880,7 @@ class Output extends Controller
         $curve = array();
 
         $axisValue = $this->output->getRightPosition($idStudy, $idStudyEquipment);
-
+        // return $axisValue;
         if (count($listRecordPos) > 0) {
             foreach ($listRecordPos as $row) {
                 $termRecordDataTop = $this->output->getTemperaturePosition($row->ID_REC_POS, (int) $axisValue['axis1TopPos'], (int) $axisValue['axis2TopPos']);

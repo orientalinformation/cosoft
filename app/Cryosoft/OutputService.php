@@ -424,9 +424,10 @@ class OutputService
     public function getPositionForAxis2($idStudy, $axis, $meshAxis)
     {
         // $rMeshPosition = MeshPosition::where('ID_STUDY', $idStudy)->where('MESH_AXIS', $meshAxis)->where('MESH_AXIS_POS', $axis)->first();
+        // $rMeshPosition = DB::table('mesh_position')->join('product_elmt', 'mesh_position.ID_PRODUCT_ELMT', '=', 'product_elmt.ID_PRODUCT_ELMT')->join('product', 'product_elmt.ID_PROD', '=', 'product.ID_PROD')->whereRaw('product.ID_STUDY = '. $idStudy .' AND MESH_AXIS = '. $meshAxis .' AND CAST(MESH_AXIS_POS AS DECIMAL(10,9)) LIKE "%'. $axis .'%"')->first();
         $decimal = explode('.', $axis);
         $length = strlen($decimal[1]);
-        $rMeshPosition = DB::table('mesh_position')->join('product_elmt', 'mesh_position.ID_PRODUCT_ELMT', '=', 'product_elmt.ID_PRODUCT_ELMT')->join('product', 'product_elmt.ID_PROD', '=', 'product.ID_PROD')->whereRaw('product.ID_STUDY = '. $idStudy .' AND MESH_AXIS = '. $meshAxis .' AND CAST(MESH_AXIS_POS AS DECIMAL(10,'. $length .')) = CAST('. $axis .' AS DECIMAL(10,'. $length .'))')->first();
+        $rMeshPosition = DB::table('mesh_position')->join('product_elmt', 'mesh_position.ID_PRODUCT_ELMT', '=', 'product_elmt.ID_PRODUCT_ELMT')->join('product', 'product_elmt.ID_PROD', '=', 'product.ID_PROD')->whereRaw('product.ID_STUDY = '. $idStudy .' AND MESH_AXIS = '. $meshAxis .' AND CAST(MESH_AXIS_POS AS DECIMAL(12,'. $length .')) = CAST('. $axis .' AS DECIMAL(12,'. $length .'))')->first();
 
         return $rMeshPosition;
     }
@@ -889,6 +890,7 @@ class OutputService
         $orientation = $layoutGen->PROD_POSITION;
 
         $tempRecordPts = TempRecordPts::where('ID_STUDY', $idStudy)->first();
+
         // $tempRecordPts = TempRecordPts::select('CAST(AXIS2_PT_TOP_SURF AS DECIMAL)')->where('ID_STUDY', $idStudy)->first();
         $meshPosTop = $this->getPositionForAxis2($idStudy, $tempRecordPts->AXIS2_PT_TOP_SURF, 2);
         $meshPosInt = $this->getPositionForAxis2($idStudy, $tempRecordPts->AXIS2_PT_INT_PT, 2);
