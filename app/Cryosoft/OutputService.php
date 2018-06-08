@@ -427,7 +427,7 @@ class OutputService
         // $rMeshPosition = DB::table('mesh_position')->join('product_elmt', 'mesh_position.ID_PRODUCT_ELMT', '=', 'product_elmt.ID_PRODUCT_ELMT')->join('product', 'product_elmt.ID_PROD', '=', 'product.ID_PROD')->whereRaw('product.ID_STUDY = '. $idStudy .' AND MESH_AXIS = '. $meshAxis .' AND CAST(MESH_AXIS_POS AS DECIMAL(10,9)) LIKE "%'. $axis .'%"')->first();
         $decimal = explode('.', $axis);
         $length = strlen($decimal[1]);
-        $rMeshPosition = DB::table('mesh_position')->join('product_elmt', 'mesh_position.ID_PRODUCT_ELMT', '=', 'product_elmt.ID_PRODUCT_ELMT')->join('product', 'product_elmt.ID_PROD', '=', 'product.ID_PROD')->whereRaw('product.ID_STUDY = '. $idStudy .' AND MESH_AXIS = '. $meshAxis .' AND CAST(MESH_AXIS_POS AS DECIMAL(12,'. $length .')) = CAST('. $axis .' AS DECIMAL(12,'. $length .'))')->first();
+        $rMeshPosition = DB::table('mesh_position')->join('product_elmt', 'mesh_position.ID_PRODUCT_ELMT', '=', 'product_elmt.ID_PRODUCT_ELMT')->join('product', 'product_elmt.ID_PROD', '=', 'product.ID_PROD')->whereRaw('product.ID_STUDY = '. $idStudy .' AND MESH_AXIS = '. $meshAxis .' AND CAST(MESH_AXIS_POS AS DECIMAL(10,9)) = CAST('. $axis .' AS DECIMAL(10,9))')->first();
 
         return $rMeshPosition;
     }
@@ -890,7 +890,6 @@ class OutputService
         $orientation = $layoutGen->PROD_POSITION;
 
         $tempRecordPts = TempRecordPts::where('ID_STUDY', $idStudy)->first();
-
         // $tempRecordPts = TempRecordPts::select('CAST(AXIS2_PT_TOP_SURF AS DECIMAL)')->where('ID_STUDY', $idStudy)->first();
         $meshPosTop = $this->getPositionForAxis2($idStudy, $tempRecordPts->AXIS2_PT_TOP_SURF, 2);
         $meshPosInt = $this->getPositionForAxis2($idStudy, $tempRecordPts->AXIS2_PT_INT_PT, 2);
@@ -1015,7 +1014,8 @@ class OutputService
 
     public function getPositionForSelectedPoint($selectedPoint, $idProdElt, $axis)
     {
-        $meshPosition = MeshPosition::where('ID_PRODUCT_ELMT', $idProdElt)->where('MESH_AXIS', $axis)->where('MESH_AXIS_POS', $selectedPoint)->first();
+        // $meshPosition = MeshPosition::where('ID_PRODUCT_ELMT', $idProdElt)->where('MESH_AXIS', $axis)->where('MESH_AXIS_POS', $selectedPoint)->first();
+        $meshPosition = DB::table('mesh_position')->whereRaw('MESH_AXIS = '. $axis .' AND CAST(MESH_AXIS_POS AS DECIMAL(10,9)) = CAST('. $selectedPoint .' AS DECIMAL(10,9))')->first();
         return ($meshPosition) ? $meshPosition->MESH_ORDER : 0;
     }
 
