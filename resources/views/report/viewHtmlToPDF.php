@@ -411,10 +411,10 @@
                     </table>
                     </div>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-1">
                 </div>
-                <div class="col-md-3">
-                <img src="<?php echo  $arrayParam['host'] . "/reports/".$arrayParam['study']['USERNAM']."/".$arrayParam['study']['ID_STUDY']."-".$arrayParam['study']['STUDY_NAME']."-StdeqpLayout-".$resequipDatas['ID_STUDY_EQUIPMENTS'].".jpg"?>">
+                <div class="col-md-4">
+                <img style="width: 340px; height: 460px" src="<?php echo  $arrayParam['host'] . "/reports/".$arrayParam['study']['USERNAM']."/".$arrayParam['study']['ID_STUDY']."-".$arrayParam['study']['STUDY_NAME']."-StdeqpLayout-".$resequipDatas['ID_STUDY_EQUIPMENTS'].".jpg"?>">
                 </div>
             </div>
         </div>
@@ -767,7 +767,7 @@
         </div>
         <?php } ?>
 
-        <?php if ($arrayParam['params']['isSizingValuesMax'] == 16) { ?> 
+        <?php if ($arrayParam['params']['isSizingValuesMax'] == 1) { ?> 
         <?php if (!empty($calModeHbMax)) { ?>
         <h4>Maximum product flowrate</h4>
         <div class="Max-prod-flowrate">
@@ -806,13 +806,13 @@
             </div>
         </div>
         <?php }?>
+        <?php } ?>
 
         <?php if ($arrayParam['params']['SIZING_GRAPHE'] == 1) { ?> 
         <h4>Graphic</h4>
         <div class ="graphic" align="center">
             <img src="<?php echo $arrayParam['host'] . "/sizing/" . $arrayParam['study']['USERNAM'] . "/" .  $arrayParam['study']['ID_STUDY'] . "/" .  $arrayParam['study']['ID_STUDY'].".png" ?>" style="max-width: 640px">
         </div>
-        <?php } ?>
         <?php } ?>
 
 
@@ -828,29 +828,15 @@
                 <table class ="table table-bordered" border="1">
                     <tr>
                         <th colspan="2">Equipment</th>
-                        <th align="center"> <?php echo $resheatexchanges['result'][0]['x']?></th>
-                        <th align="center"> <?php echo $resheatexchanges['result'][1]['x'] ?></th>
-                        <th align="center"> <?php echo $resheatexchanges['result'][2]['x'] ?></th>
-                        <th align="center"> <?php echo $resheatexchanges['result'][3]['x'] ?></th>
-                        <th align="center"> <?php echo $resheatexchanges['result'][4]['x'] ?></th>
-                        <th align="center"> <?php echo $resheatexchanges['result'][5]['x'] ?></th>
-                        <th align="center"> <?php echo $resheatexchanges['result'][6]['x'] ?></th>
-                        <th align="center"> <?php echo $resheatexchanges['result'][7]['x'] ?></th>
-                        <th align="center"> <?php echo $resheatexchanges['result'][8]['x'] ?></th>
-                        <th align="center"> <?php echo $resheatexchanges['result'][9]['x'] ?></th>
+                        <?php foreach($resheatexchanges['result'] as $result) { ?>
+                            <th align="center"> <?php echo $result['x']?></th>
+                        <?php } ?>
                     </tr>
                     <tr>
-                        <td colspan="2"><?php echo $resheatexchanges['equipName'] . " - (v1.0)"  ?></td>
-                        <td align="center"><?php echo $resheatexchanges['result'][0]['y'] ?></td>
-                        <td align="center"><?php echo $resheatexchanges['result'][1]['y'] ?></td>
-                        <td align="center"><?php echo $resheatexchanges['result'][2]['y'] ?></td>
-                        <td align="center"><?php echo $resheatexchanges['result'][3]['y'] ?></td>
-                        <td align="center"><?php echo $resheatexchanges['result'][4]['y'] ?></td>
-                        <td align="center"><?php echo $resheatexchanges['result'][5]['y'] ?></td>
-                        <td align="center"><?php echo $resheatexchanges['result'][6]['y'] ?></td>
-                        <td align="center"><?php echo $resheatexchanges['result'][7]['y'] ?></td>
-                        <td align="center"><?php echo $resheatexchanges['result'][8]['y'] ?></td>
-                        <td align="center"><?php echo $resheatexchanges['result'][9]['y'] ?></td>
+                        <td colspan="2"><?php echo $resheatexchanges['equipName']?></td>
+                        <?php foreach($resheatexchanges['result'] as $result) { ?>
+                            <th align="center"> <?php echo $result['y']?></th>
+                        <?php } ?>
                     </tr>
                 </table>
                 </div>
