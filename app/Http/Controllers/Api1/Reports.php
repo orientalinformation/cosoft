@@ -2429,6 +2429,8 @@ class Reports extends Controller
             $componentStatus = Translation::select('LABEL')->where('TRANS_TYPE', 100)->whereIn('ID_TRANSLATION', $comprelease)->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
             $productComps[] = $value;
             $productComps[$key]['display_name'] = $value->LABEL . ' - ' . $productElmt->component->COMP_VERSION . '(' . $componentStatus->LABEL . ' )';
+            $productComps[$key]['mass'] = $this->convert->mass($value->PROD_ELMT_REALWEIGHT);
+            $productComps[$key]['dim'] = $this->convert->prodDimension($value->SHAPE_PARAM2);
         }
         if ($PROD_LIST == 1) {
             $progress .= "\nProduct";
