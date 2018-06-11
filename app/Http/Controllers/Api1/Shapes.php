@@ -31,12 +31,14 @@ class Shapes extends Controller
         $this->auth = $auth;
     }
 
-    public function getShapes() {
+    public function getShapes()
+    {
         $shapes = \App\Models\Shape::all()->toArray();
         return $shapes;
     }
 
-    public function getShapeById($id) {
+    public function getShapeById($id)
+    {
         $shape = \App\Models\Shape::find($id);
         return $shape;
     }
