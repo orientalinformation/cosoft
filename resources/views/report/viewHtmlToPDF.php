@@ -246,8 +246,8 @@
                     <tr>
                         <td align="center"><?php echo $resproductComps['display_name'] ?></td>
                         <td align="center"><?php echo $resproductComps['PROD_ELMT_NAME'] ?></td>
-                        <td align="center"><?php echo $resproductComps['SHAPE_PARAM2'] ?></td>
-                        <td align="center"><?php echo $resproductComps['PROD_ELMT_REALWEIGHT'] ?></td>
+                        <td align="center"><?php echo $resproductComps['dim'] ?></td>
+                        <td align="center"><?php echo $resproductComps['mass'] ?></td>
                         <td align="center"><?php echo ($resproductComps['PROD_ELMT_ISO'] == 0) ? "YES" : "NO" ?></td>
                         <td align="center"><?php echo "" ?></td>
                         <td align="center"><?php echo ($resproductComps['PROD_ELMT_ISO'] == 0 )|| ($resproductComps['PROD_ELMT_ISO'] == 2) ? '' : "non isothermal" ?></td>
