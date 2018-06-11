@@ -1668,6 +1668,7 @@ class Output extends Controller
                 [$selPoints[13], $selPoints[14], -1.0]
             ];
         }
+
         $axeTemp = [];
         switch ($selectedAxe) {
             case 1:
@@ -1687,6 +1688,7 @@ class Output extends Controller
         }
 
         $listRecordPos = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("RECORD_TIME", "ASC")->get();
+
         $nbSteps = TempRecordPts::where("ID_STUDY", $idStudy)->first();
         $nbSample = $nbSteps->NB_STEPS;
 
@@ -1696,6 +1698,7 @@ class Output extends Controller
         $lfStep = $listRecordPos[1]->RECORD_TIME - $listRecordPos[0]->RECORD_TIME;
         $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
         $dataChart = [];
+
 
         foreach ($lEchantillon as $row) {
 

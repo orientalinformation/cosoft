@@ -425,11 +425,21 @@ class OutputService
     {
         // $rMeshPosition = MeshPosition::where('ID_STUDY', $idStudy)->where('MESH_AXIS', $meshAxis)->where('MESH_AXIS_POS', $axis)->first();
         // $rMeshPosition = DB::table('mesh_position')->join('product_elmt', 'mesh_position.ID_PRODUCT_ELMT', '=', 'product_elmt.ID_PRODUCT_ELMT')->join('product', 'product_elmt.ID_PROD', '=', 'product.ID_PROD')->whereRaw('product.ID_STUDY = '. $idStudy .' AND MESH_AXIS = '. $meshAxis .' AND CAST(MESH_AXIS_POS AS DECIMAL(10,9)) LIKE "%'. $axis .'%"')->first();
-        $decimal = explode('.', $axis);
-        $length = strlen($decimal[1]);
-        $rMeshPosition = DB::table('mesh_position')->join('product_elmt', 'mesh_position.ID_PRODUCT_ELMT', '=', 'product_elmt.ID_PRODUCT_ELMT')->join('product', 'product_elmt.ID_PROD', '=', 'product.ID_PROD')->whereRaw('product.ID_STUDY = '. $idStudy .' AND MESH_AXIS = '. $meshAxis .' AND CAST(MESH_AXIS_POS AS DECIMAL(10,9)) = CAST('. $axis .' AS DECIMAL(10,9))')->first();
+        if ($this->is_decimal($axis)) {
+            $decimal = explode('.', $axis);
+            $length = (strlen($decimal[1]) > 9) ? 9 : strlen($decimal[1]);
+        } else {
+            $length = 9;
+        }
+        
+        $rMeshPosition = DB::table('mesh_position')->join('product_elmt', 'mesh_position.ID_PRODUCT_ELMT', '=', 'product_elmt.ID_PRODUCT_ELMT')->join('product', 'product_elmt.ID_PROD', '=', 'product.ID_PROD')->whereRaw('product.ID_STUDY = '. $idStudy .' AND MESH_AXIS = '. $meshAxis .' AND CAST(MESH_AXIS_POS AS DECIMAL(10,'. $length .')) = CAST('. $axis .' AS DECIMAL(10,9))')->first();
 
         return $rMeshPosition;
+    }
+
+    public function is_decimal( $val )
+    {
+        return is_numeric( $val ) && floor( $val ) != $val;
     }
 
     public function init2DContourTempInterval($idStudyEquipment, $recordTime, $tempInterval, $pasTemp)
