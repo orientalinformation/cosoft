@@ -109,6 +109,8 @@ class Products extends Controller
         $elmt->ID_COMP = $componentId;
         $elmt->PROD_ELMT_ISO = $product->PROD_ISO;
         $elmt->SHAPE_PARAM2 = 0.01; //default 1cm
+        $elmt->SHAPE_PARAM4 = 0.01;
+        $elmt->SHAPE_PARAM5 = 0.01;
 
         if (isset($input['dim1']))
             $elmt->SHAPE_PARAM1 = $this->unit->prodDimensionSave($input['dim1']);
@@ -124,7 +126,7 @@ class Products extends Controller
         $elmt->NODE_DECIM = 0; // @TODO: research more on nodeDecim
         $elmt->INSERT_LINE_ORDER = $product->ID_STUDY;
 
-        $nElements = \App\Models\ProductElmt::where('ID_PROD', $id)->count();
+        $nElements = ProductElmt::where('ID_PROD', $id)->count();
         $elmt->SHAPE_POS2 = doubleval($nElements) / 100.0;
         $elmt->SHAPE_POS1 = 0;
         $elmt->SHAPE_POS3 = 0;
@@ -163,23 +165,27 @@ class Products extends Controller
     {
         $input = $this->request->all();
 
+        $idElement = $dim2 = $dim4 = $dim5 = $description = $realmass = null;
         $product = Product::find($id);
-
-        if (!isset($input['elementId']) || !isset($input['dim2']) || !isset($input['computedmass']) || !isset($input['realmass']))
-            throw new \Exception("Error Processing Request", 1);            
-
-        $idElement = $input['elementId'];
-        $dim2 = $input['dim2'];
-        $description = $input['description'];
-        $computedmass = $input['computedmass'];
-        $realmass = $input['realmass'];
         
-        $nElements = \App\Models\ProductElmt::find($idElement);
+        if (isset($input['elementId'])) $idElement = intval($input['elementId']);   
+        if (isset($input['dim2'])) $dim2 = doubleval($input['dim2']);   
+        if (isset($input['dim4'])) $dim4 = doubleval($input['dim4']);
+        if (isset($input['dim5'])) $dim5 = doubleval($input['dim5']);
+
+        if (isset($input['description'])) $description = $input['description'];   
+        if (isset($input['computedmass'])) $computedmass = doubleval($input['computedmass']);   
+        if (isset($input['realmass'])) $realmass = doubleval($input['realmass']);   
+        
+        $nElements = ProductElmt::find($idElement);
         $oldRealMass = (double) $this->unit->mass($nElements->PROD_ELMT_REALWEIGHT);
         $oldDim2 = (double) $this->unit->prodDimension($nElements->SHAPE_PARAM2);
         $ok1 = $ok2 = 0;
 
         $nElements->PROD_ELMT_NAME = $description;
+        $nElements->SHAPE_PARAM4 = $this->unit->prodDimension($dim4, ['save' => true]);
+        $nElements->SHAPE_PARAM5 = $this->unit->prodDimension($dim5, ['save' => true]);
+        $nElements->save();
         // $nElements->PROD_ELMT_WEIGHT = $this->unit->mass($computedmass, ['save' => true]);
 
         if ($oldDim2 != $dim2) {
@@ -192,7 +198,7 @@ class Products extends Controller
             $ok2 = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($product->ID_STUDY, $conf, 3);
 
             $this->mesh->rebuildMesh($product->study);
-        } elseif ($oldRealMass != $realmass) {
+        } else if ($oldRealMass != $realmass) {
             $nElements->PROD_ELMT_REALWEIGHT = $this->unit->mass($realmass, ['save' => true]);
             $nElements->save();
             $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $id, $idElement);
@@ -229,6 +235,8 @@ class Products extends Controller
             $elements[$key]['SHAPE_PARAM1'] = $this->unit->prodDimension($pr->SHAPE_PARAM1);
             $elements[$key]['SHAPE_PARAM2'] = $this->unit->prodDimension($pr->SHAPE_PARAM2);
             $elements[$key]['SHAPE_PARAM3'] = $this->unit->prodDimension($pr->SHAPE_PARAM3);
+            $elements[$key]['SHAPE_PARAM4'] = $this->unit->prodDimension($pr->SHAPE_PARAM4);
+            $elements[$key]['SHAPE_PARAM5'] = $this->unit->prodDimension($pr->SHAPE_PARAM5);
             $elements[$key]['PROD_ELMT_WEIGHT'] = $this->unit->mass($pr->PROD_ELMT_WEIGHT);
             $elements[$key]['PROD_ELMT_REALWEIGHT'] = $this->unit->mass($pr->PROD_ELMT_REALWEIGHT);
             $elements[$key]['componentName'] = $this->product->getComponentDisplayName($pr->ID_COMP);
