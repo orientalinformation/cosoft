@@ -2267,6 +2267,7 @@ class Output extends Controller
         $axisName = $this->output->getAxisName($shape, $orientation, $selectedPlan);
 
         $heatmapFolder = $this->output->public_path('heatmap');
+    
         $study = Study::find($idStudy);
         $userName = $study->USERNAM;
         if (!is_dir($heatmapFolder)) {
@@ -2284,8 +2285,8 @@ class Output extends Controller
 
         $contourFileName = $lfDwellingTime . '-' . $chartTempInterval[0] . '-' . $chartTempInterval[1] . '-' . $chartTempInterval[2];
 
+        if (!file_exists($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment . '/' . $contourFileName . '.png')) { 
 
-        if (!file_exists('/public/heatmap/' . $userName . '/' . $idStudyEquipment . '/' . $contourFileName . '.png')) { 
             
             $dataContour = $this->output->getGrideByPlan($idStudy, $idStudyEquipment, $lfDwellingTime, $chartTempInterval[0], $chartTempInterval[1], $planTempRecordData, $selectedPlan - 1, $shape, $orientation);
 
