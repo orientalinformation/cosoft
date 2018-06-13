@@ -414,7 +414,7 @@
                 <div class="col-md-1">
                 </div>
                 <div class="col-md-4">
-                <img style="width: 340px; height: 460px" src="<?php echo  $arrayParam['host'] . "/reports/".$arrayParam['study']['USERNAM']."/".$arrayParam['study']['ID_STUDY']."-".$arrayParam['study']['STUDY_NAME']."-StdeqpLayout-".$resequipDatas['ID_STUDY_EQUIPMENTS'].".jpg"?>">
+                <img style="width: 340px; height: 460px" src="<?php echo  $arrayParam['host'] . "/reports/".$arrayParam['study']['USERNAM']."/".$arrayParam['study']['ID_STUDY']."-".$stuNameLayout."-StdeqpLayout-".$resequipDatas['ID_STUDY_EQUIPMENTS'].".jpg"?>">
                 </div>
             </div>
         </div>
