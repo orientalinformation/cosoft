@@ -146,8 +146,7 @@ class Studies extends Controller
     {
         /** @var Study $study */
         $study = Study::findOrFail($id);
-        if (!$study)
-        return -1;
+        if (!$study) return -1;
         
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id), -1);
         $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, SC_CLEAN_OUTPUT_ALL);
@@ -164,7 +163,7 @@ class Studies extends Controller
                 }
                 $mesh3D_info->delete();
             }
-            
+
             /** @var MeshGeneration $meshGenerations */
             $meshGenerations = $product->meshGenerations;
             foreach ($meshGenerations as $mesh) {
