@@ -173,12 +173,12 @@ class ProductService
 
     public function getComponentDisplayName($idComp)
     {
-        $component = Translation::select('Translation.ID_TRANSLATION', 'Translation.LABEL', 'component.ID_USER', 'component.COMP_RELEASE', 'component.COMP_VERSION', 'component.OPEN_BY_OWNER', 'component.ID_COMP', 'ln2user.USERNAM')
-        ->join('component', 'Translation.ID_TRANSLATION', '=', 'component.ID_COMP')
+        $component = Translation::select('translation.ID_TRANSLATION', 'translation.LABEL', 'component.ID_USER', 'component.COMP_RELEASE', 'component.COMP_VERSION', 'component.OPEN_BY_OWNER', 'component.ID_COMP', 'ln2user.USERNAM')
+        ->join('component', 'translation.ID_TRANSLATION', '=', 'component.ID_COMP')
         ->join('ln2user', 'component.ID_USER', '=', 'ln2user.ID_USER')
-        ->where('Translation.TRANS_TYPE', 1)
+        ->where('translation.TRANS_TYPE', 1)
         ->where('component.ID_COMP', $idComp)
-        ->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->first();
+        ->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->first();
 
         $libValue = $this->getLibValue(100, $component->COMP_RELEASE);
 
