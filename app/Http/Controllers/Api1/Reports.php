@@ -707,10 +707,11 @@ class Reports extends Controller
         $ISOVALUE_SAMPLE = $input['ISOVALUE_SAMPLE'];
         $CONTOUR2D_G = $input['CONTOUR2D_G'];
         $study = Study::find($id);
+        $checkStuname = str_replace(' ', '', $study->STUDY_NAME);
         $host = getenv('APP_URL');
         $public_path = rtrim(app()->basePath("public/"), '/');
-        $progressFile = $public_path. "/reports/" . $study->USERNAM. "/" ."$study->ID_STUDY-$study->STUDY_NAME-Report.progess";
-        $name_report = "$study->ID_STUDY-$study->STUDY_NAME-Report.pdf";
+        $progressFile = $public_path. "/reports/" . $study->USERNAM. "/" ."$study->ID_STUDY-".preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname)."-Report.progess";
+        $name_report = "$study->ID_STUDY-".preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname)."-Report.pdf";
         if (!is_dir($public_path . "/reports/" . $study->USERNAM)) {
             mkdir($public_path . "/reports/" . $study->USERNAM, 0777, true);
         } 
@@ -728,7 +729,7 @@ class Reports extends Controller
         foreach ($study->studyEquipments as $sequip) {
             $layout = $this->stdeqp->generateLayoutPreview($sequip);
         }
-        $nameLayout = $study->ID_STUDY.'-'.$study->STUDY_NAME.'-StdeqpLayout-';
+        $nameLayout = $study->ID_STUDY.'-'.preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname).'-StdeqpLayout-';
         $idComArr = [];
         $comprelease = [];
         
@@ -2385,9 +2386,10 @@ class Reports extends Controller
         $CONTOUR2D_G = $input['CONTOUR2D_G'];
         $study = Study::find($id);
         $host = getenv('APP_URL');
+        $checkStuname = str_replace(' ', '', $study->STUDY_NAME);
         $public_path = rtrim(app()->basePath("public/"), '/');
-        $name_report = "$study->ID_STUDY-$study->STUDY_NAME-Report.html";
-        $progressFile = $public_path. "/reports/" . $study->USERNAM. "/" ."$study->ID_STUDY-$study->STUDY_NAME-Report.progess";
+        $name_report = "$study->ID_STUDY-".preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname)."-Report.html";
+        $progressFile = $public_path. "/reports/" . $study->USERNAM. "/" ."$study->ID_STUDY-".preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname)."-Report.progess";
         if (!is_dir( $public_path. "/reports/"  . $study->USERNAM)) {
             mkdir( $public_path. "/reports/" . $study->USERNAM, 0777, true);
         }
@@ -2405,7 +2407,7 @@ class Reports extends Controller
         foreach ($study->studyEquipments as $sequip) {
             $layout = $this->stdeqp->generateLayoutPreview($sequip);
         }
-        // $nameLayout = $study->ID_STUDY.'-'.$study->STUDY_NAME.'-StdeqpLayout-';
+        $stuNameLayout = preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname);
         $idComArr = [];
         $comprelease = [];
         foreach ($product->productElmts as $productElmt) {
@@ -2638,7 +2640,7 @@ class Reports extends Controller
         $html = $this->viewHtml($study ,$production, $product, $proElmt, $shapeName, 
         $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
         $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase, 
-        $symbol, $host, $pro2Dchart, $params, $shapeCode, $economic);
+        $symbol, $host, $pro2Dchart, $params, $shapeCode, $economic, $stuNameLayout);
         // file_put_contents("/home/huytd/adasd", $economic);
         fwrite($myfile, $html);
         fclose($myfile);
@@ -2691,7 +2693,7 @@ class Reports extends Controller
     public function viewHtml($study ,$production, $product, $proElmt, $shapeName, 
     $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
     $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase , 
-    $symbol, $host, $pro2Dchart, $params, $shapeCode, $economic)
+    $symbol, $host, $pro2Dchart, $params, $shapeCode, $economic, $stuNameLayout)
     {
         $arrayParam = [
             'study' => $study,
@@ -2723,6 +2725,7 @@ class Reports extends Controller
             'timeBase' => $timeBase,
             'pro2Dchart' => $pro2Dchart,
             'economic' => $economic,
+            'stuNameLayout' => $stuNameLayout
         ];
         return view('report.viewHtmlToPDF', $param);
     }
@@ -2730,9 +2733,10 @@ class Reports extends Controller
     function processingReport($id) {
         $study = Study::find($id);
         $public_path = rtrim(app()->basePath("public/"), '/');
-        $progressFile = "$study->ID_STUDY-$study->STUDY_NAME-Report.progess";
-        $progressFileHtml = getenv('APP_URL') . '/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . $study->STUDY_NAME . '-Report.html';
-        $progressFilePdf = getenv('APP_URL') . '/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . $study->STUDY_NAME . '-Report.pdf';
+        $checkStuname = str_replace(' ', '', $study->STUDY_NAME);
+        $progressFile = "$study->ID_STUDY-".preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname)."-Report.progess";
+        $progressFileHtml = getenv('APP_URL') . '/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname) . '-Report.html';
+        $progressFilePdf = getenv('APP_URL') . '/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname). '-Report.pdf';
         $file = file_get_contents($public_path . "/reports/" . $study->USERNAM . "/" . $progressFile);
         $progress = explode("\n", $file);
         return compact('progressFileHtml', 'progressFilePdf', 'progress');
