@@ -767,13 +767,13 @@ class Calculator extends Controller
             }
 
             $this->runStudyCleaner($idStudy, $idStudyEquipment, 53);
+                     
+            $runType = $this->startBrainNumericalCalculation($idStudy, $idStudyEquipment, $brainMode);
 
             $study = Study::find($idStudy);
             if ($study->OPTION_CRYOPIPELINE == 1) {
                 $this->startPipeLine($idStudy, $idStudyEquipment);
             }
-                     
-            $runType = $this->startBrainNumericalCalculation($idStudy, $idStudyEquipment, $brainMode);
 
             $this->startEconomic($idStudy, $idStudyEquipment);
             $this->startConsumptionEconomic($idStudy, $idStudyEquipment);

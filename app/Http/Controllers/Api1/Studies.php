@@ -687,11 +687,11 @@ class Studies extends Controller
         if (!isset($input['name']) || empty($input['name']))
             return 1;
 
-        $study = \App\Models\Study::find($id);
+        $study = Study::find($id);
         $product = $study->products;
 
         if (count($product) == 0) {
-            $product = new \App\Models\Product();
+            $product = new Product();
             $product->ID_STUDY = $study->ID_STUDY;
         } else {
             $product = $product[0];
@@ -720,7 +720,7 @@ class Studies extends Controller
 
     public function updateProduct($id) 
     {
-        $study = \App\Models\Study::find($id);
+        $study = Study::find($id);
         $product = $study->products->first();
         $input = $this->request->json()->all();
 
@@ -738,10 +738,14 @@ class Studies extends Controller
                     if (isset($input['dim1'])) $elmt->SHAPE_PARAM1 = $this->convert->prodDimensionSave(floatval($input['dim1']));
                     if (isset($input['dim2'])) $elmt->SHAPE_PARAM2 = $this->convert->prodDimensionSave(floatval($input['dim2']));
                     if (isset($input['dim3'])) $elmt->SHAPE_PARAM3 = $this->convert->prodDimensionSave(floatval($input['dim3']));
+                    if (isset($input['dim4'])) $elmt->SHAPE_PARAM4 = $this->convert->prodDimensionSave(floatval($input['dim4']));
+                    if (isset($input['dim5'])) $elmt->SHAPE_PARAM5 = $this->convert->prodDimensionSave(floatval($input['dim5']));
                     $elmt->save();
+
                     $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_PROD, intval($elmt->ID_PRODUCT_ELMT));
                     $ok = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($id, $conf, 2);
-                }                
+                }
+
                 $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_PROD);
                 $ok = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($id, $conf, 4);
             }
