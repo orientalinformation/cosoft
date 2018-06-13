@@ -377,7 +377,7 @@ class Products extends Controller
     {
         /** @var Product $product */
         $product = Product::findOrFail($idProd);
-
+        
         if (!$product)
             throw new \Exception("Error Processing Request. Product ID not found", 1);
 
@@ -414,10 +414,17 @@ class Products extends Controller
         if (!$product)
             throw new \Exception("Error Processing Request. Product ID not found", 1);
 
+        // run study cleaner, mode 51 change by haipt SC_CLEAN_OUTPUT_SIZINGCONSO => SC_CLEAN_OUTPUT_PRODUCT
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_STUDY, -1);
+        $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, SC_CLEAN_OUTPUT_PRODUCT);
+
         /** @var MeshGeneration $meshGeneration */
         $meshGeneration = $this->mesh->findGenerationByProduct($product);
         
-        $this->mesh->generate($meshGeneration, MeshService::REGULAR_MESH, MeshService::MAILLAGE_MODE_REGULAR);
+        $size1 = $this->auth->user()->meshParamDef->MESH_1_SIZE;
+        $size2 = $this->auth->user()->meshParamDef->MESH_2_SIZE;
+        $size3 = $this->auth->user()->meshParamDef->MESH_3_SIZE;
+        $this->mesh->generate($meshGeneration, MeshService::REGULAR_MESH, MeshService::MAILLAGE_MODE_REGULAR, $size1, $size2, $size3);
     }
 
     /**

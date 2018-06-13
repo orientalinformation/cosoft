@@ -28,28 +28,28 @@ define('PATH_ELEMENT_ID', 'profilLine');
 define('DOUBLE_MIN_VALUE', 4.9e-324);
 define('NEGATIVE_INFINITY', INF);
 
-define('SC_CLEAN_MODE_ESTIM_2_OPTIM',20);  // estimation -> optimum
-define('SC_CLEAN_MODE_OPTIM_2_ESTIM',21);  // optimum -> estimation
+define('SC_CLEAN_MODE_ESTIM_2_OPTIM', 20);  // estimation -> optimum
+define('SC_CLEAN_MODE_OPTIM_2_ESTIM', 21);  // optimum -> estimation
 define('SC_CLEAN_MODE_ESTIM_2_SELECT',22);  // estimation -> selected
-define('SC_CLEAN_MODE_SELECT_2_ESTIM',23);  // selected -> estimation
-define('SC_CLEAN_MODE_OPTIM_2_SELECT',24);  // optimum -> selected
-define('SC_CLEAN_MODE_SELECT_2_OPTIM',25);  // selected -> optimum
+define('SC_CLEAN_MODE_SELECT_2_ESTIM',  23);  // selected -> estimation
+define('SC_CLEAN_MODE_OPTIM_2_SELECT', 24);  // optimum -> selected
+define('SC_CLEAN_MODE_SELECT_2_OPTIM', 25);  // selected -> optimum
 
 define('SC_CLEAN_OPT_ADD_PIPE',30);  // Add pipeline option
 define('SC_CLEAN_OPT_REM_PIPE',31);  // Remove pipeline option
 define('SC_CLEAN_OPT_ADD_ECO',32);  // Add economic option
 define('SC_CLEAN_OPT_REM_ECO',33);  // remove economic option
 
-define('SC_CLEAN_OUTPUT_ALL',40); // all output data
-define('SC_CLEAN_OUTPUT_PRODUCT',41); // product data has changed
-define('SC_CLEAN_OUTPUT_PRODUCTION',42); // production data has changed
-define('SC_CLEAN_OUTPUT_EQP_PRM',43); // equipment parameters has changed
-define('SC_CLEAN_OUTPUT_PACKING',44); // Packing has changed
-define('SC_CLEAN_OUTPUT_ECONOMIC',45); // economic data has changed
-define('SC_CLEAN_OUTPUT_PROFIT',46); // profit data has changed
-define('SC_CLEAN_OUTPUT_PRODUCT_MASS',47); // product real mass has changed
-define('SC_CLEAN_OUPTUT_LAYOUT_CHANGED',48);	// Layout results has changed
-define('SC_CLEAN_OUTPUT_CALCUL',50); // all analytical and numerical results
+define('SC_CLEAN_OUTPUT_ALL', 40); // all output data
+define('SC_CLEAN_OUTPUT_PRODUCT', 41); // product data has changed
+define('SC_CLEAN_OUTPUT_PRODUCTION', 42); // production data has changed
+define('SC_CLEAN_OUTPUT_EQP_PRM', 43); // equipment parameters has changed
+define('SC_CLEAN_OUTPUT_PACKING', 44); // Packing has changed
+define('SC_CLEAN_OUTPUT_ECONOMIC', 45); // economic data has changed
+define('SC_CLEAN_OUTPUT_PROFIT', 46); // profit data has changed
+define('SC_CLEAN_OUTPUT_PRODUCT_MASS', 47); // product real mass has changed
+define('SC_CLEAN_OUPTUT_LAYOUT_CHANGED', 48);	// Layout results has changed
+define('SC_CLEAN_OUTPUT_CALCUL', 50); // all analytical and numerical results
                                                                                     // call before analytical calculation
 define('SC_CLEAN_OUTPUT_SIZINGCONSO',51);	// Layout results has changed 
 
@@ -94,22 +94,22 @@ define('NO_SPECIFIC_SIZE', -1.0);
 
 //List of TRANS_TYPE  (to complete if required)
 
-define('TRANS_TYPE_COMPONENT',1);
-define('TRANS_TYPE_COOLING_FAMILY',2);
-define('TRANS_TYPE_PACKING_ELEMENT',3);
-define('TRANS_TYPE_SHAPE',4);
-define('TRANS_TYPE_EQUIP_FAMILY',5);
-define('TRANS_TYPE_EQUIPSERIES',7);
-define('TRANS_TYPE_LINE_ELT_TYPE',8);
-define('TRANS_TYPE_LANGUAGE',9);
-define('TRANS_TYPE_COMP_FAT',12);
-define('TRANS_TYPE_EQP_BATCH_PROCESS',13);
-define('TRANS_TYPE_COMP_CLASS_PRODUCT',14);
-define('TRANS_TYPE_COMP_NATURE_PRODUCT',15);
-define('TRANS_TYPE_COMP_SUB_FAMILY',16);
-define('TRANS_TYPE_EQP_ORIGIN',17);
-define('TRANS_TYPE_LINE_ELT',27);
-define('TRANS_TYPE_STATUS',100);
+define('TRANS_TYPE_COMPONENT', 1);
+define('TRANS_TYPE_COOLING_FAMILY', 2);
+define('TRANS_TYPE_PACKING_ELEMENT', 3);
+define('TRANS_TYPE_SHAPE', 4);
+define('TRANS_TYPE_EQUIP_FAMILY', 5);
+define('TRANS_TYPE_EQUIPSERIES', 7);
+define('TRANS_TYPE_LINE_ELT_TYPE', 8);
+define('TRANS_TYPE_LANGUAGE', 9);
+define('TRANS_TYPE_COMP_FAT', 12);
+define('TRANS_TYPE_EQP_BATCH_PROCESS', 13);
+define('TRANS_TYPE_COMP_CLASS_PRODUCT', 14);
+define('TRANS_TYPE_COMP_NATURE_PRODUCT', 15);
+define('TRANS_TYPE_COMP_SUB_FAMILY', 16);
+define('TRANS_TYPE_EQP_ORIGIN', 17);
+define('TRANS_TYPE_LINE_ELT', 27);
+define('TRANS_TYPE_STATUS', 100);
 
 define('CONVECTION_SPEED', 100);
 define('DWELLING_TIME', 200);
