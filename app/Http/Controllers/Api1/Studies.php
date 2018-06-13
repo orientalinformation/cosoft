@@ -164,12 +164,13 @@ class Studies extends Controller
                 }
                 $mesh3D_info->delete();
             }
+            
             /** @var MeshGeneration $meshGenerations */
-            // $meshGenerations = $product->meshGenerations;
-
+            $meshGenerations = $product->meshGenerations;
             foreach ($meshGenerations as $mesh) {
                 $mesh->delete();
             }
+
             foreach ($product->productElmts as $productElmt) {
                 // 3d featrue not delete mesh position
                 // foreach ($productElmt->meshPositions as $meshPst) {
