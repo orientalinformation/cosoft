@@ -92,7 +92,7 @@ class Products extends Controller
 
     public function getElementsByProductId($id) 
     {
-        $elements = \App\Models\ProductElmt::where('ID_PROD', $id)->orderBy('SHAPE_POS2','DESC')->get();
+        $elements = ProductElmt::where('ID_PROD', $id)->orderBy('SHAPE_POS2','DESC')->get();
         return $elements;
     }
 
@@ -214,7 +214,7 @@ class Products extends Controller
         $product->PROD_WEIGHT = $this->unit->mass($product->PROD_WEIGHT);
         $product->PROD_REALWEIGHT = $this->unit->mass($product->PROD_REALWEIGHT);
 
-        $products = \App\Models\ProductElmt::where('ID_PROD', $id)->orderBy('SHAPE_POS2', 'DESC')->get();
+        $products = ProductElmt::where('ID_PROD', $id)->orderBy('SHAPE_POS2', 'DESC')->get();
         $specificDimension = 0.0;
         $count = count($products);
 
