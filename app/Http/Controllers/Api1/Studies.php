@@ -44,6 +44,8 @@ use App\Models\PipeRes;
 use App\Models\LineElmt;
 use App\Models\LineDefinition;
 use App\Models\RecordPosition;
+use App\Models\Mesh3DInfo;
+use App\Models\InitTemp3D;
 use App\Cryosoft\MeshService;
 use App\Cryosoft\UnitsService;
 
@@ -144,28 +146,42 @@ class Studies extends Controller
     {
         /** @var Study $study */
         $study = Study::findOrFail($id);
-
-        if (!$study)
-            return -1;
-
+        if (!$study) return -1;
+        
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id), -1);
         $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, SC_CLEAN_OUTPUT_ALL);
-
+        
         /** @var Product[] $product */
         $products = $study->products;
-
+        
         foreach ($products as $product) {
+            // 3d featrue delete mesh3D_info
+            $mesh3D_info = Mesh3DInfo::Where('ID_PROD', $product->ID_PROD)->first();
+            if(count($mesh3D_info) > 0) {
+                if (file_exists($mesh3D_info->file_path)) {
+                    rmdir($mesh3D_info->file_path);
+                }
+                $mesh3D_info->delete();
+            }
+
             /** @var MeshGeneration $meshGenerations */
             $meshGenerations = $product->meshGenerations;
-
             foreach ($meshGenerations as $mesh) {
                 $mesh->delete();
             }
 
             foreach ($product->productElmts as $productElmt) {
-                foreach ($productElmt->meshPositions as $meshPst) {
-                    $meshPst->delete();
-                } 
+                // 3d featrue not delete mesh position
+                // foreach ($productElmt->meshPositions as $meshPst) {
+                //     $meshPst->delete();
+                // }
+                // 3d feature delete initial_temp
+                $initial3D_temps = InitTemp3D::where('ID_PRODUCT_ELMT', $productElmt->ID_PRODUCT_ELMT)->get();
+                if (count($initial3D_temps) > 0) {
+                    foreach ($initial3D_temps as $initial3D_temp) {
+                        $initial3D_temp->delete();
+                    }
+                }
                 $productElmt->delete();
             }
 
@@ -181,11 +197,11 @@ class Studies extends Controller
         foreach ($study->prices as $price) {
             $price->delete();
         }
-
-        foreach ($productions as $production) {
-            InitialTemperature::where('ID_PRODUCTION', $production->ID_PRODUCTION)->delete();
-            $production->delete();
-        }
+        // 3d featrue not delete Initial_temperature
+        // foreach ($productions as $production) {
+        //     InitialTemperature::where('ID_PRODUCTION', $production->ID_PRODUCTION)->delete();
+        //     $production->delete();
+        // }
 
         $tempRecordPts = $study->tempRecordPts;
 
