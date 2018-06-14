@@ -165,7 +165,7 @@ class Studies extends Controller
                 $mesh3D_info->delete();
             }
             /** @var MeshGeneration $meshGenerations */
-            // $meshGenerations = $product->meshGenerations;
+            $meshGenerations = $product->meshGenerations;
 
             foreach ($meshGenerations as $mesh) {
                 $mesh->delete();
@@ -320,6 +320,7 @@ class Studies extends Controller
             $productionCurr = Production::where('ID_STUDY',$studyCurrent->ID_STUDY)->first(); 
             // @class: \App\Models\Product
             $productCurr = Product::where('ID_STUDY',$studyCurrent->ID_STUDY)->first();
+            $mesh3D_info = Mesh3DInfo::where('ID_PROD',$productCurr->ID_PROD)->first();
             // @class: \App\Models\Price
             $priceCurr = Price::where('ID_STUDY',$studyCurrent->ID_STUDY)->first(); 
             // @class: \App\Models\Price
@@ -361,8 +362,8 @@ class Studies extends Controller
                 }
 
                 //duplicate initial_Temp already exsits
-                    DB::insert(DB::RAW('insert into INITIAL_TEMPERATURE (ID_PRODUCTION, INITIAL_T, MESH_1_ORDER, MESH_2_ORDER, MESH_3_ORDER) SELECT '
-                . $production->ID_PRODUCTION . ',I.INITIAL_T, I.MESH_1_ORDER, I.MESH_2_ORDER, I.MESH_3_ORDER FROM INITIAL_TEMPERATURE AS I WHERE ID_PRODUCTION = ' . $productionCurr->ID_PRODUCTION ));
+                //     DB::insert(DB::RAW('insert into INITIAL_TEMPERATURE (ID_PRODUCTION, INITIAL_T, MESH_1_ORDER, MESH_2_ORDER, MESH_3_ORDER) SELECT '
+                // . $production->ID_PRODUCTION . ',I.INITIAL_T, I.MESH_1_ORDER, I.MESH_2_ORDER, I.MESH_3_ORDER FROM INITIAL_TEMPERATURE AS I WHERE ID_PRODUCTION = ' . $productionCurr->ID_PRODUCTION ));
                 
 
                 //duplicate Product already exsits
@@ -385,6 +386,13 @@ class Studies extends Controller
                         $product->ID_MESH_GENERATION = $meshgeneration->ID_MESH_GENERATION;
                         $product->save();
                     } 
+                    if (count($mesh3D_info) > 0) {
+                        $mesh3D_new = new Mesh3DInfo();
+                        $mesh3D_new = $mesh3D_info->replicate();
+                        $mesh3D_new->id_prod = $product->ID_PROD;
+                        unset($mesh3D_new->id_mesh3d_info);
+                        $mesh3D_new->save();
+                    } 
 
                     if (count($productemltCurr) > 0) {
                         foreach ($productemltCurr as $prodelmtCurr ) {
@@ -394,12 +402,20 @@ class Studies extends Controller
                             $productemlt->INSERT_LINE_ORDER = $study->ID_STUDY;
                             unset($productemlt->ID_PRODUCT_ELMT);
                             $productemlt->save();
-                            foreach ($prodelmtCurr->meshPositions as $meshPositionCurr) {
-                                $meshPos = new MeshPosition();
-                                $meshPos = $meshPositionCurr->replicate();
-                                $meshPos->ID_PRODUCT_ELMT = $productemlt->ID_PRODUCT_ELMT;
-                                unset($meshPos->ID_MESH_POSITION);
-                                $meshPos->save();
+                            $initial3D_temps = InitTemp3D::where('ID_PRODUCT_ELMT', $prodelmtCurr->ID_PRODUCT_ELMT)->get();
+                            // foreach ($prodelmtCurr->meshPositions as $meshPositionCurr) {
+                            //     $meshPos = new MeshPosition();
+                            //     $meshPos = $meshPositionCurr->replicate();
+                            //     $meshPos->ID_PRODUCT_ELMT = $productemlt->ID_PRODUCT_ELMT;
+                            //     unset($meshPos->ID_MESH_POSITION);
+                            //     $meshPos->save();
+                            // }
+                            foreach ($initial3D_temps as $initial3D_temp) {
+                                $inital3D_new = new InitTemp3D();
+                                $inital3D_new = $initial3D_temp->replicate();
+                                $inital3D_new->ID_PRODUCT_ELMT = $productemlt->ID_PRODUCT_ELMT;
+                                unset($inital3D_new->ID_MESH_POSITION);
+                                $inital3D_new->save();
                             }
                         }
                     }
