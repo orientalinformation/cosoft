@@ -1172,7 +1172,6 @@ class StudyEquipmentService
 
     public function runLayoutCalculator($idStudy, $idStudyEquipment)
     {
-        $idStudyEquipment = $studyEquipment->ID_STUDY_EQUIPMENTS;
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\layout-trace.txt');
         $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, 1);
     }
