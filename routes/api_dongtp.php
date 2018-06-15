@@ -376,3 +376,11 @@ $router->GET('/api/v1/referencedata/inputequipment/{idEquip}', 'Api1\\Equipments
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/threed/mesh3dInfo/{idProd}', 'Api1\\Input3Ds@getMesh3DInfo');
+
+/**
+ * POST init 3D temparature
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/threed/{idProd}/initIso3DTemperature', 'Api1\\Input3Ds@initIso3DTemperature');
