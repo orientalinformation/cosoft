@@ -980,6 +980,7 @@ class Studies extends Controller
         return $studies;
     }
 
+    // add equipment shape >= 10 error
     function getDefaultPrecision ($productshape, $nbComp, $itemPrecis)
     {
         $limitItem = 0;
