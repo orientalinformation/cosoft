@@ -302,11 +302,22 @@ class Products extends Controller
             $product->save();
         }
         
+        //run studyCleaner 41
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyId, -1);
+        $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, SC_CLEAN_OUTPUT_PRODUCT);
+
+        $studyEquipments = StudyEquipment::where('ID_STUDY', $studyId)->get();
+        if (count($studyEquipments) > 0) {
+            foreach ($studyEquipments as $studyEquipment) {
+                $this->stdeqp->runLayoutCalculator($studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
+                $this->stdeqp->runTSCalculator($studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
+            }
+        }
        
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id));
         $ok = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($studyId, $conf, 4);
 
-        $this->mesh->rebuildMesh($element->product->study);
+        // $this->mesh->rebuildMesh($element->product->study);
         
         return compact('ok', 'product');
     }
