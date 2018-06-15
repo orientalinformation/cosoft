@@ -435,10 +435,11 @@ class Products extends Controller
         /** @var MeshGeneration $meshGeneration */
         $meshGeneration = $this->mesh->findGenerationByProduct($product);
         
-        $size1 = $this->auth->user()->meshParamDef->MESH_1_SIZE;
-        $size2 = $this->auth->user()->meshParamDef->MESH_2_SIZE;
-        $size3 = $this->auth->user()->meshParamDef->MESH_3_SIZE;
-        $this->mesh->generate($meshGeneration, MeshService::REGULAR_MESH, MeshService::MAILLAGE_MODE_REGULAR, $size1, $size2, $size3);
+        #$size1 = $this->auth->user()->meshParamDef->MESH_1_SIZE;
+        #$size2 = $this->auth->user()->meshParamDef->MESH_2_SIZE;
+        #$size3 = $this->auth->user()->meshParamDef->MESH_3_SIZE;
+        #$this->mesh->generate($meshGeneration, MeshService::REGULAR_MESH, MeshService::MAILLAGE_MODE_REGULAR, $size1, $size2, $size3);
+        $this->mesh->generate($meshGeneration, MeshService::REGULAR_MESH, MeshService::MAILLAGE_MODE_REGULAR);
     }
 
     /**
