@@ -20,7 +20,8 @@ use App\Cryosoft\UnitsConverterService;
 use App\Cryosoft\ProductService;
 use App\Cryosoft\ProductElementsService;
 use App\Cryosoft\ValueListService;
-
+use App\Models\MeshPosition;
+use App\Models\InitTemp3D;
 use Illuminate\Support\Facades\DB;
 
 class Products extends Controller
@@ -336,6 +337,7 @@ class Products extends Controller
             throw new \Exception("Error Processing Request. Product ID not found", 1);
 
         $elements = ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2', 'DESC')->get();
+
         $meshGeneration = $product->meshGenerations->first();
         if ($meshGeneration) {
             if ($elements[0]->ID_SHAPE == 1 || $elements[0]->ID_SHAPE == 6 ) {
@@ -345,6 +347,7 @@ class Products extends Controller
                 $meshGeneration->MESH_1_SIZE = $this->unit->meshesUnit($meshGeneration->MESH_1_SIZE);
                 $meshGeneration->MESH_1_INT = $this->unit->meshesUnit($meshGeneration->MESH_1_INT);
             }
+
             if ($meshGeneration->MESH_3_INT != 0 || $meshGeneration->MESH_3_SIZE !=  0) {
                 $meshGeneration->MESH_3_INT = $this->unit->meshesUnit($meshGeneration->MESH_3_INT);
                 $meshGeneration->MESH_3_SIZE = $this->unit->meshesUnit($meshGeneration->MESH_3_SIZE);
@@ -352,6 +355,7 @@ class Products extends Controller
                 $meshGeneration->MESH_3_SIZE = doubleval(0);
                 $meshGeneration->MESH_3_INT = doubleval(0);
             }
+
             if ($meshGeneration->MESH_2_INT != 0 || $meshGeneration->MESH_2_SIZE != 0) {
                 $meshGeneration->MESH_2_INT = $this->unit->meshesUnit($meshGeneration->MESH_2_INT);
                 $meshGeneration->MESH_2_SIZE = $this->unit->meshesUnit($meshGeneration->MESH_2_SIZE);
@@ -368,7 +372,7 @@ class Products extends Controller
         $heights = [];
 
         foreach ($elements as $elmt) {
-            $meshPositions = \App\Models\MeshPosition::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->orderBy('MESH_ORDER')->get();
+            $meshPositions = MeshPosition::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->orderBy('MESH_ORDER')->get();
             array_push($elmtMeshPositions, $meshPositions);
 
             $pointMeshOrder2 = $this->product->searchNbPtforElmt($elmt, 2);
@@ -386,10 +390,19 @@ class Products extends Controller
         $productIsoTemp = null;
         
         if ($product->PROD_ISO) {
-            if (InitialTemperature::where('ID_PRODUCTION', $product->study->ID_PRODUCTION)->count() > 0) {
-                $productIsoTemp = InitialTemperature::where('ID_PRODUCTION', $product->study->ID_PRODUCTION)->first();
-                if ($productIsoTemp) {
-                    $productIsoTemp = $this->unit->temperature($productIsoTemp->INITIAL_T);
+            if (count($elements) > 0 && $elements[0]->ID_SHAPE >= 10) {
+                if (InitTemp3D::where('ID_PRODUCT_ELMT', $elements[0]->ID_PRODUCT_ELMT)->count() > 0) {
+                    $productIsoTemp = InitTemp3D::where('ID_PRODUCT_ELMT', $elements[0]->ID_PRODUCT_ELMT)->first();
+                    if ($productIsoTemp) {
+                        $productIsoTemp = $this->unit->temperature($productIsoTemp->INIT_TEMP);
+                    }
+                }
+            } else {
+                if (InitialTemperature::where('ID_PRODUCTION', $product->study->ID_PRODUCTION)->count() > 0) {
+                    $productIsoTemp = InitialTemperature::where('ID_PRODUCTION', $product->study->ID_PRODUCTION)->first();
+                    if ($productIsoTemp) {
+                        $productIsoTemp = $this->unit->temperature($productIsoTemp->INITIAL_T);
+                    }
                 }
             }
         }
@@ -446,10 +459,6 @@ class Products extends Controller
         /** @var MeshGeneration $meshGeneration */
         $meshGeneration = $this->mesh->findGenerationByProduct($product);
         
-        #$size1 = $this->auth->user()->meshParamDef->MESH_1_SIZE;
-        #$size2 = $this->auth->user()->meshParamDef->MESH_2_SIZE;
-        #$size3 = $this->auth->user()->meshParamDef->MESH_3_SIZE;
-        #$this->mesh->generate($meshGeneration, MeshService::REGULAR_MESH, MeshService::MAILLAGE_MODE_REGULAR, $size1, $size2, $size3);
         $this->mesh->generate($meshGeneration, MeshService::REGULAR_MESH, MeshService::MAILLAGE_MODE_REGULAR);
     }
 
