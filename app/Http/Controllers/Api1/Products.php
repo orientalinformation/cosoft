@@ -205,13 +205,26 @@ class Products extends Controller
         if ($oldDim2 != $dim2) {
             $nElements->SHAPE_PARAM2 = $this->unit->prodDimension($dim2, ['save' => true]);
             $nElements->save();
+
+            //run studyCleaner 41
+            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_STUDY, -1);
+            $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, SC_CLEAN_OUTPUT_PRODUCT);
+
+            $studyEquipments = StudyEquipment::where('ID_STUDY', $product->ID_STUDY)->get();
+            if (count($studyEquipments) > 0) {
+                foreach ($studyEquipments as $studyEquipment) {
+                    $this->stdeqp->runLayoutCalculator($studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
+                    $this->stdeqp->runTSCalculator($studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
+                }
+            }
+
             $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $id, $idElement);
             $ok1 = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($product->ID_STUDY, $conf, 2);
 
             $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $id);
             $ok2 = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($product->ID_STUDY, $conf, 3);
 
-            $this->mesh->rebuildMesh($product->study);
+            // $this->mesh->rebuildMesh($product->study);
         } else if ($oldRealMass != $realmass) {
             $nElements->PROD_ELMT_REALWEIGHT = $this->unit->mass($realmass, ['save' => true]);
             $nElements->save();
