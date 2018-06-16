@@ -538,7 +538,6 @@ class Products extends Controller
         foreach ($slices as $slice) {
             InitialTemperature::insert($slice);
         }
-        
 
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY);
         $ktOk = $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 4);

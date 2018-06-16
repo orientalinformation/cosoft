@@ -75,5 +75,11 @@ class Input3Ds extends Controller
                 $initTemp3D->save();
             }
         }
+
+        // Run kernel 
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_STUDY);
+        $ok = $this->kernel->getKernelObject('InitTemperature')->IInitTemperature($conf);
+        
+        return $ok;
     }
 }
