@@ -158,17 +158,17 @@ class Studies extends Controller
             // 3d featrue delete mesh3D_info
             $mesh3D_info = Mesh3DInfo::Where('ID_PROD', $product->ID_PROD)->first();
             if(count($mesh3D_info) > 0) {
-                if (file_exists($mesh3D_info->file_path)) {
-                    $dir = $mesh3D_info->file_path;
-                    foreach (scandir($dir) as $object) {
-                        if ($object != "." && $object != "..") {
-                            if (filetype($dir."/".$object) == "dir") 
-                                rmdir($dir."/".$object); 
-                            else unlink   ($dir."/".$object);
-                        }
-                    }
-                        rmdir($dir);
-                }
+                // if (file_exists($mesh3D_info->file_path)) {
+                //     $dir = $mesh3D_info->file_path;
+                //     foreach (scandir($dir) as $object) {
+                //         if ($object != "." && $object != "..") {
+                //             if (filetype($dir."/".$object) == "dir") 
+                //                 rmdir($dir."/".$object); 
+                //             else unlink   ($dir."/".$object);
+                //         }
+                //     }
+                //         rmdir($dir);
+                // }
                 $mesh3D_info->delete();
             }
 
@@ -399,15 +399,15 @@ class Studies extends Controller
                         $mesh3D_new = $mesh3D_info->replicate();
                         $mesh3D_new->id_prod = $product->ID_PROD;
                         unset($mesh3D_new->id_mesh3d_info);
-                        if (file_exists($mesh3D_info->file_path)) {
-                            $src = $mesh3D_info->file_path."/*";
-                            if (!is_dir($mesh3D_info->file_path."-saveAs-".$mesh3D_new->id_prod)) {
-                                mkdir($mesh3D_info->file_path."-saveAs-".$mesh3D_new->id_prod, 0777, true);
-                            }
-                            $dest = $mesh3D_info->file_path."-saveAs-".$mesh3D_new->id_prod;
-                            shell_exec("cp -r $src $dest");
-                            $mesh3D_new->file_path =$dest;
-                        }
+                        // if (file_exists($mesh3D_info->file_path)) {
+                        //     $src = $mesh3D_info->file_path."/*";
+                        //     if (!is_dir($mesh3D_info->file_path."-saveAs-".$mesh3D_new->id_prod)) {
+                        //         mkdir($mesh3D_info->file_path."-saveAs-".$mesh3D_new->id_prod, 0777, true);
+                        //     }
+                        //     $dest = $mesh3D_info->file_path."-saveAs-".$mesh3D_new->id_prod;
+                        //     shell_exec("cp -r $src $dest");
+                        //     $mesh3D_new->file_path =$dest;
+                        // }
                         $mesh3D_new->save();
                     }
 
