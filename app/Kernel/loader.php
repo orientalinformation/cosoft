@@ -19,5 +19,5 @@ require_once __DIR__ . '/lib/IProfitCalculator.php';
 require_once __DIR__ . '/lib/IStudyCleaner.php';
 require_once __DIR__ . '/lib/IWeightCalculator.php';
 require_once __DIR__ . '/lib/IEquipmentBuilder.php';
-require_once __DIR__ . '/lib/InitTemperature.php';
+require_once __DIR__ . '/lib/IInitTemperature.php';
 require_once __DIR__ . '/KernelService.php';
