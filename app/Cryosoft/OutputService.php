@@ -1141,11 +1141,11 @@ class OutputService
         }
 
         if ($bisApplied) {
-            if ($this->stdeqp->runStudyCleaner($idStudy, $idStudyEquipment, 43) != 0) {
+            if ($this->stdeqp->runStudyCleaner($idStudy, $idStudyEquipment, SC_CLEAN_OUTPUT_EQP_PRM) != 0) {
                 $bisApplied = false;
             }
 
-            $this->stdeqp->afterStudyCleaner($idStudy, $idStudyEquipment, 43);
+            $this->stdeqp->afterStudyCleaner($idStudy, $idStudyEquipment, SC_CLEAN_OUTPUT_EQP_PRM);
         }
 
         return $bisApplied;

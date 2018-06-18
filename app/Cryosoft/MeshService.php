@@ -90,7 +90,6 @@ class MeshService
         $meshGen->save();
         
         $product = $meshGen->product;
-
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_STUDY);
         $this->kernel->getKernelObject('MeshBuilder')->MBMeshBuild($conf);
 

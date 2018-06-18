@@ -324,7 +324,7 @@ class Calculator extends Controller
     public function startStudyCalculation($idStudy)
     {
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, -1);
-        $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 50);
+        $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, SC_CLEAN_OUTPUT_CALCUL);
 
         $studyEquipments = StudyEquipment::where('ID_STUDY', $idStudy)->get();
         $study = Study::find($idStudy);
@@ -401,7 +401,7 @@ class Calculator extends Controller
         $studyEquipments = StudyEquipment::where('ID_STUDY', $idStudy)->get();
 
         // $confCleaner = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, -1);
-        // $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($confCleaner, 50);
+        // $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($confCleaner, SC_CLEAN_OUTPUT_CALCUL);
         $study = Study::find($idStudy);
 
         $results = [];
@@ -414,7 +414,7 @@ class Calculator extends Controller
                 if ($this->equipment->getCapability($capability, 128)) {
 
                     // run study clear
-                    $this->runStudyCleaner($idStudy, $idStudyEquipment, 50);
+                    $this->runStudyCleaner($idStudy, $idStudyEquipment, SC_CLEAN_OUTPUT_CALCUL);
 
                     $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\brain_log_'.$idStudy.'_'. $idStudyEquipment.'.txt');
                     $param = new \Cryosoft\stSKBRParam();
@@ -766,7 +766,7 @@ class Calculator extends Controller
                 $this->cal->setChildsStudiesToRecalculate($idStudy, $idStudyEquipment);
             }
 
-            $this->runStudyCleaner($idStudy, $idStudyEquipment, 53);
+            $this->runStudyCleaner($idStudy, $idStudyEquipment, SC_CLEAN_OUTPUT_OPTIM_BRRUN);
                      
             $runType = $this->startBrainNumericalCalculation($idStudy, $idStudyEquipment, $brainMode);
 
@@ -1303,7 +1303,7 @@ class Calculator extends Controller
             $lfLoadingRateMax = doubleval($toc) / 100;
         }
 
-        $this->runStudyCleaner($idStudy, $idStudyEquipment, 54);
+        $this->runStudyCleaner($idStudy, $idStudyEquipment, SC_CLEAN_OUTPUT_OPTIMAX_BRRUN);
 
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\brain_mode_13_'.$idStudy.'_'.$idStudyEquipment.'.txt');
         $param = new \Cryosoft\stSKBRParam($lfControlTemp, $lfLoadingRateMax);

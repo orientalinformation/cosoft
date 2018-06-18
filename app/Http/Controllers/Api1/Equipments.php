@@ -1708,7 +1708,7 @@ class Equipments extends Controller
     {
         $study = Study::find($id);
         $studyEquipments = $study->studyEquipments;
-        $this->stdeqp->runStudyCleaner($id, -1, 48);
+        $this->stdeqp->runStudyCleaner($id, -1, SC_CLEAN_OUPTUT_LAYOUT_CHANGED);
         if (count($studyEquipments) > 0) {
             foreach ($studyEquipments as $sEquip) {
                 
@@ -1723,7 +1723,7 @@ class Equipments extends Controller
                 $sEquip->save();
             }
         }
-        $this->stdeqp->afterStudyCleaner($id, -1, 48, false, false, false, false);
+        $this->stdeqp->afterStudyCleaner($id, -1, SC_CLEAN_OUPTUT_LAYOUT_CHANGED, false, false, false, false);
 
         return 1;
     }
@@ -1862,7 +1862,7 @@ class Equipments extends Controller
                             for ($i = 0; $i < count($studyEquipments); $i++) {
                                 if ($studyEquipments[$i]->ID_EQUIP == $id_equip_) {
                                     $idStudyEquipment = $studyEquipments[$i]->ID_STUDY_EQUIPMENTS;
-                                    $this->studies->RunStudyCleaner($ID_STUDY, 43, $idStudyEquipment);
+                                    $this->studies->RunStudyCleaner($ID_STUDY, SC_CLEAN_OUTPUT_EQP_PRM, $idStudyEquipment);
 
                                     $this->cal->setChildsStudiesToRecalculate($ID_STUDY, $idStudyEquipment);
 
