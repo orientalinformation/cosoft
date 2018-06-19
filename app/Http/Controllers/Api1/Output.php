@@ -141,7 +141,7 @@ class Output extends Controller
             $item["specificSize"] = $sSpecificSize;   
             
             $item["equipName"] = $this->equip->getResultsEquipName($idStudyEquipment);
-            $calculate = "";
+            $calculate = false;
             $background = $tr = $ts = $vc = $vep = $tfp = $dhp = $conso= $conso_warning = $toc = $precision = "";
 
             $item["runBrainPopup"] = false;
@@ -152,15 +152,15 @@ class Output extends Controller
             if (!($this->equip->getCapability($capabilitie, 128))) {
                 $background = '#FFFFFF';
                 $tr = $ts = $vc = $vep = $tfp = $dhp = $conso= $conso_warning = $toc = $precision = "";
-                $calculate = "disabled";
+                $calculate = true;
             } else if (($equipStatus != 0) && ($equipStatus != 1) && ($equipStatus != 100000)) {
                 $background = '#FFFFFF';
                 $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $conso_warning = $toc = $precision = "****";
-                $calculate = "disabled";
+                $calculate = true;
             } else if ($equipStatus == 10000) {
                 $background = '#FFFFFF';
                 $tr = $ts = $vc = $vep = $tfp = $dhp = $conso= $conso_warning = $toc = $precision = "";
-                $calculate = "disabled";
+                $calculate = true;
             } else {
                 $dimaResult = DimaResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("DIMA_TYPE", 1)->first();
                 if ($dimaResult == null) {
@@ -169,24 +169,24 @@ class Output extends Controller
                 } else {
                     switch ($brainType) {
                         case 0:
-                            $calculate = true;
+                            $calculate = false;
                             $background = '#FFFFFF';
                             break;
 
                         case 1:
                         case 2:
                         case 3:
-                            $calculate = false;
+                            $calculate = true;
                             $background = '#FFFFCC';
                             break;
 
                         case 4:
-                            $calculate = false;
+                            $calculate = true;
                             $background = '#FFFFEE';
                             break;
 
                         default:
-                            $calculate = true;
+                            $calculate = false;
                             $background = '#FFFFFF';
                             break;
                     }
