@@ -9,6 +9,7 @@ use App\Models\Translation;
 use App\Models\ProductElmt;
 use App\Models\MeshPosition;
 use App\Models\InitialTemperature;
+use App\Models\MeshGeneration;
 
 class ProductService
 {
@@ -487,5 +488,32 @@ class ProductService
         }
 
         return $check;
+    }
+
+    public function calculateNumberPoint3D(MeshGeneration &$meshGeneration, ProductElmt &$elmt)
+    {
+        $positions = [];
+        $points = [];
+        $startPoint = $endPoint = $position = $numberPoint = null;
+        if (floatval($meshGeneration->MESH_2_SIZE) != 0 ) {
+            $numberPoint = intval($elmt->SHAPE_PARAM2 / $meshGeneration->MESH_2_SIZE);
+        }
+
+        $startPoint = floatval($elmt->SHAPE_POS2);
+        $endPoint = floatval($elmt->SHAPE_POS2) + floatval($elmt->SHAPE_PARAM2);
+        $position = $startPoint;
+
+        array_push($positions, $startPoint);
+
+        if ($numberPoint > 0) {
+            for ($i = 1; $i < $numberPoint - 1 ; $i++) {
+                $position = $position + floatval($meshGeneration->MESH_2_SIZE);
+                array_push($positions, $position);
+            }
+        }
+
+        array_push($positions, $endPoint);
+
+        return compact('points', 'positions');
     }
 }
