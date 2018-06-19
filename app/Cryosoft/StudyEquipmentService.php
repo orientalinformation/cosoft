@@ -132,7 +132,9 @@ class StudyEquipmentService
             'EQP_WIDTH' => $studyEquipment->EQP_WIDTH,
             'EQUIP_VERSION' => $studyEquipment->EQUIP_VERSION,
             'layoutGen' => null,
-            'BRAIN_TYPE' => intval($studyEquipment->BRAIN_TYPE)
+            'BRAIN_TYPE' => intval($studyEquipment->BRAIN_TYPE),
+            'EQUIP_STATUS' => intval($studyEquipment->EQUIP_STATUS),
+            'RUN_CALCULATE' => intval($studyEquipment->RUN_CALCULATE)
         ];
 
         $layoutGen = $this->getStudyEquipmentLayoutGen($studyEquipment);
@@ -1099,7 +1101,7 @@ class StudyEquipmentService
                 break;
         }
 
-        return $this->recalculateEquipment($idStudy, $idStudyEquipment, $bRecalcTOC, $bRecalcTS, $bRecalcPhamCast, $bRecalcExhaust, $bRecalcEco);
+        $this->recalculateEquipment($idStudy, $idStudyEquipment, $bRecalcTOC, $bRecalcTS, $bRecalcPhamCast, $bRecalcExhaust, $bRecalcEco);
     }
 
 
