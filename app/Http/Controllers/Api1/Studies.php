@@ -720,7 +720,7 @@ class Studies extends Controller
         }
 
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id), -1);
-        return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 10);
+        return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, SC_CLEAN_TMP_DATA);
     }
 
     public function getStudyEquipments($id) 
@@ -1300,7 +1300,7 @@ class Studies extends Controller
 
         // add by oriental Tran
         if ($equip) {
-            $this->study->RunStudyCleaner($id, 43, $idEquip);
+            $this->study->RunStudyCleaner($id, SC_CLEAN_OUTPUT_EQP_PRM, $idEquip);
         }
 
         foreach ($equip->layoutGenerations as $layoutGen) {
@@ -1417,7 +1417,7 @@ class Studies extends Controller
 
         $this->stdeqp->calculateEquipmentParams($sEquip);
         if ($input['studyClean'] == true) {
-            $this->stdeqp->applyStudyCleaner($sEquip->ID_STUDY, $id, 48);
+            $this->stdeqp->applyStudyCleaner($sEquip->ID_STUDY, $id, SC_CLEAN_OUPTUT_LAYOUT_CHANGED);
         }
     }
 
