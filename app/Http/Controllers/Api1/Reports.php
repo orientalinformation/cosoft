@@ -1865,7 +1865,7 @@ class Reports extends Controller
                                     }
                                     if ($CONS_MONTH == 1) { 
                                     $html .='
-                                        <td align="center"> '. $economic[$key]['month'] .' </td>';
+                                        <td align="center"></td>';
                                     }
                                     if ($CONS_YEAR == 1) { 
                                     $html .='
@@ -2212,10 +2212,9 @@ class Reports extends Controller
                         PDF::writeHTML($html, true, false, true, false, '');
                     }
                     if ($ISOVALUE_G == 1) {
-                        $html = '';
-                        $html .='<h3>Graphic</h3>
+                        $html ='<h3>Graphic</h3>
                         <div align="center">
-                            <img width="640" height="450" src="'. $public_path .'/timeBased/'.$study['USERNAM'] .'/'.$timeBases['idStudyEquipment'] .'.png"></div>';
+                            <img width="640" height="450" src="'. $public_path .'/timeBased/'.$study['USERNAM'] .'/'.$timeBases['idStudyEquipment'].'.png"></div>';
                         PDF::writeHTML($html, true, false, true, false, '');
                     }
                 }
@@ -2509,6 +2508,7 @@ class Reports extends Controller
                 }
 
                 if ($ISOVALUE_V == 1 || $ISOVALUE_G == 1) {
+                    $this->writeProgressFile('/home/huytd/timeBase', $this->reportserv->timeBased($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS));
                     $timeBase[] = $this->reportserv->timeBased($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
                     $progress .= "\nTime Based";
                     $this->writeProgressFile($progressFile, $progress);
