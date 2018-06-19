@@ -316,7 +316,7 @@ class Studies extends Controller
 
             return response([
                 'code' => 1002,
-                'message' => 'Duplicate Study Name!'
+                'message' => 'This study name already exists, please try another one.'
             ], 406);
         }
         
@@ -861,6 +861,14 @@ class Studies extends Controller
         $input = $this->request->json()->all();
 
         $study->STUDY_NAME = $input['STUDY_NAME'];
+        $duplicateStudy = Study::where('STUDY_NAME', '=', $input['STUDY_NAME'])->count();
+        if($duplicateStudy){
+
+            return response([
+                'code' => 1002,
+                'message' => 'This study name already exists, please try another one.'
+            ], 406);
+        }
         $study->ID_USER = $this->auth->user()->ID_USER;
         $study->OPTION_ECO = isset($input['OPTION_ECO']) ? $input['OPTION_ECO'] : 0;
         $study->CALCULATION_MODE = $input['CALCULATION_MODE'];
@@ -1769,7 +1777,7 @@ class Studies extends Controller
 
             return response([
                 'code' => 1002,
-                'message' => 'Duplicate Study Name!'
+                'message' => 'This study name already exists, please try another one.'
             ], 406);
         }
 
