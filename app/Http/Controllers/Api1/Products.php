@@ -160,7 +160,6 @@ class Products extends Controller
         
         // $this->mesh->rebuildMesh($product->study);
 
-
         $layerColor = ProdcharColor::where('ID_PROD', $product->ID_PROD)->where('LAYER_ORDER', $nElements+1)->first();
         $defaultColor = ProdcharColorsDef::where('ID_USER', $this->auth->user()->ID_USER)->where('LAYER_ORDER', $nElements+1)->first();
         
@@ -207,7 +206,7 @@ class Products extends Controller
             $nElements->SHAPE_PARAM2 = $this->unit->prodDimension($dim2, ['save' => true]);
             $nElements->save();
 
-            //run studyCleaner 41
+            // Run studyCleaner 41
             $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_STUDY, -1);
             $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, SC_CLEAN_OUTPUT_PRODUCT);
 
@@ -385,24 +384,35 @@ class Products extends Controller
         $heights = [];
 
         foreach ($elements as $elmt) {
-            $meshPositions = MeshPosition::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->orderBy('MESH_ORDER')->get();
-            array_push($elmtMeshPositions, $meshPositions);
+            // shape < 10
+            if ($elmt->ID_SHAPE < 10) {
+                $meshPositions = MeshPosition::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->orderBy('MESH_ORDER')->get();
+                array_push($elmtMeshPositions, $meshPositions);
 
-            $pointMeshOrder2 = $this->product->searchNbPtforElmt($elmt, 2);
-            array_push($initTempPositions, $pointMeshOrder2['positions']);
-            array_push($nbMeshPointElmt, count($pointMeshOrder2['points']));
+                $pointMeshOrder2 = $this->product->searchNbPtforElmt($elmt, 2);
+                array_push($initTempPositions, $pointMeshOrder2['positions']);
+                array_push($nbMeshPointElmt, count($pointMeshOrder2['points']));
 
-            $elmtInitTemp = $this->productElmts->searchTempMeshPoint($elmt, $pointMeshOrder2['points']);
-            array_push($productElmtInitTemp, $elmtInitTemp);
+                $elmtInitTemp = $this->productElmts->searchTempMeshPoint($elmt, $pointMeshOrder2['points']);
+                array_push($productElmtInitTemp, $elmtInitTemp);
+            } else {
+                $pointMeshOrder2 = $this->product->calculateNumberPoint3D($meshGeneration, $elmt);
+                array_push($initTempPositions, $pointMeshOrder2['positions']);
+                array_push($nbMeshPointElmt, count($pointMeshOrder2['positions']));
+
+                array_push($productElmtInitTemp, $pointMeshOrder2['points']);
+            }
 
             $shapeParam2 = $this->productElmts->getProdElmtthickness($elmt->ID_PRODUCT_ELMT);
             array_push($heights, $shapeParam2);
+
             $elmt->componentName = $this->product->getComponentDisplayName($elmt->ID_COMP);
         }
 
         $productIsoTemp = null;
         
         if ($product->PROD_ISO) {
+            // 3D initial temperature
             if (count($elements) > 0 && $elements[0]->ID_SHAPE >= 10) {
                 if (InitTemp3D::where('ID_PRODUCT_ELMT', $elements[0]->ID_PRODUCT_ELMT)->count() > 0) {
                     $productIsoTemp = InitTemp3D::where('ID_PRODUCT_ELMT', $elements[0]->ID_PRODUCT_ELMT)->first();
