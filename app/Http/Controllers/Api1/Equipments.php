@@ -1711,7 +1711,6 @@ class Equipments extends Controller
         $this->stdeqp->runStudyCleaner($id, -1, SC_CLEAN_OUPTUT_LAYOUT_CHANGED);
         if (count($studyEquipments) > 0) {
             foreach ($studyEquipments as $sEquip) {
-                
                 $sEquip->BRAIN_SAVETODB = 0;
                 $sEquip->BRAIN_TYPE = 0;
                 $sEquip->EQUIP_STATUS = 0;
@@ -1723,9 +1722,9 @@ class Equipments extends Controller
                 $sEquip->save();
             }
         }
-        $res = $this->stdeqp->afterStudyCleaner($id, -1, SC_CLEAN_OUPTUT_LAYOUT_CHANGED, false, false, false, false);
+        $this->stdeqp->afterStudyCleaner($id, -1, SC_CLEAN_OUPTUT_LAYOUT_CHANGED, false, false, false, false);
 
-        return $res;
+        return 1;
     }
 
     public function getTempSetPoint($idEquip)
