@@ -53,6 +53,5 @@ namespace Cryosoft\InitTemperature
     $Cryosoft_InitTemperature__t_IInitTemperaturePrx = IcePHP_defineProxy('::Cryosoft::InitTemperature::IInitTemperature', $Ice__t_ObjectPrx, null);
 
     IcePHP_defineOperation($Cryosoft_InitTemperature__t_IInitTemperaturePrx, 'ITInitTemperature', 0, 0, 0, array(array($Cryosoft__t_stSKConf)), null, array($IcePHP__t_long), null);
-    IcePHP_defineOperation($Cryosoft_InitTemperature__t_IInitTemperaturePrx, 'shutdown', 0, 0, 0, null, null, null, null);
 }
 ?>
