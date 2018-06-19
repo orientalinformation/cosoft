@@ -1723,9 +1723,9 @@ class Equipments extends Controller
                 $sEquip->save();
             }
         }
-        $this->stdeqp->afterStudyCleaner($id, -1, SC_CLEAN_OUPTUT_LAYOUT_CHANGED, false, false, false, false);
+        $res = $this->stdeqp->afterStudyCleaner($id, -1, SC_CLEAN_OUPTUT_LAYOUT_CHANGED, false, false, false, false);
 
-        return 1;
+        return $res;
     }
 
     public function getTempSetPoint($idEquip)

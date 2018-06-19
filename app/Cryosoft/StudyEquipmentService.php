@@ -1069,11 +1069,14 @@ class StudyEquipmentService
         switch ($mode) {
             case 43:
                 $bRecalcTOC = $bRecalcTS = $bRecalcPhamCast = $bRecalcExhaust = $bRecalcEco = false;
+                if ($bNewTr) {
+                    $bRecalcExhaust = true;
+                }
                 break;
 
             case 41:
             case 42:
-                $bRecalcTOC = $bRecalcTS = $true;
+                $bRecalcTOC = $bRecalcTS = true;
                 $bRecalcPhamCast = $bRecalcExhaust = $bRecalcEco = false;
                 break;
 
@@ -1094,9 +1097,9 @@ class StudyEquipmentService
                 $bRecalcTOC = $bRecalcTS = $bRecalcPhamCast = $bRecalcExhaust = true;
                 $bRecalcEco = false;
                 break;
-
-            $this->recalculateEquipment($idStudy, $idStudyEquipment, $bRecalcTOC, $bRecalcTS, $bRecalcPhamCast, $bRecalcExhaust, $bRecalcEco);
         }
+
+        return $this->recalculateEquipment($idStudy, $idStudyEquipment, $bRecalcTOC, $bRecalcTS, $bRecalcPhamCast, $bRecalcExhaust, $bRecalcEco);
     }
 
 
@@ -1115,7 +1118,7 @@ class StudyEquipmentService
                 if (($idStudyEquipment == -1) || ($studyEquipment->ID_STUDY_EQUIPMENTS == $idStudyEquipment)) {
                     if ($bRecalcTOC) {
                         try {
-                            // dbdata.getEquipmentLayout(sequip);
+                            $this->getStudyEquipmentLayoutGen($studyEquipment);
                             $this->runLayoutCalculator($idStudy, $studyEquipment->ID_STUDY_EQUIPMENTS);
                         } catch (Exception $e) {
                             $bExTOC = true;
@@ -1126,7 +1129,7 @@ class StudyEquipmentService
 
                         if ($this->equip->getCapability($capability, 2) && $this->equip->getCapability($capability, 131072)) {
                             try {
-                                // dbdata.getEquipmentLayout(sequip);
+                                $this->getStudyEquipmentLayoutGen($studyEquipment);
                                 $this->runTSCalculator($idStudy, $studyEquipment->ID_STUDY_EQUIPMENTS);
                             } catch (OXException $e) {
                                 $bExTS = true;
