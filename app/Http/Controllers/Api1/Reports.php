@@ -2737,8 +2737,14 @@ class Reports extends Controller
         $progressFile = "$study->ID_STUDY-".preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname)."-Report.progess";
         $progressFileHtml = getenv('APP_URL') . '/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname) . '-Report.html';
         $progressFilePdf = getenv('APP_URL') . '/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname). '-Report.pdf';
-        $file = file_get_contents($public_path . "/reports/" . $study->USERNAM . "/" . $progressFile);
-        $progress = explode("\n", $file);
+        $progressfilePath = $public_path . "/reports/" . $study->USERNAM . "/" . $progressFile;
+        
+        $progress = [];
+        if (file_exists($progressfilePath)) {
+            $file = file_get_contents($progressfilePath);
+            $progress = explode("\n", $file);
+        }
+        
         return compact('progressFileHtml', 'progressFilePdf', 'progress');
     }
 
