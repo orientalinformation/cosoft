@@ -117,14 +117,17 @@ class Reports extends Controller
     public function getReport($id)
     {
         $study = Study::where('ID_STUDY', $id)->first();
-        $stuequip = $study->studyEquipments->first();
-        
-        if ($stuequip != null) {
-            if ($study->CALCULATION_MODE == 1 && $stuequip->BRAIN_TYPE != 4) {
-                    return response("Report is available only when equipments are calculated numerically", 406);
-            } else if ($study->CALCULATION_MODE != 1 && $stuequip->BRAIN_TYPE == 0) {
-                    return response("Report is available only when equipments are calculated numerically", 406);
+        $stuequips = $study->studyEquipments;
+        if ($stuequips != null) {
+        foreach ($stuequips as $stuequip) {
+            if ($stuequip->tr != "" || $stuequip->tr != "***") {
+                if ($study->CALCULATION_MODE == 1 && (!$stuequip->BRAIN_TYPE == 4)) {
+                        return response("Report is available only when equipments are calculated numerically", 406);
+                } else if ($study->CALCULATION_MODE != 1 && (!$stuequip->BRAIN_TYPE != 0)) {
+                        return response("Report is available only when equipments are calculated numerically", 406);
+                }
             }
+        }
             $report = Report::where('ID_STUDY', $id)->first();
     
             if ($report) {
@@ -153,29 +156,33 @@ class Reports extends Controller
                 // $report->refContRep2DTempMaxRef = $this->units->prodTemperature(doubleval($pasTemp['dTMax']), 1, 1);
                 // $report->refContRep2DTempStepRef = doubleval($pasTemp['dpas']);
                 $idstudyequips = $study->studyEquipments;
-                if ($stuequip->BRAIN_TYPE == 4) {
-                    $getTemp = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips[0]->ID_STUDY_EQUIPMENTS, 1);
-                    
-                    $report->refContRep2DTempStepRef = $this->units->prodTemperature($getTemp['chartTempInterval'][2]);
-                    $report->refContRep2DTempMinRef = $this->units->prodTemperature($getTemp['chartTempInterval'][0]);
-                    $report->refContRep2DTempMaxRef = $this->units->prodTemperature($getTemp['chartTempInterval'][1]);
-                    
-                    if ($report->CONTOUR2D_TEMP_STEP == 0) {
-                        $report->CONTOUR2D_TEMP_STEP = $this->units->prodTemperature($getTemp['chartTempInterval'][2]);
-                    } else {
-                        $report->CONTOUR2D_TEMP_STEP = $this->units->prodTemperature($report->CONTOUR2D_TEMP_STEP, 1, 1);
-                    }
-        
-                    if ($report->CONTOUR2D_TEMP_MIN == 0) {
-                        $report->CONTOUR2D_TEMP_MIN =$this->units->prodTemperature($getTemp['chartTempInterval'][0]);
-                    } else {
-                        $report->CONTOUR2D_TEMP_MIN = $this->units->prodTemperature($report->CONTOUR2D_TEMP_MIN, 1, 1);
-                    }
-        
-                    if ($report->CONTOUR2D_TEMP_MAX == 0) {
-                        $report->CONTOUR2D_TEMP_MAX = $this->units->prodTemperature($getTemp['chartTempInterval'][1]);
-                    } else {
-                        $report->CONTOUR2D_TEMP_MAX = $this->units->prodTemperature($report->CONTOUR2D_TEMP_MAX, 1, 1);
+                foreach ($idstudyequips as $idstudyequip) {
+                    if ($stuequip->tr != "" || $stuequip->tr != "***") {
+                        if ($idstudyequip->BRAIN_TYPE == 4) {
+                            $getTemp = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequip->ID_STUDY_EQUIPMENTS, 1);
+                            
+                            $report->refContRep2DTempStepRef = $this->units->prodTemperature($getTemp['chartTempInterval'][2]);
+                            $report->refContRep2DTempMinRef = $this->units->prodTemperature($getTemp['chartTempInterval'][0]);
+                            $report->refContRep2DTempMaxRef = $this->units->prodTemperature($getTemp['chartTempInterval'][1]);
+                            
+                            if ($report->CONTOUR2D_TEMP_STEP == 0) {
+                                $report->CONTOUR2D_TEMP_STEP = $this->units->prodTemperature($getTemp['chartTempInterval'][2]);
+                            } else {
+                                $report->CONTOUR2D_TEMP_STEP = $this->units->prodTemperature($report->CONTOUR2D_TEMP_STEP, 1, 1);
+                            }
+                
+                            if ($report->CONTOUR2D_TEMP_MIN == 0) {
+                                $report->CONTOUR2D_TEMP_MIN =$this->units->prodTemperature($getTemp['chartTempInterval'][0]);
+                            } else {
+                                $report->CONTOUR2D_TEMP_MIN = $this->units->prodTemperature($report->CONTOUR2D_TEMP_MIN, 1, 1);
+                            }
+                
+                            if ($report->CONTOUR2D_TEMP_MAX == 0) {
+                                $report->CONTOUR2D_TEMP_MAX = $this->units->prodTemperature($getTemp['chartTempInterval'][1]);
+                            } else {
+                                $report->CONTOUR2D_TEMP_MAX = $this->units->prodTemperature($report->CONTOUR2D_TEMP_MAX, 1, 1);
+                            }
+                        }
                     }
                 }
                 $tempRecordPts = TempRecordPts::where("ID_STUDY", $study->ID_STUDY)->first();
@@ -2626,6 +2633,7 @@ class Reports extends Controller
             // return $pro2Dchart;
         }
         if ($idstudyequips->BRAIN_TYPE == 4) {
+            
             if ($CONTOUR2D_G == 1) {
                 if (($shapeCode != 1) || ($shapeCode != 6)) {
                 $progress .= "\nContour";
