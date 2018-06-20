@@ -940,11 +940,12 @@ class Reports extends Controller
                     }
                 }
 
-            } else {
-                $proSections = [];
-                $heatexchange = [];
-                $timeBase = [];
-            }
+            } 
+            // else {
+            //     $proSections = [];
+            //     $heatexchange = [];
+            //     $timeBase = [];
+            // }
             // return $timeBase;
         }
         if ($idstudyequips->BRAIN_TYPE == 4) {
@@ -2616,16 +2617,15 @@ class Reports extends Controller
                     }
                 }
 
-            } else {
-                $proSections = [];
-                $heatexchange = [];
-                $timeBase = [];
-            }
+            } 
+            // else {
+            //     $proSections = [];
+            //     $heatexchange = [];
+            //     $timeBase = [];
+            // }
             // return $pro2Dchart;
         }
         if ($idstudyequips->BRAIN_TYPE == 4) {
-            $this->writeProgressFile($progressFile, $progress);
-            
             if ($CONTOUR2D_G == 1) {
                 if (($shapeCode != 1) || ($shapeCode != 6)) {
                 $progress .= "\nContour";
