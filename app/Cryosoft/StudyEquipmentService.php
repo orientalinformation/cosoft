@@ -840,7 +840,8 @@ class StudyEquipmentService
         $image->setImageFormat("jpeg");
         $image->resizeImage(800, 800, \imagick::FILTER_LANCZOS, 1, true);
         $public_path = rtrim(app()->basePath("public/"), '/');
-        $nameImgLayout = $sequip->study->ID_STUDY.'-'.$sequip->study->STUDY_NAME.'-StdeqpLayout-'.$sequip->ID_STUDY_EQUIPMENTS.'.jpg';
+        $checkStuname = $sequip->study->STUDY_NAME;
+        $nameImgLayout = $sequip->study->ID_STUDY.'-'.preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname).'-StdeqpLayout-'.$sequip->ID_STUDY_EQUIPMENTS.'.jpg';
         if (!is_dir($public_path . "/reports/" . $sequip->study->USERNAM)) {
             mkdir($public_path . "/reports/" . $sequip->study->USERNAM, 0777, true);
         } 
