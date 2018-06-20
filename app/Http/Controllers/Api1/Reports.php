@@ -546,7 +546,7 @@ class Reports extends Controller
 
         if (isset($input['ASSES_ECO'])) $ASSES_ECO = $input['ASSES_ECO'];
 
-        $SIZING_VALUES = $input['isSizingValuesChosen'];
+        // $SIZING_VALUES = $input['isSizingValuesChosen'];
 
         $mmNbSample1 = $this->minmax->checkMinMaxValue($ENTHALPY_SAMPLE, $this->value->MINMAX_REPORT_NBSAMPLE); 
         $mmNbSample2 = $this->minmax->checkMinMaxValue($ISOCHRONE_SAMPLE, $this->value->MINMAX_REPORT_NBSAMPLE); 
@@ -716,7 +716,7 @@ class Reports extends Controller
         $study = Study::find($id);
         $checkStuname = str_replace(' ', '', $study->STUDY_NAME);
         $host = getenv('APP_URL');
-        $public_path = rtrim(app()->basePath("public/"), '/');
+        $public_path = getenv('APP_URL');
         $progressFile = $public_path. "/reports/" . $study->USERNAM. "/" ."$study->ID_STUDY-".preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname)."-Report.progess";
         $name_report = "$study->ID_STUDY-".preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname)."-Report.pdf";
         if (!is_dir($public_path . "/reports/" . $study->USERNAM)) {
@@ -2394,7 +2394,7 @@ class Reports extends Controller
         $study = Study::find($id);
         $host = getenv('APP_URL');
         $checkStuname = str_replace(' ', '', $study->STUDY_NAME);
-        $public_path = rtrim(app()->basePath("public/"), '/');
+        $public_path = getenv('APP_URL');
         $name_report = "$study->ID_STUDY-".preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname)."-Report.html";
         $progressFile = $public_path. "/reports/" . $study->USERNAM. "/" ."$study->ID_STUDY-".preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname)."-Report.progess";
         if (!is_dir( $public_path. "/reports/"  . $study->USERNAM)) {
@@ -2745,7 +2745,7 @@ class Reports extends Controller
         $progressFile = "$study->ID_STUDY-".preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname)."-Report.progess";
         $progressFileHtml = getenv('APP_URL') . '/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname) . '-Report.html';
         $progressFilePdf = getenv('APP_URL') . '/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname). '-Report.pdf';
-        $file = file_get_contents($public_path . "/reports/" . $study->USERNAM . "/" . $progressFile);
+        $file = file_get_contents(getenv('APP_URL')  . "/reports/" . $study->USERNAM . "/" . $progressFile);
         $progress = explode("\n", $file);
         return compact('progressFileHtml', 'progressFilePdf', 'progress');
     }
