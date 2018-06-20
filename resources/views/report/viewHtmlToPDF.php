@@ -700,7 +700,7 @@
                             <td align="center"><?php echo $economic[$key]['week'] ?></td>
                             <?php } ?>
                             <?php if ($arrayParam['params']['CONS_MONTH'] == 1) { ?>
-                            <td align="center"><?php echo $economic[$key]['month'] ?></td>
+                            <td align="center">""</td>
                             <?php } ?>
                             <?php if ($arrayParam['params']['CONS_YEAR'] == 1) { ?>
                             <td align="center"><?php echo $economic[$key]['year'] ?></td>
@@ -916,11 +916,12 @@
         <?php } ?>   
         
         <?php if (!empty($timeBase)) { ?>
-        <?php if (($arrayParam['params']['ISOVALUE_V'] == 1) || ($arrayParam['params']['ISOVALUE_G'] == 1)) { ?> 
-        <h3 style ="background-color:#268EE2">Product Graph - Time Based</h3>
-        <?php } ?>   
-            <?php if ($arrayParam['params']['ISOVALUE_V'] == 1) { ?> 
+        <?php if (($arrayParam['params']['ISOVALUE_V'] == 1) || ($arrayParam['params']['ISOVALUE_G'] == 1)) 
+        { ?> 
+            <h3 style ="background-color:#268EE2">Product Graph - Time Based</h3>
+        <?php } ?>
             <?php foreach ($timeBase as $timeBases) { ?>
+            <?php if ($arrayParam['params']['ISOVALUE_V'] == 1) { ?> 
             <h4><?php echo $timeBases['equipName'] ?></h4>
             <div class="values-graphic"> 
                 <div class="table-responsive">
@@ -963,13 +964,14 @@
                 </table>
                 </div>
             </div>
-            <?php } ?>
-            <?php if ($arrayParam['params']['ISOVALUE_G'] == 1) { ?>                
-            <div class="pro-graphic" align="center">
-            <img src="<?php echo $arrayParam['host'] . "/timeBased/" . $arrayParam['study']['USERNAM'] . "/" .  $timeBases['idStudyEquipment'] . ".png" ?>" style="max-width: 640px">
-            </div>
-            <?php } ?>
         <?php } ?>
+            <?php if ($arrayParam['params']['ISOVALUE_G'] == 1) { ?>   
+                <h2>Graphic</h2>             
+                <div class="pro-graphic" align="center">
+                <img src="<?php echo $arrayParam['host'] . "/timeBased/" . $arrayParam['study']['USERNAM'] . "/" .  $timeBases['idStudyEquipment'] . ".png" ?>" style="max-width: 640px">
+                </div>
+                    <?php } ?>
+            <?php } ?>
         <?php } ?>
 
         <?php if (!empty($pro2Dchart)) { ?>
