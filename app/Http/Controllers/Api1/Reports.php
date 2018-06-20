@@ -2508,7 +2508,7 @@ class Reports extends Controller
                 }
 
                 if ($ISOVALUE_V == 1 || $ISOVALUE_G == 1) {
-                    $this->writeProgressFile('/home/huytd/timeBase', $this->reportserv->timeBased($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS));
+                    // $this->writeProgressFile('/home/huytd/timeBase', $this->reportserv->timeBased($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS));
                     $timeBase[] = $this->reportserv->timeBased($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
                     $progress .= "\nTime Based";
                     $this->writeProgressFile($progressFile, $progress);
