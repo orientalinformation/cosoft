@@ -82,4 +82,20 @@ class Input3Ds extends Controller
         
         return $ok;
     }
+
+    public function initNonIso3DTemperature($idProd)
+    {
+        $product = Product::findOrFail($idProd);
+        $study = $product->study;
+        $input = $this->request->json()->all();
+
+        $elements = [];
+        $idx = -1;
+
+        if (isset($input['elements'])) $elements = $input['elements'];
+
+        foreach ($elements as $elmt) {
+            // var_dump($elmt); die;
+        }
+    }
 }
