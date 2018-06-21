@@ -29,6 +29,7 @@ class Input3Ds extends Controller
     protected $equip;
     protected $kernel;
     protected $unit;
+    protected $value;
 
     public function __construct(\Laravel\Lumen\Application $app)
     {
@@ -37,7 +38,8 @@ class Input3Ds extends Controller
         $this->request = $app['Illuminate\\Http\\Request'];
         $this->equip = $app['App\\Cryosoft\\EquipmentsService'];
         $this->kernel = $app['App\\Kernel\\KernelService'];
-        $this->unit = $app['App\\Cryosoft\\UnitsConverterService'];
+        $this->units = $app['App\\Cryosoft\\UnitsService'];
+        $this->values = $app['App\\Cryosoft\\ValueListService'];
 
     }
 
@@ -71,7 +73,7 @@ class Input3Ds extends Controller
                     $initTemp3D->ID_PRODUCT_ELMT = $prodElmts[$i]->ID_PRODUCT_ELMT;
                     $initTemp3D->MESH_POSITION = 0;
                 }
-                $initTemp3D->INIT_TEMP = floatval($this->unit->temperature($initTemp, ['save' => true]));
+                $initTemp3D->INIT_TEMP = floatval($this->units->temperature($initTemp, 16, 1));
                 $initTemp3D->save();
             }
         }
@@ -90,12 +92,40 @@ class Input3Ds extends Controller
         $input = $this->request->json()->all();
 
         $elements = [];
+        $product->PROD_ISO = $this->values->PROD_NOT_ISOTHERM;
+        $product->save();
         $idx = -1;
+        $jdx = -1;
 
         if (isset($input['elements'])) $elements = $input['elements'];
 
         foreach ($elements as $elmt) {
-            // var_dump($elmt); die;
+            $idx++;
+            $elmt['initTemp'] = $input['productElmtInitTemp'][$idx];
+            $elmt['positions'] = $input['initTempPositions'][$idx];
+
+            $pemlt = ProductElmt::findOrFail($elmt['ID_PRODUCT_ELMT']);
+            
+            $initTemp3Ds = InitTemp3D::where('ID_PRODUCT_ELMT', $elmt['ID_PRODUCT_ELMT'])->get();
+            if (count($initTemp3Ds) > 0) {
+                foreach ($initTemp3Ds as $init3d) {
+                    $jdx++;
+                    $init3d->INIT_TEMP = floatval($this->units->temperature($elmt['initTemp'][$jdx], 16, 1));
+                    if ($elmt['PROD_ELMT_ISO'] == $this->values->PRODELT_ISOTHERM) {
+                        $pemlt->PROD_ELMT_ISO = $this->values->PRODELT_ISOTHERM;
+                        $pemlt->save();
+                    } else {
+                        $init3d->MESH_POSITION = $this->units->meshes($elmt['positions'][$jdx], 16, 1);
+                        // save Flag ProdElmt NON ISO to 2
+                        $pemlt->PROD_ELMT_ISO = $this->values->PRODELT_NOT_ISOTHERM;
+                        $pemlt->save();
+                    }
+
+                    $init3d->save();
+                }
+            }
         }
+
+        return 1;
     }
 }

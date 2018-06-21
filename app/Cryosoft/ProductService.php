@@ -10,6 +10,7 @@ use App\Models\ProductElmt;
 use App\Models\MeshPosition;
 use App\Models\InitialTemperature;
 use App\Models\MeshGeneration;
+use App\Models\InitTemp3D;
 
 class ProductService
 {
@@ -514,6 +515,30 @@ class ProductService
 
         array_push($positions, $endPoint);
 
+        $initTemp3Ds = InitTemp3D::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->get();
+        if (count($initTemp3Ds) == 1) {
+            for ($i = 0; $i < count($positions); $i++) {
+                array_push($points, $this->convert->temperature($initTemp3Ds[0]->INIT_TEMP, 2, 0));
+            }            
+        } else {
+            foreach ($$initTemp3Ds as $init3D) {
+                array_push($points, $this->convert->temperature($init3D->INIT_TEMP, 2, 0));
+            }
+        }
+
         return compact('points', 'positions');
+    }
+
+    public function getElmtInitTemp(ProductElmt &$elmt)
+    {
+        $initTemp = [];
+        $initTemp3Ds = InitTemp3D::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->get();
+        if (count($initTemp3Ds) > 0) {
+            foreach ($initTemp3Ds as $init3d) {
+                array_push($initTemp, $this->convert->temperature($init3d->INIT_TEMP, 2, 0));
+            }
+        }
+
+        return $initTemp;
     }
 }
