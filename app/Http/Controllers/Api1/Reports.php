@@ -164,9 +164,9 @@ class Reports extends Controller
                         if ($idstudyequip->BRAIN_TYPE == 4) {
                             $getTemp = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequip->ID_STUDY_EQUIPMENTS, 1);
                             
-                            $report->refContRep2DTempStepRef = $this->units->prodTemperature($getTemp['chartTempInterval'][2]);
-                            $report->refContRep2DTempMinRef = $this->units->prodTemperature($getTemp['chartTempInterval'][0]);
-                            $report->refContRep2DTempMaxRef = $this->units->prodTemperature($getTemp['chartTempInterval'][1]);
+                            $report->refContRep2DTempStepRef = $this->convert->prodTemperature($getTemp['chartTempInterval'][2]);
+                            $report->refContRep2DTempMinRef = $getTemp['chartTempInterval'][0];
+                            $report->refContRep2DTempMaxRef = $getTemp['chartTempInterval'][1];
                             
                             if ($report->CONTOUR2D_TEMP_STEP == 0) {
                                 $report->CONTOUR2D_TEMP_STEP = $this->units->prodTemperature($getTemp['chartTempInterval'][2]);
@@ -322,8 +322,8 @@ class Reports extends Controller
                 $report->ASSES_ECO = 0;
                 $report->save();
     
-                $report->consumptionSymbol = $this->units->consumptionSymbol($idstudyequip->ID_COOLING_FAMILY, 1);
-                $report->temperatureSymbol = $this->convert->temperatureSymbolUser();
+                // $report->consumptionSymbol = $this->units->consumptionSymbol($idstudyequip->ID_COOLING_FAMILY, 1);
+                // $report->temperatureSymbol = $this->convert->temperatureSymbolUser();
     
                 $report->refContRep2DTempMinRef = 0;
                 $report->refContRep2DTempMaxRef = 0;
