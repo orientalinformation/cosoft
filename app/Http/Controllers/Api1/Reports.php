@@ -135,7 +135,7 @@ class Reports extends Controller
     
             if ($report) {
     
-                $report->consumptionSymbol = $this->units->consumptionSymbol($stuequip->ID_COOLING_FAMILY, 1);
+                // $report->consumptionSymbol = $this->units->consumptionSymbol($stuequip->ID_COOLING_FAMILY, 1);
     
                 $report->isSizingValuesChosen = ($report->SIZING_VALUES & 1);
                 $report->isSizingValuesMax = ($report->SIZING_VALUES & 16);
@@ -160,7 +160,7 @@ class Reports extends Controller
                 // $report->refContRep2DTempStepRef = doubleval($pasTemp['dpas']);
                 $idstudyequips = $study->studyEquipments;
                 foreach ($idstudyequips as $idstudyequip) {
-                    if ($stuequip->tr != "" || $stuequip->tr != "***") {
+                    if ($idstudyequip->tr != "" || $idstudyequip->tr != "***") {
                         if ($idstudyequip->BRAIN_TYPE == 4) {
                             $getTemp = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequip->ID_STUDY_EQUIPMENTS, 1);
                             
@@ -322,7 +322,7 @@ class Reports extends Controller
                 $report->ASSES_ECO = 0;
                 $report->save();
     
-                $report->consumptionSymbol = $this->units->consumptionSymbol($stuequip->ID_COOLING_FAMILY, 1);
+                $report->consumptionSymbol = $this->units->consumptionSymbol($idstudyequip->ID_COOLING_FAMILY, 1);
                 $report->temperatureSymbol = $this->convert->temperatureSymbolUser();
     
                 $report->refContRep2DTempMinRef = 0;
