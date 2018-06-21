@@ -385,7 +385,7 @@ class Reports extends Controller
 
     public function initListPoints($id, $axe)
     {
-        return MeshPosition::join('product_elmt', 'mesh_position.ID_PRODUCT_ELMT', '=', 'product_elmt.ID_PRODUCT_ELMT')
+        return MeshPosition::select('MESH_AXIS_POS')->join('product_elmt', 'mesh_position.ID_PRODUCT_ELMT', '=', 'product_elmt.ID_PRODUCT_ELMT')
         ->join('product', 'product_elmt.ID_PROD' , '=', 'product.ID_PROD')
         ->where('product.ID_STUDY', $id)->where('MESH_AXIS', $axe)->distinct()->orderBy('MESH_AXIS_POS', 'ASC')->get();
     }
@@ -397,13 +397,13 @@ class Reports extends Controller
         $list3 = $this->initListPoints($id, 3);
         
         foreach ($list1 as $key) {
-            $key->meshAxisPosValue = floatval($this->convert->meshes($key->MESH_AXIS_POS, $this->value->MESH_CUT));
+            $key->meshAxisPosValue = $this->convert->meshesUnit($key->MESH_AXIS_POS);
         }
         foreach ($list2 as $key) {
-            $key->meshAxisPosValue = floatval($this->convert->meshes($key->MESH_AXIS_POS, $this->value->MESH_CUT));
+            $key->meshAxisPosValue = $this->convert->meshesUnit($key->MESH_AXIS_POS);
         }
         foreach ($list3 as $key) {
-            $key->meshAxisPosValue = floatval($this->convert->meshes($key->MESH_AXIS_POS, $this->value->MESH_CUT));
+            $key->meshAxisPosValue = $this->convert->meshesUnit($key->MESH_AXIS_POS);
         }
 
         return [
