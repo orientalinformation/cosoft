@@ -2790,11 +2790,9 @@ class Reports extends Controller
         $public_path = rtrim(app()->basePath("public"), '/');
         $checkStuname = str_replace(' ', '', $study->STUDY_NAME);
         $progressFile = "$study->ID_STUDY-".preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname)."-Report.progess";
-        $progressFileHtml = getenv('APP_URL') . '/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname) . '-Report.html';
-        $progressFilePdf = getenv('APP_URL') . '/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname). '-Report.pdf';
 
-        $file = file_get_contents($public_path . "/reports/" . $study->USERNAM . "/" . $progressFile);
-        $progress = explode("\n", $file);
+        $progressFileHtml = getenv('APP_URL') . '/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname) . '-Report.html?time=' . time();
+        $progressFilePdf = getenv('APP_URL') . '/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname). '-Report.pdf?time=' . time();
 
         $progressfilePath = $public_path . "/reports/" . $study->USERNAM . "/" . $progressFile;
         
