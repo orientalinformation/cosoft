@@ -496,24 +496,35 @@ class ProductService
         $positions = [];
         $points = [];
         $startPoint = $endPoint = $position = $numberPoint = null;
-        if (floatval($meshGeneration->MESH_2_SIZE) != 0 ) {
-            $numberPoint = intval($elmt->SHAPE_PARAM2 / $meshGeneration->MESH_2_SIZE);
+        $meshSize2 = null;
+
+        if ($meshGeneration->MESH_1_FIXED == 1) {
+            if (floatval($meshGeneration->MESH_2_SIZE) != 0 ) {
+                $numberPoint = intval($this->units->meshesUnit($elmt->SHAPE_PARAM2) / $meshGeneration->MESH_2_SIZE);
+                $meshSize2 = $meshGeneration->MESH_2_SIZE;
+            }
+        } else {
+            $numberPoint = intval(log10(1.0 - ($this->units->meshesUnit($elmt->SHAPE_PARAM2) / $meshGeneration->MESH_2_INT) * (1 - $meshGeneration->MESH_2_RATIO)) / log10($meshGeneration->MESH_2_RATIO));
+
+            if ($numberPoint != 0) {
+                $meshSize2 = floatval($this->units->meshesUnit($elmt->SHAPE_PARAM2)) / floatval($numberPoint);
+            }
         }
 
         $startPoint = floatval($elmt->SHAPE_POS2);
         $endPoint = floatval($elmt->SHAPE_POS2) + floatval($elmt->SHAPE_PARAM2);
-        $position = $startPoint;
+        $position = $this->units->meshesUnit($startPoint);
 
-        array_push($positions, $startPoint);
+        array_push($positions, $this->units->meshesUnit($startPoint));
 
         if ($numberPoint > 0) {
             for ($i = 1; $i < $numberPoint - 1 ; $i++) {
-                $position = $position + floatval($meshGeneration->MESH_2_SIZE);
-                array_push($positions, $position);
+                $position = $position + floatval($meshSize2);
+                array_push($positions, round($position, 2));
             }
         }
 
-        array_push($positions, $endPoint);
+        array_push($positions, $this->units->meshesUnit($endPoint));
 
         $initTemp3Ds = InitTemp3D::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->get();
         if (count($initTemp3Ds) == 1) {

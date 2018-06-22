@@ -382,7 +382,7 @@ class InputInitial extends Controller
         $nbMeshPointElmt = [];
 
         foreach ($elements as $elmt) {
-            $meshPositions = \App\Models\MeshPosition::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->orderBy('MESH_ORDER')->get();
+            $meshPositions = MeshPosition::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->orderBy('MESH_ORDER')->get();
             array_push($elmtMeshPositions, $meshPositions);
 
             $pointMeshOrder2 = $this->product->searchNbPtforElmt($elmt, 2);
