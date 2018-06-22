@@ -790,8 +790,6 @@ class Reports extends Controller
             $baseNamePh = $photoPathInfo['basename'];
             $photoNameUrl = $public_path . '/uploads/' . $baseNamePh;
         }
-        // if (file_exists($photoNameUrl)) $this->writeProgressFile('/home/ngonc/photo_path', $photoNameUrl);
-        // return 1;
 
         if ($PIPELINE == 1) {
             if ($study->OPTION_CRYOPIPELINE == 1) {
@@ -978,6 +976,17 @@ class Reports extends Controller
             }
         }
         $progress .= "\nFINISH";
+
+        $customerPath = $infoReport[0]->CUSTOMER_LOGO;
+        
+        $customerNameUrl = '';
+        if (!empty($customerPath)) {
+            $customPathInfo = pathinfo($customerPath);
+            $baseName = $customPathInfo['basename'];
+            $customerNameUrl = $public_path . '/uploads/' . $baseName;
+        }
+        
+
         $this->writeProgressFile($progressFile, $progress);
 
         // set document information
@@ -997,7 +1006,7 @@ class Reports extends Controller
         PDF::SetAutoPageBreak(TRUE, 15);
         // set image scale factor
         PDF::setImageScale(1.25);
-        PDF::setHeaderCallback(function($pdf) use($study, $host, $public_path){
+        PDF::setHeaderCallback(function($pdf) use($study, $host, $public_path, $customerNameUrl){
             // Set font
             $pdf->SetTextColor(173,173,173);
             $pdf->SetFont('helvetica', '', 10);
@@ -1005,7 +1014,11 @@ class Reports extends Controller
             $pdf->Cell(0, 10, $study->STUDY_NAME.'-'. date("d/m/Y"), 0, false, 'C', 0, '', 0, false, 'T', 'M');
             PDF::SetMargins(15, 25, 15, true);
             // $pdf->Image($host.'/'.$public_path.'/uploads/logo_cryosoft.png',90, 5, 40, '', 'PNG', '', 'T', false, 300, 'R', false, false, 0, false, false, false);
-            $pdf->Image($public_path.'/images/logo_cryosoft.png',90, 5, 40, '', 'PNG', '', 'T', false, 300, 'R', false, false, 0, false, false, false);
+            if (!empty($customerNameUrl)) {
+                $pdf->Image($customerNameUrl, 90, 5, 20, '', 'PNG', '', 'T', false, 300, 'L', false, false, 0, false, false, false);
+            }
+
+            $pdf->Image($public_path.'/images/logo_cryosoft.png', 90, 5, 40, '', 'PNG', '', 'T', false, 300, 'R', false, false, 0, false, false, false);
     
         });
         PDF::setFooterCallback(function($pdf) {
@@ -1025,23 +1038,7 @@ class Reports extends Controller
         PDF::SetTextColor(0,0,0);
         PDF::Bookmark('CONTENT ', 0, 0, '', 'B', array(0,64,128));
         $html = '';
-        $customerPath = $infoReport[0]->CUSTOMER_LOGO;
-        $customerNameUrl = '';
-
-        if (!empty($customerPath)) {
-            $customPathInfo = pathinfo($customerPath);
-            $baseName = $customPathInfo['basename'];
-            $customerNameUrl = $public_path . '/uploads/' . $baseName;
-        }
-
-        // $this->writeProgressFile('/home/ngonc/photo_path', $infoReport[0]->CUSTOMER_LOGO);
-
-        if (!empty($customerNameUrl) && file_exists($customerNameUrl)) { 
-        $html .= '
-        <div class="logo">
-            <img style="max-width: 640px" src="'. $customerNameUrl .'">
-        </div>';
-        }
+        
         $html .= '
         <br></br>
             <div align="center">
@@ -1075,7 +1072,7 @@ class Reports extends Controller
             <div style="text-align:center">
                 <p>';
                 if (!empty($photoNameUrl) && file_exists($photoNameUrl)) {
-                    $html .= '<img src="'. $photoNameUrl.'">';
+                    $html .= '<img src="'. $photoNameUrl.'" style="height:280px">';
                 } else {
                     $html .= '<img src="'. $public_path.'/images/globe_food.gif">';
                 }
@@ -2322,7 +2319,7 @@ class Reports extends Controller
             <div style="text-align:center">
                 <p>';
                 if (!empty($photoNameUrl) && file_exists($photoNameUrl)) {
-                    $html .= '<img src="'. $photoNameUrl.'">';
+                    $html .= '<img src="'. $photoNameUrl.'" style="height:280px">';
                 } else {
                     $html .= '<img src="'. $public_path.'/images/globe_food.gif">';
                 }
@@ -2362,7 +2359,7 @@ class Reports extends Controller
         PDF::Ln();
        
         // add table of content at page 1
-        PDF::addTOC(1, 'courier', '.', 'INDEX', 'B', array(128,0,0));;
+        PDF::addTOC(1, 'courier', '.', 'INDEX', 'B', array(128, 0, 0));;
         
         // end of TOC page
         PDF::endTOCPage();
@@ -2370,7 +2367,8 @@ class Reports extends Controller
         return ["url" => "$host/reports/$study->USERNAM/$name_report"];
     }
     
-    function backgroundGenerationHTML($params) {
+    function backgroundGenerationHTML($params)
+    {
         $id = $params['studyId'];
         $input = $params['input'];
         $DEST_SURNAME = $input['DEST_SURNAME'];
