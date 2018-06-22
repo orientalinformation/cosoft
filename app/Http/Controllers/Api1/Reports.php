@@ -783,6 +783,15 @@ class Reports extends Controller
         
         $symbol = $this->reportserv->getSymbol($study->ID_STUDY);
         $infoReport = $study->reports;
+        $photoPath = $infoReport[0]->PHOTO_PATH;
+        $photoNameUrl = '';
+        if (!empty($photoPath)) {
+            $photoPathInfo = pathinfo($photoPath);
+            $baseNamePh = $photoPathInfo['basename'];
+            $photoNameUrl = $public_path . '/uploads/' . $baseNamePh;
+        }
+        // if (file_exists($photoNameUrl)) $this->writeProgressFile('/home/ngonc/photo_path', $photoNameUrl);
+        // return 1;
 
         if ($PIPELINE == 1) {
             if ($study->OPTION_CRYOPIPELINE == 1) {
@@ -1016,10 +1025,21 @@ class Reports extends Controller
         PDF::SetTextColor(0,0,0);
         PDF::Bookmark('CONTENT ', 0, 0, '', 'B', array(0,64,128));
         $html = '';
-        if (!empty($CUSTOMER_PATH)) { 
+        $customerPath = $infoReport[0]->CUSTOMER_LOGO;
+        $customerNameUrl = '';
+
+        if (!empty($customerPath)) {
+            $customPathInfo = pathinfo($customerPath);
+            $baseName = $customPathInfo['basename'];
+            $customerNameUrl = $public_path . '/uploads/' . $baseName;
+        }
+
+        // $this->writeProgressFile('/home/ngonc/photo_path', $infoReport[0]->CUSTOMER_LOGO);
+
+        if (!empty($customerNameUrl) && file_exists($customerNameUrl)) { 
         $html .= '
         <div class="logo">
-            <img style="max-width: 640px" src="'. $study['reports'][0]['CUSTOMER_PATH'] .'">
+            <img style="max-width: 640px" src="'. $customerNameUrl .'">
         </div>';
         }
         $html .= '
@@ -1052,10 +1072,10 @@ class Reports extends Controller
                         <td colspan="2">'. date("d/m/Y") .' </td>
                     </tr>
                 </table>
-            <div align="center">
+            <div style="text-align:center">
                 <p>';
-                if (!empty($study['reports'][0]['PHOTO_PATH'])) {
-                    $html .= '<img src="'. $study['reports'][0]['PHOTO_PATH'].'">';
+                if (!empty($photoNameUrl) && file_exists($photoNameUrl)) {
+                    $html .= '<img src="'. $photoNameUrl.'">';
                 } else {
                     $html .= '<img src="'. $public_path.'/images/globe_food.gif">';
                 }
@@ -2294,15 +2314,15 @@ class Reports extends Controller
         $html .= '
         <div class="comment">
              <p>
-                <textarea  rows="5"> '. $REPORT_COMMENT .' </textarea>
+                <textarea rows="5"> '. $REPORT_COMMENT .' </textarea>
             </p>
         </div>
 
         <div class="info-writer">
-            <div align="center">
+            <div style="text-align:center">
                 <p>';
-                if (!empty($study['reports'][0]['PHOTO_PATH'])) {
-                    $html .= '<img src="'. $study['reports'][0]['PHOTO_PATH'].'">';
+                if (!empty($photoNameUrl) && file_exists($photoNameUrl)) {
+                    $html .= '<img src="'. $photoNameUrl.'">';
                 } else {
                     $html .= '<img src="'. $public_path.'/images/globe_food.gif">';
                 }
