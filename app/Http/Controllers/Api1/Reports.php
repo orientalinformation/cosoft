@@ -151,13 +151,13 @@ class Reports extends Controller
                 $report->productElmt = $productElmt;
                 $report->temperatureSymbol = $this->convert->temperatureSymbolUser();
                 
-                // $borne = $this->getReportTemperatureBorne($id); 
-                // $report->refContRep2DTempMinRef = doubleval($borne[0]->MIN_TEMP);
-                // $report->refContRep2DTempMaxRef = doubleval($borne[0]->MAX_TEMP);
-                // $pasTemp = $this->calculatePasTemp($report->refContRep2DTempMinRef, $report->refContRep2DTempMaxRef, true);
-                // $report->refContRep2DTempMinRef = $this->units->prodTemperature(doubleval($pasTemp['dTmin']), 1, 1);
-                // $report->refContRep2DTempMaxRef = $this->units->prodTemperature(doubleval($pasTemp['dTMax']), 1, 1);
-                // $report->refContRep2DTempStepRef = doubleval($pasTemp['dpas']);
+                /*$borne = $this->getReportTemperatureBorne($id); 
+                $report->refContRep2DTempMinRef = doubleval($borne[0]->MIN_TEMP);
+                $report->refContRep2DTempMaxRef = doubleval($borne[0]->MAX_TEMP);
+                $pasTemp = $this->calculatePasTemp($report->refContRep2DTempMinRef, $report->refContRep2DTempMaxRef, true);
+                $report->refContRep2DTempMinRef = $this->units->prodTemperature(doubleval($pasTemp['dTmin']), 1, 1);
+                $report->refContRep2DTempMaxRef = $this->units->prodTemperature(doubleval($pasTemp['dTMax']), 1, 1);
+                $report->refContRep2DTempStepRef = doubleval($pasTemp['dpas']);*/
                 $idstudyequips = $study->studyEquipments;
                 foreach ($idstudyequips as $idstudyequip) {
                     if ($idstudyequip->tr != "" || $idstudyequip->tr != "***") {
@@ -719,6 +719,7 @@ class Reports extends Controller
         $study = Study::find($id);
         $checkStuname = str_replace(' ', '', $study->STUDY_NAME);
         $host = getenv('APP_URL');
+        
         $public_path = rtrim(app()->basePath("public"), '/');
         $progressFile = $public_path. "/reports/" . $study->USERNAM. "/" . "$study->ID_STUDY-" . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname) . "-Report.progess";
         $name_report = "$study->ID_STUDY-" . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname) . "-Report.pdf";
@@ -735,6 +736,7 @@ class Reports extends Controller
         
         $product = Product::Where('ID_STUDY', $id)->first();
         $proElmt = ProductElmt::Where('ID_PROD', $product->ID_PROD)->first();
+        
         foreach ($study->studyEquipments as $sequip) {
             $layout = $this->stdeqp->generateLayoutPreview($sequip);
         }
@@ -742,6 +744,7 @@ class Reports extends Controller
         $idComArr = [];
         $comprelease = [];
         
+
         foreach ($product->productElmts as $productElmt) {
             $shapeCode = $productElmt->shape->SHAPECODE;
             $idComArr[] = $productElmt->ID_COMP;
@@ -993,7 +996,7 @@ class Reports extends Controller
             $pdf->Cell(0, 10, $study->STUDY_NAME.'-'. date("d/m/Y"), 0, false, 'C', 0, '', 0, false, 'T', 'M');
             PDF::SetMargins(15, 25, 15, true);
             // $pdf->Image($host.'/'.$public_path.'/uploads/logo_cryosoft.png',90, 5, 40, '', 'PNG', '', 'T', false, 300, 'R', false, false, 0, false, false, false);
-            $pdf->Image($public_path.'/uploads/logo_cryosoft.png',90, 5, 40, '', 'PNG', '', 'T', false, 300, 'R', false, false, 0, false, false, false);
+            $pdf->Image($public_path.'/images/logo_cryosoft.png',90, 5, 40, '', 'PNG', '', 'T', false, 300, 'R', false, false, 0, false, false, false);
     
         });
         PDF::setFooterCallback(function($pdf) {
