@@ -14,9 +14,9 @@
         <div class="logo">
             <div class="row">
                 <div class="col-md-6">
-                    <?php if (!empty($arrayParam['params']['CUSTOMER_PATH'])) { ?>
+                    <?php if (!empty($arrayParam['params']['CUSTOMER_LOGO'])) { ?>
                     <p>
-                        <img src="<?php echo $arrayParam['params']['CUSTOMER_PATH']?>">
+                        <img src="<?php echo $arrayParam['params']['CUSTOMER_LOGO']?>" style="max-height: 50px">
                     </p>
                     <?php } ?>
                 </div>
@@ -61,7 +61,7 @@
             
             <div class="text-center">
                 <p>
-                    <img src="<?php echo !empty($arrayParam['params']['PHOTO_PATH']) ? $arrayParam['params']['PHOTO_PATH'] : $arrayParam['host'] . "/images/globe_food.gif"?>">
+                    <img src="<?php echo !empty($arrayParam['params']['PHOTO_PATH']) ? $arrayParam['params']['PHOTO_PATH'] : $arrayParam['host'] . "/images/globe_food.gif"?>" style="max-height: 280px">
                 </p>
             </div>
             <div class="table-responsive" style="color:red">
@@ -998,7 +998,7 @@
         <div class="info-company">
             <div class="text-center">
                 <p>
-                    <img src="<?php echo (!empty($arrayParam['study']['reports'][0]['PHOTO_PATH'])) ? $arrayParam['study']['reports'][0]['PHOTO_PATH'] : $arrayParam['host'] . "/images/globe_food.gif"?>">
+                    <img src="<?php echo (!empty($arrayParam['study']['reports'][0]['PHOTO_PATH'])) ? $arrayParam['study']['reports'][0]['PHOTO_PATH'] : $arrayParam['host'] . "/images/globe_food.gif"?>" style="max-height: 280px">
                 </p>
             </div>
             <div class="table-responsive">

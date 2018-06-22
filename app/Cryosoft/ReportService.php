@@ -734,7 +734,6 @@ class ReportService
         $lfTS = $listRecordPos[$nbRecord - 1]->RECORD_TIME;
         $lfStep = $listRecordPos[1]->RECORD_TIME - $listRecordPos[0]->RECORD_TIME;
         $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
-
         foreach ($lEchantillon as $row) {
 
             $recordPos = $listRecordPos[$row];
@@ -1044,7 +1043,10 @@ class ReportService
             $lfTS = $listRecordPos[$nbRecord - 1]->RECORD_TIME;
             $lfStep = $listRecordPos[1]->RECORD_TIME - $listRecordPos[0]->RECORD_TIME;
             $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
-
+            // return $nbSample;10
+            // return "ddd" . $nbRecord;79
+            // return "aa" .$lfTS;0
+            // return "bbb". $lfStep;5
             foreach ($lEchantillon as $row) {
                 
                 $recordPos = $listRecordPos[$row];
