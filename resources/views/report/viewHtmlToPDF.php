@@ -353,10 +353,10 @@
                 <tr>
                     <td align="center"><?php echo $key+1 ?></td>
                     <td align="center"><?php echo $resequipDatas['displayName'] ?></td>
-                    <td align="center"><?php echo $resequipDatas['ORIENTATION'] == 1 ? 'Parallel' : 'Perpendicular' ?></td>
-                    <td align="center"><?php echo $resequipDatas['tr'][0] ?></td>
                     <td align="center"><?php echo $resequipDatas['ts'][0] ?></td>
+                    <td align="center"><?php echo $resequipDatas['tr'][0] ?></td>
                     <td align="center"><?php echo $resequipDatas['vc'][0] ?></td>
+                    <td align="center"><?php echo $resequipDatas['ORIENTATION'] == 1 ? 'Parallel' : 'Perpendicular' ?></td>
                     <td align="center"><?php echo $resequipDatas['top_or_QperBatch'] ?></td>
                 </tr>
                 <?php } ?>
