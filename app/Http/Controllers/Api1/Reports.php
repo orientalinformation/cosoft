@@ -552,12 +552,12 @@ class Reports extends Controller
 
         // $SIZING_VALUES = $input['isSizingValuesChosen'];
 
-        $mmNbSample1 = $this->minmax->checkMinMaxValue($ENTHALPY_SAMPLE, $this->value->MINMAX_REPORT_NBSAMPLE); 
-        $mmNbSample2 = $this->minmax->checkMinMaxValue($ISOCHRONE_SAMPLE, $this->value->MINMAX_REPORT_NBSAMPLE); 
-        $mmNbSample3 = $this->minmax->checkMinMaxValue($ISOVALUE_SAMPLE, $this->value->MINMAX_REPORT_NBSAMPLE); 
-        $mmTempStep1 = $this->minmax->checkMinMaxValue($CONTOUR2D_TEMP_STEP, $this->value->MINMAX_REPORT_TEMP_STEP); 
-        $mmTempMin = $this->minmax->checkMinMaxValue($CONTOUR2D_TEMP_MIN, $this->value->MINMAX_REPORT_TEMP_BOUNDS); 
-        $mmTempMax = $this->minmax->checkMinMaxValue($CONTOUR2D_TEMP_MAX, $this->value->MINMAX_REPORT_TEMP_BOUNDS); 
+        $mmNbSample1 = $this->minmax->checkMinMaxValue($ENTHALPY_SAMPLE, $this->values->MINMAX_REPORT_NBSAMPLE); 
+        $mmNbSample2 = $this->minmax->checkMinMaxValue($ISOCHRONE_SAMPLE, $this->values->MINMAX_REPORT_NBSAMPLE); 
+        $mmNbSample3 = $this->minmax->checkMinMaxValue($ISOVALUE_SAMPLE, $this->values->MINMAX_REPORT_NBSAMPLE); 
+        $mmTempStep1 = $this->minmax->checkMinMaxValue($CONTOUR2D_TEMP_STEP, $this->values->MINMAX_REPORT_TEMP_STEP); 
+        $mmTempMin = $this->minmax->checkMinMaxValue($CONTOUR2D_TEMP_MIN, $this->values->MINMAX_REPORT_TEMP_BOUNDS); 
+        $mmTempMax = $this->minmax->checkMinMaxValue($CONTOUR2D_TEMP_MAX, $this->values->MINMAX_REPORT_TEMP_BOUNDS); 
         $report = Report::where('ID_STUDY', $id)->first();
 
         // $report->ID_STUDY = $ID_STUDY;
@@ -600,7 +600,7 @@ class Reports extends Controller
         if ($mmNbSample1) {
             $report->ENTHALPY_SAMPLE = $ENTHALPY_SAMPLE;
         } else {
-            $mm = $this->minmax->getMinMaxNoneLine($this->value->MINMAX_REPORT_NBSAMPLE);
+            $mm = $this->minmax->getMinMaxNoneLine($this->values->MINMAX_REPORT_NBSAMPLE);
             return response("Value out of range in Number of samples (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ") !" , 406); // Status code here
         }
         $report->ISOCHRONE_G = $ISOCHRONE_G;
@@ -609,7 +609,7 @@ class Reports extends Controller
         if ($mmNbSample2) {
             $report->ISOCHRONE_SAMPLE = $ISOCHRONE_SAMPLE;
         } else {
-            $mm = $this->minmax->getMinMaxNoneLine($this->value->MINMAX_REPORT_NBSAMPLE);
+            $mm = $this->minmax->getMinMaxNoneLine($this->values->MINMAX_REPORT_NBSAMPLE);
             return response("Value out of range in Number of samples (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ") !" , 406); // Status code here
         }
         $report->ISOVALUE_G = $ISOVALUE_G;
@@ -618,7 +618,7 @@ class Reports extends Controller
         if ($mmNbSample3) {
             $report->ISOVALUE_SAMPLE = $ISOVALUE_SAMPLE;
         } else {
-            $mm = $this->minmax->getMinMaxNoneLine($this->value->MINMAX_REPORT_NBSAMPLE);
+            $mm = $this->minmax->getMinMaxNoneLine($this->values->MINMAX_REPORT_NBSAMPLE);
             return response("Value out of range in Number of samples (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ") !" , 406); // Status code here
         }
         $report->CONTOUR2D_G = $CONTOUR2D_G;
@@ -626,21 +626,21 @@ class Reports extends Controller
         if ($mmTempStep1) {
             $report->CONTOUR2D_TEMP_STEP = $CONTOUR2D_TEMP_STEP;
         } else {
-            $mm = $this->minmax->getMinMaxNoneLine($this->value->MINMAX_REPORT_TEMP_STEP);
+            $mm = $this->minmax->getMinMaxNoneLine($this->values->MINMAX_REPORT_TEMP_STEP);
             return response("Value out of range in Number of samples (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ") !" , 406); // Status code here
         }
 
         if ($mmTempMin) {
             $report->CONTOUR2D_TEMP_MIN = $CONTOUR2D_TEMP_MIN;
         } else {
-            $mm = $this->minmax->getMinMaxNoneLine($this->value->MINMAX_REPORT_TEMP_BOUNDS);
+            $mm = $this->minmax->getMinMaxNoneLine($this->values->MINMAX_REPORT_TEMP_BOUNDS);
             return response("Value out of range in Number of samples (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ") !" , 406); // Status code here
         }
 
         if ($mmTempMax) {
             $report->CONTOUR2D_TEMP_MAX = $CONTOUR2D_TEMP_MAX;
         } else {
-            $mm = $this->minmax->getMinMaxNoneLine($this->value->MINMAX_REPORT_TEMP_BOUNDS);
+            $mm = $this->minmax->getMinMaxNoneLine($this->values->MINMAX_REPORT_TEMP_BOUNDS);
             return response("Value out of range in Number of samples (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ") !" , 406); // Status code here
         }
 
