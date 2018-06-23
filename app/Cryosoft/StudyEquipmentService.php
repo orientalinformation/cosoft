@@ -1080,9 +1080,9 @@ class StudyEquipmentService
                 $bRecalcTOC = $bRecalcTS = $bRecalcPhamCast = $bRecalcExhaust = true;
                 $bRecalcEco = false;
                 break;
-
-            $this->recalculateEquipment($idStudy, $idStudyEquipment, $bRecalcTOC, $bRecalcTS, $bRecalcPhamCast, $bRecalcExhaust, $bRecalcEco);
         }
+
+        $this->recalculateEquipment($idStudy, $idStudyEquipment, $bRecalcTOC, $bRecalcTS, $bRecalcPhamCast, $bRecalcExhaust, $bRecalcEco);
     }
 
 
