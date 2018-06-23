@@ -516,7 +516,7 @@ class ProductService
         $position = $this->units->meshesUnit($startPoint);
 
         array_push($positions, $this->units->meshesUnit($startPoint));
-
+        
         if ($numberPoint > 0) {
             for ($i = 1; $i < $numberPoint - 1 ; $i++) {
                 $position = $position + floatval($meshSize2);
