@@ -516,7 +516,7 @@ class ProductService
         $position = $this->units->meshesUnit($startPoint);
 
         array_push($positions, $this->units->meshesUnit($startPoint));
-        
+
         if ($numberPoint > 0) {
             for ($i = 1; $i < $numberPoint - 1 ; $i++) {
                 $position = $position + floatval($meshSize2);
@@ -532,7 +532,7 @@ class ProductService
                 array_push($points, $this->convert->temperature($initTemp3Ds[0]->INIT_TEMP, 2, 0));
             }            
         } else {
-            foreach ($$initTemp3Ds as $init3D) {
+            foreach ($initTemp3Ds as $init3D) {
                 array_push($points, $this->convert->temperature($init3D->INIT_TEMP, 2, 0));
             }
         }
