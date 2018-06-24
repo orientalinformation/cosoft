@@ -99,7 +99,6 @@ class ReportService
         $idUser = $this->auth->user()->ID_USER;
         $study = Study::find($idStudy);
         $calculationMode = $study->CALCULATION_MODE;
-        $stuName = $study->STUDY_NAME;
 
         //get study equipment
         $studyEquipments = StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
@@ -124,7 +123,7 @@ class ReportService
             
             $item["equipName"] = $this->equip->getResultsEquipName($idStudyEquipment);
             $calculate = "";
-            $tr = $ts = $vc = $vep = $tfp = $dhp = $conso= $conso_warning = $toc = $precision = "";
+            $background = $tr = $ts = $vc = $vep = $tfp = $dhp = $conso= $conso_warning = $toc = $precision = "";
 
             $item["runBrainPopup"] = false;
             if ($this->equip->getCapability($capabilitie, 128)) {
@@ -132,36 +131,44 @@ class ReportService
             }
 
             if (!($this->equip->getCapability($capabilitie, 128))) {
+                $background = '#FFFFFF';
                 $tr = $ts = $vc = $vep = $tfp = $dhp = $conso= $conso_warning = $toc = $precision = "";
                 $calculate = "disabled";
             } else if (($equipStatus != 0) && ($equipStatus != 1) && ($equipStatus != 100000)) {
+                $background = '#FFFFFF';
                 $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $conso_warning = $toc = $precision = "****";
                 $calculate = "disabled";
             } else if ($equipStatus == 10000) {
+                $background = '#FFFFFF';
                 $tr = $ts = $vc = $vep = $tfp = $dhp = $conso= $conso_warning = $toc = $precision = "";
                 $calculate = "disabled";
             } else {
                 $dimaResult = DimaResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("DIMA_TYPE", 1)->first();
                 if ($dimaResult == null) {
+                    $background = '#FFFFFF';
                     $tr = $ts = $vc = $vep = $tfp = $dhp = $conso= $conso_warning = $toc = $precision = "";
                 } else {
                     switch ($brainType) {
                         case 0:
                             $calculate = true;
+                            $background = '#FFFFFF';
                             break;
 
                         case 1:
                         case 2:
                         case 3:
                             $calculate = false;
+                            $background = '#FFFFCC';
                             break;
 
                         case 4:
                             $calculate = false;
+                            $background = '#FFFFEE';
                             break;
 
                         default:
-                            $calculate = "";
+                            $calculate = true;
+                            $background = '#FFFFFF';
                             break;
                     }
 
@@ -215,6 +222,7 @@ class ReportService
                 }
             }
 
+            $item["background"] = $background;
             $item["calculWarning"] = $calculWarning;
             $item["calculate"] = $calculate;
             $item["tr"] = $tr;
