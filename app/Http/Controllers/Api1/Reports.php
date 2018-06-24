@@ -1145,8 +1145,8 @@ class Reports extends Controller
                         </tr>';
                         foreach ($calModeHeadBalance as $key => $resoptHeads) { 
                         $html .= '<tr>
-                            <td colspan="2" align="center"> '. $resoptHeads['equipName'] .' </td>
-                            <td colspan="2" align="center"> TODO</td>
+                            <td colspan="2" align="center"> '. $resoptHeads['stuName'] .' </td>
+                            <td colspan="2" align="center"> '. $resoptHeads['equipName'] .'</td>
                             <td align="center"> '. $resoptHeads['tr'] .' </td>
                             <td align="center"> '. $resoptHeads['ts'] .' </td>
                             <td align="center"> '. $equipData[$key]['tr'][0] .' </td>
