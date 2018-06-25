@@ -22,6 +22,7 @@ use App\Models\Production;
 use App\Models\Product;
 use App\Models\Translation;
 use App\Models\InitialTemperature;
+use App\Cryosoft\EquipmentsService;
 use App\Cryosoft\StudyEquipmentService;
 use App\Cryosoft\MinMaxService;
 use App\Cryosoft\StudyService;
@@ -95,7 +96,7 @@ class Reports extends Controller
     public function __construct(Request $request, Auth $auth, UnitsConverterService $convert, 
     ValueListService $values, StudyEquipmentService $stdeqp, Lines $pipelines, 
     ReportService $reportserv, MinMaxService $minmax, StudyService $study, 
-    UnitsService $units, OutputService $output)
+    UnitsService $units, OutputService $output, EquipmentsService $equip)
     {
         $this->request = $request;
         $this->auth = $auth;
@@ -108,6 +109,7 @@ class Reports extends Controller
         $this->study = $study;
         $this->units = $units;
         $this->output = $output;
+        $this->equip = $equip;
         $this->reportFolder = $this->output->public_path('report');
     }
 
@@ -334,7 +336,7 @@ class Reports extends Controller
                 $report->ASSES_ECO = 0;
                 $report->save();
     
-                // $report->consumptionSymbol = $this->units->consumptionSymbol($idstudyequip->ID_COOLING_FAMILY, 1);
+                // $report->consumptionSymbol = $this->convert->consumptionSymbol($this->equip->initEnergyDef($id), 1);
                 // $report->temperatureSymbol = $this->convert->temperatureSymbolUser();
     
                 $report->refContRep2DTempMinRef = 0;
@@ -1159,7 +1161,7 @@ class Reports extends Controller
                             foreach ($calModeHeadBalance as $key => $resoptHeads) { 
                             $html .= '<tr>
                                 <td colspan="2" align="center"> '. $resoptHeads['stuName'] .' </td>
-                                <td colspan="2" align="center"> TODO</td>
+                                <td colspan="2" align="center"> '. $resoptHeads['equipName'] .'</td>
                                 <td align="center"> '. $resoptHeads['tr'] .' </td>
                                 <td align="center"> '. $resoptHeads['ts'] .' </td>
                                 <td align="center"> '. $equipData[$key]['tr'][0] .' </td>
