@@ -1045,7 +1045,7 @@ class Reports extends Controller
             $pdf->Cell(0, 10, $study->STUDY_NAME.'-'. date("d/m/Y"), 0, false, 'C', 0, '', 0, false, 'T', 'M');
             PDF::SetMargins(15, 25, 15, true);
 
-            $pdf->Image($public_path.'/uploads/logo_cryosoft.png',90, 5, 40, '', 'PNG', '', 'T', false, 300, 'R', false, false, 0, false, false, false);
+            $pdf->Image($public_path.'/images/logo_cryosoft.png',90, 5, 40, '', 'PNG', '', 'T', false, 300, 'R', false, false, 0, false, false, false);
 
             if (!empty($customerNameUrl)) {
                 $pdf->Image($customerNameUrl, 90, 5, 20, '', 'PNG', '', 'T', false, 300, 'L', false, false, 0, false, false, false);
