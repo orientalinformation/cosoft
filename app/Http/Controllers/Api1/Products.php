@@ -430,7 +430,6 @@ class Products extends Controller
             }
         }
 
-        // $productElmtInitTemp = array_reverse($productElmtInitTemp);
         return compact('meshGeneration', 'elements', 'elmtMeshPositions', 'productIsoTemp', 'nbMeshPointElmt', 'productElmtInitTemp', 'initTempPositions', 'heights');
     }
 
@@ -687,7 +686,6 @@ class Products extends Controller
             $bSave = true;
         } else {
             // no valid temperature
-            // log . debug("No initial temperature valid");
             throw new \Exception("ERROR_NOVALID_TEMP");
         }
             

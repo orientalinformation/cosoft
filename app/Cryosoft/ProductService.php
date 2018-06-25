@@ -539,6 +539,8 @@ class ProductService
             }
         }
 
+        $points = array_reverse($points);
+
         return compact('points', 'positions');
     }
 
