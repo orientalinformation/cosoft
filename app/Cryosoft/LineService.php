@@ -76,7 +76,7 @@ class LineService
             ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')->where('ID_TRANSLATION', '=', $lineRelease)
             ->where('Translation.TRANS_TYPE', 100)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
         if (!empty($sname)) {
-            return $sname->LINE_VERSION. " " .$sname->LABEL;
+            return floatval($sname->LINE_VERSION). " " .$sname->LABEL;
         } else {
             return '';
         }
