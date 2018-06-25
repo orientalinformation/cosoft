@@ -44,7 +44,7 @@ class OutputService
 
         for ($i = 0; $i < $ldNbSample - 1; $i++) {
             $pos = round($i * $lfSampleTime / $lfTimeStep);
-            $tdSamplePos[] = $pos;
+            $tdSamplePos[] = ($pos < 0) ? 0 : $pos;
         }
 
         $pos = $ldNbRecord - 1;

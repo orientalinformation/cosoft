@@ -889,6 +889,8 @@ class Reports extends Controller
                 } else {
                     $timeBase = [];
                 }
+
+                
                 
                 if ($shapeCode == 1) { 
                     if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
