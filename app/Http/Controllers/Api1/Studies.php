@@ -994,10 +994,14 @@ class Studies extends Controller
         $limitItem = 0;
         $defaultPrecis = 0.005;
         $FirstItemMonoComp = [
-            0,1151 ,1161 ,1171 ,1181 ,1191 ,1201 ,1211 ,1221 , 1231
+            0,1151 ,1161 ,1171 ,1181 ,1191 ,1201 ,1211 ,1221 , 1231, 
+            #3D case precision.
+            1151 ,1161 ,1171 ,1181 ,1191 ,1201 ,1211 ,1221 , 1231, 1171, 1181, 1201 ,1211, 1171
         ];
         $FirstItemMultiComp = [
             0,1156 ,1166 ,1176 ,1186 ,1196 ,1206 ,1216 ,1226 , 1236
+            #3D case precision.
+            1156 ,1166 ,1176 ,1186 ,1196 ,1206 ,1216 ,1226 , 1236, 1176 ,1186 , 1206 ,1216, 1176
         ];
 
         switch ($productshape) {
@@ -1010,6 +1014,20 @@ class Studies extends Controller
             case CYLINDER_CONCENTRIC_STANDING:
             case CYLINDER_CONCENTRIC_LAYING:
             case PARALLELEPIPED_BREADED:
+            case PARALLELEPIPED_STANDING_3D:
+            case PARALLELEPIPED_LAYING_3D:
+            case CYLINDER_STANDING_3D:
+            case CYLINDER_LAYING_3D:
+            case SPHERE_3D:
+            case CYLINDER_CONCENTRIC_STANDING_3D:
+            case CYLINDER_CONCENTRIC_LAYING_3D:
+            case PARALLELEPIPED_BREADED_3D:
+            case TRAPEZOID_3D:
+            case OVAL_STANDING_3D:
+            case OVAL_LAYING_3D:
+            case OVAL_CONCENTRIC_STANDING_3D:
+            case OVAL_CONCENTRIC_LAYING_3D:
+            case SEMI_CYLINDER_3D:
                 if ($nbComp == 1) {
                     $limitItem = $FirstItemMonoComp[$productshape] + $itemPrecis - 1;
                 } else {
