@@ -396,11 +396,13 @@ class Products extends Controller
                 $elmtInitTemp = $this->productElmts->searchTempMeshPoint($elmt, $pointMeshOrder2['points']);
                 array_push($productElmtInitTemp, $elmtInitTemp);
             } else {
-                $pointMeshOrder2 = $this->product->calculateNumberPoint3D($meshGeneration, $elmt);
-                array_push($initTempPositions, $pointMeshOrder2['positions']);
-                array_push($nbMeshPointElmt, count($pointMeshOrder2['positions']));
+                if ($meshGeneration) {
+                    $pointMeshOrder2 = $this->product->calculateNumberPoint3D($meshGeneration, $elmt);
+                    array_push($initTempPositions, $pointMeshOrder2['positions']);
+                    array_push($nbMeshPointElmt, count($pointMeshOrder2['positions']));
 
-                array_push($productElmtInitTemp, $pointMeshOrder2['points']);
+                    array_push($productElmtInitTemp, $pointMeshOrder2['points']);
+                }
             }
 
             $shapeParam2 = $this->productElmts->getProdElmtthickness($elmt->ID_PRODUCT_ELMT);
