@@ -526,6 +526,8 @@ class ProductService
 
         array_push($positions, $this->units->meshesUnit($endPoint));
 
+        rsort($positions);
+
         $initTemp3Ds = InitTemp3D::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->get();
         if (count($initTemp3Ds) == 1) {
             for ($i = 0; $i < count($positions); $i++) {

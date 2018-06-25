@@ -454,8 +454,8 @@ class InputInitial extends Controller
         }
 
         $array = [
-            // 'tempPoints' => $tempPoints
-            'tempPoints' => array_reverse($tempPoints)
+            'tempPoints' => $tempPoints
+            // 'tempPoints' => array_reverse($tempPoints) // Mysql not using
         ];
         return $array;
     }
