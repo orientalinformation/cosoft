@@ -1732,6 +1732,12 @@ class Reports extends Controller
                             }
                         $html .=' 
                         </tr>';
+                        } else {
+                            $html .=' 
+                            <tr>
+                                <td align="center"></td>
+                                <td align="center"> </td> 
+                            </tr>';
                         }
                         foreach($consumptions as $key => $resconsumptions) { 
                         $html .=' 
