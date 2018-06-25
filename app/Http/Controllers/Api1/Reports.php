@@ -752,10 +752,12 @@ class Reports extends Controller
         
         $product = Product::Where('ID_STUDY', $id)->first();
         $products = ProductElmt::where('ID_PROD', $id)->orderBy('SHAPE_POS2', 'DESC')->get();
+
         $specificDimension = 0.0;
         $count = count($products);
         foreach ($products as $key => $pr) {
             $elements[] = $pr;
+
             if ($pr->ID_SHAPE == $this->values->SPHERE || $pr->ID_SHAPE == $this->values->CYLINDER_CONCENTRIC_STANDING || $pr->ID_SHAPE == $this->values->CYLINDER_CONCENTRIC_LAYING || $pr->ID_SHAPE == $this->values->PARALLELEPIPED_BREADED) {
                 if ($key < $count - 1) {
                     $specificDimension += $pr->SHAPE_PARAM2 * 2;
@@ -1307,13 +1309,13 @@ class Reports extends Controller
                             } else if ($shapeCode == 2 || $shapeCode == 9 || $shapeCode == 3) {
                                 $html .='
                                 <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM1) .'</td>
-                                <td align="center">'. $specificDimension .' </td>
+                                <td align="center">'. $specificDimension.' </td>
                                 <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM3) .' </td>
                                 ';
                             } else if ($shapeCode == 4 || $shapeCode == 5 || $shapeCode == 7 || $shapeCode == 8) {
                                 $html .= '
                                 <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM1) .'</td>
-                                <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM2) .' </td>
+                                <td align="center">'. $specificDimension .' </td>
                                 ';
                             } 
                             $html .='
@@ -1800,6 +1802,12 @@ class Reports extends Controller
                             }
                         $html .=' 
                         </tr>';
+                        } else {
+                            $html .=' 
+                            <tr>
+                                <td align="center"></td>
+                                <td align="center"> </td> 
+                            </tr>';
                         }
                         foreach($consumptions as $key => $resconsumptions) { 
                         $html .=' 
@@ -2471,6 +2479,7 @@ class Reports extends Controller
         
         $product = Product::Where('ID_STUDY', $id)->first();
         $products = ProductElmt::where('ID_PROD', $id)->orderBy('SHAPE_POS2', 'DESC')->get();
+
         $specificDimension = 0.0;
         $count = count($products);
         foreach ($products as $key => $pr) {

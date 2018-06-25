@@ -177,10 +177,7 @@ class Lines extends Controller
                     $elbowsSubsValue[] = $elbowsSub->ID_PIPELINE_ELMT;
                 }
 
-                $arrPipeElmt = [];
-                foreach ($lineElmts as $getIDlineElmt) {
-                    $arrPipeElmt[] = $getIDlineElmt->ID_PIPELINE_ELMT;
-                }
+                
                 $insul = $this->lineE->getIdlineElmtformLineDef($pipeGen->ID_PIPE_GEN, 1);
                 $noninsul = $this->lineE->getIdlineElmtformLineDef($pipeGen->ID_PIPE_GEN, 2);
                 $insulval = $this->lineE->getIdlineElmtformLineDef($pipeGen->ID_PIPE_GEN, 5);
@@ -217,7 +214,10 @@ class Lines extends Controller
                 } else {
                     $elbowLabel ="";
                 }
-
+                $arrPipeElmt = [];
+                foreach ($lineElmts as $getIDlineElmt) {
+                    $arrPipeElmt[] = $getIDlineElmt->ID_PIPELINE_ELMT;
+                }
                 $arrLabel = [];
                 $arrLabel["idPipeELMT"] = $arrPipeElmt;
                 $arrLabel["idcooling"] = $coolingFamily;
@@ -256,12 +256,11 @@ class Lines extends Controller
                 $arrLabel["elbowsnumber"] = $pipeGen->ELBOWS;
                 $arrLabel["teenumber"] = $pipeGen->TEES;
 
-                $getLabels = [];
                 foreach ($arrPipeElmt as $idPipeElmt) {
-                    $getLabels = LineElmt::select('ELT_TYPE','INSULATION_TYPE','LABEL','ID_PIPELINE_ELMT','LINE_RELEASE', 'ID_USER')
+                    $getLabels[]= LineElmt::select('ELT_TYPE','INSULATION_TYPE','LABEL','ID_PIPELINE_ELMT','LINE_RELEASE', 'ID_USER')
                     ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
                     ->where('Translation.TRANS_TYPE', 27)->where('ID_PIPELINE_ELMT', $idPipeElmt)
-                    ->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->get();
+                    ->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
                 }
                 if (count($getLabels) > 0) {
                     foreach ($getLabels as $getLabelName) {

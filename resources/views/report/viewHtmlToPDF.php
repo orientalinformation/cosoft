@@ -590,18 +590,16 @@
                 <th rowspan="2">Tank losses <?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></th>
                 <?php } ?>
                 </tr>
-                <?php if (($arrayParam['params']['CONS_PIPE'] == 1) || ($arrayParam['params']['CONS_EQUIP'] == 1) ){ ?>
-                    <tr>
-                        <?php if ($arrayParam['params']['CONS_EQUIP'] == 1) { ?>
-                        <td align="center">Heat losses per hour <?php echo "(" . $arrayParam['symbol']['consumMaintienSymbol'] . " )" ?></td>
-                        <td align="center">Cooldown <?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></td>
-                        <?php } ?>
-                        <?php if ($arrayParam['params']['CONS_PIPE'] == 1) { ?>
-                        <td align="center">Heat losses per hour <?php echo "(" . $arrayParam['symbol']['consumMaintienSymbol'] . " )" ?></td>
-                        <td align="center">Cooldown <?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></td>
-                        <?php } ?>
-                    </tr>
-                <?php } ?>
+                <tr>
+                    <?php if ($arrayParam['params']['CONS_EQUIP'] == 1) { ?>
+                    <td align="center">Heat losses per hour <?php echo "(" . $arrayParam['symbol']['consumMaintienSymbol'] . " )" ?></td>
+                    <td align="center">Cooldown <?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></td>
+                    <?php } ?>
+                    <?php if ($arrayParam['params']['CONS_PIPE'] == 1) { ?>
+                    <td align="center">Heat losses per hour <?php echo "(" . $arrayParam['symbol']['consumMaintienSymbol'] . " )" ?></td>
+                    <td align="center">Cooldown <?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></td>
+                    <?php } ?>
+                </tr>
                 <?php foreach($consumptions as $key => $resconsumptions) { ?>
                     <tr>
                         <td align="center" rowspan="2"><?php echo $resconsumptions['equipName'] ?></td>
