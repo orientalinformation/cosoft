@@ -94,14 +94,14 @@ class Reports extends Controller
      * @return void
      */
     public function __construct(Request $request, Auth $auth, UnitsConverterService $convert, 
-    ValueListService $values, StudyEquipmentService $stdeqp, Lines $pipelines, 
+    ValueListService $value, StudyEquipmentService $stdeqp, Lines $pipelines, 
     ReportService $reportserv, MinMaxService $minmax, StudyService $study, 
     UnitsService $units, OutputService $output, EquipmentsService $equip)
     {
         $this->request = $request;
         $this->auth = $auth;
         $this->convert = $convert;
-        $this->values = $values;
+        $this->value = $value;
         $this->stdeqp = $stdeqp;
         $this->pipelines = $pipelines;
         $this->reportserv = $reportserv;
@@ -751,14 +751,12 @@ class Reports extends Controller
         }
         
         $product = Product::Where('ID_STUDY', $id)->first();
-        $products = ProductElmt::where('ID_PROD', $id)->orderBy('SHAPE_POS2', 'DESC')->get();
-
+        $products = ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2', 'DESC')->get();
         $specificDimension = 0.0;
         $count = count($products);
         foreach ($products as $key => $pr) {
             $elements[] = $pr;
-
-            if ($pr->ID_SHAPE == $this->values->SPHERE || $pr->ID_SHAPE == $this->values->CYLINDER_CONCENTRIC_STANDING || $pr->ID_SHAPE == $this->values->CYLINDER_CONCENTRIC_LAYING || $pr->ID_SHAPE == $this->values->PARALLELEPIPED_BREADED) {
+            if ($pr->ID_SHAPE == $this->value->SPHERE || $pr->ID_SHAPE == $this->value->CYLINDER_CONCENTRIC_STANDING || $pr->ID_SHAPE == $this->value->CYLINDER_CONCENTRIC_LAYING || $pr->ID_SHAPE == $this->value->PARALLELEPIPED_BREADED) {
                 if ($key < $count - 1) {
                     $specificDimension += $pr->SHAPE_PARAM2 * 2;
                 } else {
@@ -1309,7 +1307,7 @@ class Reports extends Controller
                             } else if ($shapeCode == 2 || $shapeCode == 9 || $shapeCode == 3) {
                                 $html .='
                                 <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM1) .'</td>
-                                <td align="center">'. $specificDimension.' </td>
+                                <td align="center">'. $specificDimension .' </td>
                                 <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM3) .' </td>
                                 ';
                             } else if ($shapeCode == 4 || $shapeCode == 5 || $shapeCode == 7 || $shapeCode == 8) {
@@ -1490,9 +1488,9 @@ class Reports extends Controller
                                 <tr>
                                     <td align="center"> '. ($key + 1) .'</td>
                                     <td align="center"> '. $resequipDatas['displayName'] .'</td>
-                                    <td align="center"> '. $resequipDatas['vc'][0] .'</td>
-                                    <td align="center"> '. $resequipDatas['tr'][0] .'</td>
                                     <td align="center"> '. $resequipDatas['ts'][0] .'</td>
+                                    <td align="center"> '. $resequipDatas['tr'][0] .'</td>
+                                    <td align="center"> '. $resequipDatas['vc'][0] .'</td>
                                     <td align="center"> '. ($resequipDatas['ORIENTATION'] == 1 ? 'Parallel' : 'Perpendicular') .'</td>
                                     <td align="center"> '. $resequipDatas['top_or_QperBatch'] .'</td>
                                 </tr>';
@@ -2113,7 +2111,7 @@ class Reports extends Controller
                                 <tr>
                                     <th colspan="2">Equipment</th>';
                                     foreach($resheatexchanges['result'] as $result) { 
-                                        $html .='<th align="center"> '. $result['x'] .'</th>';
+                                        $html .= '<th align="center"> '. $result['x'] . $symbol['timeSymbol']. '</th>';
                                     }
                                 $html .='    
                                 </tr>
@@ -2478,13 +2476,13 @@ class Reports extends Controller
         }
         
         $product = Product::Where('ID_STUDY', $id)->first();
-        $products = ProductElmt::where('ID_PROD', $id)->orderBy('SHAPE_POS2', 'DESC')->get();
+        $products = ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2', 'DESC')->get();
 
         $specificDimension = 0.0;
         $count = count($products);
         foreach ($products as $key => $pr) {
             $elements[] = $pr;
-            if ($pr->ID_SHAPE == $this->values->SPHERE || $pr->ID_SHAPE == $this->values->CYLINDER_CONCENTRIC_STANDING || $pr->ID_SHAPE == $this->values->CYLINDER_CONCENTRIC_LAYING || $pr->ID_SHAPE == $this->values->PARALLELEPIPED_BREADED) {
+            if ($pr->ID_SHAPE == $this->value->SPHERE || $pr->ID_SHAPE == $this->value->CYLINDER_CONCENTRIC_STANDING || $pr->ID_SHAPE == $this->value->CYLINDER_CONCENTRIC_LAYING || $pr->ID_SHAPE == $this->value->PARALLELEPIPED_BREADED) {
                 if ($key < $count - 1) {
                     $specificDimension += $pr->SHAPE_PARAM2 * 2;
                 } else {
