@@ -71,8 +71,8 @@ class ProductElementsService
 
     public function PropagationTempProdElmtIso($pb, $b3D)
     {
-        $pe = \App\Models\ProductElmt::find($pb['ID_PRODUCT_ELMT']);
-        $product = \App\Models\Product::find($pb['ID_PROD']);
+        $pe = ProductElmt::find($pb['ID_PRODUCT_ELMT']);
+        $product = Product::find($pb['ID_PROD']);
         $study = $product->study;
         $prodMeshgene = $product->meshGenerations()->first();
         
@@ -138,8 +138,8 @@ class ProductElementsService
 
     public function PropagationTempProdElmtIsoForBreaded($pb)
     {
-        $pe = \App\Models\ProductElmt::find($pb['ID_PRODUCT_ELMT']);
-        $product = \App\Models\Product::find($pb['ID_PROD']);
+        $pe = ProductElmt::find($pb['ID_PRODUCT_ELMT']);
+        $product = Product::find($pb['ID_PROD']);
         $study = $product->study;
         $prodMeshgene = $product->meshGenerations()->first();
         // log . debug("PropagationTempProdElmtIso for BREADED");

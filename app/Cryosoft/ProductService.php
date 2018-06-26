@@ -242,20 +242,20 @@ class ProductService
         $zEnd = $BorneTemp[$this->values->ID_TMAX];
     }
 
-    public function CheckInitialTemperature(\App\Models\Product &$product) 
+    public function CheckInitialTemperature(Product &$product) 
     {
         // @TODO: implement
         return true;
     }
 
-    public function DeleteOldInitTemp(\App\Models\Product &$product) 
+    public function DeleteOldInitTemp(Product &$product) 
     {
         // @TODO: implement
         // delete all current initial temperature
         InitialTemperature::where('ID_PRODUCTION', $product->study->ID_PRODUCTION)->delete();
     }
 
-    public function saveMatrixTempComeFromParent(\App\Models\Product &$product)
+    public function saveMatrixTempComeFromParent(Product &$product)
     {
         echo "start save matrix from parent\n";
         
@@ -388,7 +388,7 @@ class ProductService
         return $bret;
     }
 
-    public function PropagationTempElmt (\App\Models\Product &$product, $X, $valueY, $Z, $stemp)
+    public function PropagationTempElmt (Product &$product, $X, $valueY, $Z, $stemp)
     {
         $study = $product->study;
 
@@ -440,7 +440,7 @@ class ProductService
         return $etat;
     }
 
-    public function propagationTempProdIso(\App\Models\Product &$product, $x, $y, $z, $stemp)
+    public function propagationTempProdIso(Product &$product, $x, $y, $z, $stemp)
     {
         $listTemp = [];
         $i = $j = $k = 0;
