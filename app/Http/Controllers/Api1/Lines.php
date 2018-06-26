@@ -107,8 +107,8 @@ class Lines extends Controller
                     $lineElmt = $lineDef->lineElmt;
                     $lineElmts[] = $lineElmt;
                 }
-                $diameterParam = $this->lineE->getdiameter($coolingFamily, $lineElmts[0]->INSULATION_TYPE, $study->ID_STUDY);
-                $storageTankParam = $this->lineE->getStorageTank($coolingFamily, $lineElmts[0]->INSULATION_TYPE, $study->ID_STUDY);
+                $diameterParam = $this->lineE->getdiameter($coolingFamily, $lineElmts[0]->INSULATION_TYPE);
+                $storageTankParam = $this->lineE->getStorageTank($coolingFamily, $lineElmts[0]->INSULATION_TYPE);
                 $insulineSubs = $this->lineE->getNameComboBox(1, $lineElmts[0]->ELT_SIZE, $coolingFamily, $lineElmts[0]->INSULATION_TYPE);
                 $non_insullineSubs = $this->lineE->getNonLine(1, $lineElmts[0]->ELT_SIZE, $coolingFamily);
                 $insullvalSubs = $this->lineE->getNameComboBox(5, $lineElmts[0]->ELT_SIZE, $coolingFamily, $lineElmts[0]->INSULATION_TYPE);
@@ -266,7 +266,7 @@ class Lines extends Controller
                     foreach ($getLabels as $getLabelName) {
                         if ($getLabelName['ELT_TYPE'] !=2 ) {
                             if ($getLabelName['ID_USER'] == 1) {
-                                $arrLabel[$this->eltTypeString($getLabelName['ELT_TYPE'],$getLabelName['INSULATION_TYPE'] )] = $getLabelName['LABEL'] ."-". $this->lineE->getStatus($getLabelName['LINE_RELEASE']);
+                                $arrLabel[$this->eltTypeString($getLabelName['ELT_TYPE'],$getLabelName['INSULATION_TYPE'] )][] = $getLabelName['LABEL'] ."-". $this->lineE->getStatus($getLabelName['LINE_RELEASE']);
                             } else {
                                 $arrLabel[$this->eltTypeString($getLabelName['ELT_TYPE'],$getLabelName['INSULATION_TYPE'] )] = $getLabelName['LABEL'] 
                                 ."-". $this->lineE->getStatus($getLabelName['LINE_RELEASE']) ." - ". $this->lineE->getUserLabel($getLabelName['ID_USER']);
@@ -279,6 +279,7 @@ class Lines extends Controller
                                 $arrLabel['storageTankName'] = $getLabelName['LABEL'] ."-". $this->lineE->getStatus($getLabelName['LINE_RELEASE'])." - ". $this->lineE->getUserLabel($getLabelName['ID_USER']);
                             }
                         }
+                        // return $lineElmts[0]->ELT_TYPE;
                         if ($lineElmts[0]->ELT_TYPE != 2) {
                             $arrLabel["diameter"] = $this->convert->lineDimension($lineElmts[0]->ELT_SIZE);
                         } 
@@ -314,8 +315,8 @@ class Lines extends Controller
             
             $resultInsideDiameters= [];
             foreach ($insulationParams as $insulationType) {
-                $resultInsideDiameters[] = $this->lineE->getdiameter($coolingFamily, $insulationType, $study->ID_STUDY);
-				$storageTanks = $this->lineE->getStorageTank($coolingFamily, $insulationType, $study->ID_STUDY);
+                $resultInsideDiameters[] = $this->lineE->getdiameter($coolingFamily, $insulationType);
+				$storageTanks = $this->lineE->getStorageTank($coolingFamily, $insulationType);
             }
 
             $resultInsideDia = [];
@@ -333,8 +334,11 @@ class Lines extends Controller
             foreach ($resultInsideDia as $res) {
                 if (count($pipeGen) > 0) {
                     $dataResultExist = $arrLabel;
-                    $dataResult[$arrLabel['insulationType']] = $this->getData($arrLabel['diameterParam'], $storageTanks, $coolingFamily, $arrLabel['insulationType']);                    
-                    
+                    if ($coolingFamily == 3) {
+                        $dataResult[] = $this->getData($res, $storageTanks, $coolingFamily, $i);
+                    } else {
+                        $dataResult[$arrLabel['insulationType']] = $this->getData($arrLabel['diameterParam'], $storageTanks, $coolingFamily, $arrLabel['insulationType']);                    
+                    }
                     if ($i < $arrLabel['insulationType']) {
                         $dataResult[$i] = $this->getData($res, $storageTanks, $coolingFamily, $i);
                     } else if ($i < 3) {
