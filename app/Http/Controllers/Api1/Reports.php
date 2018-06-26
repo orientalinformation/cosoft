@@ -751,11 +751,14 @@ class Reports extends Controller
         }
         
         $product = Product::Where('ID_STUDY', $id)->first();
+
         $products = ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2', 'DESC')->get();
+
         $specificDimension = 0.0;
         $count = count($products);
         foreach ($products as $key => $pr) {
             $elements[] = $pr;
+
             if ($pr->ID_SHAPE == $this->value->SPHERE || $pr->ID_SHAPE == $this->value->CYLINDER_CONCENTRIC_STANDING || $pr->ID_SHAPE == $this->value->CYLINDER_CONCENTRIC_LAYING || $pr->ID_SHAPE == $this->value->PARALLELEPIPED_BREADED) {
                 if ($key < $count - 1) {
                     $specificDimension += $pr->SHAPE_PARAM2 * 2;
@@ -766,6 +769,7 @@ class Reports extends Controller
                 $specificDimension += $pr->SHAPE_PARAM2;
             }
         }
+
         $specificDimension = $this->convert->prodDimension($specificDimension);
         $proElmt = ProductElmt::Where('ID_PROD', $product->ID_PROD)->first();
         
@@ -776,13 +780,13 @@ class Reports extends Controller
         $idComArr = [];
         $comprelease = [];
         
-
         foreach ($product->productElmts as $productElmt) {
             $shapeCode = $productElmt->shape->SHAPECODE;
             $idComArr[] = $productElmt->ID_COMP;
             $idElmArr[] = $productElmt->ID_PRODUCT_ELMT;
             $comprelease[] = $productElmt->component->COMP_RELEASE;
         }
+
         if ($study->packings != null) {
             $packings = $this->reportserv->getStudyPackingLayers($study->ID_STUDY);
         } else {
@@ -1307,7 +1311,7 @@ class Reports extends Controller
                             } else if ($shapeCode == 2 || $shapeCode == 9 || $shapeCode == 3) {
                                 $html .='
                                 <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM1) .'</td>
-                                <td align="center">'. $specificDimension .' </td>
+                                <td align="center">'. $specificDimension.' </td>
                                 <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM3) .' </td>
                                 ';
                             } else if ($shapeCode == 4 || $shapeCode == 5 || $shapeCode == 7 || $shapeCode == 8) {
@@ -2112,6 +2116,7 @@ class Reports extends Controller
                                     <th colspan="2">Equipment</th>';
                                     foreach($resheatexchanges['result'] as $result) { 
                                         $html .= '<th align="center"> '. $result['x'] . $symbol['timeSymbol']. '</th>';
+
                                     }
                                 $html .='    
                                 </tr>
@@ -2519,6 +2524,7 @@ class Reports extends Controller
         ->join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')->whereIn('ID_PRODUCT_ELMT', $idElmArr)
         ->where('TRANS_TYPE', 1)->whereIn('ID_TRANSLATION', $idComArr)
         ->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'DESC')->get();
+
         $productComps = [];
         foreach ($componentName as $key => $value) {
             $componentStatus = Translation::select('LABEL')->where('TRANS_TYPE', 100)->whereIn('ID_TRANSLATION', $comprelease)->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
@@ -2625,6 +2631,7 @@ class Reports extends Controller
                         } else {
                             $pro2Dchart = [];
                         }
+
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
                             $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                             $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
@@ -2639,6 +2646,7 @@ class Reports extends Controller
                         } else {
                             $pro2Dchart = [];
                         }
+
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
                             $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
                             $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
@@ -2658,6 +2666,7 @@ class Reports extends Controller
                     } else {
                         $proSections = [];
                     }
+
                     if ($CONTOUR2D_G == 1) {
                         $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
                     } else {
@@ -2681,6 +2690,7 @@ class Reports extends Controller
                     } else {
                         $proSections = [];
                     }
+
                     if ($equipData[$key]['ORIENTATION'] == 1) {
                         if ($CONTOUR2D_G == 1) {
                             $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
@@ -2703,6 +2713,7 @@ class Reports extends Controller
                     } else {
                         $proSections = [];
                     }
+                    
                     if ($CONTOUR2D_G == 1) {
                         $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
                     } else {
