@@ -103,7 +103,9 @@ class Lines extends Controller
             }
             $lineElmts = [];
             if (count($pipeGen) > 0) {
+                $arrPipeElmt = [];
                 foreach ($pipeGen->lineDefinitions as $lineDef) {
+                    $arrPipeElmt[] = $lineDef->ID_PIPELINE_ELMT;
                     if ($lineDef->TYPE_ELMT != 7) {
                         $lineElmt = $lineDef->lineElmt;
                         $lineElmts[] = $lineElmt;
@@ -216,10 +218,10 @@ class Lines extends Controller
                 } else {
                     $elbowLabel ="";
                 }
-                $arrPipeElmt = [];
-                foreach ($pipeGen->lineDefinitions as $getIDlineElmt) {
-                    $arrPipeElmt[] = $getIDlineElmt->ID_PIPELINE_ELMT;
-                }
+                // $arrPipeElmt = [];
+                // foreach ($pipeGen->lineDefinitions as $getIDlineElmt) {
+                //     $arrPipeElmt[] = $getIDlineElmt->ID_PIPELINE_ELMT;
+                // }
                 $arrLabel = [];
                 $arrLabel["idPipeELMT"] = $arrPipeElmt;
                 $arrLabel["idcooling"] = $coolingFamily;
