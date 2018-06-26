@@ -347,7 +347,11 @@ class Lines extends Controller
                         } 
                     }
                 } else {
-                    $dataResult[] = $this->getData($res, $storageTanks, $coolingFamily, $i);
+                    if ($coolingFamily == 2 || $coolingFamily == 3) {
+                        $dataResult[] = $this->getData($res, $storageTanks, $coolingFamily, $i);
+                    } else {
+                        $dataResult = [[], [], []];
+                    }
                     
                 }
                 $i++;

@@ -520,7 +520,7 @@ class Equipments extends Controller
             }
 
             $newEquip->EQUIP_COMMENT = $comment;
-            // $newEquip->DLL_IDX = $equipment1->DLL_IDX;
+            $newEquip->DLL_IDX = $equipment1->DLL_IDX;
             $newEquip->ID_EQUIPSERIES = $this->mapToGeneratedEqp($equipment1->ID_EQUIPSERIES);
             $newEquip->ID_COOLING_FAMILY = $equipment1->ID_COOLING_FAMILY;
             $newEquip->ID_EQUIPGENERATION = 0;
@@ -546,13 +546,13 @@ class Equipments extends Controller
             $newEquip->ITEM_VC = $equipment1->ITEM_VC;
             $newEquip->ITEM_PRECIS = $equipment1->ITEM_PRECIS;
             $newEquip->ITEM_TIMESTEP = $equipment1->ITEM_TIMESTEP;
-            // $newEquip->FATHER_DLL_IDX = $equipment1->FATHER_DLL_IDX;
+            $newEquip->FATHER_DLL_IDX = $equipment1->FATHER_DLL_IDX;
             $newEquip->EQP_IMP_ID_STUDY = $equipment1->EQP_IMP_ID_STUDY;
             $newEquip->save();
 
             if ($newEquip->ID_EQUIP) {
                 Equipment::where('ID_EQUIP', $newEquip->ID_EQUIP)->update(['EQUIP_DATE' => $current->toDateTimeString()]);
-                $this->getDecryptBinary($equipment1->ID_EQUIP, $newEquip->ID_EQUIP);
+                // $this->getDecryptBinary($equipment1->ID_EQUIP, $newEquip->ID_EQUIP);
             }
 
             // add paramester equip generation
@@ -748,6 +748,7 @@ class Equipments extends Controller
             $newEquip->ID_EQUIPSERIES = $equipmentId->ID_EQUIPSERIES;
             $newEquip->ID_COOLING_FAMILY = $equipmentId->ID_COOLING_FAMILY;
             $newEquip->ID_EQUIPGENERATION = $equipmentId->ID_EQUIPGENERATION;
+            $newEquip->DLL_IDX = $equipmentId->DLL_IDX;
             $newEquip->EQUIPPICT = $equipmentId->EQUIPPICT;
             $newEquip->EQP_LENGTH = $equipmentId->EQP_LENGTH;
             $newEquip->EQP_WIDTH = $equipmentId->EQP_WIDTH;
@@ -771,11 +772,12 @@ class Equipments extends Controller
             $newEquip->ITEM_PRECIS = $equipmentId->ITEM_PRECIS;
             $newEquip->ITEM_TIMESTEP = $equipmentId->ITEM_TIMESTEP;
             $newEquip->EQP_IMP_ID_STUDY = $equipmentId->EQP_IMP_ID_STUDY;
+            $newEquip->FATHER_DLL_IDX = $equipmentId->FATHER_DLL_IDX;
             $newEquip->save();
 
             if ($newEquip->ID_EQUIP) {
                 Equipment::where('ID_EQUIP', $newEquip->ID_EQUIP)->update(['EQUIP_DATE' => $current->toDateTimeString()]);
-                $this->getDecryptBinary($equipmentId->ID_EQUIP, $newEquip->ID_EQUIP);
+                // $this->getDecryptBinary($equipmentId->ID_EQUIP, $newEquip->ID_EQUIP);
             }
             
             $this->copyRamps($equipmentId->ID_EQUIP, $newEquip->ID_EQUIP);
@@ -900,31 +902,26 @@ class Equipments extends Controller
     public function getConsumptions()
     {
         $input = $this->request->all();
-        $list = [];
-
+        $consumptions = [];
         if (isset($input['idEquip'])) $idEquip = $input['idEquip'];
-
-        $list = DB::select("select ID_CONSUMPTIONS, ID_EQUIP, CONVERT( float(53), convert(varchar(100), DecryptByPassPhrase('".ENCRYPT_KEY."', TEMPERATURE))) as TEMPERATURE,
-        CONVERT( float(53), convert(varchar(100), DecryptByPassPhrase('".ENCRYPT_KEY."', CONSUMPTION_PERM))) as CONSUMPTION_PERM,
-        CONVERT( float(53), convert(varchar(100), DecryptByPassPhrase('".ENCRYPT_KEY."', CONSUMPTION_GETCOLD))) as CONSUMPTION_GETCOLD
-        from consumptions where ID_EQUIP = " . $idEquip . " ORDER BY TEMPERATURE");
         
         $equip = Equipment::find($idEquip);
+        $consumptions = Consumptions::where('ID_EQUIP', $idEquip)->get();
 
-        foreach ($list as $key) {
-            if ($equip) {
+        if (count($consumptions) > 0) {
+            foreach ($consumptions as $consumption) {
                 if ($this->equip->getCapability($equip->CAPABILITIES, 65536)) {
-                    $key->TEMPERATURE = $this->units->time($key->TEMPERATURE, 2, 1);
+                    $consumption->TEMPERATURE = $this->units->time($consumption->TEMPERATURE, 2, 1);
                 } else {
-                    $key->TEMPERATURE = $this->units->controlTemperature($key->TEMPERATURE, 2, 1);
+                    $consumption->TEMPERATURE = $this->units->controlTemperature($consumption->TEMPERATURE, 2, 1);
                 }
-                $key->CONSUMPTION_PERM = $this->units->consumption($key->CONSUMPTION_PERM, $equip->ID_COOLING_FAMILY, 2, 2, 1);
 
-                $key->CONSUMPTION_GETCOLD = $this->units->consumption($key->CONSUMPTION_GETCOLD, $equip->ID_COOLING_FAMILY, 3, 2, 1);
+                $consumption->CONSUMPTION_PERM = $this->units->consumption($consumption->CONSUMPTION_PERM, $equip->ID_COOLING_FAMILY, 2, 2, 1);
+                $consumption->CONSUMPTION_GETCOLD = $this->units->consumption($consumption->CONSUMPTION_GETCOLD, $equip->ID_COOLING_FAMILY, 3, 2, 1);
             }
         }
 
-        return $list;
+        return $consumptions;
     }
 
     public function getEquipmentCharacts($idEquip)
@@ -1605,13 +1602,10 @@ class Equipments extends Controller
                 for ($i = 0; $i < count($Consumptions); $i++) {
                     $newConsumption = new Consumptions();
                     $newConsumption->ID_EQUIP = $ID_EQUIP;
+                    $newConsumption->TEMPERATURE = $Consumptions[$i]->TEMPERATURE;
+                    $newConsumption->CONSUMPTION_PERM = $Consumptions[$i]->CONSUMPTION_PERM;
+                    $newConsumption->CONSUMPTION_GETCOLD = $Consumptions[$i]->CONSUMPTION_GETCOLD;
                     $newConsumption->save();
-
-                    $TEMPERATURE = "EncryptByPassPhrase('".ENCRYPT_KEY."', CAST(". $Consumptions[$i]['TEMPERATURE'] ." AS varchar(100)), null)";
-                    $PERM = "EncryptByPassPhrase('".ENCRYPT_KEY."', CAST(". $Consumptions[$i]['CONSUMPTION_PERM'] ." AS varchar(100)), null)";
-                    $GETCOLD = "EncryptByPassPhrase('".ENCRYPT_KEY."', CAST(". $Consumptions[$i]['CONSUMPTION_GETCOLD'] ." AS varchar(100)), null)";
-
-                    DB::update(DB::RAW('update Consumptions set TEMPERATURE = ' .$TEMPERATURE.', CONSUMPTION_PERM = '.$PERM.', CONSUMPTION_GETCOLD = '.$GETCOLD.' where ID_CONSUMPTIONS = ' . $newConsumption->ID_CONSUMPTIONS));
                 }
             }
         }
@@ -1714,10 +1708,9 @@ class Equipments extends Controller
     {
         $study = Study::find($id);
         $studyEquipments = $study->studyEquipments;
-        $this->stdeqp->runStudyCleaner($id, -1, 48);
+        $this->stdeqp->runStudyCleaner($id, -1, SC_CLEAN_OUPTUT_LAYOUT_CHANGED);
         if (count($studyEquipments) > 0) {
             foreach ($studyEquipments as $sEquip) {
-                
                 $sEquip->BRAIN_SAVETODB = 0;
                 $sEquip->BRAIN_TYPE = 0;
                 $sEquip->EQUIP_STATUS = 0;
@@ -1729,7 +1722,7 @@ class Equipments extends Controller
                 $sEquip->save();
             }
         }
-        $this->stdeqp->afterStudyCleaner($id, -1, 48, false, false, false, false);
+        $this->stdeqp->afterStudyCleaner($id, -1, SC_CLEAN_OUPTUT_LAYOUT_CHANGED, false, false, false, false);
 
         return 1;
     }
@@ -1868,7 +1861,7 @@ class Equipments extends Controller
                             for ($i = 0; $i < count($studyEquipments); $i++) {
                                 if ($studyEquipments[$i]->ID_EQUIP == $id_equip_) {
                                     $idStudyEquipment = $studyEquipments[$i]->ID_STUDY_EQUIPMENTS;
-                                    $this->studies->RunStudyCleaner($ID_STUDY, 43, $idStudyEquipment);
+                                    $this->studies->RunStudyCleaner($ID_STUDY, SC_CLEAN_OUTPUT_EQP_PRM, $idStudyEquipment);
 
                                     $this->cal->setChildsStudiesToRecalculate($ID_STUDY, $idStudyEquipment);
 
@@ -1977,17 +1970,6 @@ class Equipments extends Controller
         return $this->kernel->getKernelObject('EquipmentBuilder')->EBEquipmentCalculation($conf);
     }
 
-    private function createCryosoftDBPublicKey()
-    {
-        $cryosoftDBPublicKey = null;
-
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, 0, 0, 0, 0);
-        $result = $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 5);
-        // $cryosoftDBPublicKey = $result->GetKTLocal();
-
-        return $cryosoftDBPublicKey;
-    }
-
     private function copyRamps($oldIdEquip, $newIdEquip)
     {
         $oldRamps = Ramps::where('ID_EQUIP', $oldIdEquip)->get();
@@ -2004,25 +1986,15 @@ class Equipments extends Controller
     private function copyConsumptions($oldIdEquip, $newIdEquip)
     {
         $oldConsumptions = Consumptions::where('ID_EQUIP', $oldIdEquip)->get();
-        $decrypt = DB::select("select CONVERT( float(53), convert(varchar(100), DecryptByPassPhrase('".ENCRYPT_KEY."', TEMPERATURE))) as TEMPERATURE,
-        CONVERT( float(53), convert(varchar(100), DecryptByPassPhrase('".ENCRYPT_KEY."', CONSUMPTION_PERM))) as PERM,
-        CONVERT( float(53), convert(varchar(100), DecryptByPassPhrase('".ENCRYPT_KEY."', CONSUMPTION_GETCOLD))) as GETCOLD
-        from consumptions where ID_EQUIP = " . $oldIdEquip);
-
+        
         if (count($oldConsumptions) > 0) {
-            for ($i = 0; $i < count($oldConsumptions); $i++) {
+            foreach ($oldConsumptions as $consumption) {
                 $newConsumption = new Consumptions();
                 $newConsumption->ID_EQUIP = $newIdEquip;
-                // $newConsumption->TEMPERATURE = $consumption->TEMPERATURE;
-                // $newConsumption->CONSUMPTION_PERM = $consumption->CONSUMPTION_PERM;
-                // $newConsumption->CONSUMPTION_GETCOLD = $consumption->CONSUMPTION_GETCOLD;
+                $newConsumption->TEMPERATURE = $consumption->TEMPERATURE;
+                $newConsumption->CONSUMPTION_PERM = $consumption->CONSUMPTION_PERM;
+                $newConsumption->CONSUMPTION_GETCOLD = $consumption->CONSUMPTION_GETCOLD;
                 $newConsumption->save();
-
-                $TEMPERATURE = "EncryptByPassPhrase('".ENCRYPT_KEY."', CAST(". $decrypt[$i]->TEMPERATURE ." AS varchar(100)), null)";
-                $PERM = "EncryptByPassPhrase('".ENCRYPT_KEY."', CAST(". $decrypt[$i]->PERM ." AS varchar(100)), null)";
-                $GETCOLD = "EncryptByPassPhrase('".ENCRYPT_KEY."', CAST(". $decrypt[$i]->GETCOLD ." AS varchar(100)), null)";
-
-                DB::update(DB::RAW('update Consumptions set TEMPERATURE = ' .$TEMPERATURE.', CONSUMPTION_PERM = '.$PERM.', CONSUMPTION_GETCOLD = '.$GETCOLD.' where ID_CONSUMPTIONS = ' . $newConsumption->ID_CONSUMPTIONS));
             }
         }
     }

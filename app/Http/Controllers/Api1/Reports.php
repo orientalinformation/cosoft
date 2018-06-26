@@ -22,9 +22,11 @@ use App\Models\Production;
 use App\Models\Product;
 use App\Models\Translation;
 use App\Models\InitialTemperature;
+use App\Cryosoft\EquipmentsService;
 use App\Cryosoft\StudyEquipmentService;
 use App\Cryosoft\MinMaxService;
 use App\Cryosoft\StudyService;
+use App\Cryosoft\OutputService;
 use PDF;
 use View;
 
@@ -82,8 +84,8 @@ class Reports extends Controller
      */
     protected $study;
     /**
-	 * @var App\Cryosoft\UnitsService
-	 */
+     * @var App\Cryosoft\UnitsService
+     */
     protected $units;
 
     /**
@@ -93,7 +95,8 @@ class Reports extends Controller
      */
     public function __construct(Request $request, Auth $auth, UnitsConverterService $convert, 
     ValueListService $value, StudyEquipmentService $stdeqp, Lines $pipelines, 
-    ReportService $reportserv, MinMaxService $minmax, StudyService $study, UnitsService $units)
+    ReportService $reportserv, MinMaxService $minmax, StudyService $study, 
+    UnitsService $units, OutputService $output, EquipmentsService $equip)
     {
         $this->request = $request;
         $this->auth = $auth;
@@ -105,6 +108,9 @@ class Reports extends Controller
         $this->minmax = $minmax;
         $this->study = $study;
         $this->units = $units;
+        $this->output = $output;
+        $this->equip = $equip;
+        $this->reportFolder = $this->output->public_path('report');
     }
 
     public function writeProgressFile($fileName, $content) {
@@ -117,19 +123,22 @@ class Reports extends Controller
     public function getReport($id)
     {
         $study = Study::where('ID_STUDY', $id)->first();
-        $stuequip = $study->studyEquipments->first();
-        
-        if ($stuequip != null) {
-            if ($study->CALCULATION_MODE == 1 && $stuequip->BRAIN_TYPE != 4) {
-                    return response("Report is available only when equipments are calculated numerically", 406);
-            } else if ($study->CALCULATION_MODE != 1 && $stuequip->BRAIN_TYPE == 0) {
-                    return response("Report is available only when equipments are calculated numerically", 406);
+        $stuequips = $study->studyEquipments;
+        if ($stuequips != null) {
+        foreach ($stuequips as $stuequip) {
+            if ($stuequip->tr != "" || $stuequip->tr != "***") {
+                if ($study->CALCULATION_MODE == 1 && (!$stuequip->BRAIN_TYPE == 4)) {
+                        return response("Report is available only when equipments are calculated numerically", 406);
+                } else if ($study->CALCULATION_MODE != 1 && (!$stuequip->BRAIN_TYPE != 0)) {
+                        return response("Report is available only when equipments are calculated numerically", 406);
+                }
             }
+        }
             $report = Report::where('ID_STUDY', $id)->first();
     
             if ($report) {
     
-                $report->consumptionSymbol = $this->units->consumptionSymbol($stuequip->ID_COOLING_FAMILY, 1);
+                // $report->consumptionSymbol = $this->units->consumptionSymbol($stuequip->ID_COOLING_FAMILY, 1);
     
                 $report->isSizingValuesChosen = ($report->SIZING_VALUES & 1);
                 $report->isSizingValuesMax = ($report->SIZING_VALUES & 16);
@@ -145,57 +154,65 @@ class Reports extends Controller
                 $report->productElmt = $productElmt;
                 $report->temperatureSymbol = $this->convert->temperatureSymbolUser();
                 
-                // $borne = $this->getReportTemperatureBorne($id); 
-                // $report->refContRep2DTempMinRef = doubleval($borne[0]->MIN_TEMP);
-                // $report->refContRep2DTempMaxRef = doubleval($borne[0]->MAX_TEMP);
-                // $pasTemp = $this->calculatePasTemp($report->refContRep2DTempMinRef, $report->refContRep2DTempMaxRef, true);
-                // $report->refContRep2DTempMinRef = $this->units->prodTemperature(doubleval($pasTemp['dTmin']), 1, 1);
-                // $report->refContRep2DTempMaxRef = $this->units->prodTemperature(doubleval($pasTemp['dTMax']), 1, 1);
-                // $report->refContRep2DTempStepRef = doubleval($pasTemp['dpas']);
+                /*$borne = $this->getReportTemperatureBorne($id); 
+                $report->refContRep2DTempMinRef = doubleval($borne[0]->MIN_TEMP);
+                $report->refContRep2DTempMaxRef = doubleval($borne[0]->MAX_TEMP);
+                $pasTemp = $this->calculatePasTemp($report->refContRep2DTempMinRef, $report->refContRep2DTempMaxRef, true);
+                $report->refContRep2DTempMinRef = $this->units->prodTemperature(doubleval($pasTemp['dTmin']), 1, 1);
+                $report->refContRep2DTempMaxRef = $this->units->prodTemperature(doubleval($pasTemp['dTMax']), 1, 1);
+                $report->refContRep2DTempStepRef = doubleval($pasTemp['dpas']);*/
                 $idstudyequips = $study->studyEquipments;
-                if ($stuequip->BRAIN_TYPE == 4) {
-                    $getTemp = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips[0]->ID_STUDY_EQUIPMENTS, 1);
-                    
-                    $report->refContRep2DTempStepRef = $this->units->prodTemperature($getTemp['chartTempInterval'][2]);
-                    $report->refContRep2DTempMinRef = $this->units->prodTemperature($getTemp['chartTempInterval'][0]);
-                    $report->refContRep2DTempMaxRef = $this->units->prodTemperature($getTemp['chartTempInterval'][1]);
-                    
-                    if ($report->CONTOUR2D_TEMP_STEP == 0) {
-                        $report->CONTOUR2D_TEMP_STEP = $this->units->prodTemperature($getTemp['chartTempInterval'][2]);
-                    } else {
-                        $report->CONTOUR2D_TEMP_STEP = $this->units->prodTemperature($report->CONTOUR2D_TEMP_STEP, 1, 1);
-                    }
-        
-                    if ($report->CONTOUR2D_TEMP_MIN == 0) {
-                        $report->CONTOUR2D_TEMP_MIN =$this->units->prodTemperature($getTemp['chartTempInterval'][0]);
-                    } else {
-                        $report->CONTOUR2D_TEMP_MIN = $this->units->prodTemperature($report->CONTOUR2D_TEMP_MIN, 1, 1);
-                    }
-        
-                    if ($report->CONTOUR2D_TEMP_MAX == 0) {
-                        $report->CONTOUR2D_TEMP_MAX = $this->units->prodTemperature($getTemp['chartTempInterval'][1]);
-                    } else {
-                        $report->CONTOUR2D_TEMP_MAX = $this->units->prodTemperature($report->CONTOUR2D_TEMP_MAX, 1, 1);
+                foreach ($idstudyequips as $idstudyequip) {
+                    if ($idstudyequip->tr != "" || $idstudyequip->tr != "***") {
+                        if ($idstudyequip->BRAIN_TYPE == 4) {
+                            $getTemp = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequip->ID_STUDY_EQUIPMENTS, 1);
+                            
+                            $report->refContRep2DTempStepRef = $this->convert->prodTemperature($getTemp['chartTempInterval'][2]);
+                            $report->refContRep2DTempMinRef = $getTemp['chartTempInterval'][0];
+                            $report->refContRep2DTempMaxRef = $getTemp['chartTempInterval'][1];
+                            
+                            if ($report->CONTOUR2D_TEMP_STEP == 0) {
+                                $report->CONTOUR2D_TEMP_STEP = $this->units->prodTemperature($getTemp['chartTempInterval'][2]);
+                            } else {
+                                $report->CONTOUR2D_TEMP_STEP = $this->units->prodTemperature($report->CONTOUR2D_TEMP_STEP, 1, 1);
+                            }
+                
+                            if ($report->CONTOUR2D_TEMP_MIN == 0) {
+                                $report->CONTOUR2D_TEMP_MIN =$this->units->prodTemperature($getTemp['chartTempInterval'][0]);
+                            } else {
+                                $report->CONTOUR2D_TEMP_MIN = $this->units->prodTemperature($report->CONTOUR2D_TEMP_MIN, 1, 1);
+                            }
+                
+                            if ($report->CONTOUR2D_TEMP_MAX == 0) {
+                                $report->CONTOUR2D_TEMP_MAX = $this->units->prodTemperature($getTemp['chartTempInterval'][1]);
+                            } else {
+                                $report->CONTOUR2D_TEMP_MAX = $this->units->prodTemperature($report->CONTOUR2D_TEMP_MAX, 1, 1);
+                            }
+                        }
                     }
                 }
+
                 $tempRecordPts = TempRecordPts::where("ID_STUDY", $study->ID_STUDY)->first();
                 if ($report->POINT1_X == 0) {
                     $report->POINT1_X = $tempRecordPts->AXIS1_PT_TOP_SURF;
-                } 
+                }
+
                 if ($report->POINT1_Y == 0) {
                     $report->POINT1_Y = $tempRecordPts->AXIS2_PT_TOP_SURF;
                 }
+
                 if ($report->POINT1_Z == 0) {
                     $report->POINT1_Z = $tempRecordPts->AXIS3_PT_BOT_SURF;
                 }
                 
-                
                 if ($report->POINT2_X == 0) {
                     $report->POINT2_X = $tempRecordPts->AXIS1_PT_INT_PT;
                 }
+
                 if ($report->POINT2_Y == 0) {
                     $report->POINT2_Y = $tempRecordPts->AXIS2_PT_INT_PT;
                 }
+
                 if ($report->POINT2_Z == 0) {
                     $report->POINT2_Z = $tempRecordPts->AXIS3_PT_INT_PT;
                 }
@@ -203,9 +220,11 @@ class Reports extends Controller
                 if ($report->POINT3_X == 0) {
                     $report->POINT3_X = $tempRecordPts->AXIS1_PT_BOT_SURF;
                 }
+
                 if ($report->POINT3_Y == 0) {
                     $report->POINT3_Y = $tempRecordPts->AXIS2_PT_BOT_SURF;
                 }
+
                 if ($report->POINT3_Z == 0) {
                     $report->POINT3_Z = $tempRecordPts->AXIS3_PT_BOT_SURF;
                 }
@@ -213,6 +232,7 @@ class Reports extends Controller
                 if ($report->AXE1_X == 0) {
                     $report->AXE1_X = $tempRecordPts->AXIS2_AX_1;
                 }
+
                 if ($report->AXE1_Y == 0) {
                     $report->AXE1_Y = $tempRecordPts->AXIS3_AX_1;
                 }
@@ -220,6 +240,7 @@ class Reports extends Controller
                 if ($report->AXE2_X == 0) {
                     $report->AXE2_X = $tempRecordPts->AXIS1_AX_2;
                 }
+
                 if ($report->AXE2_Z == 0) {
                     $report->AXE2_Z = $tempRecordPts->AXIS3_AX_2;
                 }
@@ -227,6 +248,7 @@ class Reports extends Controller
                 if ($report->AXE3_Y == 0) {
                     $report->AXE3_Y = $tempRecordPts->AXIS1_AX_3;
                 }
+
                 if ($report->AXE3_Z == 0) {
                     $report->AXE3_Z = $tempRecordPts->AXIS2_AX_3;
                 }
@@ -234,9 +256,11 @@ class Reports extends Controller
                 if ($report->PLAN_X == 0) {
                     $report->PLAN_X = $tempRecordPts->AXIS1_PL_2_3;
                 }
+
                 if ($report->PLAN_Y == 0) {
                     $report->PLAN_Y = $tempRecordPts->AXIS2_PL_1_3;
                 }
+
                 if ($report->PLAN_Z == 0) {
                     $report->PLAN_Z = $tempRecordPts->AXIS3_PL_1_2;
                 }
@@ -312,8 +336,8 @@ class Reports extends Controller
                 $report->ASSES_ECO = 0;
                 $report->save();
     
-                $report->consumptionSymbol = $this->units->consumptionSymbol($stuequip->ID_COOLING_FAMILY, 1);
-                $report->temperatureSymbol = $this->convert->temperatureSymbolUser();
+                // $report->consumptionSymbol = $this->convert->consumptionSymbol($this->equip->initEnergyDef($id), 1);
+                // $report->temperatureSymbol = $this->convert->temperatureSymbolUser();
     
                 $report->refContRep2DTempMinRef = 0;
                 $report->refContRep2DTempMaxRef = 0;
@@ -328,8 +352,6 @@ class Reports extends Controller
         } else {
             return response("Report is available only when equipments are calculated numerically", 406);
         }
-        // HAIDT
-        // end HAIDT
     }
 
     public function getReportTemperatureBorne($id)
@@ -352,6 +374,7 @@ class Reports extends Controller
         if ($auto) {
             $dpas = intval(floor(abs($dTMax - $dTmin) / 14) - 1);
         }
+
         do {
             $dpas++;
             if ($dpas != 0) {
@@ -359,6 +382,7 @@ class Reports extends Controller
                 while ($dTmin % $dpas != 0) {
                     $dTmin--;
                 }
+
                 while ($dTMax % $dpas != 0) {
                     $dTMax++;
                 }
@@ -375,7 +399,7 @@ class Reports extends Controller
 
     public function initListPoints($id, $axe)
     {
-        return MeshPosition::join('product_elmt', 'mesh_position.ID_PRODUCT_ELMT', '=', 'product_elmt.ID_PRODUCT_ELMT')
+        return MeshPosition::select('MESH_AXIS_POS')->join('product_elmt', 'mesh_position.ID_PRODUCT_ELMT', '=', 'product_elmt.ID_PRODUCT_ELMT')
         ->join('product', 'product_elmt.ID_PROD' , '=', 'product.ID_PROD')
         ->where('product.ID_STUDY', $id)->where('MESH_AXIS', $axe)->distinct()->orderBy('MESH_AXIS_POS', 'ASC')->get();
     }
@@ -387,13 +411,13 @@ class Reports extends Controller
         $list3 = $this->initListPoints($id, 3);
         
         foreach ($list1 as $key) {
-            $key->meshAxisPosValue = floatval($this->convert->meshes($key->MESH_AXIS_POS, $this->value->MESH_CUT));
+            $key->meshAxisPosValue = $this->convert->meshesUnit($key->MESH_AXIS_POS);
         }
         foreach ($list2 as $key) {
-            $key->meshAxisPosValue = floatval($this->convert->meshes($key->MESH_AXIS_POS, $this->value->MESH_CUT));
+            $key->meshAxisPosValue = $this->convert->meshesUnit($key->MESH_AXIS_POS);
         }
         foreach ($list3 as $key) {
-            $key->meshAxisPosValue = floatval($this->convert->meshes($key->MESH_AXIS_POS, $this->value->MESH_CUT));
+            $key->meshAxisPosValue = $this->convert->meshesUnit($key->MESH_AXIS_POS);
         }
 
         return [
@@ -407,146 +431,146 @@ class Reports extends Controller
     {
         $input = $this->request->all();
 
-        if (isset($input['DEST_NAME'])) $DEST_NAME = $input['DEST_NAME'];
+        $DEST_NAME = $input['DEST_NAME'];
         
-        if (isset($input['DEST_SURNAME'])) $DEST_SURNAME = $input['DEST_SURNAME'];
+        $DEST_SURNAME = $input['DEST_SURNAME'];
 
-        if (isset($input['DEST_FUNCTION'])) $DEST_FUNCTION = $input['DEST_FUNCTION'];
+        $DEST_FUNCTION = $input['DEST_FUNCTION'];
 
-        if (isset($input['DEST_COORD'])) $DEST_COORD = $input['DEST_COORD'];
+        $DEST_COORD = $input['DEST_COORD'];
 
-        if (isset($input['WRITER_NAME'])) $WRITER_NAME = $input['WRITER_NAME'];
+        $WRITER_NAME = $input['WRITER_NAME'];
         
-        if (isset($input['WRITER_SURNAME'])) $WRITER_SURNAME = $input['WRITER_SURNAME'];
+        $WRITER_SURNAME = $input['WRITER_SURNAME'];
 
-        if (isset($input['WRITER_FUNCTION'])) $WRITER_FUNCTION = $input['WRITER_FUNCTION'];
+        $WRITER_FUNCTION = $input['WRITER_FUNCTION'];
 
-        if (isset($input['WRITER_COORD'])) $WRITER_COORD = $input['WRITER_COORD'];
+        $WRITER_COORD = $input['WRITER_COORD'];
 
-        if (isset($input['CUSTOMER_LOGO'])) $CUSTOMER_LOGO = $input['CUSTOMER_LOGO'];
+        $CUSTOMER_LOGO = $input['CUSTOMER_LOGO'];
 
-        if (isset($input['PHOTO_PATH'])) $PHOTO_PATH = $input['PHOTO_PATH'];
+        $PHOTO_PATH = $input['PHOTO_PATH'];
 
-        if (isset($input['REPORT_COMMENT'])) $REPORT_COMMENT = $input['REPORT_COMMENT'];
+        $REPORT_COMMENT = $input['REPORT_COMMENT'];
 
-        if (isset($input['PROD_LIST'])) $PROD_LIST = $input['PROD_LIST'];
+        $PROD_LIST = $input['PROD_LIST'];
 
-        if (isset($input['PROD_3D'])) $PROD_3D = $input['PROD_3D'];
+        $PROD_3D = $input['PROD_3D'];
 
-        if (isset($input['EQUIP_LIST'])) $EQUIP_LIST = $input['EQUIP_LIST'];
+        $EQUIP_LIST = $input['EQUIP_LIST'];
 
-        if (isset($input['REP_CUSTOMER'])) $REP_CUSTOMER = $input['REP_CUSTOMER'];
+        $REP_CUSTOMER = $input['REP_CUSTOMER'];
 
-        if (isset($input['PACKING'])) $PACKING = $input['PACKING'];
+        $PACKING = $input['PACKING'];
 
-        if (isset($input['PIPELINE'])) $PIPELINE = $input['PIPELINE'];
+        $PIPELINE = $input['PIPELINE'];
 
-        if (isset($input['ASSES_CONSUMP'])) $ASSES_CONSUMP = $input['ASSES_CONSUMP'];
+        $ASSES_CONSUMP = $input['ASSES_CONSUMP'];
 
-        if (isset($input['CONS_SPECIFIC'])) $CONS_SPECIFIC = $input['CONS_SPECIFIC'];
+        $CONS_SPECIFIC = $input['CONS_SPECIFIC'];
 
-        if (isset($input['CONS_OVERALL'])) $CONS_OVERALL = $input['CONS_OVERALL'];
+        $CONS_OVERALL = $input['CONS_OVERALL'];
 
-        if (isset($input['CONS_TOTAL'])) $CONS_TOTAL = $input['CONS_TOTAL'];
+        $CONS_TOTAL = $input['CONS_TOTAL'];
 
-        if (isset($input['CONS_HOUR'])) $CONS_HOUR = $input['CONS_HOUR'];
+        $CONS_HOUR = $input['CONS_HOUR'];
 
-        if (isset($input['CONS_DAY'])) $CONS_DAY = $input['CONS_DAY'];
+        $CONS_DAY = $input['CONS_DAY'];
 
-        if (isset($input['CONS_WEEK'])) $CONS_WEEK = $input['CONS_WEEK'];
+        $CONS_WEEK = $input['CONS_WEEK'];
 
-        if (isset($input['CONS_MONTH'])) $CONS_MONTH = $input['CONS_MONTH'];
+        $CONS_MONTH = $input['CONS_MONTH'];
 
-        if (isset($input['CONS_YEAR'])) $CONS_YEAR = $input['CONS_YEAR'];
+        $CONS_YEAR = $input['CONS_YEAR'];
 
-        if (isset($input['CONS_EQUIP'])) $CONS_EQUIP = $input['CONS_EQUIP'];
+        $CONS_EQUIP = $input['CONS_EQUIP'];
 
-        if (isset($input['CONS_PIPE'])) $CONS_PIPE = $input['CONS_PIPE'];
+        $CONS_PIPE = $input['CONS_PIPE'];
 
-        if (isset($input['CONS_TANK'])) $CONS_TANK = $input['CONS_TANK'];
+        $CONS_TANK = $input['CONS_TANK'];
 
-        if (isset($input['REP_CONS_PIE'])) $REP_CONS_PIE = $input['REP_CONS_PIE'];
+        $REP_CONS_PIE = $input['REP_CONS_PIE'];
 
-        if (isset($input['SIZING_VALUES'])) $SIZING_VALUES = $input['SIZING_VALUES'];
+        $SIZING_VALUES = $input['SIZING_VALUES'];
 
-        if (isset($input['SIZING_GRAPHE'])) $SIZING_GRAPHE = $input['SIZING_GRAPHE'];
+        $SIZING_GRAPHE = $input['SIZING_GRAPHE'];
 
-        if (isset($input['SIZING_TR'])) $SIZING_TR = $input['SIZING_TR'];
+        $SIZING_TR = $input['SIZING_TR'];
 
-        if (isset($input['ENTHALPY_G'])) $ENTHALPY_G = $input['ENTHALPY_G'];
+        $ENTHALPY_G = $input['ENTHALPY_G'];
 
-        if (isset($input['ENTHALPY_V'])) $ENTHALPY_V = $input['ENTHALPY_V'];
+        $ENTHALPY_V = $input['ENTHALPY_V'];
 
-        if (isset($input['ENTHALPY_SAMPLE'])) $ENTHALPY_SAMPLE = $input['ENTHALPY_SAMPLE'];
+        $ENTHALPY_SAMPLE = $input['ENTHALPY_SAMPLE'];
 
-        if (isset($input['ISOCHRONE_G'])) $ISOCHRONE_G = $input['ISOCHRONE_G'];
+        $ISOCHRONE_G = $input['ISOCHRONE_G'];
 
-        if (isset($input['ISOCHRONE_V'])) $ISOCHRONE_V = $input['ISOCHRONE_V'];
+        $ISOCHRONE_V = $input['ISOCHRONE_V'];
 
-        if (isset($input['ISOCHRONE_SAMPLE'])) $ISOCHRONE_SAMPLE = $input['ISOCHRONE_SAMPLE'];
+        $ISOCHRONE_SAMPLE = $input['ISOCHRONE_SAMPLE'];
 
-        if (isset($input['ISOVALUE_G'])) $ISOVALUE_G = $input['ISOVALUE_G'];
+        $ISOVALUE_G = $input['ISOVALUE_G'];
 
-        if (isset($input['ISOVALUE_V'])) $ISOVALUE_V = $input['ISOVALUE_V'];
+        $ISOVALUE_V = $input['ISOVALUE_V'];
 
-        if (isset($input['ISOVALUE_SAMPLE'])) $ISOVALUE_SAMPLE = $input['ISOVALUE_SAMPLE'];
+        $ISOVALUE_SAMPLE = $input['ISOVALUE_SAMPLE'];
 
-        if (isset($input['CONTOUR2D_G'])) $CONTOUR2D_G = $input['CONTOUR2D_G'];
+        $CONTOUR2D_G = $input['CONTOUR2D_G'];
 
-        if (isset($input['CONTOUR2D_TEMP_STEP'])) $CONTOUR2D_TEMP_STEP = $input['CONTOUR2D_TEMP_STEP'];
+        $CONTOUR2D_TEMP_STEP = $input['CONTOUR2D_TEMP_STEP'];
 
-        if (isset($input['CONTOUR2D_TEMP_MIN'])) $CONTOUR2D_TEMP_MIN = $input['CONTOUR2D_TEMP_MIN'];
+        $CONTOUR2D_TEMP_MIN = $input['CONTOUR2D_TEMP_MIN'];
 
-        if (isset($input['CONTOUR2D_TEMP_MAX'])) $CONTOUR2D_TEMP_MAX = $input['CONTOUR2D_TEMP_MAX'];
+        $CONTOUR2D_TEMP_MAX = $input['CONTOUR2D_TEMP_MAX'];
 
-        if (isset($input['POINT1_X'])) $POINT1_X = $input['POINT1_X'];
+        $POINT1_X = $input['POINT1_X'];
 
-        if (isset($input['POINT1_Y'])) $POINT1_Y = $input['POINT1_Y'];
+        $POINT1_Y = $input['POINT1_Y'];
 
-        if (isset($input['POINT1_Z'])) $POINT1_Z = $input['POINT1_Z'];
+        $POINT1_Z = $input['POINT1_Z'];
 
-        if (isset($input['POINT2_X'])) $POINT2_X = $input['POINT2_X'];
+        $POINT2_X = $input['POINT2_X'];
 
-        if (isset($input['POINT2_Y'])) $POINT2_Y = $input['POINT2_Y'];
+        $POINT2_Y = $input['POINT2_Y'];
 
-        if (isset($input['POINT2_Z'])) $POINT2_Z = $input['POINT2_Z'];
+        $POINT2_Z = $input['POINT2_Z'];
 
-        if (isset($input['POINT3_X'])) $POINT3_X = $input['POINT3_X'];
+        $POINT3_X = $input['POINT3_X'];
 
-        if (isset($input['POINT3_Y'])) $POINT3_Y = $input['POINT3_Y'];
+        $POINT3_Y = $input['POINT3_Y'];
 
-        if (isset($input['POINT3_Z'])) $POINT3_Z = $input['POINT3_Z'];
+        $POINT3_Z = $input['POINT3_Z'];
 
-        if (isset($input['AXE1_X'])) $AXE1_X = $input['AXE1_X'];
+        $AXE1_X = $input['AXE1_X'];
 
-        if (isset($input['AXE1_Y'])) $AXE1_Y = $input['AXE1_Y'];
+        $AXE1_Y = $input['AXE1_Y'];
 
-        if (isset($input['AXE2_X'])) $AXE2_X = $input['AXE2_X'];
+        $AXE2_X = $input['AXE2_X'];
 
-        if (isset($input['AXE2_Z'])) $AXE2_Z = $input['AXE2_Z'];
+        $AXE2_Z = $input['AXE2_Z'];
 
-        if (isset($input['AXE3_Y'])) $AXE3_Y = $input['AXE3_Y'];
+        $AXE3_Y = $input['AXE3_Y'];
 
-        if (isset($input['AXE3_Z'])) $AXE3_Z = $input['AXE3_Z'];
+        $AXE3_Z = $input['AXE3_Z'];
 
-        if (isset($input['PLAN_X'])) $PLAN_X = $input['PLAN_X'];
+        $PLAN_X = $input['PLAN_X'];
 
-        if (isset($input['PLAN_Y'])) $PLAN_Y = $input['PLAN_Y'];
+        $PLAN_Y = $input['PLAN_Y'];
 
-        if (isset($input['PLAN_Z'])) $PLAN_Z = $input['PLAN_Z'];
+        $PLAN_Z = $input['PLAN_Z'];
 
-        if (isset($input['ID_STUDY'])) $ID_STUDY = $input['ID_STUDY'];
+        $ID_STUDY = $input['ID_STUDY'];
 
-        if (isset($input['ASSES_ECO'])) $ASSES_ECO = $input['ASSES_ECO'];
+        $ASSES_ECO = $input['ASSES_ECO'];
 
-        $SIZING_VALUES = $input['isSizingValuesChosen'];
+        // $SIZING_VALUES = $input['isSizingValuesChosen'];
 
-        $mmNbSample1 = $this->minmax->checkMinMaxValue($ENTHALPY_SAMPLE, $this->value->MINMAX_REPORT_NBSAMPLE); 
-        $mmNbSample2 = $this->minmax->checkMinMaxValue($ISOCHRONE_SAMPLE, $this->value->MINMAX_REPORT_NBSAMPLE); 
-        $mmNbSample3 = $this->minmax->checkMinMaxValue($ISOVALUE_SAMPLE, $this->value->MINMAX_REPORT_NBSAMPLE); 
-        $mmTempStep1 = $this->minmax->checkMinMaxValue($CONTOUR2D_TEMP_STEP, $this->value->MINMAX_REPORT_TEMP_STEP); 
-        $mmTempMin = $this->minmax->checkMinMaxValue($CONTOUR2D_TEMP_MIN, $this->value->MINMAX_REPORT_TEMP_BOUNDS); 
-        $mmTempMax = $this->minmax->checkMinMaxValue($CONTOUR2D_TEMP_MAX, $this->value->MINMAX_REPORT_TEMP_BOUNDS); 
+        $mmNbSample1 = $this->minmax->checkMinMaxValue($ENTHALPY_SAMPLE, $this->values->MINMAX_REPORT_NBSAMPLE); 
+        $mmNbSample2 = $this->minmax->checkMinMaxValue($ISOCHRONE_SAMPLE, $this->values->MINMAX_REPORT_NBSAMPLE); 
+        $mmNbSample3 = $this->minmax->checkMinMaxValue($ISOVALUE_SAMPLE, $this->values->MINMAX_REPORT_NBSAMPLE); 
+        $mmTempStep1 = $this->minmax->checkMinMaxValue($CONTOUR2D_TEMP_STEP, $this->values->MINMAX_REPORT_TEMP_STEP); 
+        $mmTempMin = $this->minmax->checkMinMaxValue($CONTOUR2D_TEMP_MIN, $this->values->MINMAX_REPORT_TEMP_BOUNDS); 
+        $mmTempMax = $this->minmax->checkMinMaxValue($CONTOUR2D_TEMP_MAX, $this->values->MINMAX_REPORT_TEMP_BOUNDS); 
         $report = Report::where('ID_STUDY', $id)->first();
 
         // $report->ID_STUDY = $ID_STUDY;
@@ -589,7 +613,7 @@ class Reports extends Controller
         if ($mmNbSample1) {
             $report->ENTHALPY_SAMPLE = $ENTHALPY_SAMPLE;
         } else {
-            $mm = $this->minmax->getMinMaxNoneLine($this->value->MINMAX_REPORT_NBSAMPLE);
+            $mm = $this->minmax->getMinMaxNoneLine($this->values->MINMAX_REPORT_NBSAMPLE);
             return response("Value out of range in Number of samples (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ") !" , 406); // Status code here
         }
         $report->ISOCHRONE_G = $ISOCHRONE_G;
@@ -598,7 +622,7 @@ class Reports extends Controller
         if ($mmNbSample2) {
             $report->ISOCHRONE_SAMPLE = $ISOCHRONE_SAMPLE;
         } else {
-            $mm = $this->minmax->getMinMaxNoneLine($this->value->MINMAX_REPORT_NBSAMPLE);
+            $mm = $this->minmax->getMinMaxNoneLine($this->values->MINMAX_REPORT_NBSAMPLE);
             return response("Value out of range in Number of samples (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ") !" , 406); // Status code here
         }
         $report->ISOVALUE_G = $ISOVALUE_G;
@@ -607,7 +631,7 @@ class Reports extends Controller
         if ($mmNbSample3) {
             $report->ISOVALUE_SAMPLE = $ISOVALUE_SAMPLE;
         } else {
-            $mm = $this->minmax->getMinMaxNoneLine($this->value->MINMAX_REPORT_NBSAMPLE);
+            $mm = $this->minmax->getMinMaxNoneLine($this->values->MINMAX_REPORT_NBSAMPLE);
             return response("Value out of range in Number of samples (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ") !" , 406); // Status code here
         }
         $report->CONTOUR2D_G = $CONTOUR2D_G;
@@ -615,21 +639,21 @@ class Reports extends Controller
         if ($mmTempStep1) {
             $report->CONTOUR2D_TEMP_STEP = $CONTOUR2D_TEMP_STEP;
         } else {
-            $mm = $this->minmax->getMinMaxNoneLine($this->value->MINMAX_REPORT_TEMP_STEP);
+            $mm = $this->minmax->getMinMaxNoneLine($this->values->MINMAX_REPORT_TEMP_STEP);
             return response("Value out of range in Number of samples (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ") !" , 406); // Status code here
         }
 
         if ($mmTempMin) {
             $report->CONTOUR2D_TEMP_MIN = $CONTOUR2D_TEMP_MIN;
         } else {
-            $mm = $this->minmax->getMinMaxNoneLine($this->value->MINMAX_REPORT_TEMP_BOUNDS);
+            $mm = $this->minmax->getMinMaxNoneLine($this->values->MINMAX_REPORT_TEMP_BOUNDS);
             return response("Value out of range in Number of samples (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ") !" , 406); // Status code here
         }
 
         if ($mmTempMax) {
             $report->CONTOUR2D_TEMP_MAX = $CONTOUR2D_TEMP_MAX;
         } else {
-            $mm = $this->minmax->getMinMaxNoneLine($this->value->MINMAX_REPORT_TEMP_BOUNDS);
+            $mm = $this->minmax->getMinMaxNoneLine($this->values->MINMAX_REPORT_TEMP_BOUNDS);
             return response("Value out of range in Number of samples (" . $mm->LIMIT_MIN . " : " . $mm->LIMIT_MAX . ") !" , 406); // Status code here
         }
 
@@ -707,13 +731,17 @@ class Reports extends Controller
         $ISOVALUE_SAMPLE = $input['ISOVALUE_SAMPLE'];
         $CONTOUR2D_G = $input['CONTOUR2D_G'];
         $study = Study::find($id);
+        $checkStuname = str_replace(' ', '', $study->STUDY_NAME);
         $host = getenv('APP_URL');
-        $public_path = rtrim(app()->basePath("public/"), '/');
-        $progressFile = $public_path. "/reports/" . $study->USERNAM. "/" ."$study->ID_STUDY-$study->STUDY_NAME-Report.progess";
-        $name_report = "$study->ID_STUDY-$study->STUDY_NAME-Report.pdf";
+
+        $public_path = rtrim(app()->basePath("public"), '/');
+        $progressFile = $public_path. "/reports/" . $study->USERNAM. "/" . "$study->ID_STUDY-" . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname) . "-Report.progess";
+        $name_report = "$study->ID_STUDY-" . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname) . "-Report.pdf";
+
         if (!is_dir($public_path . "/reports/" . $study->USERNAM)) {
             mkdir($public_path . "/reports/" . $study->USERNAM, 0777, true);
         } 
+
         $progress = "";
         $production = Production::Where('ID_STUDY', $id)->first();
         if ($REP_CUSTOMER == 1) {
@@ -722,8 +750,8 @@ class Reports extends Controller
             $this->writeProgressFile($progressFile, $progress);
         }
         
-        
         $product = Product::Where('ID_STUDY', $id)->first();
+        $products = ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2', 'DESC')->get();
         $specificDimension = 0.0;
         $count = count($products);
         foreach ($products as $key => $pr) {
@@ -740,13 +768,15 @@ class Reports extends Controller
         }
         $specificDimension = $this->convert->prodDimension($specificDimension);
         $proElmt = ProductElmt::Where('ID_PROD', $product->ID_PROD)->first();
+        
         foreach ($study->studyEquipments as $sequip) {
             $layout = $this->stdeqp->generateLayoutPreview($sequip);
         }
-        $nameLayout = $study->ID_STUDY.'-'.$study->STUDY_NAME.'-StdeqpLayout-';
+        $nameLayout = $study->ID_STUDY.'-'.preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname).'-StdeqpLayout-';
         $idComArr = [];
         $comprelease = [];
         
+
         foreach ($product->productElmts as $productElmt) {
             $shapeCode = $productElmt->shape->SHAPECODE;
             $idComArr[] = $productElmt->ID_COMP;
@@ -782,9 +812,15 @@ class Reports extends Controller
             $this->writeProgressFile($progressFile, $progress);
         }
         
-        
         $symbol = $this->reportserv->getSymbol($study->ID_STUDY);
         $infoReport = $study->reports;
+        $photoPath = $infoReport[0]->PHOTO_PATH;
+        $photoNameUrl = '';
+        if (!empty($photoPath)) {
+            $photoPathInfo = pathinfo($photoPath);
+            $baseNamePh = $photoPathInfo['basename'];
+            $photoNameUrl = $public_path . '/uploads/' . $baseNamePh;
+        }
 
         if ($PIPELINE == 1) {
             if ($study->OPTION_CRYOPIPELINE == 1) {
@@ -853,6 +889,8 @@ class Reports extends Controller
                 } else {
                     $timeBase = [];
                 }
+
+                
                 
                 if ($shapeCode == 1) { 
                     if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
@@ -954,11 +992,12 @@ class Reports extends Controller
                     }
                 }
 
-            } else {
-                $proSections = [];
-                $heatexchange = [];
-                $timeBase = [];
-            }
+            } 
+            // else {
+            //     $proSections = [];
+            //     $heatexchange = [];
+            //     $timeBase = [];
+            // }
             // return $timeBase;
         }
         if ($idstudyequips->BRAIN_TYPE == 4) {
@@ -970,6 +1009,17 @@ class Reports extends Controller
             }
         }
         $progress .= "\nFINISH";
+
+        $customerPath = $infoReport[0]->CUSTOMER_LOGO;
+        
+        $customerNameUrl = '';
+        if (!empty($customerPath)) {
+            $customPathInfo = pathinfo($customerPath);
+            $baseName = $customPathInfo['basename'];
+            $customerNameUrl = $public_path . '/uploads/' . $baseName;
+        }
+        
+
         $this->writeProgressFile($progressFile, $progress);
 
         // set document information
@@ -989,16 +1039,24 @@ class Reports extends Controller
         PDF::SetAutoPageBreak(TRUE, 15);
         // set image scale factor
         PDF::setImageScale(1.25);
-        PDF::setHeaderCallback(function($pdf) use($study, $host, $public_path){
+        PDF::setHeaderCallback(function($pdf) use($study, $host, $public_path, $customerNameUrl){
             // Set font
             $pdf->SetTextColor(173,173,173);
             $pdf->SetFont('helvetica', '', 10);
             // Title
             $pdf->Cell(0, 10, $study->STUDY_NAME.'-'. date("d/m/Y"), 0, false, 'C', 0, '', 0, false, 'T', 'M');
             PDF::SetMargins(15, 25, 15, true);
-            $pdf->Image($host.'/'.$public_path.'/uploads/logo_cryosoft.png',90, 5, 40, '', 'PNG', '', 'T', false, 300, 'R', false, false, 0, false, false, false);
+
+            $pdf->Image($public_path.'/images/logo_cryosoft.png',90, 5, 40, '', 'PNG', '', 'T', false, 300, 'R', false, false, 0, false, false, false);
+
+            if (!empty($customerNameUrl)) {
+                $pdf->Image($customerNameUrl, 90, 5, 20, '', 'PNG', '', 'T', false, 300, 'L', false, false, 0, false, false, false);
+            }
+
+            $pdf->Image($public_path.'/images/logo_cryosoft.png', 90, 5, 40, '', 'PNG', '', 'T', false, 300, 'R', false, false, 0, false, false, false);
     
         });
+
         PDF::setFooterCallback(function($pdf) {
             $pdf->SetTextColor(173,173,173);
             // Position at 15 mm from bottom
@@ -1016,12 +1074,7 @@ class Reports extends Controller
         PDF::SetTextColor(0,0,0);
         PDF::Bookmark('CONTENT ', 0, 0, '', 'B', array(0,64,128));
         $html = '';
-        if (!empty($CUSTOMER_PATH)) { 
-        $html .= '
-        <div class="logo">
-            <img style="max-width: 640px" src="'. $study['reports'][0]['CUSTOMER_PATH'] .'">
-        </div>';
-        }
+        
         $html .= '
         <br></br>
             <div align="center">
@@ -1052,10 +1105,10 @@ class Reports extends Controller
                         <td colspan="2">'. date("d/m/Y") .' </td>
                     </tr>
                 </table>
-            <div align="center">
+            <div style="text-align:center">
                 <p>';
-                if (!empty($study['reports'][0]['PHOTO_PATH'])) {
-                    $html .= '<img src="'. $study['reports'][0]['PHOTO_PATH'].'">';
+                if (!empty($photoNameUrl) && file_exists($photoNameUrl)) {
+                    $html .= '<img src="'. $photoNameUrl.'" style="height:280px">';
                 } else {
                     $html .= '<img src="'. $public_path.'/images/globe_food.gif">';
                 }
@@ -1094,35 +1147,35 @@ class Reports extends Controller
                 PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
                 PDF::SetFont('times', 'B', 10);
                 $html = '
-            <div class="chaining">
-                <div class="table table-bordered">
-                    <table border="1">
-                        <tr>
-                            <th colspan="2">Study Name</th>
-                            <th colspan="2">Equipment</th>
-                            <th>Control temperature  ( '. $symbol['temperatureSymbol'] .' ) </th>
-                            <th>Residence/ Dwell time  ( '. $symbol['timeSymbol'] .' ) </th>
-                            <th>Convection Setting (Hz)</th>
-                            <th>Initial Average Product tempeture  ( '. $symbol['temperatureSymbol'] .' )  </th>
-                            <th>Final Average Product temperature  ( '. $symbol['temperatureSymbol'] .' ) </th>
-                            <th>Product Heat Load  ( '. $symbol['enthalpySymbol'] .' ) </th>
-                        </tr>';
-                        foreach ($calModeHeadBalance as $key => $resoptHeads) { 
-                        $html .= '<tr>
-                            <td colspan="2" align="center"> '. $resoptHeads['stuName'] .' </td>
-                            <td colspan="2" align="center"> TODO</td>
-                            <td align="center"> '. $resoptHeads['tr'] .' </td>
-                            <td align="center"> '. $resoptHeads['ts'] .' </td>
-                            <td align="center"> '. $equipData[$key]['tr'][0] .' </td>
-                            <td align="center"> '. $proInfoStudy['avgTInitial'] .' </td>
-                            <td align="center"> '. $resoptHeads['tfp'] .' </td>
-                            <td align="center"> '. $resoptHeads['vep'] .' </td>
-                        </tr>';
-                        }
-                    $html .= '
-                    </table>
-                </div>
-            </div>';
+                <div class="chaining">
+                    <div class="table table-bordered">
+                        <table border="1">
+                            <tr>
+                                <th colspan="2">Study Name</th>
+                                <th colspan="2">Equipment</th>
+                                <th>Control temperature  ( '. $symbol['temperatureSymbol'] .' ) </th>
+                                <th>Residence/ Dwell time  ( '. $symbol['timeSymbol'] .' ) </th>
+                                <th>Convection Setting (Hz)</th>
+                                <th>Initial Average Product tempeture  ( '. $symbol['temperatureSymbol'] .' )  </th>
+                                <th>Final Average Product temperature  ( '. $symbol['temperatureSymbol'] .' ) </th>
+                                <th>Product Heat Load  ( '. $symbol['enthalpySymbol'] .' ) </th>
+                            </tr>';
+                            foreach ($calModeHeadBalance as $key => $resoptHeads) { 
+                            $html .= '<tr>
+                                <td colspan="2" align="center"> '. $resoptHeads['stuName'] .' </td>
+                                <td colspan="2" align="center"> '. $resoptHeads['equipName'] .'</td>
+                                <td align="center"> '. $resoptHeads['tr'] .' </td>
+                                <td align="center"> '. $resoptHeads['ts'] .' </td>
+                                <td align="center"> '. $equipData[$key]['tr'][0] .' </td>
+                                <td align="center"> '. $proInfoStudy['avgTInitial'] .' </td>
+                                <td align="center"> '. $resoptHeads['tfp'] .' </td>
+                                <td align="center"> '. $resoptHeads['vep'] .' </td>
+                            </tr>';
+                            }
+                        $html .= '
+                        </table>
+                    </div>
+                </div>';
                 PDF::writeHTML($html, true, false, true, false, '');
                 PDF::AddPage();
             }
@@ -1254,7 +1307,7 @@ class Reports extends Controller
                             } else if ($shapeCode == 2 || $shapeCode == 9 || $shapeCode == 3) {
                                 $html .='
                                 <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM1) .'</td>
-                                <td align="center">'. $specificDimension.' </td>
+                                <td align="center">'. $specificDimension .' </td>
                                 <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM3) .' </td>
                                 ';
                             } else if ($shapeCode == 4 || $shapeCode == 5 || $shapeCode == 7 || $shapeCode == 8) {
@@ -1435,9 +1488,9 @@ class Reports extends Controller
                                 <tr>
                                     <td align="center"> '. ($key + 1) .'</td>
                                     <td align="center"> '. $resequipDatas['displayName'] .'</td>
-                                    <td align="center"> '. $resequipDatas['vc'][0] .'</td>
-                                    <td align="center"> '. $resequipDatas['tr'][0] .'</td>
                                     <td align="center"> '. $resequipDatas['ts'][0] .'</td>
+                                    <td align="center"> '. $resequipDatas['tr'][0] .'</td>
+                                    <td align="center"> '. $resequipDatas['vc'][0] .'</td>
                                     <td align="center"> '. ($resequipDatas['ORIENTATION'] == 1 ? 'Parallel' : 'Perpendicular') .'</td>
                                     <td align="center"> '. $resequipDatas['top_or_QperBatch'] .'</td>
                                 </tr>';
@@ -1884,7 +1937,7 @@ class Reports extends Controller
                                     }
                                     if ($CONS_MONTH == 1) { 
                                     $html .='
-                                        <td align="center"> '. $economic[$key]['month'] .' </td>';
+                                        <td align="center"></td>';
                                     }
                                     if ($CONS_YEAR == 1) { 
                                     $html .='
@@ -2058,7 +2111,7 @@ class Reports extends Controller
                                 <tr>
                                     <th colspan="2">Equipment</th>';
                                     foreach($resheatexchanges['result'] as $result) { 
-                                        $html .='<th align="center"> '. $result['x'] .'</th>';
+                                        $html .= '<th align="center"> '. $result['x'] . $symbol['timeSymbol']. '</th>';
                                     }
                                 $html .='    
                                 </tr>
@@ -2108,7 +2161,7 @@ class Reports extends Controller
                             $html ='<h3> Values - Dimension'. $resproSections['selectedAxe'] . '(' . '*,' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][1] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>';
                         } else if ($resproSections['selectedAxe'] == 2) {
                             PDF::Bookmark('Values - Dimension' . $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',*,' . $resproSections['axeTemp'][1] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
-                            PDF::Cell(0, 10, '' , 0, 1, 'L');
+                            // PDF::Cell(0, 10, '' , 0, 1, 'L');
                             $html ='<h3> Values - Dimension'. $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',*,' . $resproSections['axeTemp'][1] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>';
                         } else if ($resproSections['selectedAxe'] == 3) {
                             PDF::Bookmark('Values - Dimension' . $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][1] . ',*' . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
@@ -2231,10 +2284,9 @@ class Reports extends Controller
                         PDF::writeHTML($html, true, false, true, false, '');
                     }
                     if ($ISOVALUE_G == 1) {
-                        $html = '';
-                        $html .='<h3>Graphic</h3>
+                        $html ='<h3>Graphic</h3>
                         <div align="center">
-                            <img width="640" height="450" src="'. $public_path .'/timeBased/'.$study['USERNAM'] .'/'.$timeBases['idStudyEquipment'] .'.png"></div>';
+                            <img width="640" height="450" src="'. $public_path .'/timeBased/'.$study['USERNAM'] .'/'.$timeBases['idStudyEquipment'].'.png"></div>';
                         PDF::writeHTML($html, true, false, true, false, '');
                     }
                 }
@@ -2301,15 +2353,15 @@ class Reports extends Controller
         $html .= '
         <div class="comment">
              <p>
-                <textarea  rows="5"> '. $REPORT_COMMENT .' </textarea>
+                <textarea rows="5"> '. $REPORT_COMMENT .' </textarea>
             </p>
         </div>
 
         <div class="info-writer">
-            <div align="center">
+            <div style="text-align:center">
                 <p>';
-                if (!empty($study['reports'][0]['PHOTO_PATH'])) {
-                    $html .= '<img src="'. $study['reports'][0]['PHOTO_PATH'].'">';
+                if (!empty($photoNameUrl) && file_exists($photoNameUrl)) {
+                    $html .= '<img src="'. $photoNameUrl.'" style="height:280px">';
                 } else {
                     $html .= '<img src="'. $public_path.'/images/globe_food.gif">';
                 }
@@ -2349,7 +2401,7 @@ class Reports extends Controller
         PDF::Ln();
        
         // add table of content at page 1
-        PDF::addTOC(1, 'courier', '.', 'INDEX', 'B', array(128,0,0));;
+        PDF::addTOC(1, 'courier', '.', 'INDEX', 'B', array(128, 0, 0));;
         
         // end of TOC page
         PDF::endTOCPage();
@@ -2357,7 +2409,8 @@ class Reports extends Controller
         return ["url" => "$host/reports/$study->USERNAM/$name_report"];
     }
     
-    function backgroundGenerationHTML($params) {
+    function backgroundGenerationHTML($params)
+    {
         $id = $params['studyId'];
         $input = $params['input'];
         $DEST_SURNAME = $input['DEST_SURNAME'];
@@ -2405,13 +2458,15 @@ class Reports extends Controller
         $CONTOUR2D_G = $input['CONTOUR2D_G'];
         $study = Study::find($id);
         $host = getenv('APP_URL');
+        $checkStuname = str_replace(' ', '', $study->STUDY_NAME);
+
         $public_path = rtrim(app()->basePath("public/"), '/');
-        $name_report = "$study->ID_STUDY-$study->STUDY_NAME-Report.html";
-        $progressFile = $public_path. "/reports/" . $study->USERNAM. "/" ."$study->ID_STUDY-$study->STUDY_NAME-Report.progess";
+
+        $name_report = "$study->ID_STUDY-".preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname)."-Report.html";
+        $progressFile = $public_path. "/reports/" . $study->USERNAM. "/" ."$study->ID_STUDY-".preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname)."-Report.progess";
         if (!is_dir( $public_path. "/reports/"  . $study->USERNAM)) {
             mkdir( $public_path. "/reports/" . $study->USERNAM, 0777, true);
         }
-        
         
         $progress = "";
         $production = Production::Where('ID_STUDY', $id)->first();
@@ -2421,11 +2476,13 @@ class Reports extends Controller
         }
         
         $product = Product::Where('ID_STUDY', $id)->first();
+        $products = ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2', 'DESC')->get();
+
         $specificDimension = 0.0;
         $count = count($products);
         foreach ($products as $key => $pr) {
             $elements[] = $pr;
-            if ($pr->ID_SHAPE == $this->values->SPHERE || $pr->ID_SHAPE == $this->values->CYLINDER_CONCENTRIC_STANDING || $pr->ID_SHAPE == $this->values->CYLINDER_CONCENTRIC_LAYING || $pr->ID_SHAPE == $this->values->PARALLELEPIPED_BREADED) {
+            if ($pr->ID_SHAPE == $this->value->SPHERE || $pr->ID_SHAPE == $this->value->CYLINDER_CONCENTRIC_STANDING || $pr->ID_SHAPE == $this->value->CYLINDER_CONCENTRIC_LAYING || $pr->ID_SHAPE == $this->value->PARALLELEPIPED_BREADED) {
                 if ($key < $count - 1) {
                     $specificDimension += $pr->SHAPE_PARAM2 * 2;
                 } else {
@@ -2440,7 +2497,8 @@ class Reports extends Controller
         foreach ($study->studyEquipments as $sequip) {
             $layout = $this->stdeqp->generateLayoutPreview($sequip);
         }
-        // $nameLayout = $study->ID_STUDY.'-'.$study->STUDY_NAME.'-StdeqpLayout-';
+
+        $stuNameLayout = preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname);
         $idComArr = [];
         $comprelease = [];
         foreach ($product->productElmts as $productElmt) {
@@ -2449,11 +2507,13 @@ class Reports extends Controller
             $idElmArr[] = $productElmt->ID_PRODUCT_ELMT;
             $comprelease[] = $productElmt->component->COMP_RELEASE;
         }
+
         if ($study->packings != null) {
             $packings = $this->reportserv->getStudyPackingLayers($study->ID_STUDY);
         } else {
             $packings = [];
         }
+
         $shapeName = Translation::where('TRANS_TYPE', 4)->where('ID_TRANSLATION', $shapeCode)->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
         $componentName = ProductElmt::select('LABEL','ID_COMP', 'ID_PRODUCT_ELMT', 'PROD_ELMT_ISO', 'PROD_ELMT_NAME', 'PROD_ELMT_REALWEIGHT', 'SHAPE_PARAM2')
         ->join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')->whereIn('ID_PRODUCT_ELMT', $idElmArr)
@@ -2464,7 +2524,10 @@ class Reports extends Controller
             $componentStatus = Translation::select('LABEL')->where('TRANS_TYPE', 100)->whereIn('ID_TRANSLATION', $comprelease)->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
             $productComps[] = $value;
             $productComps[$key]['display_name'] = $value->LABEL . ' - ' . $productElmt->component->COMP_VERSION . '(' . $componentStatus->LABEL . ' )';
+            $productComps[$key]['mass'] = $this->convert->mass($value->PROD_ELMT_REALWEIGHT);
+            $productComps[$key]['dim'] = $this->convert->prodDimension($value->SHAPE_PARAM2);
         }
+
         if ($PROD_LIST == 1) {
             $progress .= "\nProduct";
             $this->writeProgressFile($progressFile, $progress);
@@ -2647,16 +2710,18 @@ class Reports extends Controller
                     }
                 }
 
-            } else {
-                $proSections = [];
-                $heatexchange = [];
-                $timeBase = [];
-            }
+            } 
+            // else {
+            //     $proSections = [];
+            //     $heatexchange = [];
+            //     $timeBase = [];
+            // }
             // return $pro2Dchart;
         }
         if ($idstudyequips->BRAIN_TYPE == 4) {
+
             $this->writeProgressFile($progressFile, $progress);
-            
+
             if ($CONTOUR2D_G == 1) {
                 if (($shapeCode != 1) || ($shapeCode != 6)) {
                 $progress .= "\nContour";
@@ -2664,6 +2729,7 @@ class Reports extends Controller
                 }
             }
         }
+
         $progress .= "\nFINISH";
         $this->writeProgressFile($progressFile, $progress);
         
@@ -2671,7 +2737,7 @@ class Reports extends Controller
         $html = $this->viewHtml($study ,$production, $product, $proElmt, $shapeName, 
         $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
         $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase, 
-        $symbol, $host, $pro2Dchart, $params, $shapeCode, $economic, $specificDimension);
+        $symbol, $host, $pro2Dchart, $params, $shapeCode, $economic, $stuNameLayout, $specificDimension);
         // file_put_contents("/home/huytd/adasd", $economic);
         fwrite($myfile, $html);
         fclose($myfile);
@@ -2679,7 +2745,8 @@ class Reports extends Controller
         return $url;
     }
 
-    function downLoadPDF($studyId) {
+    function downLoadPDF($studyId)
+    {
         $input = $this->request->all();
         $params['studyId'] = $studyId;
         $params['input'] = $input;
@@ -2692,7 +2759,6 @@ class Reports extends Controller
         register_shutdown_function($bgProcess, $this, 'backgroundGenerationPDF', $params);
         header('Connection: close');
         header('Content-length: 19');
-        // header('Access-Control-Allow-Origin: *'); 
         header('Content-type: application/json');
         
         exit("{'processing':true}");
@@ -2724,7 +2790,7 @@ class Reports extends Controller
     public function viewHtml($study ,$production, $product, $proElmt, $shapeName, 
     $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
     $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase , 
-    $symbol, $host, $pro2Dchart, $params, $shapeCode, $economic, $specificDimension)
+    $symbol, $host, $pro2Dchart, $params, $shapeCode, $economic, $stuNameLayout, $specificDimension)
     {
         $arrayParam = [
             'study' => $study,
@@ -2756,22 +2822,32 @@ class Reports extends Controller
             'timeBase' => $timeBase,
             'pro2Dchart' => $pro2Dchart,
             'economic' => $economic,
+            'stuNameLayout' => $stuNameLayout
         ];
         return view('report.viewHtmlToPDF', $param);
     }
 
-    function processingReport($id) {
+    function processingReport($id)
+    {
         $study = Study::find($id);
-        $public_path = rtrim(app()->basePath("public/"), '/');
-        $progressFile = "$study->ID_STUDY-$study->STUDY_NAME-Report.progess";
-        $progressFileHtml = getenv('APP_URL') . '/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . $study->STUDY_NAME . '-Report.html';
-        $progressFilePdf = getenv('APP_URL') . '/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . $study->STUDY_NAME . '-Report.pdf';
-        $file = file_get_contents($public_path . "/reports/" . $study->USERNAM . "/" . $progressFile);
-        $progress = explode("\n", $file);
-        return compact('progressFileHtml', 'progressFilePdf');
+
+        $public_path = rtrim(app()->basePath("public"), '/');
+        $checkStuname = str_replace(' ', '', $study->STUDY_NAME);
+        $progressFile = "$study->ID_STUDY-".preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname)."-Report.progess";
+
+        $progressFileHtml = getenv('APP_URL') . '/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname) . '-Report.html?time=' . time();
+        $progressFilePdf = getenv('APP_URL') . '/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname). '-Report.pdf?time=' . time();
+
+        $progressfilePath = $public_path . "/reports/" . $study->USERNAM . "/" . $progressFile;
+        
+        $progress = [];
+        if (file_exists($progressfilePath)) {
+            $file = file_get_contents($progressfilePath);
+            $progress = explode("\n", $file);
+        }
+        return compact('progressFileHtml', 'progressFilePdf', 'progress');
     }
 
-    // HAIDT
     public function postFile() 
     {  
         $input = $this->request->all();
@@ -2790,5 +2866,4 @@ class Reports extends Controller
         
         return $url;
     }
-    // end HAIDT
 }

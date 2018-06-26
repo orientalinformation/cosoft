@@ -324,7 +324,7 @@ class Calculator extends Controller
     public function startStudyCalculation($idStudy)
     {
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, -1);
-        $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 50);
+        $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, SC_CLEAN_OUTPUT_CALCUL);
 
         $studyEquipments = StudyEquipment::where('ID_STUDY', $idStudy)->get();
         $study = Study::find($idStudy);
@@ -366,25 +366,33 @@ class Calculator extends Controller
 
     public function startConsumptionEconomic($idStudy, $idStudyEquipment)
     {
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\Consumption_'.$idStudy.'_'.$idStudyEquipment.'.txt');
+        $study = Study::find($idStudy);
+
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\Consumption_'.$idStudy.'_'.$idStudyEquipment.'.txt');
         return $this->kernel->getKernelObject('ConsumptionCalculator')->COCConsumptionCalculation($conf);
     }
 
     public function startDimMat($idStudy, $idStudyEquipment)
     {
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
+        $study = Study::find($idStudy);
+
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\DimMat_'.$idStudy.'_'.$idStudyEquipment.'.txt');
         return $this->kernel->getKernelObject('DimMatCalculator')->DMCCalculation($conf, 1);
     }
 
     public function startEconomic($idStudy, $idStudyEquipment)
-    {
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
+    {   
+        $study = Study::find($idStudy);
+
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\Economic_'.$idStudy.'_'.$idStudyEquipment.'.txt');
         return $this->kernel->getKernelObject('EconomicCalculator')->ECEconomicCalculation($conf);
     }
 
     public function startPipeLine($idStudy, $idStudyEquipment)
     {
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
+        $study = Study::find($idStudy);
+
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\Pipeline_'.$idStudy.'_'.$idStudyEquipment.'.txt');
         return $this->kernel->getKernelObject('PipelineCalculator')->PCPipelineCalculation($conf);
     }
 
@@ -393,7 +401,7 @@ class Calculator extends Controller
         $studyEquipments = StudyEquipment::where('ID_STUDY', $idStudy)->get();
 
         // $confCleaner = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, -1);
-        // $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($confCleaner, 50);
+        // $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($confCleaner, SC_CLEAN_OUTPUT_CALCUL);
         $study = Study::find($idStudy);
 
         $results = [];
@@ -406,9 +414,9 @@ class Calculator extends Controller
                 if ($this->equipment->getCapability($capability, 128)) {
 
                     // run study clear
-                    $this->runStudyCleaner($idStudy, $idStudyEquipment, 50);
+                    $this->runStudyCleaner($idStudy, $idStudyEquipment, SC_CLEAN_OUTPUT_CALCUL);
 
-                    $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\brain_log_'.$idStudy.'_'. $idStudyEquipment.'.txt');
+                    $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\brain_log_'.$idStudy.'_'. $idStudyEquipment.'.txt');
                     $param = new \Cryosoft\stSKBRParam();
                     array_push($results, $this->kernel->getKernelObject('BrainCalculator')->BRTeachCalculation($conf, $param, 10));
                     //add run economic and consumption
@@ -758,14 +766,14 @@ class Calculator extends Controller
                 $this->cal->setChildsStudiesToRecalculate($idStudy, $idStudyEquipment);
             }
 
-            $this->runStudyCleaner($idStudy, $idStudyEquipment, 53);
+            $this->runStudyCleaner($idStudy, $idStudyEquipment, SC_CLEAN_OUTPUT_OPTIM_BRRUN);
+                     
+            $runType = $this->startBrainNumericalCalculation($idStudy, $idStudyEquipment, $brainMode);
 
             $study = Study::find($idStudy);
             if ($study->OPTION_CRYOPIPELINE == 1) {
                 $this->startPipeLine($idStudy, $idStudyEquipment);
             }
-                     
-            $runType = $this->startBrainNumericalCalculation($idStudy, $idStudyEquipment, $brainMode);
 
             $this->startEconomic($idStudy, $idStudyEquipment);
             $this->startConsumptionEconomic($idStudy, $idStudyEquipment);
@@ -1107,8 +1115,10 @@ class Calculator extends Controller
 
     public function runStudyCleaner($idStudy, $idStudyEquipment, $number)
     {
+        $study = Study::find($idStudy);
+
         $ret = 0;
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\studyClear_'. $idStudy.'_'.$idStudyEquipment. '_'.$number.'.txt');
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\studyClear_'. $idStudy.'_'.$idStudyEquipment. '_'.$number.'.txt');
         $ret = $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, $number);
 
         if ($ret == 0 && $this->cal->isStudyHasChilds($idStudy)) {
@@ -1148,11 +1158,12 @@ class Calculator extends Controller
         }
 
         $studyEquipment = StudyEquipment::find($idStudyEquipment);
+        $study = Study::find($idStudy);
 
         $results = null;
 
         if (count($studyEquipment) > 0) {
-            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\brain_log_'.$idStudy.'_'.$idStudyEquipment.'_'.$ldMode.'.txt');
+            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\brain_log_'.$idStudy.'_'.$idStudyEquipment.'_'.$ldMode.'.txt');
             $param = new \Cryosoft\stSKBRParam();
 
             $results = $this->kernel->getKernelObject('BrainCalculator')->BRTeachCalculation($conf, $param, $ldMode);
@@ -1168,6 +1179,7 @@ class Calculator extends Controller
         }
 
         $studyEquipment = StudyEquipment::find($idStudyEquipment);
+        $study = Study::find($idStudy);
 
         try {
             if (!$this->equipment->getCapability($studyEquipment->CAPABILITIES, 128)) 
@@ -1208,7 +1220,7 @@ class Calculator extends Controller
                 $brainMode = 0;
             }
 
-            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
+            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\brain_log_'.$idStudy.'_'.$idStudyEquipment.'_'.$brainMode.'.txt');
             $param = new \Cryosoft\stSKBRParam();
             return $this->kernel->getKernelObject('BrainCalculator')->BRTeachCalculation($conf, $param, $brainMode);
 
@@ -1248,13 +1260,17 @@ class Calculator extends Controller
 
     private function startPhamCastCalculator($idStudy, $idStudyEquipment, $doTr)
     {
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
+        $study = Study::find($idStudy);
+
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\PhamCast_'.$idStudy.'_'.$idStudyEquipment.'_'.$doTr.'.txt');
         return $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf);
     }
 
     private function startExhaustGasTemp($idStudy, $idStudyEquipment)
     {
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment);
+        $study = Study::find($idStudy);
+
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\KernelTool_'.$idStudy.'_'.$idStudyEquipment.'.txt');
         return $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 1);
     }
 
@@ -1265,6 +1281,7 @@ class Calculator extends Controller
         $toc = 0;
         
         $studyEquipment = StudyEquipment::find($idStudyEquipment);
+        $study = Study::find($idStudy);
         $temperatures = [];
 
         if ($this->equipment->getCapability($studyEquipment->CAPABILITIES, 1)) {
@@ -1286,9 +1303,9 @@ class Calculator extends Controller
             $lfLoadingRateMax = doubleval($toc) / 100;
         }
 
-        $this->runStudyCleaner($idStudy, $idStudyEquipment, 54);
+        $this->runStudyCleaner($idStudy, $idStudyEquipment, SC_CLEAN_OUTPUT_OPTIMAX_BRRUN);
 
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\brain_mode_13.txt');
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\brain_mode_13_'.$idStudy.'_'.$idStudyEquipment.'.txt');
         $param = new \Cryosoft\stSKBRParam($lfControlTemp, $lfLoadingRateMax);
         $ldMode = 13;
 

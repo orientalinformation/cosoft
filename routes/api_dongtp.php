@@ -368,3 +368,27 @@ $router->PUT('/api/v1/input/update/{idStudy}', 'Api1\\Studies@updateStudy');
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/referencedata/inputequipment/{idEquip}', 'Api1\\Equipments@getInputEquipment');
+
+/**
+ * GET Data capability
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/threed/mesh3dInfo/{idProd}', 'Api1\\Input3Ds@getMesh3DInfo');
+
+/**
+ * POST init 3D temparature
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/threed/{idProd}/initIso3DTemperature', 'Api1\\Input3Ds@initIso3DTemperature');
+
+/**
+ * POST init none iso 3D temparature
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/threed/{idProd}/initNonIso3DTemperature', 'Api1\\Input3Ds@initNonIso3DTemperature');

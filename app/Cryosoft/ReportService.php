@@ -227,6 +227,7 @@ class ReportService
             $item["conso_warning"] = $conso_warning;
             $item["toc"] = $toc;
             $item["precision"] = $precision;
+            $item["stuName"] = $stuName;
 
             $result[] = $item;
         }
@@ -516,8 +517,8 @@ class ReportService
                     $dimaR = DimaResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("DIMA_TYPE", 1)->first();
                 }
 
-                if ($economicResult != null) {
-                    if ($dimaR != null) {
+                if ($economicResult) {
+                    if ($dimaR) {
                         $dimaStatus = $this->dima->getCalculationStatus($dimaR->DIMA_STATUS);
                         $equipStatus = $row->EQUIP_STATUS;
                     } else {
@@ -527,7 +528,6 @@ class ReportService
 
                     $consoToDisplay = $this->eco->isConsoToDisplay($dimaStatus, $equipStatus);
                     if (!$consoToDisplay) {
-                        $equipName = "****";
                         $tc = "****";
                         $kgProduct = "****";
                         $product = "****";
@@ -558,6 +558,7 @@ class ReportService
                         $week = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_WEEK, $idCoolingFamily, 1, 0);
                         $hour = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_HOUR, $idCoolingFamily, 1);
                         $month = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_MONTH, $idCoolingFamily, 1, 0);
+                        
                         $year = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_YEAR, $idCoolingFamily, 1, 0);
                         $eqptCold = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_MAT_GETCOLD, $idCoolingFamily, 3);
                         $eqptPerm = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_MAT_PERM, $idCoolingFamily, 2);
@@ -587,18 +588,17 @@ class ReportService
                     $item["lineCold"] = $lineCold;
                     $item["linePerm"] = $linePerm;
                     $item["tank"] = $tank;
-
                     $item["percentProduct"] = $percentProduct;
                     $item["percentEquipmentPerm"] = $percentEquipmentPerm;
                     $item["percentEquipmentDown"] = $percentEquipmentDown;
                     $item["percentLine"] = $percentLine;
+                    $item['ENABLE_CONS_PIE'] = $row->ENABLE_CONS_PIE;
 
                     $result[] = $item;
                 }
             }
 
         }
-
         return $result;
     }
 
@@ -735,7 +735,6 @@ class ReportService
         $lfTS = $listRecordPos[$nbRecord - 1]->RECORD_TIME;
         $lfStep = $listRecordPos[1]->RECORD_TIME - $listRecordPos[0]->RECORD_TIME;
         $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
-
         foreach ($lEchantillon as $row) {
 
             $recordPos = $listRecordPos[$row];
@@ -1045,9 +1044,14 @@ class ReportService
             $lfTS = $listRecordPos[$nbRecord - 1]->RECORD_TIME;
             $lfStep = $listRecordPos[1]->RECORD_TIME - $listRecordPos[0]->RECORD_TIME;
             $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
-
+            // return $nbSample;10
+            // return "ddd" . $nbRecord;79
+            // return "aa" .$lfTS;0
+            // return "bbb". $lfStep;5
             foreach ($lEchantillon as $row) {
+                
                 $recordPos = $listRecordPos[$row];
+
                 $item["points"] = $this->unit->time($recordPos->RECORD_TIME);
 
                 //top
@@ -1065,7 +1069,6 @@ class ReportService
                 $item["average"] = $this->unit->prodTemperature($recordPos->AVERAGE_TEMP);
                 $result[] = $item; 
             }
-
             $label["top"] = $this->unit->meshesUnit($tempRecordPts->AXIS1_PT_TOP_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_TOP_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_TOP_SURF);
 
             $label["int"] = $this->unit->meshesUnit($tempRecordPts->AXIS1_PT_INT_PT) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_INT_PT) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_INT_PT);

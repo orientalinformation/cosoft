@@ -44,6 +44,8 @@ use App\Models\PipeRes;
 use App\Models\LineElmt;
 use App\Models\LineDefinition;
 use App\Models\RecordPosition;
+use App\Models\Mesh3DInfo;
+use App\Models\InitTemp3D;
 use App\Cryosoft\MeshService;
 use App\Cryosoft\UnitsService;
 
@@ -144,28 +146,50 @@ class Studies extends Controller
     {
         /** @var Study $study */
         $study = Study::findOrFail($id);
-
-        if (!$study)
-            return -1;
-
+        if (!$study) return -1;
+        
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id), -1);
         $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, SC_CLEAN_OUTPUT_ALL);
-
+        
         /** @var Product[] $product */
         $products = $study->products;
-
+        
         foreach ($products as $product) {
+            // 3d featrue delete mesh3D_info
+            $mesh3D_info = Mesh3DInfo::Where('ID_PROD', $product->ID_PROD)->first();
+            if(count($mesh3D_info) > 0) {
+                // if (file_exists($mesh3D_info->file_path)) {
+                //     $dir = $mesh3D_info->file_path;
+                //     foreach (scandir($dir) as $object) {
+                //         if ($object != "." && $object != "..") {
+                //             if (filetype($dir."/".$object) == "dir") 
+                //                 rmdir($dir."/".$object); 
+                //             else unlink   ($dir."/".$object);
+                //         }
+                //     }
+                //         rmdir($dir);
+                // }
+                $mesh3D_info->delete();
+            }
+
             /** @var MeshGeneration $meshGenerations */
             $meshGenerations = $product->meshGenerations;
-
             foreach ($meshGenerations as $mesh) {
                 $mesh->delete();
             }
 
             foreach ($product->productElmts as $productElmt) {
-                foreach ($productElmt->meshPositions as $meshPst) {
-                    $meshPst->delete();
-                } 
+                // 3d featrue not delete mesh position
+                // foreach ($productElmt->meshPositions as $meshPst) {
+                //     $meshPst->delete();
+                // }
+                // 3d feature delete initial_temp
+                $initial3D_temps = InitTemp3D::where('ID_PRODUCT_ELMT', $productElmt->ID_PRODUCT_ELMT)->get();
+                if (count($initial3D_temps) > 0) {
+                    foreach ($initial3D_temps as $initial3D_temp) {
+                        $initial3D_temp->delete();
+                    }
+                }
                 $productElmt->delete();
             }
 
@@ -181,11 +205,11 @@ class Studies extends Controller
         foreach ($study->prices as $price) {
             $price->delete();
         }
-
-        foreach ($productions as $production) {
-            InitialTemperature::where('ID_PRODUCTION', $production->ID_PRODUCTION)->delete();
-            $production->delete();
-        }
+        // 3d featrue not delete Initial_temperature
+        // foreach ($productions as $production) {
+        //     InitialTemperature::where('ID_PRODUCTION', $production->ID_PRODUCTION)->delete();
+        //     $production->delete();
+        // }
 
         $tempRecordPts = $study->tempRecordPts;
 
@@ -292,7 +316,7 @@ class Studies extends Controller
 
             return response([
                 'code' => 1002,
-                'message' => 'Duplicate Study Name!'
+                'message' => 'This study name already exists, please try another one.'
             ], 406);
         }
         
@@ -304,6 +328,7 @@ class Studies extends Controller
             $productionCurr = Production::where('ID_STUDY',$studyCurrent->ID_STUDY)->first(); 
             // @class: \App\Models\Product
             $productCurr = Product::where('ID_STUDY',$studyCurrent->ID_STUDY)->first();
+            $mesh3D_info = Mesh3DInfo::where('ID_PROD',$productCurr->ID_PROD)->first();
             // @class: \App\Models\Price
             $priceCurr = Price::where('ID_STUDY',$studyCurrent->ID_STUDY)->first(); 
             // @class: \App\Models\Price
@@ -345,8 +370,8 @@ class Studies extends Controller
                 }
 
                 //duplicate initial_Temp already exsits
-                    DB::insert(DB::RAW('insert into INITIAL_TEMPERATURE (ID_PRODUCTION, INITIAL_T, MESH_1_ORDER, MESH_2_ORDER, MESH_3_ORDER) SELECT '
-                . $production->ID_PRODUCTION . ',I.INITIAL_T, I.MESH_1_ORDER, I.MESH_2_ORDER, I.MESH_3_ORDER FROM INITIAL_TEMPERATURE AS I WHERE ID_PRODUCTION = ' . $productionCurr->ID_PRODUCTION ));
+                //     DB::insert(DB::RAW('insert into INITIAL_TEMPERATURE (ID_PRODUCTION, INITIAL_T, MESH_1_ORDER, MESH_2_ORDER, MESH_3_ORDER) SELECT '
+                // . $production->ID_PRODUCTION . ',I.INITIAL_T, I.MESH_1_ORDER, I.MESH_2_ORDER, I.MESH_3_ORDER FROM INITIAL_TEMPERATURE AS I WHERE ID_PRODUCTION = ' . $productionCurr->ID_PRODUCTION ));
                 
 
                 //duplicate Product already exsits
@@ -369,6 +394,22 @@ class Studies extends Controller
                         $product->ID_MESH_GENERATION = $meshgeneration->ID_MESH_GENERATION;
                         $product->save();
                     } 
+                    if (count($mesh3D_info) > 0) {
+                        $mesh3D_new = new Mesh3DInfo();
+                        $mesh3D_new = $mesh3D_info->replicate();
+                        $mesh3D_new->id_prod = $product->ID_PROD;
+                        unset($mesh3D_new->id_mesh3d_info);
+                        // if (file_exists($mesh3D_info->file_path)) {
+                        //     $src = $mesh3D_info->file_path."/*";
+                        //     if (!is_dir($mesh3D_info->file_path."-saveAs-".$mesh3D_new->id_prod)) {
+                        //         mkdir($mesh3D_info->file_path."-saveAs-".$mesh3D_new->id_prod, 0777, true);
+                        //     }
+                        //     $dest = $mesh3D_info->file_path."-saveAs-".$mesh3D_new->id_prod;
+                        //     shell_exec("cp -r $src $dest");
+                        //     $mesh3D_new->file_path =$dest;
+                        // }
+                        $mesh3D_new->save();
+                    }
 
                     if (count($productemltCurr) > 0) {
                         foreach ($productemltCurr as $prodelmtCurr ) {
@@ -378,12 +419,20 @@ class Studies extends Controller
                             $productemlt->INSERT_LINE_ORDER = $study->ID_STUDY;
                             unset($productemlt->ID_PRODUCT_ELMT);
                             $productemlt->save();
-                            foreach ($prodelmtCurr->meshPositions as $meshPositionCurr) {
-                                $meshPos = new MeshPosition();
-                                $meshPos = $meshPositionCurr->replicate();
-                                $meshPos->ID_PRODUCT_ELMT = $productemlt->ID_PRODUCT_ELMT;
-                                unset($meshPos->ID_MESH_POSITION);
-                                $meshPos->save();
+                            $initial3D_temps = InitTemp3D::where('ID_PRODUCT_ELMT', $prodelmtCurr->ID_PRODUCT_ELMT)->get();
+                            // foreach ($prodelmtCurr->meshPositions as $meshPositionCurr) {
+                            //     $meshPos = new MeshPosition();
+                            //     $meshPos = $meshPositionCurr->replicate();
+                            //     $meshPos->ID_PRODUCT_ELMT = $productemlt->ID_PRODUCT_ELMT;
+                            //     unset($meshPos->ID_MESH_POSITION);
+                            //     $meshPos->save();
+                            // }
+                            foreach ($initial3D_temps as $initial3D_temp) {
+                                $inital3D_new = new InitTemp3D();
+                                $inital3D_new = $initial3D_temp->replicate();
+                                $inital3D_new->ID_PRODUCT_ELMT = $productemlt->ID_PRODUCT_ELMT;
+                                unset($inital3D_new->ID_MESH_POSITION);
+                                $inital3D_new->save();
                             }
                         }
                     }
@@ -671,7 +720,7 @@ class Studies extends Controller
         }
 
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($id), -1);
-        return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, 10);
+        return $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, SC_CLEAN_TMP_DATA);
     }
 
     public function getStudyEquipments($id) 
@@ -687,11 +736,11 @@ class Studies extends Controller
         if (!isset($input['name']) || empty($input['name']))
             return 1;
 
-        $study = \App\Models\Study::find($id);
+        $study = Study::find($id);
         $product = $study->products;
 
         if (count($product) == 0) {
-            $product = new \App\Models\Product();
+            $product = new Product();
             $product->ID_STUDY = $study->ID_STUDY;
         } else {
             $product = $product[0];
@@ -720,7 +769,7 @@ class Studies extends Controller
 
     public function updateProduct($id) 
     {
-        $study = \App\Models\Study::find($id);
+        $study = Study::find($id);
         $product = $study->products->first();
         $input = $this->request->json()->all();
 
@@ -738,10 +787,14 @@ class Studies extends Controller
                     if (isset($input['dim1'])) $elmt->SHAPE_PARAM1 = $this->convert->prodDimensionSave(floatval($input['dim1']));
                     if (isset($input['dim2'])) $elmt->SHAPE_PARAM2 = $this->convert->prodDimensionSave(floatval($input['dim2']));
                     if (isset($input['dim3'])) $elmt->SHAPE_PARAM3 = $this->convert->prodDimensionSave(floatval($input['dim3']));
+                    if (isset($input['dim4'])) $elmt->SHAPE_PARAM4 = $this->convert->prodDimensionSave(floatval($input['dim4']));
+                    if (isset($input['dim5'])) $elmt->SHAPE_PARAM5 = $this->convert->prodDimensionSave(floatval($input['dim5']));
                     $elmt->save();
+
                     $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_PROD, intval($elmt->ID_PRODUCT_ELMT));
                     $ok = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($id, $conf, 2);
-                }                
+                }
+
                 $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_PROD);
                 $ok = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($id, $conf, 4);
             }
@@ -808,6 +861,14 @@ class Studies extends Controller
         $input = $this->request->json()->all();
 
         $study->STUDY_NAME = $input['STUDY_NAME'];
+        $duplicateStudy = Study::where('STUDY_NAME', '=', $input['STUDY_NAME'])->count();
+        if($duplicateStudy){
+
+            return response([
+                'code' => 1002,
+                'message' => 'This study name already exists, please try another one.'
+            ], 406);
+        }
         $study->ID_USER = $this->auth->user()->ID_USER;
         $study->OPTION_ECO = isset($input['OPTION_ECO']) ? $input['OPTION_ECO'] : 0;
         $study->CALCULATION_MODE = $input['CALCULATION_MODE'];
@@ -927,15 +988,20 @@ class Studies extends Controller
         return $studies;
     }
 
+    // add equipment shape >= 10 error
     function getDefaultPrecision ($productshape, $nbComp, $itemPrecis)
     {
         $limitItem = 0;
         $defaultPrecis = 0.005;
         $FirstItemMonoComp = [
-            0,1151 ,1161 ,1171 ,1181 ,1191 ,1201 ,1211 ,1221 , 1231
+            0,1151 ,1161 ,1171 ,1181 ,1191 ,1201 ,1211 ,1221 , 1231, 
+            #3D case precision.
+            1151 ,1161 ,1171 ,1181 ,1191 ,1201 ,1211 ,1221 , 1231, 1171, 1181, 1201 ,1211, 1171
         ];
         $FirstItemMultiComp = [
-            0,1156 ,1166 ,1176 ,1186 ,1196 ,1206 ,1216 ,1226 , 1236
+            0,1156 ,1166 ,1176 ,1186 ,1196 ,1206 ,1216 ,1226 , 1236,
+            #3D case precision.
+            1156 ,1166 ,1176 ,1186 ,1196 ,1206 ,1216 ,1226 , 1236, 1176 ,1186 , 1206 ,1216, 1176
         ];
 
         switch ($productshape) {
@@ -948,6 +1014,20 @@ class Studies extends Controller
             case CYLINDER_CONCENTRIC_STANDING:
             case CYLINDER_CONCENTRIC_LAYING:
             case PARALLELEPIPED_BREADED:
+            case PARALLELEPIPED_STANDING_3D:
+            case PARALLELEPIPED_LAYING_3D:
+            case CYLINDER_STANDING_3D:
+            case CYLINDER_LAYING_3D:
+            case SPHERE_3D:
+            case CYLINDER_CONCENTRIC_STANDING_3D:
+            case CYLINDER_CONCENTRIC_LAYING_3D:
+            case PARALLELEPIPED_BREADED_3D:
+            case TRAPEZOID_3D:
+            case OVAL_STANDING_3D:
+            case OVAL_LAYING_3D:
+            case OVAL_CONCENTRIC_STANDING_3D:
+            case OVAL_CONCENTRIC_LAYING_3D:
+            case SEMI_CYLINDER_3D:
                 if ($nbComp == 1) {
                     $limitItem = $FirstItemMonoComp[$productshape] + $itemPrecis - 1;
                 } else {
@@ -1246,7 +1326,7 @@ class Studies extends Controller
 
         // add by oriental Tran
         if ($equip) {
-            $this->study->RunStudyCleaner($id, 43, $idEquip);
+            $this->study->RunStudyCleaner($id, SC_CLEAN_OUTPUT_EQP_PRM, $idEquip);
         }
 
         foreach ($equip->layoutGenerations as $layoutGen) {
@@ -1363,7 +1443,7 @@ class Studies extends Controller
 
         $this->stdeqp->calculateEquipmentParams($sEquip);
         if ($input['studyClean'] == true) {
-            $this->stdeqp->applyStudyCleaner($sEquip->ID_STUDY, $id, 48);
+            $this->stdeqp->applyStudyCleaner($sEquip->ID_STUDY, $id, SC_CLEAN_OUPTUT_LAYOUT_CHANGED);
         }
     }
 
@@ -1715,7 +1795,7 @@ class Studies extends Controller
 
             return response([
                 'code' => 1002,
-                'message' => 'Duplicate Study Name!'
+                'message' => 'This study name already exists, please try another one.'
             ], 406);
         }
 

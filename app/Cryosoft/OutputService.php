@@ -2,6 +2,7 @@
 
 namespace App\Cryosoft;
 
+use Illuminate\Support\Facades\DB;
 use App\Cryosoft\ValueListService;
 use App\Cryosoft\UnitsConverterService;
 use App\Models\TempRecordPts;
@@ -43,7 +44,7 @@ class OutputService
 
         for ($i = 0; $i < $ldNbSample - 1; $i++) {
             $pos = round($i * $lfSampleTime / $lfTimeStep);
-            $tdSamplePos[] = $pos;
+            $tdSamplePos[] = ($pos < 0) ? 0 : $pos;
         }
 
         $pos = $ldNbRecord - 1;
@@ -311,12 +312,15 @@ class OutputService
                 case 2: 
                 case 9: 
                     if ($orientation == 1) {
-                        $rMeshPositionY = MeshPosition::where('ID_STUDY', $idStudy)->where('MESH_AXIS', 2)->where('MESH_AXIS_POS', $axeTempRecordData[$selectedAxe][1])->first();
-                        $rMeshPositionX = MeshPosition::where('ID_STUDY', $idStudy)->where('MESH_AXIS', 3)->where('MESH_AXIS_POS', $axeTempRecordData[$selectedAxe][2])->first();
+                        $rMeshPositionY = $this->getPositionForAxis2($idStudy, $axeTempRecordData[$selectedAxe][1], 2);
+                        $rMeshPositionX = $this->getPositionForAxis2($idStudy, $axeTempRecordData[$selectedAxe][2], 3);
 
-                        if (!empty($rMeshPositionX) && !empty($rMeshPositionY)) $result = TempRecordData::where("ID_REC_POS", $idRecPos)->where('REC_AXIS_Y_POS', $rMeshPositionY->MESH_ORDER)->where('REC_AXIS_X_POS', $rMeshPositionX->MESH_ORDER)->orderBy('REC_AXIS_Z_POS', 'ASC')->get();
+                        if ($rMeshPositionX && $rMeshPositionY) {
+                            $result = TempRecordData::where("ID_REC_POS", $idRecPos)->where('REC_AXIS_Y_POS', $rMeshPositionY->MESH_ORDER)->where('REC_AXIS_X_POS', $rMeshPositionX->MESH_ORDER)->orderBy('REC_AXIS_Z_POS', 'ASC')->get();
+                        }
                     } else {
-                        $rMeshPositionY = MeshPosition::where('ID_STUDY', $idStudy)->where('MESH_AXIS', 2)->where('MESH_AXIS_POS', $axeTempRecordData[$selectedAxe][1])->first();
+                        $rMeshPositionY = $this->getPositionForAxis2($idStudy, $axeTempRecordData[$selectedAxe][1], 2);
+
                         $result = TempRecordData::where("ID_REC_POS", $idRecPos)->where('REC_AXIS_Y_POS', $rMeshPositionY->MESH_ORDER)->where('REC_AXIS_Z_POS', 0)->orderBy('REC_AXIS_X_POS', 'ASC')->get();
                     }
                     break;
@@ -324,16 +328,16 @@ class OutputService
                 case 3:
                 case 5:
                 case 7:
-                    $rMeshPosition = MeshPosition::where('ID_STUDY', $idStudy)->where('MESH_AXIS', 2)->where('MESH_AXIS_POS', $axeTempRecordData[$selectedAxe][1])->first();
+                    $rMeshPosition = $this->getPositionForAxis2($idStudy, $axeTempRecordData[$selectedAxe][1], 2);
 
-                    if (!empty($rMeshPosition)) $result = TempRecordData::where("ID_REC_POS", $idRecPos)->where('REC_AXIS_X_POS', $rMeshPosition->MESH_ORDER)->where('REC_AXIS_Z_POS', 0)->orderBy('REC_AXIS_Y_POS', 'ASC')->get();
+                    if ($rMeshPosition) $result = TempRecordData::where("ID_REC_POS", $idRecPos)->where('REC_AXIS_X_POS', $rMeshPosition->MESH_ORDER)->where('REC_AXIS_Z_POS', 0)->orderBy('REC_AXIS_Y_POS', 'ASC')->get();
                     break;
 
                 case 4:
                 case 8: 
-                    $rMeshPosition = MeshPosition::where('ID_STUDY', $idStudy)->where('MESH_AXIS', 2)->where('MESH_AXIS_POS', $axeTempRecordData[$selectedAxe][1])->first();
+                    $rMeshPosition = $this->getPositionForAxis2($idStudy, $axeTempRecordData[$selectedAxe][1], 2);
 
-                    if (!empty($rMeshPosition)) $result = TempRecordData::where("ID_REC_POS", $idRecPos)->where('REC_AXIS_Y_POS', $rMeshPosition->MESH_ORDER)->where('REC_AXIS_Z_POS', 0)->orderBy('REC_AXIS_X_POS', 'ASC')->get();
+                    if ($rMeshPosition) $result = TempRecordData::where("ID_REC_POS", $idRecPos)->where('REC_AXIS_Y_POS', $rMeshPosition->MESH_ORDER)->where('REC_AXIS_Z_POS', 0)->orderBy('REC_AXIS_X_POS', 'ASC')->get();
                     break;
             }
         }
@@ -347,23 +351,23 @@ class OutputService
 
                 case 2: 
                 case 9: 
-                    $rMeshPosition = MeshPosition::where('ID_STUDY', $idStudy)->where('MESH_AXIS', 3)->where('MESH_AXIS_POS', $axeTempRecordData[$selectedAxe][2])->first();
+                    $rMeshPosition = $this->getPositionForAxis2($idStudy, $axeTempRecordData[$selectedAxe][2], 3);
 
-                    if (!empty($rMeshPosition)) $result = TempRecordData::where("ID_REC_POS", $idRecPos)->where('REC_AXIS_X_POS', $rMeshPosition->MESH_ORDER)->where('REC_AXIS_Z_POS', 0)->orderBy('REC_AXIS_Y_POS', 'ASC')->get();
+                    if ($rMeshPosition) $result = TempRecordData::where("ID_REC_POS", $idRecPos)->where('REC_AXIS_X_POS', $rMeshPosition->MESH_ORDER)->where('REC_AXIS_Z_POS', 0)->orderBy('REC_AXIS_Y_POS', 'ASC')->get();
                     
                     break;
 
                 case 3: 
                 case 5:
                 case 7:
-                    $rMeshPosition = MeshPosition::where('ID_STUDY', $idStudy)->where('MESH_AXIS', 1)->where('MESH_AXIS_POS', $axeTempRecordData[$selectedAxe][0])->first();
+                    $rMeshPosition = $this->getPositionForAxis2($idStudy, $axeTempRecordData[$selectedAxe][0], 1);
 
-                    if (!empty($rMeshPosition)) $result = TempRecordData::where("ID_REC_POS", $idRecPos)->where('REC_AXIS_Y_POS', $rMeshPosition->MESH_ORDER)->where('REC_AXIS_Z_POS', 0)->orderBy('REC_AXIS_X_POS', 'ASC')->get();
+                    if ($rMeshPosition) $result = TempRecordData::where("ID_REC_POS", $idRecPos)->where('REC_AXIS_Y_POS', $rMeshPosition->MESH_ORDER)->where('REC_AXIS_Z_POS', 0)->orderBy('REC_AXIS_X_POS', 'ASC')->get();
                     break;
 
                 case 4:
                 case 8: 
-                    $rMeshPosition = MeshPosition::where('ID_STUDY', $idStudy)->where('MESH_AXIS', 1)->where('MESH_AXIS_POS', $axeTempRecordData[$selectedAxe][0])->first();
+                    $rMeshPosition = $this->getPositionForAxis2($idStudy, $axeTempRecordData[$selectedAxe][0], 1);
 
                     if (!empty($rMeshPosition)) $result = TempRecordData::where("ID_REC_POS", $idRecPos)->where('REC_AXIS_X_POS', $rMeshPosition->MESH_ORDER)->where('REC_AXIS_Z_POS', 0)->orderBy('REC_AXIS_Y_POS', 'ASC')->get();
                     break;
@@ -384,24 +388,23 @@ class OutputService
                 case 2: 
                 case 9: 
                     if ($orientation == 1) {
-                        $rMeshPosition = MeshPosition::where('ID_STUDY', $idStudy)->where('MESH_AXIS', 2)->where('MESH_AXIS_POS', $axeTempRecordData[$selectedAxe][1])->first();
+                        $rMeshPosition = $this->getPositionForAxis2($idStudy, $axeTempRecordData[$selectedAxe][1], 2);
 
-                        if (!empty($rMeshPosition)) $result = TempRecordData::where("ID_REC_POS", $idRecPos)->where('REC_AXIS_Y_POS', $rMeshPosition->MESH_ORDER)->where('REC_AXIS_Z_POS', 0)->orderBy('REC_AXIS_X_POS', 'ASC')->get();
+                        if ($rMeshPosition) $result = TempRecordData::where("ID_REC_POS", $idRecPos)->where('REC_AXIS_Y_POS', $rMeshPosition->MESH_ORDER)->where('REC_AXIS_Z_POS', 0)->orderBy('REC_AXIS_X_POS', 'ASC')->get();
                     } else {
-                        $rMeshPositionX = MeshPosition::where('ID_STUDY', $idStudy)->where('MESH_AXIS', 1)->where('MESH_AXIS_POS', $axeTempRecordData[$selectedAxe][0])->first();
-                        $rMeshPositionY = MeshPosition::where('ID_STUDY', $idStudy)->where('MESH_AXIS', 2)->where('MESH_AXIS_POS', $axeTempRecordData[$selectedAxe][1])->first();
+                        $rMeshPositionX = $this->getPositionForAxis2($idStudy, $axeTempRecordData[$selectedAxe][0], 1);
+                        $rMeshPositionY = $this->getPositionForAxis2($idStudy, $axeTempRecordData[$selectedAxe][1], 2);
 
-                        if (!empty($rMeshPositionX) && !empty($rMeshPositionY)) $result = TempRecordData::where("ID_REC_POS", $idRecPos)->where('REC_AXIS_X_POS', $rMeshPositionX->MESH_ORDER)->where('rMeshPositionY', $rMeshPositionY->MESH_ORDER)->orderBy('REC_AXIS_Z_POS', 'ASC')->get();
+                        if ($rMeshPositionX && $rMeshPositionY) $result = TempRecordData::where("ID_REC_POS", $idRecPos)->where('REC_AXIS_X_POS', $rMeshPositionX->MESH_ORDER)->where('rMeshPositionY', $rMeshPositionY->MESH_ORDER)->orderBy('REC_AXIS_Z_POS', 'ASC')->get();
                     }
                     
                     break;
 
                 case 3: 
-                    $rMeshPositionY = MeshPosition::where('ID_STUDY', $idStudy)->where('MESH_AXIS', 1)->where('MESH_AXIS_POS', $axeTempRecordData[$selectedAxe][0])->first();
+                    $rMeshPositionY = $this->getPositionForAxis2($idStudy, $axeTempRecordData[$selectedAxe][0], 1);
+                    $rMeshPositionX = $this->getPositionForAxis2($idStudy, $axeTempRecordData[$selectedAxe][1], 2);
 
-                    $rMeshPositionX = MeshPosition::where('ID_STUDY', $idStudy)->where('MESH_AXIS', 2)->where('MESH_AXIS_POS', $axeTempRecordData[$selectedAxe][1])->first();
-
-                    if (!empty($rMeshPositionX) && !empty($rMeshPositionY)) $result = TempRecordData::where("ID_REC_POS", $idRecPos)->where('REC_AXIS_Y_POS', $rMeshPositionY->MESH_ORDER)->where('REC_AXIS_X_POS', $rMeshPositionX->MESH_ORDER)->orderBy('REC_AXIS_Z_POS', 'ASC')->get();
+                    if ($rMeshPositionX && $rMeshPositionY) $result = TempRecordData::where("ID_REC_POS", $idRecPos)->where('REC_AXIS_Y_POS', $rMeshPositionY->MESH_ORDER)->where('REC_AXIS_X_POS', $rMeshPositionX->MESH_ORDER)->orderBy('REC_AXIS_Z_POS', 'ASC')->get();
                     break;
             }
         }
@@ -413,17 +416,30 @@ class OutputService
     {
         $result = "";
         $rMeshPosition = MeshPosition::where('ID_STUDY', $idStudy)->where('MESH_AXIS', $selectedAxe)->where('MESH_ORDER', $recAxis)->first();
-        if (!empty($rMeshPosition)) $result = $this->unit->prodchartDimension($rMeshPosition->MESH_AXIS_POS);
+        if ($rMeshPosition) $result = $this->unit->prodchartDimension($rMeshPosition->MESH_AXIS_POS);
 
         return $result;
     }
 
     public function getPositionForAxis2($idStudy, $axis, $meshAxis)
     {
-        $result = "";
-        $rMeshPosition = MeshPosition::where('ID_STUDY', $idStudy)->where('MESH_AXIS', $meshAxis)->where('MESH_AXIS_POS', $axis)->first();
+        // $rMeshPosition = MeshPosition::where('ID_STUDY', $idStudy)->where('MESH_AXIS', $meshAxis)->where('MESH_AXIS_POS', $axis)->first();
+        // $rMeshPosition = DB::table('mesh_position')->join('product_elmt', 'mesh_position.ID_PRODUCT_ELMT', '=', 'product_elmt.ID_PRODUCT_ELMT')->join('product', 'product_elmt.ID_PROD', '=', 'product.ID_PROD')->whereRaw('product.ID_STUDY = '. $idStudy .' AND MESH_AXIS = '. $meshAxis .' AND CAST(MESH_AXIS_POS AS DECIMAL(10,9)) LIKE "%'. $axis .'%"')->first();
+        if ($this->is_decimal($axis)) {
+            $decimal = explode('.', $axis);
+            $length = (strlen($decimal[1]) > 9) ? 9 : strlen($decimal[1]);
+        } else {
+            $length = 9;
+        }
         
+        $rMeshPosition = DB::table('mesh_position')->join('product_elmt', 'mesh_position.ID_PRODUCT_ELMT', '=', 'product_elmt.ID_PRODUCT_ELMT')->join('product', 'product_elmt.ID_PROD', '=', 'product.ID_PROD')->whereRaw('product.ID_STUDY = '. $idStudy .' AND MESH_AXIS = '. $meshAxis .' AND CAST(MESH_AXIS_POS AS DECIMAL(10,'. $length .')) = CAST('. $axis .' AS DECIMAL(10,9))')->first();
+
         return $rMeshPosition;
+    }
+
+    public function is_decimal( $val )
+    {
+        return is_numeric( $val ) && floor( $val ) != $val;
     }
 
     public function init2DContourTempInterval($idStudyEquipment, $recordTime, $tempInterval, $pasTemp)
@@ -436,8 +452,20 @@ class OutputService
             $tempRecordDataMax = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->orderBy('TEMP', 'DESC')->first();
             $tempResult = [$tempRecordDataMin->TEMP, $tempRecordDataMax->TEMP];
         } else {
-            $tempRecordDataMin = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->where('RECORD_TIME', '=','CAST('.$recordTime.' AS DECIMAL)')->orderBy('TEMP', 'ASC')->first();            
-            $tempRecordDataMax = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->where('RECORD_TIME', '=','CAST('.$recordTime.' AS DECIMAL)')->orderBy('TEMP', 'DESC')->first();
+            $tempRecordDataMin = DB::table('temp_record_data')
+            ->join('record_position', 'temp_record_data.ID_REC_POS', '=', 'record_position.ID_REC_POS')
+            ->whereRaw('record_position.ID_STUDY_EQUIPMENTS = '. $idStudyEquipment .' AND CAST(record_position.RECORD_TIME AS DECIMAL(10,1)) = '. $recordTime .'')
+            ->orderBy('TEMP', 'ASC')
+            ->first();
+            $tempRecordDataMax = DB::table('temp_record_data')
+            ->join('record_position', 'temp_record_data.ID_REC_POS', '=', 'record_position.ID_REC_POS')
+            ->whereRaw('record_position.ID_STUDY_EQUIPMENTS = '. $idStudyEquipment .' AND CAST(record_position.RECORD_TIME AS DECIMAL(10,1)) = '. $recordTime .'')
+            ->orderBy('TEMP', 'DESC')
+            ->first();
+
+            /*$tempRecordDataMin = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->where('RECORD_TIME', $recordTime)->orderBy('TEMP', 'ASC')->first();
+            $tempRecordDataMax = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->where('RECORD_TIME', $recordTime)->orderBy('TEMP', 'DESC')->first();*/
+
             $tempResult = [$tempRecordDataMin->TEMP, $tempRecordDataMax->TEMP];
         }
 
@@ -574,12 +602,13 @@ class OutputService
 
     public function getGrideByPlan($idStudy, $idStudyEquipment, $time, $lfTmin, $lfTMax, $tempRecordDataPlan, $selectedPlan, $shape, $orientation)
     {
-        $recordPosition = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("RECORD_TIME", $time)->orderBy("RECORD_TIME", "DESC")->first();
+        // $recordPosition = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("RECORD_TIME", $time)->orderBy("RECORD_TIME", "DESC")->first();
+        $recordPosition = DB::table('record_position')->whereRaw('ID_STUDY_EQUIPMENTS = '. $idStudyEquipment .' AND CAST(RECORD_TIME AS DECIMAL(10,1)) = '. $time .'')->orderBy("RECORD_TIME", "DESC")->first();
 
         $result = [];
         $tempRecordDatas = [];
         if (!empty($recordPosition)) {
-            $tiRecPos = $this->getRecAxisPos($recordPosition->ID_REC_POS, $lfTmin, $lfTMax);
+            $tiRecPos = $this->getRecAxisPos($recordPosition->ID_REC_POS, (double) $lfTmin, (double) $lfTMax);
             if (!empty($tiRecPos)) {
                 if ($selectedPlan == 0) {
                     $rMeshPosition = $this->getPositionForAxis2($idStudy, $tempRecordDataPlan[$selectedPlan][0], 1);
@@ -848,14 +877,15 @@ class OutputService
 
     public function getRecAxisPos($idRec_Pos, $lfTmin, $lfTMax)
     {
-        $tempRecordData = TempRecordData::where('ID_REC_POS', $idRec_Pos)->whereBetween('TEMP', [$lfTmin, $lfTMax])->get();
+        // $tempRecordData = TempRecordData::where('ID_REC_POS', $idRec_Pos)->whereBetween('TEMP', [$lfTmin, $lfTMax])->get();
+        $tempRecordData = DB::table('temp_record_data')->whereRaw('ID_REC_POS = '. $idRec_Pos .' AND CAST(TEMP AS DECIMAL) >= '. $lfTmin .' AND CAST(TEMP AS DECIMAL) <= '. $lfTMax .'')->get();
 
         $result = [];
         if (count($tempRecordData) > 0) {
             $result = [
-                'x' => [$tempRecordData[0]['REC_AXIS_X_POS'], $tempRecordData[count($tempRecordData) - 1]['REC_AXIS_X_POS']],
-                'y' => [$tempRecordData[0]['REC_AXIS_Y_POS'], $tempRecordData[count($tempRecordData) - 1]['REC_AXIS_Y_POS']],
-                'z' => [$tempRecordData[0]['REC_AXIS_Z_POS'], $tempRecordData[count($tempRecordData) - 1]['REC_AXIS_Z_POS']],
+                'x' => [$tempRecordData[0]->REC_AXIS_X_POS, $tempRecordData[count($tempRecordData) - 1]->REC_AXIS_X_POS],
+                'y' => [$tempRecordData[0]->REC_AXIS_Y_POS, $tempRecordData[count($tempRecordData) - 1]->REC_AXIS_Y_POS],
+                'z' => [$tempRecordData[0]->REC_AXIS_Z_POS, $tempRecordData[count($tempRecordData) - 1]->REC_AXIS_Z_POS],
             ];
         }
 
@@ -994,7 +1024,8 @@ class OutputService
 
     public function getPositionForSelectedPoint($selectedPoint, $idProdElt, $axis)
     {
-        $meshPosition = MeshPosition::where('ID_PRODUCT_ELMT', $idProdElt)->where('MESH_AXIS', $axis)->where('MESH_AXIS_POS', $selectedPoint)->first();
+        // $meshPosition = MeshPosition::where('ID_PRODUCT_ELMT', $idProdElt)->where('MESH_AXIS', $axis)->where('MESH_AXIS_POS', $selectedPoint)->first();
+        $meshPosition = DB::table('mesh_position')->whereRaw('MESH_AXIS = '. $axis .' AND CAST(MESH_AXIS_POS AS DECIMAL(10,9)) = CAST('. $selectedPoint .' AS DECIMAL(10,9))')->first();
         return ($meshPosition) ? $meshPosition->MESH_ORDER : 0;
     }
 
@@ -1110,11 +1141,11 @@ class OutputService
         }
 
         if ($bisApplied) {
-            if ($this->stdeqp->runStudyCleaner($idStudy, $idStudyEquipment, 43) != 0) {
+            if ($this->stdeqp->runStudyCleaner($idStudy, $idStudyEquipment, SC_CLEAN_OUTPUT_EQP_PRM) != 0) {
                 $bisApplied = false;
             }
 
-            $this->stdeqp->afterStudyCleaner($idStudy, $idStudyEquipment, 43);
+            $this->stdeqp->afterStudyCleaner($idStudy, $idStudyEquipment, SC_CLEAN_OUTPUT_EQP_PRM);
         }
 
         return $bisApplied;

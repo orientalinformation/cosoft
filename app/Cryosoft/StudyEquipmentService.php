@@ -132,7 +132,9 @@ class StudyEquipmentService
             'EQP_WIDTH' => $studyEquipment->EQP_WIDTH,
             'EQUIP_VERSION' => $studyEquipment->EQUIP_VERSION,
             'layoutGen' => null,
-            'BRAIN_TYPE' => intval($studyEquipment->BRAIN_TYPE)
+            'BRAIN_TYPE' => intval($studyEquipment->BRAIN_TYPE),
+            'EQUIP_STATUS' => intval($studyEquipment->EQUIP_STATUS),
+            'RUN_CALCULATE' => intval($studyEquipment->RUN_CALCULATE)
         ];
 
         $layoutGen = $this->getStudyEquipmentLayoutGen($studyEquipment);
@@ -840,7 +842,8 @@ class StudyEquipmentService
         $image->setImageFormat("jpeg");
         $image->resizeImage(800, 800, \imagick::FILTER_LANCZOS, 1, true);
         $public_path = rtrim(app()->basePath("public/"), '/');
-        $nameImgLayout = $sequip->study->ID_STUDY.'-'.$sequip->study->STUDY_NAME.'-StdeqpLayout-'.$sequip->ID_STUDY_EQUIPMENTS.'.jpg';
+        $checkStuname = $sequip->study->STUDY_NAME;
+        $nameImgLayout = $sequip->study->ID_STUDY.'-'.preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname).'-StdeqpLayout-'.$sequip->ID_STUDY_EQUIPMENTS.'.jpg';
         if (!is_dir($public_path . "/reports/" . $sequip->study->USERNAM)) {
             mkdir($public_path . "/reports/" . $sequip->study->USERNAM, 0777, true);
         } 
@@ -1068,11 +1071,14 @@ class StudyEquipmentService
         switch ($mode) {
             case 43:
                 $bRecalcTOC = $bRecalcTS = $bRecalcPhamCast = $bRecalcExhaust = $bRecalcEco = false;
+                if ($bNewTr) {
+                    $bRecalcExhaust = true;
+                }
                 break;
 
             case 41:
             case 42:
-                $bRecalcTOC = $bRecalcTS = $true;
+                $bRecalcTOC = $bRecalcTS = true;
                 $bRecalcPhamCast = $bRecalcExhaust = $bRecalcEco = false;
                 break;
 
@@ -1093,9 +1099,9 @@ class StudyEquipmentService
                 $bRecalcTOC = $bRecalcTS = $bRecalcPhamCast = $bRecalcExhaust = true;
                 $bRecalcEco = false;
                 break;
-
-            $this->recalculateEquipment($idStudy, $idStudyEquipment, $bRecalcTOC, $bRecalcTS, $bRecalcPhamCast, $bRecalcExhaust, $bRecalcEco);
         }
+
+        $this->recalculateEquipment($idStudy, $idStudyEquipment, $bRecalcTOC, $bRecalcTS, $bRecalcPhamCast, $bRecalcExhaust, $bRecalcEco);
     }
 
 
@@ -1114,7 +1120,7 @@ class StudyEquipmentService
                 if (($idStudyEquipment == -1) || ($studyEquipment->ID_STUDY_EQUIPMENTS == $idStudyEquipment)) {
                     if ($bRecalcTOC) {
                         try {
-                            // dbdata.getEquipmentLayout(sequip);
+                            $this->getStudyEquipmentLayoutGen($studyEquipment);
                             $this->runLayoutCalculator($idStudy, $studyEquipment->ID_STUDY_EQUIPMENTS);
                         } catch (Exception $e) {
                             $bExTOC = true;
@@ -1125,7 +1131,7 @@ class StudyEquipmentService
 
                         if ($this->equip->getCapability($capability, 2) && $this->equip->getCapability($capability, 131072)) {
                             try {
-                                // dbdata.getEquipmentLayout(sequip);
+                                $this->getStudyEquipmentLayoutGen($studyEquipment);
                                 $this->runTSCalculator($idStudy, $studyEquipment->ID_STUDY_EQUIPMENTS);
                             } catch (OXException $e) {
                                 $bExTS = true;
@@ -1171,7 +1177,6 @@ class StudyEquipmentService
 
     public function runLayoutCalculator($idStudy, $idStudyEquipment)
     {
-        $idStudyEquipment = $studyEquipment->ID_STUDY_EQUIPMENTS;
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\layout-trace.txt');
         $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, 1);
     }

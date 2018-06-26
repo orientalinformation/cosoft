@@ -9,6 +9,8 @@ use App\Models\Translation;
 use App\Models\ProductElmt;
 use App\Models\MeshPosition;
 use App\Models\InitialTemperature;
+use App\Models\MeshGeneration;
+use App\Models\InitTemp3D;
 
 class ProductService
 {
@@ -173,12 +175,12 @@ class ProductService
 
     public function getComponentDisplayName($idComp)
     {
-        $component = Translation::select('Translation.ID_TRANSLATION', 'Translation.LABEL', 'component.ID_USER', 'component.COMP_RELEASE', 'component.COMP_VERSION', 'component.OPEN_BY_OWNER', 'component.ID_COMP', 'ln2user.USERNAM')
-        ->join('component', 'Translation.ID_TRANSLATION', '=', 'component.ID_COMP')
+        $component = Translation::select('translation.ID_TRANSLATION', 'translation.LABEL', 'component.ID_USER', 'component.COMP_RELEASE', 'component.COMP_VERSION', 'component.OPEN_BY_OWNER', 'component.ID_COMP', 'ln2user.USERNAM')
+        ->join('component', 'translation.ID_TRANSLATION', '=', 'component.ID_COMP')
         ->join('ln2user', 'component.ID_USER', '=', 'ln2user.ID_USER')
-        ->where('Translation.TRANS_TYPE', 1)
+        ->where('translation.TRANS_TYPE', 1)
         ->where('component.ID_COMP', $idComp)
-        ->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->first();
+        ->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->first();
 
         $libValue = $this->getLibValue(100, $component->COMP_RELEASE);
 
@@ -487,5 +489,71 @@ class ProductService
         }
 
         return $check;
+    }
+
+    public function calculateNumberPoint3D(MeshGeneration &$meshGeneration, ProductElmt &$elmt)
+    {
+        $positions = [];
+        $points = [];
+        $startPoint = $endPoint = $position = $numberPoint = null;
+        $meshSize2 = null;
+
+        if ($meshGeneration->MESH_1_FIXED == 1) {
+            if (floatval($meshGeneration->MESH_2_SIZE) != 0 ) {
+                $numberPoint = intval($this->units->meshesUnit($elmt->SHAPE_PARAM2) / $meshGeneration->MESH_2_SIZE);
+                $meshSize2 = $meshGeneration->MESH_2_SIZE;
+            }
+        } else {
+            $numberPoint = intval(log10(1.0 - ($this->units->meshesUnit($elmt->SHAPE_PARAM2) / $meshGeneration->MESH_2_INT) * (1 - $meshGeneration->MESH_2_RATIO)) / log10($meshGeneration->MESH_2_RATIO));
+
+            if ($numberPoint != 0) {
+                $meshSize2 = floatval($this->units->meshesUnit($elmt->SHAPE_PARAM2)) / floatval($numberPoint);
+            }
+        }
+
+        $startPoint = floatval($elmt->SHAPE_POS2);
+        $endPoint = floatval($elmt->SHAPE_POS2) + floatval($elmt->SHAPE_PARAM2);
+        $position = $this->units->meshesUnit($startPoint);
+
+        array_push($positions, $this->units->meshesUnit($startPoint));
+
+        if ($numberPoint > 0) {
+            for ($i = 1; $i < $numberPoint - 1 ; $i++) {
+                $position = $position + floatval($meshSize2);
+                array_push($positions, round($position, 2));
+            }
+        }
+
+        array_push($positions, $this->units->meshesUnit($endPoint));
+
+        rsort($positions);
+
+        $initTemp3Ds = InitTemp3D::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->get();
+        if (count($initTemp3Ds) == 1) {
+            for ($i = 0; $i < count($positions); $i++) {
+                array_push($points, $this->convert->temperature($initTemp3Ds[0]->INIT_TEMP, 2, 0));
+            }            
+        } else {
+            foreach ($initTemp3Ds as $init3D) {
+                array_push($points, $this->convert->temperature($init3D->INIT_TEMP, 2, 0));
+            }
+        }
+
+        $points = array_reverse($points);
+
+        return compact('points', 'positions');
+    }
+
+    public function getElmtInitTemp(ProductElmt &$elmt)
+    {
+        $initTemp = [];
+        $initTemp3Ds = InitTemp3D::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->get();
+        if (count($initTemp3Ds) > 0) {
+            foreach ($initTemp3Ds as $init3d) {
+                array_push($initTemp, $this->convert->temperature($init3d->INIT_TEMP, 2, 0));
+            }
+        }
+
+        return $initTemp;
     }
 }

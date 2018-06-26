@@ -595,6 +595,7 @@ class Output extends Controller
                         $week = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_WEEK, $idCoolingFamily, 1, 0);
                         $hour = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_HOUR, $idCoolingFamily, 1);
                         $month = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_MONTH, $idCoolingFamily, 1, 0);
+                        
                         $year = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_YEAR, $idCoolingFamily, 1, 0);
                         $eqptCold = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_MAT_GETCOLD, $idCoolingFamily, 3);
                         $eqptPerm = $this->unit->consumption($economicResult->FLUID_CONSUMPTION_MAT_PERM, $idCoolingFamily, 2);
@@ -624,7 +625,6 @@ class Output extends Controller
                     $item["lineCold"] = $lineCold;
                     $item["linePerm"] = $linePerm;
                     $item["tank"] = $tank;
-
                     $item["percentProduct"] = $percentProduct;
                     $item["percentEquipmentPerm"] = $percentEquipmentPerm;
                     $item["percentEquipmentDown"] = $percentEquipmentDown;
@@ -636,7 +636,6 @@ class Output extends Controller
             }
 
         }
-
         return $result;
     }
 
@@ -1668,6 +1667,7 @@ class Output extends Controller
                 [$selPoints[13], $selPoints[14], -1.0]
             ];
         }
+
         $axeTemp = [];
         switch ($selectedAxe) {
             case 1:
@@ -1687,6 +1687,7 @@ class Output extends Controller
         }
 
         $listRecordPos = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("RECORD_TIME", "ASC")->get();
+
         $nbSteps = TempRecordPts::where("ID_STUDY", $idStudy)->first();
         $nbSample = $nbSteps->NB_STEPS;
 
@@ -1696,6 +1697,7 @@ class Output extends Controller
         $lfStep = $listRecordPos[1]->RECORD_TIME - $listRecordPos[0]->RECORD_TIME;
         $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
         $dataChart = [];
+
 
         foreach ($lEchantillon as $row) {
 
@@ -1880,7 +1882,6 @@ class Output extends Controller
         $curve = array();
 
         $axisValue = $this->output->getRightPosition($idStudy, $idStudyEquipment);
-
         if (count($listRecordPos) > 0) {
             foreach ($listRecordPos as $row) {
                 $termRecordDataTop = $this->output->getTemperaturePosition($row->ID_REC_POS, (int) $axisValue['axis1TopPos'], (int) $axisValue['axis2TopPos']);
@@ -2265,6 +2266,7 @@ class Output extends Controller
         $axisName = $this->output->getAxisName($shape, $orientation, $selectedPlan);
 
         $heatmapFolder = $this->output->public_path('heatmap');
+    
         $study = Study::find($idStudy);
         $userName = $study->USERNAM;
         if (!is_dir($heatmapFolder)) {
@@ -2282,8 +2284,8 @@ class Output extends Controller
 
         $contourFileName = $lfDwellingTime . '-' . $chartTempInterval[0] . '-' . $chartTempInterval[1] . '-' . $chartTempInterval[2];
 
-
         if (!file_exists($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment . '/' . $contourFileName . '.png')) { 
+
             
             $dataContour = $this->output->getGrideByPlan($idStudy, $idStudyEquipment, $lfDwellingTime, $chartTempInterval[0], $chartTempInterval[1], $planTempRecordData, $selectedPlan - 1, $shape, $orientation);
 
@@ -2301,7 +2303,7 @@ class Output extends Controller
         $dataFile = getenv('APP_URL') . '/heatmap/' . $userName . '/' . $idStudyEquipment . '/data.json';
         $imageContour[] = getenv('APP_URL') . '/heatmap/' . $userName . '/' . $idStudyEquipment . '/' . $contourFileName . '.png';
 
-        return compact("minMax", "chartTempInterval", "valueRecAxis", "lfDwellingTime", "lftimeInterval", "axisName", "imageContour");
+        return compact("minMax", "chartTempInterval", "valueRecAxis", "lfDwellingTime", "lftimeInterval", "axisName", "imageContour", "dataContour");
     }
 
     public function productChart2DStatic()
