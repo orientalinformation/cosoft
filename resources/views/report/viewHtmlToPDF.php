@@ -827,7 +827,7 @@
                     <tr>
                         <th colspan="2">Equipment</th>
                         <?php foreach($resheatexchanges['result'] as $result) { ?>
-                            <th align="center"> <?php echo $result['x']?></th>
+                            <th align="center"> <?php echo $result['x'] . $arrayParam['symbol']['timeSymbol'] ?></th>
                         <?php } ?>
                     </tr>
                     <tr>

@@ -2113,7 +2113,7 @@ class Reports extends Controller
                                 <tr>
                                     <th colspan="2">Equipment</th>';
                                     foreach($resheatexchanges['result'] as $result) { 
-                                        $html .='<th align="center"> '. $result['x'] .'</th>';
+                                        $html .='<th align="center"> '. $result['x'] . $symbol['timeSymbol']. '</th>';
                                     }
                                 $html .='    
                                 </tr>
