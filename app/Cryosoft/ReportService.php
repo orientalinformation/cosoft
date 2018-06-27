@@ -99,10 +99,14 @@ class ReportService
         $idUser = $this->auth->user()->ID_USER;
         $study = Study::find($idStudy);
         $calculationMode = $study->CALCULATION_MODE;
-        $stuName = $study->STUDY_NAME;
-
-        //get study equipment
-        $studyEquipments = StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
+        if ($study->PARENT_ID != 0) {
+            $studyParent = Study::find($study->PARENT_ID);
+            $stuName = $studyParent->STUDY_NAME;
+            $studyEquipments = StudyEquipment::where("ID_STUDY", $studyParent->ID_STUDY)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
+        } else {
+            $stuName = $study->STUDY_NAME;
+            $studyEquipments = StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
+        }     
 
         $lfcoef = $this->unit->unitConvert($this->value->MASS_PER_UNIT, 1.0);
 
