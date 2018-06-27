@@ -1,7 +1,8 @@
 <?php
 namespace com\oxymel\ofcconveyer;
 
-class Crate extends ConveyerTemplate {
+class Crate extends ConveyerTemplate 
+{
 
     // [int unity, double he, double wi, short productShape]
     public static function constructor__I_D_D_S ($unity, $he, $wi, $productShape)

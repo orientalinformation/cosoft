@@ -3,7 +3,8 @@
 namespace com\oxymel\ofcconveyer;
 use java\lang\StringBuffer;
 
-class Product {
+class Product 
+{
     protected $_height;	// double
     protected $_width;	// double
     protected $_svgHeight;	// double
@@ -19,11 +20,16 @@ class Product {
     public static $CYLINDER_CONCENTRIC_LAYING;	// short
     public static $PARALLELEPIPED_BREADED;	// short
 
-    private function __init() { // default class members
+    // default class members
+    private function __init()
+    { 
         $this->_svgHeight = 0;
         $this->_svgWidth = 0;
     }
-    public static function __staticinit() { // static class members
+
+    // static class members
+    public static function __staticinit()
+    {
         self::$SLAB = 1;
         self::$PARALLELEPIPED_STANDING = 2;
         self::$PARALLELEPIPED_LAYING = 3;
@@ -34,7 +40,9 @@ class Product {
         self::$CYLINDER_CONCENTRIC_LAYING = 8;
         self::$PARALLELEPIPED_BREADED = 9;
     }
-    public static function constructor__D_D_S ($height, $width, $shape) // [double height, double width, short shape]
+
+    // [double height, double width, short shape]
+    public static function constructor__D_D_S ($height, $width, $shape)
     {
         $me = new self();
         $me->__init();
@@ -54,7 +62,8 @@ class Product {
         return $this->_svgWidth;
     }
 
-    public function scale ($containerHeight, $containerWidth, $realHeight, $realWidth, $isParallel) // [double containerHeight, double containerWidth, double realHeight, double realWidth, boolean isParallel]
+    // [double containerHeight, double containerWidth, double realHeight, double realWidth, boolean isParallel]
+    public function scale ($containerHeight, $containerWidth, $realHeight, $realWidth, $isParallel)
     {
         $tmpy = null;
         $tmpx = null;
@@ -73,7 +82,8 @@ class Product {
         // var_dump($this); die('asdasda');
     }
 
-    public function getSVG ($x, $y) // [double x, double y]
+    // [double x, double y]
+    public function getSVG ($x, $y)
     {
         $tmp = new StringBuffer();
         $r = null;
@@ -106,10 +116,12 @@ class Product {
         return $this->_shape;
     }
 
-    public function set_shape ($s) // [short s]
+    // [short s]
+    public function set_shape ($s)
     {
         $this->_shape = $s;
     }
 }
+
 Product::__staticinit(); // initialize static vars for this class on load
 
