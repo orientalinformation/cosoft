@@ -563,7 +563,17 @@ class Reports extends Controller
 
         $ASSES_ECO = $input['ASSES_ECO'];
 
-        // $SIZING_VALUES = $input['isSizingValuesChosen'];
+        $isSizingValuesChosen = $input['isSizingValuesChosen'];
+        $isSizingValuesMax = $input['isSizingValuesMax'];
+
+        $sizingValues = 0;
+        if ($isSizingValuesChosen == true) {
+            $sizingValues = $sizingValues | 0x1;
+        }
+
+        if ($isSizingValuesMax == true) {
+            $sizingValues = $sizingValues | 0x10;
+        }
 
         $mmNbSample1 = $this->minmax->checkMinMaxValue($ENTHALPY_SAMPLE, $this->values->MINMAX_REPORT_NBSAMPLE); 
         $mmNbSample2 = $this->minmax->checkMinMaxValue($ISOCHRONE_SAMPLE, $this->values->MINMAX_REPORT_NBSAMPLE); 
@@ -604,7 +614,7 @@ class Reports extends Controller
         $report->CONS_PIPE = $CONS_PIPE;
         $report->CONS_TANK = $CONS_TANK;
         $report->REP_CONS_PIE = $REP_CONS_PIE;
-        $report->SIZING_VALUES = $SIZING_VALUES;
+        $report->SIZING_VALUES = $sizingValues;
         $report->SIZING_GRAPHE = $SIZING_GRAPHE;
         $report->SIZING_TR = $SIZING_TR;
         $report->ENTHALPY_G = $ENTHALPY_G;
