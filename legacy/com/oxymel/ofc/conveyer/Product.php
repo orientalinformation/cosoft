@@ -67,13 +67,10 @@ class Product
     {
         $tmpy = null;
         $tmpx = null;
-        if ($isParallel)
-        {
+        if ($isParallel) {
             $tmpy = $this->_height;
             $tmpx = $this->_width;
-        }
-        else
-        {
+        } else {
             $tmpx = $this->_height;
             $tmpy = $this->_width;
         }

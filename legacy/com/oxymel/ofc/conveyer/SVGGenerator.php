@@ -23,8 +23,7 @@ class SVGGenerator
     {
         $tmp = new StringBuffer();
         $sunit = "";
-        if (!$usepx)
-        {
+        if (!$usepx) {
             $sunit = "cm";
         }
         $tmp->append("<?xml version=\"1.0\" standalone=\"no\"?>\n");
@@ -42,8 +41,7 @@ class SVGGenerator
     {
         $tmp = new StringBuffer();
         $tmp->append((((((((("\t<rect id=\"Tapis\" x=\"" . $type[0]) . "\" y=\"") . $type[1]) . "\" width=\"") . $type[2]) . "\" height=\"") . $type[3]) . "\" fill=\"white\" stroke=\"black\" stroke-width=\"1\"/>\n"));
-        for ($i = 4; ($i < 49); $i = ($i + 4)) 
-        {
+        for ($i = 4; ($i < 49); $i = ($i + 4)) {
             $tmp->append((((((((("\t<line x1=\"" . $type[$i]) . "\" y1=\"") . $type[($i + 1)]) . "\" x2=\"") . $type[($i + 2)]) . "\" y2=\"") . $type[($i + 3)]) . "\" stroke=\"black\" stroke-width=\"1\" />\n"));
         }
         return $tmp;

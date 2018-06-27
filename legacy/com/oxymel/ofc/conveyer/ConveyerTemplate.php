@@ -148,8 +148,7 @@ class ConveyerTemplate
     public function getSVGImage_String_I_I ($filePath, $imageHeight, $imageWidth)
     {
         $file = new File($filePath);
-        if (!$file->exists())
-        {
+        if (!$file->exists()) {
             $file->createNewFile();
         }
         $fw = new FileWriter($file);
@@ -162,8 +161,7 @@ class ConveyerTemplate
     public function getSVGImage_String_I_I_b ($filePath, $imageHeight, $imageWidth, $usepx)
     {
         $file = new File($filePath);
-        if (!$file->exists())
-        {
+        if (!$file->exists()) {
             $file->createNewFile();
         }
         $fw = new FileWriter($file);
@@ -193,8 +191,7 @@ class ConveyerTemplate
         $type = SVGGenerator::getScale($this->_height, $this->_width);
         $out->append(SVGGenerator::getMethods($type));
         
-        if (($this->_product != NULL))
-        {
+        if (($this->_product != NULL)) {
             $this->_product->scale($type[3], $type[2], $this->_height, $this->_width, $this->_parallel);
             $this->_product->set_shape($this->_shape);
             // var_dump($type[3]);
