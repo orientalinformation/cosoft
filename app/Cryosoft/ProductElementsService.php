@@ -286,4 +286,28 @@ class ProductElementsService
 
         return $lfheight;
     }
+
+    public function findProdElmt3D($idProd, $idProdElmt) 
+    {   
+        $prodEmltBeforeCurrent = null;
+        $max = 0;
+        $elmts = [];
+        $pElmts = ProductElmt::where('ID_PROD', $idProd)->get();
+        foreach ($pElmts as $elmt) {
+            if ($elmt->ID_PRODUCT_ELMT < $idProdElmt) {
+                array_push($elmts, $elmt);
+            }
+        }
+
+        if (count($elmts) > 0) {
+            foreach ($elmts as $elmt) {
+                if ($elmt->ID_PRODUCT_ELMT > $max) {
+                    $max = $elmt->ID_PRODUCT_ELMT;
+                    $prodEmltBeforeCurrent = $elmt;
+                }
+            }
+        }
+
+        return $prodEmltBeforeCurrent;
+    }
 }

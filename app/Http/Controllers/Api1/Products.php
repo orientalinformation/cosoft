@@ -140,6 +140,13 @@ class Products extends Controller
 
         $elmtId = $elmt->ID_PRODUCT_ELMT;
 
+        if ($elmt->ID_SHAPE == TRAPEZOID_3D) {
+            $updateElmt = $this->productElmts->findProdElmt3D($id, $elmtId);
+            $elmt->SHAPE_PARAM1 = $updateElmt->SHAPE_PARAM4;
+            $elmt->SHAPE_PARAM3 = $updateElmt->SHAPE_PARAM5;
+            $elmt->save();
+        }
+
         //run studyCleaner 41
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_STUDY, -1);
         $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, SC_CLEAN_OUTPUT_PRODUCT);
