@@ -739,7 +739,7 @@ class Reports extends Controller
         foreach ($products as $key => $pr) {
             $elements[] = $pr;
 
-            if ($pr->ID_SHAPE == $this->value->SPHERE || $pr->ID_SHAPE == $this->value->CYLINDER_CONCENTRIC_STANDING || $pr->ID_SHAPE == $this->value->CYLINDER_CONCENTRIC_LAYING || $pr->ID_SHAPE == $this->value->PARALLELEPIPED_BREADED) {
+            if ($pr->ID_SHAPE == $this->values->SPHERE || $pr->ID_SHAPE == $this->values->CYLINDER_CONCENTRIC_STANDING || $pr->ID_SHAPE == $this->values->CYLINDER_CONCENTRIC_LAYING || $pr->ID_SHAPE == $this->values->PARALLELEPIPED_BREADED) {
                 if ($key < $count - 1) {
                     $specificDimension += $pr->SHAPE_PARAM2 * 2;
                 } else {
@@ -2467,7 +2467,7 @@ class Reports extends Controller
         $count = count($products);
         foreach ($products as $key => $pr) {
             $elements[] = $pr;
-            if ($pr->ID_SHAPE == $this->value->SPHERE || $pr->ID_SHAPE == $this->value->CYLINDER_CONCENTRIC_STANDING || $pr->ID_SHAPE == $this->value->CYLINDER_CONCENTRIC_LAYING || $pr->ID_SHAPE == $this->value->PARALLELEPIPED_BREADED) {
+            if ($pr->ID_SHAPE == $this->values->SPHERE || $pr->ID_SHAPE == $this->values->CYLINDER_CONCENTRIC_STANDING || $pr->ID_SHAPE == $this->values->CYLINDER_CONCENTRIC_LAYING || $pr->ID_SHAPE == $this->values->PARALLELEPIPED_BREADED) {
                 if ($key < $count - 1) {
                     $specificDimension += $pr->SHAPE_PARAM2 * 2;
                 } else {
