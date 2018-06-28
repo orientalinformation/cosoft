@@ -11,6 +11,7 @@
  ****************************************************************************/
 namespace App\Cryosoft;
 
+use Illuminate\Support\Facades\DB;
 use App\Models\Study;
 use App\Models\StudyEquipment;
 use App\Models\Production;
@@ -92,6 +93,7 @@ class ReportService
 		$this->stu = $app['App\\Cryosoft\\StudyService'];
         $this->output = $app['App\\Cryosoft\\OutputService'];
         $this->plotFolder = $this->output->base_path('scripts');
+        $this->pasTemp = -1.0;
 	}
 
     public function getOptimumHeadBalance($idStudy)
@@ -1785,5 +1787,79 @@ class ReportService
         }
 
         return compact("result", "dataGraphChart", "productFlowRate");
+    }
+
+    public function initTempDataForReport($idStudy)
+    {
+        $bornesTemp = $this->getReportTemperatureBorne($idStudy);
+
+        $tempInterval[0] = $bornesTemp[0];
+        $tempInterval[1] = $bornesTemp[1];
+
+        $bornesTemp[0] = $this->unit->prodTemperature($tempInterval[0], ['format' => false]);
+        $bornesTemp[1] = $this->unit->prodTemperature($tempInterval[1], ['format' => false]);
+
+        $res = $this->calculatePasTemp($bornesTemp[0], $bornesTemp[1], true);
+        $bornesTemp[0] = $res[0];
+        $bornesTemp[1] = $res[1];
+        $pasTemp = $res[2];
+
+        $tempInterval[0] = $this->unit->prodTemperature($bornesTemp[0]);
+        $tempInterval[1] = $this->unit->prodTemperature($bornesTemp[1]);
+
+        $data = [$tempInterval[0], $tempInterval[1], $pasTemp];
+
+        return $data;
+    }
+
+    public function getReportTemperatureBorne($idStudy)
+    {
+        $tabBorne[0] = 0.0;
+        $tabBorne[1] = 0.0;
+
+        $query =  DB::select("SELECT MIN( TRD.TEMP ) AS MIN_TEMP, MAX( TRD.TEMP ) AS MAX_TEMP FROM TEMP_RECORD_DATA AS TRD 
+        JOIN (SELECT REC_POS.ID_REC_POS FROM RECORD_POSITION AS REC_POS JOIN (SELECT REC_POS1.ID_STUDY_EQUIPMENTS, 
+        MAX(REC_POS1.RECORD_TIME) AS RECORD_TIME FROM RECORD_POSITION AS REC_POS1 
+        JOIN STUDY_EQUIPMENTS AS STD_EQP ON REC_POS1.ID_STUDY_EQUIPMENTS = STD_EQP.ID_STUDY_EQUIPMENTS 
+        WHERE STD_EQP.ID_STUDY = " . $idStudy . " GROUP BY REC_POS1.ID_STUDY_EQUIPMENTS) AS REC_POS2 
+        ON REC_POS.ID_STUDY_EQUIPMENTS = REC_POS2.ID_STUDY_EQUIPMENTS AND REC_POS.RECORD_TIME = REC_POS2.RECORD_TIME) AS REC_POS3 ON TRD.ID_REC_POS = REC_POS3.ID_REC_POS");
+
+        if ($query) {
+            $tabBorne[0] = $query[0]->MIN_TEMP;
+            $tabBorne[1] = $query[0]->MAX_TEMP;
+        }
+
+        return $tabBorne;
+    }
+
+    public function calculatePasTemp($lfTmin, $lfTMax, $auto)
+    {
+        $dpas = 0;
+        $dnbpas = 0;
+        $dTmin = intval(floor($lfTmin));
+        $dTMax = intval(ceil($lfTMax));
+
+        if ($auto) {
+            $dpas = intval(floor(abs($dTMax - $dTmin) / 14) - 1);
+        } else {
+            $dpas = intval(floor($this->pasTemp) - 1);
+        }
+
+        do {
+            $dpas++;
+            if ($dpas != 0) {
+
+                while ($dTmin % $dpas != 0) {
+                    $dTmin--;
+                }
+
+                while ($dTMax % $dpas != 0) {
+                    $dTMax++;
+                }
+                $dnbpas = abs($dTMax - $dTmin) / $dpas;    
+            }
+        } while ($dnbpas > 16);
+
+        return [$dTmin, $dTMax, $dpas];
     }
 }

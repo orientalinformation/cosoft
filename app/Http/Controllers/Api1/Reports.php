@@ -136,10 +136,7 @@ class Reports extends Controller
         }
             $report = Report::where('ID_STUDY', $id)->first();
     
-            if ($report) {
-    
-                // $report->consumptionSymbol = $this->units->consumptionSymbol($stuequip->ID_COOLING_FAMILY, 1);
-    
+            if ($report) {    
                 $report->isSizingValuesChosen = ($report->SIZING_VALUES & 1);
                 $report->isSizingValuesMax = ($report->SIZING_VALUES & 16);
                 $studyEquip = StudyEquipment::where('ID_STUDY', $id)->where('BRAIN_TYPE', '=', 4)->get();
@@ -153,43 +150,26 @@ class Reports extends Controller
                 $productElmt = ProductElmt::where('ID_STUDY', $id)->first();
                 $report->productElmt = $productElmt;
                 $report->temperatureSymbol = $this->convert->temperatureSymbolUser();
-                
-                /*$borne = $this->getReportTemperatureBorne($id); 
-                $report->refContRep2DTempMinRef = doubleval($borne[0]->MIN_TEMP);
-                $report->refContRep2DTempMaxRef = doubleval($borne[0]->MAX_TEMP);
-                $pasTemp = $this->calculatePasTemp($report->refContRep2DTempMinRef, $report->refContRep2DTempMaxRef, true);
-                $report->refContRep2DTempMinRef = $this->units->prodTemperature(doubleval($pasTemp['dTmin']), 1, 1);
-                $report->refContRep2DTempMaxRef = $this->units->prodTemperature(doubleval($pasTemp['dTMax']), 1, 1);
-                $report->refContRep2DTempStepRef = doubleval($pasTemp['dpas']);*/
-                $idstudyequips = $study->studyEquipments;
-                foreach ($idstudyequips as $idstudyequip) {
-                    if ($idstudyequip->tr != "" || $idstudyequip->tr != "***") {
-                        if ($idstudyequip->BRAIN_TYPE == 4) {
-                            $getTemp = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequip->ID_STUDY_EQUIPMENTS, 1);
-                            
-                            $report->refContRep2DTempStepRef = $this->convert->prodTemperature($getTemp['chartTempInterval'][2]);
-                            $report->refContRep2DTempMinRef = $getTemp['chartTempInterval'][0];
-                            $report->refContRep2DTempMaxRef = $getTemp['chartTempInterval'][1];
-                            
-                            if ($report->CONTOUR2D_TEMP_STEP == 0) {
-                                $report->CONTOUR2D_TEMP_STEP = $this->units->prodTemperature($getTemp['chartTempInterval'][2]);
-                            } else {
-                                $report->CONTOUR2D_TEMP_STEP = $this->units->prodTemperature($report->CONTOUR2D_TEMP_STEP, 1, 1);
-                            }
-                
-                            if ($report->CONTOUR2D_TEMP_MIN == 0) {
-                                $report->CONTOUR2D_TEMP_MIN =$this->units->prodTemperature($getTemp['chartTempInterval'][0]);
-                            } else {
-                                $report->CONTOUR2D_TEMP_MIN = $this->units->prodTemperature($report->CONTOUR2D_TEMP_MIN, 1, 1);
-                            }
-                
-                            if ($report->CONTOUR2D_TEMP_MAX == 0) {
-                                $report->CONTOUR2D_TEMP_MAX = $this->units->prodTemperature($getTemp['chartTempInterval'][1]);
-                            } else {
-                                $report->CONTOUR2D_TEMP_MAX = $this->units->prodTemperature($report->CONTOUR2D_TEMP_MAX, 1, 1);
-                            }
-                        }
-                    }
+
+                $tempDataReport = $this->reportserv->initTempDataForReport($id); 
+                $report->refContRep2DTempMinRef = $tempDataReport[0];
+                $report->refContRep2DTempMaxRef = $tempDataReport[1];
+                $report->refContRep2DTempStepRef = $tempDataReport[2];
+
+                if ($report->CONTOUR2D_TEMP_STEP == 0) {
+                    $report->CONTOUR2D_TEMP_STEP = $tempDataReport[2];
+                }
+    
+                if ($report->CONTOUR2D_TEMP_MIN == 0) {
+                    $report->CONTOUR2D_TEMP_MIN = $tempDataReport[0];
+                } else {
+                    $report->CONTOUR2D_TEMP_MIN = $this->convert->prodTemperature($report->CONTOUR2D_TEMP_MIN);
+                }
+    
+                if ($report->CONTOUR2D_TEMP_MAX == 0) {
+                    $report->CONTOUR2D_TEMP_MAX = $tempDataReport[1];
+                } else {
+                    $report->CONTOUR2D_TEMP_MAX = $this->convert->prodTemperature($report->CONTOUR2D_TEMP_MAX);
                 }
 
                 $tempRecordPts = TempRecordPts::where("ID_STUDY", $study->ID_STUDY)->first();
@@ -352,16 +332,6 @@ class Reports extends Controller
         } else {
             return response("Report is available only when equipments are calculated numerically", 406);
         }
-    }
-
-    public function getReportTemperatureBorne($id)
-    {
-        return DB::select("SELECT MIN( TRD.TEMP ) AS MIN_TEMP, MAX( TRD.TEMP ) AS MAX_TEMP FROM TEMP_RECORD_DATA AS TRD 
-        JOIN (SELECT REC_POS.ID_REC_POS FROM RECORD_POSITION AS REC_POS JOIN (SELECT REC_POS1.ID_STUDY_EQUIPMENTS, 
-        MAX(REC_POS1.RECORD_TIME) AS RECORD_TIME FROM RECORD_POSITION AS REC_POS1 
-        JOIN STUDY_EQUIPMENTS AS STD_EQP ON REC_POS1.ID_STUDY_EQUIPMENTS = STD_EQP.ID_STUDY_EQUIPMENTS 
-        WHERE STD_EQP.ID_STUDY = " . $id . " GROUP BY REC_POS1.ID_STUDY_EQUIPMENTS) AS REC_POS2 
-        ON REC_POS.ID_STUDY_EQUIPMENTS = REC_POS2.ID_STUDY_EQUIPMENTS AND REC_POS.RECORD_TIME = REC_POS2.RECORD_TIME) AS REC_POS3 ON TRD.ID_REC_POS = REC_POS3.ID_REC_POS");
     }
 
     public function calculatePasTemp($lfTmin, $lfTMax, $auto)
