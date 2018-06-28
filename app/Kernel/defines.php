@@ -1,6 +1,6 @@
 <?php
 define('ENCRYPT_KEY', '3a786565707472');
-define('SC_CLEAN_TMP_DATA',10);  // clean temporary data
+define('SC_CLEAN_TMP_DATA', 10);  // clean temporary data
 
 define('TEMPERATURE_PROFILE', 0); // reference equipment
 define('CONVECTION_PROFILE', 1);
@@ -57,13 +57,11 @@ define('SC_CLEAN_OUTPUT_OPTIM_BRRUN', 53);	// Called before user run new calcula
                                                                                     //		or selected - dhp chosen )
 define('SC_CLEAN_OUTPUT_OPTIMAX_BRRUN', 54);	// Called before user run new calculation (study mode: optimum
                                                                                     //		or selected - dhp max )
-
 define('SC_CLEAN_OUTPUT_ESTIM_BRSTOP', 55);	// Called when user stop calculation (study mode: estimation)
 define('SC_CLEAN_OUTPUT_OPTIM_BRSTOP', 56);	// Called when user stop calculation (study mode: optimum
                                                                                     //		or selected - dhp chosen )
 define('SC_CLEAN_OUTPUT_OPTIMAX_BRSTOP', 57);	// Called when user stop calculation (study mode: optimum
                                                                                     //		or selected - dhp max ) 
-
 // Equipment capabilities masks : used by Equipment.getCapability 
 define('CAP_VARIABLE_TR', 0x00000001);
 define('CAP_VARIABLE_TS', 0x00000002);
@@ -93,7 +91,6 @@ define('EQUIP_NOT_STANDARD', 0);
 define('NO_SPECIFIC_SIZE', -1.0);
 
 //List of TRANS_TYPE  (to complete if required)
-
 define('TRANS_TYPE_COMPONENT', 1);
 define('TRANS_TYPE_COOLING_FAMILY', 2);
 define('TRANS_TYPE_PACKING_ELEMENT', 3);
@@ -127,7 +124,6 @@ define('EQUIP_UNSELECTED', 0x00);
 
 define('SAVE_NUM_TO_DB_YES', 0x01);
 define('SAVE_NUM_TO_DB_NO', 0x00);
-
 
 //STUD_EQP_PRM
 define('MIN_MAX_STDEQP_DW_TIME', 1035);
@@ -185,7 +181,6 @@ define('OVAL_LAYING_3D', 20);
 define('OVAL_CONCENTRIC_STANDING_3D', 21);
 define('OVAL_CONCENTRIC_LAYING_3D', 22);
 define('SEMI_CYLINDER_3D', 23);
-
 
 define('CONSUMPTION_UNIT_LN2', 29);
 define('CONSUMPTION_UNIT_CO2', 30);

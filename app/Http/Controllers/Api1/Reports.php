@@ -61,7 +61,7 @@ class Reports extends Controller
     /**
      * @var App\Cryosoft\ValueListService
      */
-    protected $value;
+    protected $values;
 
     /**
      * @var \App\Cryosoft\StudyEquipmentService
@@ -94,14 +94,14 @@ class Reports extends Controller
      * @return void
      */
     public function __construct(Request $request, Auth $auth, UnitsConverterService $convert, 
-    ValueListService $value, StudyEquipmentService $stdeqp, Lines $pipelines, 
+    ValueListService $values, StudyEquipmentService $stdeqp, Lines $pipelines, 
     ReportService $reportserv, MinMaxService $minmax, StudyService $study, 
     UnitsService $units, OutputService $output, EquipmentsService $equip)
     {
         $this->request = $request;
         $this->auth = $auth;
         $this->convert = $convert;
-        $this->value = $value;
+        $this->values = $values;
         $this->stdeqp = $stdeqp;
         $this->pipelines = $pipelines;
         $this->reportserv = $reportserv;

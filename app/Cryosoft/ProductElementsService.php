@@ -287,15 +287,21 @@ class ProductElementsService
         return $lfheight;
     }
 
-    public function findProdElmt3D($idProd, $idProdElmt) 
+    public function findProdElmt3D($idProd, $idProdElmt, $status)
     {   
         $prodEmltBeforeCurrent = null;
         $max = 0;
         $elmts = [];
         $pElmts = ProductElmt::where('ID_PROD', $idProd)->get();
         foreach ($pElmts as $elmt) {
-            if ($elmt->ID_PRODUCT_ELMT < $idProdElmt) {
-                array_push($elmts, $elmt);
+            if ($status) {
+                if ($elmt->ID_PRODUCT_ELMT > $idProdElmt) {
+                    return $elmt; 
+                }
+            } else {
+                if ($elmt->ID_PRODUCT_ELMT < $idProdElmt) {
+                    array_push($elmts, $elmt);
+                }
             }
         }
 

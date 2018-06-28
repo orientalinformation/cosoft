@@ -141,7 +141,7 @@ class Products extends Controller
         $elmtId = $elmt->ID_PRODUCT_ELMT;
 
         if ($elmt->ID_SHAPE == TRAPEZOID_3D) {
-            $updateElmt = $this->productElmts->findProdElmt3D($id, $elmtId);
+            $updateElmt = $this->productElmts->findProdElmt3D($id, $elmtId, false);
             if ($updateElmt) {
                 $elmt->SHAPE_PARAM1 = $updateElmt->SHAPE_PARAM4;
                 $elmt->SHAPE_PARAM3 = $updateElmt->SHAPE_PARAM5;
@@ -217,7 +217,7 @@ class Products extends Controller
                 $nElements->SHAPE_PARAM5 = $this->unit->prodDimension($dim5, ['save' => true]);
                 $nElements->save();
 
-                $updateElmt = $this->productElmts->findProdElmt3D($id, $idElement);
+                $updateElmt = $this->productElmts->findProdElmt3D($id, $idElement, true);
                 if ($updateElmt) {
                     $updateElmt->SHAPE_PARAM1 = $this->unit->prodDimension($dim4, ['save' => true]);
                     $updateElmt->SHAPE_PARAM3 = $this->unit->prodDimension($dim5, ['save' => true]);
