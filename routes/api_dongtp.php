@@ -296,7 +296,6 @@ $router->PUT('/api/v1/referencedata/tempsetpoint', 'Api1\\Equipments@buildForNew
  */
 $router->GET('/api/v1/calculator/calculatestatus/{idStudy}', 'Api1\\CalculStatus@getMyStudies');
 
-
 /**
  * PUT initial 
  * Summary: 
@@ -392,3 +391,12 @@ $router->POST('/api/v1/threed/{idProd}/initIso3DTemperature', 'Api1\\Input3Ds@in
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/threed/{idProd}/initNonIso3DTemperature', 'Api1\\Input3Ds@initNonIso3DTemperature');
+
+
+/**
+ * PUT initial 3D
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->PUT('/api/v1/threed/meshinitial/{idStudy}', 'Api1\\InputInitial3D@initTempRecordPts3D');

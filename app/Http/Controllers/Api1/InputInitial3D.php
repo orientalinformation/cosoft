@@ -59,14 +59,16 @@ class InputInitial3D extends Controller
             if ($productElmt) {
                 $idShape = $productElmt->ID_SHAPE;
             }
-            // get product dimension
-            $this->getProductDim($product->ID_PROD, $dim1, $dim2, $dim3);
 
+            // get product dimension
+            $dim = $this->getProductDim($product->ID_PROD);
+            $dim1 = $dim['dim1'];
+            $dim2 = $dim['dim2'];
+            $dim3 = $dim['dim3'];
         }
 
         // get position from percent
         if (($tempRecordPtsDef) && ($tempRecordPts)) {
-
             if ($idShape == CYLINDER_CONCENTRIC_STANDING_3D ||
                 $idShape == OVAL_CONCENTRIC_STANDING_3D) {
 
@@ -94,22 +96,22 @@ class InputInitial3D extends Controller
                   $tempRecordPtsDef->AXIS1_PL_2_3_DEF = $tempRecordPtsDef->AXIS2_PL_1_3_DEF;
                   $tempRecordPtsDef->AXIS2_PL_1_3_DEF = $temp;
             }
-
             
-            $this->initPoints($tempRecordPtsDef, $tempRecordPts, $dim1, $dim2, $dim3);
-            $this->initLines($tempRecordPtsDef, $tempRecordPts, $dim1, $dim2, $dim3);
-            $this->initPlanes($tempRecordPtsDef, $tempRecordPts, $dim1, $dim2, $dim3);
+            $this->initPoints($tempRecordPtsDef, $tempRecordPts, $dim1, $dim2, $dim3, $idShape);
+            $this->initLines($tempRecordPtsDef, $tempRecordPts, $dim1, $dim2, $dim3, $idShape);
+            $this->initPlanes($tempRecordPtsDef, $tempRecordPts, $dim1, $dim2, $dim3, $idShape);
             
             $tempRecordPts->save();
 
             $this->cal->saveTempRecordPtsToReport($idStudy);
-
         }
     }
 
-    private function getProductDim($idProd, $dim1, $dim2, $dim3)
+    private function getProductDim($idProd)
     {
-        $prodElmts = ProductElmt::where('ID_PROD', $idProd)->orderBy('SHAPE_POS2','DESC')->get();
+        $dim1 = $dim2 = $dim3 = 0;
+        $results = [];
+        $prodElmts = ProductElmt::where('ID_PROD', $idProd)->orderBy('SHAPE_POS2','ASC')->get();
 
         if (count($prodElmts) > 0) {
             foreach ($prodElmts as $key => $elmt) {
@@ -124,7 +126,7 @@ class InputInitial3D extends Controller
                             $dim3 = $elmt->SHAPE_PARAM3;
                         } 
 
-                        $dim2+= $elmt->SHAPE_PARAM2;
+                        $dim2 += $elmt->SHAPE_PARAM2;
                         break;
 
                     case CYLINDER_STANDING_3D:
@@ -137,22 +139,21 @@ class InputInitial3D extends Controller
                             $dim3 = $elmt->SHAPE_PARAM1;
                         } 
 
-                        $dim2+= $elmt->SHAPE_PARAM2;
-
+                        $dim2 += $elmt->SHAPE_PARAM2;
                         break;
 
                     case SPHERE_3D :
 
-                        $dim1+= $key == 0?$elmt->SHAPE_PARAM2:$elmt->SHAPE_PARAM2*2.0;
-                        $dim2+= $key == 0?$elmt->SHAPE_PARAM2:$elmt->SHAPE_PARAM2*2.0;
-                        $dim3+= $key == 0?$elmt->SHAPE_PARAM2:$elmt->SHAPE_PARAM2*2.0;
+                        $dim1 += ($key == 0) ? $elmt->SHAPE_PARAM2 : $elmt->SHAPE_PARAM2 * 2.0;
+                        $dim2 += ($key == 0) ? $elmt->SHAPE_PARAM2 : $elmt->SHAPE_PARAM2 * 2.0;
+                        $dim3 += ($key == 0) ? $elmt->SHAPE_PARAM2 : $elmt->SHAPE_PARAM2 * 2.0;
                         break;
 
                     case PARALLELEPIPED_BREADED_3D:
 
-                        $dim1+= $key == 0?$elmt->SHAPE_PARAM1:$elmt->SHAPE_PARAM2*2.0;
-                        $dim2+= $key == 0?$elmt->SHAPE_PARAM2:$elmt->SHAPE_PARAM2*2.0;
-                        $dim3+= $key == 0?$elmt->SHAPE_PARAM3:$elmt->SHAPE_PARAM2*2.0;
+                        $dim1 += ($key == 0) ? $elmt->SHAPE_PARAM1 : $elmt->SHAPE_PARAM2 * 2.0;
+                        $dim2 += ($key == 0) ? $elmt->SHAPE_PARAM2 : $elmt->SHAPE_PARAM2 * 2.0;
+                        $dim3 += ($key == 0) ? $elmt->SHAPE_PARAM3 : $elmt->SHAPE_PARAM2 * 2.0;
                         break;
 
                     case CYLINDER_CONCENTRIC_STANDING_3D:
@@ -163,7 +164,7 @@ class InputInitial3D extends Controller
                             $dim3 = $elmt->SHAPE_PARAM1;
                         } 
 
-                        $dim2+= $key == 0?$elmt->SHAPE_PARAM2:$elmt->SHAPE_PARAM2*2.0;
+                        $dim2 += ($key == 0) ? $elmt->SHAPE_PARAM2 : $elmt->SHAPE_PARAM2 * 2.0;
                         break;
 
                     case OVAL_STANDING_3D:
@@ -173,9 +174,7 @@ class InputInitial3D extends Controller
                             $dim1 = $elmt->SHAPE_PARAM1;
                             $dim3 = $elmt->SHAPE_PARAM3;
                         } 
-
-                        $dim2+= $elmt->SHAPE_PARAM2;
-
+                        $dim2 += $elmt->SHAPE_PARAM2;
                         break;
 
                     case OVAL_CONCENTRIC_STANDING_3D:
@@ -185,27 +184,32 @@ class InputInitial3D extends Controller
                             $dim1 = $elmt->SHAPE_PARAM1;
                         } 
 
-                        $dim2+= $key == 0?$elmt->SHAPE_PARAM2:$elmt->SHAPE_PARAM2*2.0;
-                        $dim3+= $key == 0?$elmt->SHAPE_PARAM3:$elmt->SHAPE_PARAM2*2.0;
+                        $dim2 += ($key == 0) ? $elmt->SHAPE_PARAM2 : $elmt->SHAPE_PARAM2 * 2.0;
+                        $dim3 += ($key == 0) ? $elmt->SHAPE_PARAM3 : $elmt->SHAPE_PARAM2 * 2.0;
                         break;
 
                     case SEMI_CYLINDER_3D:
 
                         break;
-
-
                 }
             }
         }
 
+        $results = [
+            'dim1' => $dim1,
+            'dim2' => $dim2,
+            'dim3' => $dim3,
+        ];
+
+        return $results;
     }
 
-
-    private function initPoints($tempRecordPtsDef, $tempRecordPts, $dim1, $dim2, $dim3)
+    private function initPoints($tempRecordPtsDef, $tempRecordPts, $dim1, $dim2, $dim3, $idShape)
     {
-        $idShape = $productElmt->ID_SHAPE; 
         // Top points
-        if (($tempRecordPtsDef->AXIS1_PT_TOP_SURF_DEF == 0) && ($tempRecordPtsDef->AXIS2_PT_TOP_SURF_DEF == 0) && ($tempRecordPtsDef->AXIS3_PT_TOP_SURF_DEF == 0)) {
+        if (($tempRecordPtsDef->AXIS1_PT_TOP_SURF_DEF == 0) &&
+            ($tempRecordPtsDef->AXIS2_PT_TOP_SURF_DEF == 0) && 
+            ($tempRecordPtsDef->AXIS3_PT_TOP_SURF_DEF == 0)) {
             switch ($idShape) {
                 case CYLINDER_STANDING_3D:
                 case CYLINDER_LAYING_3D:
@@ -237,10 +241,8 @@ class InputInitial3D extends Controller
                     $tempRecordPts->AXIS2_PT_TOP_SURF = $dim3/2.0;
                     $tempRecordPts->AXIS3_PT_TOP_SURF = $dim2;
                     break;
-        }
-                
+            }  
         } else {
-
             switch ($idShape) {
                 case CYLINDER_STANDING_3D:
                 case CYLINDER_LAYING_3D:
@@ -278,7 +280,6 @@ class InputInitial3D extends Controller
                     break;
 
                 default:
-
                     $percent1 = floatval($tempRecordPtsDef->AXIS1_PT_TOP_SURF_DEF);
                     $percent3 = floatval($tempRecordPtsDef->AXIS3_PT_TOP_SURF_DEF);
                     $percent2 = floatval($tempRecordPtsDef->AXIS2_PT_TOP_SURF_DEF);
@@ -287,11 +288,13 @@ class InputInitial3D extends Controller
                     $tempRecordPts->AXIS2_PT_TOP_SURF = $dim3*$percent3/100.0;
                     $tempRecordPts->AXIS3_PT_TOP_SURF = $dim2*$percent2/100.0;
                     break;
+            }
         }
 
         // internal point
-
-        if (($tempRecordPtsDef->AXIS1_PT_INT_PT_DEF == 0) && ($tempRecordPtsDef->AXIS2_PT_INT_PT_DEF == 0) && ($tempRecordPtsDef->AXIS3_PT_INT_PT_DEF == 0)) {
+        if (($tempRecordPtsDef->AXIS1_PT_INT_PT_DEF == 0) && 
+            ($tempRecordPtsDef->AXIS2_PT_INT_PT_DEF == 0) && 
+            ($tempRecordPtsDef->AXIS3_PT_INT_PT_DEF == 0)) {
             switch ($idShape) {
                 case CYLINDER_STANDING_3D:
                 case CYLINDER_LAYING_3D:
@@ -323,10 +326,8 @@ class InputInitial3D extends Controller
                     $tempRecordPts->AXIS2_PT_INT_PT = $dim3/2.0;
                     $tempRecordPts->AXIS3_PT_INT_PT = $dim2/2.0;
                     break;
-        }
-                
+            }   
         } else {
-
             switch ($idShape) {
                 case CYLINDER_STANDING_3D:
                 case CYLINDER_LAYING_3D:
@@ -373,10 +374,12 @@ class InputInitial3D extends Controller
                     $tempRecordPts->AXIS2_PT_INT_PT = $dim3*$percent3/100.0;
                     $tempRecordPts->AXIS3_PT_INT_PT = $dim2*$percent2/100.0;
                     break;
+            }
         }
-
         // bottom point
-        if (($tempRecordPtsDef->AXIS1_PT_BOT_SURF_DEF == 0) && ($tempRecordPtsDef->AXIS2_PT_BOT_SURF_DEF == 0) && ($tempRecordPtsDef->AXIS3_PT_BOT_SURF_DEF == 0)) {
+        if (($tempRecordPtsDef->AXIS1_PT_BOT_SURF_DEF == 0) && 
+            ($tempRecordPtsDef->AXIS2_PT_BOT_SURF_DEF == 0) && 
+            ($tempRecordPtsDef->AXIS3_PT_BOT_SURF_DEF == 0)) {
             switch ($idShape) {
                 case CYLINDER_STANDING_3D:
                 case CYLINDER_LAYING_3D:
@@ -403,17 +406,14 @@ class InputInitial3D extends Controller
                     $tempRecordPts->AXIS2_PT_BOT_SURF = $dim3/2.0;
                     $tempRecordPts->AXIS3_PT_BOT_SURF = 0.0;
                     break;
-        }
-                
+            }  
         } else {
-
             switch ($idShape) {
                 case CYLINDER_STANDING_3D:
                 case CYLINDER_LAYING_3D:
                 case OVAL_STANDING_3D:
                 case OVAL_LAYING_3D:
                 case SEMI_CYLINDER_3D:
-
                     $percent1 = floatval($tempRecordPtsDef->AXIS1_PT_BOT_SURF_DEF) - 50;
                     $percent3 = floatval($tempRecordPtsDef->AXIS2_PT_BOT_SURF_DEF) - 50;
                     $percent2 = floatval($tempRecordPtsDef->AXIS3_PT_BOT_SURF_DEF);
@@ -427,7 +427,6 @@ class InputInitial3D extends Controller
                 case OVAL_CONCENTRIC_STANDING_3D:
                 case CYLINDER_CONCENTRIC_LAYING_3D:
                 case OVAL_CONCENTRIC_LAYING_3D:
-
                     $percent1 = floatval($tempRecordPtsDef->AXIS1_PT_BOT_SURF_DEF) - 50;
                     $percent3 = floatval($tempRecordPtsDef->AXIS2_PT_BOT_SURF_DEF) - 50;
                     $percent2 = floatval($tempRecordPtsDef->AXIS3_PT_BOT_SURF_DEF);
@@ -453,15 +452,14 @@ class InputInitial3D extends Controller
                     $tempRecordPts->AXIS2_PT_BOT_SURF = $dim3*$percent3/100.0;
                     $tempRecordPts->AXIS3_PT_BOT_SURF = $dim2*$percent2/100.0;
                     break;
+            }
         }
     }
 
-
-    private function initLines($tempRecordPtsDef, $tempRecordPts, $dim1, $dim2, $dim3)
+    private function initLines($tempRecordPtsDef, $tempRecordPts, $dim1, $dim2, $dim3, $idShape)
     {
         // Line YZ
         if (($tempRecordPtsDef->AXIS2_AX_1_DEF == 0) && ($tempRecordPtsDef->AXIS3_AX_1_DEF == 0)) {
-
             switch ($idShape) {
                 case CYLINDER_STANDING_3D:
                 case CYLINDER_LAYING_3D:
@@ -489,7 +487,7 @@ class InputInitial3D extends Controller
                     $tempRecordPts->AXIS2_AX_1 = $dim3/2.0;
                     $tempRecordPts->AXIS3_AX_1 = $dim2/2.0;
                     break;
-
+            }
         } else {
             switch ($idShape) {
                 case CYLINDER_STANDING_3D:
@@ -524,6 +522,7 @@ class InputInitial3D extends Controller
                     $tempRecordPts->AXIS2_AX_1 = $dim3*$percent3/100.0;
                     $tempRecordPts->AXIS3_AX_1 = $dim2*$percent2/100.0;
                     break;
+            }
         }
 
         // Line XZ
@@ -555,6 +554,7 @@ class InputInitial3D extends Controller
                     $tempRecordPts->AXIS1_AX_2 = $dim1/2.0;
                     $tempRecordPts->AXIS3_AX_2 = $dim2/2.0;
                     break;
+            }
         } else {
             switch ($idShape) {
                 case CYLINDER_STANDING_3D:
@@ -589,6 +589,7 @@ class InputInitial3D extends Controller
                     $tempRecordPts->AXIS1_AX_2 = $dim3*$percent1/100.0;
                     $tempRecordPts->AXIS3_AX_2 = $dim2*$percent2/100.0;
                     break;
+            }
         }
 
         // Line XY
@@ -612,6 +613,7 @@ class InputInitial3D extends Controller
                     $tempRecordPts->AXIS1_AX_3 = $dim1/2.0;
                     $tempRecordPts->AXIS2_AX_3 = $dim3/2.0;
                     break;
+            }
         } else {
             switch ($idShape) {
                 case CYLINDER_STANDING_3D:
@@ -646,10 +648,11 @@ class InputInitial3D extends Controller
                     $tempRecordPts->AXIS1_AX_3 = $dim1*$percent1/100.0;
                     $tempRecordPts->AXIS2_AX_3 = $dim3*$percent2/100.0;
                     break;
+            }
         }
     }
 
-    private function initPlanes($tempRecordPtsDef, $tempRecordPts, $dim1, $dim2, $dim3)
+    private function initPlanes($tempRecordPtsDef, $tempRecordPts, $dim1, $dim2, $dim3, $idShape)
     {
         //Plan X
         if ($tempRecordPtsDef->AXIS1_PL_2_3_DEF == 0) {
@@ -668,10 +671,10 @@ class InputInitial3D extends Controller
                     break;
 
                 default:
-                    $tempRecordPts->AXIS1_PL_2_3 = $dim1/2.0;
+                    $tempRecordPts->AXIS1_PL_2_3 = $dim1 / 2.0;
                     break;
+            }
         } else {
-
             switch ($idShape) {
                 case CYLINDER_STANDING_3D:
                 case CYLINDER_LAYING_3D:
@@ -679,21 +682,22 @@ class InputInitial3D extends Controller
                 case OVAL_LAYING_3D:
                 case SEMI_CYLINDER_3D:
                     $percent1 = floatval($tempRecordPtsDef->AXIS1_PL_2_3_DEF) - 50;
-                    $tempRecordPts->AXIS1_PL_2_3 = $dim1*$percent1/100.0;
+                    $tempRecordPts->AXIS1_PL_2_3 = $dim1 * $percent1 / 100.0;
                     break;
                 case CYLINDER_CONCENTRIC_STANDING_3D:
                 case OVAL_CONCENTRIC_STANDING_3D:
                 case CYLINDER_CONCENTRIC_LAYING_3D:
                 case OVAL_CONCENTRIC_LAYING_3D:
                     $percent1 = floatval($tempRecordPtsDef->AXIS1_PL_2_3_DEF) - 50;
-                    $tempRecordPts->AXIS1_PL_2_3 = $dim2*$percent1/100.0;
+                    $tempRecordPts->AXIS1_PL_2_3 = $dim2 * $percent1 / 100.0;
                     break;
                 case SPHERE_3D:
-                    $tempRecordPts->AXIS1_PL_2_3 = 0.0
+                    $tempRecordPts->AXIS1_PL_2_3 = 0.0;
                 default:
                     $percent1 = floatval($tempRecordPtsDef->AXIS1_PL_2_3_DEF);
-                    $tempRecordPts->AXIS1_PL_2_3 = $dim1/2.0;
+                    $tempRecordPts->AXIS1_PL_2_3 = $dim1 / 2.0;
                     break;
+            }
         }
 
         //Plan Y
@@ -715,6 +719,7 @@ class InputInitial3D extends Controller
                 default:
                     $tempRecordPts->AXIS2_PL_1_3 = $dim3/2.0;
                     break;
+            }
         } else {
             switch ($idShape) {
                 case CYLINDER_STANDING_3D:
@@ -730,11 +735,12 @@ class InputInitial3D extends Controller
                     $tempRecordPts->AXIS2_PL_1_3 = $dim3*$percent1/100.0;
                     break;
                 case SPHERE_3D: 
-                    $tempRecordPts->AXIS2_PL_1_3 = 0.0
+                    $tempRecordPts->AXIS2_PL_1_3 = 0.0;
                 default:
                     $percent1 = floatval($tempRecordPtsDef->AXIS2_PL_1_3_DEF);
                     $tempRecordPts->AXIS2_PL_1_3 = $dim3*$percent1/100.0;
                     break;
+            }
         }
 
         //Plan Z
@@ -760,6 +766,7 @@ class InputInitial3D extends Controller
                 default:
                     $tempRecordPts->AXIS3_PL_1_2 = $dim2/2.0;
                     break;
+            }
         } else {
             switch ($idShape) {
                 case CYLINDER_STANDING_3D:
@@ -785,6 +792,7 @@ class InputInitial3D extends Controller
                     $percent1 = floatval($tempRecordPtsDef->AXIS3_PL_1_2_DEF);
                     $tempRecordPts->AXIS3_PL_1_2 = $dim2*$percent1/100.0;
                     break;
+            }
         }
     }
 }

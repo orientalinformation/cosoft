@@ -142,9 +142,11 @@ class Products extends Controller
 
         if ($elmt->ID_SHAPE == TRAPEZOID_3D) {
             $updateElmt = $this->productElmts->findProdElmt3D($id, $elmtId);
-            $elmt->SHAPE_PARAM1 = $updateElmt->SHAPE_PARAM4;
-            $elmt->SHAPE_PARAM3 = $updateElmt->SHAPE_PARAM5;
-            $elmt->save();
+            if ($updateElmt) {
+                $elmt->SHAPE_PARAM1 = $updateElmt->SHAPE_PARAM4;
+                $elmt->SHAPE_PARAM3 = $updateElmt->SHAPE_PARAM5;
+                $elmt->save();
+            }
         }
 
         //run studyCleaner 41
