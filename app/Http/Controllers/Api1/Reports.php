@@ -873,7 +873,7 @@ class Reports extends Controller
                     $timeBase[] = $this->reportserv->timeBased($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
                 }
                 
-                /*switch ($shapeCode) {
+                switch ($shapeCode) {
                     case 1:
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
                             $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
@@ -949,31 +949,30 @@ class Reports extends Controller
                             $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
                         }
                         break;
-                }*/
+                }
 
+                if (!empty($heatexchange)) {
+                    $progress .= "\nEnthpies";
+                    $this->writeProgressFile($progressFile, $progress);
+                }
+
+                if (!empty($timeBase)) {
+                    $progress .= "\nTime Based";
+                    $this->writeProgressFile($progressFile, $progress);
+                }
+
+                if (!empty($proSections)) {
+                    $progress .= "\nProduct Section";
+                    $this->writeProgressFile($progressFile, $progress);
+                }
+
+                if (!empty($pro2Dchart)) {
+                    $progress .= "\nContour";
+                    $this->writeProgressFile($progressFile, $progress);
+                }
             } 
         }
-
-        if (!empty($heatexchange)) {
-            $progress .= "\nEnthpies";
-            $this->writeProgressFile($progressFile, $progress);
-        }
-
-        if (!empty($timeBase)) {
-            $progress .= "\nTime Based";
-            $this->writeProgressFile($progressFile, $progress);
-        }
-
-        if (!empty($proSections)) {
-            $progress .= "\nProduct Section";
-            $this->writeProgressFile($progressFile, $progress);
-        }
-
-        if (!empty($pro2Dchart)) {
-            $progress .= "\nContour";
-            $this->writeProgressFile($progressFile, $progress);
-        }
-
+        
         $progress .= "\nFINISH";
 
         $customerPath = $infoReport[0]->CUSTOMER_LOGO;
@@ -2576,7 +2575,7 @@ class Reports extends Controller
                     $timeBase[] = $this->reportserv->timeBased($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
                 }
                 
-                /*switch ($shapeCode) {
+                switch ($shapeCode) {
                     case 1:
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
                             $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
@@ -2652,29 +2651,29 @@ class Reports extends Controller
                             $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
                         }
                         break;
-                }*/
+                }
+
+                if (!empty($heatexchange)) {
+                    $progress .= "\nEnthpies";
+                    $this->writeProgressFile($progressFile, $progress);
+                }
+                
+                if (!empty($timeBase)) {
+                    $progress .= "\nTime Based";
+                    $this->writeProgressFile($progressFile, $progress);
+                }
+
+                if (!empty($proSections)) {
+                    $progress .= "\nProduct Section";
+                    $this->writeProgressFile($progressFile, $progress);
+                }
+
+                if (!empty($pro2Dchart)) {
+                    $progress .= "\nContour";
+                    $this->writeProgressFile($progressFile, $progress);
+                }
                   
             } 
-        }
-
-        if (!empty($heatexchange)) {
-            $progress .= "\nEnthpies";
-            $this->writeProgressFile($progressFile, $progress);
-        }
-        
-        if (!empty($timeBase)) {
-            $progress .= "\nTime Based";
-            $this->writeProgressFile($progressFile, $progress);
-        }
-
-        if (!empty($proSections)) {
-            $progress .= "\nProduct Section";
-            $this->writeProgressFile($progressFile, $progress);
-        }
-
-        if (!empty($pro2Dchart)) {
-            $progress .= "\nContour";
-            $this->writeProgressFile($progressFile, $progress);
         }
 
         $progress .= "\nFINISH";
