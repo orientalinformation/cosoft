@@ -672,6 +672,7 @@ class Reports extends Controller
     }
 
     function backgroundGenerationPDF($params) {
+        set_time_limit(600);
         $id = $params['studyId'];
         $input = $params['input'];
         $DEST_SURNAME = $input['DEST_SURNAME'];
@@ -728,6 +729,10 @@ class Reports extends Controller
         if (!is_dir($public_path . "/reports/" . $study->USERNAM)) {
             mkdir($public_path . "/reports/" . $study->USERNAM, 0777, true);
         } 
+
+        if (file_exists($public_path . "/reports/" . $study->USERNAM."/" . $name_report)) {
+            @unlink($public_path . "/reports/" . $study->USERNAM."/" . $name_report);
+        }
 
         $progress = "";
         $production = Production::Where('ID_STUDY', $id)->first();
@@ -2368,6 +2373,7 @@ class Reports extends Controller
     
     function backgroundGenerationHTML($params)
     {
+        set_time_limit(600);
         $id = $params['studyId'];
         $input = $params['input'];
         $DEST_SURNAME = $input['DEST_SURNAME'];
@@ -2421,8 +2427,13 @@ class Reports extends Controller
 
         $name_report = "$study->ID_STUDY-".preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname)."-Report.html";
         $progressFile = $public_path. "/reports/" . $study->USERNAM. "/" ."$study->ID_STUDY-".preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname)."-Report.progess";
+
         if (!is_dir( $public_path. "/reports/"  . $study->USERNAM)) {
             mkdir( $public_path. "/reports/" . $study->USERNAM, 0777, true);
+        }
+
+        if (file_exists($public_path . "/reports/" . $study->USERNAM."/" . $name_report)) {
+            @unlink($public_path . "/reports/" . $study->USERNAM."/" . $name_report);
         }
         
         $progress = "";
@@ -2671,7 +2682,7 @@ class Reports extends Controller
         $params['studyId'] = $studyId;
         $params['input'] = $input;
         ignore_user_abort(true);
-        set_time_limit(300);
+        set_time_limit(600);
         $bgProcess = function($obj, $fn, $id) {
             flush();
             call_user_func_array([$obj, $fn], [$id]);
@@ -2691,7 +2702,7 @@ class Reports extends Controller
         $params['studyId'] = $studyId;
         $params['input'] = $input;
         ignore_user_abort(true);
-        set_time_limit(300);
+        set_time_limit(600);
         $bgProcess = function($obj, $fn, $id) {
             // ob_flush();
             flush();
@@ -2755,6 +2766,10 @@ class Reports extends Controller
         $checkStuname = str_replace(' ', '', $study->STUDY_NAME);
         $progressFile = "$study->ID_STUDY-".preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname)."-Report.progess";
 
+        $progressFileHtmlPath = $public_path . '/report/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname) . '-Report.html';
+
+        $progressFilePdfPath = $public_path . '/report/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname) . '-Report.pdf';
+
         $progressFileHtml = getenv('APP_URL') . '/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname) . '-Report.html?time=' . time();
         $progressFilePdf = getenv('APP_URL') . '/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname). '-Report.pdf?time=' . time();
 
@@ -2765,6 +2780,7 @@ class Reports extends Controller
             $file = file_get_contents($progressfilePath);
             $progress = explode("\n", $file);
         }
+
         return compact('progressFileHtml', 'progressFilePdf', 'progress');
     }
 
