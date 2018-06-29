@@ -369,9 +369,14 @@ class Reports extends Controller
 
     public function initListPoints($id, $axe)
     {
-        return MeshPosition::select('MESH_AXIS_POS')->join('product_elmt', 'mesh_position.ID_PRODUCT_ELMT', '=', 'product_elmt.ID_PRODUCT_ELMT')
+        $meshPositions = MeshPosition::distinct()->select('mesh_position.MESH_AXIS_POS')
+        ->join('product_elmt', 'mesh_position.ID_PRODUCT_ELMT', '=', 'product_elmt.ID_PRODUCT_ELMT')
         ->join('product', 'product_elmt.ID_PROD' , '=', 'product.ID_PROD')
-        ->where('product.ID_STUDY', $id)->where('MESH_AXIS', $axe)->distinct()->orderBy('MESH_AXIS_POS', 'ASC')->get();
+        ->where('product.ID_STUDY', $id)
+        ->where('MESH_AXIS', $axe)
+        ->orderBy('MESH_AXIS_POS', 'ASC')->get();
+
+        return $meshPositions;
     }
 
     public function getMeshAxisPos($id) 
