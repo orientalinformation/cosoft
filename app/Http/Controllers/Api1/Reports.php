@@ -770,6 +770,7 @@ class Reports extends Controller
         }
         $nameLayout = $study->ID_STUDY.'-'.preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname).'-StdeqpLayout-';
         $idComArr = [];
+        $idElmArr = [];
         $comprelease = [];
         $packings = [];
         $cryogenPipeline = [];
@@ -777,8 +778,8 @@ class Reports extends Controller
         $calModeHbMax = [];
         $graphicSizing = [];
 
+        $shapeCode = $proElmt->SHAPECODE;
         foreach ($product->productElmts as $productElmt) {
-            $shapeCode = $productElmt->shape->SHAPECODE;
             $idComArr[] = $productElmt->ID_COMP;
             $idElmArr[] = $productElmt->ID_PRODUCT_ELMT;
             $comprelease[] = $productElmt->component->COMP_RELEASE;
@@ -872,7 +873,7 @@ class Reports extends Controller
                     $timeBase[] = $this->reportserv->timeBased($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
                 }
                 
-                switch ($shapeCode) {
+                /*switch ($shapeCode) {
                     case 1:
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
                             $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
@@ -948,7 +949,7 @@ class Reports extends Controller
                             $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
                         }
                         break;
-                }
+                }*/
 
             } 
         }
@@ -2477,6 +2478,7 @@ class Reports extends Controller
 
         $stuNameLayout = preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname);
         $idComArr = [];
+        $idElmArr = [];
         $comprelease = [];
         $cryogenPipeline = [];
         $packings = [];
@@ -2484,8 +2486,9 @@ class Reports extends Controller
         $calModeHbMax = [];
         $graphicSizing = [];
 
+        $shapeCode = $proElmt->SHAPECODE;
+
         foreach ($product->productElmts as $productElmt) {
-            $shapeCode = $productElmt->shape->SHAPECODE;
             $idComArr[] = $productElmt->ID_COMP;
             $idElmArr[] = $productElmt->ID_PRODUCT_ELMT;
             $comprelease[] = $productElmt->component->COMP_RELEASE;
@@ -2573,7 +2576,7 @@ class Reports extends Controller
                     $timeBase[] = $this->reportserv->timeBased($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
                 }
                 
-                switch ($shapeCode) {
+                /*switch ($shapeCode) {
                     case 1:
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
                             $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
@@ -2649,7 +2652,7 @@ class Reports extends Controller
                             $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
                         }
                         break;
-                }
+                }*/
                   
             } 
         }
@@ -2777,14 +2780,15 @@ class Reports extends Controller
 
         $public_path = rtrim(app()->basePath("public"), '/');
         $checkStuname = str_replace(' ', '', $study->STUDY_NAME);
-        $progressFile = "$study->ID_STUDY-".preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname)."-Report.progess";
+        $fileName = preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname);
+        $progressFile = "$study->ID_STUDY-" . $fileName . "-Report.progess";
 
-        $progressFileHtmlPath = $public_path . '/report/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname) . '-Report.html';
+        $progressFileHtmlPath = $public_path . '/report/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . $fileName . '-Report.html';
 
-        $progressFilePdfPath = $public_path . '/report/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname) . '-Report.pdf';
+        $progressFilePdfPath = $public_path . '/report/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . $fileName . '-Report.pdf';
 
-        $progressFileHtml = getenv('APP_URL') . '/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname) . '-Report.html?time=' . time();
-        $progressFilePdf = getenv('APP_URL') . '/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname). '-Report.pdf?time=' . time();
+        $progressFileHtml = getenv('APP_URL') . '/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . $fileName . '-Report.html?time=' . time();
+        $progressFilePdf = getenv('APP_URL') . '/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . $fileName . '-Report.pdf?time=' . time();
 
         $progressfilePath = $public_path . "/reports/" . $study->USERNAM . "/" . $progressFile;
         
@@ -2793,7 +2797,7 @@ class Reports extends Controller
             $file = file_get_contents($progressfilePath);
             $progress = explode("\n", $file);
         }
-
+        
         return compact('progressFileHtml', 'progressFilePdf', 'progress');
     }
 
