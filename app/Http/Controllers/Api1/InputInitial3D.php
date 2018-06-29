@@ -336,8 +336,8 @@ class InputInitial3D extends Controller
                 case SEMI_CYLINDER_3D:
 
                     $percent1 = floatval($tempRecordPtsDef->AXIS1_PT_INT_PT_DEF) - 50;
-                    $percent3 = floatval($tempRecordPtsDef->AXIS2_PT_INT_PT_DEF) - 50;
-                    $percent2 = floatval($tempRecordPtsDef->AXIS3_PT_INT_PT_DEF);
+                    $percent3 = floatval($tempRecordPtsDef->AXIS3_PT_INT_PT_DEF) - 50;
+                    $percent2 = floatval($tempRecordPtsDef->AXIS2_PT_INT_PT_DEF);
 
                     $tempRecordPts->AXIS1_PT_INT_PT = $dim1*$percent1/100.0;
                     $tempRecordPts->AXIS2_PT_INT_PT = $dim3*$percent3/100.0;
@@ -351,7 +351,7 @@ class InputInitial3D extends Controller
 
                     $percent1 = floatval($tempRecordPtsDef->AXIS1_PT_INT_PT_DEF) - 50;
                     $percent3 = floatval($tempRecordPtsDef->AXIS2_PT_INT_PT_DEF) - 50;
-                    $percent2 = floatval($tempRecordPtsDef->AXIS3_PT_INT_PT_DEF);
+                    $percent2 = floatval($tempRecordPtsDef->AXIS2_PT_INT_PT_DEF);
 
                     $tempRecordPts->AXIS1_PT_INT_PT = $dim2*$percent1/100.0;
                     $tempRecordPts->AXIS2_PT_INT_PT = $dim3*$percent3/100.0;
@@ -367,8 +367,8 @@ class InputInitial3D extends Controller
                 default:
 
                     $percent1 = floatval($tempRecordPtsDef->AXIS1_PT_INT_PT_DEF);
-                    $percent3 = floatval($tempRecordPtsDef->AXIS2_PT_INT_PT_DEF);
-                    $percent2 = floatval($tempRecordPtsDef->AXIS3_PT_INT_PT_DEF);
+                    $percent3 = floatval($tempRecordPtsDef->AXIS3_PT_INT_PT_DEF);
+                    $percent2 = floatval($tempRecordPtsDef->AXIS2_PT_INT_PT_DEF);
 
                     $tempRecordPts->AXIS1_PT_INT_PT = $dim1*$percent1/100.0;
                     $tempRecordPts->AXIS2_PT_INT_PT = $dim3*$percent3/100.0;
@@ -415,8 +415,8 @@ class InputInitial3D extends Controller
                 case OVAL_LAYING_3D:
                 case SEMI_CYLINDER_3D:
                     $percent1 = floatval($tempRecordPtsDef->AXIS1_PT_BOT_SURF_DEF) - 50;
-                    $percent3 = floatval($tempRecordPtsDef->AXIS2_PT_BOT_SURF_DEF) - 50;
-                    $percent2 = floatval($tempRecordPtsDef->AXIS3_PT_BOT_SURF_DEF);
+                    $percent3 = floatval($tempRecordPtsDef->AXIS3_PT_BOT_SURF_DEF) - 50;
+                    $percent2 = floatval($tempRecordPtsDef->AXIS2_PT_BOT_SURF_DEF);
 
                     $tempRecordPts->AXIS1_PT_BOT_SURF = $dim1*$percent1/100.0;
                     $tempRecordPts->AXIS2_PT_BOT_SURF = $dim3*$percent3/100.0;
@@ -428,8 +428,8 @@ class InputInitial3D extends Controller
                 case CYLINDER_CONCENTRIC_LAYING_3D:
                 case OVAL_CONCENTRIC_LAYING_3D:
                     $percent1 = floatval($tempRecordPtsDef->AXIS1_PT_BOT_SURF_DEF) - 50;
-                    $percent3 = floatval($tempRecordPtsDef->AXIS2_PT_BOT_SURF_DEF) - 50;
-                    $percent2 = floatval($tempRecordPtsDef->AXIS3_PT_BOT_SURF_DEF);
+                    $percent3 = floatval($tempRecordPtsDef->AXIS3_PT_BOT_SURF_DEF) - 50;
+                    $percent2 = floatval($tempRecordPtsDef->AXIS2_PT_BOT_SURF_DEF);
 
                     $tempRecordPts->AXIS1_PT_BOT_SURF = $dim2*$percent1/100.0;
                     $tempRecordPts->AXIS2_PT_BOT_SURF = $dim3*$percent3/100.0;
@@ -445,8 +445,8 @@ class InputInitial3D extends Controller
                 default:
 
                     $percent1 = floatval($tempRecordPtsDef->AXIS1_PT_BOT_SURF_DEF);
-                    $percent3 = floatval($tempRecordPtsDef->AXIS2_PT_BOT_SURF_DEF);
-                    $percent2 = floatval($tempRecordPtsDef->AXIS3_PT_BOT_SURF_DEF);
+                    $percent3 = floatval($tempRecordPtsDef->AXIS3_PT_BOT_SURF_DEF);
+                    $percent2 = floatval($tempRecordPtsDef->AXIS2_PT_BOT_SURF_DEF);
 
                     $tempRecordPts->AXIS1_PT_BOT_SURF = $dim1*$percent1/100.0;
                     $tempRecordPts->AXIS2_PT_BOT_SURF = $dim3*$percent3/100.0;
