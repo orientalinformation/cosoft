@@ -867,16 +867,22 @@ class Reports extends Controller
             if ($idstudyequips->BRAIN_TYPE == 4) {
                 if ($ENTHALPY_V == 1 || $ENTHALPY_G == 1) {
                     $heatexchange[] = $this->reportserv->heatExchange($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
+                    $progress .= "\nEnthpies";
+                    $this->writeProgressFile($progressFile, $progress);
                 } 
 
                 if ($ISOVALUE_V == 1 || $ISOVALUE_G == 1) {
                     $timeBase[] = $this->reportserv->timeBased($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
+                    $progress .= "\nTime Based";
+                    $this->writeProgressFile($progressFile, $progress);
                 }
                 
                 switch ($shapeCode) {
                     case 1:
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
                             $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                            $progress .= "\nProduct Section";
+                            $this->writeProgressFile($progressFile, $progress);
                         }
                         break;
 
@@ -884,20 +890,28 @@ class Reports extends Controller
                         if ($equipData[$key]['ORIENTATION'] == 1) {
                             if ($CONTOUR2D_G == 1) {
                                 $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                                $progress .= "\nContour";
+                                $this->writeProgressFile($progressFile, $progress);
                             } 
 
                             if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
                                 $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                                 $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                                $progress .= "\nProduct Section";
+                                $this->writeProgressFile($progressFile, $progress);
                             }
                         } else {
                             if ($CONTOUR2D_G == 1) {
                                 $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                                $progress .= "\nContour";
+                                $this->writeProgressFile($progressFile, $progress);
                             }
 
                             if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
                                 $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
                                 $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                                $progress .= "\nProduct Section";
+                                $this->writeProgressFile($progressFile, $progress);
                             }
                         }
                         break;
@@ -909,16 +923,22 @@ class Reports extends Controller
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
                             $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
                             $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                            $progress .= "\nProduct Section";
+                            $this->writeProgressFile($progressFile, $progress);
                         }
 
                         if ($CONTOUR2D_G == 1) {
                             $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                            $progress .= "\nContour";
+                            $this->writeProgressFile($progressFile, $progress);
                         }
                         break;
 
                     case 6:
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
                             $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                            $progress .= "\nProduct Section";
+                            $this->writeProgressFile($progressFile, $progress);
                         }
                         break;
 
@@ -926,15 +946,21 @@ class Reports extends Controller
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
                             $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
                             $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                            $progress .= "\nProduct Section";
+                            $this->writeProgressFile($progressFile, $progress);
                         }
 
                         if ($equipData[$key]['ORIENTATION'] == 1) {
                             if ($CONTOUR2D_G == 1) {
                                 $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                                $progress .= "\nContour";
+                                $this->writeProgressFile($progressFile, $progress);
                             }
                         } else {
                             if ($CONTOUR2D_G == 1) {
                                 $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                                $progress .= "\nContour";
+                                $this->writeProgressFile($progressFile, $progress);
                             }
                         }
                         break;
@@ -943,32 +969,16 @@ class Reports extends Controller
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
                             $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
                             $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                            $progress .= "\nProduct Section";
+                            $this->writeProgressFile($progressFile, $progress);
                         }
 
                         if ($CONTOUR2D_G == 1) {
                             $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                            $progress .= "\nContour";
+                            $this->writeProgressFile($progressFile, $progress);
                         }
                         break;
-                }
-
-                if (!empty($heatexchange)) {
-                    $progress .= "\nEnthpies";
-                    $this->writeProgressFile($progressFile, $progress);
-                }
-
-                if (!empty($timeBase)) {
-                    $progress .= "\nTime Based";
-                    $this->writeProgressFile($progressFile, $progress);
-                }
-
-                if (!empty($proSections)) {
-                    $progress .= "\nProduct Section";
-                    $this->writeProgressFile($progressFile, $progress);
-                }
-
-                if (!empty($pro2Dchart)) {
-                    $progress .= "\nContour";
-                    $this->writeProgressFile($progressFile, $progress);
                 }
             } 
         }
