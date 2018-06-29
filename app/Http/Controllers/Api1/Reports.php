@@ -94,9 +94,9 @@ class Reports extends Controller
      * @return void
      */
     public function __construct(Request $request, Auth $auth, UnitsConverterService $convert, 
-    ValueListService $values, StudyEquipmentService $stdeqp, Lines $pipelines, 
-    ReportService $reportserv, MinMaxService $minmax, StudyService $study, 
-    UnitsService $units, OutputService $output, EquipmentsService $equip)
+        ValueListService $values, StudyEquipmentService $stdeqp, Lines $pipelines, 
+        ReportService $reportserv, MinMaxService $minmax, StudyService $study, 
+        UnitsService $units, OutputService $output, EquipmentsService $equip)
     {
         $this->request = $request;
         $this->auth = $auth;
@@ -113,7 +113,8 @@ class Reports extends Controller
         $this->reportFolder = $this->output->public_path('report');
     }
 
-    public function writeProgressFile($fileName, $content) {
+    public function writeProgressFile($fileName, $content)
+    {
         $f = fopen($fileName, "w");
         fwrite($f, $content);
         fflush($f);
@@ -125,15 +126,16 @@ class Reports extends Controller
         $study = Study::where('ID_STUDY', $id)->first();
         $stuequips = $study->studyEquipments;
         if ($stuequips != null) {
-        foreach ($stuequips as $stuequip) {
-            if ($stuequip->tr != "" || $stuequip->tr != "***") {
-                if ($study->CALCULATION_MODE == 1 && (!$stuequip->BRAIN_TYPE == 4)) {
+            foreach ($stuequips as $stuequip) {
+                if ($stuequip->tr != "" || $stuequip->tr != "***") {
+                    if ($study->CALCULATION_MODE == 1 && (!$stuequip->BRAIN_TYPE == 4)) {
                         return response("Report is available only when equipments are calculated numerically", 406);
-                } else if ($study->CALCULATION_MODE != 1 && (!$stuequip->BRAIN_TYPE != 0)) {
+                    } else if ($study->CALCULATION_MODE != 1 && (!$stuequip->BRAIN_TYPE != 0)) {
                         return response("Report is available only when equipments are calculated numerically", 406);
+                    }
                 }
             }
-        }
+
             $report = Report::where('ID_STUDY', $id)->first();
     
             if ($report) {    
@@ -315,10 +317,7 @@ class Reports extends Controller
                 $report->PLAN_Z = 0;
                 $report->ASSES_ECO = 0;
                 $report->save();
-    
-                // $report->consumptionSymbol = $this->convert->consumptionSymbol($this->equip->initEnergyDef($id), 1);
-                // $report->temperatureSymbol = $this->convert->temperatureSymbolUser();
-    
+
                 $report->refContRep2DTempMinRef = 0;
                 $report->refContRep2DTempMaxRef = 0;
     
@@ -388,9 +387,11 @@ class Reports extends Controller
         foreach ($list1 as $key) {
             $key->meshAxisPosValue = $this->convert->meshesUnit($key->MESH_AXIS_POS);
         }
+
         foreach ($list2 as $key) {
             $key->meshAxisPosValue = $this->convert->meshesUnit($key->MESH_AXIS_POS);
         }
+        
         foreach ($list3 as $key) {
             $key->meshAxisPosValue = $this->convert->meshesUnit($key->MESH_AXIS_POS);
         }
@@ -664,12 +665,12 @@ class Reports extends Controller
         if ($this->study->isMyStudy($id)) {
             $report->update();
         }
-        
 
         return 1;
     }
 
-    function backgroundGenerationPDF($params) {
+    function backgroundGenerationPDF($params) 
+    {
         $id = $params['studyId'];
         $input = $params['input'];
         $DEST_SURNAME = $input['DEST_SURNAME'];
@@ -2116,7 +2117,8 @@ class Reports extends Controller
                         </div>';
                         PDF::writeHTML($html, true, false, true, false, '');
                     }
-                    if ($ENTHALPY_G ==1) {
+                    
+                    if ($ENTHALPY_G == 1) {
                         $html ='<h3>Graphic</h3>
                         <div align="center">
                         <img width="640" height="450" src="'. $public_path .'/heatExchange/'. $study['USERNAM'] .'/'. $resheatexchanges['idStudyEquipment'] .'.png">
