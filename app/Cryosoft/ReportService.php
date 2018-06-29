@@ -774,8 +774,8 @@ class ReportService
         return compact("result", "equipName", "idStudyEquipment");
     }
 
-    public function productSection($idStudy, $idStudyEquipment, $selectedAxe){
-
+    public function productSection($idStudy, $idStudyEquipment, $selectedAxe)
+    {
         $productElmt = ProductElmt::where('ID_STUDY', $idStudy)->first();
         $shape = $productElmt->SHAPECODE;
         $layoutGen = LayoutGeneration::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
@@ -785,6 +785,7 @@ class ReportService
         $timeSymbol = $this->unit->timeSymbol();
         $temperatureSymbol = $this->unit->temperatureSymbol();
         $prodchartDimensionSymbol = $this->unit->prodchartDimensionSymbol();
+        
         $resultLabel = [];
         $resultTemperature = [];
 
@@ -829,10 +830,8 @@ class ReportService
         $lfStep = $listRecordPos[1]->RECORD_TIME - $listRecordPos[0]->RECORD_TIME;
         $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
         $dataChart = [];
-        // return $axeTempRecordData;
 
         foreach ($lEchantillon as $row) {
-
             $recordPos = $listRecordPos[$row];
 
             $itemResult["x"] = $this->unit->time($recordPos->RECORD_TIME);
@@ -961,6 +960,7 @@ class ReportService
         $userName = $study->USERNAM;
         $productSectionFolder = $this->output->public_path('productSection');
         $fileName = $idStudyEquipment . '-' . $selectedAxe;
+
         if (!file_exists($productSectionFolder . '/' . $userName . '/' . $fileName . '.png')) {
             $f = fopen("/tmp/productSection.inp", "w");
 
@@ -992,7 +992,7 @@ class ReportService
             if (!is_dir($productSectionFolder . '/' . $userName)) {
                 mkdir($productSectionFolder . '/' . $userName, 0777);
             }
-            
+
             system('gnuplot -c '. $this->plotFolder .'/productSection.plot "('. $this->unit->prodchartDimensionSymbol() .')" "('. $this->unit->temperatureSymbol() .')" "'. $productSectionFolder . '/' . $userName .'" "'. $fileName .'"');
         }
 
@@ -1036,22 +1036,22 @@ class ReportService
                 $curve["bot"][] = $itemCurveBotom;
                 $curve["average"][] = $itemCurveAverage;
             }
+            
             $tempRecordPts = TempRecordPts::where("ID_STUDY", $idStudy)->first();
             $nbSample = $tempRecordPts->NB_STEPS;
-            $equipName = $this->equip->getResultsEquipName($idStudyEquipment);
-
-            $timeSymbol = $this->unit->timeSymbol();
-            $temperatureSymbol = $this->unit->temperatureSymbol();
 
             $nbRecord = count($listRecordPos);
 
             $lfTS = $listRecordPos[$nbRecord - 1]->RECORD_TIME;
             $lfStep = $listRecordPos[1]->RECORD_TIME - $listRecordPos[0]->RECORD_TIME;
+
+            $equipName = $this->equip->getResultsEquipName($idStudyEquipment);
+            $timeSymbol = $this->unit->timeSymbol();
+            $temperatureSymbol = $this->unit->temperatureSymbol();
+
             $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
             foreach ($lEchantillon as $row) {
-                
                 $recordPos = $listRecordPos[$row];
-
                 $item["points"] = $this->unit->time($recordPos->RECORD_TIME);
 
                 //top
@@ -1069,6 +1069,7 @@ class ReportService
                 $item["average"] = $this->unit->prodTemperature($recordPos->AVERAGE_TEMP);
                 $result[] = $item; 
             }
+            
             $label["top"] = $this->unit->meshesUnit($tempRecordPts->AXIS1_PT_TOP_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_TOP_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_TOP_SURF);
 
             $label["int"] = $this->unit->meshesUnit($tempRecordPts->AXIS1_PT_INT_PT) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_INT_PT) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_INT_PT);
