@@ -153,22 +153,24 @@ class Reports extends Controller
                 $report->productElmt = $productElmt;
                 $report->temperatureSymbol = $this->convert->temperatureSymbolUser();
 
-                $tempDataReport = $this->reportserv->initTempDataForReportData($studyEquip[0]->ID_STUDY_EQUIPMENTS); 
-                $report->refContRep2DTempMinRef = $tempDataReport[0];
-                $report->refContRep2DTempMaxRef = $tempDataReport[1];
-                $report->refContRep2DTempStepRef = $tempDataReport[2];
+                if ($studyEquip) {
+                    $tempDataReport = $this->reportserv->initTempDataForReportData($studyEquip[count($studyEquip) - 1]->ID_STUDY_EQUIPMENTS);
+                    $report->refContRep2DTempMinRef = $tempDataReport[0];
+                    $report->refContRep2DTempMaxRef = $tempDataReport[1];
+                    $report->refContRep2DTempStepRef = $tempDataReport[2];
+                }
 
-                if ($report->CONTOUR2D_TEMP_STEP == 0) {
+                if ($report->CONTOUR2D_TEMP_STEP == 0 && $studyEquip) {
                     $report->CONTOUR2D_TEMP_STEP = $tempDataReport[2];
                 }
     
-                if ($report->CONTOUR2D_TEMP_MIN == 0) {
+                if ($report->CONTOUR2D_TEMP_MIN == 0 && $studyEquip) {
                     $report->CONTOUR2D_TEMP_MIN = $tempDataReport[0];
                 } else {
                     $report->CONTOUR2D_TEMP_MIN = $this->convert->prodTemperature($report->CONTOUR2D_TEMP_MIN);
                 }
     
-                if ($report->CONTOUR2D_TEMP_MAX == 0) {
+                if ($report->CONTOUR2D_TEMP_MAX == 0 && $studyEquip) {
                     $report->CONTOUR2D_TEMP_MAX = $tempDataReport[1];
                 } else {
                     $report->CONTOUR2D_TEMP_MAX = $this->convert->prodTemperature($report->CONTOUR2D_TEMP_MAX);
@@ -2117,7 +2119,7 @@ class Reports extends Controller
                         </div>';
                         PDF::writeHTML($html, true, false, true, false, '');
                     }
-                    
+
                     if ($ENTHALPY_G == 1) {
                         $html ='<h3>Graphic</h3>
                         <div align="center">
