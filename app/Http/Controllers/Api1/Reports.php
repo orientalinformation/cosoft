@@ -151,7 +151,7 @@ class Reports extends Controller
                 $report->productElmt = $productElmt;
                 $report->temperatureSymbol = $this->convert->temperatureSymbolUser();
 
-                $tempDataReport = $this->reportserv->initTempDataForReport($id); 
+                $tempDataReport = $this->reportserv->initTempDataForReportData($studyEquip[0]->ID_STUDY_EQUIPMENTS); 
                 $report->refContRep2DTempMinRef = $tempDataReport[0];
                 $report->refContRep2DTempMaxRef = $tempDataReport[1];
                 $report->refContRep2DTempStepRef = $tempDataReport[2];

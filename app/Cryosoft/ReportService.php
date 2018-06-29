@@ -1832,34 +1832,94 @@ class ReportService
         return $tabBorne;
     }
 
-    public function calculatePasTemp($lfTmin, $lfTMax, $auto)
+    public function initTempDataForReportData($idStudyEquipment)
     {
+        $recordPosition = RecordPosition::select('RECORD_TIME')->where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("RECORD_TIME", "ASC")->get();
+        $recordTime = $this->unit->time($recordPosition[count($recordPosition) - 1]->RECORD_TIME);
+        $tempInterval = [0.0, 0.0];
+
+        $result = $this->initReportTempInterval($idStudyEquipment, $recordTime, $tempInterval);
+
+        $data = [$this->unit->prodTemperature($result[0]), $this->unit->prodTemperature($result[1]), $result[2]];
+
+        return $data;
+    }
+
+    public function initReportTempInterval($idStudyEquipment, $recordTime, $tempInterval)
+    {
+        $tempResult = [];
+        $result = '';
+
+        if ($recordTime < 0) {
+            $tempRecordDataMin = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->orderBy('TEMP', 'ASC')->first();
+            $tempRecordDataMax = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->orderBy('TEMP', 'DESC')->first();
+            $tempResult = [$tempRecordDataMin->TEMP, $tempRecordDataMax->TEMP];
+        } else {
+            $tempRecordDataMin = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->where('RECORD_TIME', $recordTime)->orderBy('TEMP', 'ASC')->first();
+            $tempRecordDataMax = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->where('RECORD_TIME', $recordTime)->orderBy('TEMP', 'DESC')->first();
+            $tempResult = [$tempRecordDataMin->TEMP, $tempRecordDataMax->TEMP];
+        }
+
+        $bornesTemp = [];
+        if (!empty($tempResult)) {
+            if ($tempInterval[0] >= $tempInterval[1]) {
+                $tempInterval[0] = $tempResult[0];
+                $tempInterval[1] = $tempResult[1];
+            } else {
+                if ($tempInterval[0] > $tempResult[0]) {
+                    $tempInterval[0] = $tempResult[0];
+                }
+                if ($tempInterval[1] < $tempResult[1]) {
+                    $tempInterval[1] = $tempResult[1];
+                }
+            }
+            $bornesTemp = [$this->unit->prodTemperature($tempInterval[0], ['save' => true]), $this->unit->prodTemperature($tempInterval[1], ['save' => true])];
+
+            $result = $this->calculatePasTemp($bornesTemp[0], $bornesTemp[1], false);
+        }
+
+        return $result;
+    }
+
+    protected function calculatePasTemp($lfTmin, $lfTMax, $auto)
+    {
+        set_time_limit(1000);
+        $tab = [];
+        $dTMin = 0;
+        $dTMax = 0;
         $dpas = 0;
         $dnbpas = 0;
-        $dTmin = intval(floor($lfTmin));
+
+        $dTMin = intval(floor($lfTmin));
         $dTMax = intval(ceil($lfTMax));
 
         if ($auto) {
-            $dpas = intval(floor(abs($dTMax - $dTmin) / 14) - 1);
+            $dpas = intval(floor(abs($dTMax - $dTMin) / 14) - 1);
         } else {
             $dpas = intval(floor($this->pasTemp) - 1);
         }
 
+        if ($dpas < 0) {
+            $dpas = 0;
+        }
+
         do {
             $dpas++;
-            if ($dpas != 0) {
 
-                while ($dTmin % $dpas != 0) {
-                    $dTmin--;
-                }
-
-                while ($dTMax % $dpas != 0) {
-                    $dTMax++;
-                }
-                $dnbpas = abs($dTMax - $dTmin) / $dpas;    
+            while ($dTMin % $dpas != 0) {
+                $dTMin--;
             }
+
+            while ($dTMax % $dpas != 0) {
+                $dTMax++;
+            }
+
+            $dnbpas = abs($dTMax - $dTMin) / $dpas;
         } while ($dnbpas > 16);
 
-        return [$dTmin, $dTMax, $dpas];
+        $tab = [$this->unit->prodTemperature($dTMin), $this->unit->prodTemperature($dTMax), $dpas];
+
+        return $tab;
     }
+
 }
