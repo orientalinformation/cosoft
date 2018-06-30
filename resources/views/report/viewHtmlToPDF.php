@@ -972,8 +972,8 @@
                 </div>
             </div>
         <?php } ?>
-            <?php if ($arrayParam['params']['ISOVALUE_G'] == 1) { ?>   
-                <h2>Graphic</h2>             
+            <?php if ($arrayParam['params']['ISOVALUE_G'] == 1) { ?>      
+                <h5 class="bold">Graphic</h5>        
                 <div class="pro-graphic" align="center">
                 <img src="<?php echo $arrayParam['host'] . "/timeBased/" . $arrayParam['study']['USERNAM'] . "/" .  $timeBases['idStudyEquipment'] . ".png" ?>" style="max-width: 640px">
                 </div>
@@ -985,7 +985,7 @@
             <?php if ($arrayParam['params']['CONTOUR2D_G'] == 1) { ?> 
             <div class="block-title">2D Outlines</div>
                 <?php foreach ($pro2Dchart as $pro2Dcharts) {?>
-                <h3><?php echo $pro2Dcharts['equipName'] ?></h3>
+                <h5 class="bold"><?php echo $pro2Dcharts['equipName'] ?></h5>
                     <div class="outlines" align="center"> 
                     <img src="<?php echo $arrayParam['host'] . "/heatmap/" . $arrayParam['study']['USERNAM'] . "/" .  $pro2Dcharts['idStudyEquipment'] . "/" . $pro2Dcharts['lfDwellingTime'] . "-" 
                     . $pro2Dcharts['chartTempInterval'][0] . "-" . $pro2Dcharts['chartTempInterval'][1] . "-" . $pro2Dcharts['chartTempInterval'][2] . ".png" ?>" style="max-width: 640px">
