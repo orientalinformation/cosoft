@@ -54,6 +54,10 @@ class Auth extends Controller
         }
 
         $user = $this->auth->user();
+        $user = $this->auth->user();
+        if ($user) {
+            $user->USERMAIL = null;
+        }
 
         return response()->json(compact('token','user'));
     }
