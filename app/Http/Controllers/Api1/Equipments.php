@@ -1602,9 +1602,9 @@ class Equipments extends Controller
                 for ($i = 0; $i < count($Consumptions); $i++) {
                     $newConsumption = new Consumptions();
                     $newConsumption->ID_EQUIP = $ID_EQUIP;
-                    $newConsumption->TEMPERATURE = $Consumptions[$i]->TEMPERATURE;
-                    $newConsumption->CONSUMPTION_PERM = $Consumptions[$i]->CONSUMPTION_PERM;
-                    $newConsumption->CONSUMPTION_GETCOLD = $Consumptions[$i]->CONSUMPTION_GETCOLD;
+                    $newConsumption->TEMPERATURE = $Consumptions[$i]['TEMPERATURE'];
+                    $newConsumption->CONSUMPTION_PERM = $Consumptions[$i]['CONSUMPTION_PERM'];
+                    $newConsumption->CONSUMPTION_GETCOLD = $Consumptions[$i]['CONSUMPTION_GETCOLD'];
                     $newConsumption->save();
                 }
             }
