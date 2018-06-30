@@ -71,8 +71,8 @@ class ProductElementsService
 
     public function PropagationTempProdElmtIso($pb, $b3D)
     {
-        $pe = \App\Models\ProductElmt::find($pb['ID_PRODUCT_ELMT']);
-        $product = \App\Models\Product::find($pb['ID_PROD']);
+        $pe = ProductElmt::find($pb['ID_PRODUCT_ELMT']);
+        $product = Product::find($pb['ID_PROD']);
         $study = $product->study;
         $prodMeshgene = $product->meshGenerations()->first();
         
@@ -138,8 +138,8 @@ class ProductElementsService
 
     public function PropagationTempProdElmtIsoForBreaded($pb)
     {
-        $pe = \App\Models\ProductElmt::find($pb['ID_PRODUCT_ELMT']);
-        $product = \App\Models\Product::find($pb['ID_PROD']);
+        $pe = ProductElmt::find($pb['ID_PRODUCT_ELMT']);
+        $product = Product::find($pb['ID_PROD']);
         $study = $product->study;
         $prodMeshgene = $product->meshGenerations()->first();
         // log . debug("PropagationTempProdElmtIso for BREADED");
@@ -285,5 +285,35 @@ class ProductElementsService
         }
 
         return $lfheight;
+    }
+
+    public function findProdElmt3D($idProd, $idProdElmt, $status)
+    {   
+        $prodEmltBeforeCurrent = null;
+        $max = 0;
+        $elmts = [];
+        $pElmts = ProductElmt::where('ID_PROD', $idProd)->get();
+        foreach ($pElmts as $elmt) {
+            if ($status) {
+                if ($elmt->ID_PRODUCT_ELMT > $idProdElmt) {
+                    return $elmt; 
+                }
+            } else {
+                if ($elmt->ID_PRODUCT_ELMT < $idProdElmt) {
+                    array_push($elmts, $elmt);
+                }
+            }
+        }
+
+        if (count($elmts) > 0) {
+            foreach ($elmts as $elmt) {
+                if ($elmt->ID_PRODUCT_ELMT > $max) {
+                    $max = $elmt->ID_PRODUCT_ELMT;
+                    $prodEmltBeforeCurrent = $elmt;
+                }
+            }
+        }
+
+        return $prodEmltBeforeCurrent;
     }
 }

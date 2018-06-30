@@ -11,6 +11,7 @@
  ****************************************************************************/
 namespace App\Cryosoft;
 
+use Illuminate\Support\Facades\DB;
 use App\Models\Study;
 use App\Models\StudyEquipment;
 use App\Models\Production;
@@ -92,6 +93,7 @@ class ReportService
 		$this->stu = $app['App\\Cryosoft\\StudyService'];
         $this->output = $app['App\\Cryosoft\\OutputService'];
         $this->plotFolder = $this->output->base_path('scripts');
+        $this->pasTemp = -1.0;
 	}
 
     public function getOptimumHeadBalance($idStudy)
@@ -99,10 +101,14 @@ class ReportService
         $idUser = $this->auth->user()->ID_USER;
         $study = Study::find($idStudy);
         $calculationMode = $study->CALCULATION_MODE;
-        $stuName = $study->STUDY_NAME;
-
-        //get study equipment
-        $studyEquipments = StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
+        if ($study->PARENT_ID != 0) {
+            $studyParent = Study::find($study->PARENT_ID);
+            $stuName = $studyParent->STUDY_NAME;
+            $studyEquipments = StudyEquipment::where("ID_STUDY", $studyParent->ID_STUDY)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
+        } else {
+            $stuName = $study->STUDY_NAME;
+            $studyEquipments = StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
+        }     
 
         $lfcoef = $this->unit->unitConvert($this->value->MASS_PER_UNIT, 1.0);
 
@@ -227,6 +233,7 @@ class ReportService
             $item["conso_warning"] = $conso_warning;
             $item["toc"] = $toc;
             $item["precision"] = $precision;
+            $item["stuName"] = $stuName;
 
             $result[] = $item;
         }
@@ -734,7 +741,6 @@ class ReportService
         $lfTS = $listRecordPos[$nbRecord - 1]->RECORD_TIME;
         $lfStep = $listRecordPos[1]->RECORD_TIME - $listRecordPos[0]->RECORD_TIME;
         $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
-
         foreach ($lEchantillon as $row) {
 
             $recordPos = $listRecordPos[$row];
@@ -768,8 +774,8 @@ class ReportService
         return compact("result", "equipName", "idStudyEquipment");
     }
 
-    public function productSection($idStudy, $idStudyEquipment, $selectedAxe){
-
+    public function productSection($idStudy, $idStudyEquipment, $selectedAxe)
+    {
         $productElmt = ProductElmt::where('ID_STUDY', $idStudy)->first();
         $shape = $productElmt->SHAPECODE;
         $layoutGen = LayoutGeneration::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
@@ -779,6 +785,7 @@ class ReportService
         $timeSymbol = $this->unit->timeSymbol();
         $temperatureSymbol = $this->unit->temperatureSymbol();
         $prodchartDimensionSymbol = $this->unit->prodchartDimensionSymbol();
+        
         $resultLabel = [];
         $resultTemperature = [];
 
@@ -823,10 +830,8 @@ class ReportService
         $lfStep = $listRecordPos[1]->RECORD_TIME - $listRecordPos[0]->RECORD_TIME;
         $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
         $dataChart = [];
-        // return $axeTempRecordData;
 
         foreach ($lEchantillon as $row) {
-
             $recordPos = $listRecordPos[$row];
 
             $itemResult["x"] = $this->unit->time($recordPos->RECORD_TIME);
@@ -951,49 +956,49 @@ class ReportService
             }
         }
 
-        $f = fopen("/tmp/productSection.inp", "w");
-
-        $dataLabel = '';
-        fputs($f, '"X" ');
-        foreach ($resultLabel as $row) {
-            $dataLabel .= '"Temperature T' . $row . '(' . $this->unit->timeSymbol() . ')' . '"' . ' ';
-        } 
-
-        fputs($f, $dataLabel);
-        fputs($f, "\n");
-
-        $i = 0;
-        foreach ($resultValue as $key => $row) {
-            $dataValue = '';
-            $dataValue = $i . ' ';
-            foreach ($row as $value) {
-                $dataValue .= $value . ' ';
-            }
-            fputs($f, $dataValue);
-            fputs($f, "\n");
-            $i++;
-        }
-        fclose($f);
-
         $study = Study::find($idStudy);
         $userName = $study->USERNAM;
         $productSectionFolder = $this->output->public_path('productSection');
-
-        if (!is_dir($productSectionFolder)) {
-            mkdir($productSectionFolder, 0777);
-        }
-        if (!is_dir($productSectionFolder . '/' . $userName)) {
-            mkdir($productSectionFolder . '/' . $userName, 0777);
-        }
-
         $fileName = $idStudyEquipment . '-' . $selectedAxe;
 
-        system('gnuplot -c '. $this->plotFolder .'/productSection.plot "('. $this->unit->prodchartDimensionSymbol() .')" "('. $this->unit->temperatureSymbol() .')" "'. $productSectionFolder . '/' . $userName .'" "'. $fileName .'"');
+        if (!file_exists($productSectionFolder . '/' . $userName . '/' . $fileName . '.png')) {
+            $f = fopen("/tmp/productSection.inp", "w");
+
+            $dataLabel = '';
+            fputs($f, '"X" ');
+            foreach ($resultLabel as $row) {
+                $dataLabel .= '"Temperature T' . $row . '(' . $this->unit->timeSymbol() . ')' . '"' . ' ';
+            } 
+
+            fputs($f, $dataLabel);
+            fputs($f, "\n");
+
+            $i = 0;
+            foreach ($resultValue as $key => $row) {
+                $dataValue = '';
+                $dataValue = $i . ' ';
+                foreach ($row as $value) {
+                    $dataValue .= $value . ' ';
+                }
+                fputs($f, $dataValue);
+                fputs($f, "\n");
+                $i++;
+            }
+            fclose($f);
+
+            if (!is_dir($productSectionFolder)) {
+                mkdir($productSectionFolder, 0777);
+            }
+            if (!is_dir($productSectionFolder . '/' . $userName)) {
+                mkdir($productSectionFolder . '/' . $userName, 0777);
+            }
+
+            system('gnuplot -c '. $this->plotFolder .'/productSection.plot "('. $this->unit->prodchartDimensionSymbol() .')" "('. $this->unit->temperatureSymbol() .')" "'. $productSectionFolder . '/' . $userName .'" "'. $fileName .'"');
+        }
 
         $result["recAxis"] = $recAxis;
         $result["mesAxis"] = $mesAxis;
         $result["resultValue"] = $resultValue;
-
 
         return compact("equipName", "axeTemp", "dataChart", "resultLabel",
          "result", "selectedAxe", "timeSymbol", "temperatureSymbol", "prodchartDimensionSymbol",
@@ -1002,7 +1007,6 @@ class ReportService
 
     public function timeBased($idStudy, $idStudyEquipment)
     {
-
         $listRecordPos = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->get();
         $result = array();
         $label = array();
@@ -1032,23 +1036,22 @@ class ReportService
                 $curve["bot"][] = $itemCurveBotom;
                 $curve["average"][] = $itemCurveAverage;
             }
+            
             $tempRecordPts = TempRecordPts::where("ID_STUDY", $idStudy)->first();
             $nbSample = $tempRecordPts->NB_STEPS;
-            $equipName = $this->equip->getResultsEquipName($idStudyEquipment);
-
-            $timeSymbol = $this->unit->timeSymbol();
-            $temperatureSymbol = $this->unit->temperatureSymbol();
 
             $nbRecord = count($listRecordPos);
 
             $lfTS = $listRecordPos[$nbRecord - 1]->RECORD_TIME;
             $lfStep = $listRecordPos[1]->RECORD_TIME - $listRecordPos[0]->RECORD_TIME;
+
+            $equipName = $this->equip->getResultsEquipName($idStudyEquipment);
+            $timeSymbol = $this->unit->timeSymbol();
+            $temperatureSymbol = $this->unit->temperatureSymbol();
+
             $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
-
             foreach ($lEchantillon as $row) {
-                
                 $recordPos = $listRecordPos[$row];
-
                 $item["points"] = $this->unit->time($recordPos->RECORD_TIME);
 
                 //top
@@ -1066,6 +1069,7 @@ class ReportService
                 $item["average"] = $this->unit->prodTemperature($recordPos->AVERAGE_TEMP);
                 $result[] = $item; 
             }
+            
             $label["top"] = $this->unit->meshesUnit($tempRecordPts->AXIS1_PT_TOP_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_TOP_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_TOP_SURF);
 
             $label["int"] = $this->unit->meshesUnit($tempRecordPts->AXIS1_PT_INT_PT) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_INT_PT) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_INT_PT);
@@ -1073,32 +1077,34 @@ class ReportService
             $label["bot"] = $this->unit->meshesUnit($tempRecordPts->AXIS1_PT_BOT_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_BOT_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_BOT_SURF);
         }
 
-        $f = fopen("/tmp/timeBased.inp", "w");
-
-        $dataLabel = '';
-        fputs($f, '"X" ');
-        fputs($f, '"Top('. $label['top'] .')" ');
-        fputs($f, '"Internal('. $label['int'] .')" ');
-        fputs($f, '"Bottom('. $label['bot'] .')" ');
-        fputs($f, '"Average temperature"'. "\n");
-
         $study = Study::find($idStudy);
         $userName = $study->USERNAM;
         $timeBasedFolder = $this->output->public_path('timeBased');
+        if (!file_exists($timeBasedFolder . '/' . $userName . '/' . $idStudyEquipment . '.png')) {
+            $f = fopen("/tmp/timeBased.inp", "w");
 
-        if (!is_dir($timeBasedFolder)) {
-            mkdir($timeBasedFolder, 0777);
+            $dataLabel = '';
+            fputs($f, '"X" ');
+            fputs($f, '"Top('. $label['top'] .')" ');
+            fputs($f, '"Internal('. $label['int'] .')" ');
+            fputs($f, '"Bottom('. $label['bot'] .')" ');
+            fputs($f, '"Average temperature"'. "\n");
+
+            if (!is_dir($timeBasedFolder)) {
+                mkdir($timeBasedFolder, 0777);
+            }
+            if (!is_dir($timeBasedFolder . '/' . $userName)) {
+                mkdir($timeBasedFolder . '/' . $userName, 0777);
+            }
+
+            foreach ($curve['top'] as $key => $row) {
+                fputs($f, (double) $row['x'] . ' ' . (double) $row['y'] . ' ' . (double) $curve['bot'][$key]['y'] . ' ' . (double) $curve['int'][$key]['y'] . ' ' . (double) $curve['average'][$key]['y'] . "\n");
+            } 
+            fclose($f);
+
+            system('gnuplot -c '. $this->plotFolder .'/timeBased.plot "('. $this->unit->timeSymbol() .')" "('. $this->unit->temperatureSymbol() .')" "'. $timeBasedFolder . '/' . $userName .'" "'. $idStudyEquipment .'"');
         }
-        if (!is_dir($timeBasedFolder . '/' . $userName)) {
-            mkdir($timeBasedFolder . '/' . $userName, 0777);
-        }
-
-        foreach ($curve['top'] as $key => $row) {
-            fputs($f, (double) $row['x'] . ' ' . (double) $row['y'] . ' ' . (double) $curve['bot'][$key]['y'] . ' ' . (double) $curve['int'][$key]['y'] . ' ' . (double) $curve['average'][$key]['y'] . "\n");
-        } 
-        fclose($f);
-
-        system('gnuplot -c '. $this->plotFolder .'/timeBased.plot "('. $this->unit->timeSymbol() .')" "('. $this->unit->temperatureSymbol() .')" "'. $timeBasedFolder . '/' . $userName .'" "'. $idStudyEquipment .'"');
+        
 
         return compact("label", "result", "timeSymbol", "temperatureSymbol", "equipName", "idStudyEquipment");
     }
@@ -1779,4 +1785,138 @@ class ReportService
 
         return compact("result", "dataGraphChart", "productFlowRate");
     }
+
+    public function initTempDataForReport($idStudy)
+    {
+        $bornesTemp = $this->getReportTemperatureBorne($idStudy);
+
+        $tempInterval[0] = $bornesTemp[0];
+        $tempInterval[1] = $bornesTemp[1];
+
+        $bornesTemp[0] = $this->unit->prodTemperature($tempInterval[0], ['format' => false]);
+        $bornesTemp[1] = $this->unit->prodTemperature($tempInterval[1], ['format' => false]);
+
+        $res = $this->calculatePasTemp($bornesTemp[0], $bornesTemp[1], true);
+        $bornesTemp[0] = $res[0];
+        $bornesTemp[1] = $res[1];
+        $pasTemp = $res[2];
+
+        $tempInterval[0] = $this->unit->prodTemperature($bornesTemp[0]);
+        $tempInterval[1] = $this->unit->prodTemperature($bornesTemp[1]);
+
+        $data = [$tempInterval[0], $tempInterval[1], $pasTemp];
+
+        return $data;
+    }
+
+    public function getReportTemperatureBorne($idStudy)
+    {
+        $tabBorne[0] = 0.0;
+        $tabBorne[1] = 0.0;
+
+        $query =  DB::select("SELECT MIN( TRD.TEMP ) AS MIN_TEMP, MAX( TRD.TEMP ) AS MAX_TEMP FROM TEMP_RECORD_DATA AS TRD 
+        JOIN (SELECT REC_POS.ID_REC_POS FROM RECORD_POSITION AS REC_POS JOIN (SELECT REC_POS1.ID_STUDY_EQUIPMENTS, 
+        MAX(REC_POS1.RECORD_TIME) AS RECORD_TIME FROM RECORD_POSITION AS REC_POS1 
+        JOIN STUDY_EQUIPMENTS AS STD_EQP ON REC_POS1.ID_STUDY_EQUIPMENTS = STD_EQP.ID_STUDY_EQUIPMENTS 
+        WHERE STD_EQP.ID_STUDY = " . $idStudy . " GROUP BY REC_POS1.ID_STUDY_EQUIPMENTS) AS REC_POS2 
+        ON REC_POS.ID_STUDY_EQUIPMENTS = REC_POS2.ID_STUDY_EQUIPMENTS AND REC_POS.RECORD_TIME = REC_POS2.RECORD_TIME) AS REC_POS3 ON TRD.ID_REC_POS = REC_POS3.ID_REC_POS");
+
+        if ($query) {
+            $tabBorne[0] = $query[0]->MIN_TEMP;
+            $tabBorne[1] = $query[0]->MAX_TEMP;
+        }
+
+        return $tabBorne;
+    }
+
+    public function initTempDataForReportData($idStudyEquipment)
+    {
+        $recordPosition = RecordPosition::select('RECORD_TIME')->where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("RECORD_TIME", "ASC")->get();
+        $recordTime = $this->unit->time($recordPosition[count($recordPosition) - 1]->RECORD_TIME);
+        $tempInterval = [0.0, 0.0];
+
+        $result = $this->initReportTempInterval($idStudyEquipment, $recordTime, $tempInterval);
+
+        $data = [$this->unit->prodTemperature($result[0]), $this->unit->prodTemperature($result[1]), $result[2]];
+
+        return $data;
+    }
+
+    public function initReportTempInterval($idStudyEquipment, $recordTime, $tempInterval)
+    {
+        $tempResult = [];
+        $result = '';
+
+        if ($recordTime < 0) {
+            $tempRecordDataMin = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->orderBy('TEMP', 'ASC')->first();
+            $tempRecordDataMax = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->orderBy('TEMP', 'DESC')->first();
+            $tempResult = [$tempRecordDataMin->TEMP, $tempRecordDataMax->TEMP];
+        } else {
+            $tempRecordDataMin = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->where('RECORD_TIME', $recordTime)->orderBy('TEMP', 'ASC')->first();
+            $tempRecordDataMax = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->where('RECORD_TIME', $recordTime)->orderBy('TEMP', 'DESC')->first();
+            $tempResult = [$tempRecordDataMin->TEMP, $tempRecordDataMax->TEMP];
+        }
+
+        $bornesTemp = [];
+        if (!empty($tempResult)) {
+            if ($tempInterval[0] >= $tempInterval[1]) {
+                $tempInterval[0] = $tempResult[0];
+                $tempInterval[1] = $tempResult[1];
+            } else {
+                if ($tempInterval[0] > $tempResult[0]) {
+                    $tempInterval[0] = $tempResult[0];
+                }
+                if ($tempInterval[1] < $tempResult[1]) {
+                    $tempInterval[1] = $tempResult[1];
+                }
+            }
+            $bornesTemp = [$this->unit->prodTemperature($tempInterval[0], ['save' => true]), $this->unit->prodTemperature($tempInterval[1], ['save' => true])];
+
+            $result = $this->calculatePasTemp($bornesTemp[0], $bornesTemp[1], false);
+        }
+
+        return $result;
+    }
+
+    protected function calculatePasTemp($lfTmin, $lfTMax, $auto)
+    {
+        set_time_limit(1000);
+        $tab = [];
+        $dTMin = 0;
+        $dTMax = 0;
+        $dpas = 0;
+        $dnbpas = 0;
+
+        $dTMin = intval(floor($lfTmin));
+        $dTMax = intval(ceil($lfTMax));
+
+        if ($auto) {
+            $dpas = intval(floor(abs($dTMax - $dTMin) / 14) - 1);
+        } else {
+            $dpas = intval(floor($this->pasTemp) - 1);
+        }
+
+        if ($dpas < 0) {
+            $dpas = 0;
+        }
+
+        do {
+            $dpas++;
+
+            while ($dTMin % $dpas != 0) {
+                $dTMin--;
+            }
+
+            while ($dTMax % $dpas != 0) {
+                $dTMax++;
+            }
+
+            $dnbpas = abs($dTMax - $dTMin) / $dpas;
+        } while ($dnbpas > 16);
+
+        $tab = [$this->unit->prodTemperature($dTMin), $this->unit->prodTemperature($dTMax), $dpas];
+
+        return $tab;
+    }
+
 }

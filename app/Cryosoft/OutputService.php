@@ -44,7 +44,7 @@ class OutputService
 
         for ($i = 0; $i < $ldNbSample - 1; $i++) {
             $pos = round($i * $lfSampleTime / $lfTimeStep);
-            $tdSamplePos[] = $pos;
+            $tdSamplePos[] = ($pos < 0) ? 0 : $pos;
         }
 
         $pos = $ldNbRecord - 1;
@@ -492,24 +492,26 @@ class OutputService
 
     protected function calculatePasTemp($lfTmin, $lfTMax, $auto, $pasTemp)
     {
+        set_time_limit(1000);
         $tab = [];
         $dTMin = 0;
         $dTMax = 0;
         $dpas = 0;
         $dnbpas = 0;
 
-        $dTMin = floor($lfTmin);
-        $dTMax = ceil($lfTMax);
+        $dTMin = intval(floor($lfTmin));
+        $dTMax = intval(ceil($lfTMax));
 
         if ($auto) {
-            $dpas = floor(abs($dTMax - $dTMin) / 14) - 1;
+            $dpas = intval(floor(abs($dTMax - $dTMin) / 14) - 1);
         } else {
-            $dpas = floor($pasTemp) - 1;
+            $dpas = intval(floor($pasTemp) - 1);
         }
 
         if ($dpas < 0) {
             $dpas = 0;
         }
+
 
         do {
             $dpas++;

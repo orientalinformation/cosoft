@@ -29,6 +29,8 @@ class Input3Ds extends Controller
     protected $equip;
     protected $kernel;
     protected $unit;
+    protected $value;
+    protected $converts;
 
     public function __construct(\Laravel\Lumen\Application $app)
     {
@@ -37,7 +39,9 @@ class Input3Ds extends Controller
         $this->request = $app['Illuminate\\Http\\Request'];
         $this->equip = $app['App\\Cryosoft\\EquipmentsService'];
         $this->kernel = $app['App\\Kernel\\KernelService'];
-        $this->unit = $app['App\\Cryosoft\\UnitsConverterService'];
+        $this->units = $app['App\\Cryosoft\\UnitsService'];
+        $this->values = $app['App\\Cryosoft\\ValueListService'];
+        $this->converts = $app['App\\Cryosoft\\UnitsConverterService'];
 
     }
 
@@ -71,7 +75,7 @@ class Input3Ds extends Controller
                     $initTemp3D->ID_PRODUCT_ELMT = $prodElmts[$i]->ID_PRODUCT_ELMT;
                     $initTemp3D->MESH_POSITION = 0;
                 }
-                $initTemp3D->INIT_TEMP = floatval($this->unit->temperature($initTemp, ['save' => true]));
+                $initTemp3D->INIT_TEMP = floatval($this->units->temperature($initTemp, 16, 1));
                 $initTemp3D->save();
             }
         }
@@ -81,5 +85,60 @@ class Input3Ds extends Controller
         $ok = $this->kernel->getKernelObject('InitTemperature')->ITInitTemperature($conf);
         
         return $ok;
+    }
+
+    public function initNonIso3DTemperature($idProd)
+    {
+        $product = Product::findOrFail($idProd);
+        $study = $product->study;
+        $input = $this->request->json()->all();
+
+        $elements = [];
+        $product->PROD_ISO = $this->values->PROD_NOT_ISOTHERM;
+        $product->save();
+        $idx = -1;
+
+        if (isset($input['elements'])) $elements = $input['elements'];
+        
+        foreach ($elements as $elmt) {
+            $idx++;
+            $elmt['initTemp'] = $input['productElmtInitTemp'][$idx];
+            $elmt['positions'] = $input['initTempPositions'][$idx];
+            $elmt['points'] = intval($input['nbMeshPointElmt'][$idx]);
+
+            $pemlt = ProductElmt::findOrFail($elmt['ID_PRODUCT_ELMT']);
+            $initTemp3D = null;
+            
+            if ($elmt['PROD_ELMT_ISO'] == $this->values->PRODELT_ISOTHERM) {
+                $initTemp3D = InitTemp3D::where('ID_PRODUCT_ELMT', $elmt['ID_PRODUCT_ELMT'])->first();
+                if (!$initTemp3D) {
+                    $initTemp3D = new InitTemp3D();
+                    $initTemp3D->ID_PRODUCT_ELMT = $elmt['ID_PRODUCT_ELMT'];
+                    $initTemp3D->MESH_POSITION = 0;
+                }
+
+                $initTemp3D->INIT_TEMP = floatval($this->units->temperature($elmt['initTemp'][0], 16, 1));
+                $initTemp3D->save();
+
+                // save Flag ProdElmt iso to 1
+                $pemlt->PROD_ELMT_ISO = $this->values->PRODELT_ISOTHERM;
+                $pemlt->save();
+            } else {
+                $initTemp3D = InitTemp3D::where('ID_PRODUCT_ELMT', $elmt['ID_PRODUCT_ELMT'])->delete();
+                for ($i = 0; $i < $elmt['points']; $i++) {
+                    $initTemp3D = new InitTemp3D();
+                    $initTemp3D->ID_PRODUCT_ELMT = $elmt['ID_PRODUCT_ELMT'];
+                    $initTemp3D->INIT_TEMP = floatval($this->units->temperature($elmt['initTemp'][$i], 16, 1));
+                    $initTemp3D->MESH_POSITION = $this->converts->meshesUnitSave($elmt['positions'][$i]);
+                    $initTemp3D->save();
+                }
+
+                // save Flag ProdElmt NON ISO to 2
+                $pemlt->PROD_ELMT_ISO = $this->values->PRODELT_NOT_ISOTHERM;
+                $pemlt->save();
+            }
+        }
+
+        return 1;
     }
 }

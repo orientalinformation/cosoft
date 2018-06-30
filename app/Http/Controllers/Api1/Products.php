@@ -140,6 +140,15 @@ class Products extends Controller
 
         $elmtId = $elmt->ID_PRODUCT_ELMT;
 
+        if ($elmt->ID_SHAPE == TRAPEZOID_3D) {
+            $updateElmt = $this->productElmts->findProdElmt3D($id, $elmtId, false);
+            if ($updateElmt) {
+                $elmt->SHAPE_PARAM1 = $updateElmt->SHAPE_PARAM4;
+                $elmt->SHAPE_PARAM3 = $updateElmt->SHAPE_PARAM5;
+                $elmt->save();
+            }
+        }
+
         //run studyCleaner 41
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_STUDY, -1);
         $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, SC_CLEAN_OUTPUT_PRODUCT);
@@ -194,13 +203,46 @@ class Products extends Controller
         $nElements = ProductElmt::find($idElement);
         $oldRealMass = (double) $this->unit->mass($nElements->PROD_ELMT_REALWEIGHT);
         $oldDim2 = (double) $this->unit->prodDimension($nElements->SHAPE_PARAM2);
+        $oldDim4 = (double) $this->unit->prodDimension($nElements->SHAPE_PARAM4);
+        $oldDim5 = (double) $this->unit->prodDimension($nElements->SHAPE_PARAM5);
         $ok1 = $ok2 = 0;
 
         $nElements->PROD_ELMT_NAME = $description;
-        $nElements->SHAPE_PARAM4 = $this->unit->prodDimension($dim4, ['save' => true]);
-        $nElements->SHAPE_PARAM5 = $this->unit->prodDimension($dim5, ['save' => true]);
         $nElements->save();
         // $nElements->PROD_ELMT_WEIGHT = $this->unit->mass($computedmass, ['save' => true]);
+
+        if ($nElements->ID_SHAPE == TRAPEZOID_3D) {
+            if (($oldDim4 != $dim4) || ($oldDim5 != $dim5)) {
+                $nElements->SHAPE_PARAM4 = $this->unit->prodDimension($dim4, ['save' => true]);
+                $nElements->SHAPE_PARAM5 = $this->unit->prodDimension($dim5, ['save' => true]);
+                $nElements->save();
+
+                $updateElmt = $this->productElmts->findProdElmt3D($id, $idElement, true);
+                if ($updateElmt) {
+                    $updateElmt->SHAPE_PARAM1 = $this->unit->prodDimension($dim4, ['save' => true]);
+                    $updateElmt->SHAPE_PARAM3 = $this->unit->prodDimension($dim5, ['save' => true]);
+                    $updateElmt->save();
+                }
+
+                // Run studyCleaner 41
+                $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_STUDY, -1);
+                $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, SC_CLEAN_OUTPUT_PRODUCT);
+
+                $studyEquipments = StudyEquipment::where('ID_STUDY', $product->ID_STUDY)->get();
+                if (count($studyEquipments) > 0) {
+                    foreach ($studyEquipments as $studyEquipment) {
+                        $this->stdeqp->runLayoutCalculator($studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
+                        $this->stdeqp->runTSCalculator($studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
+                    }
+                }
+
+                $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $id, $idElement);
+                $ok1 = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($product->ID_STUDY, $conf, 2);
+
+                $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $id);
+                $ok2 = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($product->ID_STUDY, $conf, 3);
+            }
+        }
 
         if ($oldDim2 != $dim2) {
             $nElements->SHAPE_PARAM2 = $this->unit->prodDimension($dim2, ['save' => true]);
@@ -301,7 +343,7 @@ class Products extends Controller
 
         $element->delete();
 
-        $elements = \App\Models\ProductElmt::where('ID_PROD', $id)->orderBy('SHAPE_POS2')->get();
+        $elements = ProductElmt::where('ID_PROD', $id)->orderBy('SHAPE_POS2')->get();
 
         if (count($elements) > 0) {
             foreach ($elements as $index => $elmt) {
@@ -396,11 +438,13 @@ class Products extends Controller
                 $elmtInitTemp = $this->productElmts->searchTempMeshPoint($elmt, $pointMeshOrder2['points']);
                 array_push($productElmtInitTemp, $elmtInitTemp);
             } else {
-                $pointMeshOrder2 = $this->product->calculateNumberPoint3D($meshGeneration, $elmt);
-                array_push($initTempPositions, $pointMeshOrder2['positions']);
-                array_push($nbMeshPointElmt, count($pointMeshOrder2['positions']));
+                if ($meshGeneration) {
+                    $pointMeshOrder2 = $this->product->calculateNumberPoint3D($meshGeneration, $elmt);
+                    array_push($initTempPositions, $pointMeshOrder2['positions']);
+                    array_push($nbMeshPointElmt, count($pointMeshOrder2['positions']));
 
-                array_push($productElmtInitTemp, $pointMeshOrder2['points']);
+                    array_push($productElmtInitTemp, $pointMeshOrder2['points']);
+                }
             }
 
             $shapeParam2 = $this->productElmts->getProdElmtthickness($elmt->ID_PRODUCT_ELMT);
@@ -430,7 +474,6 @@ class Products extends Controller
             }
         }
 
-        // $productElmtInitTemp = array_reverse($productElmtInitTemp);
         return compact('meshGeneration', 'elements', 'elmtMeshPositions', 'productIsoTemp', 'nbMeshPointElmt', 'productElmtInitTemp', 'initTempPositions', 'heights');
     }
 
@@ -618,7 +661,7 @@ class Products extends Controller
 
                         $t = $pe['initTemp'];
 
-                        $t = array_reverse($t);
+                        // $t = array_reverse($t); // Mysql not using
                         
                         $t2 = [];
                         
@@ -687,7 +730,6 @@ class Products extends Controller
             $bSave = true;
         } else {
             // no valid temperature
-            // log . debug("No initial temperature valid");
             throw new \Exception("ERROR_NOVALID_TEMP");
         }
             

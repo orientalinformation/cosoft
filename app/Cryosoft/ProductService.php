@@ -10,6 +10,7 @@ use App\Models\ProductElmt;
 use App\Models\MeshPosition;
 use App\Models\InitialTemperature;
 use App\Models\MeshGeneration;
+use App\Models\InitTemp3D;
 
 class ProductService
 {
@@ -241,20 +242,20 @@ class ProductService
         $zEnd = $BorneTemp[$this->values->ID_TMAX];
     }
 
-    public function CheckInitialTemperature(\App\Models\Product &$product) 
+    public function CheckInitialTemperature(Product &$product) 
     {
         // @TODO: implement
         return true;
     }
 
-    public function DeleteOldInitTemp(\App\Models\Product &$product) 
+    public function DeleteOldInitTemp(Product &$product) 
     {
         // @TODO: implement
         // delete all current initial temperature
         InitialTemperature::where('ID_PRODUCTION', $product->study->ID_PRODUCTION)->delete();
     }
 
-    public function saveMatrixTempComeFromParent(\App\Models\Product &$product)
+    public function saveMatrixTempComeFromParent(Product &$product)
     {
         echo "start save matrix from parent\n";
         
@@ -387,7 +388,7 @@ class ProductService
         return $bret;
     }
 
-    public function PropagationTempElmt (\App\Models\Product &$product, $X, $valueY, $Z, $stemp)
+    public function PropagationTempElmt (Product &$product, $X, $valueY, $Z, $stemp)
     {
         $study = $product->study;
 
@@ -439,7 +440,7 @@ class ProductService
         return $etat;
     }
 
-    public function propagationTempProdIso(\App\Models\Product &$product, $x, $y, $z, $stemp)
+    public function propagationTempProdIso(Product &$product, $x, $y, $z, $stemp)
     {
         $listTemp = [];
         $i = $j = $k = 0;
@@ -495,25 +496,64 @@ class ProductService
         $positions = [];
         $points = [];
         $startPoint = $endPoint = $position = $numberPoint = null;
-        if (floatval($meshGeneration->MESH_2_SIZE) != 0 ) {
-            $numberPoint = intval($elmt->SHAPE_PARAM2 / $meshGeneration->MESH_2_SIZE);
+        $meshSize2 = null;
+
+        if ($meshGeneration->MESH_1_FIXED == 1) {
+            if (floatval($meshGeneration->MESH_2_SIZE) != 0 ) {
+                $numberPoint = intval($this->units->meshesUnit($elmt->SHAPE_PARAM2) / $meshGeneration->MESH_2_SIZE);
+                $meshSize2 = $meshGeneration->MESH_2_SIZE;
+            }
+        } else {
+            $numberPoint = intval(log10(1.0 - ($this->units->meshesUnit($elmt->SHAPE_PARAM2) / $meshGeneration->MESH_2_INT) * (1 - $meshGeneration->MESH_2_RATIO)) / log10($meshGeneration->MESH_2_RATIO));
+
+            if ($numberPoint != 0) {
+                $meshSize2 = floatval($this->units->meshesUnit($elmt->SHAPE_PARAM2)) / floatval($numberPoint);
+            }
         }
 
         $startPoint = floatval($elmt->SHAPE_POS2);
         $endPoint = floatval($elmt->SHAPE_POS2) + floatval($elmt->SHAPE_PARAM2);
-        $position = $startPoint;
+        $position = $this->units->meshesUnit($startPoint);
 
-        array_push($positions, $startPoint);
+        array_push($positions, $this->units->meshesUnit($startPoint));
 
         if ($numberPoint > 0) {
             for ($i = 1; $i < $numberPoint - 1 ; $i++) {
-                $position = $position + floatval($meshGeneration->MESH_2_SIZE);
-                array_push($positions, $position);
+                $position = $position + floatval($meshSize2);
+                array_push($positions, round($position, 2));
             }
         }
 
-        array_push($positions, $endPoint);
+        array_push($positions, $this->units->meshesUnit($endPoint));
+
+        rsort($positions);
+
+        $initTemp3Ds = InitTemp3D::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->get();
+        if (count($initTemp3Ds) == 1) {
+            for ($i = 0; $i < count($positions); $i++) {
+                array_push($points, $this->convert->temperature($initTemp3Ds[0]->INIT_TEMP, 2, 0));
+            }            
+        } else {
+            foreach ($initTemp3Ds as $init3D) {
+                array_push($points, $this->convert->temperature($init3D->INIT_TEMP, 2, 0));
+            }
+        }
+
+        $points = array_reverse($points);
 
         return compact('points', 'positions');
+    }
+
+    public function getElmtInitTemp(ProductElmt &$elmt)
+    {
+        $initTemp = [];
+        $initTemp3Ds = InitTemp3D::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->get();
+        if (count($initTemp3Ds) > 0) {
+            foreach ($initTemp3Ds as $init3d) {
+                array_push($initTemp, $this->convert->temperature($init3d->INIT_TEMP, 2, 0));
+            }
+        }
+
+        return $initTemp;
     }
 }

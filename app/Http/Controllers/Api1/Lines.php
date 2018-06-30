@@ -103,12 +103,16 @@ class Lines extends Controller
             }
             $lineElmts = [];
             if (count($pipeGen) > 0) {
+                $arrPipeElmt = [];
                 foreach ($pipeGen->lineDefinitions as $lineDef) {
-                    $lineElmt = $lineDef->lineElmt;
-                    $lineElmts[] = $lineElmt;
+                    $arrPipeElmt[] = $lineDef->ID_PIPELINE_ELMT;
+                    if ($lineDef->TYPE_ELMT != 7) {
+                        $lineElmt = $lineDef->lineElmt;
+                        $lineElmts[] = $lineElmt;
+                    }
                 }
-                $diameterParam = $this->lineE->getdiameter($coolingFamily, $lineElmts[0]->INSULATION_TYPE, $study->ID_STUDY);
-                $storageTankParam = $this->lineE->getStorageTank($coolingFamily, $lineElmts[0]->INSULATION_TYPE, $study->ID_STUDY);
+                $diameterParam = $this->lineE->getdiameter($coolingFamily, $lineElmts[0]->INSULATION_TYPE);
+                $storageTankParam = $this->lineE->getStorageTank($coolingFamily, $lineElmts[0]->INSULATION_TYPE);
                 $insulineSubs = $this->lineE->getNameComboBox(1, $lineElmts[0]->ELT_SIZE, $coolingFamily, $lineElmts[0]->INSULATION_TYPE);
                 $non_insullineSubs = $this->lineE->getNonLine(1, $lineElmts[0]->ELT_SIZE, $coolingFamily);
                 $insullvalSubs = $this->lineE->getNameComboBox(5, $lineElmts[0]->ELT_SIZE, $coolingFamily, $lineElmts[0]->INSULATION_TYPE);
@@ -177,10 +181,7 @@ class Lines extends Controller
                     $elbowsSubsValue[] = $elbowsSub->ID_PIPELINE_ELMT;
                 }
 
-                $arrPipeElmt = [];
-                foreach ($lineElmts as $getIDlineElmt) {
-                    $arrPipeElmt[] = $getIDlineElmt->ID_PIPELINE_ELMT;
-                }
+                
                 $insul = $this->lineE->getIdlineElmtformLineDef($pipeGen->ID_PIPE_GEN, 1);
                 $noninsul = $this->lineE->getIdlineElmtformLineDef($pipeGen->ID_PIPE_GEN, 2);
                 $insulval = $this->lineE->getIdlineElmtformLineDef($pipeGen->ID_PIPE_GEN, 5);
@@ -217,7 +218,10 @@ class Lines extends Controller
                 } else {
                     $elbowLabel ="";
                 }
-
+                // $arrPipeElmt = [];
+                // foreach ($pipeGen->lineDefinitions as $getIDlineElmt) {
+                //     $arrPipeElmt[] = $getIDlineElmt->ID_PIPELINE_ELMT;
+                // }
                 $arrLabel = [];
                 $arrLabel["idPipeELMT"] = $arrPipeElmt;
                 $arrLabel["idcooling"] = $coolingFamily;
@@ -256,20 +260,20 @@ class Lines extends Controller
                 $arrLabel["elbowsnumber"] = $pipeGen->ELBOWS;
                 $arrLabel["teenumber"] = $pipeGen->TEES;
 
-                $getLabels = [];
                 foreach ($arrPipeElmt as $idPipeElmt) {
-                    $getLabels = LineElmt::select('ELT_TYPE','INSULATION_TYPE','LABEL','ID_PIPELINE_ELMT','LINE_RELEASE', 'ID_USER')
+                    $getLabels[]= LineElmt::select('ELT_TYPE','INSULATION_TYPE','LABEL','ID_PIPELINE_ELMT','LINE_RELEASE', 'ID_USER')
                     ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
                     ->where('Translation.TRANS_TYPE', 27)->where('ID_PIPELINE_ELMT', $idPipeElmt)
-                    ->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->get();
+                    ->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
                 }
+                // return $arrPipeElmt;
                 if (count($getLabels) > 0) {
                     foreach ($getLabels as $getLabelName) {
                         if ($getLabelName['ELT_TYPE'] !=2 ) {
                             if ($getLabelName['ID_USER'] == 1) {
-                                $arrLabel[$this->eltTypeString($getLabelName['ELT_TYPE'],$getLabelName['INSULATION_TYPE'] )] = $getLabelName['LABEL'] ."-". $this->lineE->getStatus($getLabelName['LINE_RELEASE']);
+                                $arrLabel[$this->eltTypeString($getLabelName['ELT_TYPE'],$getLabelName['INSULATION_TYPE'] )][] = $getLabelName['LABEL'] ."-". $this->lineE->getStatus($getLabelName['LINE_RELEASE']);
                             } else {
-                                $arrLabel[$this->eltTypeString($getLabelName['ELT_TYPE'],$getLabelName['INSULATION_TYPE'] )] = $getLabelName['LABEL'] 
+                                $arrLabel[$this->eltTypeString($getLabelName['ELT_TYPE'],$getLabelName['INSULATION_TYPE'] )][] = $getLabelName['LABEL'] 
                                 ."-". $this->lineE->getStatus($getLabelName['LINE_RELEASE']) ." - ". $this->lineE->getUserLabel($getLabelName['ID_USER']);
                             }
                         } else {
@@ -280,6 +284,7 @@ class Lines extends Controller
                                 $arrLabel['storageTankName'] = $getLabelName['LABEL'] ."-". $this->lineE->getStatus($getLabelName['LINE_RELEASE'])." - ". $this->lineE->getUserLabel($getLabelName['ID_USER']);
                             }
                         }
+                        // $getDiameter = LineElmt::select('ELT_SIZE')->where('ID_PIPELINE_ELMT', $);
                         if ($lineElmts[0]->ELT_TYPE != 2) {
                             $arrLabel["diameter"] = $this->convert->lineDimension($lineElmts[0]->ELT_SIZE);
                         } 
@@ -315,8 +320,8 @@ class Lines extends Controller
             
             $resultInsideDiameters= [];
             foreach ($insulationParams as $insulationType) {
-                $resultInsideDiameters[] = $this->lineE->getdiameter($coolingFamily, $insulationType, $study->ID_STUDY);
-				$storageTanks = $this->lineE->getStorageTank($coolingFamily, $insulationType, $study->ID_STUDY);
+                $resultInsideDiameters[] = $this->lineE->getdiameter($coolingFamily, $insulationType);
+				$storageTanks = $this->lineE->getStorageTank($coolingFamily, $insulationType);
             }
 
             $resultInsideDia = [];
@@ -334,8 +339,11 @@ class Lines extends Controller
             foreach ($resultInsideDia as $res) {
                 if (count($pipeGen) > 0) {
                     $dataResultExist = $arrLabel;
-                    $dataResult[$arrLabel['insulationType']] = $this->getData($arrLabel['diameterParam'], $storageTanks, $coolingFamily, $arrLabel['insulationType']);                    
-                    
+                    if ($coolingFamily == 3) {
+                        $dataResult[] = $this->getData($res, $storageTanks, $coolingFamily, $i);
+                    } else {
+                        $dataResult[$arrLabel['insulationType']] = $this->getData($arrLabel['diameterParam'], $storageTanks, $coolingFamily, $arrLabel['insulationType']);                    
+                    }
                     if ($i < $arrLabel['insulationType']) {
                         $dataResult[$i] = $this->getData($res, $storageTanks, $coolingFamily, $i);
                     } else if ($i < 3) {

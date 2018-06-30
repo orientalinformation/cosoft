@@ -61,6 +61,7 @@ class LineElmt extends Model
         'LINE_RELEASE'     => 'integer',
         'OPEN_BY_OWNER'     => 'integer',
         'ID_COOLING_FAMILY'     => 'integer',
+        // 'LINE_VERSION' => 'double'
     ];
     /**
      * @var string

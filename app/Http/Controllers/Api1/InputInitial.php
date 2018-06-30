@@ -37,6 +37,7 @@ class InputInitial extends Controller
     protected $cal;
     protected $product;
     protected $productElmts;
+    protected $unit;
 
     public function __construct(\Laravel\Lumen\Application $app)
     {
@@ -46,6 +47,7 @@ class InputInitial extends Controller
         $this->cal = $app['App\\Cryosoft\\CalculateService'];
         $this->product = $app['App\\Cryosoft\\ProductService'];
         $this->productElmts = $app['App\\Cryosoft\\ProductElementsService'];
+        $this->unit = $app['App\\Cryosoft\\UnitsConverterService'];
     }
 
     public function initTempRecordPts($idStudy)
@@ -374,7 +376,34 @@ class InputInitial extends Controller
 
         if (!$product)
             throw new \Exception("Error Processing Request. Product ID not found", 1);
+
         $elements = ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2', 'DESC')->get();
+        $meshGeneration = $product->meshGenerations->first();
+        if ($meshGeneration) {
+            if ($elements[0]->ID_SHAPE == 1 || $elements[0]->ID_SHAPE == 6 ) {
+                $meshGeneration->MESH_1_SIZE = doubleval(0);
+                $meshGeneration->MESH_1_INT = doubleval(0);
+            } else {
+                $meshGeneration->MESH_1_SIZE = $this->unit->meshesUnit($meshGeneration->MESH_1_SIZE);
+                $meshGeneration->MESH_1_INT = $this->unit->meshesUnit($meshGeneration->MESH_1_INT);
+            }
+
+            if ($meshGeneration->MESH_3_INT != 0 || $meshGeneration->MESH_3_SIZE !=  0) {
+                $meshGeneration->MESH_3_INT = $this->unit->meshesUnit($meshGeneration->MESH_3_INT);
+                $meshGeneration->MESH_3_SIZE = $this->unit->meshesUnit($meshGeneration->MESH_3_SIZE);
+            } else {
+                $meshGeneration->MESH_3_SIZE = doubleval(0);
+                $meshGeneration->MESH_3_INT = doubleval(0);
+            }
+
+            if ($meshGeneration->MESH_2_INT != 0 || $meshGeneration->MESH_2_SIZE != 0) {
+                $meshGeneration->MESH_2_INT = $this->unit->meshesUnit($meshGeneration->MESH_2_INT);
+                $meshGeneration->MESH_2_SIZE = $this->unit->meshesUnit($meshGeneration->MESH_2_SIZE);
+            } else {
+                $meshGeneration->MESH_2_INT = doubleval(0);
+                $meshGeneration->MESH_2_SIZE = doubleval(0);
+            }
+        }
 
         $elmtMeshPositions = [];
         $productElmtInitTemp = [];
@@ -382,15 +411,23 @@ class InputInitial extends Controller
         $nbMeshPointElmt = [];
 
         foreach ($elements as $elmt) {
-            $meshPositions = \App\Models\MeshPosition::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->orderBy('MESH_ORDER')->get();
-            array_push($elmtMeshPositions, $meshPositions);
+            if ($elmt->ID_SHAPE < 10) {
+                $meshPositions = MeshPosition::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->orderBy('MESH_ORDER')->get();
+                array_push($elmtMeshPositions, $meshPositions);
 
-            $pointMeshOrder2 = $this->product->searchNbPtforElmt($elmt, 2);
-            array_push($initTempPositions, $pointMeshOrder2['positions']);
-            array_push($nbMeshPointElmt, count($pointMeshOrder2['points']));
+                $pointMeshOrder2 = $this->product->searchNbPtforElmt($elmt, 2);
+                array_push($initTempPositions, $pointMeshOrder2['positions']);
+                array_push($nbMeshPointElmt, count($pointMeshOrder2['points']));
 
-            $elmtInitTemp = $this->productElmts->searchTempMeshPoint($elmt, $pointMeshOrder2['points']);
-            array_push($productElmtInitTemp, $elmtInitTemp);
+                $elmtInitTemp = $this->productElmts->searchTempMeshPoint($elmt, $pointMeshOrder2['points']);
+                array_push($productElmtInitTemp, $elmtInitTemp);
+            } else {
+                $pointMeshOrder2 = $this->product->calculateNumberPoint3D($meshGeneration, $elmt);
+                array_push($initTempPositions, $pointMeshOrder2['positions']);
+                array_push($nbMeshPointElmt, count($pointMeshOrder2['positions']));
+
+                array_push($productElmtInitTemp, $pointMeshOrder2['points']);
+            }
         }
 
         $tempPoints = array();
@@ -417,8 +454,8 @@ class InputInitial extends Controller
         }
 
         $array = [
-            // 'tempPoints' => $tempPoints
-            'tempPoints' => array_reverse($tempPoints)
+            'tempPoints' => $tempPoints
+            // 'tempPoints' => array_reverse($tempPoints) // Mysql not using
         ];
         return $array;
     }

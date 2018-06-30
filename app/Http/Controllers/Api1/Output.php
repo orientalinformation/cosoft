@@ -1641,7 +1641,8 @@ class Output extends Controller
         return compact("result", "curve");
     }
 
-    public function productSection(){
+    public function productSection()
+    {
         $idStudy = $this->request->input('idStudy');
         $idStudyEquipment = $this->request->input('idStudyEquipment');
         $selectedAxe = $this->request->input('selectedAxe');
@@ -1825,48 +1826,49 @@ class Output extends Controller
             }
         }
 
-        $f = fopen("/tmp/productSection.inp", "w");
-
-        $dataLabel = '';
-        fputs($f, '"X" ');
-        foreach ($resultLabel as $row) {
-            $dataLabel .= '"Temperature T' . $row . '(' . $this->unit->timeSymbol() . ')' . '"' . ' ';
-        } 
-
-        fputs($f, $dataLabel);
-        fputs($f, "\n");
-
-        $i = 0;
-        foreach ($resultValue as $key => $row) {
-            $dataValue = '';
-            $dataValue = $i . ' ';
-            foreach ($row as $value) {
-                $dataValue .= $value . ' ';
-            }
-            fputs($f, $dataValue);
-            fputs($f, "\n");
-            $i++;
-        }
-        fclose($f);
-
         $study = Study::find($idStudy);
         $userName = $study->USERNAM;
         $productSectionFolder = $this->output->public_path('productSection');
-
-        if (!is_dir($productSectionFolder)) {
-            mkdir($productSectionFolder, 0777);
-        }
-        if (!is_dir($productSectionFolder . '/' . $userName)) {
-            mkdir($productSectionFolder . '/' . $userName, 0777);
-        }
-
         $fileName = $idStudyEquipment . '-' . $selectedAxe;
 
-        system('gnuplot -c '. $this->plotFolder .'/productSection.plot "('. $this->unit->prodchartDimensionSymbol() .')" "('. $this->unit->temperatureSymbol() .')" "'. $productSectionFolder . '/' . $userName .'" "'. $fileName .'"');
+        if (!file_exists($productSectionFolder . '/' . $userName . '/' . $fileName . '.png')) {
+            $f = fopen("/tmp/productSection.inp", "w");
+
+            $dataLabel = '';
+            fputs($f, '"X" ');
+            foreach ($resultLabel as $row) {
+                $dataLabel .= '"Temperature T' . $row . '(' . $this->unit->timeSymbol() . ')' . '"' . ' ';
+            } 
+
+            fputs($f, $dataLabel);
+            fputs($f, "\n");
+
+            $i = 0;
+            foreach ($resultValue as $key => $row) {
+                $dataValue = '';
+                $dataValue = $i . ' ';
+                foreach ($row as $value) {
+                    $dataValue .= $value . ' ';
+                }
+                fputs($f, $dataValue);
+                fputs($f, "\n");
+                $i++;
+            }
+            fclose($f);
+
+            if (!is_dir($productSectionFolder)) {
+                mkdir($productSectionFolder, 0777);
+            }
+            if (!is_dir($productSectionFolder . '/' . $userName)) {
+                mkdir($productSectionFolder . '/' . $userName, 0777);
+            }
+
+            system('gnuplot -c '. $this->plotFolder .'/productSection.plot "('. $this->unit->prodchartDimensionSymbol() .')" "('. $this->unit->temperatureSymbol() .')" "'. $productSectionFolder . '/' . $userName .'" "'. $fileName .'"');
+        }
+
         $result["recAxis"] = $recAxis;
         $result["mesAxis"] = $mesAxis;
         $result["resultValue"] = $resultValue;
-
 
         return compact("axeTemp", "dataChart", "resultLabel", "result");
     }
@@ -1941,32 +1943,34 @@ class Output extends Controller
             $label["bot"] = $this->unit->meshesUnit($tempRecordPts->AXIS1_PT_BOT_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_BOT_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_BOT_SURF);
         }
 
-        $f = fopen("/tmp/timeBased.inp", "w");
-
-        $dataLabel = '';
-        fputs($f, '"X" ');
-        fputs($f, '"Top('. $label['top'] .')" ');
-        fputs($f, '"Internal('. $label['int'] .')" ');
-        fputs($f, '"Bottom('. $label['bot'] .')" ');
-        fputs($f, '"Average temperature"'. "\n");
-
         $study = Study::find($idStudy);
         $userName = $study->USERNAM;
         $timeBasedFolder = $this->output->public_path('timeBased');
 
-        if (!is_dir($timeBasedFolder)) {
-            mkdir($timeBasedFolder, 0777);
-        }
-        if (!is_dir($timeBasedFolder . '/' . $userName)) {
-            mkdir($timeBasedFolder . '/' . $userName, 0777);
-        }
+        if (!file_exists($timeBasedFolder . '/' . $userName . '/' . $idStudyEquipment . '.png')) {
+            $f = fopen("/tmp/timeBased.inp", "w");
 
-        foreach ($curve['top'] as $key => $row) {
-            fputs($f, (double) $row['x'] . ' ' . (double) $row['y'] . ' ' . (double) $curve['bot'][$key]['y'] . ' ' . (double) $curve['int'][$key]['y'] . ' ' . (double) $curve['average'][$key]['y'] . "\n");
-        } 
-        fclose($f);
+            $dataLabel = '';
+            fputs($f, '"X" ');
+            fputs($f, '"Top('. $label['top'] .')" ');
+            fputs($f, '"Internal('. $label['int'] .')" ');
+            fputs($f, '"Bottom('. $label['bot'] .')" ');
+            fputs($f, '"Average temperature"'. "\n");
 
-        system('gnuplot -c '. $this->plotFolder .'/timeBased.plot "('. $this->unit->timeSymbol() .')" "('. $this->unit->temperatureSymbol() .')" "'. $timeBasedFolder . '/' . $userName .'" "'. $idStudyEquipment .'"');
+            if (!is_dir($timeBasedFolder)) {
+                mkdir($timeBasedFolder, 0777);
+            }
+            if (!is_dir($timeBasedFolder . '/' . $userName)) {
+                mkdir($timeBasedFolder . '/' . $userName, 0777);
+            }
+
+            foreach ($curve['top'] as $key => $row) {
+                fputs($f, (double) $row['x'] . ' ' . (double) $row['y'] . ' ' . (double) $curve['bot'][$key]['y'] . ' ' . (double) $curve['int'][$key]['y'] . ' ' . (double) $curve['average'][$key]['y'] . "\n");
+            } 
+            fclose($f);
+
+            system('gnuplot -c '. $this->plotFolder .'/timeBased.plot "('. $this->unit->timeSymbol() .')" "('. $this->unit->temperatureSymbol() .')" "'. $timeBasedFolder . '/' . $userName .'" "'. $idStudyEquipment .'"');
+        }
 
         return compact("label", "curve", "result");
     }
@@ -2180,7 +2184,6 @@ class Output extends Controller
 
     public function productchart2D()
     {
-        set_time_limit(1000);
         $idStudy = $this->request->input('idStudy');
         $idStudyEquipment = $this->request->input('idStudyEquipment');
         $selectedPlan = $this->request->input('selectedPlan');
@@ -2394,7 +2397,6 @@ class Output extends Controller
 
     public function productchart2DAnim()
     {
-        set_time_limit(1000);
         $input = $this->request->all();
         $idStudy = $input['idStudy'];
         $idStudyEquipment = $input['idStudyEquipment'];

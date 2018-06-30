@@ -5,6 +5,7 @@ OUTPUT = ARG3."/".ARG4.".png"
 set term unknown
 plot DATAFILE using 2:xtic(1) ti col, '' using 3 ti col
 YMAX = ceil(GPVAL_DATA_Y_MAX) + 0.0
+if (YMAX == 0) YMAX = 1.0 
 CUS_POS = ARG5/YMAX
 
 set terminal png size 1575,700  background rgb "white"
