@@ -458,7 +458,7 @@ class InputInitial3D extends Controller
 
     private function initLines($tempRecordPtsDef, $tempRecordPts, $dim1, $dim2, $dim3, $idShape)
     {
-        // Line YZ
+        // Line X
         if (($tempRecordPtsDef->AXIS2_AX_1_DEF == 0) && ($tempRecordPtsDef->AXIS3_AX_1_DEF == 0)) {
             switch ($idShape) {
                 case CYLINDER_STANDING_3D:
@@ -497,7 +497,10 @@ class InputInitial3D extends Controller
                 case SEMI_CYLINDER_3D:
                     $percent3 = floatval($tempRecordPtsDef->AXIS3_AX_1_DEF) - 50;
                     $percent2 = floatval($tempRecordPtsDef->AXIS2_AX_1_DEF);
-                    $tempRecordPts->AXIS2_AX_1 = $dim3*$percent3/100.0;
+
+                    // Current version temporal force to center
+                    $tempRecordPts->AXIS2_AX_1 = 0.0;
+                    //$tempRecordPts->AXIS2_AX_1 = $dim3*$percent3/100.0;
                     $tempRecordPts->AXIS3_AX_1 = $dim2*$percent2/100.0;
                     break;
 
@@ -507,7 +510,10 @@ class InputInitial3D extends Controller
                 case OVAL_CONCENTRIC_LAYING_3D:
                     $percent3 = floatval($tempRecordPtsDef->AXIS3_AX_1_DEF) - 50;
                     $percent2 = floatval($tempRecordPtsDef->AXIS2_AX_1_DEF);
-                    $tempRecordPts->AXIS2_AX_1 = $dim3*$percent3/100.0;
+
+                    // Current version temporal force to center
+                    $tempRecordPts->AXIS2_AX_1 = 0.0;
+                    //$tempRecordPts->AXIS2_AX_1 = $dim3*$percent3/100.0;
                     $tempRecordPts->AXIS3_AX_1 = $dim1*$percent2/100.0;
                     break;
 
@@ -525,7 +531,7 @@ class InputInitial3D extends Controller
             }
         }
 
-        // Line XZ
+        // Line Y
         if (($tempRecordPtsDef->AXIS1_AX_2_DEF == 0) && ($tempRecordPtsDef->AXIS3_AX_2_DEF == 0)) {
             switch ($idShape) {
                 case CYLINDER_STANDING_3D:
@@ -564,7 +570,10 @@ class InputInitial3D extends Controller
                 case SEMI_CYLINDER_3D:
                     $percent1 = floatval($tempRecordPtsDef->AXIS1_AX_2_DEF) - 50;
                     $percent2 = floatval($tempRecordPtsDef->AXIS3_AX_2_DEF);
-                    $tempRecordPts->AXIS1_AX_2 = $dim1*$percent3/100.0;
+
+                    // Current version temporal force to center
+                    $tempRecordPts->AXIS1_AX_2 = 0.0;
+                    //$tempRecordPts->AXIS1_AX_2 = $dim1*$percent3/100.0;
                     $tempRecordPts->AXIS3_AX_2 = $dim2*$percent2/100.0;
                     break;
 
@@ -574,7 +583,10 @@ class InputInitial3D extends Controller
                 case OVAL_CONCENTRIC_LAYING_3D:
                     $percent1 = floatval($tempRecordPtsDef->AXIS1_AX_2_DEF) - 50;
                     $percent2 = floatval($tempRecordPtsDef->AXIS3_AX_2_DEF);
-                    $tempRecordPts->AXIS1_AX_2 = $dim2*$percent1/100.0;
+
+                    // Current version temporal force to center
+                    $tempRecordPts->AXIS1_AX_2 = 0.0;
+                    //$tempRecordPts->AXIS1_AX_2 = $dim2*$percent1/100.0;
                     $tempRecordPts->AXIS3_AX_2 = $dim1*$percent2/100.0;
                     break;
 
@@ -584,6 +596,7 @@ class InputInitial3D extends Controller
                     break;
 
                 default:
+                    
                     $percent1 = floatval($tempRecordPtsDef->AXIS1_AX_2_DEF);
                     $percent2 = floatval($tempRecordPtsDef->AXIS3_AX_2_DEF);
                     $tempRecordPts->AXIS1_AX_2 = $dim3*$percent1/100.0;
@@ -592,7 +605,7 @@ class InputInitial3D extends Controller
             }
         }
 
-        // Line XY
+        // Line Z
         if (($tempRecordPtsDef->AXIS1_AX_3_DEF == 0) && ($tempRecordPtsDef->AXIS2_AX_3_DEF == 0)) {
             switch ($idShape) {
                 case CYLINDER_STANDING_3D:
@@ -623,8 +636,11 @@ class InputInitial3D extends Controller
                 case SEMI_CYLINDER_3D:
                     $percent1 = floatval($tempRecordPtsDef->AXIS1_AX_3_DEF) - 50;
                     $percent2 = floatval($tempRecordPtsDef->AXIS2_AX_3_DEF) - 50;
-                    $tempRecordPts->AXIS1_AX_3 = $dim1*$percent3/100.0;
-                    $tempRecordPts->AXIS2_AX_3 = $dim3*$percent2/100.0;
+                    // Current version temporal force to center
+                    $tempRecordPts->AXIS1_AX_3 = 0.0;
+                    $tempRecordPts->AXIS2_AX_3 = 0.0;
+                    // $tempRecordPts->AXIS1_AX_3 = $dim1*$percent3/100.0;
+                    // $tempRecordPts->AXIS2_AX_3 = $dim3*$percent2/100.0;
                     break;
 
                 case CYLINDER_CONCENTRIC_STANDING_3D:
@@ -633,13 +649,27 @@ class InputInitial3D extends Controller
                 case OVAL_CONCENTRIC_LAYING_3D:
                     $percent1 = floatval($tempRecordPtsDef->AXIS1_AX_3_DEF) - 50;
                     $percent2 = floatval($tempRecordPtsDef->AXIS2_AX_3_DEF) - 50;
-                    $tempRecordPts->AXIS1_AX_3 = $dim2*$percent1/100.0;
-                    $tempRecordPts->AXIS2_AX_3 = $dim3*$percent2/100.0;
+                    // Current version temporal force to center
+                    $tempRecordPts->AXIS1_AX_3 = 0.0;
+                    $tempRecordPts->AXIS2_AX_3 = 0.0;
+                    // $tempRecordPts->AXIS1_AX_3 = $dim2*$percent1/100.0;
+                    // $tempRecordPts->AXIS2_AX_3 = $dim3*$percent2/100.0;
                     break;
 
                 case SPHERE_3D:
                     $tempRecordPts->AXIS1_AX_3 = 0.0;
                     $tempRecordPts->AXIS2_AX_3 = 0.0;
+                    break;
+
+                case TRAPEZOID_3D:
+
+                    $percent1 = floatval($tempRecordPtsDef->AXIS1_AX_3_DEF);
+                    $percent2 = floatval($tempRecordPtsDef->AXIS2_AX_3_DEF);
+                    // Current version temporal force to center
+                    $tempRecordPts->AXIS1_AX_3 = $dim1/2.0;
+                    $tempRecordPts->AXIS2_AX_3 = $dim3/2.0;
+                    // $tempRecordPts->AXIS1_AX_3 = $dim1*$percent1/100.0;
+                    // $tempRecordPts->AXIS2_AX_3 = $dim3*$percent2/100.0;
                     break;
 
                 default:
@@ -654,7 +684,7 @@ class InputInitial3D extends Controller
 
     private function initPlanes($tempRecordPtsDef, $tempRecordPts, $dim1, $dim2, $dim3, $idShape)
     {
-        //Plan X
+        //Plan YZ
         if ($tempRecordPtsDef->AXIS1_PL_2_3_DEF == 0) {
             switch ($idShape) {
                 case CYLINDER_STANDING_3D:
@@ -666,8 +696,10 @@ class InputInitial3D extends Controller
                 case OVAL_CONCENTRIC_STANDING_3D:
                 case CYLINDER_CONCENTRIC_LAYING_3D:
                 case OVAL_CONCENTRIC_LAYING_3D:
-                case SPHERE_3D:
                     $tempRecordPts->AXIS1_PL_2_3 = 0.0;
+                case SPHERE_3D:
+                    //Current version doesn't support
+                    $tempRecordPts->AXIS1_PL_2_3 = -100.0;
                     break;
 
                 default:
@@ -689,10 +721,14 @@ class InputInitial3D extends Controller
                 case CYLINDER_CONCENTRIC_LAYING_3D:
                 case OVAL_CONCENTRIC_LAYING_3D:
                     $percent1 = floatval($tempRecordPtsDef->AXIS1_PL_2_3_DEF) - 50;
-                    $tempRecordPts->AXIS1_PL_2_3 = $dim2 * $percent1 / 100.0;
+                    // Current version temporal force to center
+                    $tempRecordPts->AXIS1_PL_2_3 = 0.0;
+                    // $tempRecordPts->AXIS1_PL_2_3 = $dim2 * $percent1 / 100.0;
                     break;
                 case SPHERE_3D:
-                    $tempRecordPts->AXIS1_PL_2_3 = 0.0;
+                    //Current version doesn't support
+                    $tempRecordPts->AXIS1_PL_2_3 = -100.0;
+                    //$tempRecordPts->AXIS1_PL_2_3 = 0.0;
                 default:
                     $percent1 = floatval($tempRecordPtsDef->AXIS1_PL_2_3_DEF);
                     $tempRecordPts->AXIS1_PL_2_3 = $dim1 / 2.0;
@@ -700,7 +736,7 @@ class InputInitial3D extends Controller
             }
         }
 
-        //Plan Y
+        //Plan XZ
         if ($tempRecordPtsDef->AXIS2_PL_1_3_DEF == 0) {
             switch ($idShape) {
                 case CYLINDER_STANDING_3D:
@@ -712,8 +748,11 @@ class InputInitial3D extends Controller
                 case OVAL_CONCENTRIC_STANDING_3D:
                 case CYLINDER_CONCENTRIC_LAYING_3D:
                 case OVAL_CONCENTRIC_LAYING_3D:
-                case SPHERE_3D:
                     $tempRecordPts->AXIS2_PL_1_3 = 0.0;
+                case SPHERE_3D:
+                    //Current version doesn't support
+                    $tempRecordPts->AXIS2_PL_1_3 = -100.0;
+                    //$tempRecordPts->AXIS2_PL_1_3 = 0.0;
                     break;
 
                 default:
@@ -732,10 +771,14 @@ class InputInitial3D extends Controller
                 case CYLINDER_CONCENTRIC_LAYING_3D:
                 case OVAL_CONCENTRIC_LAYING_3D:
                     $percent1 = floatval($tempRecordPtsDef->AXIS2_PL_1_3_DEF) - 50;
-                    $tempRecordPts->AXIS2_PL_1_3 = $dim3*$percent1/100.0;
+                    // Current version temporal force to center
+                    $tempRecordPts->AXIS2_PL_1_3 = 0.0;
+                    // $tempRecordPts->AXIS2_PL_1_3 = $dim3*$percent1/100.0;
                     break;
                 case SPHERE_3D: 
-                    $tempRecordPts->AXIS2_PL_1_3 = 0.0;
+                    //Current version doesn't support
+                    $tempRecordPts->AXIS2_PL_1_3 = -100.0;
+                    //$tempRecordPts->AXIS2_PL_1_3 = 0.0;
                 default:
                     $percent1 = floatval($tempRecordPtsDef->AXIS2_PL_1_3_DEF);
                     $tempRecordPts->AXIS2_PL_1_3 = $dim3*$percent1/100.0;
@@ -743,7 +786,7 @@ class InputInitial3D extends Controller
             }
         }
 
-        //Plan Z
+        //Plan XY
         if ($tempRecordPtsDef->AXIS3_PL_1_2_DEF == 0) {
             switch ($idShape) {
                 case CYLINDER_STANDING_3D:
@@ -751,16 +794,22 @@ class InputInitial3D extends Controller
                 case OVAL_STANDING_3D:
                 case OVAL_LAYING_3D:
                 case SEMI_CYLINDER_3D:
-                    $tempRecordPts->AXIS3_PL_1_2 = $dim2/2.0;
+                    //Current version doesn't support
+                    $tempRecordPts->AXIS3_PL_1_2 = -100.0;
+                    // $tempRecordPts->AXIS3_PL_1_2 = $dim2/2.0;
                     break;
                 case CYLINDER_CONCENTRIC_STANDING_3D:
                 case OVAL_CONCENTRIC_STANDING_3D:
                 case CYLINDER_CONCENTRIC_LAYING_3D:
                 case OVAL_CONCENTRIC_LAYING_3D:
-                    $tempRecordPts->AXIS3_PL_1_2 = $dim1/2.0;
+                    //Current version doesn't support
+                    $tempRecordPts->AXIS3_PL_1_2 = -100.0;
+                    // $tempRecordPts->AXIS3_PL_1_2 = $dim1/2.0;
                     break;
                 case SPHERE_3D:
-                    $tempRecordPts->AXIS3_PL_1_2 = 0.0;
+                    //Current version doesn't support
+                    $tempRecordPts->AXIS3_PL_1_2 = -100.0;
+                    // $tempRecordPts->AXIS3_PL_1_2 = 0.0;
                     break;
 
                 default:
@@ -774,18 +823,24 @@ class InputInitial3D extends Controller
                 case OVAL_STANDING_3D:
                 case OVAL_LAYING_3D:
                 case SEMI_CYLINDER_3D:
-                    $percent1 = floatval($tempRecordPtsDef->AXIS3_PL_1_2_DEF);
-                    $tempRecordPts->AXIS3_PL_1_2 = $dim2*$percent1/100.0;
+                    //Current version doesn't support
+                    $tempRecordPts->AXIS3_PL_1_2 = -100.0;
+                    // $percent1 = floatval($tempRecordPtsDef->AXIS3_PL_1_2_DEF);
+                    // $tempRecordPts->AXIS3_PL_1_2 = $dim2*$percent1/100.0;
                     break;
                 case CYLINDER_CONCENTRIC_STANDING_3D:
                 case OVAL_CONCENTRIC_STANDING_3D:
                 case CYLINDER_CONCENTRIC_LAYING_3D:
                 case OVAL_CONCENTRIC_LAYING_3D:
-                    $percent1 = floatval($tempRecordPtsDef->AXIS3_PL_1_2_DEF);
-                    $tempRecordPts->AXIS3_PL_1_2 = $dim1*$percent1/100.0;
+                    //Current version doesn't support
+                    $tempRecordPts->AXIS3_PL_1_2 = -100.0;
+                    // $percent1 = floatval($tempRecordPtsDef->AXIS3_PL_1_2_DEF);
+                    // $tempRecordPts->AXIS3_PL_1_2 = $dim1*$percent1/100.0;
                     break;
                 case SPHERE_3D:
-                    $tempRecordPts->AXIS3_PL_1_2 = 0.0;
+                    //Current version doesn't support
+                    $tempRecordPts->AXIS3_PL_1_2 = -100.0;
+                    // $tempRecordPts->AXIS3_PL_1_2 = 0.0;
                     break;
 
                 default:
