@@ -17,6 +17,7 @@
         .bold {font-weight: bold}
         .layout{padding-bottom: 15px}
         img {max-width: 100%}
+        .table td, .table th{padding: .55rem}
     </style>
     <body>
     <div class ="box-report-frame container-fluid">
@@ -380,7 +381,7 @@
         <h5 class="bold"><?php echo $resequipDatas['displayName'] ?></h5>
         <div class="layout">
             <div class = "row">
-                <div class="col-md-7">
+                <div class="col-md-8">
                     <div class="table-responsive">
                     <table class ="table table-bordered table-hover table-striped" border="1">
                         <tr>
@@ -420,10 +421,10 @@
                     </table>
                     </div>
                 </div>
-                <div class="col-md-1">
-                </div>
                 <div class="col-md-4">
-                <img style="width: 340px; height: 460px" src="<?php echo  $arrayParam['host'] . "/reports/".$arrayParam['study']['USERNAM']."/".$arrayParam['study']['ID_STUDY']."-".$stuNameLayout."-StdeqpLayout-".$resequipDatas['ID_STUDY_EQUIPMENTS'].".jpg"?>">
+                    <div class="text-center">
+                        <img src="<?php echo  $arrayParam['host'] . "/reports/".$arrayParam['study']['USERNAM']."/".$arrayParam['study']['ID_STUDY']."-".$stuNameLayout."-StdeqpLayout-".$resequipDatas['ID_STUDY_EQUIPMENTS'].".jpg"?>">
+                    </div>
                 </div>
             </div>
         </div>
