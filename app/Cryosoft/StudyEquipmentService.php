@@ -694,7 +694,9 @@ class StudyEquipmentService
         }
     }
 
-    public function generateLayoutPreview(StudyEquipment &$sequip) {
+    // Generate Layout Preview
+    public function generateLayoutPreview(StudyEquipment &$sequip)
+    {
         $study = $sequip->study;
 
         $idRatePrm = $study->ID_PRECALC_LDG_RATE_PRM;
@@ -1103,7 +1105,6 @@ class StudyEquipmentService
 
         $this->recalculateEquipment($idStudy, $idStudyEquipment, $bRecalcTOC, $bRecalcTS, $bRecalcPhamCast, $bRecalcExhaust, $bRecalcEco);
     }
-
 
     public function recalculateEquipment($idStudy, $idStudyEquipment, $bRecalcTOC, $bRecalcTS, $bRecalcPhamCast, $bRecalcExhaust, $bRecalcEco)
     {
