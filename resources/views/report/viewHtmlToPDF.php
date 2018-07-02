@@ -99,7 +99,7 @@
                 </table>
             </div>
         </div>
-        <?php if (!empty($calModeHeadBalance)) { ?>
+        <?php if (!empty($chainingStudies)) { ?>
         <?php if (($arrayParam['study']['CHAINING_CONTROLS'] == 1) && ($arrayParam['study']['PARENT_ID'] != 0)) { ?>
         <div class="block-title">Chaining synthesis</div>
         <div class="table-responsive">
@@ -114,13 +114,13 @@
                     <th>Final Average Product temperature (C)</th>
                     <th>Product Heat Load (kj/kg)</th>
                 </tr>
-                <?php foreach($calModeHeadBalance as $key => $resoptHeads) { ?>
+                <?php foreach($chainingStudies as $key => $resoptHeads) { ?>
                     <tr>
                         <td colspan="2" align="center"><?php echo $resoptHeads['stuName'] ?></td>
                         <td colspan="2" align="center"><?php echo $resoptHeads['equipName'] ?></td>
                         <td align="center"><?php echo $resoptHeads['tr'] ?></td>
                         <td align="center"><?php echo $resoptHeads['ts'] ?></td>
-                        <td align="center"><?php echo $equipData[$key]['tr'][0] ?></td>
+                        <td align="center"><?php echo $resoptHeads['vc'][0] ?></td>
                         <td align="center"><?php echo $arrayParam['proInfoStudy']['avgTInitial'] ?></td>
                         <td align="center"><?php echo $resoptHeads['tfp'] ?></td>
                         <td align="center"><?php echo $resoptHeads['vep'] ?></td>

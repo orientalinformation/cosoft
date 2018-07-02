@@ -807,6 +807,7 @@ class Reports extends Controller
         }
         
         $equipData = $this->stdeqp->findStudyEquipmentsByStudy($study);
+
         if ($EQUIP_LIST == 1) {
             $progress .= "\nEquiment";
             $this->writeProgressFile($progressFile, $progress);
@@ -2527,6 +2528,7 @@ class Reports extends Controller
         }
         
         $equipData = $this->stdeqp->findStudyEquipmentsByStudy($study);
+
         if ($EQUIP_LIST == 1) {
             $progress .= "\nEquiment";
             $this->writeProgressFile($progressFile, $progress);
@@ -2697,12 +2699,14 @@ class Reports extends Controller
 
         $progress .= "\nFINISH";
         $this->writeProgressFile($progressFile, $progress);
+
+        $chainingStudies = $this->reportserv->getChainingStudy($id);
         
         $myfile = fopen( $public_path. "/reports/" . "/" . $study->USERNAM."/" . $name_report, "w") or die("Unable to open file!");
         $html = $this->viewHtml($study ,$production, $product, $proElmt, $shapeName, 
         $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
         $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase, 
-        $symbol, $host, $pro2Dchart, $params, $shapeCode, $economic, $stuNameLayout, $specificDimension);
+        $symbol, $host, $pro2Dchart, $params, $shapeCode, $economic, $stuNameLayout, $specificDimension, $chainingStudies);
         // file_put_contents("/home/huytd/adasd", $economic);
         fwrite($myfile, $html);
         fclose($myfile);
@@ -2778,7 +2782,7 @@ class Reports extends Controller
     public function viewHtml($study ,$production, $product, $proElmt, $shapeName, 
     $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
     $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase , 
-    $symbol, $host, $pro2Dchart, $params, $shapeCode, $economic, $stuNameLayout, $specificDimension)
+    $symbol, $host, $pro2Dchart, $params, $shapeCode, $economic, $stuNameLayout, $specificDimension, $chainingStudies)
     {
         $arrayParam = [
             'study' => $study,
@@ -2810,7 +2814,8 @@ class Reports extends Controller
             'timeBase' => $timeBase,
             'pro2Dchart' => $pro2Dchart,
             'economic' => $economic,
-            'stuNameLayout' => $stuNameLayout
+            'stuNameLayout' => $stuNameLayout,
+            'chainingStudies' => $chainingStudies
         ];
         return view('report.viewHtmlToPDF', $param);
     }
