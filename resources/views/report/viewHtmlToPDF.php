@@ -120,7 +120,7 @@
                         <td colspan="2" align="center"><?php echo $resoptHeads['equipName'] ?></td>
                         <td align="center"><?php echo $resoptHeads['tr'] ?></td>
                         <td align="center"><?php echo $resoptHeads['ts'] ?></td>
-                        <td align="center"><?php echo $resoptHeads['vc'][0] ?></td>
+                        <td align="center"><?php echo $resoptHeads['vc'] ?></td>
                         <td align="center"><?php echo $arrayParam['proInfoStudy']['avgTInitial'] ?></td>
                         <td align="center"><?php echo $resoptHeads['tfp'] ?></td>
                         <td align="center"><?php echo $resoptHeads['vep'] ?></td>
@@ -258,7 +258,7 @@
                         <td align="center"><?php echo $resproductComps['mass'] ?></td>
                         <td align="center"><?php echo ($resproductComps['PROD_ELMT_ISO'] == 0) ? "YES" : "NO" ?></td>
                         <td align="center"><?php echo "" ?></td>
-                        <td align="center"><?php echo ($resproductComps['PROD_ELMT_ISO'] == 0 )|| ($resproductComps['PROD_ELMT_ISO'] == 2) ? '' : "non isothermal" ?></td>
+                        <td align="center"><?php echo ($resproductComps['PROD_ELMT_ISO'] == 0 ) || ($resproductComps['PROD_ELMT_ISO'] == 2) ? 'non isothermal' : '' ?></td>
                     </tr>
                     <?php } ?>
                 </table>
