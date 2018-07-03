@@ -194,10 +194,7 @@ class ConveyerTemplate
         if (($this->_product != NULL)) {
             $this->_product->scale($type[3], $type[2], $this->_height, $this->_width, $this->_parallel);
             $this->_product->set_shape($this->_shape);
-            // var_dump($type[3]);
-            // var_dump($type[2]);
-            // var_dump($this);
-            // die();
+            
             $x = ($type[0] + (((($type[2] * $this->_widthBetweenEdgeAndProducts)) / $this->_width)));
             $y = ($type[1] + (((($type[3] * $this->_heightBetweenEdgeAndProducts)) / $this->_height)));
             $xInterval = (((($type[2] * $this->_widthBetweenProducts)) / $this->_width));

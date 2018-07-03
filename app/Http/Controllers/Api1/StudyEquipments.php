@@ -60,7 +60,7 @@ class StudyEquipments extends Controller
 
     public function getStudyEquipmentById($id)
     {
-        $studyEquipment = \App\Models\StudyEquipment::find($id);
+        $studyEquipment = StudyEquipment::find($id);
         $equip = $this->stdeqp->getDisplayStudyEquipment($studyEquipment);
         $equip['displayName'] = $this->equip->getResultsEquipName($studyEquipment->ID_STUDY_EQUIPMENTS);
         return $equip;
@@ -68,7 +68,7 @@ class StudyEquipments extends Controller
 
     public function getstudyEquipmentProductChart($idStudy)
     {
-        $studyEquipments = \App\Models\StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
+        $studyEquipments = StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
         $returnStudyEquipments = [];
 
         foreach ($studyEquipments as $studyEquipment) {
@@ -96,7 +96,7 @@ class StudyEquipments extends Controller
 
     public function getstudyEquipmentByStudyId($idStudy)
     {
-        $studyEquipments = \App\Models\StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
+        $studyEquipments = StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
         $returnStudyEquipments = [];
 
         foreach ($studyEquipments as $studyEquipment) {
@@ -184,20 +184,21 @@ class StudyEquipments extends Controller
         if ($studyEquipment->equipment->STD
         && !($studyEquipment->equipment->CAPABILITIES & CAP_DISPLAY_DB_NAME != 0)
         && !($studyEquipment->equipment->CAPABILITIES & CAP_EQUIP_SPECIFIC_SIZE != 0)) {
-        $studyEquipment->displayName = $studyEquipment->EQUIP_NAME . " - "
-            . number_format($studyEquipment->equipment->EQP_LENGTH + ($studyEquipment->NB_MODUL * $studyEquipment->equipment->MODUL_LENGTH), 2)
-            . "x" . number_format($studyEquipment->equipment->EQP_WIDTH, 2) . " (v" . ($studyEquipment->EQUIP_VERSION) . ")"
-            . ($studyEquipment->EQUIP_RELEASE == 3 ? ' / Active' : ''); // @TODO: translate
-    } else if (($studyEquipment->equipment->CAPABILITIES & CAP_EQUIP_SPECIFIC_SIZE != 0)
-        && ($studyEquipment->equipment->STDEQP_LENGTH != NO_SPECIFIC_SIZE)
-        && ($studyEquipment->equipment->STDEQP_WIDTH != NO_SPECIFIC_SIZE)) {
-        $studyEquipment->displayName = $studyEquipment->EQUIP_NAME
-            . " (v" . ($studyEquipment->EQUIP_VERSION) . ")"
-            . ($studyEquipment->EQUIP_RELEASE == 3 ? ' / Active' : ''); // @TODO: translate
-    } else {
-        $studyEquipment->displayName = $studyEquipment->EQUIP_NAME
-            . ($studyEquipment->EQUIP_RELEASE == 3 ? ' / Active' : ''); // @TODO: translate
-    }
+            $studyEquipment->displayName = $studyEquipment->EQUIP_NAME . " - "
+                . number_format($studyEquipment->equipment->EQP_LENGTH + ($studyEquipment->NB_MODUL * $studyEquipment->equipment->MODUL_LENGTH), 2)
+                . "x" . number_format($studyEquipment->equipment->EQP_WIDTH, 2) . " (v" . ($studyEquipment->EQUIP_VERSION) . ")"
+                . ($studyEquipment->EQUIP_RELEASE == 3 ? ' / Active' : ''); // @TODO: translate
+        } else if (($studyEquipment->equipment->CAPABILITIES & CAP_EQUIP_SPECIFIC_SIZE != 0)
+            && ($studyEquipment->equipment->STDEQP_LENGTH != NO_SPECIFIC_SIZE)
+            && ($studyEquipment->equipment->STDEQP_WIDTH != NO_SPECIFIC_SIZE)) {
+            $studyEquipment->displayName = $studyEquipment->EQUIP_NAME
+                . " (v" . ($studyEquipment->EQUIP_VERSION) . ")"
+                . ($studyEquipment->EQUIP_RELEASE == 3 ? ' / Active' : ''); // @TODO: translate
+        } else {
+            $studyEquipment->displayName = $studyEquipment->EQUIP_NAME
+                . ($studyEquipment->EQUIP_RELEASE == 3 ? ' / Active' : ''); // @TODO: translate
+        }
+
         $studyEquipment->tr = $trResult;
         $studyEquipment->ts = $tsResult;
         $studyEquipment->vc = $vcResult;
