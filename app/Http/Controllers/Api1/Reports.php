@@ -994,6 +994,9 @@ class Reports extends Controller
             $baseName = $customPathInfo['basename'];
             $customerNameUrl = $public_path . '/uploads/' . $baseName;
         }
+
+
+        $chainingStudies = $this->reportserv->getChainingStudy($id);
         
 
         $this->writeProgressFile($progressFile, $progress);
@@ -1114,7 +1117,7 @@ class Reports extends Controller
         PDF::writeHTML($html, true, false, true, false, '');
         PDF::AddPage();
         if (($study['CHAINING_CONTROLS'] == 1) && ($study['PARENT_ID'] != 0)) {
-            if (!empty($calModeHeadBalance)) {
+            if (!empty($chainingStudies)) {
                 PDF::SetFont('times', 'B', 16);
                 PDF::Bookmark('CHAINING SYNTHESIS', 0, 0, '', 'B', array(0,64,128));
                 PDF::SetFillColor(38, 142, 226);
@@ -1136,13 +1139,13 @@ class Reports extends Controller
                                 <th>Final Average Product temperature  ( '. $symbol['temperatureSymbol'] .' ) </th>
                                 <th>Product Heat Load  ( '. $symbol['enthalpySymbol'] .' ) </th>
                             </tr>';
-                            foreach ($calModeHeadBalance as $key => $resoptHeads) { 
+                            foreach ($chainingStudies as $key => $resoptHeads) { 
                             $html .= '<tr>
                                 <td colspan="2" align="center"> '. $resoptHeads['stuName'] .' </td>
                                 <td colspan="2" align="center"> '. $resoptHeads['equipName'] .'</td>
                                 <td align="center"> '. $resoptHeads['tr'] .' </td>
                                 <td align="center"> '. $resoptHeads['ts'] .' </td>
-                                <td align="center"> '. $equipData[$key]['tr'][0] .' </td>
+                                <td align="center"> '. $resoptHeads['vc'] .' </td>
                                 <td align="center"> '. $proInfoStudy['avgTInitial'] .' </td>
                                 <td align="center"> '. $resoptHeads['tfp'] .' </td>
                                 <td align="center"> '. $resoptHeads['vep'] .' </td>

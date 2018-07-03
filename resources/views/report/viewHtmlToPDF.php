@@ -120,7 +120,7 @@
                         <td colspan="2" align="center"><?php echo $resoptHeads['equipName'] ?></td>
                         <td align="center"><?php echo $resoptHeads['tr'] ?></td>
                         <td align="center"><?php echo $resoptHeads['ts'] ?></td>
-                        <td align="center"><?php echo $resoptHeads['vc'][0] ?></td>
+                        <td align="center"><?php echo $resoptHeads['vc'] ?></td>
                         <td align="center"><?php echo $arrayParam['proInfoStudy']['avgTInitial'] ?></td>
                         <td align="center"><?php echo $resoptHeads['tfp'] ?></td>
                         <td align="center"><?php echo $resoptHeads['vep'] ?></td>
