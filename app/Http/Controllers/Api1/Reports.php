@@ -1324,7 +1324,7 @@ class Reports extends Controller
                             <td align="center"> '. $this->convert->mass($resproductComps['PROD_ELMT_REALWEIGHT']) .' </td>
                             <td align="center"> '. ($resproductComps['PROD_ELMT_ISO'] == 0 ? 'YES' : 'NO') .' </td>
                             <td align="center"></td>
-                            <td align="center"> '. (($resproductComps['PROD_ELMT_ISO'] == 0) || ($resproductComps['PROD_ELMT_ISO'] == 2) ? '' : 'non isothermal') .' </td>
+                            <td align="center"> '. (($resproductComps['PROD_ELMT_ISO'] == 0) || ($resproductComps['PROD_ELMT_ISO'] == 2) ? 'non isothermal' : '') .' </td>
                         </tr>';
                         }
                     $html .= '
@@ -2515,7 +2515,7 @@ class Reports extends Controller
         $componentName = ProductElmt::select('LABEL','ID_COMP', 'ID_PRODUCT_ELMT', 'PROD_ELMT_ISO', 'PROD_ELMT_NAME', 'PROD_ELMT_REALWEIGHT', 'SHAPE_PARAM2')
         ->join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')->whereIn('ID_PRODUCT_ELMT', $idElmArr)
         ->where('TRANS_TYPE', 1)->whereIn('ID_TRANSLATION', $idComArr)
-        ->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'DESC')->get();
+        ->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('SHAPE_POS2', 'DESC')->get();
         $productComps = [];
         foreach ($componentName as $key => $value) {
             $componentStatus = Translation::select('LABEL')->where('TRANS_TYPE', 100)->whereIn('ID_TRANSLATION', $comprelease)->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
