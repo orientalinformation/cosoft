@@ -258,7 +258,7 @@
                         <td align="center"><?php echo $resproductComps['mass'] ?></td>
                         <td align="center"><?php echo ($resproductComps['PROD_ELMT_ISO'] == 0) ? "YES" : "NO" ?></td>
                         <td align="center"><?php echo "" ?></td>
-                        <td align="center"><?php echo ($resproductComps['PROD_ELMT_ISO'] == 0 )|| ($resproductComps['PROD_ELMT_ISO'] == 2) ? '' : "non isothermal" ?></td>
+                        <td align="center"><?php echo ($resproductComps['PROD_ELMT_ISO'] == 0 ) || ($resproductComps['PROD_ELMT_ISO'] == 2) ? 'non isothermal' : '' ?></td>
                     </tr>
                     <?php } ?>
                 </table>
