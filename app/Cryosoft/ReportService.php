@@ -96,19 +96,163 @@ class ReportService
         $this->pasTemp = -1.0;
 	}
 
+    public function getParentIdChaining($idStudy, $arrStudyId = [])
+    {
+        $study = Study::find($idStudy);
+        if ($study) {
+            $arrStudyId[] = $idStudy;
+            $arrStudyId = $this->getParentIdChaining($study->PARENT_ID, $arrStudyId);
+        }
+
+        return $arrStudyId;
+    }
+
+    public function getChainingStudy($idStudy)
+    {
+        $study = Study::find($idStudy);
+        if ($study->PARENT_ID != 0) {
+            $arrStudyId = $this->getParentIdChaining($study->PARENT_ID);
+
+            $studyEquipments = StudyEquipment::whereIn("ID_STUDY", $arrStudyId)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
+
+            $lfcoef = $this->unit->unitConvert($this->value->MASS_PER_UNIT, 1.0);
+
+            $result = array();
+
+            foreach ($studyEquipments as $row) {
+                $capabilitie = $row->CAPABILITIES;
+                $equipStatus = $row->EQUIP_STATUS;
+                $brainType = $row->BRAIN_TYPE;
+                $stuName = $row->study->STUDY_NAME;
+                $calculWarning = "";
+
+                $item["id"] = $idStudyEquipment = $row->ID_STUDY_EQUIPMENTS;
+
+                $sSpecificSize = "";
+                if ($this->equip->getCapability($capabilitie , 2097152)) {
+                    $sSpecificSize = $this->equip->getSpecificEquipSize($idStudyEquipment);
+                }
+                $item["specificSize"] = $sSpecificSize;   
+                
+                $item["equipName"] = $this->equip->getResultsEquipName($idStudyEquipment);
+                $calculate = "";
+                $tr = $ts = $vc = $vep = $tfp = $dhp = $conso= $conso_warning = $toc = $precision = "";
+
+                $item["runBrainPopup"] = false;
+                if ($this->equip->getCapability($capabilitie, 128)) {
+                    $item["runBrainPopup"] = true;
+                }
+
+                if (!($this->equip->getCapability($capabilitie, 128))) {
+                    $tr = $ts = $vc = $vep = $tfp = $dhp = $conso= $conso_warning = $toc = $precision = "";
+                    $calculate = "disabled";
+                } else if (($equipStatus != 0) && ($equipStatus != 1) && ($equipStatus != 100000)) {
+                    $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $conso_warning = $toc = $precision = "****";
+                    $calculate = "disabled";
+                } else if ($equipStatus == 10000) {
+                    $tr = $ts = $vc = $vep = $tfp = $dhp = $conso= $conso_warning = $toc = $precision = "";
+                    $calculate = "disabled";
+                } else {
+                    $dimaResult = DimaResults::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("DIMA_TYPE", 1)->first();
+                    if ($dimaResult == null) {
+                        $tr = $ts = $vc = $vep = $tfp = $dhp = $conso= $conso_warning = $toc = $precision = "";
+                    } else {
+                        switch ($brainType) {
+                            case 0:
+                                $calculate = true;
+                                break;
+
+                            case 1:
+                            case 2:
+                            case 3:
+                                $calculate = false;
+                                break;
+
+                            case 4:
+                                $calculate = false;
+                                break;
+
+                            default:
+                                $calculate = "";
+                                break;
+                        }
+
+                        if ($this->dima->getCalculationWarning($dimaResult->DIMA_STATUS) != 0) {
+                            $calculWarning = $this->dima->getCalculationWarning($dimaResult->DIMA_STATUS);
+                        }
+
+                        $tr = $this->unit->controlTemperature($dimaResult->SETPOINT);
+                        $ts = $this->unit->time($dimaResult->DIMA_TS);
+                        $vc = $this->unit->convectionSpeed($dimaResult->DIMA_VC);
+                        $vep = $this->unit->enthalpy($dimaResult->DIMA_VEP);
+                        $tfp = $this->unit->prodTemperature($dimaResult->DIMA_TFP);
+
+                        if ($this->equip->getCapability($capabilitie, 256)) {
+                            $consumption = $dimaResult->CONSUM / $lfcoef;
+                            $idCoolingFamily = $row->ID_COOLING_FAMILY;
+
+                            $valueStr = $this->unit->consumption($consumption, $idCoolingFamily, 1);
+
+                            $calculationStatus = $this->dima->getCalculationStatus($dimaResult->DIMA_STATUS);
+
+                            $consumptionCell = $this->dima->consumptionCell($lfcoef, $calculationStatus, $valueStr);
+                            $conso = $consumptionCell["value"];
+                            $conso_warning = $consumptionCell["warning"];
+
+                        } else {
+                            $conso = "****";
+                        }
+
+                        if ($this->equip->getCapability($capabilitie, 32)) {
+                            $dhp = $this->unit->productFlow($dimaResult->HOURLYOUTPUTMAX);
+
+                            $batch = $row->BATCH_PROCESS;
+                            if ($batch) {
+                                $massConvert = $this->unit->mass($dimaResult->USERATE);
+                                $massSymbol = $this->unit->massSymbol();
+                                $toc = $massConvert . " " . $massSymbol . "/batch";
+                            } else {
+                                $toc = $this->unit->toc($dimaResult->USERATE) . "%";
+                            }
+                        } else {
+                            $dhp = $toc = "****";
+                        }
+
+                        if ($dimaResult->DIMA_PRECIS < 50.0) {
+                            $precision = $this->unit->precision($dimaResult->DIMA_PRECIS);
+                        } else {
+                            $precision = "!!!!";
+                        }
+
+                    }
+                }
+
+                $item["tr"] = $tr;
+                $item["ts"] = $ts;
+                $item["vc"] = $vc;
+                $item["vep"] = $vep;
+                $item["tfp"] = $tfp;
+                $item["dhp"] = $dhp;
+                $item["conso"] = $conso;
+                $item["conso_warning"] = $conso_warning;
+                $item["toc"] = $toc;
+                $item["precision"] = $precision;
+                $item["stuName"] = $stuName;
+
+                $result[] = $item;
+            }
+
+
+            return $result;
+        } 
+    }
+
     public function getOptimumHeadBalance($idStudy)
     {
         $idUser = $this->auth->user()->ID_USER;
         $study = Study::find($idStudy);
         $calculationMode = $study->CALCULATION_MODE;
-        if ($study->PARENT_ID != 0) {
-            $studyParent = Study::find($study->PARENT_ID);
-            $stuName = $studyParent->STUDY_NAME;
-            $studyEquipments = StudyEquipment::where("ID_STUDY", $studyParent->ID_STUDY)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
-        } else {
-            $stuName = $study->STUDY_NAME;
-            $studyEquipments = StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
-        }     
+        $studyEquipments = StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();     
 
         $lfcoef = $this->unit->unitConvert($this->value->MASS_PER_UNIT, 1.0);
 
@@ -118,6 +262,7 @@ class ReportService
             $capabilitie = $row->CAPABILITIES;
             $equipStatus = $row->EQUIP_STATUS;
             $brainType = $row->BRAIN_TYPE;
+            $stuName = $row->study->STUDY_NAME;
             $calculWarning = "";
 
             $item["id"] = $idStudyEquipment = $row->ID_STUDY_EQUIPMENTS;
