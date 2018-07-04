@@ -1102,18 +1102,20 @@ class Reports extends Controller
                 </tr>
                 <tr>
                     <td >Economic :</td>
-                    <td align="center" colspan="2">'.( $study['OPTION_ECONO'] == 1 ? 'YES' : 'NO') .' </td>
-                </tr>
-                <tr>
+                    <td align="center" colspan="2">'.( $study['OPTION_ECO'] == 1 ? 'YES' : 'NO') .' </td>
+                </tr>';
+                $html .= '<tr>
                     <td >Cryogenic Pipeline :</td>
-                    <td align="center" colspan="2">'. (!empty($cryogenPipeline) ? 'YES' : 'NO') .' </td>
-                </tr>
-                <tr>
-                    <td >Chaining :</td>
-                    <td align="center">'. ($study['CHAINING_CONTROLS'] == 1 ? 'YES' : 'NO') .' </td>
-                    <td align="center">'.  (($study['CHAINING_CONTROLS'] == 1) && ($study['HAS_CHILD'] != 0) && ($study['PARENT_ID'] != 0) ? 'This study is a child' : '') .' </td>
-                </tr>
-            </table>';
+                    <td align="center" colspan="2">'.  ($study['OPTION_CRYOPIPELINE'] != null && !($study['OPTION_CRYOPIPELINE'] == 0) ? 'YES' : 'NO') .' </td>
+                </tr>';
+                if ($study['CHAINING_CONTROLS'] == 1) {
+                    $html .= '<tr>
+                        <td >Chaining :</td>
+                        <td align="center">YES</td>
+                        <td align="center">'.  (($study['HAS_CHILD'] != 0) && ($study['PARENT_ID'] != 0) ? 'This study is a child' : '') .' </td>
+                    </tr>';
+                }
+            $html .= '</table>';
         PDF::writeHTML($html, true, false, true, false, '');
         PDF::AddPage();
         if (($study['CHAINING_CONTROLS'] == 1) && ($study['PARENT_ID'] != 0)) {
@@ -1125,8 +1127,7 @@ class Reports extends Controller
                 $content ='Chaining synthesis';
                 PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
                 PDF::SetFont('times', 'B', 10);
-                $html = '
-                <div class="chaining">
+                $html = '<div class="chaining">
                     <div class="table table-bordered">
                         <table border="1">
                             <tr>
@@ -1170,8 +1171,7 @@ class Reports extends Controller
                 PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
                 PDF::SetFont('times', 'B', 10);
                 $html = '';
-                $html .= '
-                <div class="production">
+                $html .= '<div class="production">
                     <div class="table table-bordered">
                         <table border="0.5">
                         <tr>
@@ -1230,8 +1230,7 @@ class Reports extends Controller
             $content ='Product Data';
             PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
             PDF::SetFont('times', 'B', 10);
-            $html = '
-            <h4>Composition of the product and its components</h4>
+            $html = '<h4>Composition of the product and its components</h4>
             <div class="pro-data">
                 <div class="table table-bordered">
                     <table border="0.5">
