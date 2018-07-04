@@ -801,6 +801,7 @@ class ReportService
                         $day = "****";
                         $week = "****";
                         $hour = "****";
+                        $month = "****";
                         $year = "****";
                         $eqptPerm = "****";
                         $eqptCold = "****";
@@ -819,6 +820,7 @@ class ReportService
                         $day = $this->unit->monetary($economicResult->COST_DAY, 0);
                         $week = $this->unit->monetary($economicResult->COST_WEEK, 0);
                         $hour = $this->unit->monetary($economicResult->COST_HOUR);
+                        $month = $this->unit->monetary($economicResult->COST_MONTH, 0);
                         $year = $this->unit->monetary($economicResult->COST_YEAR, 0);
                         $eqptCold = $this->unit->monetary($economicResult->COST_MAT_GETCOLD);
                         $eqptPerm = $this->unit->monetary($economicResult->COST_MAT_PERM);
@@ -835,6 +837,7 @@ class ReportService
                     $item["day"] = $day;
                     $item["week"] = $week;
                     $item["hour"] = $hour;
+                    $item["month"] = $month;
                     $item["year"] = $year;
                     $item["eqptPerm"] = $eqptPerm;
                     $item["eqptCold"] = $eqptCold;

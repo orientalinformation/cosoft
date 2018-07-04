@@ -710,7 +710,7 @@
                             <td align="center"><?php echo $economic[$key]['week'] ?></td>
                             <?php } ?>
                             <?php if ($arrayParam['params']['CONS_MONTH'] == 1) { ?>
-                            <td align="center">""</td>
+                            <td align="center"><?php echo $economic[$key]['month'] ?></td>
                             <?php } ?>
                             <?php if ($arrayParam['params']['CONS_YEAR'] == 1) { ?>
                             <td align="center"><?php echo $economic[$key]['year'] ?></td>

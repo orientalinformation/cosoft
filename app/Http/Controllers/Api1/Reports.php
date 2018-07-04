@@ -1915,7 +1915,7 @@ class Reports extends Controller
                                     }
                                     if ($CONS_MONTH == 1) { 
                                     $html .='
-                                        <td align="center"></td>';
+                                        <td align="center">'. $economic[$key]['month'] .'</td>';
                                     }
                                     if ($CONS_YEAR == 1) { 
                                     $html .='
