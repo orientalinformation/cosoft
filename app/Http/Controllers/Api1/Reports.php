@@ -996,6 +996,9 @@ class Reports extends Controller
             $baseName = $customPathInfo['basename'];
             $customerNameUrl = $public_path . '/uploads/' . $baseName;
         }
+
+
+        $chainingStudies = $this->reportserv->getChainingStudy($id);
         
 
         $this->writeProgressFile($progressFile, $progress);
@@ -1101,22 +1104,24 @@ class Reports extends Controller
                 </tr>
                 <tr>
                     <td >Economic :</td>
-                    <td align="center" colspan="2">'.( $study['OPTION_ECONO'] == 1 ? 'YES' : 'NO') .' </td>
-                </tr>
-                <tr>
+                    <td align="center" colspan="2">'.( $study['OPTION_ECO'] == 1 ? 'YES' : 'NO') .' </td>
+                </tr>';
+                $html .= '<tr>
                     <td >Cryogenic Pipeline :</td>
-                    <td align="center" colspan="2">'. (!empty($cryogenPipeline) ? 'YES' : 'NO') .' </td>
-                </tr>
-                <tr>
-                    <td >Chaining :</td>
-                    <td align="center">'. ($study['CHAINING_CONTROLS'] == 1 ? 'YES' : 'NO') .' </td>
-                    <td align="center">'.  (($study['CHAINING_CONTROLS'] == 1) && ($study['HAS_CHILD'] != 0) && ($study['PARENT_ID'] != 0) ? 'This study is a child' : '') .' </td>
-                </tr>
-            </table>';
+                    <td align="center" colspan="2">'.  ($study['OPTION_CRYOPIPELINE'] != null && !($study['OPTION_CRYOPIPELINE'] == 0) ? 'YES' : 'NO') .' </td>
+                </tr>';
+                if ($study['CHAINING_CONTROLS'] == 1) {
+                    $html .= '<tr>
+                        <td >Chaining :</td>
+                        <td align="center">YES</td>
+                        <td align="center">'.  (($study['HAS_CHILD'] != 0) && ($study['PARENT_ID'] != 0) ? 'This study is a child' : '') .' </td>
+                    </tr>';
+                }
+            $html .= '</table>';
         PDF::writeHTML($html, true, false, true, false, '');
         PDF::AddPage();
         if (($study['CHAINING_CONTROLS'] == 1) && ($study['PARENT_ID'] != 0)) {
-            if (!empty($calModeHeadBalance)) {
+            if (!empty($chainingStudies)) {
                 PDF::SetFont('times', 'B', 16);
                 PDF::Bookmark('CHAINING SYNTHESIS', 0, 0, '', 'B', array(0,64,128));
                 PDF::SetFillColor(38, 142, 226);
@@ -1124,8 +1129,7 @@ class Reports extends Controller
                 $content ='Chaining synthesis';
                 PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
                 PDF::SetFont('times', 'B', 10);
-                $html = '
-                <div class="chaining">
+                $html = '<div class="chaining">
                     <div class="table table-bordered">
                         <table border="1">
                             <tr>
@@ -1138,13 +1142,13 @@ class Reports extends Controller
                                 <th>Final Average Product temperature  ( '. $symbol['temperatureSymbol'] .' ) </th>
                                 <th>Product Heat Load  ( '. $symbol['enthalpySymbol'] .' ) </th>
                             </tr>';
-                            foreach ($calModeHeadBalance as $key => $resoptHeads) { 
+                            foreach ($chainingStudies as $key => $resoptHeads) { 
                             $html .= '<tr>
                                 <td colspan="2" align="center"> '. $resoptHeads['stuName'] .' </td>
                                 <td colspan="2" align="center"> '. $resoptHeads['equipName'] .'</td>
                                 <td align="center"> '. $resoptHeads['tr'] .' </td>
                                 <td align="center"> '. $resoptHeads['ts'] .' </td>
-                                <td align="center"> '. $equipData[$key]['tr'][0] .' </td>
+                                <td align="center"> '. $resoptHeads['vc'] .' </td>
                                 <td align="center"> '. $proInfoStudy['avgTInitial'] .' </td>
                                 <td align="center"> '. $resoptHeads['tfp'] .' </td>
                                 <td align="center"> '. $resoptHeads['vep'] .' </td>
@@ -1169,8 +1173,7 @@ class Reports extends Controller
                 PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
                 PDF::SetFont('times', 'B', 10);
                 $html = '';
-                $html .= '
-                <div class="production">
+                $html .= '<div class="production">
                     <div class="table table-bordered">
                         <table border="0.5">
                         <tr>
@@ -1229,8 +1232,7 @@ class Reports extends Controller
             $content ='Product Data';
             PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
             PDF::SetFont('times', 'B', 10);
-            $html = '
-            <h4>Composition of the product and its components</h4>
+            $html = '<h4>Composition of the product and its components</h4>
             <div class="pro-data">
                 <div class="table table-bordered">
                     <table border="0.5">
@@ -1323,7 +1325,7 @@ class Reports extends Controller
                             <td align="center"> '. $this->convert->mass($resproductComps['PROD_ELMT_REALWEIGHT']) .' </td>
                             <td align="center"> '. ($resproductComps['PROD_ELMT_ISO'] == 0 ? 'YES' : 'NO') .' </td>
                             <td align="center"></td>
-                            <td align="center"> '. (($resproductComps['PROD_ELMT_ISO'] == 0) || ($resproductComps['PROD_ELMT_ISO'] == 2) ? '' : 'non isothermal') .' </td>
+                            <td align="center"> '. (($resproductComps['PROD_ELMT_ISO'] == 0) || ($resproductComps['PROD_ELMT_ISO'] == 2) ? 'non isothermal' : '') .' </td>
                         </tr>';
                         }
                     $html .= '
@@ -2516,7 +2518,7 @@ class Reports extends Controller
         $componentName = ProductElmt::select('LABEL','ID_COMP', 'ID_PRODUCT_ELMT', 'PROD_ELMT_ISO', 'PROD_ELMT_NAME', 'PROD_ELMT_REALWEIGHT', 'SHAPE_PARAM2')
         ->join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')->whereIn('ID_PRODUCT_ELMT', $idElmArr)
         ->where('TRANS_TYPE', 1)->whereIn('ID_TRANSLATION', $idComArr)
-        ->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'DESC')->get();
+        ->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('SHAPE_POS2', 'DESC')->get();
 
         $productComps = [];
         foreach ($componentName as $key => $value) {

@@ -856,8 +856,8 @@ class ReportService
         $production = Production::select("PROD_FLOW_RATE", "AVG_T_INITIAL")->where("ID_STUDY", $idStudy)->first();
         $product = Product::select("PROD_REALWEIGHT")->where("ID_STUDY", $idStudy)->first();
 
-        $prodFlowRate = $production->PROD_FLOW_RATE;
-        $avgTInitial = $production->AVG_T_INITIAL;
+        $prodFlowRate = $this->unit->productFlow($production->PROD_FLOW_RATE);
+        $avgTInitial = $this->unit->prodTemperature($production->AVG_T_INITIAL);
         $prodElmtRealweight = $this->unit->mass($product->PROD_REALWEIGHT);
 
         return compact("prodFlowRate", "prodElmtRealweight", "avgTInitial");

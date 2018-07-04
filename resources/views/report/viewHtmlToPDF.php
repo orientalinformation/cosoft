@@ -85,17 +85,19 @@
                 </tr>
                 <tr>
                     <td >Economic :</td>
-                    <td align="center" colspan="2"><?php echo $arrayParam['study']['OPTION_ECONO'] == 1 ? "YES" : "NO" ?></td>
+                    <td align="center" colspan="2"><?php echo $arrayParam['study']['OPTION_ECO'] == 1 ? "YES" : "NO" ?></td>
                 </tr>
                 <tr>
                     <td >Cryogenic Pipeline :</td>
-                    <td align="center" colspan="2"><?php echo !empty($cryogenPipeline) ? "YES" : "NO" ?></td>
+                    <td align="center" colspan="2"><?php echo ($arrayParam['study']['OPTION_CRYOPIPELINE'] != null && !($arrayParam['study']['OPTION_CRYOPIPELINE'] == 0)) ? "YES" : "NO" ?></td>
                 </tr>
+                <?php if ($arrayParam['study']['CHAINING_CONTROLS'] == 1){ ?>
                 <tr>
                     <td >Chaining :</td>
-                    <td align="center"><?php echo $arrayParam['study']['CHAINING_CONTROLS'] == 1 ? "YES" : "NO" ?></td>
-                    <td align="center"><?php echo ($arrayParam['study']['CHAINING_CONTROLS'] == 1) && ($arrayParam['study']['HAS_CHILD'] != 0) && ($arrayParam['study']['PARENT_ID'] != 0) ? "This study is a child" : "" ?></td>
+                    <td align="center">YES</td>
+                    <td align="center"><?php echo (($arrayParam['study']['HAS_CHILD'] != 0) && ($arrayParam['study']['PARENT_ID'] != 0)) ? "This study is a child" : "" ?></td>
                 </tr>
+                <?php } ?>
                 </table>
             </div>
         </div>
@@ -120,7 +122,7 @@
                         <td colspan="2" align="center"><?php echo $resoptHeads['equipName'] ?></td>
                         <td align="center"><?php echo $resoptHeads['tr'] ?></td>
                         <td align="center"><?php echo $resoptHeads['ts'] ?></td>
-                        <td align="center"><?php echo $resoptHeads['vc'][0] ?></td>
+                        <td align="center"><?php echo $resoptHeads['vc'] ?></td>
                         <td align="center"><?php echo $arrayParam['proInfoStudy']['avgTInitial'] ?></td>
                         <td align="center"><?php echo $resoptHeads['tfp'] ?></td>
                         <td align="center"><?php echo $resoptHeads['vep'] ?></td>
@@ -258,7 +260,7 @@
                         <td align="center"><?php echo $resproductComps['mass'] ?></td>
                         <td align="center"><?php echo ($resproductComps['PROD_ELMT_ISO'] == 0) ? "YES" : "NO" ?></td>
                         <td align="center"><?php echo "" ?></td>
-                        <td align="center"><?php echo ($resproductComps['PROD_ELMT_ISO'] == 0 )|| ($resproductComps['PROD_ELMT_ISO'] == 2) ? '' : "non isothermal" ?></td>
+                        <td align="center"><?php echo ($resproductComps['PROD_ELMT_ISO'] == 0 ) || ($resproductComps['PROD_ELMT_ISO'] == 2) ? 'non isothermal' : '' ?></td>
                     </tr>
                     <?php } ?>
                 </table>
