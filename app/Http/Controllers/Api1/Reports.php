@@ -1010,7 +1010,7 @@ class Reports extends Controller
         // set default header data
         PDF::setPageOrientation('L', 'A4');
         // set margins
-        PDF::SetMargins(15, 15, 15, true);
+        PDF::SetMargins(10, 15, 10, true);
         PDF::setHeaderFont(Array('helvetica', '', 10));
         // set default monospaced font
         PDF::SetDefaultMonospacedFont('courier');
@@ -1024,7 +1024,7 @@ class Reports extends Controller
             $pdf->SetFont('helvetica', '', 10);
             // Title
             $pdf->Cell(0, 10, $study->STUDY_NAME.'-'. date("d/m/Y"), 0, false, 'C', 0, '', 0, false, 'T', 'M');
-            PDF::SetMargins(15, 25, 15, true);
+            PDF::SetMargins(10, 20, 10, true);
 
             $pdf->Image($public_path.'/images/logo_cryosoft.png',90, 5, 40, '', 'PNG', '', 'T', false, 300, 'R', false, false, 0, false, false, false);
 
@@ -1053,12 +1053,6 @@ class Reports extends Controller
         PDF::SetTextColor(0,0,0);
         PDF::Bookmark('CONTENT ', 0, 0, '', 'B', array(0,64,128));
         $html = '';
-        $html .= '<style>
-                    td, th{font-size: 13px}
-                    td{font-weight:normal}
-                    h3, h4{margin-bottom:10px;padding:0}
-                </style>';
-                        
         $html .= '
             <div align="center">
                     <img style="max-width: 640px" src="'.$public_path.'/images/banner_cryosoft.png">
@@ -1706,25 +1700,25 @@ class Reports extends Controller
                 PDF::SetTextColor(0,0,0);
                 $content ='Consumptions / Economics assessments';
                 PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-                PDF::SetFont('helvetica', '', 10);
+                PDF::SetFont('helvetica', '', 9);
                 $html ='
                 <h4>Values</h4>
                 <div class="consum-esti">
                     <div class="table table-bordered">
-                    <table border="0.5" cellpadding="5">
-                        <tr>
-                                <th colspan="3" align="center" rowspan="2">Equipment</th>';
+                    <table border="1" cellpadding="3">
+                        <tr style="font-size:10px">
+                                <th colspan="3" align="center" rowspan="2" width="10%">Equipment</th>';
                             if ($CONS_OVERALL == 1) { 
                             $html .='
-                                <th rowspan="2" align="center">Overall Cryogen Consumption Ratio (product + equipment and pipeline losses) Unit of Cryogen, per piece of product.  ( '. $symbol['consumSymbol'] .' ) </th>';
+                                <th rowspan="2" align="center" width="10%">Overall Cryogen Consumption Ratio (product + equipment and pipeline losses) Unit of Cryogen, per piece of product.  ( '. $symbol['consumSymbol'] .' ) </th>';
                             }
                             if ($CONS_TOTAL == 1) { 
                             $html .=' 
-                                <th rowspan="2" align="center">Total Cryogen Consumption (product + equipment and pipeline losses).  ( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .'  </th>';
+                                <th rowspan="2" align="center" width="10%">Total Cryogen Consumption (product + equipment and pipeline losses).  ( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .'  </th>';
                             } 
                             if ($CONS_SPECIFIC == 1) { 
                             $html .=' 
-                                <th rowspan="2" align="center">Specific Cryogen Consumption Ratio (product only) Unit of Cryogen, per unit weight of product.  ( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .' </th>';
+                                <th rowspan="2" align="center" width="10%">Specific Cryogen Consumption Ratio (product only) Unit of Cryogen, per unit weight of product.  ( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .' </th>';
                             }
                             if ($CONS_HOUR == 1) {
                             $html .=' 
@@ -1763,7 +1757,7 @@ class Reports extends Controller
 
                         if ($CONS_PIPE == 1 || $CONS_EQUIP == 1){
                         $html .=' 
-                        <tr>';
+                        <tr style="font-size:10px">';
                             if ($CONS_EQUIP == 1) { 
                             $html .=' 
                                 <td align="center">Heat losses per hour  ( '. $symbol['consumMaintienSymbol'] .' ) </td>
