@@ -1053,13 +1053,17 @@ class Reports extends Controller
         PDF::SetTextColor(0,0,0);
         PDF::Bookmark('CONTENT ', 0, 0, '', 'B', array(0,64,128));
         $html = '';
-        
+        $html .= '<style>
+                    td, th{font-size: 13px}
+                    td{font-weight:normal}
+                    h3, h4{margin-bottom:10px;padding:0}
+                </style>';
+                        
         $html .= '
-        <br></br>
             <div align="center">
                     <img style="max-width: 640px" src="'.$public_path.'/images/banner_cryosoft.png">
             </div>
-                <table class="table table-bordered" border="1">
+                <table border="1" cellpadding="3">
                     <tr>
                         <th colspan="6">Customer</th>
                     </tr>
@@ -1092,9 +1096,9 @@ class Reports extends Controller
                     $html .= '<img src="'. $public_path.'/images/globe_food.gif">';
                 }
                 $html .= '</p>
-            <table class ="table table-bordered" border="1" style="color:red">
+            <table class ="table table-bordered" border="1" cellpadding="3" style="color:red">
                 <tr>
-                    <th align="center" colspan="3"><h3>Study of the product:</h3> '. $study['STUDY_NAME'] .' </th>
+                    <th align="center" colspan="3"><h3>Study of the product:</h3> <h4>'. $study['STUDY_NAME'] .'</h4></th>
                 </tr>
                 <tr>
                     <td >Calculation mode :</td>
@@ -1120,16 +1124,15 @@ class Reports extends Controller
         PDF::AddPage();
         if (($study['CHAINING_CONTROLS'] == 1) && ($study['PARENT_ID'] != 0)) {
             if (!empty($chainingStudies)) {
-                PDF::SetFont('times', 'B', 16);
+                PDF::SetFont('helvetica', 'B', 16);
                 PDF::Bookmark('CHAINING SYNTHESIS', 0, 0, '', 'B', array(0,64,128));
                 PDF::SetFillColor(38, 142, 226);
                 PDF::SetTextColor(0,0,0);
                 $content ='Chaining synthesis';
                 PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-                PDF::SetFont('times', 'B', 10);
+                PDF::SetFont('helvetica', '', 10);
                 $html = '<div class="chaining">
-                    <div class="table table-bordered">
-                        <table border="1">
+                        <table border="1" cellpadding="3">
                             <tr>
                                 <th colspan="2">Study Name</th>
                                 <th colspan="2">Equipment</th>
@@ -1152,10 +1155,7 @@ class Reports extends Controller
                                 <td align="center"> '. $resoptHeads['vep'] .' </td>
                             </tr>';
                             }
-                        $html .= '
-                        </table>
-                    </div>
-                </div>';
+                        $html .= '</table></div>';
                 PDF::writeHTML($html, true, false, true, false, '');
                 PDF::AddPage();
             }
@@ -1163,28 +1163,27 @@ class Reports extends Controller
         
         if ($REP_CUSTOMER == 1)  {
             if (!empty($production)) {
-                PDF::SetFont('times', 'B', 16);
+                PDF::SetFont('helvetica', 'B', 16);
                 PDF::Bookmark('PRODUCTION DATA', 0, 0, '', 'B', array(0,64,128));
                 PDF::SetFillColor(38, 142, 226);
                 PDF::SetTextColor(0,0,0);
                 $content ='Production Data';
                 PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-                PDF::SetFont('times', 'B', 10);
+                PDF::SetFont('helvetica', '', 10);
                 $html = '';
-                $html .= '<div class="production">
-                    <div class="table table-bordered">
-                        <table border="0.5">
+                $html .= '<br><div class="production">
+                        <table border="1" cellpadding="5">
                         <tr>
-                            <th>Daily production</th>
-                            <th align="center"> '. $production->DAILY_PROD .'</th>
-                            <th>Hours/Day</th>
+                            <td>Daily production</td>
+                            <td align="center"> '. $production->DAILY_PROD .'</td>
+                            <td>Hours/Day</td>
                         </tr>
                         <tr>
                             <td>Weekly production</td>
                             <td align="center"> '. $production->WEEKLY_PROD .'</td>
                             <td>Days/Week</td>
                         </tr>
-                        <tr style="height: 10px;">
+                        <tr>
                             <td>Annual production</td>
                             <td align="center"> '. $production->NB_PROD_WEEK_PER_YEAR .'</td>
                             <td>Weeks/Year</td>
@@ -1215,7 +1214,6 @@ class Reports extends Controller
                             <td>( '. $symbol['productFlowSymbol'] .' )</td>
                         </tr>
                         </table>
-                    </div>
                 </div>';
                 PDF::writeHTML($html, true, false, true, false, '');
                 PDF::AddPage();
@@ -1223,17 +1221,17 @@ class Reports extends Controller
         }
         
         if ($PROD_LIST == 1) {
-            PDF::SetFont('times', 'B', 16);
+            PDF::SetFont('helvetica', 'B', 16);
             PDF::Bookmark('PRODUCT DATA', 0, 0, '', 'B', array(0,64,128));
             PDF::SetFillColor(38, 142, 226);
             PDF::SetTextColor(0,0,0);
             $content ='Product Data';
             PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-            PDF::SetFont('times', 'B', 10);
+            PDF::SetFont('helvetica', '', 10);
             $html = '<h4>Composition of the product and its components</h4>
             <div class="pro-data">
                 <div class="table table-bordered">
-                    <table border="0.5">
+                    <table border="0.5" cellpadding="5">
                         <tr>
                             <th align="center">Product name</th>
                             <th align="center">Shape</th>';
@@ -1304,7 +1302,7 @@ class Reports extends Controller
             </div>
             <div class="pro-components">
                 <div class="table table-bordered">
-                    <table border="0.5">
+                    <table border="0.5" cellpadding="5">
                         <tr>
                             <th align="center">Component list</th>
                             <th align="center">Description</th>
@@ -1335,25 +1333,25 @@ class Reports extends Controller
         }
         
         if ($PROD_3D == 1) {
-            PDF::SetFont('times', 'B', 16);
+            PDF::SetFont('helvetica', 'B', 16);
             PDF::Bookmark('PRODUCT 3D', 0, 0, '', 'B', array(0,64,128));
             PDF::SetFillColor(38, 142, 226);
             PDF::SetTextColor(0,0,0);
             $content ='Product 3D';
             PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-            PDF::SetFont('times', 'B', 10);
+            PDF::SetFont('helvetica', '', 10);
             $html = '';
             if ($PACKING == 1) {
-                PDF::SetFont('times', 'B', 16);
+                PDF::SetFont('helvetica', 'B', 16);
                 PDF::SetFillColor(38, 142, 226);
                 PDF::SetTextColor(0,0,0);
                 $content ='Packing Data';
                 PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-                PDF::SetFont('times', 'B', 10);
+                PDF::SetFont('helvetica', '', 10);
             }
             $html .='<div class="pro-data">
             <div class="table table-bordered">
-            <table border="0.5" align="center">
+            <table border="0.5" align="center" cellpadding="5">
                 <tr class="lineHeight20">
                     <td colspan="5" class="colCenter">Packing</td>
                     <td class="colCenter">3D view of the product</td>
@@ -1441,17 +1439,17 @@ class Reports extends Controller
                             
         if ($EQUIP_LIST == 1) {
             if (!empty($equipData)) {
-                PDF::SetFont('times', 'B', 16);
+                PDF::SetFont('helvetica', 'B', 16);
                 PDF::Bookmark('EQUIPMENT DATA', 0, 0, '', 'B', array(0,64,128));
                 PDF::SetFillColor(38, 142, 226);
                 PDF::SetTextColor(0,0,0);
                 $content ='Equipment Data';
                 PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-                PDF::SetFont('times', 'B', 10);
+                PDF::SetFont('helvetica', '', 10);
                 $html = '
                 <div class="equipment-data">
                     <div class="table table-bordered">
-                        <table border="0.5">
+                        <table border="0.5" cellpadding="5">
                             <tr>
                                 <th align="center">No.</th>
                                 <th align="center">Name</th>
@@ -1483,13 +1481,13 @@ class Reports extends Controller
         }
         
         if ($ASSES_ECO == 1) {
-            PDF::SetFont('times', 'B', 16);
+            PDF::SetFont('helvetica', 'B', 16);
             PDF::Bookmark('BELT OR SHELVES LAYOUT', 0, 0, '', 'B', array(0,64,128));
             PDF::SetFillColor(38, 142, 226);
             PDF::SetTextColor(0,0,0);
             $content ='Belt or Shelves Layout';
             PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-            PDF::SetFont('times', 'B', 10);
+            PDF::SetFont('helvetica', '', 10);
             $html ='';
             foreach ($equipData as $resequipDatas) {
                 PDF::Bookmark($resequipDatas['displayName'], 1, 0, '', '', array(128,0,0));
@@ -1497,7 +1495,7 @@ class Reports extends Controller
                 $html .='<h3>'. $resequipDatas['displayName'] .'</h3>
                 <div class="layout">
                     <div class="table table-bordered">
-                        <table border="0.5">
+                        <table border="0.5" cellpadding="5">
                             <tr>
                                 <th colspan="2" align="center">Inputs</th>
                                 <th align="center">Image</th>
@@ -1546,18 +1544,18 @@ class Reports extends Controller
         if ($PIPELINE == 1) {
             if (!empty($cryogenPipeline)) {
                 if ($study->OPTION_CRYOPIPELINE == 1) {
-                    PDF::SetFont('times', 'B', 16);
+                    PDF::SetFont('helvetica', 'B', 16);
                     PDF::Bookmark('CRYOGENIC PIPELINE', 0, 0, '', 'B', array(0,64,128));
                     PDF::SetFillColor(38, 142, 226);
                     PDF::SetTextColor(0,0,0);
                     $content ='Cryogenic Pipe';
                     PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-                    PDF::SetFont('times', 'B', 10);
+                    PDF::SetFont('helvetica', '', 10);
                     $html = '';
                     $html .= '
                     <div class="consum-esti">
                         <div class="table table-bordered">
-                            <table border="0.5">
+                            <table border="0.5" cellpadding="5">
                                 <tr>
                                     <th colspan="2" align="center">Type</th>
                                     <th colspan="4" align="center">Name</th>
@@ -1617,17 +1615,17 @@ class Reports extends Controller
 
         if ($PROD_3D != 1 && $PACKING == 1) {
 
-            PDF::SetFont('times', 'B', 16);
+            PDF::SetFont('helvetica', 'B', 16);
             PDF::Bookmark('PACKING DATA', 0, 0, '', 'B', array(0,64,128));
             PDF::SetFillColor(38, 142, 226);
             PDF::SetTextColor(0,0,0);
             $content ='Packing Data';
             PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-            PDF::SetFont('times', 'B', 10);
+            PDF::SetFont('helvetica', '', 10);
             $html ='
             <div class="pro-data">
             <div class="table table-bordered">
-                <table border="0.5" align="center">
+                <table border="0.5" align="center" cellpadding="5">
                     <tr class="lineHeight20">
                         <td colspan="5" class="colCenter">Packing</td>
                         <td class="colCenter">3D view of the product</td>
@@ -1702,18 +1700,18 @@ class Reports extends Controller
         if ($CONS_OVERALL == 1 || $CONS_TOTAL ==1 || $CONS_SPECIFIC  == 1 || $CONS_HOUR ==1 || $CONS_DAY == 1||
         $CONS_WEEK == 1 || $CONS_MONTH == 1 || $CONS_YEAR ==1 || $CONS_EQUIP ==1 || $CONS_PIPE == 1 || $CONS_TANK ==1) {
             if (!empty($consumptions )) {
-                PDF::SetFont('times', 'B', 16);
+                PDF::SetFont('helvetica', 'B', 16);
                 PDF::Bookmark('CONSUMPTIONS / ECONOMICS ASSESSMENTS', 0, 0, '', 'B', array(0,64,128));
                 PDF::SetFillColor(38, 142, 226);
                 PDF::SetTextColor(0,0,0);
                 $content ='Consumptions / Economics assessments';
                 PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-                PDF::SetFont('times', 'B', 10);
+                PDF::SetFont('helvetica', '', 10);
                 $html ='
                 <h4>Values</h4>
                 <div class="consum-esti">
                     <div class="table table-bordered">
-                    <table border="0.5">
+                    <table border="0.5" cellpadding="5">
                         <tr>
                                 <th colspan="3" align="center" rowspan="2">Equipment</th>';
                             if ($CONS_OVERALL == 1) { 
@@ -1948,13 +1946,13 @@ class Reports extends Controller
         }
 
         if (($isSizingValuesChosen == 1) || ($isSizingValuesMax == 1) || ($SIZING_GRAPHE == 1)) {
-            PDF::SetFont('times', 'B', 16);
+            PDF::SetFont('helvetica', 'B', 16);
             PDF::Bookmark('HEAT BALANCE / SIZING RESULTS', 0, 0, '', 'B', array(0,64,128));
             PDF::SetFillColor(38, 142, 226);
             PDF::SetTextColor(0,0,0);
             $content ='Heat balance / sizing results';
             PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-            PDF::SetFont('times', 'B', 10);
+            PDF::SetFont('helvetica', '', 10);
             $html='';
             if ($isSizingValuesChosen == 1) {
                 PDF::Bookmark('Chosen product flowrate', 1, 0, '', '', array(128,0,0));
@@ -1962,7 +1960,7 @@ class Reports extends Controller
                 $html .='
                 <div class="heat-balance-sizing">
                     <div class="table table-bordered">
-                        <table border="0.5">
+                        <table border="0.5" cellpadding="5">
                             <tr>
                                 <th colspan="2" rowspan="2" align="center">Equipment</th>
                                 <th rowspan="2" align="center">Average initial temperature ('. $symbol['temperatureSymbol'] .')</th>
@@ -2009,7 +2007,7 @@ class Reports extends Controller
                     $html = '
                     <div class="Max-prod-flowrate">
                         <div class="table table-bordered">
-                            <table border="0.5">
+                            <table border="0.5" cellpadding="5">
                                 <tr>
                                     <th colspan="2" rowspan="2">Equipment</th>
                                     <th rowspan="2">Average initial temperature ( '. $symbol['temperatureSymbol'] .' ) </th>
@@ -2076,13 +2074,13 @@ class Reports extends Controller
 
         if (($ENTHALPY_V == 1) || ($ENTHALPY_G ==1)) {
             if (!empty($heatexchange)) {
-                PDF::SetFont('times', 'B', 16);
+                PDF::SetFont('helvetica', 'B', 16);
                 PDF::Bookmark('HEAT EXCHANGE', 0, 0, '', 'B', array(0,64,128));
                 PDF::SetFillColor(38, 142, 226);
                 PDF::SetTextColor(0,0,0);
                 $content ='Heat Exchange';
                 PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-                PDF::SetFont('times', 'B', 10);
+                PDF::SetFont('helvetica', '', 10);
                 $html='';
                 foreach ($heatexchange as $resheatexchanges) {
                     $html ='';
@@ -2091,7 +2089,7 @@ class Reports extends Controller
                     if ($ENTHALPY_V == 1) {
                         $html ='<h3>Values</h3>
                         <div class="heat-exchange">
-                            <table border="0.5">
+                            <table border="0.5" cellpadding="5">
                                 <tr>
                                     <th colspan="2">Equipment</th>';
                                     foreach($resheatexchanges['result'] as $result) { 
@@ -2126,12 +2124,12 @@ class Reports extends Controller
         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
             if (!empty($proSections)) {
                 PDF::Bookmark('PRODUCT SECTION', 0, 0, '', 'B', array(0,64,128));
-                PDF::SetFont('times', 'B', 16);
+                PDF::SetFont('helvetica', 'B', 16);
                 PDF::SetFillColor(38, 142, 226);
                 PDF::SetTextColor(0,0,0);
                 $content ='Product Section';
                 PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-                PDF::SetFont('times', 'B', 10);
+                PDF::SetFont('helvetica', '', 10);
                 $html='';
                 foreach ($proSections as $resproSections) {
                     $html ='';
@@ -2155,7 +2153,7 @@ class Reports extends Controller
                         $html .='
                         <div class="values-dim2">
                             <div class="table table-bordered">
-                                <table border="0.5">
+                                <table border="0.5" cellpadding="5">
                                     <tr>
                                         <th align="center">Node number</th>
                                         <th align="center">Position Axis 1  ( '. $resproSections['prodchartDimensionSymbol'] .' ) </th>';
@@ -2208,13 +2206,13 @@ class Reports extends Controller
 
         if ($ISOVALUE_V == 1 || $ISOVALUE_G == 1) {
             if (!empty($timeBase)) {
-                PDF::SetFont('times', 'B', 16);
+                PDF::SetFont('helvetica', 'B', 16);
                 PDF::Bookmark('PRODUCT GRAPH - TIME BASED', 0, 0, '', 'B', array(0,64,128));
                 PDF::SetFillColor(38, 142, 226);
                 PDF::SetTextColor(0,0,0);
                 $content ='Product Graph - Time Based';
                 PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-                PDF::SetFont('times', 'B', 10);
+                PDF::SetFont('helvetica', '', 10);
                 $html='';
                 foreach($timeBase as $timeBases) {
                     $html = '';
@@ -2226,7 +2224,7 @@ class Reports extends Controller
                         <h3>Values</h3>
                         <div class="values-graphic"> 
                             <div class="table table-bordered">
-                            <table border="0.5">
+                            <table border="0.5" cellpadding="5">
                                 <tr>
                                     <th align="center">Points</th>
                                     <th align="center">('. $timeBases['timeSymbol'] .')</th>';
@@ -2280,13 +2278,13 @@ class Reports extends Controller
         
         if ($CONTOUR2D_G == 1) {
             if (!empty($pro2Dchart)) {
-                PDF::SetFont('times', 'B', 16);
+                PDF::SetFont('helvetica', 'B', 16);
                 PDF::Bookmark('2D OUTLINES', 0, 0, '', 'B', array(0,64,128));
                 PDF::SetFillColor(38, 142, 226);
                 PDF::SetTextColor(0,0,0);
                 $content ='2D Outlines';
                 PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-                PDF::SetFont('times', 'B', 10);
+                PDF::SetFont('helvetica', '', 10);
                 $html='';
                 $html = '<h3 style ="background-color:#268EE2">2D Outlines</h3>';
                 foreach ($pro2Dchart as $key => $pro2Dcharts) {
@@ -2327,13 +2325,13 @@ class Reports extends Controller
         }
 
         $html ='';
-        PDF::SetFont('times', 'B', 16);
+        PDF::SetFont('helvetica', 'B', 16);
         PDF::Bookmark('COMMENTS ', 0, 0, '', 'B', array(0,64,128));
         PDF::SetFillColor(38, 142, 226);
         PDF::SetTextColor(0,0,0);
         $content ='Comments';
         PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-        PDF::SetFont('times', 'B', 10);
+        PDF::SetFont('helvetica', '', 10);
         $html .= '
         <div class="comment">
              <p>
