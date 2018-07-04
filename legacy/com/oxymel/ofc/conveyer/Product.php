@@ -99,7 +99,6 @@ class Product
         }
         $this->_svgHeight = ((($containerHeight * $tmpy)) / $realHeight);
         $this->_svgWidth = ((($containerWidth * $tmpx)) / $realWidth);
-        // var_dump($this); die('asdasda');
     }
 
     // [double x, double y]
@@ -116,9 +115,11 @@ class Product
             case self::$CYLINDER_CONCENTRIC_LAYING:
                 $tmp->append((((((((("\t<rect x=\"" . $x) . "\" y=\"") . $y) . "\" width=\"") . $this->_svgWidth) . "\" height=\"") . $this->_svgHeight) . "\" fill=\"gray\" stroke=\"black\" stroke-width=\"1\"/>\n"));
                 break;
+
             case self::$D_LYLING_OVAL:
                 $tmp->append((((((((("\t<rect x=\"" . $x) . "\" y=\"") . $y) . "\" width=\"") . $this->_svgWidth) . "\" height=\"") . $this->_svgHeight) . "\" fill=\"gray\" stroke=\"black\" stroke-width=\"1\"/>\n"));
                 break;
+
             case self::$CYLINDER_STANDING:
             case self::$CYLINDER_CONCENTRIC_STANDING:
             case self::$D_STANDING_CONCENTRIC_CYLINDER:
@@ -130,6 +131,7 @@ class Product
                 $r = ($this->_svgWidth / 2);
                 $tmp->append((((((("\t<circle cx=\"" . $x) . "\" cy=\"") . $y) . "\" r=\"") . $r) . "\" fill=\"gray\" stroke=\"black\" stroke-width=\"1\"/>\n"));
                 break;
+
             case self::$D_STANDING_OVAL:
                 $x += ($this->_svgWidth / 2);
                 $y += ($this->_svgHeight / 2);
@@ -137,8 +139,10 @@ class Product
                 $ry = $r / 2;
                 $tmp->append((((((((("\t<ellipse cx=\"" . $x) . "\" cy=\"") . $y) . "\" rx=\"") . $r) . "\" ry=\"") . $ry). "\" fill=\"gray\" stroke=\"black\" stroke-width=\"1\"/>\n"));
                 break;
+
             default:
                 $tmp->append((((((((("\t<rect x=\"" . $x) . "\" y=\"") . $y) . "\" width=\"") . $this->_svgWidth) . "\" height=\"") . $this->_svgHeight) . "\" fill=\"gray\" stroke=\"black\" stroke-width=\"1\"/>\n"));
+                break;
         }
         return $tmp;
     }
