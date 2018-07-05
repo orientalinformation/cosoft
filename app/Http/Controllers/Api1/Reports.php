@@ -1962,16 +1962,25 @@ class Reports extends Controller
                                 <th rowspan="2" align="center">Control temperature ('. $symbol['temperatureSymbol'] .')</th>
                                 <th rowspan="2" align="center">Residence / Dwell time   ('. $symbol['timeSymbol'] .')</th>
                                 <th rowspan="2" align="center">Product Heat Load ('. $symbol['enthalpySymbol'] .')</th>
-                                <th colspan="4" align="center">Chosen product flowrate</th>
+                                <th colspan="3" align="center">Chosen product flowrate</th>
                                 <th rowspan="2" align="center">Precision of the high level calculation. (%)</th>
                             </tr>
                             <tr>
-                                <td align="center">Hourly production capacity ('. $symbol['productFlowSymbol'] .')</td>
-                                <td colspan="2" align="center">Cryogen consumption (product + equipment heat load) ( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .' </td>
-                                <td align="center">Conveyor coverage or quantity of product per batch</td>
+                                <th align="center">Hourly production capacity ('. $symbol['productFlowSymbol'] .')</th>
+                                <th align="center">Cryogen consumption (product + equipment heat load) ( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .' </th>
+                                <th align="center">Conveyor coverage or quantity of product per batch</th>
                             </tr>';
                             if (!empty($calModeHeadBalance)) {
                                 foreach( $calModeHeadBalance as $resoptHeads) { 
+                                    if ($resoptHeads['conso_warning'] == 'warning_fluid') {
+                                        $conso = '<img src="'. $public_path .'/images/output/warning_fluid_overflow.gif" width="30">';  
+                                    } else if ($resoptHeads['conso_warning'] == 'warning_dhp') {
+                                        $conso = '<img src="'. $public_path .'/images/output/warning_fluid_overflow.gif" width="30"><img src="'. $public_path .'/images/output/warning_dhp_overflow.gif" width="30">';  
+                                    } else if ($resoptHeads['conso_warning'] == 'warning_dhp_value') {
+                                        $conso = '<div>'. $resoptHeads['conso'] .'</div><img src="'. $public_path .'/images/output/warning_dhp_overflow.gif" width="30">';
+                                    } else if ($resoptHeads['conso_warning'] != 'warning_fluid' && $resoptHeads['conso_warning'] != 'warning_dhp' && $resoptHeads['conso_warning'] != 'warning_dhp_value') {
+                                        $conso = $resoptHeads['conso'];
+                                    }
                                 $html .='
                                     <tr>
                                         <td align="center" colspan="2"> '. $resoptHeads['equipName'] .' </td>
@@ -1981,7 +1990,7 @@ class Reports extends Controller
                                         <td align="center"> '. $resoptHeads['ts'] .' </td>
                                         <td align="center"> '. $resoptHeads['vep'] .' </td>
                                         <td align="center"> '. $resoptHeads['dhp'] .' </td>
-                                        <td align="center" colspan="2"> '. $resoptHeads['conso'] .' </td>
+                                        <td align="center"> '. $conso .' </td>
                                         <td align="center"> '. $resoptHeads['toc'] .' </td>
                                         <td align="center"> '. $resoptHeads['precision'] .' </td>
                                     </tr>';
@@ -2003,22 +2012,31 @@ class Reports extends Controller
                         <div class="table table-bordered">
                             <table border="0.5" cellpadding="5">
                                 <tr>
-                                    <th colspan="2" rowspan="2">Equipment</th>
-                                    <th rowspan="2">Average initial temperature ( '. $symbol['temperatureSymbol'] .' ) </th>
-                                    <th rowspan="2">Final Average Product temperature ( '. $symbol['temperatureSymbol'] .' ) </th>
-                                    <th rowspan="2">Control temperature ( '. $symbol['temperatureSymbol'] .' ) </th>
-                                    <th rowspan="2">Residence / Dwell time   ( '. $symbol['timeSymbol'] .' ) </th>
-                                    <th rowspan="2">Product Heat Load ( '. $symbol['enthalpySymbol'] .' ) </th>
-                                    <th colspan="4">Maximum product flowrate </th>
-                                    <th rowspan="2">Precision of the high level calculation. (%)</th>
+                                    <th colspan="2" rowspan="2" align="center">Equipment</th>
+                                    <th rowspan="2" align="center">Average initial temperature ( '. $symbol['temperatureSymbol'] .' ) </th>
+                                    <th rowspan="2" align="center">Final Average Product temperature ( '. $symbol['temperatureSymbol'] .' ) </th>
+                                    <th rowspan="2" align="center">Control temperature ( '. $symbol['temperatureSymbol'] .' ) </th>
+                                    <th rowspan="2" align="center">Residence / Dwell time   ( '. $symbol['timeSymbol'] .' ) </th>
+                                    <th rowspan="2" align="center">Product Heat Load ( '. $symbol['enthalpySymbol'] .' ) </th>
+                                    <th colspan="3" align="center">Maximum product flowrate </th>
+                                    <th rowspan="2" align="center">Precision of the high level calculation. (%)</th>
                                 </tr>
                                 <tr>
-                                    <td>Hourly production capacity ( '. $symbol['productFlowSymbol'] .' ) </td>
-                                    <td colspan="2">Cryogen consumption (product + equipment heat load) ( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .'  </td>
-                                    <td>Conveyor coverage or quantity of product per batch</td>
+                                    <th align="center">Hourly production capacity ( '. $symbol['productFlowSymbol'] .' ) </th>
+                                    <th align="center">Cryogen consumption (product + equipment heat load) ( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .'  </th>
+                                    <th align="center">Conveyor coverage or quantity of product per batch</th>
                                 </tr>';
                                 if (!empty($calModeHbMax)) {
-                                    foreach($calModeHbMax  as $resoptimumHbMax) { 
+                                    foreach($calModeHbMax  as $resoptimumHbMax) {
+                                        if ($resoptimumHbMax['conso_warning'] == 'warning_fluid') {
+                                            $conso = '<img src="'. $public_path .'/images/output/warning_fluid_overflow.gif" width="30">';  
+                                        } else if ($resoptimumHbMax['conso_warning'] == 'warning_dhp') {
+                                            $conso = '<img src="'. $public_path .'/images/output/warning_fluid_overflow.gif" width="30"><img src="'. $public_path .'/images/output/warning_dhp_overflow.gif" width="30">';  
+                                        } else if ($resoptimumHbMax['conso_warning'] == 'warning_dhp_value') {
+                                            $conso = '<div>'. $resoptimumHbMax['conso'] .'</div><img src="'. $public_path .'/images/output/warning_dhp_overflow.gif" width="30">';
+                                        } else if ($resoptimumHbMax['conso_warning'] != 'warning_fluid' && $resoptimumHbMax['conso_warning'] != 'warning_dhp' && $resoptimumHbMax['conso_warning'] != 'warning_dhp_value') {
+                                            $conso = $resoptimumHbMax['conso'];
+                                        }
                                         $html .='<tr>
                                             <td align="center" colspan="2"> '. $resoptimumHbMax['equipName'] .' </td>
                                             <td align="center"> '. $proInfoStudy['avgTInitial'] .' </td>
@@ -2027,7 +2045,7 @@ class Reports extends Controller
                                             <td align="center">'. $resoptimumHbMax['ts']  .'</td>
                                             <td align="center">'. $resoptimumHbMax['vep'] .' </td>
                                             <td align="center">'. $resoptimumHbMax['dhp'] .' </td>
-                                            <td align="center"> '. $resoptimumHbMax['conso'] .' </td>
+                                            <td align="center"> '. $conso .' </td>
                                             <td align="center"> '. $resoptimumHbMax['toc'] .'</td>
                                             <td align="center"> '. $resoptimumHbMax['precision'] .' </td>
                                         </tr>';
@@ -2382,7 +2400,7 @@ class Reports extends Controller
         // end of TOC page
         PDF::endTOCPage();
         PDF::Output($public_path . "/reports/" . $study->USERNAM."/" . $name_report, 'F');
-        return ["url" => "$host/reports/$study->USERNAM/$name_report"];
+        return ["url" => $host . "reports/$study->USERNAM/$name_report"];
     }
     
     function backgroundGenerationHTML($params)
@@ -2704,7 +2722,7 @@ class Reports extends Controller
         // file_put_contents("/home/huytd/adasd", $economic);
         fwrite($myfile, $html);
         fclose($myfile);
-        $url = ["url" => "$host/reports/$study->USERNAM/$name_report"];
+        $url = ["url" => $host . "reports/$study->USERNAM/$name_report"];
         return $url;
     }
 

@@ -32,14 +32,14 @@
                 </div>
                 <div class="col-md-6">
                     <div class="pull-right text-right">
-                        <img src="<?php echo  $arrayParam['host'] . "/images/logo_cryosoft.png"?>">
+                        <img src="<?php echo  $arrayParam['host'] . "images/logo_cryosoft.png"?>">
                     </div>
                 </div>
             </div>
         </div>
         <div class="info-company">
             <div class="text-center">
-                <img src="<?php echo  $arrayParam['host'] . "/images/banner_cryosoft.png"?>">
+                <img src="<?php echo  $arrayParam['host'] . "images/banner_cryosoft.png"?>">
             </div>
             <div class="table-responsive">
                 <table class="table table-bordered table-hover" border="1">
@@ -71,7 +71,7 @@
             
             <div class="text-center">
                 <p>
-                    <img src="<?php echo !empty($arrayParam['params']['PHOTO_PATH']) ? $arrayParam['params']['PHOTO_PATH'] : $arrayParam['host'] . "/images/globe_food.gif"?>" style="max-height: 280px">
+                    <img src="<?php echo !empty($arrayParam['params']['PHOTO_PATH']) ? $arrayParam['params']['PHOTO_PATH'] : $arrayParam['host'] . "images/globe_food.gif"?>" style="max-height: 280px">
                 </p>
             </div>
             <div class="table-responsive">
@@ -425,7 +425,7 @@
                 </div>
                 <div class="col-md-4">
                     <div class="text-center">
-                        <img src="<?php echo  $arrayParam['host'] . "/reports/".$arrayParam['study']['USERNAM']."/".$arrayParam['study']['ID_STUDY']."-".$stuNameLayout."-StdeqpLayout-".$resequipDatas['ID_STUDY_EQUIPMENTS'].".jpg"?>">
+                        <img src="<?php echo  $arrayParam['host'] . "reports/".$arrayParam['study']['USERNAM']."/".$arrayParam['study']['ID_STUDY']."-".$stuNameLayout."-StdeqpLayout-".$resequipDatas['ID_STUDY_EQUIPMENTS'].".jpg"?>">
                     </div>
                 </div>
             </div>
@@ -770,11 +770,11 @@
                     <td align="center">
                     <?php 
                     if ($resoptHeads['conso_warning'] == 'warning_fluid') {
-                        echo '<img src="'. $arrayParam['host'] .'/images/output/warning_fluid_overflow.gif" width="30">';  
+                        echo '<img src="'. $arrayParam['host'] .'images/output/warning_fluid_overflow.gif" width="30">';  
                     } else if ($resoptHeads['conso_warning'] == 'warning_dhp') {
-                        echo '<img src="'. $arrayParam['host'] .'/images/output/warning_fluid_overflow.gif" width="30"><img src="'. $arrayParam['host'] .'/images/output/warning_dhp_overflow.gif" width="30">';  
+                        echo '<img src="'. $arrayParam['host'] .'images/output/warning_fluid_overflow.gif" width="30"><img src="'. $arrayParam['host'] .'images/output/warning_dhp_overflow.gif" width="30">';  
                     } else if ($resoptHeads['conso_warning'] == 'warning_dhp_value') {
-                        echo '<div>'. $resoptHeads['conso'] .'</div><img src="'. $arrayParam['host'] .'/images/output/warning_dhp_overflow.gif" width="30">';
+                        echo '<div>'. $resoptHeads['conso'] .'</div><img src="'. $arrayParam['host'] .'images/output/warning_dhp_overflow.gif" width="30">';
                     } else if ($resoptHeads['conso_warning'] != 'warning_fluid' && $resoptHeads['conso_warning'] != 'warning_dhp' && $resoptHeads['conso_warning'] != 'warning_dhp_value') {
                         echo $resoptHeads['conso'];
                     }
@@ -819,14 +819,14 @@
                     <td align="center"><?php echo $resoptimumHbMax['ts'] ?></td>
                     <td align="center"><?php echo $resoptimumHbMax['vep'] ?></td>
                     <td align="center"><?php echo $resoptimumHbMax['dhp'] ?></td>
-                    <td align="center">
+                    <td align="center"> 
                     <?php 
                         if ($resoptimumHbMax['conso_warning'] == 'warning_fluid') {
-                            echo '<img src="'. $arrayParam['host'] .'/images/output/warning_fluid_overflow.gif" width="30">';  
+                            echo '<img src="'. $arrayParam['host'] .'images/output/warning_fluid_overflow.gif" width="30">';  
                         } else if ($resoptimumHbMax['conso_warning'] == 'warning_dhp') {
-                            echo '<img src="'. $arrayParam['host'] .'/images/output/warning_fluid_overflow.gif" width="30"><img src="'. $arrayParam['host'] .'/images/output/warning_dhp_overflow.gif" width="30">';  
+                            echo '<img src="'. $arrayParam['host'] .'images/output/warning_fluid_overflow.gif" width="30"><img src="'. $arrayParam['host'] .'images/output/warning_dhp_overflow.gif" width="30">';  
                         } else if ($resoptimumHbMax['conso_warning'] == 'warning_dhp_value') {
-                            echo '<div>'. $resoptimumHbMax['conso'] .'</div><img src="'. $arrayParam['host'] .'/images/output/warning_dhp_overflow.gif" width="30">';
+                            echo '<div>'. $resoptimumHbMax['conso'] .'</div><img src="'. $arrayParam['host'] .'images/output/warning_dhp_overflow.gif" width="30">';
                         } else if ($resoptimumHbMax['conso_warning'] != 'warning_fluid' && $resoptimumHbMax['conso_warning'] != 'warning_dhp' && $resoptimumHbMax['conso_warning'] != 'warning_dhp_value') {
                             echo $resoptimumHbMax['conso'];
                         }
@@ -845,7 +845,7 @@
         <?php if ($arrayParam['params']['SIZING_GRAPHE'] == 1) { ?> 
         <h5 class="bold">Graphic</h5>
         <div class ="graphic" align="center">
-            <img src="<?php echo $arrayParam['host'] . "/sizing/" . $arrayParam['study']['USERNAM'] . "/" .  $arrayParam['study']['ID_STUDY'] . "/" .  $arrayParam['study']['ID_STUDY'].".png" ?>" style="max-width: 640px">
+            <img src="<?php echo $arrayParam['host'] . "sizing/" . $arrayParam['study']['USERNAM'] . "/" .  $arrayParam['study']['ID_STUDY'] . "/" .  $arrayParam['study']['ID_STUDY'].".png" ?>" style="max-width: 640px">
         </div>
         <?php } ?>
 
@@ -878,7 +878,7 @@
                 
                 <?php if ($arrayParam['params']['ENTHALPY_G'] == 1) { ?>
                 <div id="hexchGraphic" align="center">
-                    <img src="<?php echo $arrayParam['host'] . "/heatExchange/" . $arrayParam['study']['USERNAM'] . "/" .  $resheatexchanges['idStudyEquipment'] . ".png" ?>" style="max-width :640px">
+                    <img src="<?php echo $arrayParam['host'] . "heatExchange/" . $arrayParam['study']['USERNAM'] . "/" .  $resheatexchanges['idStudyEquipment'] . ".png" ?>" style="max-width :640px">
                 </div>
                 <?php } ?>
                 <?php } ?>
@@ -1002,7 +1002,7 @@
             <?php if ($arrayParam['params']['ISOVALUE_G'] == 1) { ?>      
                 <h5 class="bold">Graphic</h5>        
                 <div class="pro-graphic" align="center">
-                <img src="<?php echo $arrayParam['host'] . "/timeBased/" . $arrayParam['study']['USERNAM'] . "/" .  $timeBases['idStudyEquipment'] . ".png" ?>" style="max-width: 640px">
+                <img src="<?php echo $arrayParam['host'] . "timeBased/" . $arrayParam['study']['USERNAM'] . "/" .  $timeBases['idStudyEquipment'] . ".png" ?>" style="max-width: 640px">
                 </div>
                     <?php } ?>
             <?php } ?>
@@ -1014,7 +1014,7 @@
                 <?php foreach ($pro2Dchart as $pro2Dcharts) {?>
                 <h5 class="bold"><?php echo $pro2Dcharts['equipName'] ?></h5>
                     <div class="outlines" align="center"> 
-                    <img src="<?php echo $arrayParam['host'] . "/heatmap/" . $arrayParam['study']['USERNAM'] . "/" .  $pro2Dcharts['idStudyEquipment'] . "/" . $pro2Dcharts['lfDwellingTime'] . "-" 
+                    <img src="<?php echo $arrayParam['host'] . "heatmap/" . $arrayParam['study']['USERNAM'] . "/" .  $pro2Dcharts['idStudyEquipment'] . "/" . $pro2Dcharts['lfDwellingTime'] . "-" 
                     . $pro2Dcharts['chartTempInterval'][0] . "-" . $pro2Dcharts['chartTempInterval'][1] . "-" . $pro2Dcharts['chartTempInterval'][2] . ".png" ?>" style="max-width: 640px">
                     </div>
                 <?php } ?>
@@ -1031,7 +1031,7 @@
             <div class="info-company">
                 <div class="text-center">
                     <p>
-                        <img src="<?php echo (!empty($arrayParam['study']['reports'][0]['PHOTO_PATH'])) ? $arrayParam['study']['reports'][0]['PHOTO_PATH'] : $arrayParam['host'] . "/images/globe_food.gif"?>" style="max-height: 280px">
+                        <img src="<?php echo (!empty($arrayParam['study']['reports'][0]['PHOTO_PATH'])) ? $arrayParam['study']['reports'][0]['PHOTO_PATH'] : $arrayParam['host'] . "images/globe_food.gif"?>" style="max-height: 280px">
                     </p>
                 </div>
                 <div class="table-responsive">
