@@ -1488,10 +1488,9 @@ class Reports extends Controller
             foreach ($equipData as $resequipDatas) {
                 PDF::Bookmark($resequipDatas['displayName'], 1, 0, '', '', array(128,0,0));
                 // PDF::Cell(0, 10, '', 0, 1, 'L');
-                $html .='<h3>'. $resequipDatas['displayName'] .'</h3>
-                <div class="layout">
-                    <div class="table table-bordered">
-                        <table border="0.5" cellpadding="5">
+                $html .=   '<br><h3>'. $resequipDatas['displayName'] .'</h3>';
+                if ($this->equip->getCapability($resequipDatas['CAPABILITIES'], 8192)) {
+                    $html .=  '<table border="0.5" cellpadding="5">
                             <tr>
                                 <th colspan="2" align="center">Inputs</th>
                                 <th align="center">Image</th>
@@ -1529,9 +1528,9 @@ class Reports extends Controller
                                 <td align="center"> '. $resequipDatas['top_or_QperBatch'] .' </td>
                             </tr>
                         </table>
-                    </div>
-                </div>
                 <br></br><br></br><br></br>';
+                }
+                
             }
             PDF::writeHTML($html, true, false, true, false, '');
             PDF::AddPage();
