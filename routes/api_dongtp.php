@@ -392,7 +392,6 @@ $router->POST('/api/v1/threed/{idProd}/initIso3DTemperature', 'Api1\\Input3Ds@in
  */
 $router->POST('/api/v1/threed/{idProd}/initNonIso3DTemperature', 'Api1\\Input3Ds@initNonIso3DTemperature');
 
-
 /**
  * PUT initial 3D
  * Summary: 

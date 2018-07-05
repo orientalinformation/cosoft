@@ -20,7 +20,6 @@ class Shapes extends Controller
      */
     protected $auth;
     
-
     /**
      * Create a new controller instance.
      *
