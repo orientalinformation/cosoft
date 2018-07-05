@@ -330,7 +330,6 @@ class StudyEquipmentService
         return $bret;
     }
     
-
     public function setInitialTempFromSimpleNumericalResults(StudyEquipment &$sequip, $shape, Product &$product, Production &$production)
     {
         $offset = [0, 0, 0];
@@ -713,7 +712,6 @@ class StudyEquipmentService
             }
         }
 
-
         $base64img = '';
         // Create an image with the specified dimensions
         // $image = imageCreate(300, 200);
@@ -773,7 +771,6 @@ class StudyEquipmentService
                 $prodShape,
                 $this->convert->carpetWidthSymbol()
             );
-            // var_dump($cb); die('har');
         }
 
         // We find back the product length and width from other values
@@ -1033,7 +1030,8 @@ class StudyEquipmentService
         }
     }
 
-    public function cleanSpecificEqpPrm($idStudyEquipment, $valueType) {
+    public function cleanSpecificEqpPrm($idStudyEquipment, $valueType)
+    {
         $studEqpPrm = StudEqpPrm::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->where('VALUE_TYPE', '>=', $valueType)->where('VALUE_TYPE', '<', $valueType + 100)->delete();
     }
 
