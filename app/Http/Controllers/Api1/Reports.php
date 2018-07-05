@@ -839,7 +839,7 @@ class Reports extends Controller
             $this->writeProgressFile($progressFile, $progress);
         }
         
-        if ($isSizingValuesChosen == 1 || $isSizingValuesMax == 1 || $SIZING_GRAPHE == 1) {
+        if ($isSizingValuesChosen == 1 || $isSizingValuesMax == 16 || $SIZING_GRAPHE == 1) {
             if ($study->CALCULATION_MODE == 3) {
                 $calModeHeadBalance = $this->reportserv->getOptimumHeadBalance($study->ID_STUDY);
                 $calModeHbMax = $this->reportserv->getOptimumHeadBalanceMax($study->ID_STUDY);
@@ -1125,7 +1125,7 @@ class Reports extends Controller
                 $content ='Chaining synthesis';
                 PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
                 PDF::SetFont('helvetica', '', 10);
-                $html = '<div class="chaining">
+                $html = '<br><div class="chaining">
                         <table border="1" cellpadding="3">
                             <tr>
                                 <th colspan="2">Study Name</th>
@@ -1939,7 +1939,7 @@ class Reports extends Controller
             }
         }
 
-        if (($isSizingValuesChosen == 1) || ($isSizingValuesMax == 1) || ($SIZING_GRAPHE == 1)) {
+        if (($isSizingValuesChosen == 1) || ($isSizingValuesMax == 16) || ($SIZING_GRAPHE == 1)) {
             PDF::SetFont('helvetica', 'B', 16);
             PDF::Bookmark('HEAT BALANCE / SIZING RESULTS', 0, 0, '', 'B', array(0,64,128));
             PDF::SetFillColor(38, 142, 226);
@@ -1995,7 +1995,7 @@ class Reports extends Controller
                 PDF::AddPage();
             }
             if (!empty($calModeHbMax)) {
-                if ($isSizingValuesMax == 1) {
+                if ($isSizingValuesMax == 16) {
                     PDF::Bookmark(' Maximum product flowrate', 1, 0, '', '', array(128,0,0));
                     PDF::Cell(0, 10, 'Maximum product flowrate', 0, 1, 'L');
                     $html = '
@@ -2547,7 +2547,7 @@ class Reports extends Controller
             $this->writeProgressFile($progressFile, $progress);
         }
         
-        if ($isSizingValuesChosen == 1 || $isSizingValuesMax == 1 || $SIZING_GRAPHE == 1) {
+        if ($isSizingValuesChosen == 1 || $isSizingValuesMax == 16 || $SIZING_GRAPHE == 1) {
             if ($study->CALCULATION_MODE == 3) {
                 $calModeHeadBalance = $this->reportserv->getOptimumHeadBalance($study->ID_STUDY);
                 $calModeHbMax = $this->reportserv->getOptimumHeadBalanceMax($study->ID_STUDY);

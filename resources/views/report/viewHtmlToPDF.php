@@ -17,7 +17,7 @@
         .bold {font-weight: bold}
         .layout{padding-bottom: 15px}
         img {max-width: 100%}
-        .table td, .table th{padding: .55rem}
+        .table td, .table th{padding: .55rem;font-size: 13px;vertical-align: middle;font-weight: normal;}
     </style>
     <body>
     <div class ="box-report-frame container-fluid">
@@ -604,12 +604,12 @@
                 </tr>
                 <tr>
                     <?php if ($arrayParam['params']['CONS_EQUIP'] == 1) { ?>
-                    <td align="center">Heat losses per hour <?php echo "(" . $arrayParam['symbol']['consumMaintienSymbol'] . " )" ?></td>
-                    <td align="center">Cooldown <?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></td>
+                    <th align="center">Heat losses per hour <?php echo "(" . $arrayParam['symbol']['consumMaintienSymbol'] . " )" ?></th>
+                    <th align="center">Cooldown <?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></th>
                     <?php } ?>
                     <?php if ($arrayParam['params']['CONS_PIPE'] == 1) { ?>
-                    <td align="center">Heat losses per hour <?php echo "(" . $arrayParam['symbol']['consumMaintienSymbol'] . " )" ?></td>
-                    <td align="center">Cooldown <?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></td>
+                    <th align="center">Heat losses per hour <?php echo "(" . $arrayParam['symbol']['consumMaintienSymbol'] . " )" ?></th>
+                    <th align="center">Cooldown <?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></th>
                     <?php } ?>
                 </tr>
                 <?php foreach($consumptions as $key => $resconsumptions) { ?>
@@ -735,14 +735,14 @@
         <?php } ?>
         <?php } ?>
 
-        <?php if (($arrayParam['params']['isSizingValuesChosen'] == 1) || ($arrayParam['params']['isSizingValuesMax'] == 1) || ($arrayParam['params']['SIZING_GRAPHE'] == 1))  { ?>
+        <?php if (($arrayParam['params']['isSizingValuesChosen'] == 1) || ($arrayParam['params']['isSizingValuesMax'] == 16) || ($arrayParam['params']['SIZING_GRAPHE'] == 1))  { ?>
         <div class="block-title">Heat balance / sizing results</div>
         <?php } ?>
         <?php if ($arrayParam['params']['isSizingValuesChosen'] == 1) { ?>
         <h5 class="bold">Chosen product flowrate</h5>
         <div class="heat-balance-sizing">
             <div class="table-responsive">
-            <table class ="table table-bordered table-hover" border="1">
+            <table class ="table table-bordered" border="1">
                 <tr>
                     <th colspan="2" rowspan="2" align="center">Equipment</th>
                     <th rowspan="2" align="center">Average initial temperature <?php echo "(" . $arrayParam['symbol']['temperatureSymbol'] . " )" ?></th>
@@ -750,13 +750,13 @@
                     <th rowspan="2" align="center">Control temperature <?php echo "(" . $arrayParam['symbol']['temperatureSymbol'] . " )" ?></th>
                     <th rowspan="2" align="center">Residence / Dwell time   <?php echo "(" . $arrayParam['symbol']['timeSymbol'] . " )" ?></th>
                     <th rowspan="2" align="center">Product Heat Load <?php echo "(" . $arrayParam['symbol']['enthalpySymbol'] . " )" ?></th>
-                    <th colspan="4" align="center">Chosen product flowrate</th>
+                    <th colspan="4" align="center" class="text-center">Chosen product flowrate</th>
                     <th rowspan="2" align="center">Precision of the high level calculation. (%)</th>
                 </tr>
                 <tr>
-                    <td align="center">Hourly production capacity <?php echo "(" . $arrayParam['symbol']['productFlowSymbol'] . " )" ?></td>
-                    <td colspan="2" align="center">Cryogen consumption (product + equipment heat load) <?php echo "(" . $arrayParam['symbol']['consumMaintienSymbol'] . " )" . "/" . $arrayParam['symbol']['perUnitOfMassSymbol']  ?></td>
-                    <td align="center">Conveyor coverage or quantity of product per batch</td>
+                    <th align="center">Hourly production capacity <?php echo "(" . $arrayParam['symbol']['productFlowSymbol'] . " )" ?></th>
+                    <th colspan="2" align="center">Cryogen consumption (product + equipment heat load) <?php echo "(" . $arrayParam['symbol']['consumMaintienSymbol'] . " )" . "/" . $arrayParam['symbol']['perUnitOfMassSymbol']  ?></th>
+                    <th align="center">Conveyor coverage or quantity of product per batch</th>
                 </tr>
                 <?php foreach($calModeHeadBalance as $resoptHeads) { ?>
                 <tr>
@@ -777,12 +777,12 @@
         </div>
         <?php } ?>
 
-        <?php if ($arrayParam['params']['isSizingValuesMax'] == 1) { ?> 
+        <?php if ($arrayParam['params']['isSizingValuesMax'] == 16) { ?> 
         <?php if (!empty($calModeHbMax)) { ?>
         <h5 class="bold">Maximum product flowrate</h5>
         <div class="Max-prod-flowrate">
             <div class="table-responsive">
-            <table class ="table table-bordered table-hover" border="1">
+            <table class ="table table-bordered" border="1">
                 <tr>
                     <th colspan="2" rowspan="2">Equipment</th>
                     <th rowspan="2">Average initial temperature <?php echo "(" . $arrayParam['symbol']['temperatureSymbol'] . " )" ?></th>
@@ -790,13 +790,13 @@
                     <th rowspan="2">Control temperature <?php echo "(" . $arrayParam['symbol']['temperatureSymbol'] . " )" ?></th>
                     <th rowspan="2">Residence / Dwell time   <?php echo "(" . $arrayParam['symbol']['timeSymbol'] . " )" ?></th>
                     <th rowspan="2">Product Heat Load <?php echo "(" . $arrayParam['symbol']['enthalpySymbol'] . " )" ?></th>
-                    <th colspan="4">Maximum product flowrate </th>
+                    <th colspan="3" class="text-center">Maximum product flowrate </th>
                     <th rowspan="2">Precision of the high level calculation. (%)</th>
                 </tr>
                 <tr>
-                    <td>Hourly production capacity <?php echo "(" . $arrayParam['symbol']['productFlowSymbol'] . " )" ?></td>
-                    <td colspan="2">Cryogen consumption (product + equipment heat load) <?php echo "(" . $arrayParam['symbol']['consumMaintienSymbol'] . " )" . "/" . $arrayParam['symbol']['perUnitOfMassSymbol']  ?></td>
-                    <td>Conveyor coverage or quantity of product per batch</td>
+                    <th>Hourly production capacity <?php echo "(" . $arrayParam['symbol']['productFlowSymbol'] . " )" ?></th>
+                    <th>Cryogen consumption (product + equipment heat load) <?php echo "(" . $arrayParam['symbol']['consumMaintienSymbol'] . " )" . "/" . $arrayParam['symbol']['perUnitOfMassSymbol']  ?></th>
+                    <th>Conveyor coverage or quantity of product per batch</th>
                 </tr>
                 <?php foreach($calModeHbMax  as $resoptimumHbMax) { ?>
                 <tr>
@@ -808,7 +808,7 @@
                     <td align="center"><?php echo $resoptimumHbMax['vep'] ?></td>
                     <td align="center"><?php echo $resoptimumHbMax['dhp'] ?></td>
                     <td align="center"><?php echo $resoptimumHbMax['conso'] ?></td>
-                    <td align="center" colspan="2"><?php echo $resoptimumHbMax['toc'] ?></td>
+                    <td align="center"><?php echo $resoptimumHbMax['toc'] ?></td>
                     <td align="center"><?php echo $resoptimumHbMax['precision'] ?></td>
                 </tr>
                 <?php } ?>
