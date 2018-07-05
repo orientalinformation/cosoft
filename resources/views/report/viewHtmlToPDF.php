@@ -750,12 +750,12 @@
                     <th rowspan="2" align="center">Control temperature <?php echo "(" . $arrayParam['symbol']['temperatureSymbol'] . " )" ?></th>
                     <th rowspan="2" align="center">Residence / Dwell time   <?php echo "(" . $arrayParam['symbol']['timeSymbol'] . " )" ?></th>
                     <th rowspan="2" align="center">Product Heat Load <?php echo "(" . $arrayParam['symbol']['enthalpySymbol'] . " )" ?></th>
-                    <th colspan="4" align="center" class="text-center">Chosen product flowrate</th>
+                    <th colspan="3" align="center" class="text-center">Chosen product flowrate</th>
                     <th rowspan="2" align="center">Precision of the high level calculation. (%)</th>
                 </tr>
                 <tr>
                     <th align="center">Hourly production capacity <?php echo "(" . $arrayParam['symbol']['productFlowSymbol'] . " )" ?></th>
-                    <th colspan="2" align="center">Cryogen consumption (product + equipment heat load) <?php echo "(" . $arrayParam['symbol']['consumMaintienSymbol'] . " )" . "/" . $arrayParam['symbol']['perUnitOfMassSymbol']  ?></th>
+                    <th align="center">Cryogen consumption (product + equipment heat load) <?php echo "(" . $arrayParam['symbol']['consumMaintienSymbol'] . " )" . "/" . $arrayParam['symbol']['perUnitOfMassSymbol']  ?></th>
                     <th align="center">Conveyor coverage or quantity of product per batch</th>
                 </tr>
                 <?php foreach($calModeHeadBalance as $resoptHeads) { ?>
@@ -767,8 +767,20 @@
                     <td align="center"><?php echo $resoptHeads['ts'] ?></td>
                     <td align="center"><?php echo $resoptHeads['vep'] ?></td>
                     <td align="center"><?php echo $resoptHeads['dhp'] ?></td>
-                    <td align="center"><?php echo $resoptHeads['conso'] ?></td>
-                    <td align="center" colspan="2"><?php echo $resoptHeads['toc'] ?></td>
+                    <td align="center">
+                    <?php 
+                    if ($resoptHeads['conso_warning'] == 'warning_fluid') {
+                        echo '<img src="'. $arrayParam['host'] .'/images/output/warning_fluid_overflow.gif" width="30">';  
+                    } else if ($resoptHeads['conso_warning'] == 'warning_dhp') {
+                        echo '<img src="'. $arrayParam['host'] .'/images/output/warning_fluid_overflow.gif" width="30"><img src="'. $arrayParam['host'] .'/images/output/warning_dhp_overflow.gif" width="30">';  
+                    } else if ($resoptHeads['conso_warning'] == 'warning_dhp_value') {
+                        echo '<div>'. $resoptHeads['conso'] .'</div><img src="'. $arrayParam['host'] .'/images/output/warning_dhp_overflow.gif" width="30">';
+                    } else if ($resoptHeads['conso_warning'] != 'warning_fluid' && $resoptHeads['conso_warning'] != 'warning_dhp' && $resoptHeads['conso_warning'] != 'warning_dhp_value') {
+                        echo $resoptHeads['conso'];
+                    }
+                    ?>
+                    </td>
+                    <td align="center"><?php echo $resoptHeads['toc'] ?></td>
                     <td align="center"><?php echo $resoptHeads['precision'] ?></td>
                 </tr>
                 <?php } ?>
@@ -807,7 +819,19 @@
                     <td align="center"><?php echo $resoptimumHbMax['ts'] ?></td>
                     <td align="center"><?php echo $resoptimumHbMax['vep'] ?></td>
                     <td align="center"><?php echo $resoptimumHbMax['dhp'] ?></td>
-                    <td align="center"><?php echo $resoptimumHbMax['conso'] ?></td>
+                    <td align="center">
+                    <?php 
+                        if ($resoptimumHbMax['conso_warning'] == 'warning_fluid') {
+                            echo '<img src="'. $arrayParam['host'] .'/images/output/warning_fluid_overflow.gif" width="30">';  
+                        } else if ($resoptimumHbMax['conso_warning'] == 'warning_dhp') {
+                            echo '<img src="'. $arrayParam['host'] .'/images/output/warning_fluid_overflow.gif" width="30"><img src="'. $arrayParam['host'] .'/images/output/warning_dhp_overflow.gif" width="30">';  
+                        } else if ($resoptimumHbMax['conso_warning'] == 'warning_dhp_value') {
+                            echo '<div>'. $resoptimumHbMax['conso'] .'</div><img src="'. $arrayParam['host'] .'/images/output/warning_dhp_overflow.gif" width="30">';
+                        } else if ($resoptimumHbMax['conso_warning'] != 'warning_fluid' && $resoptimumHbMax['conso_warning'] != 'warning_dhp' && $resoptimumHbMax['conso_warning'] != 'warning_dhp_value') {
+                            echo $resoptimumHbMax['conso'];
+                        }
+                    ?>
+                    </td>
                     <td align="center"><?php echo $resoptimumHbMax['toc'] ?></td>
                     <td align="center"><?php echo $resoptimumHbMax['precision'] ?></td>
                 </tr>
