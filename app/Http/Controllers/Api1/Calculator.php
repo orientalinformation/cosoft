@@ -280,7 +280,7 @@ class Calculator extends Controller
     {
         $input = $this->request->all();
         
-        $idStudy = $idStudyEquipment = null;
+        $idStudy = $idStudyEquipment = $sequip = null;
 
         if (isset($input['idStudy'])) $idStudy = intval($input['idStudy']);
         if (isset($input['idStudyEquipment'])) $idStudyEquipment = intval($input['idStudyEquipment']);
@@ -292,6 +292,7 @@ class Calculator extends Controller
         $brainMode = $this->brainCal->getBrainMode($idStudy);
 
         $studyEquipments = StudyEquipment::where('ID_STUDY', $idStudy)->get();
+        $sequip = StudyEquipment::where('ID_STUDY', $idStudy)->first();
 
         if (count($studyEquipments) > 0) {
             for ($i = 0; $i < count($studyEquipments); $i++) { 
@@ -315,7 +316,11 @@ class Calculator extends Controller
                 }
             }
         }
-        $this->saveTempRecordPts($this->request, $idStudy);
+
+        $idShape = $sequip->study->products->first()->productElmts->first()->ID_SHAPE;
+        if ($idShape < 10) {
+            $this->saveTempRecordPts($this->request, $idStudy);
+        }
         //$this->cal->saveTempRecordPtsToReport($idStudy);
 
         return $this->startNumericalCalculation($idStudy);
@@ -732,7 +737,7 @@ class Calculator extends Controller
     {
         $input = $this->request->all();
 
-        $idStudy = $idStudyEquipment = $checkOptim = $typeCalculate = null;
+        $idStudy = $idStudyEquipment = $checkOptim = $typeCalculate = $sequip = null;
 
         if (isset($input['idStudy'])) $idStudy = intval($input['idStudy']);
         if (isset($input['idStudyEquipment'])) $idStudyEquipment = intval($input['idStudyEquipment']);
@@ -740,6 +745,8 @@ class Calculator extends Controller
         if (isset($input['typeCalculate'])) $typeCalculate = intval($input['typeCalculate']);
         
         $brainMode = $this->brainCal->getBrainMode($idStudy);
+        $sequip = StudyEquipment::where('ID_STUDY', $idStudy)->first();
+        $idShape = $sequip->study->products->first()->productElmts->first()->ID_SHAPE;
 
         if ($checkOptim == "true") {
             $this->setBrainMode(12);
@@ -753,14 +760,19 @@ class Calculator extends Controller
         if ($typeCalculate == 3) {
             $brainMode = 13;
             $this->saveCalculationParameters($this->request, $idStudyEquipment, $brainMode);
-            $this->saveTempRecordPts($this->request, $idStudy);
+            if ($idShape < 10) {
+                $this->saveTempRecordPts($this->request, $idStudy);
+            }
             //resetBrainStudyError(); not using
 
             $runType = $this->startMaxCapacityCalculation($this->request, $idStudy, $idStudyEquipment);
         } else {
             $this->saveEquipmentSettings($this->request, $idStudyEquipment);
             $this->saveCalculationParameters($this->request, $idStudyEquipment, $brainMode);
-            $this->saveTempRecordPts($this->request, $idStudy);
+
+            if ($idShape < 10) {
+                $this->saveTempRecordPts($this->request, $idStudy);
+            }
 
             if ($this->cal->isStudyHasChilds($idStudy)) {
                 $this->cal->setChildsStudiesToRecalculate($idStudy, $idStudyEquipment);
