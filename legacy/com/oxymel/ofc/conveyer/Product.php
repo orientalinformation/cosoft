@@ -102,10 +102,10 @@ class Product
     }
 
     // [double x, double y]
-    public function getSVG ($x, $y)
+    public function getSVG ($x, $y, $_parallel)
     {
         $tmp = new StringBuffer();
-        $r = null;
+        $r = $rx = $ry = null;
         switch ($this->_shape) {
             case self::$SLAB:
             case self::$PARALLELEPIPED_STANDING:
@@ -136,8 +136,15 @@ class Product
                 $x += ($this->_svgWidth / 2);
                 $y += ($this->_svgHeight / 2);
                 $r = ($this->_svgWidth / 2);
-                $ry = $r / 2;
-                $tmp->append((((((((("\t<ellipse cx=\"" . $x) . "\" cy=\"") . $y) . "\" rx=\"") . $r) . "\" ry=\"") . $ry). "\" fill=\"gray\" stroke=\"black\" stroke-width=\"1\"/>\n"));
+                
+                if ($_parallel == 1) {
+                    $rx = $r;
+                    $ry = $r / 2;
+                } else {
+                    $rx = $r / 2;
+                    $ry = $r;
+                }
+                $tmp->append((((((((("\t<ellipse cx=\"" . $x) . "\" cy=\"") . $y) . "\" rx=\"") . $rx) . "\" ry=\"") . $ry). "\" fill=\"gray\" stroke=\"black\" stroke-width=\"1\"/>\n"));
                 break;
 
             default:

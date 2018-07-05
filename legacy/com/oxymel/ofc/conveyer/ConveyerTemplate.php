@@ -171,9 +171,9 @@ class ConveyerTemplate
     }
 
     // [int imageHeight, int imageWidth]
-    public function getSVGImage_I_I ($imageHeight, $imageWidth)
+    public function getSVGImage_I_I ($imageHeight, $imageWidth, $PROD_POSITION)
     {
-        return $this->createSVGImage($imageHeight, $imageWidth,  TRUE )->toString();
+        return $this->createSVGImage($imageHeight, $imageWidth, TRUE, $PROD_POSITION )->toString();
     }
 
     // [int imageHeight, int imageWidth, boolean usepx]
@@ -183,7 +183,7 @@ class ConveyerTemplate
     }
 
     // [int imageHeight, int imageWidth, boolean usepx]
-    protected function createSVGImage ($imageHeight, $imageWidth, $usepx)
+    protected function createSVGImage ($imageHeight, $imageWidth, $usepx, $PROD_POSITION = 1)
     {
         $out = new StringBuffer();
         $type = NULL;
@@ -202,7 +202,7 @@ class ConveyerTemplate
             for ($nby = 0; ($nby < $this->_nbPInHeight); ++$nby) {
                 $tmpx = $x;
                 for ($nbx = 0; ($nbx < $this->_nbPInWidth); ++$nbx) {
-                    $out->append($this->_product->getSVG($tmpx, $y));
+                    $out->append($this->_product->getSVG($tmpx, $y, $PROD_POSITION));
                     $tmpx += ($xInterval + $this->_product->getWidth());
                 }
 

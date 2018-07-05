@@ -832,7 +832,7 @@ class StudyEquipmentService
         $svg = '';
 
         try {
-            $svg = $cb->getSVGImage_I_I(800, 800);
+            $svg = $cb->getSVGImage_I_I(800, 800, $layoutGeneration->PROD_POSITION);
         } catch (Exception $e) {
             throw new Exception("Unable to generate SVG image");
         }
