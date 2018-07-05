@@ -310,10 +310,7 @@ class Calculator extends Controller
                     $calculationParameter->save();
                 }
                 
-                $checkRs = $this->saveCalculationParameters($this->request, $idStudyEquipment, $brainMode);
-                if ($checkRs != 1) {
-                    break;
-                }
+                $this->saveCalculationParameters($this->request, $idStudyEquipment, $brainMode);
             }
         }
 
