@@ -135,15 +135,10 @@ class Product
             case self::$D_STANDING_OVAL:
                 $x += ($this->_svgWidth / 2);
                 $y += ($this->_svgHeight / 2);
-                $r = ($this->_svgWidth / 2);
                 
-                if ($_parallel == 1) {
-                    $rx = $r;
-                    $ry = $r / 2;
-                } else {
-                    $rx = $r / 2;
-                    $ry = $r;
-                }
+                $rx = ($this->_svgWidth / 2);
+                $ry = ($this->_svgHeight / 2);
+               
                 $tmp->append((((((((("\t<ellipse cx=\"" . $x) . "\" cy=\"") . $y) . "\" rx=\"") . $rx) . "\" ry=\"") . $ry). "\" fill=\"gray\" stroke=\"black\" stroke-width=\"1\"/>\n"));
                 break;
 
