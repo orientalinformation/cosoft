@@ -1527,6 +1527,17 @@ class Reports extends Controller
                             </tr>
                         </table>
                 <br></br><br></br><br></br>';
+                } else {
+                    $html .= '<table border="0.5" cellpadding="5">
+                        <tr>
+                            <th colspan="2" align="center">Inputs</th>
+                        </tr>
+                        <tr>
+                            <td>Orientation</td><td>'. ($resequipDatas['ORIENTATION'] == 1 ? 'Parallel' : 'Perpendicular') .'</td>
+                        </tr>
+                        <tr><td>Conveyor coverage or quantity of product per batch</td><td>'. $resequipDatas['top_or_QperBatch'] .'</td></tr>
+                    </table>
+                <br></br><br></br><br></br>';
                 }
                 
             }
@@ -2539,6 +2550,11 @@ class Reports extends Controller
         }
         
         $equipData = $this->stdeqp->findStudyEquipmentsByStudy($study);
+        if (count($equipData) > 0) {
+            foreach ($equipData as $key => $equip) {
+                $equipData[$key]['hasLayout'] = $this->equip->getCapability($equip['CAPABILITIES'], 8192);
+            }
+        }
 
         if ($EQUIP_LIST == 1) {
             $progress .= "\nEquiment";
@@ -2810,7 +2826,7 @@ class Reports extends Controller
             'symbol' => $symbol,
             'host' => $host,
             'params' => $params['input'],
-            'shapeCode' => $shapeCode
+            'shapeCode' => $shapeCode,
         ];
         $param = [
             'arrayParam' => $arrayParam,

@@ -383,9 +383,10 @@
         <h5 class="bold"><?php echo $resequipDatas['displayName'] ?></h5>
         <div class="layout">
             <div class = "row">
+                <?php if ($resequipDatas['hasLayout']) { ?>
                 <div class="col-md-8">
                     <div class="table-responsive">
-                    <table class ="table table-bordered table-hover table-striped" border="1">
+                    <table class ="table table-bordered table-hover table-striped">
                         <tr>
                             <th colspan="2" align="center">Inputs</th>
                         </tr>
@@ -428,6 +429,29 @@
                         <img src="<?php echo  $arrayParam['host'] . "reports/".$arrayParam['study']['USERNAM']."/".$arrayParam['study']['ID_STUDY']."-".$stuNameLayout."-StdeqpLayout-".$resequipDatas['ID_STUDY_EQUIPMENTS'].".jpg"?>">
                     </div>
                 </div>
+                <?php } else {?>
+                <div class="col-md-12">
+                    <div class="table-responsive">
+                        <table class ="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <td colspan="2" class="text-center">Inputs</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Orientation</td>
+                                    <td><?php echo $resequipDatas['ORIENTATION'] == 1 ? 'Parallel' : 'Perpendicular' ?></td>
+                                </tr>
+                                <tr>
+                                    <td>Conveyor coverage or quantity of product per batch</td>
+                                    <td><?php echo $resequipDatas['top_or_QperBatch'] ?></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <?php } ?>
             </div>
         </div>
         <?php } ?>
