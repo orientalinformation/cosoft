@@ -794,11 +794,39 @@ class Reports extends Controller
         ->join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')->whereIn('ID_PRODUCT_ELMT', $idElmArr)
         ->where('TRANS_TYPE', 1)->whereIn('ID_TRANSLATION', $idComArr)
         ->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('SHAPE_POS2', 'DESC')->get();
+        
+        $listParentChaining = $this->reportserv->getParentIdChaining($study->PARENT_ID);
+
+        $arrIdComp = [];
+        if (!empty($listParentChaining)) {
+            foreach ($listParentChaining as $key => $prChainIdStudy) {
+                $arrIdComp[$prChainIdStudy] = [];
+                $productPrChain = Product::Where('ID_STUDY', $prChainIdStudy)->first();
+                if ($productPrChain) {
+                    foreach ($productPrChain->productElmts as $productElmt) {
+                        $arrIdComp[$prChainIdStudy][] = $productElmt->ID_COMP;
+                    }
+                }
+            }
+        }
+        
         $productComps = [];
         foreach ($componentName as $key => $value) {
             $componentStatus = Translation::select('LABEL')->where('TRANS_TYPE', 100)->whereIn('ID_TRANSLATION', $comprelease)->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
             $productComps[] = $value;
             $productComps[$key]['display_name'] = $value->LABEL . ' - ' . $productElmt->component->COMP_VERSION . '(' . $componentStatus->LABEL . ' )';
+            $productComps[$key]['mass'] = $this->convert->mass($value->PROD_ELMT_REALWEIGHT);
+            $productComps[$key]['dim'] = $this->convert->prodDimension($value->SHAPE_PARAM2);
+            $studyNumber = [];
+            if (!empty($arrIdComp)) {
+                foreach ($arrIdComp as $k => $arrId) {
+                    if (in_array($value->ID_COMP, $arrId)) {
+                        $studyNumber[] = $k;
+                    }
+                }
+            }
+
+            $productComps[$key]['studyNumber'] = count($arrIdComp) - count($studyNumber) + 1;
         }
 
         if ($PROD_LIST == 1) {
@@ -1320,7 +1348,7 @@ class Reports extends Controller
                             <td align="center">'. $this->convert->prodDimension($resproductComps['SHAPE_PARAM2']) .'</td>
                             <td align="center">'. $this->convert->mass($resproductComps['PROD_ELMT_REALWEIGHT']) .'</td>
                             <td align="center">'. ($resproductComps['PROD_ELMT_ISO'] == 0 ? 'YES' : 'NO') .'</td>
-                            <td align="center"></td>
+                            <td align="center">'. $resproductComps['studyNumber'] .'</td>
                             <td align="center">'. $prodElmIso .'</td>
                         </tr>';
                         }
@@ -2541,6 +2569,22 @@ class Reports extends Controller
         ->join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')->whereIn('ID_PRODUCT_ELMT', $idElmArr)
         ->where('TRANS_TYPE', 1)->whereIn('ID_TRANSLATION', $idComArr)
         ->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('SHAPE_POS2', 'DESC')->get();
+
+        $listParentChaining = $this->reportserv->getParentIdChaining($study->PARENT_ID);
+
+        $arrIdComp = [];
+        if (!empty($listParentChaining)) {
+            foreach ($listParentChaining as $key => $prChainIdStudy) {
+                $arrIdComp[$prChainIdStudy] = [];
+                $productPrChain = Product::Where('ID_STUDY', $prChainIdStudy)->first();
+                if ($productPrChain) {
+                    foreach ($productPrChain->productElmts as $productElmt) {
+                        $arrIdComp[$prChainIdStudy][] = $productElmt->ID_COMP;
+                    }
+                }
+            }
+        }
+        
         $productComps = [];
         foreach ($componentName as $key => $value) {
             $componentStatus = Translation::select('LABEL')->where('TRANS_TYPE', 100)->whereIn('ID_TRANSLATION', $comprelease)->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
@@ -2548,6 +2592,16 @@ class Reports extends Controller
             $productComps[$key]['display_name'] = $value->LABEL . ' - ' . $productElmt->component->COMP_VERSION . '(' . $componentStatus->LABEL . ' )';
             $productComps[$key]['mass'] = $this->convert->mass($value->PROD_ELMT_REALWEIGHT);
             $productComps[$key]['dim'] = $this->convert->prodDimension($value->SHAPE_PARAM2);
+            $studyNumber = [];
+            if (!empty($arrIdComp)) {
+                foreach ($arrIdComp as $k => $arrId) {
+                    if (in_array($value->ID_COMP, $arrId)) {
+                        $studyNumber[] = $k;
+                    }
+                }
+            }
+
+            $productComps[$key]['studyNumber'] = count($arrIdComp) - count($studyNumber) + 1;
         }
 
         if ($PROD_LIST == 1) {
