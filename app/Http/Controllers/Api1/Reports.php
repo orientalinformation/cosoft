@@ -795,7 +795,7 @@ class Reports extends Controller
         $componentName = ProductElmt::select('LABEL','ID_COMP', 'ID_PRODUCT_ELMT', 'PROD_ELMT_ISO', 'PROD_ELMT_NAME', 'PROD_ELMT_REALWEIGHT', 'SHAPE_PARAM2')
         ->join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')->whereIn('ID_PRODUCT_ELMT', $idElmArr)
         ->where('TRANS_TYPE', 1)->whereIn('ID_TRANSLATION', $idComArr)
-        ->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'DESC')->get();
+        ->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('SHAPE_POS2', 'DESC')->get();
         $productComps = [];
         foreach ($componentName as $key => $value) {
             $componentStatus = Translation::select('LABEL')->where('TRANS_TYPE', 100)->whereIn('ID_TRANSLATION', $comprelease)->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
@@ -1132,12 +1132,12 @@ class Reports extends Controller
                             <tr>
                                 <th colspan="2">Study Name</th>
                                 <th colspan="2">Equipment</th>
-                                <th>Control temperature  ( '. $symbol['temperatureSymbol'] .' ) </th>
-                                <th>Residence/ Dwell time  ( '. $symbol['timeSymbol'] .' ) </th>
+                                <th>Control temperature<br>('. $symbol['temperatureSymbol'] .') </th>
+                                <th>Residence/ Dwell time<br>( '. $symbol['timeSymbol'] .' )</th>
                                 <th>Convection Setting (Hz)</th>
-                                <th>Initial Average Product tempeture  ( '. $symbol['temperatureSymbol'] .' )  </th>
-                                <th>Final Average Product temperature  ( '. $symbol['temperatureSymbol'] .' ) </th>
-                                <th>Product Heat Load  ( '. $symbol['enthalpySymbol'] .' ) </th>
+                                <th>Initial Average Product tempeture<br>('. $symbol['temperatureSymbol'] .')  </th>
+                                <th>Final Average Product temperature<br>('. $symbol['temperatureSymbol'] .') </th>
+                                <th>Product Heat Load<br>('. $symbol['enthalpySymbol'] .') </th>
                             </tr>';
                             foreach ($chainingStudies as $key => $resoptHeads) { 
                             $html .= '<tr>
@@ -1224,100 +1224,106 @@ class Reports extends Controller
             $content ='Product Data';
             PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
             PDF::SetFont('helvetica', '', 10);
-            $html = '<h4>Composition of the product and its components</h4>
+            $html = '<br><h3>Composition of the product and its components</h3>
             <div class="pro-data">
-                <div class="table table-bordered">
-                    <table border="0.5" cellpadding="5">
-                        <tr>
-                            <th align="center">Product name</th>
-                            <th align="center">Shape</th>';
-                            if ($shapeCode == 1 || $shapeCode == 6) {
-                                $html .= '<th align="center">Thickness( '. $symbol['prodDimensionSymbol'] . ' ) </th>';
-                            } else if ($shapeCode == 2 || $shapeCode == 9) {
-                                $html .='
-                                <th align="center">Length( '. $symbol['prodDimensionSymbol'] . ' ) </th>
-                                <th align="center">Height( '. $symbol['prodDimensionSymbol'] . ' ) </th>
-                                <th align="center">Width( '. $symbol['prodDimensionSymbol'] . ' ) </th>
-                                ';
-                            } else if ($shapeCode == 3) {
-                                $html .= '
-                                <th align="center">Height( '. $symbol['prodDimensionSymbol'] . ' ) </th>
-                                <th align="center">Length( '. $symbol['prodDimensionSymbol'] . ' ) </th>
-                                <th align="center">Width( '. $symbol['prodDimensionSymbol'] . ' ) </th>
-                                ';
-                            } else if ($shapeCode == 4) {
-                                $html .= '
-                                <th align="center">Diameter( '. $symbol['prodDimensionSymbol'] . ' ) </th>
-                                <th align="center">Height( '. $symbol['prodDimensionSymbol'] . ' ) </th>
-                                ';
-                            } else if ($shapeCode == 5) {
-                                $html .= '
-                                <th align="center">Diameter( '. $symbol['prodDimensionSymbol'] . ' ) </th>
-                                <th align="center">Length( '. $symbol['prodDimensionSymbol'] . ' ) </th>
-                                ';
-                            } else if ($shapeCode == 7) {
-                                $html .= '
-                                <th align="center">Hieght( '. $symbol['prodDimensionSymbol'] . ' ) </th>
-                                <th align="center">Diameter( '. $symbol['prodDimensionSymbol'] . ' ) </th>
-                                ';
-                            } else if ($shapeCode == 8) {
-                                $html .= '
-                                <th align="center">Length( '. $symbol['prodDimensionSymbol'] . ' ) </th>
-                                <th align="center">Diameter( '. $symbol['prodDimensionSymbol'] . ' ) </th>
-                                ';
-                            }
-                            $html .= '
-                            <th align="center">Real product mass per unit( '. $symbol['massSymbol'] .' ) </th>
-                            <th align="center">Same temperature throughout product.</th>
-                            <th align="center">Initial temperature( ' . $symbol['temperatureSymbol'] . ' ) </th>
-                        </tr>
-                        <tr>
-                            <td align="center">'. $product->PRODNAME .' </td>
-                            <td align="center">'. $shapeName->LABEL .' </td>';
-                            if ($shapeCode == 1 || $shapeCode == 6) {
-                                $html .= '<td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM2) .' </td>';
-                            } else if ($shapeCode == 2 || $shapeCode == 9 || $shapeCode == 3) {
-                                $html .='
-                                <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM1) .'</td>
-                                <td align="center">'. $specificDimension.' </td>
-                                <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM3) .' </td>
-                                ';
-                            } else if ($shapeCode == 4 || $shapeCode == 5 || $shapeCode == 7 || $shapeCode == 8) {
-                                $html .= '
-                                <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM1) .'</td>
-                                <td align="center">'. $specificDimension .' </td>
-                                ';
-                            } 
+                <table border="0.5" cellpadding="5">
+                    <tr style="font-weight:bold">
+                        <th align="center">Product name</th>
+                        <th align="center">Shape</th>';
+                        if ($shapeCode == 1 || $shapeCode == 6) {
+                            $html .= '<th align="center">Thickness<br>('. $symbol['prodDimensionSymbol'] . ' )</th>';
+                        } else if ($shapeCode == 2 || $shapeCode == 9) {
                             $html .='
-                            <td align="center">'. $this->convert->mass($product->PROD_REALWEIGHT) .' </td>
-                            <td align="center">'. ($product->PROD_ISO == 1 ? 'YES' : 'NO') .' </td>
-                            <td align="center">'. $this->convert->prodTemperature($production->AVG_T_INITIAL) .' </td>
-                        </tr>
-                    </table>
-                </div>
+                            <th align="center">Length<br>('. $symbol['prodDimensionSymbol'] . ')</th>
+                            <th align="center">Height<br>('. $symbol['prodDimensionSymbol'] . ')</th>
+                            <th align="center">Width<br>('. $symbol['prodDimensionSymbol'] . ')</th>
+                            ';
+                        } else if ($shapeCode == 3) {
+                            $html .= '
+                            <th align="center">Height<br>('. $symbol['prodDimensionSymbol'] . ')</th>
+                            <th align="center">Length<br>('. $symbol['prodDimensionSymbol'] . ')</th>
+                            <th align="center">Width<br>('. $symbol['prodDimensionSymbol'] . ')</th>
+                            ';
+                        } else if ($shapeCode == 4) {
+                            $html .= '
+                            <th align="center">Diameter<br>('. $symbol['prodDimensionSymbol'] . ')</th>
+                            <th align="center">Height<br>('. $symbol['prodDimensionSymbol'] . ')</th>
+                            ';
+                        } else if ($shapeCode == 5) {
+                            $html .= '
+                            <th align="center">Diameter<br>('. $symbol['prodDimensionSymbol'] . ')</th>
+                            <th align="center">Length<br>('. $symbol['prodDimensionSymbol'] . ')</th>
+                            ';
+                        } else if ($shapeCode == 7) {
+                            $html .= '
+                            <th align="center">Hieght<br>('. $symbol['prodDimensionSymbol'] . ')</th>
+                            <th align="center">Diameter<br>('. $symbol['prodDimensionSymbol'] . ')</th>
+                            ';
+                        } else if ($shapeCode == 8) {
+                            $html .= '
+                            <th align="center">Length<br>('. $symbol['prodDimensionSymbol'] . ') </th>
+                            <th align="center">Diameter<br>('. $symbol['prodDimensionSymbol'] . ') </th>
+                            ';
+                        }
+                        $html .= '
+                        <th align="center">Real product mass per unit<br>('. $symbol['massSymbol'] .')</th>
+                        <th align="center">Same temperature throughout product.</th>
+                        <th align="center">Initial temperature<br>(' . $symbol['temperatureSymbol'] . ') </th>
+                    </tr>
+                    <tr>
+                        <td align="center">'. $product->PRODNAME .' </td>
+                        <td align="center">'. $shapeName->LABEL .' </td>';
+                        if ($shapeCode == 1 || $shapeCode == 6) {
+                            $html .= '<td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM2) .' </td>';
+                        } else if ($shapeCode == 2 || $shapeCode == 9 || $shapeCode == 3) {
+                            $html .='
+                            <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM1) .'</td>
+                            <td align="center">'. $specificDimension.' </td>
+                            <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM3) .' </td>
+                            ';
+                        } else if ($shapeCode == 4 || $shapeCode == 5 || $shapeCode == 7 || $shapeCode == 8) {
+                            $html .= '
+                            <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM1) .'</td>
+                            <td align="center">'. $specificDimension .' </td>
+                            ';
+                        } 
+                        $html .='
+                        <td align="center">'. $this->convert->mass($product->PROD_REALWEIGHT) .' </td>
+                        <td align="center">'. ($product->PROD_ISO == 1 ? 'YES' : 'NO') .' </td>
+                        <td align="center">'. $this->convert->prodTemperature($production->AVG_T_INITIAL) .' </td>
+                    </tr>
+                </table>
             </div>
             <div class="pro-components">
                 <div class="table table-bordered">
                     <table border="0.5" cellpadding="5">
-                        <tr>
+                        <tr style="font-weight:bold">
                             <th align="center">Component list</th>
                             <th align="center">Description</th>
-                            <th align="center">Product dimension( '. $symbol['prodDimensionSymbol'] .' ) </th>
-                            <th align="center">Real mass( '. $symbol['massSymbol'] .' ) </th>
+                            <th align="center">Product dimension<br>('. $symbol['prodDimensionSymbol'] .')</th>
+                            <th align="center">Real mass<br>('. $symbol['massSymbol'] .') </th>
                             <th align="center">Same temperature throughout product.</th>
                             <th align="center">Added to product in study number</th>
-                            <th align="center">Initial temperature( '. $symbol['temperatureSymbol'] .' ) </th>
+                            <th align="center">Initial temperature<br>('. $symbol['temperatureSymbol'] .')</th>
                         </tr>';
                         foreach($productComps as $resproductComps) { 
+                            $prodElmIso = '';
+                            if (!($study['CHAINING_CONTROLS'] && $study['PARENT_ID'] != 0 && $resproductComps['INSERT_LINE_ORDER'] != $study['ID_STUDY'])) {
+                                if ($resproductComps['PROD_ELMT_ISO'] != 1) {
+                                    $prodElmIso = 'Non-isothermal';
+                                }
+                            } else {
+                                $prodElmIso = 'Non-isothermal';
+                            }
                         $html .= '
                         <tr>
-                            <td align="center"> '. $resproductComps['display_name'] .' </td>
-                            <td align="center"> '. $resproductComps['PROD_ELMT_NAME'] .' </td>
-                            <td align="center"> '. $this->convert->prodDimension($resproductComps['SHAPE_PARAM2']) .' </td>
-                            <td align="center"> '. $this->convert->mass($resproductComps['PROD_ELMT_REALWEIGHT']) .' </td>
-                            <td align="center"> '. ($resproductComps['PROD_ELMT_ISO'] == 0 ? 'YES' : 'NO') .' </td>
+                            <td>'. $resproductComps['display_name'] .'</td>
+                            <td align="center">'. $resproductComps['PROD_ELMT_NAME'] .'</td>
+                            <td align="center">'. $this->convert->prodDimension($resproductComps['SHAPE_PARAM2']) .'</td>
+                            <td align="center">'. $this->convert->mass($resproductComps['PROD_ELMT_REALWEIGHT']) .'</td>
+                            <td align="center">'. ($resproductComps['PROD_ELMT_ISO'] == 0 ? 'YES' : 'NO') .'</td>
                             <td align="center"></td>
-                            <td align="center"> '. (($resproductComps['PROD_ELMT_ISO'] == 0) || ($resproductComps['PROD_ELMT_ISO'] == 2) ? 'non isothermal' : '') .' </td>
+                            <td align="center">'. $prodElmIso .'</td>
                         </tr>';
                         }
                     $html .= '
@@ -1528,6 +1534,17 @@ class Reports extends Controller
                                 <td align="center"> '. $resequipDatas['top_or_QperBatch'] .' </td>
                             </tr>
                         </table>
+                <br></br><br></br><br></br>';
+                } else {
+                    $html .= '<table border="0.5" cellpadding="5">
+                        <tr>
+                            <th colspan="2" align="center">Inputs</th>
+                        </tr>
+                        <tr>
+                            <td>Orientation</td><td>'. ($resequipDatas['ORIENTATION'] == 1 ? 'Parallel' : 'Perpendicular') .'</td>
+                        </tr>
+                        <tr><td>Conveyor coverage or quantity of product per batch</td><td>'. $resequipDatas['top_or_QperBatch'] .'</td></tr>
+                    </table>
                 <br></br><br></br><br></br>';
                 }
                 
@@ -2544,6 +2561,11 @@ class Reports extends Controller
         }
         
         $equipData = $this->stdeqp->findStudyEquipmentsByStudy($study);
+        if (count($equipData) > 0) {
+            foreach ($equipData as $key => $equip) {
+                $equipData[$key]['hasLayout'] = $this->equip->getCapability($equip['CAPABILITIES'], 8192);
+            }
+        }
 
         if ($EQUIP_LIST == 1) {
             $progress .= "\nEquiment";
@@ -2816,7 +2838,7 @@ class Reports extends Controller
             'symbol' => $symbol,
             'host' => $host,
             'params' => $params['input'],
-            'shapeCode' => $shapeCode
+            'shapeCode' => $shapeCode,
         ];
         $param = [
             'arrayParam' => $arrayParam,
