@@ -157,22 +157,19 @@ class Reports extends Controller
                     $report->refContRep2DTempMinRef = $tempDataReport[0];
                     $report->refContRep2DTempMaxRef = $tempDataReport[1];
                     $report->refContRep2DTempStepRef = $tempDataReport[2];
-                }
-
-                if ($report->CONTOUR2D_TEMP_STEP == 0 && count($studyEquip) > 0) {
-                    $report->CONTOUR2D_TEMP_STEP = $tempDataReport[2];
-                }
-    
-                if ($report->CONTOUR2D_TEMP_MIN == 0 && count($studyEquip) > 0) {
-                    $report->CONTOUR2D_TEMP_MIN = $tempDataReport[0];
-                } else {
-                    $report->CONTOUR2D_TEMP_MIN = $this->convert->prodTemperature($report->CONTOUR2D_TEMP_MIN);
-                }
-    
-                if ($report->CONTOUR2D_TEMP_MAX == 0 && count($studyEquip) > 0) {
-                    $report->CONTOUR2D_TEMP_MAX = $tempDataReport[1];
-                } else {
-                    $report->CONTOUR2D_TEMP_MAX = $this->convert->prodTemperature($report->CONTOUR2D_TEMP_MAX);
+        
+                    if ($report->CONTOUR2D_TEMP_MIN == $report->CONTOUR2D_TEMP_MAX ) {
+                        $report->CONTOUR2D_TEMP_MIN = $tempDataReport[0];
+                        $report->CONTOUR2D_TEMP_MAX = $tempDataReport[1];
+                        $report->CONTOUR2D_TEMP_STEP = $report->refContRep2DTempStepRef;
+                    } else {
+                        $tempDataReport = $this->reportserv->initTempDataForReportDataParam($studyEquip[0]->ID_STUDY_EQUIPMENTS, $report->CONTOUR2D_TEMP_MIN , $report->CONTOUR2D_TEMP_MAX, $report->CONTOUR2D_TEMP_STEP);
+                        if (($report->CONTOUR2D_TEMP_STEP != $tempDataReport[2]) || ($report->CONTOUR2D_TEMP_MIN != $tempDataReport[0]) || ($report->CONTOUR2D_TEMP_MAX != $tempDataReport[2])) {
+                            $report->CONTOUR2D_TEMP_MIN = $tempDataReport[0];
+                            $report->CONTOUR2D_TEMP_MAX = $tempDataReport[1];
+                            $report->CONTOUR2D_TEMP_STEP = $tempDataReport[2];
+                        }
+                    }
                 }
 
                 $tempRecordPts = TempRecordPts::where("ID_STUDY", $study->ID_STUDY)->first();
@@ -720,6 +717,9 @@ class Reports extends Controller
         $ISOVALUE_G = $input['ISOVALUE_G'];
         $ISOVALUE_SAMPLE = $input['ISOVALUE_SAMPLE'];
         $CONTOUR2D_G = $input['CONTOUR2D_G'];
+        $CONTOUR2D_TEMP_MIN = $input['CONTOUR2D_TEMP_MIN'];
+        $CONTOUR2D_TEMP_MAX = $input['CONTOUR2D_TEMP_MAX'];
+        $CONTOUR2D_TEMP_STEP = $input['CONTOUR2D_TEMP_STEP'];
         $study = Study::find($id);
         $checkStuname = str_replace(' ', '', $study->STUDY_NAME);
         $host = getenv('APP_URL');
@@ -793,12 +793,40 @@ class Reports extends Controller
         $componentName = ProductElmt::select('LABEL','ID_COMP', 'ID_PRODUCT_ELMT', 'PROD_ELMT_ISO', 'PROD_ELMT_NAME', 'PROD_ELMT_REALWEIGHT', 'SHAPE_PARAM2')
         ->join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')->whereIn('ID_PRODUCT_ELMT', $idElmArr)
         ->where('TRANS_TYPE', 1)->whereIn('ID_TRANSLATION', $idComArr)
-        ->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'DESC')->get();
+        ->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('SHAPE_POS2', 'DESC')->get();
+        
+        $listParentChaining = $this->reportserv->getParentIdChaining($study->PARENT_ID);
+
+        $arrIdComp = [];
+        if (!empty($listParentChaining)) {
+            foreach ($listParentChaining as $key => $prChainIdStudy) {
+                $arrIdComp[$prChainIdStudy] = [];
+                $productPrChain = Product::Where('ID_STUDY', $prChainIdStudy)->first();
+                if ($productPrChain) {
+                    foreach ($productPrChain->productElmts as $productElmt) {
+                        $arrIdComp[$prChainIdStudy][] = $productElmt->ID_COMP;
+                    }
+                }
+            }
+        }
+        
         $productComps = [];
         foreach ($componentName as $key => $value) {
             $componentStatus = Translation::select('LABEL')->where('TRANS_TYPE', 100)->whereIn('ID_TRANSLATION', $comprelease)->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
             $productComps[] = $value;
             $productComps[$key]['display_name'] = $value->LABEL . ' - ' . $productElmt->component->COMP_VERSION . '(' . $componentStatus->LABEL . ' )';
+            $productComps[$key]['mass'] = $this->convert->mass($value->PROD_ELMT_REALWEIGHT);
+            $productComps[$key]['dim'] = $this->convert->prodDimension($value->SHAPE_PARAM2);
+            $studyNumber = [];
+            if (!empty($arrIdComp)) {
+                foreach ($arrIdComp as $k => $arrId) {
+                    if (in_array($value->ID_COMP, $arrId)) {
+                        $studyNumber[] = $k;
+                    }
+                }
+            }
+
+            $productComps[$key]['studyNumber'] = count($arrIdComp) - count($studyNumber) + 1;
         }
 
         if ($PROD_LIST == 1) {
@@ -807,6 +835,7 @@ class Reports extends Controller
         }
         
         $equipData = $this->stdeqp->findStudyEquipmentsByStudy($study);
+
         if ($EQUIP_LIST == 1) {
             $progress .= "\nEquiment";
             $this->writeProgressFile($progressFile, $progress);
@@ -838,7 +867,7 @@ class Reports extends Controller
             $this->writeProgressFile($progressFile, $progress);
         }
         
-        if ($isSizingValuesChosen == 1 || $isSizingValuesMax == 1 || $SIZING_GRAPHE == 1) {
+        if ($isSizingValuesChosen == 1 || $isSizingValuesMax == 16 || $SIZING_GRAPHE == 1) {
             if ($study->CALCULATION_MODE == 3) {
                 $calModeHeadBalance = $this->reportserv->getOptimumHeadBalance($study->ID_STUDY);
                 $calModeHbMax = $this->reportserv->getOptimumHeadBalanceMax($study->ID_STUDY);
@@ -889,7 +918,7 @@ class Reports extends Controller
                     case 2:
                         if ($equipData[$key]['ORIENTATION'] == 1) {
                             if ($CONTOUR2D_G == 1) {
-                                $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                                $pro2Dchart[] = $this->reportserv->productChart2DStatic($$study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
                                 $progress .= "\nContour";
                                 $this->writeProgressFile($progressFile, $progress);
                             } 
@@ -902,7 +931,7 @@ class Reports extends Controller
                             }
                         } else {
                             if ($CONTOUR2D_G == 1) {
-                                $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                                $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
                                 $progress .= "\nContour";
                                 $this->writeProgressFile($progressFile, $progress);
                             }
@@ -928,7 +957,7 @@ class Reports extends Controller
                         }
 
                         if ($CONTOUR2D_G == 1) {
-                            $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                            $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
                             $progress .= "\nContour";
                             $this->writeProgressFile($progressFile, $progress);
                         }
@@ -952,13 +981,13 @@ class Reports extends Controller
 
                         if ($equipData[$key]['ORIENTATION'] == 1) {
                             if ($CONTOUR2D_G == 1) {
-                                $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                                $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
                                 $progress .= "\nContour";
                                 $this->writeProgressFile($progressFile, $progress);
                             }
                         } else {
                             if ($CONTOUR2D_G == 1) {
-                                $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                                $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
                                 $progress .= "\nContour";
                                 $this->writeProgressFile($progressFile, $progress);
                             }
@@ -974,7 +1003,7 @@ class Reports extends Controller
                         }
 
                         if ($CONTOUR2D_G == 1) {
-                            $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                            $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
                             $progress .= "\nContour";
                             $this->writeProgressFile($progressFile, $progress);
                         }
@@ -993,6 +1022,9 @@ class Reports extends Controller
             $baseName = $customPathInfo['basename'];
             $customerNameUrl = $public_path . '/uploads/' . $baseName;
         }
+
+
+        $chainingStudies = $this->reportserv->getChainingStudy($id);
         
 
         $this->writeProgressFile($progressFile, $progress);
@@ -1006,7 +1038,7 @@ class Reports extends Controller
         // set default header data
         PDF::setPageOrientation('L', 'A4');
         // set margins
-        PDF::SetMargins(15, 15, 15, true);
+        PDF::SetMargins(10, 15, 10, true);
         PDF::setHeaderFont(Array('helvetica', '', 10));
         // set default monospaced font
         PDF::SetDefaultMonospacedFont('courier');
@@ -1020,7 +1052,7 @@ class Reports extends Controller
             $pdf->SetFont('helvetica', '', 10);
             // Title
             $pdf->Cell(0, 10, $study->STUDY_NAME.'-'. date("d/m/Y"), 0, false, 'C', 0, '', 0, false, 'T', 'M');
-            PDF::SetMargins(15, 25, 15, true);
+            PDF::SetMargins(10, 20, 10, true);
 
             $pdf->Image($public_path.'/images/logo_cryosoft.png',90, 5, 40, '', 'PNG', '', 'T', false, 300, 'R', false, false, 0, false, false, false);
 
@@ -1049,13 +1081,11 @@ class Reports extends Controller
         PDF::SetTextColor(0,0,0);
         PDF::Bookmark('CONTENT ', 0, 0, '', 'B', array(0,64,128));
         $html = '';
-        
         $html .= '
-        <br></br>
             <div align="center">
                     <img style="max-width: 640px" src="'.$public_path.'/images/banner_cryosoft.png">
             </div>
-                <table class="table table-bordered" border="1">
+                <table border="1" cellpadding="3">
                     <tr>
                         <th colspan="6">Customer</th>
                     </tr>
@@ -1088,9 +1118,9 @@ class Reports extends Controller
                     $html .= '<img src="'. $public_path.'/images/globe_food.gif">';
                 }
                 $html .= '</p>
-            <table class ="table table-bordered" border="1" style="color:red">
+            <table class ="table table-bordered" border="1" cellpadding="3" style="color:red">
                 <tr>
-                    <th align="center" colspan="3"><h3>Study of the product:</h3> '. $study['STUDY_NAME'] .' </th>
+                    <th align="center" colspan="3"><h3>Study of the product:</h3> <h4>'. $study['STUDY_NAME'] .'</h4></th>
                 </tr>
                 <tr>
                     <td >Calculation mode :</td>
@@ -1098,59 +1128,56 @@ class Reports extends Controller
                 </tr>
                 <tr>
                     <td >Economic :</td>
-                    <td align="center" colspan="2">'.( $study['OPTION_ECONO'] == 1 ? 'YES' : 'NO') .' </td>
-                </tr>
-                <tr>
+                    <td align="center" colspan="2">'.( $study['OPTION_ECO'] == 1 ? 'YES' : 'NO') .' </td>
+                </tr>';
+                $html .= '<tr>
                     <td >Cryogenic Pipeline :</td>
-                    <td align="center" colspan="2">'. (!empty($cryogenPipeline) ? 'YES' : 'NO') .' </td>
-                </tr>
-                <tr>
-                    <td >Chaining :</td>
-                    <td align="center">'. ($study['CHAINING_CONTROLS'] == 1 ? 'YES' : 'NO') .' </td>
-                    <td align="center">'.  (($study['CHAINING_CONTROLS'] == 1) && ($study['HAS_CHILD'] != 0) && ($study['PARENT_ID'] != 0) ? 'This study is a child' : '') .' </td>
-                </tr>
-            </table>';
+                    <td align="center" colspan="2">'.  ($study['OPTION_CRYOPIPELINE'] != null && !($study['OPTION_CRYOPIPELINE'] == 0) ? 'YES' : 'NO') .' </td>
+                </tr>';
+                if ($study['CHAINING_CONTROLS'] == 1) {
+                    $html .= '<tr>
+                        <td >Chaining :</td>
+                        <td align="center">YES</td>
+                        <td align="center">'.  (($study['HAS_CHILD'] != 0) && ($study['PARENT_ID'] != 0) ? 'This study is a child' : '') .' </td>
+                    </tr>';
+                }
+            $html .= '</table>';
         PDF::writeHTML($html, true, false, true, false, '');
         PDF::AddPage();
         if (($study['CHAINING_CONTROLS'] == 1) && ($study['PARENT_ID'] != 0)) {
-            if (!empty($calModeHeadBalance)) {
-                PDF::SetFont('times', 'B', 16);
+            if (!empty($chainingStudies)) {
+                PDF::SetFont('helvetica', 'B', 16);
                 PDF::Bookmark('CHAINING SYNTHESIS', 0, 0, '', 'B', array(0,64,128));
                 PDF::SetFillColor(38, 142, 226);
                 PDF::SetTextColor(0,0,0);
                 $content ='Chaining synthesis';
                 PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-                PDF::SetFont('times', 'B', 10);
-                $html = '
-                <div class="chaining">
-                    <div class="table table-bordered">
-                        <table border="1">
+                PDF::SetFont('helvetica', '', 10);
+                $html = '<br><div class="chaining">
+                        <table border="1" cellpadding="3">
                             <tr>
                                 <th colspan="2">Study Name</th>
                                 <th colspan="2">Equipment</th>
-                                <th>Control temperature  ( '. $symbol['temperatureSymbol'] .' ) </th>
-                                <th>Residence/ Dwell time  ( '. $symbol['timeSymbol'] .' ) </th>
+                                <th>Control temperature<br>('. $symbol['temperatureSymbol'] .') </th>
+                                <th>Residence/ Dwell time<br>( '. $symbol['timeSymbol'] .' )</th>
                                 <th>Convection Setting (Hz)</th>
-                                <th>Initial Average Product tempeture  ( '. $symbol['temperatureSymbol'] .' )  </th>
-                                <th>Final Average Product temperature  ( '. $symbol['temperatureSymbol'] .' ) </th>
-                                <th>Product Heat Load  ( '. $symbol['enthalpySymbol'] .' ) </th>
+                                <th>Initial Average Product tempeture<br>('. $symbol['temperatureSymbol'] .')  </th>
+                                <th>Final Average Product temperature<br>('. $symbol['temperatureSymbol'] .') </th>
+                                <th>Product Heat Load<br>('. $symbol['enthalpySymbol'] .') </th>
                             </tr>';
-                            foreach ($calModeHeadBalance as $key => $resoptHeads) { 
+                            foreach ($chainingStudies as $key => $resoptHeads) { 
                             $html .= '<tr>
                                 <td colspan="2" align="center"> '. $resoptHeads['stuName'] .' </td>
                                 <td colspan="2" align="center"> '. $resoptHeads['equipName'] .'</td>
                                 <td align="center"> '. $resoptHeads['tr'] .' </td>
                                 <td align="center"> '. $resoptHeads['ts'] .' </td>
-                                <td align="center"> '. $equipData[$key]['tr'][0] .' </td>
+                                <td align="center"> '. $resoptHeads['vc'] .' </td>
                                 <td align="center"> '. $proInfoStudy['avgTInitial'] .' </td>
                                 <td align="center"> '. $resoptHeads['tfp'] .' </td>
                                 <td align="center"> '. $resoptHeads['vep'] .' </td>
                             </tr>';
                             }
-                        $html .= '
-                        </table>
-                    </div>
-                </div>';
+                        $html .= '</table></div>';
                 PDF::writeHTML($html, true, false, true, false, '');
                 PDF::AddPage();
             }
@@ -1158,29 +1185,27 @@ class Reports extends Controller
         
         if ($REP_CUSTOMER == 1)  {
             if (!empty($production)) {
-                PDF::SetFont('times', 'B', 16);
+                PDF::SetFont('helvetica', 'B', 16);
                 PDF::Bookmark('PRODUCTION DATA', 0, 0, '', 'B', array(0,64,128));
                 PDF::SetFillColor(38, 142, 226);
                 PDF::SetTextColor(0,0,0);
                 $content ='Production Data';
                 PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-                PDF::SetFont('times', 'B', 10);
+                PDF::SetFont('helvetica', '', 10);
                 $html = '';
-                $html .= '
-                <div class="production">
-                    <div class="table table-bordered">
-                        <table border="0.5">
+                $html .= '<br><div class="production">
+                        <table border="1" cellpadding="5">
                         <tr>
-                            <th>Daily production</th>
-                            <th align="center"> '. $production->DAILY_PROD .'</th>
-                            <th>Hours/Day</th>
+                            <td>Daily production</td>
+                            <td align="center"> '. $production->DAILY_PROD .'</td>
+                            <td>Hours/Day</td>
                         </tr>
                         <tr>
                             <td>Weekly production</td>
                             <td align="center"> '. $production->WEEKLY_PROD .'</td>
                             <td>Days/Week</td>
                         </tr>
-                        <tr style="height: 10px;">
+                        <tr>
                             <td>Annual production</td>
                             <td align="center"> '. $production->NB_PROD_WEEK_PER_YEAR .'</td>
                             <td>Weeks/Year</td>
@@ -1211,7 +1236,6 @@ class Reports extends Controller
                             <td>( '. $symbol['productFlowSymbol'] .' )</td>
                         </tr>
                         </table>
-                    </div>
                 </div>';
                 PDF::writeHTML($html, true, false, true, false, '');
                 PDF::AddPage();
@@ -1219,108 +1243,113 @@ class Reports extends Controller
         }
         
         if ($PROD_LIST == 1) {
-            PDF::SetFont('times', 'B', 16);
+            PDF::SetFont('helvetica', 'B', 16);
             PDF::Bookmark('PRODUCT DATA', 0, 0, '', 'B', array(0,64,128));
             PDF::SetFillColor(38, 142, 226);
             PDF::SetTextColor(0,0,0);
             $content ='Product Data';
             PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-            PDF::SetFont('times', 'B', 10);
-            $html = '
-            <h4>Composition of the product and its components</h4>
+            PDF::SetFont('helvetica', '', 10);
+            $html = '<br><h3>Composition of the product and its components</h3>
             <div class="pro-data">
-                <div class="table table-bordered">
-                    <table border="0.5">
-                        <tr>
-                            <th align="center">Product name</th>
-                            <th align="center">Shape</th>';
-                            if ($shapeCode == 1 || $shapeCode == 6) {
-                                $html .= '<th align="center">Thickness( '. $symbol['prodDimensionSymbol'] . ' ) </th>';
-                            } else if ($shapeCode == 2 || $shapeCode == 9) {
-                                $html .='
-                                <th align="center">Length( '. $symbol['prodDimensionSymbol'] . ' ) </th>
-                                <th align="center">Height( '. $symbol['prodDimensionSymbol'] . ' ) </th>
-                                <th align="center">Width( '. $symbol['prodDimensionSymbol'] . ' ) </th>
-                                ';
-                            } else if ($shapeCode == 3) {
-                                $html .= '
-                                <th align="center">Height( '. $symbol['prodDimensionSymbol'] . ' ) </th>
-                                <th align="center">Length( '. $symbol['prodDimensionSymbol'] . ' ) </th>
-                                <th align="center">Width( '. $symbol['prodDimensionSymbol'] . ' ) </th>
-                                ';
-                            } else if ($shapeCode == 4) {
-                                $html .= '
-                                <th align="center">Diameter( '. $symbol['prodDimensionSymbol'] . ' ) </th>
-                                <th align="center">Height( '. $symbol['prodDimensionSymbol'] . ' ) </th>
-                                ';
-                            } else if ($shapeCode == 5) {
-                                $html .= '
-                                <th align="center">Diameter( '. $symbol['prodDimensionSymbol'] . ' ) </th>
-                                <th align="center">Length( '. $symbol['prodDimensionSymbol'] . ' ) </th>
-                                ';
-                            } else if ($shapeCode == 7) {
-                                $html .= '
-                                <th align="center">Hieght( '. $symbol['prodDimensionSymbol'] . ' ) </th>
-                                <th align="center">Diameter( '. $symbol['prodDimensionSymbol'] . ' ) </th>
-                                ';
-                            } else if ($shapeCode == 8) {
-                                $html .= '
-                                <th align="center">Length( '. $symbol['prodDimensionSymbol'] . ' ) </th>
-                                <th align="center">Diameter( '. $symbol['prodDimensionSymbol'] . ' ) </th>
-                                ';
-                            }
-                            $html .= '
-                            <th align="center">Real product mass per unit( '. $symbol['massSymbol'] .' ) </th>
-                            <th align="center">Same temperature throughout product.</th>
-                            <th align="center">Initial temperature( ' . $symbol['temperatureSymbol'] . ' ) </th>
-                        </tr>
-                        <tr>
-                            <td align="center">'. $product->PRODNAME .' </td>
-                            <td align="center">'. $shapeName->LABEL .' </td>';
-                            if ($shapeCode == 1 || $shapeCode == 6) {
-                                $html .= '<td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM2) .' </td>';
-                            } else if ($shapeCode == 2 || $shapeCode == 9 || $shapeCode == 3) {
-                                $html .='
-                                <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM1) .'</td>
-                                <td align="center">'. $specificDimension.' </td>
-                                <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM3) .' </td>
-                                ';
-                            } else if ($shapeCode == 4 || $shapeCode == 5 || $shapeCode == 7 || $shapeCode == 8) {
-                                $html .= '
-                                <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM1) .'</td>
-                                <td align="center">'. $specificDimension .' </td>
-                                ';
-                            } 
+                <table border="0.5" cellpadding="5">
+                    <tr style="font-weight:bold">
+                        <th align="center">Product name</th>
+                        <th align="center">Shape</th>';
+                        if ($shapeCode == 1 || $shapeCode == 6) {
+                            $html .= '<th align="center">Thickness<br>('. $symbol['prodDimensionSymbol'] . ' )</th>';
+                        } else if ($shapeCode == 2 || $shapeCode == 9) {
                             $html .='
-                            <td align="center">'. $this->convert->mass($product->PROD_REALWEIGHT) .' </td>
-                            <td align="center">'. ($product->PROD_ISO == 1 ? 'YES' : 'NO') .' </td>
-                            <td align="center">'. $this->convert->prodTemperature($production->AVG_T_INITIAL) .' </td>
-                        </tr>
-                    </table>
-                </div>
+                            <th align="center">Length<br>('. $symbol['prodDimensionSymbol'] . ')</th>
+                            <th align="center">Height<br>('. $symbol['prodDimensionSymbol'] . ')</th>
+                            <th align="center">Width<br>('. $symbol['prodDimensionSymbol'] . ')</th>
+                            ';
+                        } else if ($shapeCode == 3) {
+                            $html .= '
+                            <th align="center">Height<br>('. $symbol['prodDimensionSymbol'] . ')</th>
+                            <th align="center">Length<br>('. $symbol['prodDimensionSymbol'] . ')</th>
+                            <th align="center">Width<br>('. $symbol['prodDimensionSymbol'] . ')</th>
+                            ';
+                        } else if ($shapeCode == 4) {
+                            $html .= '
+                            <th align="center">Diameter<br>('. $symbol['prodDimensionSymbol'] . ')</th>
+                            <th align="center">Height<br>('. $symbol['prodDimensionSymbol'] . ')</th>
+                            ';
+                        } else if ($shapeCode == 5) {
+                            $html .= '
+                            <th align="center">Diameter<br>('. $symbol['prodDimensionSymbol'] . ')</th>
+                            <th align="center">Length<br>('. $symbol['prodDimensionSymbol'] . ')</th>
+                            ';
+                        } else if ($shapeCode == 7) {
+                            $html .= '
+                            <th align="center">Hieght<br>('. $symbol['prodDimensionSymbol'] . ')</th>
+                            <th align="center">Diameter<br>('. $symbol['prodDimensionSymbol'] . ')</th>
+                            ';
+                        } else if ($shapeCode == 8) {
+                            $html .= '
+                            <th align="center">Length<br>('. $symbol['prodDimensionSymbol'] . ') </th>
+                            <th align="center">Diameter<br>('. $symbol['prodDimensionSymbol'] . ') </th>
+                            ';
+                        }
+                        $html .= '
+                        <th align="center">Real product mass per unit<br>('. $symbol['massSymbol'] .')</th>
+                        <th align="center">Same temperature throughout product.</th>
+                        <th align="center">Initial temperature<br>(' . $symbol['temperatureSymbol'] . ') </th>
+                    </tr>
+                    <tr>
+                        <td align="center">'. $product->PRODNAME .' </td>
+                        <td align="center">'. $shapeName->LABEL .' </td>';
+                        if ($shapeCode == 1 || $shapeCode == 6) {
+                            $html .= '<td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM2) .' </td>';
+                        } else if ($shapeCode == 2 || $shapeCode == 9 || $shapeCode == 3) {
+                            $html .='
+                            <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM1) .'</td>
+                            <td align="center">'. $specificDimension.' </td>
+                            <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM3) .' </td>
+                            ';
+                        } else if ($shapeCode == 4 || $shapeCode == 5 || $shapeCode == 7 || $shapeCode == 8) {
+                            $html .= '
+                            <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM1) .'</td>
+                            <td align="center">'. $specificDimension .' </td>
+                            ';
+                        } 
+                        $html .='
+                        <td align="center">'. $this->convert->mass($product->PROD_REALWEIGHT) .' </td>
+                        <td align="center">'. ($product->PROD_ISO == 1 ? 'YES' : 'NO') .' </td>
+                        <td align="center">'. $this->convert->prodTemperature($production->AVG_T_INITIAL) .' </td>
+                    </tr>
+                </table>
             </div>
             <div class="pro-components">
                 <div class="table table-bordered">
-                    <table border="0.5">
-                        <tr>
+                    <table border="0.5" cellpadding="5">
+                        <tr style="font-weight:bold">
                             <th align="center">Component list</th>
                             <th align="center">Description</th>
-                            <th align="center">Product dimension( '. $symbol['prodDimensionSymbol'] .' ) </th>
-                            <th align="center">Real mass( '. $symbol['massSymbol'] .' ) </th>
+                            <th align="center">Product dimension<br>('. $symbol['prodDimensionSymbol'] .')</th>
+                            <th align="center">Real mass<br>('. $symbol['massSymbol'] .') </th>
                             <th align="center">Same temperature throughout product.</th>
                             <th align="center">Added to product in study number</th>
-                            <th align="center">Initial temperature( '. $symbol['temperatureSymbol'] .' ) </th>
+                            <th align="center">Initial temperature<br>('. $symbol['temperatureSymbol'] .')</th>
                         </tr>';
                         foreach($productComps as $resproductComps) { 
+                            $prodElmIso = '';
+                            if (!($study['CHAINING_CONTROLS'] && $study['PARENT_ID'] != 0 && $resproductComps['INSERT_LINE_ORDER'] != $study['ID_STUDY'])) {
+                                if ($resproductComps['PROD_ELMT_ISO'] != 1) {
+                                    $prodElmIso = 'Non-isothermal';
+                                }
+                            } else {
+                                $prodElmIso = 'Non-isothermal';
+                            }
                         $html .= '
                         <tr>
-                            <td align="center"> '. $resproductComps['display_name'] .' </td>
-                            <td align="center"> '. $resproductComps['PROD_ELMT_NAME'] .' </td>
-                            <td align="center"> '. $this->convert->prodDimension($resproductComps['SHAPE_PARAM2']) .' </td>
-                            <td align="center"> '. $this->convert->mass($resproductComps['PROD_ELMT_REALWEIGHT']) .' </td>
-                            <td align="center"> '. ($resproductComps['PROD_ELMT_ISO'] == 0 ? 'YES' : 'NO') .' </td>
-                            <td align="center"></td>
-                            <td align="center"> '. (($resproductComps['PROD_ELMT_ISO'] == 0) || ($resproductComps['PROD_ELMT_ISO'] == 2) ? '' : 'non isothermal') .' </td>
+                            <td>'. $resproductComps['display_name'] .'</td>
+                            <td align="center">'. $resproductComps['PROD_ELMT_NAME'] .'</td>
+                            <td align="center">'. $this->convert->prodDimension($resproductComps['SHAPE_PARAM2']) .'</td>
+                            <td align="center">'. $this->convert->mass($resproductComps['PROD_ELMT_REALWEIGHT']) .'</td>
+                            <td align="center">'. ($resproductComps['PROD_ELMT_ISO'] == 0 ? 'YES' : 'NO') .'</td>
+                            <td align="center">'. $resproductComps['studyNumber'] .'</td>
+                            <td align="center">'. $prodElmIso .'</td>
                         </tr>';
                         }
                     $html .= '
@@ -1332,25 +1361,25 @@ class Reports extends Controller
         }
         
         if ($PROD_3D == 1) {
-            PDF::SetFont('times', 'B', 16);
+            PDF::SetFont('helvetica', 'B', 16);
             PDF::Bookmark('PRODUCT 3D', 0, 0, '', 'B', array(0,64,128));
             PDF::SetFillColor(38, 142, 226);
             PDF::SetTextColor(0,0,0);
             $content ='Product 3D';
             PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-            PDF::SetFont('times', 'B', 10);
+            PDF::SetFont('helvetica', '', 10);
             $html = '';
             if ($PACKING == 1) {
-                PDF::SetFont('times', 'B', 16);
+                PDF::SetFont('helvetica', 'B', 16);
                 PDF::SetFillColor(38, 142, 226);
                 PDF::SetTextColor(0,0,0);
                 $content ='Packing Data';
                 PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-                PDF::SetFont('times', 'B', 10);
+                PDF::SetFont('helvetica', '', 10);
             }
             $html .='<div class="pro-data">
             <div class="table table-bordered">
-            <table border="0.5" align="center">
+            <table border="0.5" align="center" cellpadding="5">
                 <tr class="lineHeight20">
                     <td colspan="5" class="colCenter">Packing</td>
                     <td class="colCenter">3D view of the product</td>
@@ -1438,17 +1467,17 @@ class Reports extends Controller
                             
         if ($EQUIP_LIST == 1) {
             if (!empty($equipData)) {
-                PDF::SetFont('times', 'B', 16);
+                PDF::SetFont('helvetica', 'B', 16);
                 PDF::Bookmark('EQUIPMENT DATA', 0, 0, '', 'B', array(0,64,128));
                 PDF::SetFillColor(38, 142, 226);
                 PDF::SetTextColor(0,0,0);
                 $content ='Equipment Data';
                 PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-                PDF::SetFont('times', 'B', 10);
+                PDF::SetFont('helvetica', '', 10);
                 $html = '
                 <div class="equipment-data">
                     <div class="table table-bordered">
-                        <table border="0.5">
+                        <table border="0.5" cellpadding="5">
                             <tr>
                                 <th align="center">No.</th>
                                 <th align="center">Name</th>
@@ -1480,21 +1509,20 @@ class Reports extends Controller
         }
         
         if ($ASSES_ECO == 1) {
-            PDF::SetFont('times', 'B', 16);
+            PDF::SetFont('helvetica', 'B', 16);
             PDF::Bookmark('BELT OR SHELVES LAYOUT', 0, 0, '', 'B', array(0,64,128));
             PDF::SetFillColor(38, 142, 226);
             PDF::SetTextColor(0,0,0);
             $content ='Belt or Shelves Layout';
             PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-            PDF::SetFont('times', 'B', 10);
+            PDF::SetFont('helvetica', '', 10);
             $html ='';
             foreach ($equipData as $resequipDatas) {
                 PDF::Bookmark($resequipDatas['displayName'], 1, 0, '', '', array(128,0,0));
                 // PDF::Cell(0, 10, '', 0, 1, 'L');
-                $html .='<h3>'. $resequipDatas['displayName'] .'</h3>
-                <div class="layout">
-                    <div class="table table-bordered">
-                        <table border="0.5">
+                $html .=   '<br><h3>'. $resequipDatas['displayName'] .'</h3>';
+                if ($this->equip->getCapability($resequipDatas['CAPABILITIES'], 8192)) {
+                    $html .=  '<table border="0.5" cellpadding="5">
                             <tr>
                                 <th colspan="2" align="center">Inputs</th>
                                 <th align="center">Image</th>
@@ -1532,9 +1560,20 @@ class Reports extends Controller
                                 <td align="center"> '. $resequipDatas['top_or_QperBatch'] .' </td>
                             </tr>
                         </table>
-                    </div>
-                </div>
                 <br></br><br></br><br></br>';
+                } else {
+                    $html .= '<table border="0.5" cellpadding="5">
+                        <tr>
+                            <th colspan="2" align="center">Inputs</th>
+                        </tr>
+                        <tr>
+                            <td>Orientation</td><td>'. ($resequipDatas['ORIENTATION'] == 1 ? 'Parallel' : 'Perpendicular') .'</td>
+                        </tr>
+                        <tr><td>Conveyor coverage or quantity of product per batch</td><td>'. $resequipDatas['top_or_QperBatch'] .'</td></tr>
+                    </table>
+                <br></br><br></br><br></br>';
+                }
+                
             }
             PDF::writeHTML($html, true, false, true, false, '');
             PDF::AddPage();
@@ -1543,18 +1582,18 @@ class Reports extends Controller
         if ($PIPELINE == 1) {
             if (!empty($cryogenPipeline)) {
                 if ($study->OPTION_CRYOPIPELINE == 1) {
-                    PDF::SetFont('times', 'B', 16);
+                    PDF::SetFont('helvetica', 'B', 16);
                     PDF::Bookmark('CRYOGENIC PIPELINE', 0, 0, '', 'B', array(0,64,128));
                     PDF::SetFillColor(38, 142, 226);
                     PDF::SetTextColor(0,0,0);
                     $content ='Cryogenic Pipe';
                     PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-                    PDF::SetFont('times', 'B', 10);
+                    PDF::SetFont('helvetica', '', 10);
                     $html = '';
                     $html .= '
                     <div class="consum-esti">
                         <div class="table table-bordered">
-                            <table border="0.5">
+                            <table border="0.5" cellpadding="5">
                                 <tr>
                                     <th colspan="2" align="center">Type</th>
                                     <th colspan="4" align="center">Name</th>
@@ -1614,17 +1653,17 @@ class Reports extends Controller
 
         if ($PROD_3D != 1 && $PACKING == 1) {
 
-            PDF::SetFont('times', 'B', 16);
+            PDF::SetFont('helvetica', 'B', 16);
             PDF::Bookmark('PACKING DATA', 0, 0, '', 'B', array(0,64,128));
             PDF::SetFillColor(38, 142, 226);
             PDF::SetTextColor(0,0,0);
             $content ='Packing Data';
             PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-            PDF::SetFont('times', 'B', 10);
+            PDF::SetFont('helvetica', '', 10);
             $html ='
             <div class="pro-data">
             <div class="table table-bordered">
-                <table border="0.5" align="center">
+                <table border="0.5" align="center" cellpadding="5">
                     <tr class="lineHeight20">
                         <td colspan="5" class="colCenter">Packing</td>
                         <td class="colCenter">3D view of the product</td>
@@ -1699,31 +1738,31 @@ class Reports extends Controller
         if ($CONS_OVERALL == 1 || $CONS_TOTAL ==1 || $CONS_SPECIFIC  == 1 || $CONS_HOUR ==1 || $CONS_DAY == 1||
         $CONS_WEEK == 1 || $CONS_MONTH == 1 || $CONS_YEAR ==1 || $CONS_EQUIP ==1 || $CONS_PIPE == 1 || $CONS_TANK ==1) {
             if (!empty($consumptions )) {
-                PDF::SetFont('times', 'B', 16);
+                PDF::SetFont('helvetica', 'B', 16);
                 PDF::Bookmark('CONSUMPTIONS / ECONOMICS ASSESSMENTS', 0, 0, '', 'B', array(0,64,128));
                 PDF::SetFillColor(38, 142, 226);
                 PDF::SetTextColor(0,0,0);
                 $content ='Consumptions / Economics assessments';
                 PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-                PDF::SetFont('times', 'B', 10);
+                PDF::SetFont('helvetica', '', 9);
                 $html ='
                 <h4>Values</h4>
                 <div class="consum-esti">
                     <div class="table table-bordered">
-                    <table border="0.5">
-                        <tr>
-                                <th colspan="3" align="center" rowspan="2">Equipment</th>';
+                    <table border="1" cellpadding="3">
+                        <tr style="font-size:10px">
+                                <th colspan="3" align="center" rowspan="2" width="10%">Equipment</th>';
                             if ($CONS_OVERALL == 1) { 
                             $html .='
-                                <th rowspan="2" align="center">Overall Cryogen Consumption Ratio (product + equipment and pipeline losses) Unit of Cryogen, per piece of product.  ( '. $symbol['consumSymbol'] .' ) </th>';
+                                <th rowspan="2" align="center" width="10%">Overall Cryogen Consumption Ratio (product + equipment and pipeline losses) Unit of Cryogen, per piece of product.  ( '. $symbol['consumSymbol'] .' ) </th>';
                             }
                             if ($CONS_TOTAL == 1) { 
                             $html .=' 
-                                <th rowspan="2" align="center">Total Cryogen Consumption (product + equipment and pipeline losses).  ( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .'  </th>';
+                                <th rowspan="2" align="center" width="10%">Total Cryogen Consumption (product + equipment and pipeline losses).  ( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .'  </th>';
                             } 
                             if ($CONS_SPECIFIC == 1) { 
                             $html .=' 
-                                <th rowspan="2" align="center">Specific Cryogen Consumption Ratio (product only) Unit of Cryogen, per unit weight of product.  ( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .' </th>';
+                                <th rowspan="2" align="center" width="10%">Specific Cryogen Consumption Ratio (product only) Unit of Cryogen, per unit weight of product.  ( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .' </th>';
                             }
                             if ($CONS_HOUR == 1) {
                             $html .=' 
@@ -1762,7 +1801,7 @@ class Reports extends Controller
 
                         if ($CONS_PIPE == 1 || $CONS_EQUIP == 1){
                         $html .=' 
-                        <tr>';
+                        <tr style="font-size:10px">';
                             if ($CONS_EQUIP == 1) { 
                             $html .=' 
                                 <td align="center">Heat losses per hour  ( '. $symbol['consumMaintienSymbol'] .' ) </td>
@@ -1912,7 +1951,7 @@ class Reports extends Controller
                                     }
                                     if ($CONS_MONTH == 1) { 
                                     $html .='
-                                        <td align="center"></td>';
+                                        <td align="center">'. $economic[$key]['month'] .'</td>';
                                     }
                                     if ($CONS_YEAR == 1) { 
                                     $html .='
@@ -1944,14 +1983,14 @@ class Reports extends Controller
             }
         }
 
-        if (($isSizingValuesChosen == 1) || ($isSizingValuesMax == 1) || ($SIZING_GRAPHE == 1)) {
-            PDF::SetFont('times', 'B', 16);
+        if (($isSizingValuesChosen == 1) || ($isSizingValuesMax == 16) || ($SIZING_GRAPHE == 1)) {
+            PDF::SetFont('helvetica', 'B', 16);
             PDF::Bookmark('HEAT BALANCE / SIZING RESULTS', 0, 0, '', 'B', array(0,64,128));
             PDF::SetFillColor(38, 142, 226);
             PDF::SetTextColor(0,0,0);
             $content ='Heat balance / sizing results';
             PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-            PDF::SetFont('times', 'B', 10);
+            PDF::SetFont('helvetica', '', 10);
             $html='';
             if ($isSizingValuesChosen == 1) {
                 PDF::Bookmark('Chosen product flowrate', 1, 0, '', '', array(128,0,0));
@@ -1959,7 +1998,7 @@ class Reports extends Controller
                 $html .='
                 <div class="heat-balance-sizing">
                     <div class="table table-bordered">
-                        <table border="0.5">
+                        <table border="0.5" cellpadding="5">
                             <tr>
                                 <th colspan="2" rowspan="2" align="center">Equipment</th>
                                 <th rowspan="2" align="center">Average initial temperature ('. $symbol['temperatureSymbol'] .')</th>
@@ -1967,16 +2006,25 @@ class Reports extends Controller
                                 <th rowspan="2" align="center">Control temperature ('. $symbol['temperatureSymbol'] .')</th>
                                 <th rowspan="2" align="center">Residence / Dwell time   ('. $symbol['timeSymbol'] .')</th>
                                 <th rowspan="2" align="center">Product Heat Load ('. $symbol['enthalpySymbol'] .')</th>
-                                <th colspan="4" align="center">Chosen product flowrate</th>
+                                <th colspan="3" align="center">Chosen product flowrate</th>
                                 <th rowspan="2" align="center">Precision of the high level calculation. (%)</th>
                             </tr>
                             <tr>
-                                <td align="center">Hourly production capacity ('. $symbol['productFlowSymbol'] .')</td>
-                                <td colspan="2" align="center">Cryogen consumption (product + equipment heat load) ( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .' </td>
-                                <td align="center">Conveyor coverage or quantity of product per batch</td>
+                                <th align="center">Hourly production capacity ('. $symbol['productFlowSymbol'] .')</th>
+                                <th align="center">Cryogen consumption (product + equipment heat load) ( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .' </th>
+                                <th align="center">Conveyor coverage or quantity of product per batch</th>
                             </tr>';
                             if (!empty($calModeHeadBalance)) {
                                 foreach( $calModeHeadBalance as $resoptHeads) { 
+                                    if ($resoptHeads['conso_warning'] == 'warning_fluid') {
+                                        $conso = '<img src="'. $public_path .'/images/output/warning_fluid_overflow.gif" width="30">';  
+                                    } else if ($resoptHeads['conso_warning'] == 'warning_dhp') {
+                                        $conso = '<img src="'. $public_path .'/images/output/warning_fluid_overflow.gif" width="30"><img src="'. $public_path .'/images/output/warning_dhp_overflow.gif" width="30">';  
+                                    } else if ($resoptHeads['conso_warning'] == 'warning_dhp_value') {
+                                        $conso = '<div>'. $resoptHeads['conso'] .'</div><img src="'. $public_path .'/images/output/warning_dhp_overflow.gif" width="30">';
+                                    } else if ($resoptHeads['conso_warning'] != 'warning_fluid' && $resoptHeads['conso_warning'] != 'warning_dhp' && $resoptHeads['conso_warning'] != 'warning_dhp_value') {
+                                        $conso = $resoptHeads['conso'];
+                                    }
                                 $html .='
                                     <tr>
                                         <td align="center" colspan="2"> '. $resoptHeads['equipName'] .' </td>
@@ -1986,7 +2034,7 @@ class Reports extends Controller
                                         <td align="center"> '. $resoptHeads['ts'] .' </td>
                                         <td align="center"> '. $resoptHeads['vep'] .' </td>
                                         <td align="center"> '. $resoptHeads['dhp'] .' </td>
-                                        <td align="center" colspan="2"> '. $resoptHeads['conso'] .' </td>
+                                        <td align="center"> '. $conso .' </td>
                                         <td align="center"> '. $resoptHeads['toc'] .' </td>
                                         <td align="center"> '. $resoptHeads['precision'] .' </td>
                                     </tr>';
@@ -2000,30 +2048,39 @@ class Reports extends Controller
                 PDF::AddPage();
             }
             if (!empty($calModeHbMax)) {
-                if ($isSizingValuesMax == 1) {
+                if ($isSizingValuesMax == 16) {
                     PDF::Bookmark(' Maximum product flowrate', 1, 0, '', '', array(128,0,0));
                     PDF::Cell(0, 10, 'Maximum product flowrate', 0, 1, 'L');
                     $html = '
                     <div class="Max-prod-flowrate">
                         <div class="table table-bordered">
-                            <table border="0.5">
+                            <table border="0.5" cellpadding="5">
                                 <tr>
-                                    <th colspan="2" rowspan="2">Equipment</th>
-                                    <th rowspan="2">Average initial temperature ( '. $symbol['temperatureSymbol'] .' ) </th>
-                                    <th rowspan="2">Final Average Product temperature ( '. $symbol['temperatureSymbol'] .' ) </th>
-                                    <th rowspan="2">Control temperature ( '. $symbol['temperatureSymbol'] .' ) </th>
-                                    <th rowspan="2">Residence / Dwell time   ( '. $symbol['timeSymbol'] .' ) </th>
-                                    <th rowspan="2">Product Heat Load ( '. $symbol['enthalpySymbol'] .' ) </th>
-                                    <th colspan="4">Maximum product flowrate </th>
-                                    <th rowspan="2">Precision of the high level calculation. (%)</th>
+                                    <th colspan="2" rowspan="2" align="center">Equipment</th>
+                                    <th rowspan="2" align="center">Average initial temperature ( '. $symbol['temperatureSymbol'] .' ) </th>
+                                    <th rowspan="2" align="center">Final Average Product temperature ( '. $symbol['temperatureSymbol'] .' ) </th>
+                                    <th rowspan="2" align="center">Control temperature ( '. $symbol['temperatureSymbol'] .' ) </th>
+                                    <th rowspan="2" align="center">Residence / Dwell time   ( '. $symbol['timeSymbol'] .' ) </th>
+                                    <th rowspan="2" align="center">Product Heat Load ( '. $symbol['enthalpySymbol'] .' ) </th>
+                                    <th colspan="3" align="center">Maximum product flowrate </th>
+                                    <th rowspan="2" align="center">Precision of the high level calculation. (%)</th>
                                 </tr>
                                 <tr>
-                                    <td>Hourly production capacity ( '. $symbol['productFlowSymbol'] .' ) </td>
-                                    <td colspan="2">Cryogen consumption (product + equipment heat load) ( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .'  </td>
-                                    <td>Conveyor coverage or quantity of product per batch</td>
+                                    <th align="center">Hourly production capacity ( '. $symbol['productFlowSymbol'] .' ) </th>
+                                    <th align="center">Cryogen consumption (product + equipment heat load) ( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .'  </th>
+                                    <th align="center">Conveyor coverage or quantity of product per batch</th>
                                 </tr>';
                                 if (!empty($calModeHbMax)) {
-                                    foreach($calModeHbMax  as $resoptimumHbMax) { 
+                                    foreach($calModeHbMax  as $resoptimumHbMax) {
+                                        if ($resoptimumHbMax['conso_warning'] == 'warning_fluid') {
+                                            $conso = '<img src="'. $public_path .'/images/output/warning_fluid_overflow.gif" width="30">';  
+                                        } else if ($resoptimumHbMax['conso_warning'] == 'warning_dhp') {
+                                            $conso = '<img src="'. $public_path .'/images/output/warning_fluid_overflow.gif" width="30"><img src="'. $public_path .'/images/output/warning_dhp_overflow.gif" width="30">';  
+                                        } else if ($resoptimumHbMax['conso_warning'] == 'warning_dhp_value') {
+                                            $conso = '<div>'. $resoptimumHbMax['conso'] .'</div><img src="'. $public_path .'/images/output/warning_dhp_overflow.gif" width="30">';
+                                        } else if ($resoptimumHbMax['conso_warning'] != 'warning_fluid' && $resoptimumHbMax['conso_warning'] != 'warning_dhp' && $resoptimumHbMax['conso_warning'] != 'warning_dhp_value') {
+                                            $conso = $resoptimumHbMax['conso'];
+                                        }
                                         $html .='<tr>
                                             <td align="center" colspan="2"> '. $resoptimumHbMax['equipName'] .' </td>
                                             <td align="center"> '. $proInfoStudy['avgTInitial'] .' </td>
@@ -2032,7 +2089,7 @@ class Reports extends Controller
                                             <td align="center">'. $resoptimumHbMax['ts']  .'</td>
                                             <td align="center">'. $resoptimumHbMax['vep'] .' </td>
                                             <td align="center">'. $resoptimumHbMax['dhp'] .' </td>
-                                            <td align="center"> '. $resoptimumHbMax['conso'] .' </td>
+                                            <td align="center"> '. $conso .' </td>
                                             <td align="center"> '. $resoptimumHbMax['toc'] .'</td>
                                             <td align="center"> '. $resoptimumHbMax['precision'] .' </td>
                                         </tr>';
@@ -2073,13 +2130,13 @@ class Reports extends Controller
 
         if (($ENTHALPY_V == 1) || ($ENTHALPY_G ==1)) {
             if (!empty($heatexchange)) {
-                PDF::SetFont('times', 'B', 16);
+                PDF::SetFont('helvetica', 'B', 16);
                 PDF::Bookmark('HEAT EXCHANGE', 0, 0, '', 'B', array(0,64,128));
                 PDF::SetFillColor(38, 142, 226);
                 PDF::SetTextColor(0,0,0);
                 $content ='Heat Exchange';
                 PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-                PDF::SetFont('times', 'B', 10);
+                PDF::SetFont('helvetica', '', 10);
                 $html='';
                 foreach ($heatexchange as $resheatexchanges) {
                     $html ='';
@@ -2088,7 +2145,7 @@ class Reports extends Controller
                     if ($ENTHALPY_V == 1) {
                         $html ='<h3>Values</h3>
                         <div class="heat-exchange">
-                            <table border="0.5">
+                            <table border="0.5" cellpadding="5">
                                 <tr>
                                     <th colspan="2">Equipment</th>';
                                     foreach($resheatexchanges['result'] as $result) { 
@@ -2123,12 +2180,12 @@ class Reports extends Controller
         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
             if (!empty($proSections)) {
                 PDF::Bookmark('PRODUCT SECTION', 0, 0, '', 'B', array(0,64,128));
-                PDF::SetFont('times', 'B', 16);
+                PDF::SetFont('helvetica', 'B', 16);
                 PDF::SetFillColor(38, 142, 226);
                 PDF::SetTextColor(0,0,0);
                 $content ='Product Section';
                 PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-                PDF::SetFont('times', 'B', 10);
+                PDF::SetFont('helvetica', '', 10);
                 $html='';
                 foreach ($proSections as $resproSections) {
                     $html ='';
@@ -2152,7 +2209,7 @@ class Reports extends Controller
                         $html .='
                         <div class="values-dim2">
                             <div class="table table-bordered">
-                                <table border="0.5">
+                                <table border="0.5" cellpadding="5">
                                     <tr>
                                         <th align="center">Node number</th>
                                         <th align="center">Position Axis 1  ( '. $resproSections['prodchartDimensionSymbol'] .' ) </th>';
@@ -2205,13 +2262,13 @@ class Reports extends Controller
 
         if ($ISOVALUE_V == 1 || $ISOVALUE_G == 1) {
             if (!empty($timeBase)) {
-                PDF::SetFont('times', 'B', 16);
+                PDF::SetFont('helvetica', 'B', 16);
                 PDF::Bookmark('PRODUCT GRAPH - TIME BASED', 0, 0, '', 'B', array(0,64,128));
                 PDF::SetFillColor(38, 142, 226);
                 PDF::SetTextColor(0,0,0);
                 $content ='Product Graph - Time Based';
                 PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-                PDF::SetFont('times', 'B', 10);
+                PDF::SetFont('helvetica', '', 10);
                 $html='';
                 foreach($timeBase as $timeBases) {
                     $html = '';
@@ -2223,7 +2280,7 @@ class Reports extends Controller
                         <h3>Values</h3>
                         <div class="values-graphic"> 
                             <div class="table table-bordered">
-                            <table border="0.5">
+                            <table border="0.5" cellpadding="5">
                                 <tr>
                                     <th align="center">Points</th>
                                     <th align="center">('. $timeBases['timeSymbol'] .')</th>';
@@ -2277,13 +2334,13 @@ class Reports extends Controller
         
         if ($CONTOUR2D_G == 1) {
             if (!empty($pro2Dchart)) {
-                PDF::SetFont('times', 'B', 16);
+                PDF::SetFont('helvetica', 'B', 16);
                 PDF::Bookmark('2D OUTLINES', 0, 0, '', 'B', array(0,64,128));
                 PDF::SetFillColor(38, 142, 226);
                 PDF::SetTextColor(0,0,0);
                 $content ='2D Outlines';
                 PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-                PDF::SetFont('times', 'B', 10);
+                PDF::SetFont('helvetica', '', 10);
                 $html='';
                 $html = '<h3 style ="background-color:#268EE2">2D Outlines</h3>';
                 foreach ($pro2Dchart as $key => $pro2Dcharts) {
@@ -2324,13 +2381,13 @@ class Reports extends Controller
         }
 
         $html ='';
-        PDF::SetFont('times', 'B', 16);
+        PDF::SetFont('helvetica', 'B', 16);
         PDF::Bookmark('COMMENTS ', 0, 0, '', 'B', array(0,64,128));
         PDF::SetFillColor(38, 142, 226);
         PDF::SetTextColor(0,0,0);
         $content ='Comments';
         PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
-        PDF::SetFont('times', 'B', 10);
+        PDF::SetFont('helvetica', '', 10);
         $html .= '
         <div class="comment">
              <p>
@@ -2387,7 +2444,7 @@ class Reports extends Controller
         // end of TOC page
         PDF::endTOCPage();
         PDF::Output($public_path . "/reports/" . $study->USERNAM."/" . $name_report, 'F');
-        return ["url" => "$host/reports/$study->USERNAM/$name_report"];
+        return ["url" => $host . "reports/$study->USERNAM/$name_report"];
     }
     
     function backgroundGenerationHTML($params)
@@ -2438,6 +2495,9 @@ class Reports extends Controller
         $ISOVALUE_G = $input['ISOVALUE_G'];
         $ISOVALUE_SAMPLE = $input['ISOVALUE_SAMPLE'];
         $CONTOUR2D_G = $input['CONTOUR2D_G'];
+        $CONTOUR2D_TEMP_MIN = $input['CONTOUR2D_TEMP_MIN'];
+        $CONTOUR2D_TEMP_MAX = $input['CONTOUR2D_TEMP_MAX'];
+        $CONTOUR2D_TEMP_STEP = $input['CONTOUR2D_TEMP_STEP'];
         $study = Study::find($id);
         $host = getenv('APP_URL');
         $checkStuname = str_replace(' ', '', $study->STUDY_NAME);
@@ -2511,7 +2571,23 @@ class Reports extends Controller
         $componentName = ProductElmt::select('LABEL','ID_COMP', 'ID_PRODUCT_ELMT', 'PROD_ELMT_ISO', 'PROD_ELMT_NAME', 'PROD_ELMT_REALWEIGHT', 'SHAPE_PARAM2')
         ->join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')->whereIn('ID_PRODUCT_ELMT', $idElmArr)
         ->where('TRANS_TYPE', 1)->whereIn('ID_TRANSLATION', $idComArr)
-        ->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'DESC')->get();
+        ->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('SHAPE_POS2', 'DESC')->get();
+
+        $listParentChaining = $this->reportserv->getParentIdChaining($study->PARENT_ID);
+
+        $arrIdComp = [];
+        if (!empty($listParentChaining)) {
+            foreach ($listParentChaining as $key => $prChainIdStudy) {
+                $arrIdComp[$prChainIdStudy] = [];
+                $productPrChain = Product::Where('ID_STUDY', $prChainIdStudy)->first();
+                if ($productPrChain) {
+                    foreach ($productPrChain->productElmts as $productElmt) {
+                        $arrIdComp[$prChainIdStudy][] = $productElmt->ID_COMP;
+                    }
+                }
+            }
+        }
+        
         $productComps = [];
         foreach ($componentName as $key => $value) {
             $componentStatus = Translation::select('LABEL')->where('TRANS_TYPE', 100)->whereIn('ID_TRANSLATION', $comprelease)->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
@@ -2519,6 +2595,16 @@ class Reports extends Controller
             $productComps[$key]['display_name'] = $value->LABEL . ' - ' . $productElmt->component->COMP_VERSION . '(' . $componentStatus->LABEL . ' )';
             $productComps[$key]['mass'] = $this->convert->mass($value->PROD_ELMT_REALWEIGHT);
             $productComps[$key]['dim'] = $this->convert->prodDimension($value->SHAPE_PARAM2);
+            $studyNumber = [];
+            if (!empty($arrIdComp)) {
+                foreach ($arrIdComp as $k => $arrId) {
+                    if (in_array($value->ID_COMP, $arrId)) {
+                        $studyNumber[] = $k;
+                    }
+                }
+            }
+
+            $productComps[$key]['studyNumber'] = count($arrIdComp) - count($studyNumber) + 1;
         }
 
         if ($PROD_LIST == 1) {
@@ -2527,6 +2613,12 @@ class Reports extends Controller
         }
         
         $equipData = $this->stdeqp->findStudyEquipmentsByStudy($study);
+        if (count($equipData) > 0) {
+            foreach ($equipData as $key => $equip) {
+                $equipData[$key]['hasLayout'] = $this->equip->getCapability($equip['CAPABILITIES'], 8192);
+            }
+        }
+
         if ($EQUIP_LIST == 1) {
             $progress .= "\nEquiment";
             $this->writeProgressFile($progressFile, $progress);
@@ -2551,7 +2643,7 @@ class Reports extends Controller
             $this->writeProgressFile($progressFile, $progress);
         }
         
-        if ($isSizingValuesChosen == 1 || $isSizingValuesMax == 1 || $SIZING_GRAPHE == 1) {
+        if ($isSizingValuesChosen == 1 || $isSizingValuesMax == 16 || $SIZING_GRAPHE == 1) {
             if ($study->CALCULATION_MODE == 3) {
                 $calModeHeadBalance = $this->reportserv->getOptimumHeadBalance($study->ID_STUDY);
                 $calModeHbMax = $this->reportserv->getOptimumHeadBalanceMax($study->ID_STUDY);
@@ -2601,7 +2693,7 @@ class Reports extends Controller
                     case 2:
                         if ($equipData[$key]['ORIENTATION'] == 1) {
                             if ($CONTOUR2D_G == 1) {
-                                $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                                $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
                                 $progress .= "\nContour";
                                 $this->writeProgressFile($progressFile, $progress);
                             } 
@@ -2614,7 +2706,7 @@ class Reports extends Controller
                             }
                         } else {
                             if ($CONTOUR2D_G == 1) {
-                                $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                                $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
                                 $progress .= "\nContour";
                                 $this->writeProgressFile($progressFile, $progress);
                             }
@@ -2640,7 +2732,7 @@ class Reports extends Controller
                         }
 
                         if ($CONTOUR2D_G == 1) {
-                            $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                            $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
                             $progress .= "\nContour";
                             $this->writeProgressFile($progressFile, $progress);
                         }
@@ -2664,13 +2756,13 @@ class Reports extends Controller
 
                         if ($equipData[$key]['ORIENTATION'] == 1) {
                             if ($CONTOUR2D_G == 1) {
-                                $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                                $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
                                 $progress .= "\nContour";
                                 $this->writeProgressFile($progressFile, $progress);
                             }
                         } else {
                             if ($CONTOUR2D_G == 1) {
-                                $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                                $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
                                 $progress .= "\nContour";
                                 $this->writeProgressFile($progressFile, $progress);
                             }
@@ -2686,7 +2778,7 @@ class Reports extends Controller
                         }
 
                         if ($CONTOUR2D_G == 1) {
-                            $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                            $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
                             $progress .= "\nContour";
                             $this->writeProgressFile($progressFile, $progress);
                         }
@@ -2697,16 +2789,18 @@ class Reports extends Controller
 
         $progress .= "\nFINISH";
         $this->writeProgressFile($progressFile, $progress);
+
+        $chainingStudies = $this->reportserv->getChainingStudy($id);
         
         $myfile = fopen( $public_path. "/reports/" . "/" . $study->USERNAM."/" . $name_report, "w") or die("Unable to open file!");
         $html = $this->viewHtml($study ,$production, $product, $proElmt, $shapeName, 
         $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
         $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase, 
-        $symbol, $host, $pro2Dchart, $params, $shapeCode, $economic, $stuNameLayout, $specificDimension);
+        $symbol, $host, $pro2Dchart, $params, $shapeCode, $economic, $stuNameLayout, $specificDimension, $chainingStudies);
         // file_put_contents("/home/huytd/adasd", $economic);
         fwrite($myfile, $html);
         fclose($myfile);
-        $url = ["url" => "$host/reports/$study->USERNAM/$name_report"];
+        $url = ["url" => $host . "reports/$study->USERNAM/$name_report"];
         return $url;
     }
 
@@ -2778,7 +2872,7 @@ class Reports extends Controller
     public function viewHtml($study ,$production, $product, $proElmt, $shapeName, 
     $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
     $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase , 
-    $symbol, $host, $pro2Dchart, $params, $shapeCode, $economic, $stuNameLayout, $specificDimension)
+    $symbol, $host, $pro2Dchart, $params, $shapeCode, $economic, $stuNameLayout, $specificDimension, $chainingStudies)
     {
         $arrayParam = [
             'study' => $study,
@@ -2795,7 +2889,7 @@ class Reports extends Controller
             'symbol' => $symbol,
             'host' => $host,
             'params' => $params['input'],
-            'shapeCode' => $shapeCode
+            'shapeCode' => $shapeCode,
         ];
         $param = [
             'arrayParam' => $arrayParam,
@@ -2810,7 +2904,8 @@ class Reports extends Controller
             'timeBase' => $timeBase,
             'pro2Dchart' => $pro2Dchart,
             'economic' => $economic,
-            'stuNameLayout' => $stuNameLayout
+            'stuNameLayout' => $stuNameLayout,
+            'chainingStudies' => $chainingStudies
         ];
         return view('report.viewHtmlToPDF', $param);
     }
