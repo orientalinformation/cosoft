@@ -1415,6 +1415,93 @@ class ReportService
             return compact("chartTempInterval", "lfDwellingTime", "lftimeInterval", "equipName", "idStudyEquipment");
         }
     }
+
+    public function productChart2DStatic($idStudy, $idStudyEquipment, $selectedPlan, $pasTemp, $temperatureMin, $temperatureMax)
+    {
+        set_time_limit(1000);
+        $equipName = $this->equip->getResultsEquipName($idStudyEquipment);
+
+        // get TimeInterva
+        $recordPosition = RecordPosition::select('RECORD_TIME')->where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("RECORD_TIME", "ASC")->get();
+        $lfDwellingTime = $recordPosition[count($recordPosition) - 1]->RECORD_TIME;
+        $dimension = 'Dimenstions';
+
+        $productElmt = ProductElmt::where('ID_STUDY', $idStudy)->first();
+        $shape = $productElmt->SHAPECODE;
+        $layoutGen = LayoutGeneration::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
+        $orientation = $layoutGen->PROD_POSITION;
+
+        $calculationParameter = CalculationParameter::select('STORAGE_STEP', 'TIME_STEP')->where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
+
+        $lfStep = $calculationParameter->STORAGE_STEP * $calculationParameter->TIME_STEP;
+        if (count($recordPosition) < 10) {
+            $lftimeInterval = $lfStep;
+
+        } else {
+            $lftimeInterval = $lfDwellingTime / 9.0;
+            $lftimeInterval = round($lftimeInterval / $lfStep) * $lfStep;
+        }
+
+        $lftimeInterval = $this->unit->none(round($lftimeInterval * 100.0) / 100.0);
+
+        $selPoints = $this->output->getSelectedMeshPoints($idStudy);
+        if (empty($selPoints)) {
+            $selPoints = $this->output->getMeshSelectionDef();
+        }
+
+        $axeTempRecordData = [];
+        $planTempRecordData = [];
+        if (!empty($selPoints)) {
+            $axeTempRecordData = [
+                [-1.0, $selPoints[9], $selPoints[10]],
+                [$selPoints[11], -1.0, $selPoints[12]],
+                [$selPoints[13], $selPoints[14], -1.0]
+            ];
+            $planTempRecordData = [
+                [$selPoints[15], 0.0, 0.0],
+                [0.0, $selPoints[16], 0.0],
+                [0.0, 0.0, $selPoints[17]]
+            ];
+        }
+
+        //contour data
+        $tempInterval = [$temperatureMin, $temperatureMax];
+
+        $chartTempInterval = $this->output->init2DContourTempInterval($idStudyEquipment, $lfDwellingTime, $tempInterval, $pasTemp);
+        $axisName = $this->output->getAxisName($shape, $orientation, $selectedPlan);
+
+        $heatmapFolder = $this->output->public_path('heatmap');
+        $study = Study::find($idStudy);
+        $userName = $study->USERNAM;
+        if (!is_dir($heatmapFolder)) {
+            mkdir($heatmapFolder, 0777);
+        }
+        if (!is_dir($heatmapFolder . '/' . $userName)) {
+            mkdir($heatmapFolder . '/' . $userName, 0777);
+        }
+        if (!is_dir($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment)) {
+            mkdir($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment, 0777);
+        }
+        $contourFileName = $lfDwellingTime . '-' . $chartTempInterval[0] . '-' . $chartTempInterval[1] . '-' . $chartTempInterval[2];
+
+        if (!file_exists($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment . '/' . $contourFileName . '.png')) {
+            $dataContour = $this->output->getGrideByPlan($idStudy, $idStudyEquipment, $lfDwellingTime, $chartTempInterval[0], $chartTempInterval[1], $planTempRecordData, $selectedPlan - 1, $shape, $orientation);
+
+            $f = fopen("/tmp/contour.inp", "w");
+            foreach ($dataContour as $datum) {
+                fputs($f, (double) $datum['X'] . ' ' . (double) $datum['Y'] . ' ' .  (double) $datum['Z'] . "\n" );
+            }
+            fclose($f);
+
+            system('gnuplot -c '. $this->plotFolder .'/contour.plot "'. $dimension .' '. $axisName[0] .'" "'. $dimension .' '. $axisName[1] .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment .'" "'. $contourFileName .'"');
+            file_put_contents($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment . '/data.json', json_encode($dataContour));
+        }
+        
+        $dataFile = getenv('APP_URL') . '/heatmap/' . $userName . '/' . $idStudyEquipment . '/data.json';
+        $imageContour[] = getenv('APP_URL') . '/heatmap/' . $userName . '/' . $idStudyEquipment . '/' . $contourFileName . '.png';
+
+        return compact("chartTempInterval", "lfDwellingTime", "lftimeInterval", "equipName", "idStudyEquipment");
+    }
     
     public function getStudyPackingLayers($id)
     {
@@ -1983,14 +2070,27 @@ class ReportService
         $recordTime = $this->unit->time($recordPosition[count($recordPosition) - 1]->RECORD_TIME);
         $tempInterval = [0.0, 0.0];
 
-        $result = $this->initReportTempInterval($idStudyEquipment, $recordTime, $tempInterval);
+        $result = $this->initReportTempInterval($idStudyEquipment, $recordTime, $tempInterval, $this->pasTemp);
 
         $data = [$this->unit->prodTemperature($result[0]), $this->unit->prodTemperature($result[1]), $result[2]];
 
         return $data;
     }
 
-    public function initReportTempInterval($idStudyEquipment, $recordTime, $tempInterval)
+    public function initTempDataForReportDataParam($idStudyEquipment, $temperatureMin, $temperatureMax, $pasTemp)
+    {
+        $recordPosition = RecordPosition::select('RECORD_TIME')->where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("RECORD_TIME", "ASC")->get();
+        $recordTime = $this->unit->time($recordPosition[count($recordPosition) - 1]->RECORD_TIME);
+        $tempInterval = [$temperatureMin, $temperatureMax];
+
+        $result = $this->initReportTempInterval($idStudyEquipment, $recordTime, $tempInterval, $pasTemp);
+
+        $data = [$this->unit->prodTemperature($result[0]), $this->unit->prodTemperature($result[1]), $result[2]];
+
+        return $data;
+    }
+
+    public function initReportTempInterval($idStudyEquipment, $recordTime, $tempInterval, $pasTemp)
     {
         $tempResult = [];
         $result = '';
@@ -2020,13 +2120,13 @@ class ReportService
             }
             $bornesTemp = [$this->unit->prodTemperature($tempInterval[0], ['save' => true]), $this->unit->prodTemperature($tempInterval[1], ['save' => true])];
 
-            $result = $this->calculatePasTemp($bornesTemp[0], $bornesTemp[1], false);
+            $result = $this->calculatePasTemp($bornesTemp[0], $bornesTemp[1], false, $pasTemp);
         }
 
         return $result;
     }
 
-    protected function calculatePasTemp($lfTmin, $lfTMax, $auto)
+    protected function calculatePasTemp($lfTmin, $lfTMax, $auto, $pasTemp)
     {
         set_time_limit(1000);
         $tab = [];
@@ -2041,7 +2141,7 @@ class ReportService
         if ($auto) {
             $dpas = intval(floor(abs($dTMax - $dTMin) / 14) - 1);
         } else {
-            $dpas = intval(floor($this->pasTemp) - 1);
+            $dpas = intval(floor($pasTemp) - 1);
         }
 
         if ($dpas < 0) {

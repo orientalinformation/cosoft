@@ -157,22 +157,19 @@ class Reports extends Controller
                     $report->refContRep2DTempMinRef = $tempDataReport[0];
                     $report->refContRep2DTempMaxRef = $tempDataReport[1];
                     $report->refContRep2DTempStepRef = $tempDataReport[2];
-                }
-
-                if ($report->CONTOUR2D_TEMP_STEP == 0 && count($studyEquip) > 0) {
-                    $report->CONTOUR2D_TEMP_STEP = $tempDataReport[2];
-                }
-    
-                if ($report->CONTOUR2D_TEMP_MIN == 0 && count($studyEquip) > 0) {
-                    $report->CONTOUR2D_TEMP_MIN = $tempDataReport[0];
-                } else {
-                    $report->CONTOUR2D_TEMP_MIN = $this->convert->prodTemperature($report->CONTOUR2D_TEMP_MIN);
-                }
-    
-                if ($report->CONTOUR2D_TEMP_MAX == 0 && count($studyEquip) > 0) {
-                    $report->CONTOUR2D_TEMP_MAX = $tempDataReport[1];
-                } else {
-                    $report->CONTOUR2D_TEMP_MAX = $this->convert->prodTemperature($report->CONTOUR2D_TEMP_MAX);
+        
+                    if ($report->CONTOUR2D_TEMP_MIN == $report->CONTOUR2D_TEMP_MAX ) {
+                        $report->CONTOUR2D_TEMP_MIN = $tempDataReport[0];
+                        $report->CONTOUR2D_TEMP_MAX = $tempDataReport[1];
+                        $report->CONTOUR2D_TEMP_STEP = $report->refContRep2DTempStepRef;
+                    } else {
+                        $tempDataReport = $this->reportserv->initTempDataForReportDataParam($studyEquip[0]->ID_STUDY_EQUIPMENTS, $report->CONTOUR2D_TEMP_MIN , $report->CONTOUR2D_TEMP_MAX, $report->CONTOUR2D_TEMP_STEP);
+                        if (($report->CONTOUR2D_TEMP_STEP != $tempDataReport[2]) || ($report->CONTOUR2D_TEMP_MIN != $tempDataReport[0]) || ($report->CONTOUR2D_TEMP_MAX != $tempDataReport[2])) {
+                            $report->CONTOUR2D_TEMP_MIN = $tempDataReport[0];
+                            $report->CONTOUR2D_TEMP_MAX = $tempDataReport[1];
+                            $report->CONTOUR2D_TEMP_STEP = $tempDataReport[2];
+                        }
+                    }
                 }
 
                 $tempRecordPts = TempRecordPts::where("ID_STUDY", $study->ID_STUDY)->first();
@@ -720,6 +717,9 @@ class Reports extends Controller
         $ISOVALUE_G = $input['ISOVALUE_G'];
         $ISOVALUE_SAMPLE = $input['ISOVALUE_SAMPLE'];
         $CONTOUR2D_G = $input['CONTOUR2D_G'];
+        $CONTOUR2D_TEMP_MIN = $input['CONTOUR2D_TEMP_MIN'];
+        $CONTOUR2D_TEMP_MAX = $input['CONTOUR2D_TEMP_MAX'];
+        $CONTOUR2D_TEMP_STEP = $input['CONTOUR2D_TEMP_STEP'];
         $study = Study::find($id);
         $checkStuname = str_replace(' ', '', $study->STUDY_NAME);
         $host = getenv('APP_URL');
@@ -918,7 +918,7 @@ class Reports extends Controller
                     case 2:
                         if ($equipData[$key]['ORIENTATION'] == 1) {
                             if ($CONTOUR2D_G == 1) {
-                                $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                                $pro2Dchart[] = $this->reportserv->productChart2DStatic($$study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
                                 $progress .= "\nContour";
                                 $this->writeProgressFile($progressFile, $progress);
                             } 
@@ -931,7 +931,7 @@ class Reports extends Controller
                             }
                         } else {
                             if ($CONTOUR2D_G == 1) {
-                                $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                                $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
                                 $progress .= "\nContour";
                                 $this->writeProgressFile($progressFile, $progress);
                             }
@@ -957,7 +957,7 @@ class Reports extends Controller
                         }
 
                         if ($CONTOUR2D_G == 1) {
-                            $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                            $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
                             $progress .= "\nContour";
                             $this->writeProgressFile($progressFile, $progress);
                         }
@@ -981,13 +981,13 @@ class Reports extends Controller
 
                         if ($equipData[$key]['ORIENTATION'] == 1) {
                             if ($CONTOUR2D_G == 1) {
-                                $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                                $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
                                 $progress .= "\nContour";
                                 $this->writeProgressFile($progressFile, $progress);
                             }
                         } else {
                             if ($CONTOUR2D_G == 1) {
-                                $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                                $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
                                 $progress .= "\nContour";
                                 $this->writeProgressFile($progressFile, $progress);
                             }
@@ -1003,7 +1003,7 @@ class Reports extends Controller
                         }
 
                         if ($CONTOUR2D_G == 1) {
-                            $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                            $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
                             $progress .= "\nContour";
                             $this->writeProgressFile($progressFile, $progress);
                         }
@@ -2495,6 +2495,9 @@ class Reports extends Controller
         $ISOVALUE_G = $input['ISOVALUE_G'];
         $ISOVALUE_SAMPLE = $input['ISOVALUE_SAMPLE'];
         $CONTOUR2D_G = $input['CONTOUR2D_G'];
+        $CONTOUR2D_TEMP_MIN = $input['CONTOUR2D_TEMP_MIN'];
+        $CONTOUR2D_TEMP_MAX = $input['CONTOUR2D_TEMP_MAX'];
+        $CONTOUR2D_TEMP_STEP = $input['CONTOUR2D_TEMP_STEP'];
         $study = Study::find($id);
         $host = getenv('APP_URL');
         $checkStuname = str_replace(' ', '', $study->STUDY_NAME);
@@ -2690,7 +2693,7 @@ class Reports extends Controller
                     case 2:
                         if ($equipData[$key]['ORIENTATION'] == 1) {
                             if ($CONTOUR2D_G == 1) {
-                                $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                                $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
                                 $progress .= "\nContour";
                                 $this->writeProgressFile($progressFile, $progress);
                             } 
@@ -2703,7 +2706,7 @@ class Reports extends Controller
                             }
                         } else {
                             if ($CONTOUR2D_G == 1) {
-                                $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                                $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
                                 $progress .= "\nContour";
                                 $this->writeProgressFile($progressFile, $progress);
                             }
@@ -2729,7 +2732,7 @@ class Reports extends Controller
                         }
 
                         if ($CONTOUR2D_G == 1) {
-                            $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                            $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
                             $progress .= "\nContour";
                             $this->writeProgressFile($progressFile, $progress);
                         }
@@ -2753,13 +2756,13 @@ class Reports extends Controller
 
                         if ($equipData[$key]['ORIENTATION'] == 1) {
                             if ($CONTOUR2D_G == 1) {
-                                $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                                $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
                                 $progress .= "\nContour";
                                 $this->writeProgressFile($progressFile, $progress);
                             }
                         } else {
                             if ($CONTOUR2D_G == 1) {
-                                $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                                $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
                                 $progress .= "\nContour";
                                 $this->writeProgressFile($progressFile, $progress);
                             }
@@ -2775,7 +2778,7 @@ class Reports extends Controller
                         }
 
                         if ($CONTOUR2D_G == 1) {
-                            $pro2Dchart[] = $this->reportserv->productchart2D($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                            $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
                             $progress .= "\nContour";
                             $this->writeProgressFile($progressFile, $progress);
                         }
