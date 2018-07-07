@@ -877,7 +877,7 @@
 
         <?php if ($arrayParam['params']['SIZING_GRAPHE'] == 1) { ?> 
         <h5 class="bold">Graphic</h5>
-        <div class ="graphic" class="text-center">
+        <div class ="graphic text-center">
             <img src="<?php echo $arrayParam['host'] . "sizing/" . $arrayParam['study']['USERNAM'] . "/" .  $arrayParam['study']['ID_STUDY'] . "/" .  $arrayParam['study']['ID_STUDY'].".png" ?>" style="max-width: 640px">
         </div>
         <?php } ?>
@@ -959,7 +959,7 @@
                 <?php }?>
 
 
-                <div class="graphic-dim2" class="text-center"> 
+                <div class="graphic-dim2 text-center"> 
                 <?php if ($arrayParam['params']['ISOCHRONE_G'] == 1) { ?> 
                 <?php if ($resproSections['selectedAxe'] == 1) {?> 
                 Graphic - Dimension <?php echo $resproSections['selectedAxe'] . "(" . "*," . $resproSections['axeTemp'][0] . "," . $resproSections['axeTemp'][1] . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?> 
@@ -1034,7 +1034,7 @@
         <?php } ?>
             <?php if ($arrayParam['params']['ISOVALUE_G'] == 1) { ?>      
                 <h5 class="bold">Graphic</h5>        
-                <div class="pro-graphic" class="text-center">
+                <div class="pro-graphic text-center">
                 <img src="<?php echo $arrayParam['host'] . "timeBased/" . $arrayParam['study']['USERNAM'] . "/" .  $timeBases['idStudyEquipment'] . ".png" ?>" style="max-width: 640px">
                 </div>
                     <?php } ?>
@@ -1046,7 +1046,7 @@
             <div class="block-title">2D Outlines</div>
                 <?php foreach ($pro2Dchart as $pro2Dcharts) {?>
                 <h5 class="bold"><?php echo $pro2Dcharts['equipName'] ?></h5>
-                    <div class="outlines" class="text-center"> 
+                    <div class="outlines text-center"> 
                     <img src="<?php echo $arrayParam['host'] . "heatmap/" . $arrayParam['study']['USERNAM'] . "/" .  $pro2Dcharts['idStudyEquipment'] . "/" . $pro2Dcharts['lfDwellingTime'] . "-" 
                     . $pro2Dcharts['chartTempInterval'][0] . "-" . $pro2Dcharts['chartTempInterval'][1] . "-" . $pro2Dcharts['chartTempInterval'][2] . ".png" ?>" style="max-width: 640px">
                     </div>
