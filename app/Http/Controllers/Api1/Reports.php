@@ -2151,13 +2151,12 @@ class Reports extends Controller
                                 <tr>
                                     <th colspan="2">Equipment</th>';
                                     foreach($resheatexchanges['result'] as $result) { 
-                                        $html .= '<th align="center"> '. $result['x'] . $symbol['timeSymbol']. '</th>';
-
+                                        $html .='<th align="center"> '. $result['x'] . ' '. $symbol['timeSymbol']. '</th>';
                                     }
                                 $html .='    
                                 </tr>
                                 <tr>
-                                    <td colspan="2"> '. $resheatexchanges['equipName'] .'  </td>';
+                                    <td colspan="2">'. $resheatexchanges['equipName'] . ' - (' . $symbol['enthalpySymbol'] . ')' .'</td>';
                                     foreach($resheatexchanges['result'] as $result) {
                                         $html .=' <th align="center"> '. $result['y'] .'</th>';
                                     }
