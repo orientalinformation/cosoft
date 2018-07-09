@@ -853,7 +853,7 @@ class Reports extends Controller
 
         if ($PIPELINE == 1) {
             if ($study->OPTION_CRYOPIPELINE == 1) {
-                $cryogenPipeline = $this->pipelines->loadPipeline($study->ID_STUDY);
+                $cryogenPipeline = $this->pipelines->loadPipeline($study->ID_STUDY, ['report' => true]);
                 $progress .= "\nPipeline Elements";
                 $this->writeProgressFile($progressFile, $progress);
             }
@@ -1586,7 +1586,7 @@ class Reports extends Controller
                     PDF::Bookmark('CRYOGENIC PIPELINE', 0, 0, '', 'B', array(0,64,128));
                     PDF::SetFillColor(38, 142, 226);
                     PDF::SetTextColor(0,0,0);
-                    $content ='Cryogenic Pipe';
+                    $content ='Cryogenic Pipeline';
                     PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
                     PDF::SetFont('helvetica', '', 10);
                     $html = '';
@@ -1602,7 +1602,7 @@ class Reports extends Controller
                                 <tr>
                                     <td colspan="2">Insulated line</td>
                                     <td colspan="4" align="center">'. ($cryogenPipeline['dataResultExist']['insulLabel']) .'</td>
-                                    <td colspan="2" align="center">'. ($cryogenPipeline['dataResultExist']['insulllenght']) .'</td>
+                                    <td colspan="2" align="center">'. ($cryogenPipeline['dataResultExist']['insulllenght']) .' ('.$symbol['lineDimensionSymbol'].')</td>
                                 </tr>
                                 <tr>
                                     <td colspan="2">Insulated valves</td>
@@ -1622,7 +1622,7 @@ class Reports extends Controller
                                 <tr>
                                     <td colspan="2">Non-insulated line</td>
                                     <td colspan="4" align="center">'. ($cryogenPipeline['dataResultExist']['noninsulLabel']) .'</td>
-                                    <td colspan="2" align="center">'. ($cryogenPipeline['dataResultExist']['noninsullenght']) .'</td>
+                                    <td colspan="2" align="center">'. ($cryogenPipeline['dataResultExist']['noninsullenght']) .' ('.$symbol['lineDimensionSymbol'].')</td>
                                 </tr>
                                 <tr>
                                     <td colspan="2">Non-insulated valves</td>
@@ -2629,7 +2629,7 @@ class Reports extends Controller
 
         if ($PIPELINE == 1) {
             if ($study->OPTION_CRYOPIPELINE == 1) {
-                $cryogenPipeline = $this->pipelines->loadPipeline($study->ID_STUDY);
+                $cryogenPipeline = $this->pipelines->loadPipeline($study->ID_STUDY, ['report' => true]);
                 $progress .= "\nPipeline Elements";
                 $this->writeProgressFile($progressFile, $progress);
             }
