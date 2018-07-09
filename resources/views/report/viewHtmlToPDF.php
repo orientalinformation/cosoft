@@ -123,7 +123,7 @@
                         <td class="text-center"><?php echo $resoptHeads['tr'] ?></td>
                         <td class="text-center"><?php echo $resoptHeads['ts'] ?></td>
                         <td class="text-center"><?php echo $resoptHeads['vc'] ?></td>
-                        <td class="text-center"><?php echo $arrayParam['proInfoStudy']['avgTInitial'] ?></td>
+                        <td class="text-center"><?php echo $resoptHeads['proInfoStudy']['avgTInitial'] ?></td>
                         <td class="text-center"><?php echo $resoptHeads['tfp'] ?></td>
                         <td class="text-center"><?php echo $resoptHeads['vep'] ?></td>
                     </tr>
