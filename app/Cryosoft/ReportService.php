@@ -238,6 +238,7 @@ class ReportService
                 $item["toc"] = $toc;
                 $item["precision"] = $precision;
                 $item["stuName"] = $stuName;
+                $item["proInfoStudy"] = $this->getProInfoStudy($row->ID_STUDY);
 
                 $result[] = $item;
             }
@@ -1109,40 +1110,38 @@ class ReportService
         $productSectionFolder = $this->output->public_path('productSection');
         $fileName = $idStudyEquipment . '-' . $selectedAxe;
 
-        if (!file_exists($productSectionFolder . '/' . $userName . '/' . $fileName . '.png')) {
-            $f = fopen("/tmp/productSection.inp", "w");
+        $f = fopen("/tmp/productSection.inp", "w");
 
-            $dataLabel = '';
-            fputs($f, '"X" ');
-            foreach ($resultLabel as $row) {
-                $dataLabel .= '"Temperature T' . $row . '(' . $this->unit->timeSymbol() . ')' . '"' . ' ';
-            } 
+        $dataLabel = '';
+        fputs($f, '"X" ');
+        foreach ($resultLabel as $row) {
+            $dataLabel .= '"Temperature T' . $row . '(' . $this->unit->timeSymbol() . ')' . '"' . ' ';
+        } 
 
-            fputs($f, $dataLabel);
+        fputs($f, $dataLabel);
+        fputs($f, "\n");
+
+        $i = 0;
+        foreach ($resultValue as $key => $row) {
+            $dataValue = '';
+            $dataValue = $i . ' ';
+            foreach ($row as $value) {
+                $dataValue .= $value . ' ';
+            }
+            fputs($f, $dataValue);
             fputs($f, "\n");
-
-            $i = 0;
-            foreach ($resultValue as $key => $row) {
-                $dataValue = '';
-                $dataValue = $i . ' ';
-                foreach ($row as $value) {
-                    $dataValue .= $value . ' ';
-                }
-                fputs($f, $dataValue);
-                fputs($f, "\n");
-                $i++;
-            }
-            fclose($f);
-
-            if (!is_dir($productSectionFolder)) {
-                mkdir($productSectionFolder, 0777);
-            }
-            if (!is_dir($productSectionFolder . '/' . $userName)) {
-                mkdir($productSectionFolder . '/' . $userName, 0777);
-            }
-
-            system('gnuplot -c '. $this->plotFolder .'/productSection.plot "('. $this->unit->prodchartDimensionSymbol() .')" "('. $this->unit->temperatureSymbol() .')" "'. $productSectionFolder . '/' . $userName .'" "'. $fileName .'"');
+            $i++;
         }
+        fclose($f);
+
+        if (!is_dir($productSectionFolder)) {
+            mkdir($productSectionFolder, 0777);
+        }
+        if (!is_dir($productSectionFolder . '/' . $userName)) {
+            mkdir($productSectionFolder . '/' . $userName, 0777);
+        }
+
+        system('gnuplot -c '. $this->plotFolder .'/productSection.plot "('. $this->unit->temperatureSymbol() .')" "('. $this->unit->prodchartDimensionSymbol() .')" "'. $productSectionFolder . '/' . $userName .'" "'. $fileName .'"');
 
         $result["recAxis"] = $recAxis;
         $result["mesAxis"] = $mesAxis;

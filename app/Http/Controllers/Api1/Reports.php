@@ -920,7 +920,7 @@ class Reports extends Controller
                     case 2:
                         if ($equipData[$key]['ORIENTATION'] == 1) {
                             if ($CONTOUR2D_G == 1) {
-                                $pro2Dchart[] = $this->reportserv->productChart2DStatic($$study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
+                                $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
                                 $progress .= "\nContour";
                                 $this->writeProgressFile($progressFile, $progress);
                             } 
@@ -1158,14 +1158,14 @@ class Reports extends Controller
                 $html = '<br><div class="chaining">
                         <table border="1" cellpadding="3">
                             <tr>
-                                <th colspan="2">Study Name</th>
-                                <th colspan="2">Equipment</th>
-                                <th>Control temperature<br>('. $symbol['temperatureSymbol'] .') </th>
-                                <th>Residence/ Dwell time<br>( '. $symbol['timeSymbol'] .' )</th>
-                                <th>Convection Setting (Hz)</th>
-                                <th>Initial Average Product tempeture<br>('. $symbol['temperatureSymbol'] .')  </th>
-                                <th>Final Average Product temperature<br>('. $symbol['temperatureSymbol'] .') </th>
-                                <th>Product Heat Load<br>('. $symbol['enthalpySymbol'] .') </th>
+                                <th colspan="2" align="center">Study Name</th>
+                                <th colspan="2" align="center">Equipment</th>
+                                <th align="center">Control temperature<br>('. $symbol['temperatureSymbol'] .') </th>
+                                <th align="center">Residence/ Dwell time<br>( '. $symbol['timeSymbol'] .' )</th>
+                                <th align="center">Convection Setting (Hz)</th>
+                                <th align="center">Initial Average Product tempeture<br>('. $symbol['temperatureSymbol'] .')  </th>
+                                <th align="center">Final Average Product temperature<br>('. $symbol['temperatureSymbol'] .') </th>
+                                <th align="center">Product Heat Load<br>('. $symbol['enthalpySymbol'] .') </th>
                             </tr>';
                             foreach ($chainingStudies as $key => $resoptHeads) { 
                             $html .= '<tr>
@@ -1174,7 +1174,7 @@ class Reports extends Controller
                                 <td align="center"> '. $resoptHeads['tr'] .' </td>
                                 <td align="center"> '. $resoptHeads['ts'] .' </td>
                                 <td align="center"> '. $resoptHeads['vc'] .' </td>
-                                <td align="center"> '. $proInfoStudy['avgTInitial'] .' </td>
+                                <td align="center"> '. $resoptHeads['proInfoStudy']['avgTInitial'] .' </td>
                                 <td align="center"> '. $resoptHeads['tfp'] .' </td>
                                 <td align="center"> '. $resoptHeads['vep'] .' </td>
                             </tr>';
