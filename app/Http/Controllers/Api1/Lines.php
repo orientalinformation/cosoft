@@ -90,7 +90,7 @@ class Lines extends Controller
         return false;
     }
 
-    public function loadPipeline($id) {
+    public function loadPipeline($id, $options = null) {
 		$study = Study::find($id);
         $user = $study->user;
         foreach ($study->studyEquipments as $studyEquip) {
@@ -248,8 +248,8 @@ class Lines extends Controller
                 $arrLabel["insulationType"] = $lineElmts[0]->INSULATION_TYPE;
                 $arrLabel["height"] = $this->convert->materialRise($pipeGen->HEIGHT);
                 $arrLabel["pressuer"] = $this->convert->pressure($pipeGen->PRESSURE);
-                $arrLabel["insulllenght"] = $this->convert->lineDimension($pipeGen->INSULLINE_LENGHT);
-                $arrLabel["noninsullenght"] = $this->convert->lineDimension($pipeGen->NOINSULLINE_LENGHT);
+                $arrLabel["insulllenght"] = (isset($options['report']) && $options['report'] == true) ? $this->convert->lineDimensionObj($pipeGen->INSULLINE_LENGHT) : $this->convert->lineDimension($pipeGen->INSULLINE_LENGHT);
+                $arrLabel["noninsullenght"] = (isset($options['report']) && $options['report'] == true) ? $this->convert->lineDimensionObj($pipeGen->NOINSULLINE_LENGHT) : $pipeGen->NOINSULLINE_LENGHT;
                 $arrLabel["insulvallenght"] = $pipeGen->INSUL_VALVES;
                 $arrLabel["noninsulatevallenght"] = $pipeGen->NOINSUL_VALVES;
                 $arrLabel["gastemp"] = $pipeGen->GAS_TEMP;

@@ -172,79 +172,32 @@ class Reports extends Controller
                     }
                 }
 
-                $tempRecordPts = TempRecordPts::where("ID_STUDY", $study->ID_STUDY)->first();
-                if ($report->POINT1_X == 0) {
-                    $report->POINT1_X = $tempRecordPts->AXIS1_PT_TOP_SURF;
+                $selPoints = $this->output->getSelectedMeshPoints($id);
+                if (empty($selPoints)) {
+                    $selPoints = $this->output->getMeshSelectionDef();
                 }
 
-                if ($report->POINT1_Y == 0) {
-                    $report->POINT1_Y = $tempRecordPts->AXIS2_PT_TOP_SURF;
-                }
 
-                if ($report->POINT1_Z == 0) {
-                    $report->POINT1_Z = $tempRecordPts->AXIS3_PT_BOT_SURF;
+                if (!empty($selPoints) && count($selPoints) == 18) {
+                    $report->POINT1_X = $selPoints[0];
+                    $report->POINT1_Y = $selPoints[1];
+                    $report->POINT1_Z = $selPoints[2];
+                    $report->POINT2_X = $selPoints[3];
+                    $report->POINT2_Y = $selPoints[4];
+                    $report->POINT2_Z = $selPoints[5];
+                    $report->POINT3_X = $selPoints[6];
+                    $report->POINT3_Y = $selPoints[7];
+                    $report->POINT3_Z = $selPoints[8];
+                    $report->AXE3_Y = $selPoints[9];
+                    $report->AXE3_Z = $selPoints[10];
+                    $report->AXE2_X = $selPoints[11];
+                    $report->AXE2_Z = $selPoints[12];
+                    $report->AXE1_X = $selPoints[13];
+                    $report->AXE1_Y = $selPoints[14];
+                    $report->PLAN_X = $selPoints[15];
+                    $report->PLAN_Y = $selPoints[16];
+                    $report->PLAN_Z = $selPoints[17];
                 }
-                
-                if ($report->POINT2_X == 0) {
-                    $report->POINT2_X = $tempRecordPts->AXIS1_PT_INT_PT;
-                }
-
-                if ($report->POINT2_Y == 0) {
-                    $report->POINT2_Y = $tempRecordPts->AXIS2_PT_INT_PT;
-                }
-
-                if ($report->POINT2_Z == 0) {
-                    $report->POINT2_Z = $tempRecordPts->AXIS3_PT_INT_PT;
-                }
-                
-                if ($report->POINT3_X == 0) {
-                    $report->POINT3_X = $tempRecordPts->AXIS1_PT_BOT_SURF;
-                }
-
-                if ($report->POINT3_Y == 0) {
-                    $report->POINT3_Y = $tempRecordPts->AXIS2_PT_BOT_SURF;
-                }
-
-                if ($report->POINT3_Z == 0) {
-                    $report->POINT3_Z = $tempRecordPts->AXIS3_PT_BOT_SURF;
-                }
-
-                if ($report->AXE1_X == 0) {
-                    $report->AXE1_X = $tempRecordPts->AXIS2_AX_1;
-                }
-
-                if ($report->AXE1_Y == 0) {
-                    $report->AXE1_Y = $tempRecordPts->AXIS3_AX_1;
-                }
-
-                if ($report->AXE2_X == 0) {
-                    $report->AXE2_X = $tempRecordPts->AXIS1_AX_2;
-                }
-
-                if ($report->AXE2_Z == 0) {
-                    $report->AXE2_Z = $tempRecordPts->AXIS3_AX_2;
-                }
-
-                if ($report->AXE3_Y == 0) {
-                    $report->AXE3_Y = $tempRecordPts->AXIS1_AX_3;
-                }
-
-                if ($report->AXE3_Z == 0) {
-                    $report->AXE3_Z = $tempRecordPts->AXIS2_AX_3;
-                }
-
-                if ($report->PLAN_X == 0) {
-                    $report->PLAN_X = $tempRecordPts->AXIS1_PL_2_3;
-                }
-
-                if ($report->PLAN_Y == 0) {
-                    $report->PLAN_Y = $tempRecordPts->AXIS2_PL_1_3;
-                }
-
-                if ($report->PLAN_Z == 0) {
-                    $report->PLAN_Z = $tempRecordPts->AXIS3_PL_1_2;
-                }
-                
             } else {
                 $minMaxSample = MinMax::where('LIMIT_ITEM', 1116)->first();
                 $report = new Report();
@@ -853,7 +806,7 @@ class Reports extends Controller
 
         if ($PIPELINE == 1) {
             if ($study->OPTION_CRYOPIPELINE == 1) {
-                $cryogenPipeline = $this->pipelines->loadPipeline($study->ID_STUDY);
+                $cryogenPipeline = $this->pipelines->loadPipeline($study->ID_STUDY, ['report' => true]);
                 $progress .= "\nPipeline Elements";
                 $this->writeProgressFile($progressFile, $progress);
             }
@@ -918,7 +871,7 @@ class Reports extends Controller
                     case 2:
                         if ($equipData[$key]['ORIENTATION'] == 1) {
                             if ($CONTOUR2D_G == 1) {
-                                $pro2Dchart[] = $this->reportserv->productChart2DStatic($$study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
+                                $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
                                 $progress .= "\nContour";
                                 $this->writeProgressFile($progressFile, $progress);
                             } 
@@ -1156,14 +1109,14 @@ class Reports extends Controller
                 $html = '<br><div class="chaining">
                         <table border="1" cellpadding="3">
                             <tr>
-                                <th colspan="2">Study Name</th>
-                                <th colspan="2">Equipment</th>
-                                <th>Control temperature<br>('. $symbol['temperatureSymbol'] .') </th>
-                                <th>Residence/ Dwell time<br>( '. $symbol['timeSymbol'] .' )</th>
-                                <th>Convection Setting (Hz)</th>
-                                <th>Initial Average Product tempeture<br>('. $symbol['temperatureSymbol'] .')  </th>
-                                <th>Final Average Product temperature<br>('. $symbol['temperatureSymbol'] .') </th>
-                                <th>Product Heat Load<br>('. $symbol['enthalpySymbol'] .') </th>
+                                <th colspan="2" align="center">Study Name</th>
+                                <th colspan="2" align="center">Equipment</th>
+                                <th align="center">Control temperature<br>('. $symbol['temperatureSymbol'] .') </th>
+                                <th align="center">Residence/ Dwell time<br>( '. $symbol['timeSymbol'] .' )</th>
+                                <th align="center">Convection Setting (Hz)</th>
+                                <th align="center">Initial Average Product tempeture<br>('. $symbol['temperatureSymbol'] .')  </th>
+                                <th align="center">Final Average Product temperature<br>('. $symbol['temperatureSymbol'] .') </th>
+                                <th align="center">Product Heat Load<br>('. $symbol['enthalpySymbol'] .') </th>
                             </tr>';
                             foreach ($chainingStudies as $key => $resoptHeads) { 
                             $html .= '<tr>
@@ -1172,7 +1125,7 @@ class Reports extends Controller
                                 <td align="center"> '. $resoptHeads['tr'] .' </td>
                                 <td align="center"> '. $resoptHeads['ts'] .' </td>
                                 <td align="center"> '. $resoptHeads['vc'] .' </td>
-                                <td align="center"> '. $proInfoStudy['avgTInitial'] .' </td>
+                                <td align="center"> '. $resoptHeads['proInfoStudy']['avgTInitial'] .' </td>
                                 <td align="center"> '. $resoptHeads['tfp'] .' </td>
                                 <td align="center"> '. $resoptHeads['vep'] .' </td>
                             </tr>';
@@ -1586,7 +1539,7 @@ class Reports extends Controller
                     PDF::Bookmark('CRYOGENIC PIPELINE', 0, 0, '', 'B', array(0,64,128));
                     PDF::SetFillColor(38, 142, 226);
                     PDF::SetTextColor(0,0,0);
-                    $content ='Cryogenic Pipe';
+                    $content ='Cryogenic Pipeline';
                     PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
                     PDF::SetFont('helvetica', '', 10);
                     $html = '';
@@ -1602,7 +1555,7 @@ class Reports extends Controller
                                 <tr>
                                     <td colspan="2">Insulated line</td>
                                     <td colspan="4" align="center">'. ($cryogenPipeline['dataResultExist']['insulLabel']) .'</td>
-                                    <td colspan="2" align="center">'. ($cryogenPipeline['dataResultExist']['insulllenght']) .'</td>
+                                    <td colspan="2" align="center">'. ($cryogenPipeline['dataResultExist']['insulllenght']) .' ('.$symbol['lineDimensionSymbol'].')</td>
                                 </tr>
                                 <tr>
                                     <td colspan="2">Insulated valves</td>
@@ -1622,7 +1575,7 @@ class Reports extends Controller
                                 <tr>
                                     <td colspan="2">Non-insulated line</td>
                                     <td colspan="4" align="center">'. ($cryogenPipeline['dataResultExist']['noninsulLabel']) .'</td>
-                                    <td colspan="2" align="center">'. ($cryogenPipeline['dataResultExist']['noninsullenght']) .'</td>
+                                    <td colspan="2" align="center">'. ($cryogenPipeline['dataResultExist']['noninsullenght']) .' ('.$symbol['lineDimensionSymbol'].')</td>
                                 </tr>
                                 <tr>
                                     <td colspan="2">Non-insulated valves</td>
@@ -2149,12 +2102,12 @@ class Reports extends Controller
                                 <tr>
                                     <th colspan="2">Equipment</th>';
                                     foreach($resheatexchanges['result'] as $result) { 
-                                        $html .='<th align="center"> '. $result['x'] . $symbol['timeSymbol']. '</th>';
+                                        $html .='<th align="center"> '. $result['x'] . ' '. $symbol['timeSymbol']. '</th>';
                                     }
                                 $html .='    
                                 </tr>
                                 <tr>
-                                    <td colspan="2"> '. $resheatexchanges['equipName'] .'  </td>';
+                                    <td colspan="2">'. $resheatexchanges['equipName'] . ' - (' . $symbol['enthalpySymbol'] . ')' .'</td>';
                                     foreach($resheatexchanges['result'] as $result) {
                                         $html .=' <th align="center"> '. $result['y'] .'</th>';
                                     }
@@ -2629,7 +2582,7 @@ class Reports extends Controller
 
         if ($PIPELINE == 1) {
             if ($study->OPTION_CRYOPIPELINE == 1) {
-                $cryogenPipeline = $this->pipelines->loadPipeline($study->ID_STUDY);
+                $cryogenPipeline = $this->pipelines->loadPipeline($study->ID_STUDY, ['report' => true]);
                 $progress .= "\nPipeline Elements";
                 $this->writeProgressFile($progressFile, $progress);
             }

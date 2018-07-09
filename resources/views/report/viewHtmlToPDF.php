@@ -123,7 +123,7 @@
                         <td class="text-center"><?php echo $resoptHeads['tr'] ?></td>
                         <td class="text-center"><?php echo $resoptHeads['ts'] ?></td>
                         <td class="text-center"><?php echo $resoptHeads['vc'] ?></td>
-                        <td class="text-center"><?php echo $arrayParam['proInfoStudy']['avgTInitial'] ?></td>
+                        <td class="text-center"><?php echo $resoptHeads['proInfoStudy']['avgTInitial'] ?></td>
                         <td class="text-center"><?php echo $resoptHeads['tfp'] ?></td>
                         <td class="text-center"><?php echo $resoptHeads['vep'] ?></td>
                     </tr>
@@ -887,10 +887,10 @@
         <?php if (($arrayParam['params']['ENTHALPY_V'] == 1) || ($arrayParam['params']['ENTHALPY_G'] == 1)) { ?>
         <div class="block-title">Heat Exchange</div>
         <?php } ?>
-            <!-- <h4>get first Equipment </h4> -->
             <?php foreach($heatexchange as $key=> $resheatexchanges) { ?>
             <?php if ($arrayParam['params']['ENTHALPY_V'] == 1) { ?>
             <div class="heat-exchange">
+                <h4 class="bold"><?php echo $resheatexchanges['equipName'] ?></h4>
                 <div class="table-responsive">
                 <table class ="table table-bordered table-hover table-striped" border="1">
                     <tr>
@@ -900,7 +900,7 @@
                         <?php } ?>
                     </tr>
                     <tr>
-                        <td colspan="2"><?php echo $resheatexchanges['equipName']?></td>
+                        <td colspan="2"><?php echo $resheatexchanges['equipName'] . ' - (' . $arrayParam['symbol']['enthalpySymbol'] . ')'; ?></td>
                         <?php foreach($resheatexchanges['result'] as $result) { ?>
                             <th class="text-center"> <?php echo $result['y']?></th>
                         <?php } ?>
@@ -923,10 +923,9 @@
         <?php if (($arrayParam['params']['ISOCHRONE_V'] == 1) || ($arrayParam['params']['ISOCHRONE_G'] == 1)) { ?> 
         <div class="block-title">Product Section</div>
         <?php } ?> 
-        <!-- <h4>get first Equipment </h4> -->
             <?php foreach ($proSections as $resproSections) {?>
             <?php if ($arrayParam['params']['ISOCHRONE_V'] == 1) { ?>  
-            <h5 class="bold"><?php echo $resproSections['equipName'] ?></h5>
+            <h4 class="bold"><?php echo $resproSections['equipName'] ?></h4>
                 <?php if ($resproSections['selectedAxe'] == 1) {?> 
                 Values - Dimension <?php echo $resproSections['selectedAxe'] . "(" . "*," . $resproSections['axeTemp'][0] . "," . $resproSections['axeTemp'][1] . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?>  
                 <?php } else if ($resproSections['selectedAxe'] == 2) { ?>
