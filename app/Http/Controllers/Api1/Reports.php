@@ -1293,14 +1293,20 @@ class Reports extends Controller
                             } else {
                                 $prodElmIso = 'Non-isothermal';
                             }
+
+                            if ($resproductComps['PROD_ISO'] == 0 && $resproductComps['PROD_ELMT_ISO'] == 1) {
+                                $studyNumber = '';
+                            } else {
+                                $studyNumber = $resproductComps['studyNumber'];
+                            }
                         $html .= '
                         <tr>
                             <td>'. $resproductComps['display_name'] .'</td>
                             <td align="center">'. $resproductComps['PROD_ELMT_NAME'] .'</td>
                             <td align="center">'. $this->convert->prodDimension($resproductComps['SHAPE_PARAM2']) .'</td>
                             <td align="center">'. $this->convert->mass($resproductComps['PROD_ELMT_REALWEIGHT']) .'</td>
-                            <td align="center">'. ($resproductComps['PROD_ELMT_ISO'] == 0 ? 'YES' : 'NO') .'</td>
-                            <td align="center">'. $resproductComps['studyNumber'] .'</td>
+                            <td align="center">'. ($resproductComps['PROD_ISO'] == 0 && $resproductComps['PROD_ELMT_ISO'] == 1 ? 'YES' : 'NO') .'</td>
+                            <td align="center">'. $studyNumber .'</td>
                             <td align="center">'. $prodElmIso .'</td>
                         </tr>';
                         }
@@ -2558,6 +2564,8 @@ class Reports extends Controller
 
             $productComps[$key]['studyNumber'] = count($arrIdComp) - count($studyNumber) + 1;
         }
+
+        return $productComps;
 
         if ($PROD_LIST == 1) {
             $progress .= "\nProduct";
