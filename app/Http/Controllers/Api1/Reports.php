@@ -178,26 +178,25 @@ class Reports extends Controller
                     $selPoints = $this->output->getMeshSelectionDef();
                 }
 
-
                 if (!empty($selPoints) && count($selPoints) == 18) {
-                    $report->POINT1_X = $selPoints[0];
-                    $report->POINT1_Y = $selPoints[1];
-                    $report->POINT1_Z = $selPoints[2];
-                    $report->POINT2_X = $selPoints[3];
-                    $report->POINT2_Y = $selPoints[4];
-                    $report->POINT2_Z = $selPoints[5];
-                    $report->POINT3_X = $selPoints[6];
-                    $report->POINT3_Y = $selPoints[7];
-                    $report->POINT3_Z = $selPoints[8];
-                    $report->AXE3_Y = $selPoints[9];
-                    $report->AXE3_Z = $selPoints[10];
-                    $report->AXE2_X = $selPoints[11];
-                    $report->AXE2_Z = $selPoints[12];
-                    $report->AXE1_X = $selPoints[13];
-                    $report->AXE1_Y = $selPoints[14];
-                    $report->PLAN_X = $selPoints[15];
-                    $report->PLAN_Y = $selPoints[16];
-                    $report->PLAN_Z = $selPoints[17];
+                    if ($report->POINT1_X == 0) $report->POINT1_X = $selPoints[0];
+                    if ($report->POINT1_Y == 0) $report->POINT1_Y = $selPoints[1];
+                    if ($report->POINT1_Z == 0) $report->POINT1_Z = $selPoints[2];
+                    if ($report->POINT2_X == 0) $report->POINT2_X = $selPoints[3];
+                    if ($report->POINT2_Y == 0) $report->POINT2_Y = $selPoints[4];
+                    if ($report->POINT2_Z == 0) $report->POINT2_Z = $selPoints[5];
+                    if ($report->POINT3_X == 0) $report->POINT3_X = $selPoints[6];
+                    if ($report->POINT3_Y == 0) $report->POINT3_Y = $selPoints[7];
+                    if ($report->POINT3_Z == 0) $report->POINT3_Z = $selPoints[8];
+                    if ($report->AXE3_Y == 0) $report->AXE3_Y = $selPoints[9];
+                    if ($report->AXE3_Z == 0) $report->AXE3_Z = $selPoints[10];
+                    if ($report->AXE2_X == 0) $report->AXE2_X = $selPoints[11];
+                    if ($report->AXE2_Z == 0) $report->AXE2_Z = $selPoints[12];
+                    if ($report->AXE1_X == 0) $report->AXE1_X = $selPoints[13];
+                    if ($report->AXE1_Y == 0) $report->AXE1_Y = $selPoints[14];
+                    if ($report->PLAN_X == 0) $report->PLAN_X = $selPoints[15];
+                    if ($report->PLAN_Y == 0) $report->PLAN_Y = $selPoints[16];
+                    if ($report->PLAN_Z == 0) $report->PLAN_Z = $selPoints[17];
                 }
             } else {
                 $minMaxSample = MinMax::where('LIMIT_ITEM', 1116)->first();
@@ -1296,14 +1295,20 @@ class Reports extends Controller
                             } else {
                                 $prodElmIso = 'Non-isothermal';
                             }
+
+                            if ($resproductComps['PROD_ISO'] == 0 && $resproductComps['PROD_ELMT_ISO'] == 1) {
+                                $studyNumber = '';
+                            } else {
+                                $studyNumber = $resproductComps['studyNumber'];
+                            }
                         $html .= '
                         <tr>
                             <td>'. $resproductComps['display_name'] .'</td>
                             <td align="center">'. $resproductComps['PROD_ELMT_NAME'] .'</td>
                             <td align="center">'. $this->convert->prodDimension($resproductComps['SHAPE_PARAM2']) .'</td>
                             <td align="center">'. $this->convert->mass($resproductComps['PROD_ELMT_REALWEIGHT']) .'</td>
-                            <td align="center">'. ($resproductComps['PROD_ELMT_ISO'] == 0 ? 'YES' : 'NO') .'</td>
-                            <td align="center">'. $resproductComps['studyNumber'] .'</td>
+                            <td align="center">'. ($resproductComps['PROD_ISO'] == 0 && $resproductComps['PROD_ELMT_ISO'] == 1 ? 'YES' : 'NO') .'</td>
+                            <td align="center">'. $studyNumber .'</td>
                             <td align="center">'. $prodElmIso .'</td>
                         </tr>';
                         }
@@ -2147,20 +2152,20 @@ class Reports extends Controller
                     $html ='';
                     PDF::Bookmark($resproSections['equipName'] , 1, 0, '', '', array(128,0,0));
                     // PDF::Cell(0, 10, '' , 0, 1, 'L');
-                    $html .='<h3>'. $resproSections['equipName'] .'</h3>';
+                    $html .='<br><h3>'. $resproSections['equipName'] .'</h3>';
                     if ($ISOCHRONE_V == 1) {
                         if ($resproSections['selectedAxe'] == 1) {
                             PDF::Bookmark('Values - Dimension' . $resproSections['selectedAxe'] . '(' . '*,' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][1] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
                             // PDF::Cell(0, 10, '', 0, 1, 'L');
-                            $html ='<h3> Values - Dimension'. $resproSections['selectedAxe'] . '(' . '*,' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][1] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>';
+                            $html .='<h3> Values - Dimension'. $resproSections['selectedAxe'] . '(' . '*,' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][1] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>';
                         } else if ($resproSections['selectedAxe'] == 2) {
                             PDF::Bookmark('Values - Dimension' . $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',*,' . $resproSections['axeTemp'][1] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
                             // PDF::Cell(0, 10, '' , 0, 1, 'L');
-                            $html ='<h3> Values - Dimension'. $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',*,' . $resproSections['axeTemp'][1] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>';
+                            $html .='<h3> Values - Dimension'. $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',*,' . $resproSections['axeTemp'][1] . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>';
                         } else if ($resproSections['selectedAxe'] == 3) {
                             PDF::Bookmark('Values - Dimension' . $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][1] . ',*' . ')' . '(' . $resproSections['prodchartDimensionSymbol'] . ')' , 2, 0, '', 'I', array(0,128,0));
                             // PDF::Cell(0, 10, '', 0, 1, 'L');
-                            $html='<h3> Values - Dimension'. $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][1] . ',*' . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>';
+                            $html .= '<h3> Values - Dimension'. $resproSections['selectedAxe'] . '(' . $resproSections['axeTemp'][0] . ',' . $resproSections['axeTemp'][1] . ',*' . ')' . '(' . $resproSections['prodchartDimensionSymbol'] .')</h3>';
                         }
                         $html .='
                         <div class="values-dim2">
