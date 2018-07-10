@@ -2565,8 +2565,6 @@ class Reports extends Controller
             $productComps[$key]['studyNumber'] = count($arrIdComp) - count($studyNumber) + 1;
         }
 
-        return $productComps;
-
         if ($PROD_LIST == 1) {
             $progress .= "\nProduct";
             $this->writeProgressFile($progressFile, $progress);
