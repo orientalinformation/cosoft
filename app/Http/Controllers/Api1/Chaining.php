@@ -40,4 +40,41 @@ class Chaining extends Controller
         $this->converts = $app['App\\Cryosoft\\UnitsConverterService'];
 
     }
+
+    public function getAllChaining($id) 
+    {
+    	$study = Study::findOrFail($id);
+
+    	$chaining = $chain = [];
+
+        $chain['studyName'] = $study->STUDY_NAME;
+        $chain['ID_STUDY'] = $id;
+        $chain['active'] = 1;
+        array_push($chaining, $chain);
+
+        $parent = null;
+        if ($study->PARENT_ID != 0) {
+            $parent = Study::findOrFail($study->PARENT_ID);
+            $chain['studyName'] = $parent->STUDY_NAME;
+            $chain['ID_STUDY'] = $parent->ID_STUDY;
+            $chain['active'] = 0;
+            array_push($chaining, $chain);
+        }
+
+        $children = null;
+        if ($study->HAS_CHILD != 0) {
+            $children = Study::where('PARENT_ID', $study->ID_STUDY)->get();
+            if (count($children) > 0) {
+                foreach ($children as $child) {
+                    array_push($chaining, [
+                        'studyName' => $child->STUDY_NAME,
+                        'ID_STUDY' => $child->ID_STUDY,
+                        'active' => 0
+                    ]);
+                }
+            }
+        }
+
+        return $chaining;
+    }
 }
