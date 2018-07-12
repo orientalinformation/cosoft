@@ -1982,7 +1982,15 @@ class Output extends Controller
 
             $dataArr = explode("\n", $data);
             $labelArr = explode(' ', trim($dataArr[0]));
-            $label = [$labelArr[1], $labelArr[2], $labelArr[3]];
+            //get value in text within parenthesis
+            preg_match('#\((.*?)\)#', $labelArr[1], $topLabelMatch);
+            preg_match('#\((.*?)\)#', $labelArr[2], $intLabelMatch);
+            preg_match('#\((.*?)\)#', $labelArr[3], $botLabelMatch);
+            $label = [
+                "top" => $topLabelMatch[1], 
+                "int" => $intLabelMatch[1], 
+                "bot" => $botLabelMatch[1]
+            ];
 
             unset($dataArr[0]);
             $listRecordPos = $dataArr;
