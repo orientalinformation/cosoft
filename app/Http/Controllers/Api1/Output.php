@@ -69,6 +69,7 @@ class Output extends Controller
         $this->stdeqp = $stdeqp;
         $this->brain = $brain;
         $this->plotFolder = $this->output->base_path('scripts');
+        $this->plotFolder3D = $this->output->public_path('3d');
     }
 
     public function getSymbol($idStudy)
@@ -1877,77 +1878,88 @@ class Output extends Controller
     {
         $idStudy = $this->request->input('idStudy');
         $idStudyEquipment = $this->request->input('idStudyEquipment');
-
-        $listRecordPos = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->get();
-        $result = array();
-        $label = array();
-        $curve = array();
-
-        $axisValue = $this->output->getRightPosition($idStudy, $idStudyEquipment);
-        if (count($listRecordPos) > 0) {
-            foreach ($listRecordPos as $row) {
-                $termRecordDataTop = $this->output->getTemperaturePosition($row->ID_REC_POS, (int) $axisValue['axis1TopPos'], (int) $axisValue['axis2TopPos']);
-                $termRecordDataInt = $this->output->getTemperaturePosition($row->ID_REC_POS, (int) $axisValue['axis1IntPos'], (int) $axisValue['axis2IntPos']);
-                $termRecordDataBot = $this->output->getTemperaturePosition($row->ID_REC_POS, (int) $axisValue['axis1BotPos'], (int) $axisValue['axis2BotPos']);
-
-                $itemCurveTop["x"] = $this->unit->time($row->RECORD_TIME);
-                $itemCurveTop["y"] = $this->unit->prodTemperature($termRecordDataTop->TEMP);
-
-                $itemCurveInt["x"] = $this->unit->time($row->RECORD_TIME);
-                $itemCurveInt["y"] = $this->unit->prodTemperature($termRecordDataInt->TEMP);
-
-                $itemCurveBotom["x"] = $this->unit->time($row->RECORD_TIME);
-                $itemCurveBotom["y"] = $this->unit->prodTemperature($termRecordDataBot->TEMP);
-
-                $itemCurveAverage["x"] = $this->unit->time($row->RECORD_TIME);
-                $itemCurveAverage["y"] = $this->unit->prodTemperature($row->AVERAGE_TEMP);
-
-                $curve["top"][] = $itemCurveTop;
-                $curve["int"][] = $itemCurveInt;
-                $curve["bot"][] = $itemCurveBotom;
-                $curve["average"][] = $itemCurveAverage;
-            }
-            $tempRecordPts = TempRecordPts::where("ID_STUDY", $idStudy)->first();
-            $nbSample = $tempRecordPts->NB_STEPS;
-
-            $nbRecord = count($listRecordPos);
-
-            $lfTS = $listRecordPos[$nbRecord - 1]->RECORD_TIME;
-            $lfStep = $listRecordPos[1]->RECORD_TIME - $listRecordPos[0]->RECORD_TIME;
-            $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
-
-            foreach ($lEchantillon as $row) {
-                $recordPos = $listRecordPos[$row];
-                $item["points"] = $this->unit->time($recordPos->RECORD_TIME);
-
-                //top
-                $termRecordDataTop = $this->output->getTemperaturePosition($recordPos->ID_REC_POS, (int) $axisValue['axis1TopPos'], (int) $axisValue['axis2TopPos']);
-                $item["top"] =  $this->unit->prodTemperature($termRecordDataTop->TEMP);
-                
-                //int
-                $termRecordDataInt = $this->output->getTemperaturePosition($recordPos->ID_REC_POS, (int) $axisValue['axis1IntPos'], (int) $axisValue['axis2IntPos']);
-                $item["int"] = $this->unit->prodTemperature($termRecordDataInt->TEMP);
-
-                //bot
-                $termRecordDataBot = $this->output->getTemperaturePosition($recordPos->ID_REC_POS, (int) $axisValue['axis1BotPos'], (int) $axisValue['axis2BotPos']);
-                $item["bot"] = $this->unit->prodTemperature($termRecordDataBot->TEMP);
-
-                $item["average"] = $this->unit->prodTemperature($recordPos->AVERAGE_TEMP);
-                $result[] = $item; 
-            }
-
-            $label["top"] = $this->unit->meshesUnit($tempRecordPts->AXIS1_PT_TOP_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_TOP_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_TOP_SURF);
-
-            $label["int"] = $this->unit->meshesUnit($tempRecordPts->AXIS1_PT_INT_PT) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_INT_PT) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_INT_PT);
-
-            $label["bot"] = $this->unit->meshesUnit($tempRecordPts->AXIS1_PT_BOT_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_BOT_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_BOT_SURF);
-        }
-
         $study = Study::find($idStudy);
+        $productElmt = ProductElmt::where('ID_STUDY', $idStudy)->first();
+        $shape = $productElmt->SHAPECODE;
+
         $userName = $study->USERNAM;
         $timeBasedFolder = $this->output->public_path('timeBased');
+        if (!is_dir($timeBasedFolder)) {
+            mkdir($timeBasedFolder, 0777);
+        }
+        if (!is_dir($timeBasedFolder . '/' . $userName)) {
+            mkdir($timeBasedFolder . '/' . $userName, 0777);
+        }
 
-        if (!file_exists($timeBasedFolder . '/' . $userName . '/' . $idStudyEquipment . '.png')) {
+        $tempRecordPts = TempRecordPts::where("ID_STUDY", $idStudy)->first();
+        $nbSample = $tempRecordPts->NB_STEPS;
+
+        if ($shape < 10) {
+            $listRecordPos = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy('RECORD_TIME')->get();
+            $result = array();
+            $label = array();
+            $curve = array();
+
+            $axisValue = $this->output->getRightPosition($idStudy, $idStudyEquipment);
+            if (count($listRecordPos) > 0) {
+                foreach ($listRecordPos as $row) {
+                    $termRecordDataTop = $this->output->getTemperaturePosition($row->ID_REC_POS, (int) $axisValue['axis1TopPos'], (int) $axisValue['axis2TopPos']);
+                    $termRecordDataInt = $this->output->getTemperaturePosition($row->ID_REC_POS, (int) $axisValue['axis1IntPos'], (int) $axisValue['axis2IntPos']);
+                    $termRecordDataBot = $this->output->getTemperaturePosition($row->ID_REC_POS, (int) $axisValue['axis1BotPos'], (int) $axisValue['axis2BotPos']);
+
+                    $itemCurveTop["x"] = $this->unit->time($row->RECORD_TIME);
+                    $itemCurveTop["y"] = $this->unit->prodTemperature($termRecordDataTop->TEMP);
+
+                    $itemCurveInt["x"] = $this->unit->time($row->RECORD_TIME);
+                    $itemCurveInt["y"] = $this->unit->prodTemperature($termRecordDataInt->TEMP);
+
+                    $itemCurveBotom["x"] = $this->unit->time($row->RECORD_TIME);
+                    $itemCurveBotom["y"] = $this->unit->prodTemperature($termRecordDataBot->TEMP);
+
+                    $itemCurveAverage["x"] = $this->unit->time($row->RECORD_TIME);
+                    $itemCurveAverage["y"] = $this->unit->prodTemperature($row->AVERAGE_TEMP);
+
+                    $curve["top"][] = $itemCurveTop;
+                    $curve["int"][] = $itemCurveInt;
+                    $curve["bot"][] = $itemCurveBotom;
+                    $curve["average"][] = $itemCurveAverage;
+                }
+                
+
+                $nbRecord = count($listRecordPos);
+
+                $lfTS = $listRecordPos[$nbRecord - 1]->RECORD_TIME;
+                $lfStep = $listRecordPos[1]->RECORD_TIME - $listRecordPos[0]->RECORD_TIME;
+                $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
+                var_dump($lfTS);
+
+                foreach ($lEchantillon as $row) {
+                    $recordPos = $listRecordPos[$row];
+                    $item["points"] = $this->unit->time($recordPos->RECORD_TIME);
+
+                    //top
+                    $termRecordDataTop = $this->output->getTemperaturePosition($recordPos->ID_REC_POS, (int) $axisValue['axis1TopPos'], (int) $axisValue['axis2TopPos']);
+                    $item["top"] =  $this->unit->prodTemperature($termRecordDataTop->TEMP);
+                    
+                    //int
+                    $termRecordDataInt = $this->output->getTemperaturePosition($recordPos->ID_REC_POS, (int) $axisValue['axis1IntPos'], (int) $axisValue['axis2IntPos']);
+                    $item["int"] = $this->unit->prodTemperature($termRecordDataInt->TEMP);
+
+                    //bot
+                    $termRecordDataBot = $this->output->getTemperaturePosition($recordPos->ID_REC_POS, (int) $axisValue['axis1BotPos'], (int) $axisValue['axis2BotPos']);
+                    $item["bot"] = $this->unit->prodTemperature($termRecordDataBot->TEMP);
+
+                    $item["average"] = $this->unit->prodTemperature($recordPos->AVERAGE_TEMP);
+                    $result[] = $item; 
+                }
+
+                $label["top"] = $this->unit->meshesUnit($tempRecordPts->AXIS1_PT_TOP_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_TOP_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_TOP_SURF);
+
+                $label["int"] = $this->unit->meshesUnit($tempRecordPts->AXIS1_PT_INT_PT) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_INT_PT) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_INT_PT);
+
+                $label["bot"] = $this->unit->meshesUnit($tempRecordPts->AXIS1_PT_BOT_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_BOT_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_BOT_SURF);
+            }
+
             $f = fopen("/tmp/timeBased.inp", "w");
 
             $dataLabel = '';
@@ -1957,22 +1969,82 @@ class Output extends Controller
             fputs($f, '"Bottom('. $label['bot'] .')" ');
             fputs($f, '"Average temperature"'. "\n");
 
-            if (!is_dir($timeBasedFolder)) {
-                mkdir($timeBasedFolder, 0777);
-            }
-            if (!is_dir($timeBasedFolder . '/' . $userName)) {
-                mkdir($timeBasedFolder . '/' . $userName, 0777);
-            }
-
             foreach ($curve['top'] as $key => $row) {
                 fputs($f, (double) $row['x'] . ' ' . (double) $row['y'] . ' ' . (double) $curve['bot'][$key]['y'] . ' ' . (double) $curve['int'][$key]['y'] . ' ' . (double) $curve['average'][$key]['y'] . "\n");
             } 
-            fclose($f);
+            fclose($f);               
+        } else {
+            $prodFolder = 'Prod_' . $study->ID_PROD;
+            $stdeqpFolder = 'Equipment' . $idStudyEquipment;
+            $inpFile = $this->plotFolder3D . '/MeshBuilder3D/' . $prodFolder . '/' . $stdeqpFolder . '/timeBase.inp';
+            
+            $data = file_get_contents($this->plotFolder3D . '/MeshBuilder3D/' . $prodFolder . '/' . $stdeqpFolder . '/timeBase.inp');
 
-            system('gnuplot -c '. $this->plotFolder .'/timeBased.plot "('. $this->unit->timeSymbol() .')" "('. $this->unit->temperatureSymbol() .')" "'. $timeBasedFolder . '/' . $userName .'" "'. $idStudyEquipment .'"');
+            $dataArr = explode("\n", $data);
+            $labelArr = explode(' ', trim($dataArr[0]));
+            //get value in text within parenthesis
+            preg_match('#\((.*?)\)#', $labelArr[1], $topLabelMatch);
+            preg_match('#\((.*?)\)#', $labelArr[2], $intLabelMatch);
+            preg_match('#\((.*?)\)#', $labelArr[3], $botLabelMatch);
+            $label = [
+                "top" => $topLabelMatch[1], 
+                "int" => $intLabelMatch[1], 
+                "bot" => $botLabelMatch[1]
+            ];
+
+            unset($dataArr[0]);
+            $listRecordPos = $dataArr;
+            $listRecordPos = array_values($listRecordPos);
+
+            $nbRecord = count($listRecordPos) - 1;
+
+            $recordPosLast = trim($listRecordPos[$nbRecord - 1]);
+            $recordPosLast = preg_replace("/\s+/u", " ", $recordPosLast);
+            $recordPosLast = explode(' ', $recordPosLast);
+            $recordPosLast = array_filter($recordPosLast);
+            $lfTS = $recordPosLast[0];
+
+            $recordPosFirst = trim($listRecordPos[0]);
+            $recordPosFirst = preg_replace("/\s+/u", " ", $recordPosFirst);
+            $recordPosFirst = explode(' ', $recordPosFirst);
+            $recordPosFirst = array_filter($recordPosFirst);
+
+            $recordPosSecond = trim($listRecordPos[1]);
+            $recordPosSecond = preg_replace("/\s+/u", " ", $recordPosSecond);
+            $recordPosSecond = explode(' ', $recordPosSecond);
+            $recordPosSecond = array_filter($recordPosSecond);
+
+            $lfStep = $recordPosSecond[0] - $recordPosFirst[0];
+            $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
+
+            
+            $dataRecord = [];
+            foreach ($lEchantillon as $row) {
+                $recordPos = trim($listRecordPos[$row]);
+                $recordPos = preg_replace("/\s+/u", " ", $recordPos);
+                $recordPos = explode(' ', $recordPos);
+                $recordPos = array_filter($recordPos);
+                
+                $i = 0;
+                foreach ($recordPos as $record) {
+                    $item["points"] = $this->unit->time($recordPos[0]);
+                    $item["top"] =  $this->unit->prodTemperature($recordPos[1]);
+                    $item["int"] =  $this->unit->prodTemperature($recordPos[2]);
+                    $item["bot"] =  $this->unit->prodTemperature($recordPos[3]);
+                    $item["average"] =  $this->unit->prodTemperature($recordPos[4]);
+                    $i++;
+                }
+
+                $result[] = $item;
+            }
+
+            $curve = [];
         }
 
-        return compact("label", "curve", "result");
+        system('gnuplot -c '. $this->plotFolder .'/timeBased.plot "('. $this->unit->timeSymbol() .')" "('. $this->unit->temperatureSymbol() .')" "'. $timeBasedFolder . '/' . $userName .'" "'. $idStudyEquipment .'"');
+        $imageTimebased = getenv('APP_URL') . '/timeBased/' . $userName . '/' . $idStudyEquipment . '.png';
+
+        return compact("label", "curve", "result", "imageTimebased");
     }
 
     public function saveTempRecordPts()
@@ -2287,22 +2359,19 @@ class Output extends Controller
 
         $contourFileName = $lfDwellingTime . '-' . $chartTempInterval[0] . '-' . $chartTempInterval[1] . '-' . $chartTempInterval[2];
 
-        if (!file_exists($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment . '/' . $contourFileName . '.png')) { 
-
             
-            $dataContour = $this->output->getGrideByPlan($idStudy, $idStudyEquipment, $lfDwellingTime, $chartTempInterval[0], $chartTempInterval[1], $planTempRecordData, $selectedPlan - 1, $shape, $orientation);
+        $dataContour = $this->output->getGrideByPlan($idStudy, $idStudyEquipment, $lfDwellingTime, $chartTempInterval[0], $chartTempInterval[1], $planTempRecordData, $selectedPlan - 1, $shape, $orientation);
 
-            $f = fopen("/tmp/contour.inp", "w");
-            foreach ($dataContour as $datum) {
-                fputs($f, (double) $datum['X'] . ' ' . (double) $datum['Y'] . ' ' .  (double) $datum['Z'] . "\n" );
-            }
-            fclose($f);
-
-            file_put_contents($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment . '/data.json', json_encode($dataContour));
-
-            system('gnuplot -c '. $this->plotFolder .'/contour.plot "'. $dimension .' '. $axisName[0] .'" "'. $dimension .' '. $axisName[1] .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment .'" "'. $contourFileName .'"');
+        $f = fopen("/tmp/contour.inp", "w");
+        foreach ($dataContour as $datum) {
+            fputs($f, (double) $datum['X'] . ' ' . (double) $datum['Y'] . ' ' .  (double) $datum['Z'] . "\n" );
         }
+        fclose($f);
 
+        file_put_contents($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment . '/data.json', json_encode($dataContour));
+
+        system('gnuplot -c '. $this->plotFolder .'/contour.plot "'. $dimension .' '. $axisName[0] .'" "'. $dimension .' '. $axisName[1] .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment .'" "'. $contourFileName .'"');
+    
         $dataFile = getenv('APP_URL') . '/heatmap/' . $userName . '/' . $idStudyEquipment . '/data.json';
         $imageContour[] = getenv('APP_URL') . '/heatmap/' . $userName . '/' . $idStudyEquipment . '/' . $contourFileName . '.png';
 

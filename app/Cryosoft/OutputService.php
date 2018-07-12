@@ -880,7 +880,7 @@ class OutputService
     public function getRecAxisPos($idRec_Pos, $lfTmin, $lfTMax)
     {
         // $tempRecordData = TempRecordData::where('ID_REC_POS', $idRec_Pos)->whereBetween('TEMP', [$lfTmin, $lfTMax])->get();
-        $tempRecordData = DB::table('temp_record_data')->whereRaw('ID_REC_POS = '. $idRec_Pos .' AND CAST(TEMP AS DECIMAL) >= '. $lfTmin .' AND CAST(TEMP AS DECIMAL) <= '. $lfTMax .'')->get();
+        $tempRecordData = DB::table('temp_record_data')->whereRaw('ID_REC_POS = '. $idRec_Pos .' AND CAST(TEMP AS DECIMAL) >= '. $lfTmin .' AND CAST(TEMP AS DECIMAL) <= '. $lfTMax .'')->orderBy('ID_TEMP_RECORD_DATA')->get();
 
         $result = [];
         if (count($tempRecordData) > 0) {
