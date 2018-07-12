@@ -20,7 +20,7 @@ use App\Models\StudyEquipment;
 
 class Chaining extends Controller 
 {
-	protected $request;
+    protected $request;
     protected $auth;
     protected $equip;
     protected $kernel;
@@ -43,15 +43,35 @@ class Chaining extends Controller
 
     public function getAllChaining($id) 
     {
-    	$study = Study::findOrFail($id);
+        $study = Study::findOrFail($id);
 
-    	$chaining = $chain = [];
+        $chaining = $chain = [];
 
         $chain['studyName'] = $study->STUDY_NAME;
         $chain['ID_STUDY'] = $id;
         $chain['active'] = 1;
         array_push($chaining, $chain);
 
+        $parents  = $this->getParentChaining($id);
+        if (count($parents) > 0) {
+          foreach ($parents as $parent) {
+            array_push($chaining, $parent);
+          }
+        }
+
+        $childrens = $this->getChildChaining($id);
+        if (count($childrens) > 0) {
+          foreach ($childrens as $child) {
+            array_push($chaining, $child);
+          }
+        }
+
+        return $chaining;
+    }
+
+    private function getParentChaining($idStudy, $chaining = [])
+    {
+        $study = Study::findOrFail($idStudy);
         $parent = null;
         if ($study->PARENT_ID != 0) {
             $parent = Study::findOrFail($study->PARENT_ID);
@@ -59,22 +79,29 @@ class Chaining extends Controller
             $chain['ID_STUDY'] = $parent->ID_STUDY;
             $chain['active'] = 0;
             array_push($chaining, $chain);
+
+            $chaining = $this->getParentChaining($study->PARENT_ID, $chaining);
         }
 
+        return $chaining;
+    }
+
+    private function getChildChaining($idStudy, $chaining = [])
+    {
+        $study = Study::findOrFail($idStudy);
         $children = null;
         if ($study->HAS_CHILD != 0) {
-            $children = Study::where('PARENT_ID', $study->ID_STUDY)->get();
+            $children = Study::where('PARENT_ID', $study->ID_STUDY)->first();
             if (count($children) > 0) {
-                foreach ($children as $child) {
-                    array_push($chaining, [
-                        'studyName' => $child->STUDY_NAME,
-                        'ID_STUDY' => $child->ID_STUDY,
-                        'active' => 0
-                    ]);
-                }
+                array_push($chaining, [
+                    'studyName' => $children->STUDY_NAME,
+                    'ID_STUDY' => $children->ID_STUDY,
+                    'active' => 0
+                ]);
+
+                $chaining = $this->getChildChaining($children->ID_STUDY, $chaining);
             }
         }
-
         return $chaining;
     }
 }
