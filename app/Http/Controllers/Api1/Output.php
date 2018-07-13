@@ -1993,8 +1993,9 @@ class Output extends Controller
             unset($dataArr[0]);
             $listRecordPos = $dataArr;
             $listRecordPos = array_values($listRecordPos);
+            $listRecordPos = array_filter($listRecordPos);
 
-            $nbRecord = count($listRecordPos) - 1;
+            $nbRecord = count($listRecordPos);
 
             $recordPosLast = trim($listRecordPos[$nbRecord - 1]);
             $recordPosLast = preg_replace("/\s+/u", " ", $recordPosLast);
