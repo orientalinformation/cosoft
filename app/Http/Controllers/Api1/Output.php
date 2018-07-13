@@ -1924,14 +1924,12 @@ class Output extends Controller
                     $curve["bot"][] = $itemCurveBotom;
                     $curve["average"][] = $itemCurveAverage;
                 }
-                
 
                 $nbRecord = count($listRecordPos);
 
                 $lfTS = $listRecordPos[$nbRecord - 1]->RECORD_TIME;
                 $lfStep = $listRecordPos[1]->RECORD_TIME - $listRecordPos[0]->RECORD_TIME;
                 $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
-                var_dump($lfTS);
 
                 foreach ($lEchantillon as $row) {
                     $recordPos = $listRecordPos[$row];
