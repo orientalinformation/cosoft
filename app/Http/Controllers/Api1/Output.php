@@ -1665,41 +1665,42 @@ class Output extends Controller
             mkdir($productSectionFolder . '/' . $userName, 0777);
         }
 
+        $selPoints = $this->output->getSelectedMeshPoints($idStudy);
+        if (empty($selPoints)) {
+            $selPoints = $this->output->getMeshSelectionDef();
+        }
+
+        $axeTempRecordData = [];
+        if (!empty($selPoints)) {
+            $axeTempRecordData = [
+                [-1.0, $selPoints[9], $selPoints[10]],
+                [$selPoints[11], -1.0, $selPoints[12]],
+                [$selPoints[13], $selPoints[14], -1.0]
+            ];
+        }
+
+        $axeTemp = [];
+        switch ($selectedAxe) {
+            case 1:
+                array_push($axeTemp, $this->unit->prodchartDimension($selPoints[9]));
+                array_push($axeTemp, $this->unit->prodchartDimension($selPoints[10]));
+                break;
+
+            case 2:
+                array_push($axeTemp, $this->unit->prodchartDimension($selPoints[11]));
+                array_push($axeTemp, $this->unit->prodchartDimension($selPoints[12]));
+                break;
+
+            case 3:
+                array_push($axeTemp, $this->unit->prodchartDimension($selPoints[13]));
+                array_push($axeTemp, $this->unit->prodchartDimension($selPoints[14]));
+                break;
+        }
+
         $resultLabel = [];
         $resultTemperature = [];
 
         if ($shape < 10) {
-            $selPoints = $this->output->getSelectedMeshPoints($idStudy);
-            if (empty($selPoints)) {
-                $selPoints = $this->output->getMeshSelectionDef();
-            }
-
-            $axeTempRecordData = [];
-            if (!empty($selPoints)) {
-                $axeTempRecordData = [
-                    [-1.0, $selPoints[9], $selPoints[10]],
-                    [$selPoints[11], -1.0, $selPoints[12]],
-                    [$selPoints[13], $selPoints[14], -1.0]
-                ];
-            }
-
-            $axeTemp = [];
-            switch ($selectedAxe) {
-                case 1:
-                    array_push($axeTemp, $this->unit->prodchartDimension($selPoints[9]));
-                    array_push($axeTemp, $this->unit->prodchartDimension($selPoints[10]));
-                    break;
-
-                case 2:
-                    array_push($axeTemp, $this->unit->prodchartDimension($selPoints[11]));
-                    array_push($axeTemp, $this->unit->prodchartDimension($selPoints[12]));
-                    break;
-
-                case 3:
-                    array_push($axeTemp, $this->unit->prodchartDimension($selPoints[13]));
-                    array_push($axeTemp, $this->unit->prodchartDimension($selPoints[14]));
-                    break;
-            }
 
             $listRecordPos = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("RECORD_TIME", "ASC")->get();
             $nbSteps = TempRecordPts::where("ID_STUDY", $idStudy)->first();
@@ -1823,7 +1824,6 @@ class Output extends Controller
                 $resultTemperature[] = $item;
             }
 
-            $result = [];
             $resultValue = [];
 
             foreach ($resultTemperature as $row) {
@@ -1876,12 +1876,62 @@ class Output extends Controller
             $inpFile = $this->plotFolder3D . '/MeshBuilder3D/' . $prodFolder . '/' . $stdeqpFolder . '/timeBase.inp';
             
             $data = file_get_contents($this->plotFolder3D . '/MeshBuilder3D/' . $prodFolder . '/' . $stdeqpFolder . '/' . $inpFileName);
-            return $data;
+
+            $dataArr = explode("\n", $data);
+            $labelArr = preg_replace("/\s+/u", " ", $dataArr[0]);
+            $labelArr = explode(' ', trim($labelArr));
+            foreach ($labelArr as $key => $label) {
+                if (!preg_match('/[A-Za-z].*[0-9]|[0-9].*[A-Za-z]/', $labelArr[$key])) {
+                    unset($labelArr[$key]);
+                }
+            }
+
+            $labelArr = array_values($labelArr);
+            $labelArr = array_map(
+                function($str) {
+                    return str_replace('(s)"', '', $str);
+                },
+                $labelArr
+            );
+
+            $nbSteps = TempRecordPts::where("ID_STUDY", $idStudy)->first();
+            $nbSample = $nbSteps->NB_STEPS;
+            $nbRecord = count($labelArr);
+            $lfTS = $labelArr[$nbRecord - 1];
+            $lfStep = $labelArr[1] - $labelArr[0];
+            $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
+            foreach ($lEchantillon as $row) {
+                $resultLabel[] = $labelArr[$row];
+            }
+
+            unset($dataArr[0]);
+            $listRecordPos = $dataArr;
+            $listRecordPos = array_values($listRecordPos);
+            $listRecordPos = array_filter($listRecordPos);
+            $dataChart = [];
+            $recAxis = [];
+            $mesAxis = [];           
+            $resultValue = [];
+            foreach ($listRecordPos as $key => $value) {
+                $recordPos = trim($listRecordPos[$key]);
+                $recordPos = preg_replace("/\s+/u", " ", $recordPos);
+                $recordPos = explode(' ', $recordPos);
+                $recordPos = array_filter($recordPos);
+
+                $mesAxis[] = $recordPos[0];
+                unset($recordPos[0]);
+                $recordPosValue = $recordPos;
+                $recordPosValue = array_values($recordPosValue);
+                foreach ($lEchantillon as $row) {
+                    $resultValue[$key][] = $recordPosValue[$row];
+                }
+            }
         }
 
         system('gnuplot -c '. $this->plotFolder .'/productSection.plot "('. $this->unit->temperatureSymbol() .')" "('. $this->unit->prodchartDimensionSymbol() .')" "'. $productSectionFolder . '/' . $userName .'" "'. $fileName .'" '. $inpFile .'');
         $imageProductSection = getenv('APP_URL') . 'productSection/' . $userName . '/' . $fileName . '.png?time=' . time();
         
+        $result = [];
         $result["recAxis"] = $recAxis;
         $result["mesAxis"] = $mesAxis;
         $result["resultValue"] = $resultValue;
