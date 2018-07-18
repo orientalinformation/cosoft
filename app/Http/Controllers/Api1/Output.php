@@ -1637,7 +1637,7 @@ class Output extends Controller
             mkdir($heatExchangeFolder . '/' . $userName, 0777);
         }
 
-        system('gnuplot -c '. $this->plotFolder . '/heatExchange.plot "('. $this->unit->timeSymbol() .')" "('. $this->unit->enthalpySymbol() .')" "'. $heatExchangeFolder . '/' . $userName .'" '. $idStudyEquipment .' "Enthapy"');
+        system('gnuplot -c '. $this->plotFolder . '/heatExchange.plot "('. $this->unit->timeSymbol() .')" "('. $this->unit->enthalpySymbol() .')" "'. $heatExchangeFolder . '/' . $userName .'" '. $idStudyEquipment .' "Enthapy" "/tmp/heatExchange.inp"');
 
         return compact("result", "curve");
     }
@@ -1855,20 +1855,21 @@ class Output extends Controller
                 $i++;
             }
             fclose($f);
+            $inpFile = "/tmp/productSection.inp";
         } else {
             $prodFolder = 'Prod_' . $study->ID_PROD;
             $stdeqpFolder = 'Equipment' . $idStudyEquipment;
             switch ($selectedAxe) {
                 case 1:
-                    $inpFileName = 'productSectionX.inp';
+                    $inpFileName = 'productSection_X.inp';
                     break;
 
                 case 2:
-                    $inpFileName = 'productSectionY.inp';
+                    $inpFileName = 'productSection_Y.inp';
                     break;
 
                 case 3:
-                    $inpFileName = 'productSectionZ.inp';
+                    $inpFileName = 'productSection_Z.inp';
                     break;
             }
 
@@ -1878,7 +1879,7 @@ class Output extends Controller
             return $data;
         }
 
-        system('gnuplot -c '. $this->plotFolder .'/productSection.plot "('. $this->unit->temperatureSymbol() .')" "('. $this->unit->prodchartDimensionSymbol() .')" "'. $productSectionFolder . '/' . $userName .'" "'. $fileName .'"');
+        system('gnuplot -c '. $this->plotFolder .'/productSection.plot "('. $this->unit->temperatureSymbol() .')" "('. $this->unit->prodchartDimensionSymbol() .')" "'. $productSectionFolder . '/' . $userName .'" "'. $fileName .'" '. $inpFile .'');
         $imageProductSection = getenv('APP_URL') . 'productSection/' . $userName . '/' . $fileName . '.png?time=' . time();
         
         $result["recAxis"] = $recAxis;
@@ -1984,7 +1985,9 @@ class Output extends Controller
             foreach ($curve['top'] as $key => $row) {
                 fputs($f, (double) $row['x'] . ' ' . (double) $row['y'] . ' ' . (double) $curve['bot'][$key]['y'] . ' ' . (double) $curve['int'][$key]['y'] . ' ' . (double) $curve['average'][$key]['y'] . "\n");
             } 
-            fclose($f);               
+            fclose($f);
+
+            $inpFile = '/tmp/timeBased.inp';               
         } else {
             $prodFolder = 'Prod_' . $study->ID_PROD;
             $stdeqpFolder = 'Equipment' . $idStudyEquipment;
@@ -2054,7 +2057,7 @@ class Output extends Controller
             $curve = [];
         }
 
-        system('gnuplot -c '. $this->plotFolder .'/timeBased.plot "('. $this->unit->timeSymbol() .')" "('. $this->unit->temperatureSymbol() .')" "'. $timeBasedFolder . '/' . $userName .'" "'. $idStudyEquipment .'"');
+        system('gnuplot -c '. $this->plotFolder .'/timeBased.plot "('. $this->unit->timeSymbol() .')" "('. $this->unit->temperatureSymbol() .')" "'. $timeBasedFolder . '/' . $userName .'" "'. $idStudyEquipment .'" '. $inpFile .'');
         $imageTimebased = getenv('APP_URL') . 'timeBased/' . $userName . '/' . $idStudyEquipment . '.png?time=' . time();
 
         return compact("label", "curve", "result", "imageTimebased");
@@ -2382,7 +2385,7 @@ class Output extends Controller
             }
             fclose($f);
 
-            system('gnuplot -c '. $this->plotFolder .'/contour.plot "'. $dimension .' '. $axisName[0] .'" "'. $dimension .' '. $axisName[1] .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment .'" "'. $contourFileName .'"');
+            system('gnuplot -c '. $this->plotFolder .'/contour.plot "'. $dimension .' '. $axisName[0] .'" "'. $dimension .' '. $axisName[1] .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment .'" "'. $contourFileName .'" "/tmp/contour.inp"');
 
             file_put_contents($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment . '/data.json', json_encode($dataContour));
         } else {
@@ -2489,7 +2492,7 @@ class Output extends Controller
             }
             fclose($f);
 
-            system('gnuplot -c '. $this->plotFolder .'/contour.plot "'. $dimension .' '. $axisX .'" "'. $dimension .' '. $axisY .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment .'" "'. $contourFileName .'"');
+            system('gnuplot -c '. $this->plotFolder .'/contour.plot "'. $dimension .' '. $axisX .'" "'. $dimension .' '. $axisY .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment .'" "'. $contourFileName .'" "/tmp/contour.inp"');
             file_put_contents($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment . '/data.json', json_encode($dataContour));
         }
         
@@ -2595,7 +2598,7 @@ class Output extends Controller
             }
             fclose($f);
 
-            system('gnuplot -c '. $this->plotFolder .'/contour.plot "'. $dimension .' '. $axisX .'" "'. $dimension .' '. $axisY .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment .'" "'. $contourFileName .'"');
+            system('gnuplot -c '. $this->plotFolder .'/contour.plot "'. $dimension .' '. $axisX .'" "'. $dimension .' '. $axisY .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment .'" "'. $contourFileName .'" "/tmp/contour.inp"');
         }
 
         $imageContour[] = getenv('APP_URL') . 'heatmap/' . $userName . '/' . $idStudyEquipment . '/' . $contourFileName . '.png';

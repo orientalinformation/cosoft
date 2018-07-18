@@ -1,5 +1,6 @@
 reset
-DATAFILE = '/tmp/heatExchange.inp'
+#DATAFILE = '/tmp/heatExchange.inp'
+DATAFILE = ARG6
 OUTPUT = ARG3."/".ARG4.".png"
 TITLE = ARG5
 set terminal png size 1575,700 font ",20" background rgb "white"
