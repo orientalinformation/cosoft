@@ -2360,73 +2360,70 @@ class Output extends Controller
             mkdir($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment, 0777);
         }
 
-        if ($shape < 10) {
-            //get minMax
+        //get minMax
+        $minMax = [
+            'minTempStep' => 0,
+            'maxTempStep' => -1,
+            'minTemperature' => 0,
+            'maxTemperature' => -1,
+        ];
+
+        $mmStep = MinMax::where('LIMIT_ITEM', $this->value->MINMAX_REPORT_TEMP_STEP)->first();
+        $mmBounds = MinMax::where('LIMIT_ITEM', $this->value->MINMAX_REPORT_TEMP_BOUNDS)->first();
+
+        if (!empty($mmStep) && !empty($mmBounds)) {
             $minMax = [
-                'minTempStep' => 0,
-                'maxTempStep' => -1,
-                'minTemperature' => 0,
-                'maxTemperature' => -1,
+                'minTempStep' => (int) $mmStep->LIMIT_MIN,
+                'maxTempStep' => (int) $mmStep->LIMIT_MAX,
+                'minTemperature' => (int) $mmBounds->LIMIT_MIN,
+                'maxTemperature' => (int) $mmBounds->LIMIT_MAX,
             ];
+        }
 
-            $mmStep = MinMax::where('LIMIT_ITEM', $this->value->MINMAX_REPORT_TEMP_STEP)->first();
-            $mmBounds = MinMax::where('LIMIT_ITEM', $this->value->MINMAX_REPORT_TEMP_BOUNDS)->first();
+        $calculationParameter = CalculationParameter::select('STORAGE_STEP', 'TIME_STEP')->where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
 
-            if (!empty($mmStep) && !empty($mmBounds)) {
-                $minMax = [
-                    'minTempStep' => (int) $mmStep->LIMIT_MIN,
-                    'maxTempStep' => (int) $mmStep->LIMIT_MAX,
-                    'minTemperature' => (int) $mmBounds->LIMIT_MIN,
-                    'maxTemperature' => (int) $mmBounds->LIMIT_MAX,
-                ];
-            }
+        $lfStep = $calculationParameter->STORAGE_STEP * $calculationParameter->TIME_STEP;
+        if (count($recordPosition) < 10) {
+            $lftimeInterval = $lfStep;
+        } else {
+            $lftimeInterval = $lfDwellingTime / 9.0;
+            $lftimeInterval = round($lftimeInterval / $lfStep) * $lfStep;
+        }
 
+        $lftimeInterval = $this->unit->none(round($lftimeInterval * 100.0) / 100.0);
+        $selPoints = $this->output->getSelectedMeshPoints($idStudy);
+        if (empty($selPoints)) {
+            $selPoints = $this->output->getMeshSelectionDef();
+        }
 
+        $axeTempRecordData = [];
+        $planTempRecordData = [];
+        if (!empty($selPoints)) {
+            $axeTempRecordData = [
+                [-1.0, $selPoints[9], $selPoints[10]],
+                [$selPoints[11], -1.0, $selPoints[12]],
+                [$selPoints[13], $selPoints[14], -1.0]
+            ];
+            $planTempRecordData = [
+                [$selPoints[15], 0.0, 0.0],
+                [0.0, $selPoints[16], 0.0],
+                [0.0, 0.0, $selPoints[17]]
+            ];
+        }
+
+        $valueRecAxis = [];
+        if (!empty($planTempRecordData)) {
+            $valueRecAxis = [
+                "x" => $this->unit->prodchartDimension($planTempRecordData[0][0]),
+                "y" => $this->unit->prodchartDimension($planTempRecordData[1][1]),
+                "z" => $this->unit->prodchartDimension($planTempRecordData[2][2])
+            ];
+        }
+
+        if ($shape < 10) {
             $chartTempInterval = $this->output->init2DContourTempInterval($idStudyEquipment, $lfDwellingTime, $tempInterval, $pasTemp);
             $contourFileName = $lfDwellingTime . '-' . $chartTempInterval[0] . '-' . $chartTempInterval[1] . '-' . $chartTempInterval[2];
 
-            $calculationParameter = CalculationParameter::select('STORAGE_STEP', 'TIME_STEP')->where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
-
-            $lfStep = $calculationParameter->STORAGE_STEP * $calculationParameter->TIME_STEP;
-            if (count($recordPosition) < 10) {
-                $lftimeInterval = $lfStep;
-
-            } else {
-                $lftimeInterval = $lfDwellingTime / 9.0;
-                $lftimeInterval = round($lftimeInterval / $lfStep) * $lfStep;
-            }
-
-            $lftimeInterval = $this->unit->none(round($lftimeInterval * 100.0) / 100.0);
-
-            $selPoints = $this->output->getSelectedMeshPoints($idStudy);
-            if (empty($selPoints)) {
-                $selPoints = $this->output->getMeshSelectionDef();
-            }
-
-            $axeTempRecordData = [];
-            $planTempRecordData = [];
-            if (!empty($selPoints)) {
-                $axeTempRecordData = [
-                    [-1.0, $selPoints[9], $selPoints[10]],
-                    [$selPoints[11], -1.0, $selPoints[12]],
-                    [$selPoints[13], $selPoints[14], -1.0]
-                ];
-                $planTempRecordData = [
-                    [$selPoints[15], 0.0, 0.0],
-                    [0.0, $selPoints[16], 0.0],
-                    [0.0, 0.0, $selPoints[17]]
-                ];
-            }
-
-            $valueRecAxis = [];
-            if (!empty($planTempRecordData)) {
-                $valueRecAxis = [
-                    "x" => $this->unit->prodchartDimension($planTempRecordData[0][0]),
-                    "y" => $this->unit->prodchartDimension($planTempRecordData[1][1]),
-                    "z" => $this->unit->prodchartDimension($planTempRecordData[2][2])
-                ];
-            }
-                
             $dataContour = $this->output->getGrideByPlan($idStudy, $idStudyEquipment, $lfDwellingTime, $chartTempInterval[0], $chartTempInterval[1], $planTempRecordData, $selectedPlan - 1, $shape, $orientation);
 
             $f = fopen("/tmp/contour.inp", "w");
@@ -2445,20 +2442,21 @@ class Output extends Controller
             $lastRecordTime = (int) $recordPosition[count($recordPosition) - 1]->RECORD_TIME;
             switch ($selectedPlan) {
                 case 1:
-                    $inpFileName  = 'contourX' . $lastRecordTime . '.inp';
+                    $inpFileName  = 'contour_X_' . $lastRecordTime . '.inp';
                     break;
                 
                 case 2:
-                    $inpFileName  = 'contourY' . $lastRecordTime . '.inp';
+                    $inpFileName  = 'contour_Y_' . $lastRecordTime . '.inp';
                     break;
 
                 case 3:
-                    $inpFileName  = 'contourZ' . $lastRecordTime . '.inp';
+                    $inpFileName  = 'contour_Z_' . $lastRecordTime . '.inp';
                     break;
             }
                
             $data = file_get_contents($this->plotFolder3D . '/MeshBuilder3D/' . $prodFolder . '/' . $stdeqpFolder . '/' . $inpFileName);
-            return $data;
+            // $chartTempInterval = $this->output->init2DContourTempInterval($idStudyEquipment, $lfDwellingTime, $tempInterval, $pasTemp);
+            return $valueRecAxis;
         }
     
         $dataFile = getenv('APP_URL') . 'heatmap/' . $userName . '/' . $idStudyEquipment . '/data.json';
