@@ -1,7 +1,8 @@
 reset
 
 #Get/Set arguments
-DATAFILE = '/tmp/contour.inp'
+#DATAFILE = '/tmp/contour.inp'
+DATAFILE = ARG9
 XLABLE = ARG1
 YLABLE = ARG2
 UNIT = ARG3
