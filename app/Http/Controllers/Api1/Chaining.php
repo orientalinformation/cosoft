@@ -12,11 +12,13 @@
 namespace App\Http\Controllers\Api1;
 
 use App\Http\Controllers\Controller;
-use App\Models\Equipment;
 use App\Models\Study;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\Auth\Factory as Auth;
 use App\Models\StudyEquipment;
+use App\Models\Product;
+use App\Models\ProductElmt;
+use App\Models\Equipment;
 
 class Chaining extends Controller 
 {
@@ -65,6 +67,8 @@ class Chaining extends Controller
         }
       }
 
+      array_multisort(array_column($chaining, 'ID_STUDY'), SORT_ASC, $chaining); 
+
       return $chaining;
     }
 
@@ -91,7 +95,30 @@ class Chaining extends Controller
       }
       sort($idStudies);
 
-      return $idStudies;
+      foreach ($idStudies as $idStudy) {
+        $item['ID_STUDY'] = $idStudy;
+
+        $prod = Product::where('ID_STUDY', $idStudy)->first();
+        if ($prod) {
+          $prodEmlts = ProductElmt::where('ID_PROD', $prod->ID_PROD)->get();
+          $item['imgComp'] = count($prodEmlts);
+        }
+
+        $studyEquipments = StudyEquipment::where('ID_STUDY', $idStudy)->get();
+        if (count($studyEquipments) > 0) {
+          $nameEquipments = [];
+          foreach ($studyEquipments as $sequip) {
+            $equipment = Equipment::find($sequip->ID_EQUIP);
+            $iname['name'] = $equipment->EQUIP_NAME;
+            array_push($nameEquipments, $iname);
+          }
+          $item['StudyEquipment'] = $nameEquipments;
+        }
+
+        array_push($chainings, $item);
+      }
+
+      return $chainings;
     }
 
     private function getParentChaining($idStudy, $chaining = [])
