@@ -597,6 +597,10 @@ class OutputService
                 }
 
                 break;
+
+            default:
+                $sAxe = [1, 2, 3];
+                break;
         }
 
         return $sAxe;
