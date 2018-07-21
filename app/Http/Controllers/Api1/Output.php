@@ -1900,9 +1900,12 @@ class Output extends Controller
             $lfTS = $labelArr[$nbRecord - 1];
             $lfStep = $labelArr[1] - $labelArr[0];
             $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
-            foreach ($lEchantillon as $row) {
+            /*foreach ($lEchantillon as $row) {
                 $resultLabel[] = $labelArr[$row];
-            }
+            }*/
+            $resultLabel = $labelArr;
+
+            
 
             unset($dataArr[0]);
             $listRecordPos = $dataArr;
@@ -1922,9 +1925,10 @@ class Output extends Controller
                 unset($recordPos[0]);
                 $recordPosValue = $recordPos;
                 $recordPosValue = array_values($recordPosValue);
-                foreach ($lEchantillon as $row) {
+                /*foreach ($lEchantillon as $row) {
                     $resultValue[$key][] = $recordPosValue[$row];
-                }
+                }*/
+                $resultValue[$key] = $recordPosValue;
             }
         }
 
