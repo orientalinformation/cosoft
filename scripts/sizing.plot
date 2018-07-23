@@ -1,5 +1,5 @@
 reset
-DATAFILE = '/tmp/sizing.inp'
+#DATAFILE = '/tmp/sizing.inp'
 DATAFILE = ARG7
 OUTPUT = ARG3."/".ARG4.".png"
 

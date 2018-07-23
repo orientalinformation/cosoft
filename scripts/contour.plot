@@ -61,7 +61,7 @@ set ytics out offset 0.5,0
 set cbtics LEGSTEP 
 set cbtics in scale 3.9
 set view map
-set dgrid3d 40,40 gauss
+set dgrid3d 40,40,3
 set pm3d interpolate 0,0
 #set palette model RGB
 #set palette defined ( 0 "blue", 3 "green", 6 "yellow", 10 "red" )
