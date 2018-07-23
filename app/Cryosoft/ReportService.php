@@ -1287,7 +1287,7 @@ class ReportService
         "timePositionSymbol", "prodDimensionSymbol", "meshesSymbol", "packingThicknessSymbol", 
         "shelvesWidthSymbol", "prodchartDimensionSymbol", "consumSymbol", 
         "consumMaintienSymbol", "mefSymbol", "pressureSymbol", "materialRiseSymbol", "lineDimensionSymbol");
-        // var_dump($ret);
+
         return $ret;
     }
 
