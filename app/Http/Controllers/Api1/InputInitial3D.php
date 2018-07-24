@@ -729,6 +729,7 @@ class InputInitial3D extends Controller
                     //Current version doesn't support
                     $tempRecordPts->AXIS1_PL_2_3 = -100.0;
                     //$tempRecordPts->AXIS1_PL_2_3 = 0.0;
+                    break;
                 default:
                     $percent1 = floatval($tempRecordPtsDef->AXIS1_PL_2_3_DEF);
                     $tempRecordPts->AXIS1_PL_2_3 = $dim1 / 2.0;
@@ -779,6 +780,7 @@ class InputInitial3D extends Controller
                     //Current version doesn't support
                     $tempRecordPts->AXIS2_PL_1_3 = -100.0;
                     //$tempRecordPts->AXIS2_PL_1_3 = 0.0;
+                    break;
                 default:
                     $percent1 = floatval($tempRecordPtsDef->AXIS2_PL_1_3_DEF);
                     $tempRecordPts->AXIS2_PL_1_3 = $dim3*$percent1/100.0;
