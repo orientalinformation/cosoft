@@ -97,6 +97,7 @@ class Chaining extends Controller
 
       foreach ($idStudies as $idStudy) {
         $item['ID_STUDY'] = $idStudy;
+        $item['hasSEquipment'] = 1;
 
         $prod = Product::where('ID_STUDY', $idStudy)->first();
         if ($prod) {
