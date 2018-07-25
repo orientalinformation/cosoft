@@ -2614,12 +2614,16 @@ class Output extends Controller
 
             $dataTimeStepArr = explode("\n", $dataTimeStep);
             $dataTimeStepArr = array_filter($dataTimeStepArr);
-            $lastTimeStep = $dataTimeStepArr[count($dataTimeStepArr) - 1];
-            $lastTimeStepArr = explode(';', $lastTimeStep);
-            $lastTimeStepArrMin = explode('=', $lastTimeStepArr[1]);
-            $lastTimeStepArrMax = explode('=', $lastTimeStepArr[2]);
-            $lastTimeStepArrStep = explode('=', $lastTimeStepArr[3]);
-            $chartTempInterval = [(int) $lastTimeStepArrMin[1], (int) $lastTimeStepArrMax[1], (int) $lastTimeStepArrStep[1]];
+            foreach ($dataTimeStepArr as $dataTime) {
+                $dataTimeArr = explode(';', $dataTime);
+                $dataTimeArrElmFirst = explode('=', $dataTimeArr[0]);
+                if (trim($dataTimeArrElmFirst[1]) == $lfDwellingTime) {
+                    $dataTimeArrMin = explode('=', $dataTimeArr[1]);
+                    $dataTimeArrMax = explode('=', $dataTimeArr[2]);
+                    $dataTimeArrStep = explode('=', $dataTimeArr[3]);
+                    $chartTempInterval = [(int) $dataTimeArrMin[1], (int) $dataTimeArrMax[1], (int) $dataTimeArrStep[1]];
+                }
+            }
         }
 
         $contourFileName = $lfDwellingTime . '-' . $chartTempInterval[0] . '-' . $chartTempInterval[1] . '-' . $chartTempInterval[2];
