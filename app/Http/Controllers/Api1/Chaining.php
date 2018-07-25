@@ -76,43 +76,50 @@ class Chaining extends Controller
     {
       $study = Study::findOrFail($id);
 
-      $idStudies = $chainings = [];
+      $dataStudies = $chainings = [];
 
-      array_push($idStudies, intval($id));
+      $chain['ID_STUDY'] = $study->ID_STUDY;
+      $chain['PARENT_STUD'] = $study->PARENT_STUD_EQP_ID;
+      $chain['HAS_CHILD'] = $study->HAS_CHILD;
+      array_push($dataStudies, $chain);
 
       $parents  = $this->getParentOverviewChaining($id);
       if (count($parents) > 0) {
         foreach ($parents as $parent) {
-          array_push($idStudies, $parent);
+          array_push($dataStudies, $parent);
         }
       }
 
       $childrens = $this->getChildOverviewChaining($id);
       if (count($childrens) > 0) {
         foreach ($childrens as $child) {
-          array_push($idStudies, $child);
+          array_push($dataStudies, $child);
         }
       }
-      sort($idStudies);
+      array_multisort(array_column($dataStudies, 'ID_STUDY'), SORT_ASC, $dataStudies); 
 
-      foreach ($idStudies as $idStudy) {
-        $item['ID_STUDY'] = $idStudy;
+      foreach ($dataStudies as $data) {
+        $item['ID_STUDY'] = $data['ID_STUDY'];
         $item['hasSEquipment'] = 1;
 
-        $prod = Product::where('ID_STUDY', $idStudy)->first();
+        $prod = Product::where('ID_STUDY', $data['ID_STUDY'])->first();
         if ($prod) {
           $prodEmlts = ProductElmt::where('ID_PROD', $prod->ID_PROD)->get();
           $item['imgComp'] = count($prodEmlts);
         }
 
-        $studyEquipments = StudyEquipment::where('ID_STUDY', $idStudy)->get();
+        $studyEquipments = StudyEquipment::where('ID_STUDY', $data['ID_STUDY'])->get();
+
         if (count($studyEquipments) > 0) {
           $nameEquipments = [];
           foreach ($studyEquipments as $sequip) {
+            $iname['isChaining'] = $this->checkStudyEquipment($sequip->ID_STUDY_EQUIPMENTS, $dataStudies);
+
             $equipment = Equipment::find($sequip->ID_EQUIP);
             $iname['name'] = $equipment->EQUIP_NAME;
             array_push($nameEquipments, $iname);
           }
+
           $item['StudyEquipment'] = $nameEquipments;
         }
 
@@ -145,8 +152,10 @@ class Chaining extends Controller
       $parent = null;
       if ($study->PARENT_ID != 0) {
         $parent = Study::findOrFail($study->PARENT_ID);
-
-        array_push($chaining, $parent->ID_STUDY);
+        $chain['ID_STUDY'] = $parent->ID_STUDY;
+        $chain['PARENT_STUD'] = $parent->PARENT_STUD_EQP_ID;
+        $chain['HAS_CHILD'] = $parent->HAS_CHILD;
+        array_push($chaining, $chain);
 
         $chaining = $this->getParentOverviewChaining($study->PARENT_ID, $chaining);
       }
@@ -180,11 +189,24 @@ class Chaining extends Controller
       if ($study->HAS_CHILD != 0) {
           $children = Study::where('PARENT_ID', $study->ID_STUDY)->first();
           if (count($children) > 0) {
-              array_push($chaining, $children->ID_STUDY);
+              $chain['ID_STUDY'] = $children->ID_STUDY;
+              $chain['PARENT_STUD'] = $children->PARENT_STUD_EQP_ID;
+              $chain['HAS_CHILD'] = $children->HAS_CHILD;
+              array_push($chaining, $chain);
 
               $chaining = $this->getChildOverviewChaining($children->ID_STUDY, $chaining);
           }
       }
       return $chaining;
+    }
+
+    private function checkStudyEquipment($idStudyEquipment, $dataStudies)
+    {
+      foreach ($dataStudies as $data) {
+        if ((intval($data['PARENT_STUD']) == intval($idStudyEquipment)) && ($data['HAS_CHILD'] != 0)) {
+          return 1;
+        } 
+      }
+      return 0;
     }
 }
