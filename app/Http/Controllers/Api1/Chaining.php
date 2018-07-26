@@ -137,7 +137,7 @@ class Chaining extends Controller
 
           $item['StudyEquipment'] = $nameEquipments;
         } else {
-          $item['StudyEquipment'] = [];
+          $item['StudyEquipment'] = null;
         }
 
         array_push($chainings, $item);
