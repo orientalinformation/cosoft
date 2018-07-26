@@ -105,7 +105,22 @@ class Chaining extends Controller
         $prod = Product::where('ID_STUDY', $data['ID_STUDY'])->first();
         if ($prod) {
           $prodEmlts = ProductElmt::where('ID_PROD', $prod->ID_PROD)->get();
-          $item['imgComp'] = count($prodEmlts);
+
+          $shape =  $prod->productElmts->first()->ID_SHAPE;
+          switch ($shape) {
+            case 6:
+            case 14:
+              $item['shape'] = 'sphere';
+              break;
+            case 9:
+            case 17:
+              $item['shape'] = 'bread';
+              break;
+            default:
+              $item['shape'] = 'layers';
+              break;
+          }
+          $item['layer'] = count($prodEmlts);
         }
 
         $studyEquipments = StudyEquipment::where('ID_STUDY', $data['ID_STUDY'])->get();
