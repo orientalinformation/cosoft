@@ -94,6 +94,7 @@ class ReportService
         $this->output = $app['App\\Cryosoft\\OutputService'];
         $this->plotFolder = $this->output->base_path('scripts');
         $this->pasTemp = -1.0;
+        $this->plotFolder3D = $this->output->public_path('3d');
 	}
 
     public function getParentIdChaining($idStudy, $arrStudyId = [])
@@ -2095,34 +2096,55 @@ class ReportService
     public function initReportTempInterval($idStudyEquipment, $recordTime, $tempInterval, $pasTemp)
     {
         $tempResult = [];
-        $result = '';
+        $result = [];
 
-        if ($recordTime < 0) {
-            $tempRecordDataMin = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->orderBy('TEMP', 'ASC')->first();
-            $tempRecordDataMax = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->orderBy('TEMP', 'DESC')->first();
-            $tempResult = [$tempRecordDataMin->TEMP, $tempRecordDataMax->TEMP];
-        } else {
-            $tempRecordDataMin = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->where('RECORD_TIME', $recordTime)->orderBy('TEMP', 'ASC')->first();
-            $tempRecordDataMax = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->where('RECORD_TIME', $recordTime)->orderBy('TEMP', 'DESC')->first();
-            $tempResult = [$tempRecordDataMin->TEMP, $tempRecordDataMax->TEMP];
-        }
+        $studyEquipment = StudyEquipment::find($idStudyEquipment);
+        $productElmt = ProductElmt::where('ID_STUDY', $studyEquipment->ID_STUDY)->first();
+        $shape = $productElmt->SHAPECODE;
 
-        $bornesTemp = [];
-        if (!empty($tempResult)) {
-            if ($tempInterval[0] >= $tempInterval[1]) {
-                $tempInterval[0] = $tempResult[0];
-                $tempInterval[1] = $tempResult[1];
+        if ($shape < 10) {
+            if ($recordTime < 0) {
+                $tempRecordDataMin = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->orderBy('TEMP', 'ASC')->first();
+                $tempRecordDataMax = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->orderBy('TEMP', 'DESC')->first();
+                $tempResult = [$tempRecordDataMin->TEMP, $tempRecordDataMax->TEMP];
             } else {
-                if ($tempInterval[0] > $tempResult[0]) {
-                    $tempInterval[0] = $tempResult[0];
-                }
-                if ($tempInterval[1] < $tempResult[1]) {
-                    $tempInterval[1] = $tempResult[1];
-                }
+                $tempRecordDataMin = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->where('RECORD_TIME', $recordTime)->orderBy('TEMP', 'ASC')->first();
+                $tempRecordDataMax = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->where('RECORD_TIME', $recordTime)->orderBy('TEMP', 'DESC')->first();
+                $tempResult = [$tempRecordDataMin->TEMP, $tempRecordDataMax->TEMP];
             }
-            $bornesTemp = [$this->unit->prodTemperature($tempInterval[0], ['save' => true]), $this->unit->prodTemperature($tempInterval[1], ['save' => true])];
 
-            $result = $this->calculatePasTemp($bornesTemp[0], $bornesTemp[1], false, $pasTemp);
+            $bornesTemp = [];
+            if (!empty($tempResult)) {
+                if ($tempInterval[0] >= $tempInterval[1]) {
+                    $tempInterval[0] = $tempResult[0];
+                    $tempInterval[1] = $tempResult[1];
+                } else {
+                    if ($tempInterval[0] > $tempResult[0]) {
+                        $tempInterval[0] = $tempResult[0];
+                    }
+                    if ($tempInterval[1] < $tempResult[1]) {
+                        $tempInterval[1] = $tempResult[1];
+                    }
+                }
+                $bornesTemp = [$this->unit->prodTemperature($tempInterval[0], ['save' => true]), $this->unit->prodTemperature($tempInterval[1], ['save' => true])];
+
+                $result = $this->calculatePasTemp($bornesTemp[0], $bornesTemp[1], false, $pasTemp);
+            }
+        } else {
+           $prodFolder = 'Prod_' . $studyEquipment->study->ID_PROD;
+           $stdeqpFolder = 'Equipment' . $idStudyEquipment;
+           $timeStepFileName = 'contourParam_Z.inp';
+
+           $dataTimeStep = file_get_contents($this->plotFolder3D . '/MeshBuilder3D/' . $prodFolder . '/' . $stdeqpFolder . '/' . $timeStepFileName);
+
+            $dataTimeStepArr = explode("\n", $dataTimeStep);
+            $dataTimeStepArr = array_filter($dataTimeStepArr);
+            $lastTimeStep = $dataTimeStepArr[count($dataTimeStepArr) - 1];
+            $lastTimeStepArr = explode(';', $lastTimeStep);
+            $lastTimeStepArrMin = explode('=', $lastTimeStepArr[1]);
+            $lastTimeStepArrMax = explode('=', $lastTimeStepArr[2]);
+            $lastTimeStepArrStep = explode('=', $lastTimeStepArr[3]);
+            $result = [(int) $lastTimeStepArrMin[1], (int) $lastTimeStepArrMax[1], (int) $lastTimeStepArrStep[1]];
         }
 
         return $result;
