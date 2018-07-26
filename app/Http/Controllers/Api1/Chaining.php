@@ -126,7 +126,7 @@ class Chaining extends Controller
         $studyEquipments = StudyEquipment::where('ID_STUDY', $data['ID_STUDY'])->get();
 
         if (count($studyEquipments) > 0) {
-          $nameEquipments = [];
+          $nameEquipments = $iname = [];
           foreach ($studyEquipments as $sequip) {
             $iname['isChaining'] = $this->checkStudyEquipment($sequip->ID_STUDY_EQUIPMENTS, $dataStudies);
 
@@ -136,6 +136,8 @@ class Chaining extends Controller
           }
 
           $item['StudyEquipment'] = $nameEquipments;
+        } else {
+          $item['StudyEquipment'] = [];
         }
 
         array_push($chainings, $item);
