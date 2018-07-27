@@ -454,3 +454,4 @@ include_once("api_dongtp.php");
 include_once("api_thaolt.php");
 include_once("api_huytd.php");
 include_once("api_haidt.php");
+include_once("api_chaining.php");
