@@ -134,7 +134,10 @@ class Studies extends Controller
 
         $mine = '';
         if ($idUser == 0 || $idUser == $this->auth->user()->ID_USER) {
-            $mine = Study::distinct()->where('ID_USER', $this->auth->user()->ID_USER)->orderBy('STUDY_NAME')->get();
+            $mine = Study::distinct()
+            ->where('ID_USER', $this->auth->user()->ID_USER)
+            ->where('PARENT_ID', 0)
+            ->orderBy('STUDY_NAME')->get();
         }
         
         $others = $this->study->getFilteredStudiesList($idUser, $compfamily, $subfamily, $component);

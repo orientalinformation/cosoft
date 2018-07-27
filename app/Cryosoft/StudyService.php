@@ -144,17 +144,20 @@ class StudyService
                 if ($idCompFamily > 0) {
                     $querys->where('component.CLASS_TYPE', $idCompFamily);
                 }
+                
                 if ($idCompSubFamily > 0) {
                     $querys->where('component.SUB_FAMILY', $idCompSubFamily);
                 }
             }
-        }   
+        }
+
         if ($idUser > 0) {
             $querys->where('studies.ID_USER', $idUser);
         } else {
             $querys->where('studies.ID_USER', '!=', $this->auth->user()->ID_USER);  
         }
 
+        $querys->where('PARENT_ID', 0);
         $querys->orderBy('studies.STUDY_NAME');
 
         return $querys->get();
