@@ -984,7 +984,10 @@ class Studies extends Controller
 
     public function recentStudies()
     {
-        $studies = Study::where('ID_USER',$this->auth->user()->ID_USER)->orderBy('ID_STUDY', 'desc')->take(5)->get();
+        $studies = Study::where('ID_USER', $this->auth->user()->ID_USER)
+        ->where('PARENT_ID', '=', 0)
+        ->orderBy('ID_STUDY', 'desc')->take(5)->get();
+
         return $studies;
     }
 
@@ -994,14 +997,14 @@ class Studies extends Controller
         $limitItem = 0;
         $defaultPrecis = 0.005;
         $FirstItemMonoComp = [
-            0,1151 ,1161 ,1171 ,1181 ,1191 ,1201 ,1211 ,1221 , 1231, 
+            0, 1151, 1161, 1171, 1181, 1191, 1201, 1211, 1221, 1231, 
             #3D case precision.
-            1151 ,1161 ,1171 ,1181 ,1191 ,1201 ,1211 ,1221 , 1231, 1171, 1181, 1201 ,1211, 1171
+            1151, 1161, 1171, 1181, 1191, 1201, 1211, 1221, 1231, 1171, 1181, 1201, 1211, 1171
         ];
         $FirstItemMultiComp = [
-            0,1156 ,1166 ,1176 ,1186 ,1196 ,1206 ,1216 ,1226 , 1236,
+            0, 1156, 1166, 1176, 1186, 1196, 1206, 1216, 1226, 1236,
             #3D case precision.
-            1156 ,1166 ,1176 ,1186 ,1196 ,1206 ,1216 ,1226 , 1236, 1176 ,1186 , 1206 ,1216, 1176
+            1156, 1166, 1176, 1186, 1196, 1206, 1216, 1226, 1236, 1176, 1186, 1206, 1216, 1176
         ];
 
         switch ($productshape) {
