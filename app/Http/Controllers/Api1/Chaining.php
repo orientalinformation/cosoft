@@ -135,6 +135,8 @@ class Chaining extends Controller
             array_push($nameEquipments, $iname);
           }
 
+          array_multisort(array_column($nameEquipments, 'isChaining'), SORT_DESC, $nameEquipments); 
+
           $item['StudyEquipment'] = $nameEquipments;
         } else {
           $item['StudyEquipment'] = null;
@@ -220,7 +222,7 @@ class Chaining extends Controller
     private function checkStudyEquipment($idStudyEquipment, $dataStudies)
     {
       foreach ($dataStudies as $data) {
-        if ((intval($data['PARENT_STUD']) == intval($idStudyEquipment)) && ($data['HAS_CHILD'] != 0)) {
+        if ((intval($data['PARENT_STUD']) == intval($idStudyEquipment))) {
           return 1;
         } 
       }
