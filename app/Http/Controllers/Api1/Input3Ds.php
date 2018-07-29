@@ -42,7 +42,6 @@ class Input3Ds extends Controller
         $this->units = $app['App\\Cryosoft\\UnitsService'];
         $this->values = $app['App\\Cryosoft\\ValueListService'];
         $this->converts = $app['App\\Cryosoft\\UnitsConverterService'];
-
     }
 
     public function getMesh3DInfo($idProd)

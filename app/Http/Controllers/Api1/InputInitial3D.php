@@ -133,7 +133,6 @@ class InputInitial3D extends Controller
                     case CYLINDER_LAYING_3D:
                     case SEMI_CYLINDER_3D:
 
-
                         if($key == 0) {
                             $dim1 = $elmt->SHAPE_PARAM1;
                             $dim3 = $elmt->SHAPE_PARAM1;

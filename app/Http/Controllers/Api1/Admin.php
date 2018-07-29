@@ -250,9 +250,9 @@ class Admin extends Controller
         }
         $user = User::find($idUser);
 
-        if(!$user){
+        if(!$user) {
             return -1;
-        }else{
+        } else{
             if (isset($input['username'])) $user->USERNAM = $username;
             if (isset($input['password'])) $user->USERPASS = $hashPassword;
             if ($user->USERMAIL === '' || $user->USERMAIL === null) {
