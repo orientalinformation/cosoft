@@ -192,13 +192,12 @@ class Admin extends Controller
     {
         $user = User::where('USERNAM', 'KERNEL')->first();
         $defaultProds = ProdcharColorsDef::where('ID_USER', $user->ID_USER)->get();
-        for ($i = 0; $i < count($defaultProds) ; $i++) {
+        for ($i = 0; $i < count($defaultProds); $i++) {
             $prodcharColorsDef = new ProdcharColorsDef();
             $prodcharColorsDef->ID_USER = $newIdUser;
             $prodcharColorsDef->ID_COLOR = $defaultProds[$i]->ID_COLOR;
             $prodcharColorsDef->LAYER_ORDER = $defaultProds[$i]->LAYER_ORDER;
             $prodcharColorsDef->save();
-
         }
     }
 
@@ -206,7 +205,7 @@ class Admin extends Controller
     {
         $user = User::where('USERNAM', 'KERNEL')->first();
         $defaultUnits = UserUnit::where('ID_USER', $user->ID_USER)->get();
-        for ($i = 0; $i < count($defaultUnits) ; $i++) { 
+        for ($i = 0; $i < count($defaultUnits); $i++) { 
             $userUnit = new UserUnit();
             $userUnit->ID_USER = $newIdUser;
             $userUnit->ID_UNIT = $defaultUnits[$i]->ID_UNIT;
@@ -218,9 +217,9 @@ class Admin extends Controller
     {
         $user = User::find($idUser);
 
-        if(!$user) {
+        if (!$user) {
             return -1;
-        }else{
+        } else {
             UserUnit::where('ID_USER', $user->ID_USER)->delete();
             CalculationParametersDef::where('ID_USER', $user->ID_USER)->delete();
             TempRecordPtsDef::where('ID_USER', $user->ID_USER)->delete();
@@ -250,7 +249,7 @@ class Admin extends Controller
         }
         $user = User::find($idUser);
 
-        if(!$user) {
+        if (!$user) {
             return -1;
         } else{
             if (isset($input['username'])) $user->USERNAM = $username;

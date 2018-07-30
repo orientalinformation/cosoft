@@ -24,7 +24,6 @@ class ProductService
         $this->convert = app('App\\Cryosoft\\UnitsService');
         $this->studies = app('App\\Cryosoft\\StudyService');
         $this->stdeqp = app('App\\Cryosoft\\StudyEquipmentService');
-
     }
 
     public function getAllCompFamily()
@@ -198,7 +197,9 @@ class ProductService
     // search mesh order for one elment on an axis
     public function searchNbPtforElmt(ProductElmt &$elmt, $axe = 2)
     {
-        $mshPsts = MeshPosition::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->where('MESH_AXIS', $axe)->orderBy('MESH_ORDER')->get();
+        $mshPsts = MeshPosition::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)
+                                ->where('MESH_AXIS', $axe)
+                                ->orderBy('MESH_ORDER')->get();
         $points = [];
         $positions = [];
         foreach ($mshPsts as $mshPst) {
@@ -215,8 +216,9 @@ class ProductService
         $idProduction = $study->productions->first()->ID_PRODUCTION;
         $product = $study->products->first();
         
-        $listOfElmtId = ProductElmt::where('ID_PROD', $product->ID_PROD)->where('INSERT_LINE_ORDER', '!=', $study->ID_STUDY)
-            ->pluck('ID_PRODUCT_ELMT')->toArray();
+        $listOfElmtId = ProductElmt::where('ID_PROD', $product->ID_PROD)
+                                    ->where('INSERT_LINE_ORDER', '!=', $study->ID_STUDY)
+                                    ->pluck('ID_PRODUCT_ELMT')->toArray();
         
         if (!count($listOfElmtId)>0) {
             return null;
