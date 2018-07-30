@@ -184,7 +184,7 @@
         </div>
         <?php } ?>
 
-        <?php if ($arrayParam['params']['PROD_LIST'] == 1) { ?>
+        <?php if ($arrayParam['params']['PROD_LIST'] == 1 && $arrayParam['shapeCode'] < 10) { ?>
         <div class="block-title">Product Data</div>
         <h5 class="bold">Composition of the product and its components</h5>
         <div class="pro-data">
@@ -943,12 +943,12 @@
                                 <th class="text-center">T° at <?php echo $resproSections['resultLabel'][$index] . $resproSections['timeSymbol'] . "(" . $resproSections['temperatureSymbol'] . ")" ?></th>
                             <?php }?>
                         </tr>
-                        <?php foreach ($resproSections['result']['recAxis'] as $key=> $node) {?>
+                        <?php foreach ($resproSections['result']['resultValue'] as $key => $node) {?>
                         <tr>
                             <td class="text-center"> <?php echo $key?></td>
-                            <td class="text-center"> <?php echo $resproSections['dataChart'][0][$key]['y']?></td>
-                            <?php foreach ($resproSections['dataChart'] as $index => $dbchart) { ?>
-                            <td class="text-center"> <?php echo $resproSections['dataChart'][$index][$key]['x'] ?></td>
+                            <td class="text-center"> <?php echo $resproSections['result']['mesAxis'][$key]?></td>
+                            <?php foreach ($node as $index => $dbchart) { ?>
+                            <td class="text-center"> <?php echo $dbchart ?></td>
                             <?php }?>
                         </tr>
                         <?php }?>

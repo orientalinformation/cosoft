@@ -961,10 +961,33 @@ class Reports extends Controller
                             $progress .= "\nContour";
                             $this->writeProgressFile($progressFile, $progress);
                         }
+
+                        break;
+
+                    default:
+                        if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
+                            $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                            $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                            $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                            $progress .= "\nProduct Section";
+                            $this->writeProgressFile($progressFile, $progress);
+                        }
+
+                        if ($CONTOUR2D_G == 1) {
+                            $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
+                            $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
+                            $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
+                            $progress .= "\nContour";
+                            $this->writeProgressFile($progressFile, $progress);
+                        }
+
                         break;
                 }
             } 
         }
+
+        // return $proSections;
+        // var_dump($proSections);die;
         
         $progress .= "\nFINISH";
 
@@ -1196,7 +1219,7 @@ class Reports extends Controller
             }
         }
         
-        if ($PROD_LIST == 1) {
+        if ($PROD_LIST == 1 && $shapeCode < 10) {
             PDF::SetFont('helvetica', 'B', 16);
             PDF::Bookmark('PRODUCT DATA', 0, 0, '', 'B', array(0,64,128));
             PDF::SetFillColor(38, 142, 226);
@@ -2174,16 +2197,16 @@ class Reports extends Controller
                                     <tr>
                                         <th align="center">Node number</th>
                                         <th align="center">Position Axis 1  ( '. $resproSections['prodchartDimensionSymbol'] .' ) </th>';
-                                        foreach ($resproSections['resultLabel'] as $index => $labelTemp) { 
-                                            $html .='<th align="center">T° at '. $resproSections['resultLabel'][$index] .' '. $resproSections['timeSymbol'] .' ( '. $resproSections['temperatureSymbol'] .' ) </th>';
+                                        foreach ($resproSections['resultLabel'] as $labelTemp) { 
+                                            $html .='<th align="center">T° at '. $labelTemp .' '. $resproSections['timeSymbol'] .' ( '. $resproSections['temperatureSymbol'] .' ) </th>';
                                         }
                                         $html .='</tr>';
-                                    foreach ($resproSections['result']['recAxis'] as $key=> $node) {
+                                    foreach ($resproSections['result']['resultValue'] as $key=> $node) {
                                     $html .='<tr>
                                         <td align="center"> '. $key .'</td>
-                                        <td align="center"> '. $resproSections['dataChart'][0][$key]['y'] .'</td>';
-                                        foreach ($resproSections['dataChart'] as $index => $dbchart) { 
-                                            $html .='<td align="center"> '. $resproSections['dataChart'][$index][$key]['x'] .' </td>';
+                                        <td align="center"> '. $resproSections['result']['mesAxis'][$key] .'</td>';
+                                        foreach ($node as $dbchart) { 
+                                            $html .='<td align="center"> '. $dbchart .' </td>';
                                         }
                                     $html .='</tr>';
                                     }
@@ -2478,6 +2501,7 @@ class Reports extends Controller
         
         $progress = "";
         $production = Production::Where('ID_STUDY', $id)->first();
+
         if ($REP_CUSTOMER == 1) {
             $progress .= "Production";
             $this->writeProgressFile($progressFile, $progress);
@@ -2485,6 +2509,7 @@ class Reports extends Controller
         
         $product = Product::Where('ID_STUDY', $id)->first();
         $products = ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2', 'DESC')->get();
+
 
         $specificDimension = 0.0;
         $count = count($products);
@@ -2573,6 +2598,7 @@ class Reports extends Controller
             $progress .= "\nProduct";
             $this->writeProgressFile($progressFile, $progress);
         }
+
         
         $equipData = $this->stdeqp->findStudyEquipmentsByStudy($study);
         if (count($equipData) > 0) {
@@ -2598,7 +2624,9 @@ class Reports extends Controller
         }
         
         $consumptions = $this->reportserv->getAnalyticalConsumption($study->ID_STUDY);
+        $economic = [];        
         $economic = $this->reportserv->getAnalyticalEconomic($study->ID_STUDY);
+
         if ($CONS_OVERALL == 1 || $CONS_TOTAL ==1 || $CONS_SPECIFIC  == 1 || $CONS_HOUR ==1 || $CONS_DAY == 1||
             $CONS_WEEK == 1 || $CONS_MONTH == 1 || $CONS_YEAR ==1 || $CONS_EQUIP ==1 || $CONS_PIPE == 1 || $CONS_TANK ==1) {
             $progress .= "\nConsumptions Results";
@@ -2628,7 +2656,7 @@ class Reports extends Controller
         $pro2Dchart = [];
         $heatexchange = [];
         $timeBase = [];
-        
+     
         foreach ($study->studyEquipments as $key=> $idstudyequips) {
             if ($idstudyequips->BRAIN_TYPE == 4) {
                 if ($ENTHALPY_V == 1 || $ENTHALPY_G == 1) {
@@ -2746,6 +2774,25 @@ class Reports extends Controller
                             $this->writeProgressFile($progressFile, $progress);
                         }
                         break;
+
+                    default:
+                        if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
+                            $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                            $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                            $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                            $progress .= "\nProduct Section";
+                            $this->writeProgressFile($progressFile, $progress);
+                        }
+
+                        if ($CONTOUR2D_G == 1) {
+                            $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
+                            $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
+                            $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
+                            $progress .= "\nContour";
+                            $this->writeProgressFile($progressFile, $progress);
+                        }
+
+                        break;
                 }
             } 
         }
@@ -2754,13 +2801,14 @@ class Reports extends Controller
         $this->writeProgressFile($progressFile, $progress);
 
         $chainingStudies = $this->reportserv->getChainingStudy($id);
+
         
         $myfile = fopen( $public_path. "/reports/" . "/" . $study->USERNAM."/" . $name_report, "w") or die("Unable to open file!");
         $html = $this->viewHtml($study ,$production, $product, $proElmt, $shapeName, 
         $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
         $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase, 
         $symbol, $host, $pro2Dchart, $params, $shapeCode, $economic, $stuNameLayout, $specificDimension, $chainingStudies);
-        // file_put_contents("/home/huytd/adasd", $economic);
+        // file_put_contents("/home/ngonc/report", implode(' ', $proSections));
         fwrite($myfile, $html);
         fclose($myfile);
         $url = ["url" => $host . "reports/$study->USERNAM/$name_report"];
