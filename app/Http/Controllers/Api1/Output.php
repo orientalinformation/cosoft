@@ -1661,6 +1661,7 @@ class Output extends Controller
         if (!is_dir($productSectionFolder)) {
             mkdir($productSectionFolder, 0777);
         }
+
         if (!is_dir($productSectionFolder . '/' . $userName)) {
             mkdir($productSectionFolder . '/' . $userName, 0777);
         }
@@ -1701,7 +1702,6 @@ class Output extends Controller
         $resultTemperature = [];
 
         if ($shape < 10) {
-
             $listRecordPos = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("RECORD_TIME", "ASC")->get();
             $nbSteps = TempRecordPts::where("ID_STUDY", $idStudy)->first();
             $nbSample = $nbSteps->NB_STEPS;
@@ -1956,6 +1956,7 @@ class Output extends Controller
         if (!is_dir($timeBasedFolder)) {
             mkdir($timeBasedFolder, 0777);
         }
+
         if (!is_dir($timeBasedFolder . '/' . $userName)) {
             mkdir($timeBasedFolder . '/' . $userName, 0777);
         }
@@ -2340,7 +2341,7 @@ class Output extends Controller
         $pasTemp = -1.0;
         $tempInterval = [0.0, 0.0];
 
-        // get TimeInterva
+        // get TimeInterval
         $recordPosition = RecordPosition::select('RECORD_TIME')->where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("RECORD_TIME", "ASC")->get();
         $lfDwellingTime = $this->unit->time($recordPosition[count($recordPosition) - 1]->RECORD_TIME);
         $axisName = $this->output->getAxisName($shape, $orientation, $selectedPlan);
@@ -2351,12 +2352,15 @@ class Output extends Controller
         if (!is_dir($heatmapFolder)) {
             mkdir($heatmapFolder, 0777);
         }
+
         if (!is_dir($heatmapFolder . '/' . $userName)) {
             mkdir($heatmapFolder . '/' . $userName, 0777);
         }
+
         if (!is_dir($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment)) {
             mkdir($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment, 0777);
         }
+
         if (!is_dir($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment)) {
             mkdir($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment, 0777);
         }
@@ -2382,7 +2386,6 @@ class Output extends Controller
         }
 
         $calculationParameter = CalculationParameter::select('STORAGE_STEP', 'TIME_STEP')->where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
-
         $lfStep = $calculationParameter->STORAGE_STEP * $calculationParameter->TIME_STEP;
         if (count($recordPosition) < 10) {
             $lftimeInterval = $lfStep;
