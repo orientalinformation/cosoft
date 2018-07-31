@@ -985,9 +985,6 @@ class Reports extends Controller
                 }
             } 
         }
-
-        // return $proSections;
-        // var_dump($proSections);die;
         
         $progress .= "\nFINISH";
 
@@ -999,7 +996,6 @@ class Reports extends Controller
             $baseName = $customPathInfo['basename'];
             $customerNameUrl = $public_path . '/uploads/' . $baseName;
         }
-
 
         $chainingStudies = $this->reportserv->getChainingStudy($id);
         
@@ -2197,16 +2193,20 @@ class Reports extends Controller
                                     <tr>
                                         <th align="center">Node number</th>
                                         <th align="center">Position Axis 1  ( '. $resproSections['prodchartDimensionSymbol'] .' ) </th>';
+                                        $i = 0;
                                         foreach ($resproSections['resultLabel'] as $labelTemp) { 
-                                            $html .='<th align="center">T° at '. $labelTemp .' '. $resproSections['timeSymbol'] .' ( '. $resproSections['temperatureSymbol'] .' ) </th>';
+                                            if ($i < 20) $html .='<th align="center">T° at '. $labelTemp .' '. $resproSections['timeSymbol'] .' ( '. $resproSections['temperatureSymbol'] .' ) </th>';
+                                            $i++;
                                         }
                                         $html .='</tr>';
                                     foreach ($resproSections['result']['resultValue'] as $key=> $node) {
                                     $html .='<tr>
                                         <td align="center"> '. $key .'</td>
                                         <td align="center"> '. $resproSections['result']['mesAxis'][$key] .'</td>';
+                                        $i = 0;
                                         foreach ($node as $dbchart) { 
-                                            $html .='<td align="center"> '. $dbchart .' </td>';
+                                            if ($i < 20) $html .='<td align="center"> '. $dbchart .' </td>';
+                                            $i++;
                                         }
                                     $html .='</tr>';
                                     }
@@ -2808,7 +2808,6 @@ class Reports extends Controller
         $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
         $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase, 
         $symbol, $host, $pro2Dchart, $params, $shapeCode, $economic, $stuNameLayout, $specificDimension, $chainingStudies);
-        // file_put_contents("/home/ngonc/report", implode(' ', $proSections));
         fwrite($myfile, $html);
         fclose($myfile);
         $url = ["url" => $host . "reports/$study->USERNAM/$name_report"];

@@ -1224,7 +1224,6 @@ class ReportService
         $result["recAxis"] = $recAxis;
         $result["mesAxis"] = $mesAxis;
         $result["resultValue"] = $resultValue;
-        // file_put_contents("/home/ngonc/reportValue", $resultValue);
 
         return compact("equipName", "axeTemp", "dataChart", "resultLabel",
          "result", "selectedAxe", "timeSymbol", "temperatureSymbol", "prodchartDimensionSymbol",
