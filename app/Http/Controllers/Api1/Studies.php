@@ -300,6 +300,9 @@ class Studies extends Controller
 
     public function saveStudyAs($id)
     {
+        $input = $this->request->all();
+        $studyCurrent = Study::find($id);
+
         $study = new Study();
         $temprecordpst = new TempRecordPts();
         $production = new Production();
@@ -310,37 +313,24 @@ class Studies extends Controller
         $precalcLdgRatePrm = new PrecalcLdgRatePrm();
         $packing = new Packing();
         
-        // @class: \App\Models\Study
-        $studyCurrent = Study::find($id);
-        $input = $this->request->all();
-        
         $duplicateStudy = Study::where('STUDY_NAME', '=', $input['name'])->count();
-        if($duplicateStudy){
-
+        if ($duplicateStudy) {
             return response([
                 'code' => 1002,
                 'message' => 'This study name already exists, please try another one.'
             ], 406);
         }
         
-        if($studyCurrent != null) {
-
-            // @class: \App\Models\TempRecordPts
+        if ($studyCurrent) {
             $temprecordpstCurr = TempRecordPts::where('ID_STUDY',$studyCurrent->ID_STUDY)->first();
-            // @class: \App\Models\Production
             $productionCurr = Production::where('ID_STUDY',$studyCurrent->ID_STUDY)->first(); 
-            // @class: \App\Models\Product
             $productCurr = Product::where('ID_STUDY',$studyCurrent->ID_STUDY)->first();
             $mesh3D_info = Mesh3DInfo::where('ID_PROD',$productCurr->ID_PROD)->first();
-            // @class: \App\Models\Price
+
             $priceCurr = Price::where('ID_STUDY',$studyCurrent->ID_STUDY)->first(); 
-            // @class: \App\Models\Price
             $reportCurr = Report::where('ID_STUDY',$studyCurrent->ID_STUDY)->first(); 
-            // @class: \App\Models\PrecalcLdgRatePrm
             $precalcLdgRatePrmCurr = PrecalcLdgRatePrm::where('ID_STUDY',$studyCurrent->ID_STUDY)->first();
-            // @class: \App\Models\Packing
             $packingCurr = Packing::where('ID_STUDY',$studyCurrent->ID_STUDY)->first(); 
-            // @class: \App\Models\StudyEquipment
             $studyemtlCurr = StudyEquipment::where('ID_STUDY',$studyCurrent->ID_STUDY)->get(); 
 
             if (!empty($input['name']) || ($study->STUDY_NAME  != null)) {
@@ -351,7 +341,9 @@ class Studies extends Controller
                 unset($study->ID_USER);
                 $study->ID_USER = $this->auth->user()->ID_USER;
                 $study->STUDY_NAME = $input['name'];
-                $study->COMMENT_TXT = $studyCurrent->COMMENT_TXT .'</br>'. 'Created on ' . date("D M j G:i:s T Y") . ' by ' . $this->auth->user()->USERNAM;
+
+                $date = date("D M j G:i:s T Y") . ' by ' . $this->auth->user()->USERNAM;
+                $study->COMMENT_TXT = $studyCurrent->COMMENT_TXT .'</br>'. 'Created on ' . $date;
                 $study->save();
 
                 //duplicate TempRecordPts already exsits
@@ -364,8 +356,7 @@ class Studies extends Controller
                 }
 
                 //duplicate Production already exsits
-                if (count($productionCurr)>0) {
-
+                if (count($productionCurr) > 0) {
                     $production = $productionCurr->replicate();
                     $production->ID_STUDY = $study->ID_STUDY;
                     unset($production->ID_PRODUCTION);
@@ -378,15 +369,13 @@ class Studies extends Controller
                 
 
                 //duplicate Product already exsits
-                if ((count($productCurr)>0)) {
+                if ((count($productCurr) > 0)) {
                     $product = $productCurr->replicate();
                     $product->ID_STUDY = $study->ID_STUDY;
                     unset($product->ID_PROD);
                     $product->save();
 
-                    // @class: \App\Models\MeshGeneration
                     $meshgenerationCurr = MeshGeneration::where('ID_PROD',$productCurr->ID_PROD)->first(); 
-                    // @class: \App\Models\ProductEmlt
                     $productemltCurr = ProductElmt::where('ID_PROD',$productCurr->ID_PROD)->get(); 
                     //duplicate MeshGeneration already exsits
                     if (count($meshgenerationCurr) > 0) {
@@ -396,7 +385,8 @@ class Studies extends Controller
                         $meshgeneration->save();
                         $product->ID_MESH_GENERATION = $meshgeneration->ID_MESH_GENERATION;
                         $product->save();
-                    } 
+                    }
+
                     if (count($mesh3D_info) > 0) {
                         $mesh3D_new = new Mesh3DInfo();
                         $mesh3D_new = $mesh3D_info->replicate();
@@ -469,8 +459,8 @@ class Studies extends Controller
                     $packing->ID_STUDY = $study->ID_STUDY;
                     unset($packing->ID_PACKING);
                     $packing->save();
-                    // @class: \App\Models\PackingLayer
-                    $packingLayerCurr = PackingLayer::where('ID_PACKING',$packingCurr->ID_PACKING)->get(); 
+     
+                    $packingLayerCurr = PackingLayer::where('ID_PACKING', $packingCurr->ID_PACKING)->get(); 
                     if (count($packingLayerCurr) > 0) {
                         foreach ($packingLayerCurr as $pLayer) {
                             $packingLayer = new PackingLayer();
@@ -489,10 +479,12 @@ class Studies extends Controller
                         $studyelmt->ID_STUDY = $study->ID_STUDY;
                         $studyelmt->BRAIN_TYPE = 0;
                         unset($studyelmt->ID_STUDY_EQUIPMENTS);
+
                         if ($studyelmt->save()) {
                             $studyelmtId = $studyelmt->ID_STUDY_EQUIPMENTS;
                             $pipegen = new PipeGen();
-                            $pipegenCurr = PipeGen::where('ID_STUDY_EQUIPMENTS',$stuElmt->ID_STUDY_EQUIPMENTS)->first();
+                            $pipegenCurr = PipeGen::where('ID_STUDY_EQUIPMENTS', $stuElmt->ID_STUDY_EQUIPMENTS)->first();
+
                             if (count($pipegenCurr) > 0) {
                                 $pipegen = $pipegenCurr->replicate();
                                 $pipegen->ID_STUDY_EQUIPMENTS = $studyelmtId;
@@ -513,7 +505,7 @@ class Studies extends Controller
                             }
 
                             $piperes = new PipeRes();
-                            $piperesCurr = PipeRes::where('ID_STUDY_EQUIPMENTS',$stuElmt->ID_STUDY_EQUIPMENTS)->first();
+                            $piperesCurr = PipeRes::where('ID_STUDY_EQUIPMENTS', $stuElmt->ID_STUDY_EQUIPMENTS)->first();
                             if (count($piperesCurr) > 0) {
                                 $piperes = $piperesCurr->replicate();
                                 $piperes->ID_STUDY_EQUIPMENTS = $studyelmtId;
@@ -522,7 +514,7 @@ class Studies extends Controller
                             }
 
                             $economicRes = new EconomicResults();
-                            $economicResults = EconomicResults::where('ID_STUDY_EQUIPMENTS',$stuElmt->ID_STUDY_EQUIPMENTS)->first();
+                            $economicResults = EconomicResults::where('ID_STUDY_EQUIPMENTS', $stuElmt->ID_STUDY_EQUIPMENTS)->first();
                             if (count($economicResults) > 0) {
                                 $economicRes = $economicResults->replicate();
                                 $economicRes->ID_STUDY_EQUIPMENTS = $studyelmtId;
@@ -530,7 +522,7 @@ class Studies extends Controller
                                 $economicRes->save();
                             }
 
-                            $calparam = CalculationParameter::where('ID_STUDY_EQUIPMENTS',$stuElmt->ID_STUDY_EQUIPMENTS)->first();
+                            $calparam = CalculationParameter::where('ID_STUDY_EQUIPMENTS', $stuElmt->ID_STUDY_EQUIPMENTS)->first();
                             if (count($calparam) > 0) {
                                 $calparameter = new CalculationParameter();
                                 $calparameter = $calparam->replicate();
@@ -539,7 +531,7 @@ class Studies extends Controller
                                 $calparameter->save();
                             } 
                             
-                            $stdEqpPrms = StudEqpPrm::where('ID_STUDY_EQUIPMENTS',$stuElmt->ID_STUDY_EQUIPMENTS)->get();
+                            $stdEqpPrms = StudEqpPrm::where('ID_STUDY_EQUIPMENTS', $stuElmt->ID_STUDY_EQUIPMENTS)->get();
 
                             if (count($stdEqpPrms) > 0) {
                                 foreach ($stdEqpPrms as $stdEqpPrm) {
@@ -551,7 +543,7 @@ class Studies extends Controller
                                 }
                             }
                             
-                            $layoutGenerations = LayoutGeneration::where('ID_STUDY_EQUIPMENTS',$stuElmt->ID_STUDY_EQUIPMENTS)->get(); 
+                            $layoutGenerations = LayoutGeneration::where('ID_STUDY_EQUIPMENTS', $stuElmt->ID_STUDY_EQUIPMENTS)->get(); 
                             if (count($layoutGenerations) > 0) {
                                 foreach ($layoutGenerations as $layoutGeneration) {
                                     $layoutGen = new LayoutGeneration();
@@ -562,7 +554,7 @@ class Studies extends Controller
                                 }
                             }
 
-                            $layoutResults = LayoutResults::where('ID_STUDY_EQUIPMENTS',$stuElmt->ID_STUDY_EQUIPMENTS)->get(); 
+                            $layoutResults = LayoutResults::where('ID_STUDY_EQUIPMENTS', $stuElmt->ID_STUDY_EQUIPMENTS)->get(); 
                             if (count($layoutResults) > 0) {
                                 foreach ($layoutResults as $layoutRes) {
                                     $layoutResult = $layoutRes->replicate();
