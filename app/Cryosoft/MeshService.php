@@ -57,6 +57,13 @@ class MeshService
         InitialTemperature::where('ID_PRODUCTION', $product->study->ID_PRODUCTION)->delete();
     }
 
+    public function refreshMesh(Study &$study)
+    {
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $study->ID_STUDY, 10);
+        
+        return $this->kernel->getKernelObject('MeshBuilder')->MBMeshBuild($conf);
+    }
+
     public function generate(&$meshGen, $type, $mode, $size1 = -1, $size2 = -1, $size3 = -1)
     {
         // regular mesh

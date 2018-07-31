@@ -167,7 +167,7 @@ class Products extends Controller
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $id);
         $ok2 = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($product->ID_STUDY,  $conf, 3);
         
-        // $this->mesh->rebuildMesh($product->study);
+        $this->mesh->refreshMesh($product->study);
 
         $layerColor = ProdcharColor::where('ID_PROD', $product->ID_PROD)->where('LAYER_ORDER', $nElements+1)->first();
         $defaultColor = ProdcharColorsDef::where('ID_USER', $this->auth->user()->ID_USER)->where('LAYER_ORDER', $nElements+1)->first();

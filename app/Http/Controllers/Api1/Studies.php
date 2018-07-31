@@ -1852,8 +1852,8 @@ class Studies extends Controller
                 }
 
                 //duplicate initial_Temp already exsits
-                DB::insert(DB::RAW('insert into INITIAL_TEMPERATURE (ID_PRODUCTION, INITIAL_T, MESH_1_ORDER, MESH_2_ORDER, MESH_3_ORDER) SELECT '
-                    . $production->ID_PRODUCTION . ',I.INITIAL_T, I.MESH_1_ORDER, I.MESH_2_ORDER, I.MESH_3_ORDER FROM INITIAL_TEMPERATURE AS I WHERE ID_PRODUCTION = ' . $productionCurr->ID_PRODUCTION));
+                DB::insert('insert into initial_temperature (ID_PRODUCTION, INITIAL_T, MESH_1_ORDER, MESH_2_ORDER, MESH_3_ORDER) select '
+                    . $production->ID_PRODUCTION . ',I.INITIAL_T, I.MESH_1_ORDER, I.MESH_2_ORDER, I.MESH_3_ORDER from initial_temperature as I where ID_PRODUCTION = ' . $productionCurr->ID_PRODUCTION);
                 
                 $shapeId = 0;
                 //duplicate Product already exsits
@@ -1885,9 +1885,10 @@ class Studies extends Controller
                             $shapeId = $productemlt->ID_SHAPE;
                             unset($productemlt->ID_PRODUCT_ELMT);
                             $productemlt->save();
-                            DB::insert(DB::RAW('insert into MESH_POSITION (ID_PRODUCT_ELMT, MESH_AXIS, MESH_ORDER, MESH_AXIS_POS) SELECT '
-                                . $productemlt->ID_PRODUCT_ELMT . ',M.MESH_AXIS, M.MESH_ORDER, M.MESH_AXIS_POS FROM MESH_POSITION AS M WHERE ID_PRODUCT_ELMT = '
-                                . $prodelmtCurr->ID_PRODUCT_ELMT));
+
+                            DB::insert('insert into mesh_position (ID_PRODUCT_ELMT, MESH_AXIS, MESH_ORDER, MESH_AXIS_POS) select '
+                                . $productemlt->ID_PRODUCT_ELMT . ',M.MESH_AXIS, M.MESH_ORDER, M.MESH_AXIS_POS from mesh_position as M where ID_PRODUCT_ELMT = '
+                                . $prodelmtCurr->ID_PRODUCT_ELMT);
                         }
                     }
                 }
