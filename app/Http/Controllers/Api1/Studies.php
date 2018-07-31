@@ -341,13 +341,14 @@ class Studies extends Controller
                 unset($study->ID_USER);
                 $study->ID_USER = $this->auth->user()->ID_USER;
                 $study->STUDY_NAME = $input['name'];
+                $study->HAS_CHILD = 0;
 
                 $date = date("D M j G:i:s T Y") . ' by ' . $this->auth->user()->USERNAM;
                 $study->COMMENT_TXT = $studyCurrent->COMMENT_TXT .'</br>'. 'Created on ' . $date;
                 $study->save();
 
                 //duplicate TempRecordPts already exsits
-                if (count($temprecordpstCurr) > 0) {
+                if ($temprecordpstCurr) {
                     $temprecordpst = $temprecordpstCurr->replicate();
                     $temprecordpst->ID_STUDY = $study->ID_STUDY;
                     unset($temprecordpst->ID_TEMP_RECORD_PTS);
@@ -356,7 +357,7 @@ class Studies extends Controller
                 }
 
                 //duplicate Production already exsits
-                if (count($productionCurr) > 0) {
+                if ($productionCurr) {
                     $production = $productionCurr->replicate();
                     $production->ID_STUDY = $study->ID_STUDY;
                     unset($production->ID_PRODUCTION);
@@ -366,10 +367,12 @@ class Studies extends Controller
                 //duplicate initial_Temp already exsits
                 //     DB::insert(DB::RAW('insert into INITIAL_TEMPERATURE (ID_PRODUCTION, INITIAL_T, MESH_1_ORDER, MESH_2_ORDER, MESH_3_ORDER) SELECT '
                 // . $production->ID_PRODUCTION . ',I.INITIAL_T, I.MESH_1_ORDER, I.MESH_2_ORDER, I.MESH_3_ORDER FROM INITIAL_TEMPERATURE AS I WHERE ID_PRODUCTION = ' . $productionCurr->ID_PRODUCTION ));
+                DB::insert('insert into initial_temperature (ID_PRODUCTION, INITIAL_T, MESH_1_ORDER, MESH_2_ORDER, MESH_3_ORDER) select '
+                    . $production->ID_PRODUCTION . ',I.INITIAL_T, I.MESH_1_ORDER, I.MESH_2_ORDER, I.MESH_3_ORDER from initial_temperature as I where ID_PRODUCTION = ' . $productionCurr->ID_PRODUCTION);
                 
 
                 //duplicate Product already exsits
-                if ((count($productCurr) > 0)) {
+                if ($productCurr) {
                     $product = $productCurr->replicate();
                     $product->ID_STUDY = $study->ID_STUDY;
                     unset($product->ID_PROD);
@@ -378,7 +381,7 @@ class Studies extends Controller
                     $meshgenerationCurr = MeshGeneration::where('ID_PROD',$productCurr->ID_PROD)->first(); 
                     $productemltCurr = ProductElmt::where('ID_PROD',$productCurr->ID_PROD)->get(); 
                     //duplicate MeshGeneration already exsits
-                    if (count($meshgenerationCurr) > 0) {
+                    if ($meshgenerationCurr) {
                         $meshgeneration = $meshgenerationCurr->replicate();
                         $meshgeneration->ID_PROD = $product->ID_PROD;
                         unset($meshgeneration->ID_MESH_GENERATION);
@@ -387,7 +390,7 @@ class Studies extends Controller
                         $product->save();
                     }
 
-                    if (count($mesh3D_info) > 0) {
+                    if ($mesh3D_info) {
                         $mesh3D_new = new Mesh3DInfo();
                         $mesh3D_new = $mesh3D_info->replicate();
                         $mesh3D_new->id_prod = $product->ID_PROD;
@@ -432,7 +435,7 @@ class Studies extends Controller
                 }
                     
                 //duplicate Price already exsits
-                if (count($priceCurr) > 0) {
+                if ($priceCurr) {
                     $price = $priceCurr->replicate();
                     $price->ID_STUDY = $study->ID_STUDY;
                     unset($price->ID_PRICE);
@@ -440,21 +443,21 @@ class Studies extends Controller
                 }
 
                 //duplicate Report already exsits
-                if (count($reportCurr) > 0) {
+                if ($reportCurr) {
                     $report = $reportCurr->replicate();
                     $report->ID_STUDY = $study->ID_STUDY;
                     unset($report->ID_REPORT);
                     $report->save();
                 }
                 
-                if (count($precalcLdgRatePrmCurr) > 0) {
+                if ($precalcLdgRatePrmCurr) {
                     $precalcLdgRatePrm = $precalcLdgRatePrmCurr->replicate();
                     $precalcLdgRatePrm->ID_STUDY = $study->ID_STUDY;
                     unset($precalcLdgRatePrm->ID_PRECALC_LDG_RATE_PRM);
                     $precalcLdgRatePrm->save();
                 }
 
-                if (count($packingCurr) > 0) {
+                if ($packingCurr) {
                     $packing = $packingCurr->replicate();
                     $packing->ID_STUDY = $study->ID_STUDY;
                     unset($packing->ID_PACKING);
