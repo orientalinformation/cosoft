@@ -362,12 +362,12 @@ class Studies extends Controller
                     $production->ID_STUDY = $study->ID_STUDY;
                     unset($production->ID_PRODUCTION);
                     $production->save();
+
+                    //duplicate initial_Temp already exsits
+                    DB::insert('insert into initial_temperature (ID_PRODUCTION, INITIAL_T, MESH_1_ORDER, MESH_2_ORDER, MESH_3_ORDER) select '
+                    . $production->ID_PRODUCTION . ',I.INITIAL_T, I.MESH_1_ORDER, I.MESH_2_ORDER, I.MESH_3_ORDER from initial_temperature as I where ID_PRODUCTION = ' . $productionCurr->ID_PRODUCTION);
                 }
 
-                //duplicate initial_Temp already exsits
-                DB::insert('insert into initial_temperature (ID_PRODUCTION, INITIAL_T, MESH_1_ORDER, MESH_2_ORDER, MESH_3_ORDER) select '
-                    . $production->ID_PRODUCTION . ',I.INITIAL_T, I.MESH_1_ORDER, I.MESH_2_ORDER, I.MESH_3_ORDER from initial_temperature as I where ID_PRODUCTION = ' . $productionCurr->ID_PRODUCTION);
-                
 
                 //duplicate Product already exsits
                 if ($productCurr) {
@@ -413,6 +413,11 @@ class Studies extends Controller
                             $productemlt->INSERT_LINE_ORDER = $study->ID_STUDY;
                             unset($productemlt->ID_PRODUCT_ELMT);
                             $productemlt->save();
+
+                            // duplicate mesh_position
+                            DB::insert('insert into mesh_position (ID_PRODUCT_ELMT, MESH_AXIS, MESH_ORDER, MESH_AXIS_POS) select '
+                                . $productemlt->ID_PRODUCT_ELMT . ',M.MESH_AXIS, M.MESH_ORDER, M.MESH_AXIS_POS from mesh_position as M where ID_PRODUCT_ELMT = '
+                                . $prodelmtCurr->ID_PRODUCT_ELMT);
                             $initial3D_temps = InitTemp3D::where('ID_PRODUCT_ELMT', $prodelmtCurr->ID_PRODUCT_ELMT)->get();
                             // foreach ($prodelmtCurr->meshPositions as $meshPositionCurr) {
                             //     $meshPos = new MeshPosition();
