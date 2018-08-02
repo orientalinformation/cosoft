@@ -20,7 +20,7 @@ class ColorPalette extends Model
      * 
      * @var string
      */
-    protected $table = 'COLOR_PALETTE';
+    protected $table = 'color_palette';
 
     /**
      * @var array
