@@ -68,11 +68,11 @@ class ProductService
 
     public function getAllStandardComponents($idStudy = 0, $compFamily = 0, $subFamily = 0, $percentWater = 0)
     {
-        $querys = Translation::select('Translation.ID_TRANSLATION', 'Translation.LABEL', 'component.ID_USER', 'component.COMP_RELEASE', 'component.COMP_VERSION', 'component.OPEN_BY_OWNER', 'component.ID_COMP', 'ln2user.USERNAM')
-        ->join('component', 'Translation.ID_TRANSLATION', '=', 'component.ID_COMP')
+        $querys = Translation::select('translation.ID_TRANSLATION', 'translation.LABEL', 'component.ID_USER', 'component.COMP_RELEASE', 'component.COMP_VERSION', 'component.OPEN_BY_OWNER', 'component.ID_COMP', 'ln2user.USERNAM')
+        ->join('component', 'translation.ID_TRANSLATION', '=', 'component.ID_COMP')
         ->join('ln2user', 'component.ID_USER', '=', 'ln2user.ID_USER')
-        ->where('Translation.TRANS_TYPE', 1)
-        ->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE);
+        ->where('translation.TRANS_TYPE', 1)
+        ->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE);
         
 
         if ($idStudy != 0) {
@@ -106,7 +106,7 @@ class ProductService
             $querys->where('component.WATER', '<=', $percentWater * 10); 
         }
 
-        $querys->orderBy('Translation.LABEL');
+        $querys->orderBy('translation.LABEL');
 
         $components = $querys->get();
 
@@ -132,10 +132,10 @@ class ProductService
     
     public function getAllSleepingComponents($compFamily = 0, $subFamily = 0, $percentWater = 0)
     {
-        $querys = Translation::select('Translation.ID_TRANSLATION', 'Translation.LABEL', 'component.COMP_VERSION', 'component.ID_COMP')
-        ->join('component', 'Translation.ID_TRANSLATION', '=', 'component.ID_COMP')
-        ->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
-        ->where('Translation.TRANS_TYPE', 1)
+        $querys = Translation::select('translation.ID_TRANSLATION', 'translation.LABEL', 'component.COMP_VERSION', 'component.ID_COMP')
+        ->join('component', 'translation.ID_TRANSLATION', '=', 'component.ID_COMP')
+        ->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+        ->where('translation.TRANS_TYPE', 1)
         ->where('component.COMP_RELEASE', 6);
         
 
@@ -152,7 +152,7 @@ class ProductService
             $querys->where('component.WATER', '<=', $percentWater * 10); 
         }
 
-        $querys->orderBy('Translation.LABEL');
+        $querys->orderBy('translation.LABEL');
 
         $components = $querys->get();
 

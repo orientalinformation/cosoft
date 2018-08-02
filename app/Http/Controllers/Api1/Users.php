@@ -78,10 +78,10 @@ class Users extends Controller
         if (isset($input['idCooling'])) $energy = $input['idCooling'];
 
         if ($energy != 0) {
-            $list = Equipseries::select('CONSTRUCTOR')->join('equipment', 'Equipseries.ID_EQUIPSERIES', '=', 'equipment.ID_EQUIPSERIES')
+            $list = Equipseries::select('CONSTRUCTOR')->join('equipment', 'equipseries.ID_EQUIPSERIES', '=', 'equipment.ID_EQUIPSERIES')
             ->where('equipment.ID_COOLING_FAMILY', $energy)->distinct()->get();
         } else {
-            $list = Equipseries::select('CONSTRUCTOR')->join('equipment', 'Equipseries.ID_EQUIPSERIES', '=', 'equipment.ID_EQUIPSERIES')
+            $list = Equipseries::select('CONSTRUCTOR')->join('equipment', 'equipseries.ID_EQUIPSERIES', '=', 'equipment.ID_EQUIPSERIES')
             ->distinct()->get();
         }
         

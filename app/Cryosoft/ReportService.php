@@ -1729,7 +1729,7 @@ class ReportService
                 foreach ($packingLayers as $key => $pk) {
                     $pkrelease[] = $pk->packingElmt->PACKING_RELEASE;
                     $version = $pk->packingElmt->PACKING_VERSION;
-                    $name = \App\Models\PackingLayer::select('LABEL')->join('Translation', 'ID_PACKING_ELMT', '=', 'Translation.ID_TRANSLATION')
+                    $name = \App\Models\PackingLayer::select('LABEL')->join('translation', 'ID_PACKING_ELMT', '=', 'translation.ID_TRANSLATION')
                     ->where('ID_PACKING_LAYER', $pk['ID_PACKING_LAYER'])
                     ->where('TRANS_TYPE', 3)->where('ID_TRANSLATION', $pk['ID_PACKING_ELMT'])
                     ->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'DESC')->first();

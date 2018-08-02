@@ -262,9 +262,9 @@ class Lines extends Controller
 
                 foreach ($arrPipeElmt as $idPipeElmt) {
                     $getLabels[]= LineElmt::select('ELT_TYPE','INSULATION_TYPE','LABEL','ID_PIPELINE_ELMT','LINE_RELEASE', 'ID_USER')
-                    ->join('Translation', 'ID_PIPELINE_ELMT', '=', 'Translation.ID_TRANSLATION')
-                    ->where('Translation.TRANS_TYPE', 27)->where('ID_PIPELINE_ELMT', $idPipeElmt)
-                    ->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
+                    ->join('translation', 'ID_PIPELINE_ELMT', '=', 'translation.ID_TRANSLATION')
+                    ->where('translation.TRANS_TYPE', 27)->where('ID_PIPELINE_ELMT', $idPipeElmt)
+                    ->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
                 }
                 // return $arrPipeElmt;
                 if (count($getLabels) > 0) {

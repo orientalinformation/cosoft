@@ -214,14 +214,14 @@ class Equipments extends Controller
 
     public function getConstructors($energy = -1)
     {
-        $query = Equipseries::distinct()->select('Equipseries.CONSTRUCTOR')
-        ->join('equipment', 'Equipseries.ID_EQUIPSERIES', '=', 'equipment.ID_EQUIPSERIES');
+        $query = Equipseries::distinct()->select('equipseries.CONSTRUCTOR')
+        ->join('equipment', 'equipseries.ID_EQUIPSERIES', '=', 'equipment.ID_EQUIPSERIES');
 
         if ($energy != -1) {
             $query->where('equipment.ID_COOLING_FAMILY', $energy);
         }
 
-        $query->orderBy('Equipseries.CONSTRUCTOR');
+        $query->orderBy('equipseries.CONSTRUCTOR');
 
         return $query->get();
     }
@@ -841,8 +841,8 @@ class Equipments extends Controller
 
     public function getEquipmentFamily()
     {
-        $list = Equipfamily::join('Translation', 'ID_FAMILY', '=', 'Translation.ID_TRANSLATION')
-        ->where('Translation.TRANS_TYPE', 5)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+        $list = Equipfamily::join('translation', 'ID_FAMILY', '=', 'translation.ID_TRANSLATION')
+        ->where('translation.TRANS_TYPE', 5)->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
         ->orderBy('LABEL', 'ASC')->get();
         
         return $list;
