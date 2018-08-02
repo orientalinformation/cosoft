@@ -37,7 +37,7 @@ class UnitsService
     public function meshes($value, $decimal, $status) 
     {
         $unit = Unit::where('TYPE_UNIT', $this->value->MESH_CUT)
-        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->join('user_unit', 'unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
 
@@ -58,7 +58,7 @@ class UnitsService
     public function prodTemperature($value, $decimal = 2, $status = 1)
     {
         $unit = Unit::where('TYPE_UNIT', $this->value->TEMPERATURE)
-        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->join('user_unit', 'unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
         
@@ -72,7 +72,7 @@ class UnitsService
     public function time($value, $decimal, $status) 
     {
         $unit = Unit::where('TYPE_UNIT', $this->value->TIME)
-        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->join('user_unit', 'unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
 
@@ -86,7 +86,7 @@ class UnitsService
     public function convectionCoeff($value, $decimal, $status) 
     {
         $unit = Unit::where('TYPE_UNIT', $this->value->CONV_COEFF)
-        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->join('user_unit', 'unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
 
@@ -120,7 +120,7 @@ class UnitsService
     public function deltaTemperature ($value, $decimal, $status) 
     {
         $unit = Unit::where('TYPE_UNIT', $this->value->TEMPERATURE)
-        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->join('user_unit', 'unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
 
@@ -152,7 +152,7 @@ class UnitsService
     public function timeStep($value, $decimal, $status)
     {
         $unit = Unit::where('TYPE_UNIT', $this->value->TIME)
-        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->join('user_unit', 'unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
 
@@ -174,7 +174,7 @@ class UnitsService
     public function temperature($value, $decimal, $status)
     {
         $unit = Unit::where('TYPE_UNIT', $this->value->TEMPERATURE)
-        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->join('user_unit', 'unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
 
@@ -197,7 +197,7 @@ class UnitsService
     public function enthalpy($value, $decimal, $status) 
     {
         $unit = Unit::where('TYPE_UNIT', $this->value->ENTHALPY)
-        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->join('user_unit', 'unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
 
@@ -211,7 +211,7 @@ class UnitsService
     public function conductivity($value, $decimal, $status)
     {
         $unit = Unit::where('TYPE_UNIT', $this->value->CONDUCTIVITY)
-        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->join('user_unit', 'unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
 
@@ -225,7 +225,7 @@ class UnitsService
     public function packingThickness($value, $decimal, $status) 
     {
         $unit = Unit::where('TYPE_UNIT', $this->value->THICKNESS_PACKING)
-        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->join('user_unit', 'unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
 
@@ -239,7 +239,7 @@ class UnitsService
     public function density($value, $decimal, $status)
     {
         $unit = Unit::where('TYPE_UNIT', $this->value->DENSITY)
-        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->join('user_unit', 'unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
 
@@ -295,7 +295,7 @@ class UnitsService
     public function tankCapacity($value, $typeunit, $decimal, $status) 
     {
         $unit = Unit::where('TYPE_UNIT', $typeunit)
-        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->join('user_unit', 'unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
 
@@ -309,7 +309,7 @@ class UnitsService
     public function lineDimension($value, $decimal, $status) 
     {
         $unit = Unit::where('TYPE_UNIT', $this->value->LINE)
-        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->join('user_unit', 'unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
 
@@ -323,7 +323,7 @@ class UnitsService
     public function equipDimension($value, $decimal, $status) 
     {
         $unit = Unit::where('TYPE_UNIT', $this->value->EQUIP_DIMENSION)
-        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->join('user_unit', 'unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
 
@@ -392,7 +392,7 @@ class UnitsService
     public function unitConvert($unitType, $value, $decimal, $status)
     {
         $unit = Unit::where('TYPE_UNIT', $unitType)
-        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->join('user_unit', 'unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
 
@@ -406,7 +406,7 @@ class UnitsService
     public function controlTemperature($value, $decimal, $status) 
     {
         $unit = Unit::where('TYPE_UNIT', $this->value->TEMPERATURE)
-        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->join('user_unit', 'unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
 
@@ -420,7 +420,7 @@ class UnitsService
     public function rampsPosition($value, $decimal, $status) 
     {
         $unit = Unit::where('TYPE_UNIT', $this->value->SLOPES_POSITION)
-        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->join('user_unit', 'unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
 
@@ -434,7 +434,7 @@ class UnitsService
     public function shelvesWidthUser($value) 
     {
         $unit = Unit::where('TYPE_UNIT', $this->value->W_CARPET_SHELVES)
-        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->join('user_unit', 'unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
 
@@ -448,7 +448,7 @@ class UnitsService
     public function length($value, $decimal = 2, $status = 1)
     {
         $unit = Unit::where('TYPE_UNIT', $this->value->LENGTH)
-        ->join('user_unit', 'Unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
+        ->join('user_unit', 'unit.ID_UNIT', '=', 'user_unit.ID_UNIT')
         ->where('user_unit.ID_USER', $this->auth->user()->ID_USER)
         ->first();
         
