@@ -22,7 +22,7 @@ class ExhRes extends Model
      * 
      * @var string
      */
-    protected $table = 'EXH_RES';
+    protected $table = 'exh_res';
 
     /**
      * @var array

@@ -20,7 +20,7 @@ class PrecalcLdgRatePrm extends Model
      * 
      * @var string
      */
-    protected $table = 'PRECALC_LDG_RATE_PRM';
+    protected $table = 'precalc_ldg_rate_rpm';
 
     /**
      * @var array

@@ -21,7 +21,7 @@ class PipeRes extends Model
      * 
      * @var string
      */
-    protected $table = 'PIPE_RES';
+    protected $table = 'pipe_res';
 
     /**
      * @var array
