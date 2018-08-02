@@ -268,8 +268,8 @@
                         <td class="text-center"><?php echo $resproductComps['dim'] ?></td>
                         <td class="text-center"><?php echo $resproductComps['mass'] ?></td>
                         <td class="text-center"><?php echo ($resproductComps['PROD_ELMT_ISO'] == 0) ? "YES" : "NO" ?></td>
-                        <td class="text-center"><?php echo $resproductComps['studyNumber'] ?></td>
-                        <td class="text-center"><?php echo $prodElmIso ?></td>
+                        <td class="text-center"><?php if ($arrayParam['study']['HAS_CHILD'] != 0) echo $resproductComps['studyNumber'] ?></td>
+                        <td class="text-center"><?php if ($arrayParam['study']['HAS_CHILD'] != 0) echo $prodElmIso ?></td>
                     </tr>
                     <?php } ?>
                 </table>

@@ -1307,19 +1307,23 @@ class Reports extends Controller
                         </tr>';
                         foreach($productComps as $resproductComps) { 
                             $prodElmIso = '';
-                            if (!($study['CHAINING_CONTROLS'] && $study['PARENT_ID'] != 0 && $resproductComps['INSERT_LINE_ORDER'] != $study['ID_STUDY'])) {
-                                if ($resproductComps['PROD_ELMT_ISO'] != 1) {
+                            $studyNumber = '';
+                            if ($study['HAS_CHILD'] != 0) {
+                                if (!($study['CHAINING_CONTROLS'] && $study['PARENT_ID'] != 0 && $resproductComps['INSERT_LINE_ORDER'] != $study['ID_STUDY'])) {
+                                    if ($resproductComps['PROD_ELMT_ISO'] != 1) {
+                                        $prodElmIso = 'Non-isothermal';
+                                    }
+                                } else {
                                     $prodElmIso = 'Non-isothermal';
                                 }
-                            } else {
-                                $prodElmIso = 'Non-isothermal';
-                            }
 
-                            if ($resproductComps['PROD_ISO'] == 0 && $resproductComps['PROD_ELMT_ISO'] == 1) {
-                                $studyNumber = '';
-                            } else {
-                                $studyNumber = $resproductComps['studyNumber'];
+                                if ($resproductComps['PROD_ISO'] == 0 && $resproductComps['PROD_ELMT_ISO'] == 1) {
+                                    $studyNumber = '';
+                                } else {
+                                    $studyNumber = $resproductComps['studyNumber'];
+                                }
                             }
+                            
                         $html .= '
                         <tr>
                             <td>'. $resproductComps['display_name'] .'</td>
