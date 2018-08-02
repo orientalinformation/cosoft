@@ -1219,18 +1219,19 @@ class Output extends Controller
             $viewEquip = false;
             $optionTr = "";
             $addEquipment = false;
-            $tr = $dhp = $conso = $conso_warning = $toc = $dhpMax = $consoMax = $consomax_warning = $tocMax = "";
+            $tr = $ts = $dhp = $conso = $conso_warning = $toc = $dhpMax = $consoMax = $consomax_warning = $tocMax = "";
 
             if ($row->NB_TR <= 1 && count($dimaResults) > 0) { 
                 $dimaR = $dimaResults[$trSelect];
                 if (( (!($this->equip->getCapability($capabilitie, 16))) || (!($this->equip->getCapability($capabilitie, 1))) ) && ($trSelect == 0 || $trSelect == 2)) {
-                    $tr = "---";
+                    $tr = $ts = "---";
                     $viewEquip = false;
                     $optionTr = "disabled";
                     $dhp = $conso = $conso_warning = $toc = $dhpMax = $consoMax = $consomax_warning = $tocMax = "---";
                 } else {
                     if ($this->equip->isValidTemperature($idStudyEquipment, $trSelect) && $dimaR != null) {
                         $tr = $this->unit->controlTemperature($dimaR->SETPOINT);
+                        $ts = $this->unit->timeUnit($dimaR->DIMA_TS);
                         $viewEquip = true;
 
                         if ($this->equip->getCapability($capabilitie, 256)) {
@@ -1289,7 +1290,7 @@ class Output extends Controller
             } else {
                 $viewEquip = false; 
                 $optionTr = "disabled";
-                $tr = $dhp = $conso = $toc = $dhpMax = $consoMax = $tocMax = "---";
+                $tr = $ts = $dhp = $conso = $toc = $dhpMax = $consoMax = $tocMax = "---";
             }
 
             if ($this->equip->getCapability($capabilitie , 1024)) {
@@ -1302,6 +1303,7 @@ class Output extends Controller
             $item["optionTr"] = $optionTr;
             $item["addEquipment"] = $addEquipment;
             $item["tr"] = $tr;
+            $item["ts"] = $ts;
             $item["dhp"] = $dhp;
             $item["conso"] = $conso;
             $item["toc"] = $toc;

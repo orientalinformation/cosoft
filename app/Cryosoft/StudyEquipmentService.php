@@ -184,7 +184,7 @@ class StudyEquipmentService
 
     public function findStudyEquipmentsByStudy(&$study)
     {
-        $studyEquipments = StudyEquipment::where('ID_STUDY', $study->ID_STUDY)->with('equipment')->get();
+        $studyEquipments = StudyEquipment::where('ID_STUDY', $study->ID_STUDY)->with('equipment')->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
         $returnStudyEquipments = [];
 
         foreach ($studyEquipments as $studyEquipment) {
