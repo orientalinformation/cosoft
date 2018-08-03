@@ -322,16 +322,16 @@ class Studies extends Controller
         }
         
         if ($studyCurrent) {
-            $temprecordpstCurr = TempRecordPts::where('ID_STUDY',$studyCurrent->ID_STUDY)->first();
-            $productionCurr = Production::where('ID_STUDY',$studyCurrent->ID_STUDY)->first(); 
-            $productCurr = Product::where('ID_STUDY',$studyCurrent->ID_STUDY)->first();
-            $mesh3D_info = Mesh3DInfo::where('ID_PROD',$productCurr->ID_PROD)->first();
+            $temprecordpstCurr = TempRecordPts::where('ID_STUDY', $studyCurrent->ID_STUDY)->first();
+            $productionCurr = Production::where('ID_STUDY', $studyCurrent->ID_STUDY)->first(); 
+            $productCurr = Product::where('ID_STUDY', $studyCurrent->ID_STUDY)->first();
+            $mesh3D_info = Mesh3DInfo::where('ID_PROD', $productCurr->ID_PROD)->first();
 
-            $priceCurr = Price::where('ID_STUDY',$studyCurrent->ID_STUDY)->first(); 
-            $reportCurr = Report::where('ID_STUDY',$studyCurrent->ID_STUDY)->first(); 
-            $precalcLdgRatePrmCurr = PrecalcLdgRatePrm::where('ID_STUDY',$studyCurrent->ID_STUDY)->first();
-            $packingCurr = Packing::where('ID_STUDY',$studyCurrent->ID_STUDY)->first(); 
-            $studyemtlCurr = StudyEquipment::where('ID_STUDY',$studyCurrent->ID_STUDY)->get(); 
+            $priceCurr = Price::where('ID_STUDY', $studyCurrent->ID_STUDY)->first(); 
+            $reportCurr = Report::where('ID_STUDY', $studyCurrent->ID_STUDY)->first(); 
+            $precalcLdgRatePrmCurr = PrecalcLdgRatePrm::where('ID_STUDY', $studyCurrent->ID_STUDY)->first();
+            $packingCurr = Packing::where('ID_STUDY', $studyCurrent->ID_STUDY)->first(); 
+            $studyemtlCurr = StudyEquipment::where('ID_STUDY', $studyCurrent->ID_STUDY)->get(); 
 
             if (!empty($input['name']) || ($study->STUDY_NAME  != null)) {
 
@@ -364,10 +364,12 @@ class Studies extends Controller
                     $production->save();
 
                     //duplicate initial_Temp already exsits
-                    DB::insert('insert into initial_temperature (ID_PRODUCTION, INITIAL_T, MESH_1_ORDER, MESH_2_ORDER, MESH_3_ORDER) select '
+                    $initialTemperatures = InitialTemperature::where('ID_PRODUCTION', $productionCurr->ID_PRODUCTION)->get();
+                    if (count($initialTemperatures) > 0) {
+                        DB::insert('insert into initial_temperature (ID_PRODUCTION, INITIAL_T, MESH_1_ORDER, MESH_2_ORDER, MESH_3_ORDER) select '
                     . $production->ID_PRODUCTION . ',I.INITIAL_T, I.MESH_1_ORDER, I.MESH_2_ORDER, I.MESH_3_ORDER from initial_temperature as I where ID_PRODUCTION = ' . $productionCurr->ID_PRODUCTION);
+                    }
                 }
-
 
                 //duplicate Product already exsits
                 if ($productCurr) {
@@ -415,23 +417,22 @@ class Studies extends Controller
                             $productemlt->save();
 
                             // duplicate mesh_position
-                            DB::insert('insert into mesh_position (ID_PRODUCT_ELMT, MESH_AXIS, MESH_ORDER, MESH_AXIS_POS) select '
+                            $meshPositions = MeshPosition::where('ID_PRODUCT_ELMT', $prodelmtCurr->ID_PRODUCT_ELMT)->get();
+                            if (count($meshPositions) > 0) {
+                                DB::insert('insert into mesh_position (ID_PRODUCT_ELMT, MESH_AXIS, MESH_ORDER, MESH_AXIS_POS) select '
                                 . $productemlt->ID_PRODUCT_ELMT . ',M.MESH_AXIS, M.MESH_ORDER, M.MESH_AXIS_POS from mesh_position as M where ID_PRODUCT_ELMT = '
                                 . $prodelmtCurr->ID_PRODUCT_ELMT);
+                            }
+
                             $initial3D_temps = InitTemp3D::where('ID_PRODUCT_ELMT', $prodelmtCurr->ID_PRODUCT_ELMT)->get();
-                            // foreach ($prodelmtCurr->meshPositions as $meshPositionCurr) {
-                            //     $meshPos = new MeshPosition();
-                            //     $meshPos = $meshPositionCurr->replicate();
-                            //     $meshPos->ID_PRODUCT_ELMT = $productemlt->ID_PRODUCT_ELMT;
-                            //     unset($meshPos->ID_MESH_POSITION);
-                            //     $meshPos->save();
-                            // }
-                            foreach ($initial3D_temps as $initial3D_temp) {
-                                $inital3D_new = new InitTemp3D();
-                                $inital3D_new = $initial3D_temp->replicate();
-                                $inital3D_new->ID_PRODUCT_ELMT = $productemlt->ID_PRODUCT_ELMT;
-                                unset($inital3D_new->ID_MESH_POSITION);
-                                $inital3D_new->save();
+                            if (count($initial3D_temps) > 0) {
+                                foreach ($initial3D_temps as $initial3D_temp) {
+                                    $inital3D_new = new InitTemp3D();
+                                    $inital3D_new = $initial3D_temp->replicate();
+                                    $inital3D_new->ID_PRODUCT_ELMT = $productemlt->ID_PRODUCT_ELMT;
+                                    unset($inital3D_new->ID_MESH_POSITION);
+                                    $inital3D_new->save();
+                                }
                             }
                         }
                     }
@@ -496,11 +497,13 @@ class Studies extends Controller
                                 $pipegen->ID_STUDY_EQUIPMENTS = $studyelmtId;
                                 unset($pipegen->ID_PIPE_GEN );
                                 $pipegen->save();
+
                                 $studyelmt->ID_PIPE_GEN = $pipegen->ID_PIPE_GEN;
                                 $studyelmt->save();
+
                                 $lineDefiCurr = LineDefinition::where('ID_PIPE_GEN', $pipegenCurr->ID_PIPE_GEN)->get();
                                 if (count($lineDefiCurr) > 0) {
-                                foreach ($lineDefiCurr as $lineDefiCurrs) {
+                                    foreach ($lineDefiCurr as $lineDefiCurrs) {
                                         $lineDefi = new LineDefinition();
                                         $lineDefi = $lineDefiCurrs->replicate();
                                         $lineDefi->ID_PIPE_GEN = $pipegen->ID_PIPE_GEN;
@@ -538,7 +541,6 @@ class Studies extends Controller
                             } 
                             
                             $stdEqpPrms = StudEqpPrm::where('ID_STUDY_EQUIPMENTS', $stuElmt->ID_STUDY_EQUIPMENTS)->get();
-
                             if (count($stdEqpPrms) > 0) {
                                 foreach ($stdEqpPrms as $stdEqpPrm) {
                                     $newStdEqpParam = new StudEqpPrm();
@@ -1067,14 +1069,13 @@ class Studies extends Controller
     {
         $input = $this->request->all();
 
-        /** @var App\Models\Study $study */
         $study = \App\Models\Study::find($id);
 
         $productshape = $study->products->first()->productElmts->first()->ID_SHAPE;
 
         $mmTop = MinMax::where('LIMIT_ITEM', MIN_MAX_STDEQP_TOP)->first();
 
-        $equip = \App\Models\Equipment::findOrFail( $input['idEquip'] );
+        $equip = \App\Models\Equipment::findOrFail($input['idEquip']);
         
         $sEquip = new \App\Models\StudyEquipment();
         $sEquip->ID_EQUIP = $equip->ID_EQUIP;
@@ -1216,17 +1217,11 @@ class Studies extends Controller
 
         $position = POSITION_PARALLEL;
         
-        // if (this . stdBean . isStudyHasParent()) {
-        //  // Chaining : use orientation from parent equip
-        //     position = stdBean . ParentProdPosition;
-        // } else {
-            // no chaining : force standard orientation depending on the shape
         $position = (($productshape == CYLINDER_LAYING)
             || ($productshape == CYLINDER_CONCENTRIC_LAYING)
             || ($productshape == PARALLELEPIPED_LAYING))
             ? POSITION_NOT_PARALLEL
             : POSITION_PARALLEL;
-        // }
 
         $lg = new LayoutGeneration();
         $lg->ID_STUDY_EQUIPMENTS = $sEquip->ID_STUDY_EQUIPMENTS;
@@ -1400,7 +1395,6 @@ class Studies extends Controller
 
     public function getStudyComment($id) 
     {
-        // @class: \App\Models\Study
         $study = Study::find($id);
     }
 
@@ -1919,7 +1913,7 @@ class Studies extends Controller
                     $packing->ID_STUDY = $study->ID_STUDY;
                     unset($packing->ID_PACKING);
                     $packing->save();
-                    // @class: \App\Models\PackingLayer
+            
                     $packingLayerCurr = PackingLayer::where('ID_PACKING', $packingCurr->ID_PACKING)->get();
                     if (count($packingLayerCurr) > 0) {
                         foreach ($packingLayerCurr as $pLayer) {
