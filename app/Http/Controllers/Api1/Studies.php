@@ -301,18 +301,6 @@ class Studies extends Controller
     public function saveStudyAs($id)
     {
         $input = $this->request->all();
-        $studyCurrent = Study::find($id);
-
-        $study = new Study();
-        $temprecordpst = new TempRecordPts();
-        $production = new Production();
-        $product = new Product();
-        $meshgeneration = new MeshGeneration();
-        $price = new Price();
-        $report = new Report();
-        $precalcLdgRatePrm = new PrecalcLdgRatePrm();
-        $packing = new Packing();
-        
         $duplicateStudy = Study::where('STUDY_NAME', '=', $input['name'])->count();
         if ($duplicateStudy) {
             return response([
@@ -320,290 +308,306 @@ class Studies extends Controller
                 'message' => 'This study name already exists, please try another one.'
             ], 406);
         }
-        
-        if ($studyCurrent) {
-            $temprecordpstCurr = TempRecordPts::where('ID_STUDY', $studyCurrent->ID_STUDY)->first();
-            $productionCurr = Production::where('ID_STUDY', $studyCurrent->ID_STUDY)->first(); 
-            $productCurr = Product::where('ID_STUDY', $studyCurrent->ID_STUDY)->first();
-            $mesh3D_info = Mesh3DInfo::where('ID_PROD', $productCurr->ID_PROD)->first();
 
-            $priceCurr = Price::where('ID_STUDY', $studyCurrent->ID_STUDY)->first(); 
-            $reportCurr = Report::where('ID_STUDY', $studyCurrent->ID_STUDY)->first(); 
-            $precalcLdgRatePrmCurr = PrecalcLdgRatePrm::where('ID_STUDY', $studyCurrent->ID_STUDY)->first();
-            $packingCurr = Packing::where('ID_STUDY', $studyCurrent->ID_STUDY)->first(); 
-            $studyemtlCurr = StudyEquipment::where('ID_STUDY', $studyCurrent->ID_STUDY)->get(); 
+        $studies = $this->study->getChildIdChaining($id);
 
-            if (!empty($input['name']) || ($study->STUDY_NAME  != null)) {
+        if (count($studies) > 0) {
+            $parentId = 0;
+            $i = 0;
+            foreach ($studies as $studyChild) {
+                $studyCurrent = Study::find($studyChild);
+                if ($studyCurrent) {
+                    $study = new Study();
+                    $temprecordpst = new TempRecordPts();
+                    $production = new Production();
+                    $product = new Product();
+                    $meshgeneration = new MeshGeneration();
+                    $price = new Price();
+                    $report = new Report();
+                    $precalcLdgRatePrm = new PrecalcLdgRatePrm();
+                    $packing = new Packing();
 
-                //duplicate study already exsits
-                $study = $studyCurrent->replicate();
-                unset($study->STUDY_NAME);
-                unset($study->ID_USER);
-                $study->ID_USER = $this->auth->user()->ID_USER;
-                $study->STUDY_NAME = $input['name'];
-                $study->HAS_CHILD = 0;
+                    $temprecordpstCurr = TempRecordPts::where('ID_STUDY', $studyCurrent->ID_STUDY)->first();
+                    $productionCurr = Production::where('ID_STUDY', $studyCurrent->ID_STUDY)->first(); 
+                    $productCurr = Product::where('ID_STUDY', $studyCurrent->ID_STUDY)->first();
+                    $mesh3D_info = Mesh3DInfo::where('ID_PROD', $productCurr->ID_PROD)->first();
 
-                $date = date("D M j G:i:s T Y") . ' by ' . $this->auth->user()->USERNAM;
-                $study->COMMENT_TXT = $studyCurrent->COMMENT_TXT .'</br>'. 'Created on ' . $date;
-                $study->save();
+                    $priceCurr = Price::where('ID_STUDY', $studyCurrent->ID_STUDY)->first(); 
+                    $reportCurr = Report::where('ID_STUDY', $studyCurrent->ID_STUDY)->first(); 
+                    $precalcLdgRatePrmCurr = PrecalcLdgRatePrm::where('ID_STUDY', $studyCurrent->ID_STUDY)->first();
+                    $packingCurr = Packing::where('ID_STUDY', $studyCurrent->ID_STUDY)->first(); 
+                    $studyemtlCurr = StudyEquipment::where('ID_STUDY', $studyCurrent->ID_STUDY)->get();
 
-                //duplicate TempRecordPts already exsits
-                if ($temprecordpstCurr) {
-                    $temprecordpst = $temprecordpstCurr->replicate();
-                    $temprecordpst->ID_STUDY = $study->ID_STUDY;
-                    unset($temprecordpst->ID_TEMP_RECORD_PTS);
-                    $temprecordpst->save();
 
-                }
-
-                //duplicate Production already exsits
-                if ($productionCurr) {
-                    $production = $productionCurr->replicate();
-                    $production->ID_STUDY = $study->ID_STUDY;
-                    unset($production->ID_PRODUCTION);
-                    $production->save();
-
-                    //duplicate initial_Temp already exsits
-                    $initialTemperatures = InitialTemperature::where('ID_PRODUCTION', $productionCurr->ID_PRODUCTION)->get();
-                    if (count($initialTemperatures) > 0) {
-                        DB::insert('insert into initial_temperature (ID_PRODUCTION, INITIAL_T, MESH_1_ORDER, MESH_2_ORDER, MESH_3_ORDER) select '
-                    . $production->ID_PRODUCTION . ',I.INITIAL_T, I.MESH_1_ORDER, I.MESH_2_ORDER, I.MESH_3_ORDER from initial_temperature as I where ID_PRODUCTION = ' . $productionCurr->ID_PRODUCTION);
+                    //duplicate study already exsits
+                    $study = $studyCurrent->replicate();
+                    unset($study->STUDY_NAME);
+                    unset($study->ID_USER);
+                    $study->ID_USER = $this->auth->user()->ID_USER;
+                    $study->STUDY_NAME = ($i > 0) ? $input['name'] . '_' . $i : $input['name'];
+                    if ($i > 0 && $parentId != 0) {
+                        $study->PARENT_ID = $parentId;
                     }
-                }
 
-                //duplicate Product already exsits
-                if ($productCurr) {
-                    $product = $productCurr->replicate();
-                    $product->ID_STUDY = $study->ID_STUDY;
-                    unset($product->ID_PROD);
-                    $product->save();
+                    $date = date("D M j G:i:s T Y") . ' by ' . $this->auth->user()->USERNAM;
+                    $study->COMMENT_TXT = $studyCurrent->COMMENT_TXT .'</br>'. 'Created on ' . $date;
+                    $study->save();
+                    $parentId = $study->ID_STUDY;
 
-                    $meshgenerationCurr = MeshGeneration::where('ID_PROD',$productCurr->ID_PROD)->first(); 
-                    $productemltCurr = ProductElmt::where('ID_PROD',$productCurr->ID_PROD)->get(); 
-                    //duplicate MeshGeneration already exsits
-                    if ($meshgenerationCurr) {
-                        $meshgeneration = $meshgenerationCurr->replicate();
-                        $meshgeneration->ID_PROD = $product->ID_PROD;
-                        unset($meshgeneration->ID_MESH_GENERATION);
-                        $meshgeneration->save();
-                        $product->ID_MESH_GENERATION = $meshgeneration->ID_MESH_GENERATION;
+                    //duplicate TempRecordPts already exsits
+                    if ($temprecordpstCurr) {
+                        $temprecordpst = $temprecordpstCurr->replicate();
+                        $temprecordpst->ID_STUDY = $study->ID_STUDY;
+                        unset($temprecordpst->ID_TEMP_RECORD_PTS);
+                        $temprecordpst->save();
+
+                    }
+
+                    //duplicate Production already exsits
+                    if ($productionCurr) {
+                        $production = $productionCurr->replicate();
+                        $production->ID_STUDY = $study->ID_STUDY;
+                        unset($production->ID_PRODUCTION);
+                        $production->save();
+
+                        //duplicate initial_Temp already exsits
+                        $initialTemperatures = InitialTemperature::where('ID_PRODUCTION', $productionCurr->ID_PRODUCTION)->get();
+                        if (count($initialTemperatures) > 0) {
+                            DB::insert('insert into initial_temperature (ID_PRODUCTION, INITIAL_T, MESH_1_ORDER, MESH_2_ORDER, MESH_3_ORDER) select '
+                        . $production->ID_PRODUCTION . ',I.INITIAL_T, I.MESH_1_ORDER, I.MESH_2_ORDER, I.MESH_3_ORDER from initial_temperature as I where ID_PRODUCTION = ' . $productionCurr->ID_PRODUCTION);
+                        }
+                    }
+
+                    //duplicate Product already exsits
+                    if ($productCurr) {
+                        $product = $productCurr->replicate();
+                        $product->ID_STUDY = $study->ID_STUDY;
+                        unset($product->ID_PROD);
                         $product->save();
-                    }
 
-                    if ($mesh3D_info) {
-                        $mesh3D_new = new Mesh3DInfo();
-                        $mesh3D_new = $mesh3D_info->replicate();
-                        $mesh3D_new->id_prod = $product->ID_PROD;
-                        unset($mesh3D_new->id_mesh3d_info);
-                        // if (file_exists($mesh3D_info->file_path)) {
-                        //     $src = $mesh3D_info->file_path."/*";
-                        //     if (!is_dir($mesh3D_info->file_path."-saveAs-".$mesh3D_new->id_prod)) {
-                        //         mkdir($mesh3D_info->file_path."-saveAs-".$mesh3D_new->id_prod, 0777, true);
-                        //     }
-                        //     $dest = $mesh3D_info->file_path."-saveAs-".$mesh3D_new->id_prod;
-                        //     shell_exec("cp -r $src $dest");
-                        //     $mesh3D_new->file_path =$dest;
-                        // }
-                        $mesh3D_new->save();
-                    }
+                        $meshgenerationCurr = MeshGeneration::where('ID_PROD',$productCurr->ID_PROD)->first(); 
+                        $productemltCurr = ProductElmt::where('ID_PROD',$productCurr->ID_PROD)->get(); 
+                        //duplicate MeshGeneration already exsits
+                        if ($meshgenerationCurr) {
+                            $meshgeneration = $meshgenerationCurr->replicate();
+                            $meshgeneration->ID_PROD = $product->ID_PROD;
+                            unset($meshgeneration->ID_MESH_GENERATION);
+                            $meshgeneration->save();
+                            $product->ID_MESH_GENERATION = $meshgeneration->ID_MESH_GENERATION;
+                            $product->save();
+                        }
 
-                    if (count($productemltCurr) > 0) {
-                        foreach ($productemltCurr as $prodelmtCurr ) {
-                            $productemlt = new ProductElmt();
-                            $productemlt = $prodelmtCurr->replicate();
-                            $productemlt->ID_PROD = $product->ID_PROD;
-                            $productemlt->INSERT_LINE_ORDER = $study->ID_STUDY;
-                            unset($productemlt->ID_PRODUCT_ELMT);
-                            $productemlt->save();
+                        if ($mesh3D_info) {
+                            $mesh3D_new = new Mesh3DInfo();
+                            $mesh3D_new = $mesh3D_info->replicate();
+                            $mesh3D_new->id_prod = $product->ID_PROD;
+                            unset($mesh3D_new->id_mesh3d_info);
+                            // if (file_exists($mesh3D_info->file_path)) {
+                            //     $src = $mesh3D_info->file_path."/*";
+                            //     if (!is_dir($mesh3D_info->file_path."-saveAs-".$mesh3D_new->id_prod)) {
+                            //         mkdir($mesh3D_info->file_path."-saveAs-".$mesh3D_new->id_prod, 0777, true);
+                            //     }
+                            //     $dest = $mesh3D_info->file_path."-saveAs-".$mesh3D_new->id_prod;
+                            //     shell_exec("cp -r $src $dest");
+                            //     $mesh3D_new->file_path =$dest;
+                            // }
+                            $mesh3D_new->save();
+                        }
 
-                            // duplicate mesh_position
-                            $meshPositions = MeshPosition::where('ID_PRODUCT_ELMT', $prodelmtCurr->ID_PRODUCT_ELMT)->get();
-                            if (count($meshPositions) > 0) {
-                                DB::insert('insert into mesh_position (ID_PRODUCT_ELMT, MESH_AXIS, MESH_ORDER, MESH_AXIS_POS) select '
-                                . $productemlt->ID_PRODUCT_ELMT . ',M.MESH_AXIS, M.MESH_ORDER, M.MESH_AXIS_POS from mesh_position as M where ID_PRODUCT_ELMT = '
-                                . $prodelmtCurr->ID_PRODUCT_ELMT);
-                            }
+                        if (count($productemltCurr) > 0) {
+                            foreach ($productemltCurr as $prodelmtCurr ) {
+                                $productemlt = new ProductElmt();
+                                $productemlt = $prodelmtCurr->replicate();
+                                $productemlt->ID_PROD = $product->ID_PROD;
+                                $productemlt->INSERT_LINE_ORDER = $study->ID_STUDY;
+                                unset($productemlt->ID_PRODUCT_ELMT);
+                                $productemlt->save();
 
-                            $initial3D_temps = InitTemp3D::where('ID_PRODUCT_ELMT', $prodelmtCurr->ID_PRODUCT_ELMT)->get();
-                            if (count($initial3D_temps) > 0) {
-                                foreach ($initial3D_temps as $initial3D_temp) {
-                                    $inital3D_new = new InitTemp3D();
-                                    $inital3D_new = $initial3D_temp->replicate();
-                                    $inital3D_new->ID_PRODUCT_ELMT = $productemlt->ID_PRODUCT_ELMT;
-                                    unset($inital3D_new->ID_MESH_POSITION);
-                                    $inital3D_new->save();
+                                // duplicate mesh_position
+                                $meshPositions = MeshPosition::where('ID_PRODUCT_ELMT', $prodelmtCurr->ID_PRODUCT_ELMT)->get();
+                                if (count($meshPositions) > 0) {
+                                    DB::insert('insert into mesh_position (ID_PRODUCT_ELMT, MESH_AXIS, MESH_ORDER, MESH_AXIS_POS) select '
+                                    . $productemlt->ID_PRODUCT_ELMT . ',M.MESH_AXIS, M.MESH_ORDER, M.MESH_AXIS_POS from mesh_position as M where ID_PRODUCT_ELMT = '
+                                    . $prodelmtCurr->ID_PRODUCT_ELMT);
                                 }
-                            }
-                        }
-                    }
-                }
-                    
-                //duplicate Price already exsits
-                if ($priceCurr) {
-                    $price = $priceCurr->replicate();
-                    $price->ID_STUDY = $study->ID_STUDY;
-                    unset($price->ID_PRICE);
-                    $price->save();
-                }
 
-                //duplicate Report already exsits
-                if ($reportCurr) {
-                    $report = $reportCurr->replicate();
-                    $report->ID_STUDY = $study->ID_STUDY;
-                    unset($report->ID_REPORT);
-                    $report->save();
-                }
-                
-                if ($precalcLdgRatePrmCurr) {
-                    $precalcLdgRatePrm = $precalcLdgRatePrmCurr->replicate();
-                    $precalcLdgRatePrm->ID_STUDY = $study->ID_STUDY;
-                    unset($precalcLdgRatePrm->ID_PRECALC_LDG_RATE_PRM);
-                    $precalcLdgRatePrm->save();
-                }
-
-                if ($packingCurr) {
-                    $packing = $packingCurr->replicate();
-                    $packing->ID_STUDY = $study->ID_STUDY;
-                    unset($packing->ID_PACKING);
-                    $packing->save();
-     
-                    $packingLayerCurr = PackingLayer::where('ID_PACKING', $packingCurr->ID_PACKING)->get(); 
-                    if (count($packingLayerCurr) > 0) {
-                        foreach ($packingLayerCurr as $pLayer) {
-                            $packingLayer = new PackingLayer();
-                            $packingLayer = $pLayer->replicate();
-                            $packingLayer->ID_PACKING = $packing->ID_PACKING;
-                            unset($packingLayer->ID_PACKING_LAYER);
-                            $packingLayer->save();
-                        }
-                    }
-                }
-
-                if (count($studyemtlCurr) > 0) {
-                    foreach ($studyemtlCurr as $stuElmt) {
-                        $studyelmt = new StudyEquipment();
-                        $studyelmt = $stuElmt->replicate();
-                        $studyelmt->ID_STUDY = $study->ID_STUDY;
-                        $studyelmt->BRAIN_TYPE = 0;
-                        unset($studyelmt->ID_STUDY_EQUIPMENTS);
-
-                        if ($studyelmt->save()) {
-                            $studyelmtId = $studyelmt->ID_STUDY_EQUIPMENTS;
-                            $pipegen = new PipeGen();
-                            $pipegenCurr = PipeGen::where('ID_STUDY_EQUIPMENTS', $stuElmt->ID_STUDY_EQUIPMENTS)->first();
-
-                            if (count($pipegenCurr) > 0) {
-                                $pipegen = $pipegenCurr->replicate();
-                                $pipegen->ID_STUDY_EQUIPMENTS = $studyelmtId;
-                                unset($pipegen->ID_PIPE_GEN );
-                                $pipegen->save();
-
-                                $studyelmt->ID_PIPE_GEN = $pipegen->ID_PIPE_GEN;
-                                $studyelmt->save();
-
-                                $lineDefiCurr = LineDefinition::where('ID_PIPE_GEN', $pipegenCurr->ID_PIPE_GEN)->get();
-                                if (count($lineDefiCurr) > 0) {
-                                    foreach ($lineDefiCurr as $lineDefiCurrs) {
-                                        $lineDefi = new LineDefinition();
-                                        $lineDefi = $lineDefiCurrs->replicate();
-                                        $lineDefi->ID_PIPE_GEN = $pipegen->ID_PIPE_GEN;
-                                        unset($lineDefi->ID_LINE_DEFINITION);
-                                        $lineDefi->save();
+                                $initial3D_temps = InitTemp3D::where('ID_PRODUCT_ELMT', $prodelmtCurr->ID_PRODUCT_ELMT)->get();
+                                if (count($initial3D_temps) > 0) {
+                                    foreach ($initial3D_temps as $initial3D_temp) {
+                                        $inital3D_new = new InitTemp3D();
+                                        $inital3D_new = $initial3D_temp->replicate();
+                                        $inital3D_new->ID_PRODUCT_ELMT = $productemlt->ID_PRODUCT_ELMT;
+                                        unset($inital3D_new->ID_MESH_POSITION);
+                                        $inital3D_new->save();
                                     }
                                 }
                             }
+                        }
+                    }
+                        
+                    //duplicate Price already exsits
+                    if ($priceCurr) {
+                        $price = $priceCurr->replicate();
+                        $price->ID_STUDY = $study->ID_STUDY;
+                        unset($price->ID_PRICE);
+                        $price->save();
+                    }
 
-                            $piperes = new PipeRes();
-                            $piperesCurr = PipeRes::where('ID_STUDY_EQUIPMENTS', $stuElmt->ID_STUDY_EQUIPMENTS)->first();
-                            if (count($piperesCurr) > 0) {
-                                $piperes = $piperesCurr->replicate();
-                                $piperes->ID_STUDY_EQUIPMENTS = $studyelmtId;
-                                unset($piperes->ID_PIPE_RES);
-                                $piperes->save();
-                            }
+                    //duplicate Report already exsits
+                    if ($reportCurr) {
+                        $report = $reportCurr->replicate();
+                        $report->ID_STUDY = $study->ID_STUDY;
+                        unset($report->ID_REPORT);
+                        $report->save();
+                    }
+                    
+                    if ($precalcLdgRatePrmCurr) {
+                        $precalcLdgRatePrm = $precalcLdgRatePrmCurr->replicate();
+                        $precalcLdgRatePrm->ID_STUDY = $study->ID_STUDY;
+                        unset($precalcLdgRatePrm->ID_PRECALC_LDG_RATE_PRM);
+                        $precalcLdgRatePrm->save();
+                    }
 
-                            $economicRes = new EconomicResults();
-                            $economicResults = EconomicResults::where('ID_STUDY_EQUIPMENTS', $stuElmt->ID_STUDY_EQUIPMENTS)->first();
-                            if (count($economicResults) > 0) {
-                                $economicRes = $economicResults->replicate();
-                                $economicRes->ID_STUDY_EQUIPMENTS = $studyelmtId;
-                                unset($economicRes->ID_ECONOMIC_RESULTS);
-                                $economicRes->save();
-                            }
-
-                            $calparam = CalculationParameter::where('ID_STUDY_EQUIPMENTS', $stuElmt->ID_STUDY_EQUIPMENTS)->first();
-                            if (count($calparam) > 0) {
-                                $calparameter = new CalculationParameter();
-                                $calparameter = $calparam->replicate();
-                                $calparameter->ID_STUDY_EQUIPMENTS = $studyelmtId;
-                                unset($calparameter->ID_CALC_PARAMS);
-                                $calparameter->save();
-                            } 
-                            
-                            $stdEqpPrms = StudEqpPrm::where('ID_STUDY_EQUIPMENTS', $stuElmt->ID_STUDY_EQUIPMENTS)->get();
-                            if (count($stdEqpPrms) > 0) {
-                                foreach ($stdEqpPrms as $stdEqpPrm) {
-                                    $newStdEqpParam = new StudEqpPrm();
-                                    $newStdEqpParam->ID_STUDY_EQUIPMENTS = $studyelmtId;
-                                    $newStdEqpParam->VALUE_TYPE = $stdEqpPrm->VALUE_TYPE;
-                                    $newStdEqpParam->VALUE = $stdEqpPrm->VALUE;
-                                    $newStdEqpParam->save();
-                                }
-                            }
-                            
-                            $layoutGenerations = LayoutGeneration::where('ID_STUDY_EQUIPMENTS', $stuElmt->ID_STUDY_EQUIPMENTS)->get(); 
-                            if (count($layoutGenerations) > 0) {
-                                foreach ($layoutGenerations as $layoutGeneration) {
-                                    $layoutGen = new LayoutGeneration();
-                                    $layoutGen = $layoutGeneration->replicate();
-                                    $layoutGen->ID_STUDY_EQUIPMENTS = $studyelmtId;
-                                    unset($layoutGen->ID_LAYOUT_GENERATION);
-                                    $layoutGen->save();
-                                }
-                            }
-
-                            $layoutResults = LayoutResults::where('ID_STUDY_EQUIPMENTS', $stuElmt->ID_STUDY_EQUIPMENTS)->get(); 
-                            if (count($layoutResults) > 0) {
-                                foreach ($layoutResults as $layoutRes) {
-                                    $layoutResult = $layoutRes->replicate();
-                                    $layoutResult->ID_STUDY_EQUIPMENTS = $studyelmtId;
-                                    unset($layoutResult->ID_LAYOUT_RESULTS);
-                                    $layoutResult->save();
-                                }
+                    if ($packingCurr) {
+                        $packing = $packingCurr->replicate();
+                        $packing->ID_STUDY = $study->ID_STUDY;
+                        unset($packing->ID_PACKING);
+                        $packing->save();
+         
+                        $packingLayerCurr = PackingLayer::where('ID_PACKING', $packingCurr->ID_PACKING)->get(); 
+                        if (count($packingLayerCurr) > 0) {
+                            foreach ($packingLayerCurr as $pLayer) {
+                                $packingLayer = new PackingLayer();
+                                $packingLayer = $pLayer->replicate();
+                                $packingLayer->ID_PACKING = $packing->ID_PACKING;
+                                unset($packingLayer->ID_PACKING_LAYER);
+                                $packingLayer->save();
                             }
                         }
                     }
-                    $studyelmt->ID_PIPE_RES = $piperes->ID_PIPE_RES;
-                    
-                    $studyelmt->ID_ECONOMIC_RESULTS = $economicRes->ID_ECONOMIC_RESULTS;
-                    $studyelmt->ID_CALC_PARAMS = $calparameter->ID_CALC_PARAMS;
-                    $studyelmt->ID_LAYOUT_GENERATION = $layoutGen->ID_LAYOUT_GENERATION;
-                    $studyelmt->ID_LAYOUT_RESULTS = $layoutResult->ID_LAYOUT_RESULTS;
-                    $studyelmt->save();
+
+                    if (count($studyemtlCurr) > 0) {
+                        foreach ($studyemtlCurr as $stuElmt) {
+                            $studyelmt = new StudyEquipment();
+                            $studyelmt = $stuElmt->replicate();
+                            $studyelmt->ID_STUDY = $study->ID_STUDY;
+                            $studyelmt->BRAIN_TYPE = 0;
+                            unset($studyelmt->ID_STUDY_EQUIPMENTS);
+
+                            if ($studyelmt->save()) {
+                                $studyelmtId = $studyelmt->ID_STUDY_EQUIPMENTS;
+                                $pipegen = new PipeGen();
+                                $pipegenCurr = PipeGen::where('ID_STUDY_EQUIPMENTS', $stuElmt->ID_STUDY_EQUIPMENTS)->first();
+
+                                if (count($pipegenCurr) > 0) {
+                                    $pipegen = $pipegenCurr->replicate();
+                                    $pipegen->ID_STUDY_EQUIPMENTS = $studyelmtId;
+                                    unset($pipegen->ID_PIPE_GEN );
+                                    $pipegen->save();
+
+                                    $studyelmt->ID_PIPE_GEN = $pipegen->ID_PIPE_GEN;
+                                    $studyelmt->save();
+
+                                    $lineDefiCurr = LineDefinition::where('ID_PIPE_GEN', $pipegenCurr->ID_PIPE_GEN)->get();
+                                    if (count($lineDefiCurr) > 0) {
+                                        foreach ($lineDefiCurr as $lineDefiCurrs) {
+                                            $lineDefi = new LineDefinition();
+                                            $lineDefi = $lineDefiCurrs->replicate();
+                                            $lineDefi->ID_PIPE_GEN = $pipegen->ID_PIPE_GEN;
+                                            unset($lineDefi->ID_LINE_DEFINITION);
+                                            $lineDefi->save();
+                                        }
+                                    }
+                                }
+
+                                $piperes = new PipeRes();
+                                $piperesCurr = PipeRes::where('ID_STUDY_EQUIPMENTS', $stuElmt->ID_STUDY_EQUIPMENTS)->first();
+                                if (count($piperesCurr) > 0) {
+                                    $piperes = $piperesCurr->replicate();
+                                    $piperes->ID_STUDY_EQUIPMENTS = $studyelmtId;
+                                    unset($piperes->ID_PIPE_RES);
+                                    $piperes->save();
+                                }
+
+                                $economicRes = new EconomicResults();
+                                $economicResults = EconomicResults::where('ID_STUDY_EQUIPMENTS', $stuElmt->ID_STUDY_EQUIPMENTS)->first();
+                                if (count($economicResults) > 0) {
+                                    $economicRes = $economicResults->replicate();
+                                    $economicRes->ID_STUDY_EQUIPMENTS = $studyelmtId;
+                                    unset($economicRes->ID_ECONOMIC_RESULTS);
+                                    $economicRes->save();
+                                }
+
+                                $calparam = CalculationParameter::where('ID_STUDY_EQUIPMENTS', $stuElmt->ID_STUDY_EQUIPMENTS)->first();
+                                if (count($calparam) > 0) {
+                                    $calparameter = new CalculationParameter();
+                                    $calparameter = $calparam->replicate();
+                                    $calparameter->ID_STUDY_EQUIPMENTS = $studyelmtId;
+                                    unset($calparameter->ID_CALC_PARAMS);
+                                    $calparameter->save();
+                                } 
+                                
+                                $stdEqpPrms = StudEqpPrm::where('ID_STUDY_EQUIPMENTS', $stuElmt->ID_STUDY_EQUIPMENTS)->get();
+                                if (count($stdEqpPrms) > 0) {
+                                    foreach ($stdEqpPrms as $stdEqpPrm) {
+                                        $newStdEqpParam = new StudEqpPrm();
+                                        $newStdEqpParam->ID_STUDY_EQUIPMENTS = $studyelmtId;
+                                        $newStdEqpParam->VALUE_TYPE = $stdEqpPrm->VALUE_TYPE;
+                                        $newStdEqpParam->VALUE = $stdEqpPrm->VALUE;
+                                        $newStdEqpParam->save();
+                                    }
+                                }
+                                
+                                $layoutGenerations = LayoutGeneration::where('ID_STUDY_EQUIPMENTS', $stuElmt->ID_STUDY_EQUIPMENTS)->get(); 
+                                if (count($layoutGenerations) > 0) {
+                                    foreach ($layoutGenerations as $layoutGeneration) {
+                                        $layoutGen = new LayoutGeneration();
+                                        $layoutGen = $layoutGeneration->replicate();
+                                        $layoutGen->ID_STUDY_EQUIPMENTS = $studyelmtId;
+                                        unset($layoutGen->ID_LAYOUT_GENERATION);
+                                        $layoutGen->save();
+                                    }
+                                }
+
+                                $layoutResults = LayoutResults::where('ID_STUDY_EQUIPMENTS', $stuElmt->ID_STUDY_EQUIPMENTS)->get(); 
+                                if (count($layoutResults) > 0) {
+                                    foreach ($layoutResults as $layoutRes) {
+                                        $layoutResult = $layoutRes->replicate();
+                                        $layoutResult->ID_STUDY_EQUIPMENTS = $studyelmtId;
+                                        unset($layoutResult->ID_LAYOUT_RESULTS);
+                                        $layoutResult->save();
+                                    }
+                                }
+                            }
+                        }
+                        $studyelmt->ID_PIPE_RES = $piperes->ID_PIPE_RES;
+                        
+                        $studyelmt->ID_ECONOMIC_RESULTS = $economicRes->ID_ECONOMIC_RESULTS;
+                        $studyelmt->ID_CALC_PARAMS = $calparameter->ID_CALC_PARAMS;
+                        $studyelmt->ID_LAYOUT_GENERATION = $layoutGen->ID_LAYOUT_GENERATION;
+                        $studyelmt->ID_LAYOUT_RESULTS = $layoutResult->ID_LAYOUT_RESULTS;
+                        $studyelmt->save();
+                    }
+
+                    $study->ID_TEMP_RECORD_PTS = $temprecordpst->ID_TEMP_RECORD_PTS;
+                    $study->ID_PRODUCTION = $production->ID_PRODUCTION;
+                    $study->ID_PROD = $product->ID_PROD;
+                    $study->ID_PRICE = $price->ID_PRICE;
+                    $study->ID_REPORT = $report->ID_REPORT;
+                    $study->ID_PRECALC_LDG_RATE_PRM = $precalcLdgRatePrm->ID_PRECALC_LDG_RATE_PRM;
+                    $study->ID_PACKING = $packing->ID_PACKING;
+                    $study->save();
+
+                    $i++;
                 }
-
-                $study->ID_TEMP_RECORD_PTS = $temprecordpst->ID_TEMP_RECORD_PTS;
-                $study->ID_PRODUCTION = $production->ID_PRODUCTION;
-                $study->ID_PROD = $product->ID_PROD;
-                $study->ID_PRICE = $price->ID_PRICE;
-                $study->ID_REPORT = $report->ID_REPORT;
-                $study->ID_PRECALC_LDG_RATE_PRM = $precalcLdgRatePrm->ID_PRECALC_LDG_RATE_PRM;
-                $study->ID_PACKING = $packing->ID_PACKING;
-                $study->save();
-
-                return $study;
-
-            } else {
-                return response([
-                    'code' => 1001,
-                    'message' => 'Unknown error!'
-                ], 406); // Status code here
             }
+
+            return 1;
         } else {
            return response([
-                    'code' => 1003,
-                    'message' => 'Study id not found'
-                ], 406); // Status code here
+                'code' => 1003,
+                'message' => 'Study id not found'
+            ], 406); // Status code here
         }
     }
 

@@ -409,4 +409,33 @@ class StudyService
 
         return $dd;
     }
+
+    public function getParentIdChaining($idStudy, $arrStudyId = [])
+    {
+        $study = Study::find($idStudy);
+        if ($study) {
+            $arrStudyId[] = $idStudy;
+            $arrStudyId = $this->getParentIdChaining($study->PARENT_ID, $arrStudyId);
+        }
+
+        return $arrStudyId;
+    }
+
+    public function getChildIdChaining($idStudy, $arrStudyId = [])
+    {
+        $study = Study::findOrFail($idStudy);
+        $arrStudyId[] = $idStudy;
+        if ($study->HAS_CHILD != 0) {
+            $children = Study::where('PARENT_ID', $study->ID_STUDY)->first();
+            if ($children) {
+                $arrStudyId[] = $children->ID_STUDY;
+                $arrStudyId = $this->getChildIdChaining($children->ID_STUDY, $arrStudyId);
+            }
+        }
+
+        $arrStudyId = array_unique($arrStudyId);
+        $arrStudyId = array_values($arrStudyId);
+
+        return $arrStudyId;
+    }
 }
