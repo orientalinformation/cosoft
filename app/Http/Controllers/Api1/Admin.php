@@ -349,7 +349,7 @@ class Admin extends Controller
 
         $listUnit = [];
         foreach ($units as $key => $value) {
-            $kernelUnit = DB::table('Unit')
+            $kernelUnit = DB::table('unit')
                         ->where('ID_UNIT', '=', DB::raw('TYPE_UNIT'))
                         ->where('TYPE_UNIT', $value['value'])
                         ->where('TYPE_UNIT', '<>', 27)
