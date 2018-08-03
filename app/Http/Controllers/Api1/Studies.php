@@ -322,16 +322,16 @@ class Studies extends Controller
         }
         
         if ($studyCurrent) {
-            $temprecordpstCurr = TempRecordPts::where('ID_STUDY',$studyCurrent->ID_STUDY)->first();
-            $productionCurr = Production::where('ID_STUDY',$studyCurrent->ID_STUDY)->first(); 
-            $productCurr = Product::where('ID_STUDY',$studyCurrent->ID_STUDY)->first();
-            $mesh3D_info = Mesh3DInfo::where('ID_PROD',$productCurr->ID_PROD)->first();
+            $temprecordpstCurr = TempRecordPts::where('ID_STUDY', $studyCurrent->ID_STUDY)->first();
+            $productionCurr = Production::where('ID_STUDY', $studyCurrent->ID_STUDY)->first(); 
+            $productCurr = Product::where('ID_STUDY', $studyCurrent->ID_STUDY)->first();
+            $mesh3D_info = Mesh3DInfo::where('ID_PROD', $productCurr->ID_PROD)->first();
 
-            $priceCurr = Price::where('ID_STUDY',$studyCurrent->ID_STUDY)->first(); 
-            $reportCurr = Report::where('ID_STUDY',$studyCurrent->ID_STUDY)->first(); 
-            $precalcLdgRatePrmCurr = PrecalcLdgRatePrm::where('ID_STUDY',$studyCurrent->ID_STUDY)->first();
-            $packingCurr = Packing::where('ID_STUDY',$studyCurrent->ID_STUDY)->first(); 
-            $studyemtlCurr = StudyEquipment::where('ID_STUDY',$studyCurrent->ID_STUDY)->get(); 
+            $priceCurr = Price::where('ID_STUDY', $studyCurrent->ID_STUDY)->first(); 
+            $reportCurr = Report::where('ID_STUDY', $studyCurrent->ID_STUDY)->first(); 
+            $precalcLdgRatePrmCurr = PrecalcLdgRatePrm::where('ID_STUDY', $studyCurrent->ID_STUDY)->first();
+            $packingCurr = Packing::where('ID_STUDY', $studyCurrent->ID_STUDY)->first(); 
+            $studyemtlCurr = StudyEquipment::where('ID_STUDY', $studyCurrent->ID_STUDY)->get(); 
 
             if (!empty($input['name']) || ($study->STUDY_NAME  != null)) {
 
@@ -497,11 +497,13 @@ class Studies extends Controller
                                 $pipegen->ID_STUDY_EQUIPMENTS = $studyelmtId;
                                 unset($pipegen->ID_PIPE_GEN );
                                 $pipegen->save();
+
                                 $studyelmt->ID_PIPE_GEN = $pipegen->ID_PIPE_GEN;
                                 $studyelmt->save();
+
                                 $lineDefiCurr = LineDefinition::where('ID_PIPE_GEN', $pipegenCurr->ID_PIPE_GEN)->get();
                                 if (count($lineDefiCurr) > 0) {
-                                foreach ($lineDefiCurr as $lineDefiCurrs) {
+                                    foreach ($lineDefiCurr as $lineDefiCurrs) {
                                         $lineDefi = new LineDefinition();
                                         $lineDefi = $lineDefiCurrs->replicate();
                                         $lineDefi->ID_PIPE_GEN = $pipegen->ID_PIPE_GEN;
@@ -539,7 +541,6 @@ class Studies extends Controller
                             } 
                             
                             $stdEqpPrms = StudEqpPrm::where('ID_STUDY_EQUIPMENTS', $stuElmt->ID_STUDY_EQUIPMENTS)->get();
-
                             if (count($stdEqpPrms) > 0) {
                                 foreach ($stdEqpPrms as $stdEqpPrm) {
                                     $newStdEqpParam = new StudEqpPrm();
