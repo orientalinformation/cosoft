@@ -655,8 +655,7 @@ class Studies extends Controller
                 $meshGen = $product->meshGenerations()->first();
                 if ($meshGen) {
                     if ($meshGen->MESH_1_FIXED != MeshService::IRREGULAR_MESH ||
-                        $meshGen->MESH_1_MODE != MeshService::MAILLAGE_MODE_IRREGULAR)
-                    {
+                        $meshGen->MESH_1_MODE != MeshService::MAILLAGE_MODE_IRREGULAR) {
                         $meshGen->MESH_1_FIXED = MeshService::IRREGULAR_MESH;
                         $meshGen->MESH_2_FIXED = MeshService::IRREGULAR_MESH;
                         $meshGen->MESH_3_FIXED = MeshService::IRREGULAR_MESH;
@@ -871,13 +870,13 @@ class Studies extends Controller
 
         $study->STUDY_NAME = $input['STUDY_NAME'];
         $duplicateStudy = Study::where('STUDY_NAME', '=', $input['STUDY_NAME'])->count();
-        if($duplicateStudy){
-
+        if($duplicateStudy) {
             return response([
                 'code' => 1002,
                 'message' => 'This study name already exists, please try another one.'
             ], 406);
         }
+        
         $study->ID_USER = $this->auth->user()->ID_USER;
         $study->OPTION_ECO = isset($input['OPTION_ECO']) ? $input['OPTION_ECO'] : 0;
         $study->CALCULATION_MODE = $input['CALCULATION_MODE'];
