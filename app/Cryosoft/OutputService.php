@@ -424,7 +424,7 @@ class OutputService
     public function getPositionForAxis2($idStudy, $axis, $meshAxis)
     {
         // $rMeshPosition = MeshPosition::where('ID_STUDY', $idStudy)->where('MESH_AXIS', $meshAxis)->where('MESH_AXIS_POS', $axis)->first();
-        // $rMeshPosition = DB::table('mesh_position')->join('product_elmt', 'mesh_position.ID_PRODUCT_ELMT', '=', 'product_elmt.ID_PRODUCT_ELMT')->join('product', 'product_elmt.ID_PROD', '=', 'product.ID_PROD')->whereRaw('product.ID_STUDY = '. $idStudy .' AND MESH_AXIS = '. $meshAxis .' AND CAST(MESH_AXIS_POS AS DECIMAL(10,9)) LIKE "%'. $axis .'%"')->first();
+        // $rMeshPosition = DB::table('MESH_POSITION')->join('PRODUCT_ELMT', 'MESH_POSITION.ID_PRODUCT_ELMT', '=', 'PRODUCT_ELMT.ID_PRODUCT_ELMT')->join('PRODUCT', 'PRODUCT_ELMT.ID_PROD', '=', 'PRODUCT.ID_PROD')->whereRaw('PRODUCT.ID_STUDY = '. $idStudy .' AND MESH_AXIS = '. $meshAxis .' AND CAST(MESH_AXIS_POS AS DECIMAL(10,9)) LIKE "%'. $axis .'%"')->first();
         if ($this->is_decimal($axis)) {
             $decimal = explode('.', $axis);
             $length = (strlen($decimal[1]) > 9) ? 9 : strlen($decimal[1]);
@@ -432,7 +432,7 @@ class OutputService
             $length = 9;
         }
         
-        $rMeshPosition = DB::table('mesh_position')->join('product_elmt', 'mesh_position.ID_PRODUCT_ELMT', '=', 'product_elmt.ID_PRODUCT_ELMT')->join('product', 'product_elmt.ID_PROD', '=', 'product.ID_PROD')->whereRaw('product.ID_STUDY = '. $idStudy .' AND MESH_AXIS = '. $meshAxis .' AND CAST(MESH_AXIS_POS AS DECIMAL(10,'. $length .')) = CAST('. $axis .' AS DECIMAL(10,9))')->first();
+        $rMeshPosition = DB::table('MESH_POSITION')->join('PRODUCT_ELMT', 'MESH_POSITION.ID_PRODUCT_ELMT', '=', 'PRODUCT_ELMT.ID_PRODUCT_ELMT')->join('PRODUCT', 'PRODUCT_ELMT.ID_PROD', '=', 'PRODUCT.ID_PROD')->whereRaw('PRODUCT.ID_STUDY = '. $idStudy .' AND MESH_AXIS = '. $meshAxis .' AND CAST(MESH_AXIS_POS AS DECIMAL(10,'. $length .')) = CAST('. $axis .' AS DECIMAL(10,9))')->first();
 
         return $rMeshPosition;
     }
@@ -1031,7 +1031,7 @@ class OutputService
     public function getPositionForSelectedPoint($selectedPoint, $idProdElt, $axis)
     {
         // $meshPosition = MeshPosition::where('ID_PRODUCT_ELMT', $idProdElt)->where('MESH_AXIS', $axis)->where('MESH_AXIS_POS', $selectedPoint)->first();
-        $meshPosition = DB::table('mesh_position')->whereRaw('MESH_AXIS = '. $axis .' AND CAST(MESH_AXIS_POS AS DECIMAL(10,9)) = CAST('. $selectedPoint .' AS DECIMAL(10,9))')->first();
+        $meshPosition = DB::table('MESH_POSITION')->whereRaw('MESH_AXIS = '. $axis .' AND CAST(MESH_AXIS_POS AS DECIMAL(10,9)) = CAST('. $selectedPoint .' AS DECIMAL(10,9))')->first();
         return ($meshPosition) ? $meshPosition->MESH_ORDER : 0;
     }
 

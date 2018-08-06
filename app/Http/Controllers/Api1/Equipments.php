@@ -194,8 +194,8 @@ class Equipments extends Controller
         $processId = (isset($input['process'])) ? $input['process'] : -1;
         $modelId = (isset($input['model'])) ? $input['model'] : -1;
 
-        $energies = CoolingFamily::distinct()->select('cooling_family.ID_COOLING_FAMILY', 'TRANSLATION.LABEL')
-        ->join('TRANSLATION', 'cooling_family.ID_COOLING_FAMILY', '=', 'TRANSLATION.ID_TRANSLATION')
+        $energies = CoolingFamily::distinct()->select('COOLING_FAMILY.ID_COOLING_FAMILY', 'TRANSLATION.LABEL')
+        ->join('TRANSLATION', 'COOLING_FAMILY.ID_COOLING_FAMILY', '=', 'TRANSLATION.ID_TRANSLATION')
         ->where('TRANSLATION.TRANS_TYPE', 2)
         ->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
         ->orderBy('TRANSLATION.LABEL')
@@ -214,32 +214,32 @@ class Equipments extends Controller
 
     public function getConstructors($energy = -1)
     {
-        $query = Equipseries::distinct()->select('equipseries.CONSTRUCTOR')
-        ->join('equipment', 'equipseries.ID_EQUIPSERIES', '=', 'equipment.ID_EQUIPSERIES');
+        $query = Equipseries::distinct()->select('EQUIPSERIES.CONSTRUCTOR')
+        ->join('EQUIPMENT', 'EQUIPSERIES.ID_EQUIPSERIES', '=', 'EQUIPMENT.ID_EQUIPSERIES');
 
         if ($energy != -1) {
-            $query->where('equipment.ID_COOLING_FAMILY', $energy);
+            $query->where('EQUIPMENT.ID_COOLING_FAMILY', $energy);
         }
 
-        $query->orderBy('equipseries.CONSTRUCTOR');
+        $query->orderBy('EQUIPSERIES.CONSTRUCTOR');
 
         return $query->get();
     }
 
     public function getFamilies($energy = -1, $manufacturer = '')
     {
-        $query = Equipfamily::distinct()->select('equipfamily.ID_FAMILY', 'TRANSLATION.LABEL')
-        ->join('TRANSLATION', 'equipfamily.ID_FAMILY', '=', 'TRANSLATION.ID_TRANSLATION')
-        ->join('equipseries', 'equipfamily.ID_FAMILY', '=', 'equipseries.ID_FAMILY')
-        ->join('equipment', 'equipseries.ID_EQUIPSERIES', '=', 'equipment.ID_EQUIPSERIES')
+        $query = Equipfamily::distinct()->select('EQUIPFAMILY.ID_FAMILY', 'TRANSLATION.LABEL')
+        ->join('TRANSLATION', 'EQUIPFAMILY.ID_FAMILY', '=', 'TRANSLATION.ID_TRANSLATION')
+        ->join('EQUIPSERIES', 'EQUIPFAMILY.ID_FAMILY', '=', 'EQUIPSERIES.ID_FAMILY')
+        ->join('EQUIPMENT', 'EQUIPSERIES.ID_EQUIPSERIES', '=', 'EQUIPMENT.ID_EQUIPSERIES')
         ->where('TRANSLATION.TRANS_TYPE', 5)->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE);
 
         if ($energy != -1) {
-            $query->where('equipment.ID_COOLING_FAMILY', $energy);
+            $query->where('EQUIPMENT.ID_COOLING_FAMILY', $energy);
         }
 
         if ($manufacturer != '') {
-            $query->where('equipseries.CONSTRUCTOR', $manufacturer);
+            $query->where('EQUIPSERIES.CONSTRUCTOR', $manufacturer);
         }
 
         $query->orderBy('TRANSLATION.LABEL');
@@ -250,22 +250,22 @@ class Equipments extends Controller
 
     public function getOrigines($energy = -1, $manufacturer = '', $family = -1)
     {
-        $query = Equipment::distinct()->select('equipment.STD', 'TRANSLATION.LABEL')
-        ->join('TRANSLATION', 'equipment.STD', '=', 'TRANSLATION.ID_TRANSLATION')
-        ->join('equipseries', 'equipment.ID_EQUIPSERIES', 'equipseries.ID_EQUIPSERIES')
-        ->join('equipfamily', 'equipseries.ID_FAMILY', '=', 'equipfamily.ID_FAMILY')
+        $query = Equipment::distinct()->select('EQUIPMENT.STD', 'TRANSLATION.LABEL')
+        ->join('TRANSLATION', 'EQUIPMENT.STD', '=', 'TRANSLATION.ID_TRANSLATION')
+        ->join('EQUIPSERIES', 'EQUIPMENT.ID_EQUIPSERIES', 'EQUIPSERIES.ID_EQUIPSERIES')
+        ->join('EQUIPFAMILY', 'EQUIPSERIES.ID_FAMILY', '=', 'EQUIPFAMILY.ID_FAMILY')
         ->where('TRANSLATION.TRANS_TYPE', 17)->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE);
 
         if ($energy != -1) {
-            $query->where('equipment.ID_COOLING_FAMILY', $energy);
+            $query->where('EQUIPMENT.ID_COOLING_FAMILY', $energy);
         }
 
         if ($manufacturer != null && $manufacturer != '') {
-            $query->where('equipseries.CONSTRUCTOR', $manufacturer);
+            $query->where('EQUIPSERIES.CONSTRUCTOR', $manufacturer);
         }
 
         if ($family != -1) {
-            $query->where('equipfamily.ID_FAMILY', $family);
+            $query->where('EQUIPFAMILY.ID_FAMILY', $family);
         }
 
         $query->orderBy('TRANSLATION.LABEL');
@@ -277,26 +277,26 @@ class Equipments extends Controller
 
     public function getProcesses($energy = -1, $manufacturer = '', $family = -1, $origine = -1)
     {
-        $query = Equipfamily::distinct()->select('equipfamily.BATCH_PROCESS', 'TRANSLATION.LABEL')
-        ->join('TRANSLATION', 'equipfamily.BATCH_PROCESS', '=', 'TRANSLATION.ID_TRANSLATION')
-        ->join('equipseries', 'equipfamily.ID_FAMILY', '=', 'equipseries.ID_FAMILY')
-        ->join('equipment', 'equipseries.ID_EQUIPSERIES', '=', 'equipment.ID_EQUIPSERIES')
+        $query = Equipfamily::distinct()->select('EQUIPFAMILY.BATCH_PROCESS', 'TRANSLATION.LABEL')
+        ->join('TRANSLATION', 'EQUIPFAMILY.BATCH_PROCESS', '=', 'TRANSLATION.ID_TRANSLATION')
+        ->join('EQUIPSERIES', 'EQUIPFAMILY.ID_FAMILY', '=', 'EQUIPSERIES.ID_FAMILY')
+        ->join('EQUIPMENT', 'EQUIPSERIES.ID_EQUIPSERIES', '=', 'EQUIPMENT.ID_EQUIPSERIES')
         ->where('TRANSLATION.TRANS_TYPE', 13)->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE);
 
         if ($energy != -1) {
-            $query->where('equipment.ID_COOLING_FAMILY', $energy);
+            $query->where('EQUIPMENT.ID_COOLING_FAMILY', $energy);
         }
 
         if ($manufacturer != null && $manufacturer != '') {
-            $query->where('equipseries.CONSTRUCTOR', $manufacturer);
+            $query->where('EQUIPSERIES.CONSTRUCTOR', $manufacturer);
         }
 
         if ($family != -1) {
-            $query->where('equipfamily.ID_FAMILY', $family);
+            $query->where('EQUIPFAMILY.ID_FAMILY', $family);
         }
 
         if ($origine != -1) {
-            $query->where('equipment.STD', $origine);
+            $query->where('EQUIPMENT.STD', $origine);
         }
 
         $query->orderBy('TRANSLATION.LABEL');
@@ -308,30 +308,30 @@ class Equipments extends Controller
 
     public function getModel($energy = -1, $manufacturer = '', $family = -1, $origine = -1, $process = -1)
     {
-        $query = Equipseries::distinct()->select('equipseries.ID_EQUIPSERIES', 'TRANSLATION.LABEL')
-        ->join('TRANSLATION', 'equipseries.ID_EQUIPSERIES', '=', 'TRANSLATION.ID_TRANSLATION')
-        ->join('equipfamily', 'equipseries.ID_FAMILY', '=', 'equipfamily.ID_FAMILY')
-        ->join('equipment', 'equipseries.ID_EQUIPSERIES', '=', 'equipment.ID_EQUIPSERIES')
+        $query = Equipseries::distinct()->select('EQUIPSERIES.ID_EQUIPSERIES', 'TRANSLATION.LABEL')
+        ->join('TRANSLATION', 'EQUIPSERIES.ID_EQUIPSERIES', '=', 'TRANSLATION.ID_TRANSLATION')
+        ->join('EQUIPFAMILY', 'EQUIPSERIES.ID_FAMILY', '=', 'EQUIPFAMILY.ID_FAMILY')
+        ->join('EQUIPMENT', 'EQUIPSERIES.ID_EQUIPSERIES', '=', 'EQUIPMENT.ID_EQUIPSERIES')
         ->where('TRANSLATION.TRANS_TYPE', 7)->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE);
 
         if ($energy != -1) {
-            $query->where('equipment.ID_COOLING_FAMILY', $energy);
+            $query->where('EQUIPMENT.ID_COOLING_FAMILY', $energy);
         }
 
         if ($manufacturer != null && $manufacturer != '') {
-            $query->where('equipseries.CONSTRUCTOR', $manufacturer);
+            $query->where('EQUIPSERIES.CONSTRUCTOR', $manufacturer);
         }
 
         if ($family != -1) {
-            $query->where('equipfamily.ID_FAMILY', $family);
+            $query->where('EQUIPFAMILY.ID_FAMILY', $family);
         }
 
         if ($origine != -1) {
-            $query->where('equipment.STD', $origine);
+            $query->where('EQUIPMENT.STD', $origine);
         }
 
         if ($process != -1) {
-            $query->where('equipfamily.BATCH_PROCESS', $process);
+            $query->where('EQUIPFAMILY.BATCH_PROCESS', $process);
         }
 
         $query->orderBy('TRANSLATION.LABEL');
@@ -343,36 +343,36 @@ class Equipments extends Controller
 
     public function getSize($energy = -1, $manufacturer = '', $family = -1, $origine = -1, $process = -1, $series = -1)
     {
-        $query = Equipment::distinct()->select('equipment.EQP_LENGTH', 'equipment.EQP_WIDTH')
-        ->join('equipseries', 'equipment.ID_EQUIPSERIES', '=', 'equipseries.ID_EQUIPSERIES')
-        ->join('equipfamily', 'equipseries.ID_FAMILY', '=', 'equipfamily.ID_FAMILY');
+        $query = Equipment::distinct()->select('EQUIPMENT.EQP_LENGTH', 'EQUIPMENT.EQP_WIDTH')
+        ->join('EQUIPSERIES', 'EQUIPMENT.ID_EQUIPSERIES', '=', 'EQUIPSERIES.ID_EQUIPSERIES')
+        ->join('EQUIPFAMILY', 'EQUIPSERIES.ID_FAMILY', '=', 'EQUIPFAMILY.ID_FAMILY');
 
         if ($energy != -1) {
-            $query->where('equipment.ID_COOLING_FAMILY', $energy);
+            $query->where('EQUIPMENT.ID_COOLING_FAMILY', $energy);
         }
 
         if ($manufacturer != null && $manufacturer != '') {
-            $query->where('equipseries.CONSTRUCTOR', $manufacturer);
+            $query->where('EQUIPSERIES.CONSTRUCTOR', $manufacturer);
         }
 
         if ($family != -1) {
-            $query->where('equipfamily.ID_FAMILY', $family);
+            $query->where('EQUIPFAMILY.ID_FAMILY', $family);
         }
 
         if ($origine != -1) {
-            $query->where('equipment.STD', $origine);
+            $query->where('EQUIPMENT.STD', $origine);
         }
 
         if ($process != -1) {
-            $query->where('equipfamily.BATCH_PROCESS', $process);
+            $query->where('EQUIPFAMILY.BATCH_PROCESS', $process);
         }
 
         if ($series != -1) {
-            $query->where('equipseries.ID_EQUIPSERIES', $series);
+            $query->where('EQUIPSERIES.ID_EQUIPSERIES', $series);
         }
 
-        $query->orderBy('equipment.EQP_LENGTH');
-        $query->orderBy('equipment.EQP_WIDTH');
+        $query->orderBy('EQUIPMENT.EQP_LENGTH');
+        $query->orderBy('EQUIPMENT.EQP_WIDTH');
 
         $equipMents = $query->get();
 
