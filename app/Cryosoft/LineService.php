@@ -27,10 +27,10 @@ class LineService
     public function getNameComboBoxLarge($elt_type, $insideDiameter, $coolingFamily, $sort)
     {
         $sname = LineElmt::select('ID_PIPELINE_ELMT', 'LABEL', 'LINE_RELEASE')
-                ->join('translation', 'ID_PIPELINE_ELMT', '=', 'translation.ID_TRANSLATION')
-                ->where('translation.TRANS_TYPE', 27)->where('ELT_TYPE', '=', $elt_type)->where('INSULATION_TYPE', $sort)
+                ->join('TRANSLATION', 'ID_PIPELINE_ELMT', '=', 'TRANSLATION.ID_TRANSLATION')
+                ->where('TRANSLATION.TRANS_TYPE', 27)->where('ELT_TYPE', '=', $elt_type)->where('INSULATION_TYPE', $sort)
                 ->where('ELT_SIZE','=',$insideDiameter)->where('ID_COOLING_FAMILY', $coolingFamily)
-                ->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->get();
+                ->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->get();
         
         $result = [];
         if (!empty($sname)) {
@@ -50,10 +50,10 @@ class LineService
     public function getNameComboBox($elt_type,$insideDiameter, $coolingFamily, $sort) 
     {
             $sname = LineElmt::select('ID_PIPELINE_ELMT', 'LABEL', 'LINE_RELEASE', 'ID_USER')
-            ->join('translation','ID_PIPELINE_ELMT', '=', 'translation.ID_TRANSLATION')
-            ->where('translation.TRANS_TYPE', 27)->where('ELT_TYPE', '=', $elt_type)->where('INSULATION_TYPE', $sort)
+            ->join('TRANSLATION','ID_PIPELINE_ELMT', '=', 'TRANSLATION.ID_TRANSLATION')
+            ->where('TRANSLATION.TRANS_TYPE', 27)->where('ELT_TYPE', '=', $elt_type)->where('INSULATION_TYPE', $sort)
             ->where('ELT_SIZE','=',$insideDiameter)->where('ID_COOLING_FAMILY', $coolingFamily)
-            ->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->get();
+            ->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->get();
         
         return $sname;
     }
@@ -62,10 +62,10 @@ class LineService
     {
         
         $nonName = LineElmt::select('ID_PIPELINE_ELMT', 'LABEL', 'LINE_RELEASE', 'ID_USER')
-            ->join('translation', 'ID_PIPELINE_ELMT', '=', 'translation.ID_TRANSLATION')
-            ->where('translation.TRANS_TYPE', 27)->where('ELT_TYPE', '=', $elt_type)
+            ->join('TRANSLATION', 'ID_PIPELINE_ELMT', '=', 'TRANSLATION.ID_TRANSLATION')
+            ->where('TRANSLATION.TRANS_TYPE', 27)->where('ELT_TYPE', '=', $elt_type)
             ->where('ELT_SIZE',$insideDiameter)->where('ID_COOLING_FAMILY', $coolingFamily)
-            ->where('INSULATION_TYPE' ,'=', 0)->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+            ->where('INSULATION_TYPE' ,'=', 0)->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
             ->orderBy('LABEL', 'ASC')->get();
         return $nonName;
     }
@@ -73,8 +73,8 @@ class LineService
     public function getStatus($lineRelease)
     {
         $sname = LineElmt::select('LABEL', 'LINE_VERSION')
-            ->join('translation', 'ID_PIPELINE_ELMT', '=', 'translation.ID_TRANSLATION')->where('ID_TRANSLATION', '=', $lineRelease)
-            ->where('translation.TRANS_TYPE', 100)->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
+            ->join('TRANSLATION', 'ID_PIPELINE_ELMT', '=', 'TRANSLATION.ID_TRANSLATION')->where('ID_TRANSLATION', '=', $lineRelease)
+            ->where('TRANSLATION.TRANS_TYPE', 100)->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
         if (!empty($sname)) {
             return floatval($sname->LINE_VERSION). " " .$sname->LABEL;
         } else {
@@ -91,9 +91,9 @@ class LineService
     public function getLabelByIdPipeELMT ($idPipeElmt)
     {
         $label = LineElmt::select('LABEL','LINE_RELEASE')
-        ->join('translation', 'ID_PIPELINE_ELMT', '=', 'translation.ID_TRANSLATION')
-        ->where('translation.TRANS_TYPE', 27)->where('ID_PIPELINE_ELMT', $idPipeElmt)
-        ->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
+        ->join('TRANSLATION', 'ID_PIPELINE_ELMT', '=', 'TRANSLATION.ID_TRANSLATION')
+        ->where('TRANSLATION.TRANS_TYPE', 27)->where('ID_PIPELINE_ELMT', $idPipeElmt)
+        ->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
         return $label;
     }
 

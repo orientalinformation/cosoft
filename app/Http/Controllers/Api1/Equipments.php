@@ -194,11 +194,11 @@ class Equipments extends Controller
         $processId = (isset($input['process'])) ? $input['process'] : -1;
         $modelId = (isset($input['model'])) ? $input['model'] : -1;
 
-        $energies = CoolingFamily::distinct()->select('cooling_family.ID_COOLING_FAMILY', 'translation.LABEL')
-        ->join('translation', 'cooling_family.ID_COOLING_FAMILY', '=', 'translation.ID_TRANSLATION')
-        ->where('translation.TRANS_TYPE', 2)
-        ->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
-        ->orderBy('translation.LABEL')
+        $energies = CoolingFamily::distinct()->select('cooling_family.ID_COOLING_FAMILY', 'TRANSLATION.LABEL')
+        ->join('TRANSLATION', 'cooling_family.ID_COOLING_FAMILY', '=', 'TRANSLATION.ID_TRANSLATION')
+        ->where('TRANSLATION.TRANS_TYPE', 2)
+        ->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+        ->orderBy('TRANSLATION.LABEL')
         ->get();
 
         $manufacturer = $this->getConstructors($energyId);
@@ -228,11 +228,11 @@ class Equipments extends Controller
 
     public function getFamilies($energy = -1, $manufacturer = '')
     {
-        $query = Equipfamily::distinct()->select('equipfamily.ID_FAMILY', 'translation.LABEL')
-        ->join('translation', 'equipfamily.ID_FAMILY', '=', 'translation.ID_TRANSLATION')
+        $query = Equipfamily::distinct()->select('equipfamily.ID_FAMILY', 'TRANSLATION.LABEL')
+        ->join('TRANSLATION', 'equipfamily.ID_FAMILY', '=', 'TRANSLATION.ID_TRANSLATION')
         ->join('equipseries', 'equipfamily.ID_FAMILY', '=', 'equipseries.ID_FAMILY')
         ->join('equipment', 'equipseries.ID_EQUIPSERIES', '=', 'equipment.ID_EQUIPSERIES')
-        ->where('translation.TRANS_TYPE', 5)->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE);
+        ->where('TRANSLATION.TRANS_TYPE', 5)->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE);
 
         if ($energy != -1) {
             $query->where('equipment.ID_COOLING_FAMILY', $energy);
@@ -242,7 +242,7 @@ class Equipments extends Controller
             $query->where('equipseries.CONSTRUCTOR', $manufacturer);
         }
 
-        $query->orderBy('translation.LABEL');
+        $query->orderBy('TRANSLATION.LABEL');
 
         $equipFamily = $query->get();
         return $equipFamily;
@@ -250,11 +250,11 @@ class Equipments extends Controller
 
     public function getOrigines($energy = -1, $manufacturer = '', $family = -1)
     {
-        $query = Equipment::distinct()->select('equipment.STD', 'translation.LABEL')
-        ->join('translation', 'equipment.STD', '=', 'translation.ID_TRANSLATION')
+        $query = Equipment::distinct()->select('equipment.STD', 'TRANSLATION.LABEL')
+        ->join('TRANSLATION', 'equipment.STD', '=', 'TRANSLATION.ID_TRANSLATION')
         ->join('equipseries', 'equipment.ID_EQUIPSERIES', 'equipseries.ID_EQUIPSERIES')
         ->join('equipfamily', 'equipseries.ID_FAMILY', '=', 'equipfamily.ID_FAMILY')
-        ->where('translation.TRANS_TYPE', 17)->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE);
+        ->where('TRANSLATION.TRANS_TYPE', 17)->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE);
 
         if ($energy != -1) {
             $query->where('equipment.ID_COOLING_FAMILY', $energy);
@@ -268,7 +268,7 @@ class Equipments extends Controller
             $query->where('equipfamily.ID_FAMILY', $family);
         }
 
-        $query->orderBy('translation.LABEL');
+        $query->orderBy('TRANSLATION.LABEL');
 
         $equipMents = $query->get();
 
@@ -277,11 +277,11 @@ class Equipments extends Controller
 
     public function getProcesses($energy = -1, $manufacturer = '', $family = -1, $origine = -1)
     {
-        $query = Equipfamily::distinct()->select('equipfamily.BATCH_PROCESS', 'translation.LABEL')
-        ->join('translation', 'equipfamily.BATCH_PROCESS', '=', 'translation.ID_TRANSLATION')
+        $query = Equipfamily::distinct()->select('equipfamily.BATCH_PROCESS', 'TRANSLATION.LABEL')
+        ->join('TRANSLATION', 'equipfamily.BATCH_PROCESS', '=', 'TRANSLATION.ID_TRANSLATION')
         ->join('equipseries', 'equipfamily.ID_FAMILY', '=', 'equipseries.ID_FAMILY')
         ->join('equipment', 'equipseries.ID_EQUIPSERIES', '=', 'equipment.ID_EQUIPSERIES')
-        ->where('translation.TRANS_TYPE', 13)->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE);
+        ->where('TRANSLATION.TRANS_TYPE', 13)->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE);
 
         if ($energy != -1) {
             $query->where('equipment.ID_COOLING_FAMILY', $energy);
@@ -299,7 +299,7 @@ class Equipments extends Controller
             $query->where('equipment.STD', $origine);
         }
 
-        $query->orderBy('translation.LABEL');
+        $query->orderBy('TRANSLATION.LABEL');
 
         $processes = $query->get();
 
@@ -308,11 +308,11 @@ class Equipments extends Controller
 
     public function getModel($energy = -1, $manufacturer = '', $family = -1, $origine = -1, $process = -1)
     {
-        $query = Equipseries::distinct()->select('equipseries.ID_EQUIPSERIES', 'translation.LABEL')
-        ->join('translation', 'equipseries.ID_EQUIPSERIES', '=', 'translation.ID_TRANSLATION')
+        $query = Equipseries::distinct()->select('equipseries.ID_EQUIPSERIES', 'TRANSLATION.LABEL')
+        ->join('TRANSLATION', 'equipseries.ID_EQUIPSERIES', '=', 'TRANSLATION.ID_TRANSLATION')
         ->join('equipfamily', 'equipseries.ID_FAMILY', '=', 'equipfamily.ID_FAMILY')
         ->join('equipment', 'equipseries.ID_EQUIPSERIES', '=', 'equipment.ID_EQUIPSERIES')
-        ->where('translation.TRANS_TYPE', 7)->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE);
+        ->where('TRANSLATION.TRANS_TYPE', 7)->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE);
 
         if ($energy != -1) {
             $query->where('equipment.ID_COOLING_FAMILY', $energy);
@@ -334,7 +334,7 @@ class Equipments extends Controller
             $query->where('equipfamily.BATCH_PROCESS', $process);
         }
 
-        $query->orderBy('translation.LABEL');
+        $query->orderBy('TRANSLATION.LABEL');
 
         $equipSeries = $query->get();
 
@@ -841,8 +841,8 @@ class Equipments extends Controller
 
     public function getEquipmentFamily()
     {
-        $list = Equipfamily::join('translation', 'ID_FAMILY', '=', 'translation.ID_TRANSLATION')
-        ->where('translation.TRANS_TYPE', 5)->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+        $list = Equipfamily::join('TRANSLATION', 'ID_FAMILY', '=', 'TRANSLATION.ID_TRANSLATION')
+        ->where('TRANSLATION.TRANS_TYPE', 5)->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
         ->orderBy('LABEL', 'ASC')->get();
         
         return $list;

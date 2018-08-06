@@ -61,13 +61,13 @@ class Components extends Controller
     public function findMyComponents() 
     {        
         $mine = Component::where('ID_USER', $this->auth->user()->ID_USER)
-        ->join('translation', 'ID_COMP', '=', 'translation.ID_TRANSLATION')
-        ->where('translation.TRANS_TYPE', 1)->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+        ->join('TRANSLATION', 'ID_COMP', '=', 'TRANSLATION.ID_TRANSLATION')
+        ->where('TRANSLATION.TRANS_TYPE', 1)->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
         ->orderBy('LABEL', 'ASC')->get();
 
         $others = Component::where('ID_USER', '!=', $this->auth->user()->ID_USER)
-        ->join('translation', 'ID_COMP', '=', 'translation.ID_TRANSLATION')
-        ->where('translation.TRANS_TYPE', 1)->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+        ->join('TRANSLATION', 'ID_COMP', '=', 'TRANSLATION.ID_TRANSLATION')
+        ->where('TRANSLATION.TRANS_TYPE', 1)->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
         ->orderBy('LABEL', 'ASC')->get();
 
         return compact('mine', 'others');

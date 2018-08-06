@@ -68,11 +68,11 @@ class ProductService
 
     public function getAllStandardComponents($idStudy = 0, $compFamily = 0, $subFamily = 0, $percentWater = 0)
     {
-        $querys = Translation::select('translation.ID_TRANSLATION', 'translation.LABEL', 'component.ID_USER', 'component.COMP_RELEASE', 'component.COMP_VERSION', 'component.OPEN_BY_OWNER', 'component.ID_COMP', 'ln2user.USERNAM')
-        ->join('component', 'translation.ID_TRANSLATION', '=', 'component.ID_COMP')
+        $querys = Translation::select('TRANSLATION.ID_TRANSLATION', 'TRANSLATION.LABEL', 'component.ID_USER', 'component.COMP_RELEASE', 'component.COMP_VERSION', 'component.OPEN_BY_OWNER', 'component.ID_COMP', 'ln2user.USERNAM')
+        ->join('component', 'TRANSLATION.ID_TRANSLATION', '=', 'component.ID_COMP')
         ->join('ln2user', 'component.ID_USER', '=', 'ln2user.ID_USER')
-        ->where('translation.TRANS_TYPE', 1)
-        ->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE);
+        ->where('TRANSLATION.TRANS_TYPE', 1)
+        ->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE);
         
 
         if ($idStudy != 0) {
@@ -106,7 +106,7 @@ class ProductService
             $querys->where('component.WATER', '<=', $percentWater * 10); 
         }
 
-        $querys->orderBy('translation.LABEL');
+        $querys->orderBy('TRANSLATION.LABEL');
 
         $components = $querys->get();
 
@@ -132,10 +132,10 @@ class ProductService
     
     public function getAllSleepingComponents($compFamily = 0, $subFamily = 0, $percentWater = 0)
     {
-        $querys = Translation::select('translation.ID_TRANSLATION', 'translation.LABEL', 'component.COMP_VERSION', 'component.ID_COMP')
-        ->join('component', 'translation.ID_TRANSLATION', '=', 'component.ID_COMP')
-        ->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
-        ->where('translation.TRANS_TYPE', 1)
+        $querys = Translation::select('TRANSLATION.ID_TRANSLATION', 'TRANSLATION.LABEL', 'component.COMP_VERSION', 'component.ID_COMP')
+        ->join('component', 'TRANSLATION.ID_TRANSLATION', '=', 'component.ID_COMP')
+        ->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+        ->where('TRANSLATION.TRANS_TYPE', 1)
         ->where('component.COMP_RELEASE', 6);
         
 
@@ -152,7 +152,7 @@ class ProductService
             $querys->where('component.WATER', '<=', $percentWater * 10); 
         }
 
-        $querys->orderBy('translation.LABEL');
+        $querys->orderBy('TRANSLATION.LABEL');
 
         $components = $querys->get();
 
@@ -174,12 +174,12 @@ class ProductService
 
     public function getComponentDisplayName($idComp)
     {
-        $component = Translation::select('translation.ID_TRANSLATION', 'translation.LABEL', 'component.ID_USER', 'component.COMP_RELEASE', 'component.COMP_VERSION', 'component.OPEN_BY_OWNER', 'component.ID_COMP', 'ln2user.USERNAM')
-        ->join('component', 'translation.ID_TRANSLATION', '=', 'component.ID_COMP')
+        $component = Translation::select('TRANSLATION.ID_TRANSLATION', 'TRANSLATION.LABEL', 'component.ID_USER', 'component.COMP_RELEASE', 'component.COMP_VERSION', 'component.OPEN_BY_OWNER', 'component.ID_COMP', 'ln2user.USERNAM')
+        ->join('component', 'TRANSLATION.ID_TRANSLATION', '=', 'component.ID_COMP')
         ->join('ln2user', 'component.ID_USER', '=', 'ln2user.ID_USER')
-        ->where('translation.TRANS_TYPE', 1)
+        ->where('TRANSLATION.TRANS_TYPE', 1)
         ->where('component.ID_COMP', $idComp)
-        ->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->first();
+        ->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->first();
 
         $libValue = $this->getLibValue(100, $component->COMP_RELEASE);
 

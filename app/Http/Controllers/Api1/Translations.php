@@ -76,7 +76,8 @@ class Translations extends Controller
         return $translations;
     }
 
-    public function getDefaultLanguage() {
+    public function getDefaultLanguage() 
+    {
         $userIdLang = User::Select('CODE_LANGUE')->Where('USERNAM', '=' ,'KERNEL')->first();
         $langName = Translation::where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->where('TRANS_TYPE', 9)->get();
         $referenceLangs = Translation::where('CODE_LANGUE', $userIdLang->CODE_LANGUE)
@@ -86,7 +87,8 @@ class Translations extends Controller
         return compact("referenceLangs", "translationLangs", "langName"); 
     }
 
-    public function changeLabels() {
+    public function changeLabels() 
+    {
         $inputs = $this->request->all();
         foreach ($inputs as $input) {
             $langID = $input['CODE_LANGUE'];
@@ -98,7 +100,8 @@ class Translations extends Controller
         }
     }
 
-    public function filterTrans() {
+    public function filterTrans() 
+    {
         $input = $this->request->all();
         $id = $input['id'];
         $idtrans = $input['idtrans'];
