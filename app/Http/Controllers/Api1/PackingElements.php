@@ -58,8 +58,8 @@ class PackingElements extends Controller
     public function findRefPackingElmt() 
     {        
         $mine =  PackingElmt::where('ID_USER', $this->auth->user()->ID_USER)
-        ->join('translation', 'ID_PACKING_ELMT', '=', 'translation.ID_TRANSLATION')
-        ->where('translation.TRANS_TYPE', 3)->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+        ->join('TRANSLATION', 'ID_PACKING_ELMT', '=', 'TRANSLATION.ID_TRANSLATION')
+        ->where('TRANSLATION.TRANS_TYPE', 3)->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
         ->orderBy('LABEL', 'ASC')->get();
 
         foreach ($mine as $key) {
@@ -67,8 +67,8 @@ class PackingElements extends Controller
         }
 
         $others = PackingElmt::where('ID_USER', '!=', $this->auth->user()->ID_USER)
-        ->join('translation', 'ID_PACKING_ELMT', '=', 'translation.ID_TRANSLATION')
-        ->where('translation.TRANS_TYPE', 3)->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+        ->join('TRANSLATION', 'ID_PACKING_ELMT', '=', 'TRANSLATION.ID_TRANSLATION')
+        ->where('TRANSLATION.TRANS_TYPE', 3)->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
         ->orderBy('LABEL', 'ASC')->get();
 
         foreach ($others as $key) {
@@ -141,8 +141,8 @@ class PackingElements extends Controller
         $translation->save();
 
         $pack = PackingElmt::where('ID_USER', $this->auth->user()->ID_USER)
-        ->join('translation', 'ID_PACKING_ELMT', '=', 'translation.ID_TRANSLATION')
-        ->where('translation.TRANS_TYPE', 3)->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+        ->join('TRANSLATION', 'ID_PACKING_ELMT', '=', 'TRANSLATION.ID_TRANSLATION')
+        ->where('TRANSLATION.TRANS_TYPE', 3)->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
         ->where('ID_PACKING_ELMT', $idPackingElmt)->first();
 
         $pack->PACKINGCOND = $this->units->conductivity($pack->PACKINGCOND, 4, 1);
@@ -233,8 +233,8 @@ class PackingElements extends Controller
             }
 
             $pack = PackingElmt::where('ID_USER', $this->auth->user()->ID_USER)
-            ->join('translation', 'ID_PACKING_ELMT', '=', 'translation.ID_TRANSLATION')
-            ->where('translation.TRANS_TYPE', 3)->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+            ->join('TRANSLATION', 'ID_PACKING_ELMT', '=', 'TRANSLATION.ID_TRANSLATION')
+            ->where('TRANSLATION.TRANS_TYPE', 3)->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
             ->where('ID_PACKING_ELMT', $idPacking)->first();
 
             $pack->PACKINGCOND = $this->units->conductivity($pack->PACKINGCOND, 4, 1);
@@ -295,8 +295,8 @@ class PackingElements extends Controller
         $translation->save();
 
         $pack = PackingElmt::where('ID_USER', $this->auth->user()->ID_USER)
-            ->join('translation', 'ID_PACKING_ELMT', '=', 'translation.ID_TRANSLATION')
-            ->where('translation.TRANS_TYPE', 3)->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+            ->join('TRANSLATION', 'ID_PACKING_ELMT', '=', 'TRANSLATION.ID_TRANSLATION')
+            ->where('TRANSLATION.TRANS_TYPE', 3)->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
             ->where('ID_PACKING_ELMT', $idPackingElmt)->first();
 
         $pack->PACKINGCOND = $this->units->conductivity($pack->PACKINGCOND, 4, 1);

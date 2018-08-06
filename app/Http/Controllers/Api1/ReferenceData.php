@@ -179,8 +179,8 @@ class ReferenceData extends Controller
     public function getMyComponent()
     {
         $mine = Component::where('ID_USER', $this->auth->user()->ID_USER)
-        ->join('translation', 'ID_COMP', '=', 'translation.ID_TRANSLATION')
-        ->where('translation.TRANS_TYPE', 1)->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+        ->join('TRANSLATION', 'ID_COMP', '=', 'TRANSLATION.ID_TRANSLATION')
+        ->where('TRANSLATION.TRANS_TYPE', 1)->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
         ->orderBy('LABEL', 'ASC')->get();
 
         foreach ($mine as $m) {
@@ -190,8 +190,8 @@ class ReferenceData extends Controller
         }
 
         $others = Component::join('Ln2user', 'Ln2user.ID_USER', '=', 'Component.ID_USER')
-            ->join('translation', 'Component.ID_COMP', '=', 'translation.ID_TRANSLATION')
-            ->where('Translation.TRANS_TYPE', 1)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+            ->join('TRANSLATION', 'Component.ID_COMP', '=', 'TRANSLATION.ID_TRANSLATION')
+            ->where('TRANSLATION.TRANS_TYPE', 1)->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
             ->where('Component.ID_USER', '!=', $this->auth->user()->ID_USER)
             ->orderBy('LABEL', 'ASC')->get();
 
@@ -206,10 +206,10 @@ class ReferenceData extends Controller
 
     public function getComponentById($id) 
     {
-        $comp = Component::join('translation', 'ID_COMP', '=', 'translation.ID_TRANSLATION')
-        ->where('translation.TRANS_TYPE', 1)
-        ->where('translation.ID_TRANSLATION', $id)
-        ->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->first();
+        $comp = Component::join('TRANSLATION', 'ID_COMP', '=', 'TRANSLATION.ID_TRANSLATION')
+        ->where('TRANSLATION.TRANS_TYPE', 1)
+        ->where('TRANSLATION.ID_TRANSLATION', $id)
+        ->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->first();
 
         if ($comp) {
             $comp->AIR = round(($comp->AIR / 0.01205));
@@ -226,8 +226,8 @@ class ReferenceData extends Controller
 
         if ($result > 0) {
             $comp = Component::where('ID_USER', $this->auth->user()->ID_USER)
-            ->join('translation', 'ID_COMP', '=', 'translation.ID_TRANSLATION')
-            ->where('translation.TRANS_TYPE', 1)->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+            ->join('TRANSLATION', 'ID_COMP', '=', 'TRANSLATION.ID_TRANSLATION')
+            ->where('TRANSLATION.TRANS_TYPE', 1)->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
             ->where('ID_COMP', $result)->first();
 
             $comp->AIR = round(($comp->AIR / 0.01205));
@@ -263,8 +263,8 @@ class ReferenceData extends Controller
             $result = $this->startFCCalculation($idComp);
 
             $comp = Component::where('ID_USER', $this->auth->user()->ID_USER)
-            ->join('translation', 'ID_COMP', '=', 'translation.ID_TRANSLATION')
-            ->where('translation.TRANS_TYPE', 1)->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+            ->join('TRANSLATION', 'ID_COMP', '=', 'TRANSLATION.ID_TRANSLATION')
+            ->where('TRANSLATION.TRANS_TYPE', 1)->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
             ->where('ID_COMP', $idComp)->first();
 
             $comp->AIR = round(($comp->AIR / 0.01205));
@@ -286,8 +286,8 @@ class ReferenceData extends Controller
             $result = $this->startFCCalculation($idComp); 
                 
             $comp = Component::where('ID_USER', $this->auth->user()->ID_USER)
-            ->join('translation', 'ID_COMP', '=', 'translation.ID_TRANSLATION')
-            ->where('translation.TRANS_TYPE', 1)->where('translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+            ->join('TRANSLATION', 'ID_COMP', '=', 'TRANSLATION.ID_TRANSLATION')
+            ->where('TRANSLATION.TRANS_TYPE', 1)->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
             ->where('ID_COMP', $idComp)->first();
 
             $comp->AIR = round(($comp->AIR / 0.01205));
@@ -696,9 +696,9 @@ class ReferenceData extends Controller
 
     private function checkNameAndVersion($compName, $compVersion)
     {
-        $components = Component::select(array('Translation.LABEL', 'Component.COMP_VERSION'))
-        ->join('Translation', 'ID_COMP', '=', 'Translation.ID_TRANSLATION')
-        ->where('Translation.TRANS_TYPE', 1)->where('Translation.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+        $components = Component::select(array('TRANSLATION.LABEL', 'Component.COMP_VERSION'))
+        ->join('TRANSLATION', 'ID_COMP', '=', 'TRANSLATION.ID_TRANSLATION')
+        ->where('TRANSLATION.TRANS_TYPE', 1)->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
         ->orderBy('LABEL', 'ASC')->get();
 
         for ($i = 0; $i < count($components); $i++) { 
