@@ -517,7 +517,7 @@ class UnitsService
             }
         }
         $user = $this->auth->user();
-        $unit = UserUnit::join('unit', 'USER_UNIT.ID_UNIT', '=', 'UNIT.ID_UNIT')->where('ID_USER', $user->ID_USER)
+        $unit = UserUnit::join('UNIT', 'USER_UNIT.ID_UNIT', '=', 'UNIT.ID_UNIT')->where('ID_USER', $user->ID_USER)
         ->where("UNIT.TYPE_UNIT", $sUnitLabel)->first();
 
         return $unit->SYMBOL;
