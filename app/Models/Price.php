@@ -26,7 +26,7 @@ class Price extends Model
      * 
      * @var string
      */
-    protected $table = 'PRICE';
+    protected $table = 'PRICES';
     
     /**
      * @var array
