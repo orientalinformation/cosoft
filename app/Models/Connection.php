@@ -22,7 +22,7 @@ class Connection extends Model
      * 
      * @var string
      */
-    protected $table = 'connection';
+    protected $table = 'CONNECTION';
 
     /**
      * @var array
