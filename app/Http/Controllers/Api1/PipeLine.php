@@ -104,7 +104,7 @@ class PipeLine extends Controller
 
     public function getListEnergies()
     {
-        $trans = Translation::join('COOLING_FAMILY', 'ID_TRANSLATION', '=', 'cooling_family.ID_COOLING_FAMILY')
+        $trans = Translation::join('COOLING_FAMILY', 'ID_TRANSLATION', '=', 'COOLING_FAMILY.ID_COOLING_FAMILY')
         ->where('TRANS_TYPE', 2)->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
         ->orderBy('LABEL', 'ASC')->get();
         
