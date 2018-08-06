@@ -41,7 +41,7 @@ class Component extends Model
      * 
      * @var string
      */
-    protected $table = 'component';
+    protected $table = 'COMPONENT';
 
     /**
      * @var array

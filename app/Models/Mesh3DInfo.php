@@ -22,7 +22,7 @@ class Mesh3DInfo extends Model
      * 
      * @var string
      */
-    protected $table = 'mesh3d_info';
+    protected $table = 'MESH3D_INFO';
 
     /**
      * @var array

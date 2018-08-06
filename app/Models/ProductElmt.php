@@ -41,7 +41,7 @@ class ProductElmt extends Model
      * 
      * @var string
      */
-    protected $table = 'product_elmt';
+    protected $table = 'PRODUCT_ELMT';
 
     protected $hidden = [
         'product','shape'

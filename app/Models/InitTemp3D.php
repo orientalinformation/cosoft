@@ -17,7 +17,7 @@ class InitTemp3D extends Model
      * 
      * @var string
      */
-    protected $table = 'init_temp_3d';
+    protected $table = 'INIT_TEMP_3D';
 
     /**
      * @var array

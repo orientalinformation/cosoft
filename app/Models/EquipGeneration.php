@@ -28,7 +28,7 @@ class EquipGeneration extends Model
      * 
      * @var string
      */
-    protected $table = 'equip_generation';
+    protected $table = 'EQUIP_GENERATION';
 
     /**
      * @var array
