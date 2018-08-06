@@ -189,7 +189,7 @@ class ReferenceData extends Controller
             $m->NON_FROZEN_WATER = number_format((float)$m->NON_FROZEN_WATER, 2, '.', '');
         }
 
-        $others = Component::join('Ln2user', 'Ln2user.ID_USER', '=', 'Component.ID_USER')
+        $others = Component::join('LN2USER', 'LN2USER.ID_USER', '=', 'Component.ID_USER')
             ->join('TRANSLATION', 'Component.ID_COMP', '=', 'TRANSLATION.ID_TRANSLATION')
             ->where('TRANSLATION.TRANS_TYPE', 1)->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
             ->where('Component.ID_USER', '!=', $this->auth->user()->ID_USER)

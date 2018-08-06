@@ -68,9 +68,9 @@ class ProductService
 
     public function getAllStandardComponents($idStudy = 0, $compFamily = 0, $subFamily = 0, $percentWater = 0)
     {
-        $querys = Translation::select('TRANSLATION.ID_TRANSLATION', 'TRANSLATION.LABEL', 'component.ID_USER', 'component.COMP_RELEASE', 'component.COMP_VERSION', 'component.OPEN_BY_OWNER', 'component.ID_COMP', 'ln2user.USERNAM')
+        $querys = Translation::select('TRANSLATION.ID_TRANSLATION', 'TRANSLATION.LABEL', 'component.ID_USER', 'component.COMP_RELEASE', 'component.COMP_VERSION', 'component.OPEN_BY_OWNER', 'component.ID_COMP', 'LN2USER.USERNAM')
         ->join('component', 'TRANSLATION.ID_TRANSLATION', '=', 'component.ID_COMP')
-        ->join('ln2user', 'component.ID_USER', '=', 'ln2user.ID_USER')
+        ->join('LN2USER', 'component.ID_USER', '=', 'LN2USER.ID_USER')
         ->where('TRANSLATION.TRANS_TYPE', 1)
         ->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE);
         
@@ -174,9 +174,9 @@ class ProductService
 
     public function getComponentDisplayName($idComp)
     {
-        $component = Translation::select('TRANSLATION.ID_TRANSLATION', 'TRANSLATION.LABEL', 'component.ID_USER', 'component.COMP_RELEASE', 'component.COMP_VERSION', 'component.OPEN_BY_OWNER', 'component.ID_COMP', 'ln2user.USERNAM')
+        $component = Translation::select('TRANSLATION.ID_TRANSLATION', 'TRANSLATION.LABEL', 'component.ID_USER', 'component.COMP_RELEASE', 'component.COMP_VERSION', 'component.OPEN_BY_OWNER', 'component.ID_COMP', 'LN2USER.USERNAM')
         ->join('component', 'TRANSLATION.ID_TRANSLATION', '=', 'component.ID_COMP')
-        ->join('ln2user', 'component.ID_USER', '=', 'ln2user.ID_USER')
+        ->join('LN2USER', 'component.ID_USER', '=', 'LN2USER.ID_USER')
         ->where('TRANSLATION.TRANS_TYPE', 1)
         ->where('component.ID_COMP', $idComp)
         ->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->first();
