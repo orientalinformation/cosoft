@@ -20,7 +20,7 @@ class ExhGen extends Model
      * 
      * @var string
      */
-    protected $table = 'exh_gen';
+    protected $table = 'EXH_GEN';
 
     /**
      * @var array

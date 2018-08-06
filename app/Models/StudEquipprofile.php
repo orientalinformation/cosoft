@@ -30,7 +30,7 @@ class StudEquipprofile extends Model
      * 
      * @var string
      */
-    protected $table = 'stud_equipprofile';
+    protected $table = 'STUD_EQUIPPROFILE';
 
     /**
      * @var array

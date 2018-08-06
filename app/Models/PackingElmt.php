@@ -27,7 +27,7 @@ class PackingElmt extends Model
      * 
      * @var string
      */
-    protected $table = 'packing_elmt';
+    protected $table = 'PACKING_ELMT';
 
     /**
      * @var array

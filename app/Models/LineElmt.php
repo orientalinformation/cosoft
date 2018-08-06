@@ -33,7 +33,7 @@ class LineElmt extends Model
      * 
      * @var string
      */
-    protected $table = 'line_elmt';
+    protected $table = 'LINE_ELMT';
 
     /**
      * @var array
