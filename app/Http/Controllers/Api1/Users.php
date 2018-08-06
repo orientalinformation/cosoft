@@ -227,7 +227,7 @@ class Users extends Controller
 
     public function getUnits($id) 
     {
-        $list = UserUnit::join('unit', 'user_unit.ID_UNIT', '=', 'unit.ID_UNIT')
+        $list = UserUnit::join('UNIT', 'user_unit.ID_UNIT', '=', 'unit.ID_UNIT')
         ->where('ID_USER', $id)->orderBy('unit.TYPE_UNIT', 'ASC')->get();
 
         foreach ($list as $key) {
