@@ -336,7 +336,7 @@ class InputInitial extends Controller
         $results = array();
 
         $meshPositions = MeshPosition::distinct()->select('MESH_POSITION.MESH_AXIS_POS')
-        ->join('PRODUCT_ELMT', 'MESH_POSITION.ID_PRODUCT_ELMT', '=', 'product_elmt.ID_PRODUCT_ELMT')
+        ->join('PRODUCT_ELMT', 'MESH_POSITION.ID_PRODUCT_ELMT', '=', 'PRODUCT_ELMT.ID_PRODUCT_ELMT')
         ->join('PRODUCT', 'PRODUCT_ELMT.ID_PROD' , '=', 'PRODUCT.ID_PROD')
         ->where('PRODUCT.ID_STUDY', $idStudy)
         ->where('MESH_AXIS', $axe)
