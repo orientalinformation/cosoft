@@ -1590,7 +1590,21 @@ class Output extends Controller
     {
         $idStudy = $this->request->input('idStudy');
         $idStudyEquipment = $this->request->input('idStudyEquipment');
+        $productElmt = ProductElmt::where('ID_STUDY', $idStudy)->first();
+        $shape = $productElmt->SHAPECODE;
         $listRecordPos = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("RECORD_TIME", "ASC")->get();
+
+        $study = Study::find($idStudy);
+        $userName = $study->USERNAM;
+        $heatExchangeFolder = $this->output->public_path('heatExchange');
+
+        if (!is_dir($heatExchangeFolder)) {
+            mkdir($heatExchangeFolder, 0777);
+        }
+
+        if (!is_dir($heatExchangeFolder . '/' . $userName)) {
+            mkdir($heatExchangeFolder . '/' . $userName, 0777);
+        }
 
         $curve = array();
         $result = array();
@@ -1621,27 +1635,26 @@ class Output extends Controller
             $result[] = $itemResult;
         }
 
-        $f = fopen("/tmp/heatExchange.inp", "w");
-        fputs($f, '"X" "Y"' . "\n");
-        foreach ($curve as $row) {
-            fputs($f, (double) $row['x'] . ' ' . (double) $row['y'] . "\n");
-        }
-        fclose($f);
+        if ($shape < 10) {
+            $inpFile = '/tmp/heatExchange.inp';
+            $f = fopen("/tmp/heatExchange.inp", "w");
+            fputs($f, '"X" "Y"' . "\n");
+            foreach ($curve as $row) {
+                fputs($f, (double) $row['x'] . ' ' . (double) $row['y'] . "\n");
+            }
+            fclose($f);
+        } else {
+            $prodFolder = 'Prod_' . $study->ID_PROD;
+            $stdeqpFolder = 'Equipment' . $idStudyEquipment;
 
-        $study = Study::find($idStudy);
-        $userName = $study->USERNAM;
-        $heatExchangeFolder = $this->output->public_path('heatExchange');
-
-        if (!is_dir($heatExchangeFolder)) {
-            mkdir($heatExchangeFolder, 0777);
-        }
-        if (!is_dir($heatExchangeFolder . '/' . $userName)) {
-            mkdir($heatExchangeFolder . '/' . $userName, 0777);
+            $inpFile = $this->plotFolder3D . '/MeshBuilder3D/' . $prodFolder . '/' . $stdeqpFolder . '/heatExchange.inp';
         }
 
-        system('gnuplot -c '. $this->plotFolder . '/heatExchange.plot "('. $this->unit->timeSymbol() .')" "('. $this->unit->enthalpySymbol() .')" "'. $heatExchangeFolder . '/' . $userName .'" '. $idStudyEquipment .' "Enthapy" "/tmp/heatExchange.inp"');
+        system('gnuplot -c '. $this->plotFolder . '/heatExchange.plot "('. $this->unit->timeSymbol() .')" "('. $this->unit->enthalpySymbol() .')" "'. $heatExchangeFolder . '/' . $userName .'" '. $idStudyEquipment .' "Enthapy" '. $inpFile .'');
 
-        return compact("result", "curve");
+        $imageHeatExchange = getenv('APP_URL') . 'heatExchange/' . $userName . '/' . $idStudyEquipment . '.png?time=' . time();
+
+        return compact("result", "curve", "imageHeatExchange");
     }
 
     public function productSection()
