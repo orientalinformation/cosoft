@@ -135,30 +135,30 @@ class StudyService
         $querys = Study::distinct();
 
         if ($idCompFamily + $idCompSubFamily + $idComponent > 0) {
-            $querys->join('product_elmt', 'studies.ID_PROD', '=', 'product_elmt.ID_PROD');
+            $querys->join('PRODUCT_ELMT', 'STUDIES.ID_PROD', '=', 'PRODUCT_ELMT.ID_PROD');
 
             if ($idComponent > 0) {
-                $querys->where('product_elmt.ID_PROD', $idComponent);
+                $querys->where('PRODUCT_ELMT.ID_PROD', $idComponent);
             } else {
-                $querys->join('component', 'product_elmt.ID_COMP', '=', 'component.ID_COMP');
+                $querys->join('COMPONENT', 'PRODUCT_ELMT.ID_COMP', '=', 'COMPONENT.ID_COMP');
                 if ($idCompFamily > 0) {
-                    $querys->where('component.CLASS_TYPE', $idCompFamily);
+                    $querys->where('COMPONENT.CLASS_TYPE', $idCompFamily);
                 }
                 
                 if ($idCompSubFamily > 0) {
-                    $querys->where('component.SUB_FAMILY', $idCompSubFamily);
+                    $querys->where('COMPONENT.SUB_FAMILY', $idCompSubFamily);
                 }
             }
         }
 
         if ($idUser > 0) {
-            $querys->where('studies.ID_USER', $idUser);
+            $querys->where('STUDIES.ID_USER', $idUser);
         } else {
-            $querys->where('studies.ID_USER', '!=', $this->auth->user()->ID_USER);  
+            $querys->where('STUDIES.ID_USER', '!=', $this->auth->user()->ID_USER);  
         }
 
         $querys->where('PARENT_ID', 0);
-        $querys->orderBy('studies.STUDY_NAME');
+        $querys->orderBy('STUDIES.STUDY_NAME');
 
         return $querys->get();
     }  

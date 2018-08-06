@@ -95,7 +95,7 @@ class Translations extends Controller
             $id_trans = $input['ID_TRANSLATION'];
             $trans_type = $input['TRANS_TYPE'];
             $label = $input['LABEL'];
-            DB::table('Translation')->where('CODE_LANGUE', $langID)->where('ID_TRANSLATION', $id_trans)
+            DB::table('TRANSLATION')->where('CODE_LANGUE', $langID)->where('ID_TRANSLATION', $id_trans)
             ->where('TRANS_TYPE', $trans_type)->update(['LABEL' => $label]);
         }
     }

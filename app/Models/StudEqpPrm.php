@@ -18,7 +18,7 @@ class StudEqpPrm extends Model
      * 
      * @var string
      */
-    protected $table = 'STUD_EQUIP_PRM';
+    protected $table = 'STUD_EQP_PRM';
 
     /**
      * @var array

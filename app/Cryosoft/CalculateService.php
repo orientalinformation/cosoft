@@ -375,10 +375,10 @@ class CalculateService
                 break;
         }
     
-        $meshPosition = MeshPosition::distinct()->select('mesh_position.MESH_AXIS_POS')
-        ->join('product_elmt', 'mesh_position.ID_PRODUCT_ELMT', '=', 'product_elmt.ID_PRODUCT_ELMT')
-        ->join('product', 'product_elmt.ID_PROD' , '=', 'product.ID_PROD')
-        ->where('product.ID_STUDY', $idStudy)
+        $meshPosition = MeshPosition::distinct()->select('MESH_POSITION.MESH_AXIS_POS')
+        ->join('PRODUCT_ELMT', 'MESH_POSITION.ID_PRODUCT_ELMT', '=', 'PRODUCT_ELMT.ID_PRODUCT_ELMT')
+        ->join('PRODUCT', 'PRODUCT_elmt.ID_PROD' , '=', 'PRODUCT.ID_PROD')
+        ->where('PRODUCT.ID_STUDY', $idStudy)
         ->where('MESH_AXIS', $meshAxis)
         ->orderBy('MESH_AXIS_POS', 'ASC')->get();
 

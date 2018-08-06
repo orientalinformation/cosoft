@@ -328,12 +328,12 @@ class Admin extends Controller
 
         $record = $input['record'];
         if ($record != 0) {
-            $connections = Connection::with('User')
+            $connections = Connection::with('user')
             ->take($record)
             ->orderBy("DATE_CONNECTION", "DESC")
             ->get();
         } else {
-            $connections = Connection::with('User')
+            $connections = Connection::with('user')
             ->orderBy("DATE_CONNECTION", "DESC")
             ->get();
         }
@@ -349,7 +349,7 @@ class Admin extends Controller
 
         $listUnit = [];
         foreach ($units as $key => $value) {
-            $kernelUnit = DB::table('unit')
+            $kernelUnit = DB::table('UNIT')
                         ->where('ID_UNIT', '=', DB::raw('TYPE_UNIT'))
                         ->where('TYPE_UNIT', $value['value'])
                         ->where('TYPE_UNIT', '<>', 27)
