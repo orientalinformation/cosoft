@@ -375,8 +375,8 @@ class Studies extends Controller
                         //duplicate initial_Temp already exsits
                         $initialTemperatures = InitialTemperature::where('ID_PRODUCTION', $productionCurr->ID_PRODUCTION)->get();
                         if (count($initialTemperatures) > 0) {
-                            DB::insert('insert into initial_temperature (ID_PRODUCTION, INITIAL_T, MESH_1_ORDER, MESH_2_ORDER, MESH_3_ORDER) select '
-                        . $production->ID_PRODUCTION . ',I.INITIAL_T, I.MESH_1_ORDER, I.MESH_2_ORDER, I.MESH_3_ORDER from initial_temperature as I where ID_PRODUCTION = ' . $productionCurr->ID_PRODUCTION);
+                            DB::insert('insert into INITIAL_TEMPERATURE (ID_PRODUCTION, INITIAL_T, MESH_1_ORDER, MESH_2_ORDER, MESH_3_ORDER) select '
+                        . $production->ID_PRODUCTION . ',I.INITIAL_T, I.MESH_1_ORDER, I.MESH_2_ORDER, I.MESH_3_ORDER from INITIAL_TEMPERATURE as I where ID_PRODUCTION = ' . $productionCurr->ID_PRODUCTION);
                         }
                     }
 
@@ -425,11 +425,11 @@ class Studies extends Controller
                                 unset($productemlt->ID_PRODUCT_ELMT);
                                 $productemlt->save();
 
-                                // duplicate mesh_position
+                                // duplicate MESH_POSITION
                                 $meshPositions = MeshPosition::where('ID_PRODUCT_ELMT', $prodelmtCurr->ID_PRODUCT_ELMT)->get();
                                 if (count($meshPositions) > 0) {
-                                    DB::insert('insert into mesh_position (ID_PRODUCT_ELMT, MESH_AXIS, MESH_ORDER, MESH_AXIS_POS) select '
-                                    . $productemlt->ID_PRODUCT_ELMT . ',M.MESH_AXIS, M.MESH_ORDER, M.MESH_AXIS_POS from mesh_position as M where ID_PRODUCT_ELMT = '
+                                    DB::insert('insert into MESH_POSITION (ID_PRODUCT_ELMT, MESH_AXIS, MESH_ORDER, MESH_AXIS_POS) select '
+                                    . $productemlt->ID_PRODUCT_ELMT . ',M.MESH_AXIS, M.MESH_ORDER, M.MESH_AXIS_POS from MESH_POSITION as M where ID_PRODUCT_ELMT = '
                                     . $prodelmtCurr->ID_PRODUCT_ELMT);
                                 }
 
@@ -1849,8 +1849,8 @@ class Studies extends Controller
                 }
 
                 //duplicate initial_Temp already exsits
-                DB::insert('insert into initial_temperature (ID_PRODUCTION, INITIAL_T, MESH_1_ORDER, MESH_2_ORDER, MESH_3_ORDER) select '
-                    . $production->ID_PRODUCTION . ',I.INITIAL_T, I.MESH_1_ORDER, I.MESH_2_ORDER, I.MESH_3_ORDER from initial_temperature as I where ID_PRODUCTION = ' . $productionCurr->ID_PRODUCTION);
+                DB::insert('insert into INITIAL_TEMPERATURE (ID_PRODUCTION, INITIAL_T, MESH_1_ORDER, MESH_2_ORDER, MESH_3_ORDER) select '
+                    . $production->ID_PRODUCTION . ',I.INITIAL_T, I.MESH_1_ORDER, I.MESH_2_ORDER, I.MESH_3_ORDER from INITIAL_TEMPERATURE as I where ID_PRODUCTION = ' . $productionCurr->ID_PRODUCTION);
                 
                 $shapeId = 0;
                 //duplicate Product already exsits
@@ -1883,8 +1883,8 @@ class Studies extends Controller
                             unset($productemlt->ID_PRODUCT_ELMT);
                             $productemlt->save();
 
-                            DB::insert('insert into mesh_position (ID_PRODUCT_ELMT, MESH_AXIS, MESH_ORDER, MESH_AXIS_POS) select '
-                                . $productemlt->ID_PRODUCT_ELMT . ',M.MESH_AXIS, M.MESH_ORDER, M.MESH_AXIS_POS from mesh_position as M where ID_PRODUCT_ELMT = '
+                            DB::insert('insert into MESH_POSITION (ID_PRODUCT_ELMT, MESH_AXIS, MESH_ORDER, MESH_AXIS_POS) select '
+                                . $productemlt->ID_PRODUCT_ELMT . ',M.MESH_AXIS, M.MESH_ORDER, M.MESH_AXIS_POS from MESH_POSITION as M where ID_PRODUCT_ELMT = '
                                 . $prodelmtCurr->ID_PRODUCT_ELMT);
                         }
                     }
