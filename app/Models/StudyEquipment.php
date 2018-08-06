@@ -55,6 +55,13 @@ class StudyEquipment extends Model
     use Eloquence, Mappable;
 
     /**
+     * The table associated with the model.
+     * 
+     * @var string
+     */
+    protected $table = 'STUDY_EQUIPMENTS';
+
+    /**
      * @var array
      */
     protected $fillable = ['ID_STUDY_EQUIPMENTS', 'ID_STUDY', 'ID_EQUIP', 'ID_EXH_GEN', 'ID_EXH_RES', 'ID_PIPE_GEN', 
