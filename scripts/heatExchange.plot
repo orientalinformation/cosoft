@@ -16,5 +16,5 @@ set label  ARG2 center at graph 0, graph 1.06
 set arrow to graph 1.04,0 filled lw 3
 set arrow to graph 0,1.04 filled lw 3
 set grid xtics ytics lt 1.5 lc rgb "#9B9999"
-set key rmargin box lw 1 opaque height 1.5
+set key rmargin box lw 1 opaque height 1.5 reverse
 plot DATAFILE using 1:2 w l lc rgb "blue" lw 3 title TITLE
