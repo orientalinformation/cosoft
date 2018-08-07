@@ -70,7 +70,6 @@ class CalculateService
         $this->calParametersDef = $this->getCalculationParametersDef();
         $this->units = $app['App\\Cryosoft\\UnitsService'];
         $this->equipment = $app['App\\Cryosoft\\EquipmentsService'];
-
     }
 
     public function getCalculationMode($idStudy) 
@@ -462,7 +461,7 @@ class CalculateService
         if ($this->isStudyHasChilds($idStudy)) {
             $studies = Study::where('PARENT_ID', '=', $idStudy)->get();
             if (count($studies) > 0) {
-                for ($i = 0; $i < count($studies) ; $i++) { 
+                for ($i = 0; $i < count($studies); $i++) { 
                     if (($idStudyEquipment == -1) || ($idStudyEquipment == $studies[$i]->PARENT_STUD_EQP_ID)) {
                         $studies[$i]->TO_RECALCULATE = 1;
                         $studies[$i]->save();

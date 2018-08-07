@@ -1795,7 +1795,6 @@ class Studies extends Controller
 
         $duplicateStudy = Study::where('STUDY_NAME', '=', $childStudyName)->count();
         if ($duplicateStudy) {
-
             return response([
                 'code' => 1002,
                 'message' => 'This study name already exists, please try another one.'
