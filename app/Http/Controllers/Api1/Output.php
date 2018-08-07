@@ -1310,6 +1310,7 @@ class Output extends Controller
             $item["dhpMax"] = $dhpMax;
             $item["consoMax"] = $consoMax;
             $item["tocMax"] = $tocMax;
+            $item["capabilitie"] = $capabilitie;
 
             $result[] = $item;
         }
