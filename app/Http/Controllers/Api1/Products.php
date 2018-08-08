@@ -266,7 +266,7 @@ class Products extends Controller
             $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $id);
             $ok2 = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($product->ID_STUDY, $conf, 3);
 
-            // $this->mesh->rebuildMesh($product->study);
+            $this->mesh->rebuildMesh($product->study);
         } else if ($oldRealMass != $realmass) {
             $nElements->PROD_ELMT_REALWEIGHT = $this->unit->mass($realmass, ['save' => true]);
             $nElements->save();
