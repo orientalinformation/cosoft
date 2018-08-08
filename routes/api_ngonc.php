@@ -177,6 +177,13 @@ $router->POST('/api/v1/studyEquipment/{id}/saveEquipmentData', 'Api1\\StudyEquip
 $router->POST('/api/v1/studyEquipment/{id}/computeTrTsConfig', 'Api1\\StudyEquipments@computeTrTsConfig');
 
 /**
+ * GET getSpecialLength
+ * Summary: 
+ * Notes: get Special Length
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/studyEquipment/{id}/getSpecialLength', 'Api1\\StudyEquipments@getSpecialLength');
+/**
  * GET units
  * Summary: 
  * Notes: get Admin Units

@@ -399,4 +399,17 @@ class StudyEquipments extends Controller
         $stdeqp->save();
         return 1;
     }
+
+    public function getSpecialLength($id)
+    {
+        $stdeqp = StudyEquipment::findOrFail($id);
+        $result = [];
+        $length = 0;
+        for ($i=1; $i <= $stdeqp->NB_MAX_MODUL; $i++) { 
+            $length = $stdeqp->EQP_LENGTH + $i * $stdeqp->MODUL_LENGTH;
+            $result[] = $this->unit->equipDimension($length) . ' (' . $this->unit->equipDimensionSymbol() . ')' . ' x ' . $this->unit->equipDimension($stdeqp->EQP_WIDTH) . ' (' . $this->unit->equipDimensionSymbol() . ')';
+        }
+
+        return $result;
+    }
 }
