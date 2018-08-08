@@ -661,7 +661,7 @@ class Products extends Controller
 
                         $t = $pe['initTemp'];
 
-                        // $t = array_reverse($t); // Mysql not using
+                        $t = array_reverse($t); // Mysql not using
                         
                         $t2 = [];
                         
