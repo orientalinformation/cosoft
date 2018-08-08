@@ -131,16 +131,7 @@ class Chaining extends Controller
             $iname['isChaining'] = $this->checkStudyEquipment($sequip->ID_STUDY_EQUIPMENTS, $dataStudies);
 
             $equipment = Equipment::find($sequip->ID_EQUIP);
-            $name = $equipment->EQUIP_NAME;
-
-            if (strlen($name) > 18) {
-              $name = substr($equipment->EQUIP_NAME, 0, 18);
-              $iname['name'] = $name;
-              $iname['symbol'] = substr($equipment->EQUIP_NAME, 19, strlen($name));
-            } else {
-              $iname['name'] = $name;
-              $iname['symbol'] = null;
-            }
+            $iname['name'] = $equipment->EQUIP_NAME;
 
             array_push($nameEquipments, $iname);
           }
