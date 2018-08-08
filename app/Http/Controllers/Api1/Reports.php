@@ -964,6 +964,27 @@ class Reports extends Controller
 
                         break;
 
+                    case CYLINDER_STANDING_3D:
+                    case CYLINDER_LAYING_3D:
+                    case CYLINDER_CONCENTRIC_STANDING_3D:
+                    case OVAL_STANDING_3D:
+                    case OVAL_LAYING_3D:
+                        if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
+                            $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                            $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                            $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                            $progress .= "\nProduct Section";
+                            $this->writeProgressFile($progressFile, $progress);
+                        }
+
+                        if ($CONTOUR2D_G == 1) {
+                            $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
+                            $progress .= "\nContour";
+                            $this->writeProgressFile($progressFile, $progress);
+                        }
+
+                        break;
+
                     default:
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
                             $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);

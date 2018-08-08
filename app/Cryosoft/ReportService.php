@@ -1536,6 +1536,7 @@ class ReportService
             
             if (!file_exists($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment . '/' . $contourFileName . '.png')) { 
                 $dataContour = $this->output->getGrideByPlan($idStudy, $idStudyEquipment, $lfDwellingTime, $chartTempInterval[0], $chartTempInterval[1], $planTempRecordData, $selectedPlan - 1, $shape, $orientation);
+                $plotFile = 'contour.plot';
                 $inpFile = "/tmp/contour.inp";
                 $f = fopen("/tmp/contour.inp", "w");
 
@@ -1544,6 +1545,8 @@ class ReportService
                 }
                 fclose($f);
             }
+
+            $contourFileName = $lfDwellingTime . '-' . $chartTempInterval[0] . '-' . $chartTempInterval[1] . '-' . $chartTempInterval[2];
         } else {
             $prodFolder = 'Prod_' . $study->ID_PROD;
             $stdeqpFolder = 'Equipment' . $idStudyEquipment;
@@ -1576,10 +1579,30 @@ class ReportService
             $lastTimeStepArrMax = explode('=', $lastTimeStepArr[2]);
             $lastTimeStepArrStep = explode('=', $lastTimeStepArr[3]);
             $chartTempInterval = [(int) $lastTimeStepArrMin[1], (int) $lastTimeStepArrMax[1], (int) $lastTimeStepArrStep[1]];
+
+            switch ($shape) {
+                case CYLINDER_STANDING_3D:
+                case CYLINDER_LAYING_3D:
+                case CYLINDER_CONCENTRIC_STANDING_3D:
+                case CYLINDER_CONCENTRIC_LAYING_3D:
+                case SPHERE_3D:
+                    $plotFile = 'contourSphere.plot';
+                    break;
+
+                case OVAL_STANDING_3D:
+                case OVAL_LAYING_3D:
+                    $plotFile = 'contourOval.plot';
+                    break;
+
+                default:
+                    $plotFile = 'contour3Dshape.plot';
+                    break;
+            }
+
+            $contourFileName = $lfDwellingTime . '-' . $chartTempInterval[0] . '-' . $chartTempInterval[1] . '-' . $chartTempInterval[2] . '-' . $selectedPlan;
         }
         
-        $contourFileName = $lfDwellingTime . '-' . $chartTempInterval[0] . '-' . $chartTempInterval[1] . '-' . $chartTempInterval[2];
-        system('gnuplot -c '. $this->plotFolder .'/contour.plot "'. $dimension .' '. $axisName[0] .'" "'. $dimension .' '. $axisName[1] .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment .'" "'. $contourFileName .'" '. $inpFile .'');
+        system('gnuplot -c '. $this->plotFolder .'/' . $plotFile . ' "'. $dimension .' '. $axisName[0] .'" "'. $dimension .' '. $axisName[1] .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment .'" "'. $contourFileName .'" '. $inpFile .'');
         $imageContour[] = 'http://'.$_SERVER['HTTP_HOST'] . '/heatmap/' . $userName . '/' . $idStudyEquipment . '/' . $contourFileName . '.png';
 
         return compact("chartTempInterval", "lfDwellingTime", "lftimeInterval", "equipName", "idStudyEquipment");
@@ -1602,9 +1625,11 @@ class ReportService
         if (!is_dir($heatmapFolder)) {
             mkdir($heatmapFolder, 0777);
         }
+
         if (!is_dir($heatmapFolder . '/' . $userName)) {
             mkdir($heatmapFolder . '/' . $userName, 0777);
         }
+
         if (!is_dir($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment)) {
             mkdir($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment, 0777);
         }
@@ -1656,12 +1681,15 @@ class ReportService
             $chartTempInterval = $this->output->init2DContourTempInterval($idStudyEquipment, $lfDwellingTime, $tempInterval, $pasTemp);
             
             $dataContour = $this->output->getGrideByPlan($idStudy, $idStudyEquipment, $lfDwellingTime, $chartTempInterval[0], $chartTempInterval[1], $planTempRecordData, $selectedPlan - 1, $shape, $orientation);
+            $plotFile = 'contour.plot';
             $inpFile = "/tmp/contour.inp";
             $f = fopen("/tmp/contour.inp", "w");
             foreach ($dataContour as $datum) {
                 fputs($f, (double) $datum['X'] . ' ' . (double) $datum['Y'] . ' ' .  (double) $datum['Z'] . "\n" );
             }
             fclose($f);
+
+            $contourFileName = $lfDwellingTime . '-' . $chartTempInterval[0] . '-' . $chartTempInterval[1] . '-' . $chartTempInterval[2];
         } else {
             $prodFolder = 'Prod_' . $study->ID_PROD;
             $stdeqpFolder = 'Equipment' . $idStudyEquipment;
@@ -1700,15 +1728,35 @@ class ReportService
             $lastTimeStepArrMax = explode('=', $lastTimeStepArr[2]);
             $lastTimeStepArrStep = explode('=', $lastTimeStepArr[3]);
             $chartTempInterval = [(int) $lastTimeStepArrMin[1], (int) $lastTimeStepArrMax[1], (int) $lastTimeStepArrStep[1]];
+
+            switch ($shape) {
+                case CYLINDER_STANDING_3D:
+                case CYLINDER_LAYING_3D:
+                case CYLINDER_CONCENTRIC_STANDING_3D:
+                case CYLINDER_CONCENTRIC_LAYING_3D:
+                case SPHERE_3D:
+                    $plotFile = 'contourSphere.plot';
+                    break;
+
+                case OVAL_STANDING_3D:
+                case OVAL_LAYING_3D:
+                    $plotFile = 'contourOval.plot';
+                    break;
+
+                default:
+                    $plotFile = 'contour3Dshape.plot';
+                    break;
+            }
+
+            $contourFileName = $lfDwellingTime . '-' . $chartTempInterval[0] . '-' . $chartTempInterval[1] . '-' . $chartTempInterval[2] . '-' . $selectedPlan;
         }
 
-        $contourFileName = $lfDwellingTime . '-' . $chartTempInterval[0] . '-' . $chartTempInterval[1] . '-' . $chartTempInterval[2];
-        system('gnuplot -c '. $this->plotFolder .'/contour.plot "'. $dimension .' '. $axisName[0] .'" "'. $dimension .' '. $axisName[1] .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment .'" "'. $contourFileName .'" '. $inpFile .'');
+        system('gnuplot -c '. $this->plotFolder .'/' . $plotFile . ' "'. $dimension .' '. $axisName[0] .'" "'. $dimension .' '. $axisName[1] .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment .'" "'. $contourFileName .'" '. $inpFile .'');
         
         $dataFile = getenv('APP_URL') . '/heatmap/' . $userName . '/' . $idStudyEquipment . '/data.json';
         $imageContour[] = getenv('APP_URL') . '/heatmap/' . $userName . '/' . $idStudyEquipment . '/' . $contourFileName . '.png';
 
-        return compact("chartTempInterval", "lfDwellingTime", "lftimeInterval", "equipName", "idStudyEquipment");
+        return compact("chartTempInterval", "lfDwellingTime", "lftimeInterval", "equipName", "idStudyEquipment", "selectedPlan");
     }
     
     public function getStudyPackingLayers($id)
