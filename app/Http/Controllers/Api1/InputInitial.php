@@ -409,8 +409,10 @@ class InputInitial extends Controller
         $productElmtInitTemp = [];
         $initTempPositions = [];
         $nbMeshPointElmt = [];
+        $shape = null;
 
         foreach ($elements as $elmt) {
+            $shape = $elmt->ID_SHAPE;
             if ($elmt->ID_SHAPE < 10) {
                 $meshPositions = MeshPosition::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->orderBy('MESH_ORDER')->get();
                 array_push($elmtMeshPositions, $meshPositions);
@@ -453,10 +455,16 @@ class InputInitial extends Controller
             }
         }
 
-        $array = [
-            'tempPoints' => $tempPoints
-            // 'tempPoints' => array_reverse($tempPoints) // Mysql not using
-        ];
+        if ($elmt->ID_SHAPE < 10) {
+            $array = [
+                // 'tempPoints' => $tempPoints
+                'tempPoints' => array_reverse($tempPoints) // Mysql not using
+            ];
+        } else {
+            $array = [
+                'tempPoints' => $tempPoints
+            ];
+        }
         return $array;
     }
 }
