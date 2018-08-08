@@ -455,7 +455,7 @@ class InputInitial extends Controller
             }
         }
 
-        if ($elmt->ID_SHAPE < 10) {
+        if ($shape < 10) {
             $array = [
                 // 'tempPoints' => $tempPoints
                 'tempPoints' => array_reverse($tempPoints) // Mysql not using
