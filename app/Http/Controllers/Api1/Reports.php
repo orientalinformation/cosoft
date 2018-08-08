@@ -2354,35 +2354,81 @@ class Reports extends Controller
                 $html = '<h3 style ="background-color:#268EE2">2D Outlines</h3>';
                 foreach ($pro2Dchart as $key => $pro2Dcharts) {
                     $html = '';
-                    if ($shapeCode == 2 || $shapeCode == 9) {
-                        if ($equipData[$key]['ORIENTATION'] == 1) {
-                            PDF::Bookmark($pro2Dcharts['equipName'] . 'Slice 23 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
-                            PDF::Cell(0, 10, '' , 0, 1, 'L');
-                            $html .='<h3>'. $pro2Dcharts['equipName'] . 'Slice 23 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
-                            $html .= '
-                            <div align="center"> 
+                    if ($shapeCode < 10) {
+                        if ($shapeCode == 2 || $shapeCode == 9) {
+                            if ($equipData[$key]['ORIENTATION'] == 1) {
+                                PDF::Bookmark($pro2Dcharts['equipName'] . 'Slice 23 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
+                                PDF::Cell(0, 10, '' , 0, 1, 'L');
+                                $html .='<h3>'. $pro2Dcharts['equipName'] . 'Slice 23 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
+                                $html .= '
+                                <div align="center"> 
+                                    <img width="640" height="450" src="'. $public_path.'/heatmap/'.$study['USERNAM'].'/'.$pro2Dcharts['idStudyEquipment'].'/'. $pro2Dcharts['lfDwellingTime'].'-'.$pro2Dcharts['chartTempInterval'][0].'-'. $pro2Dcharts['chartTempInterval'][1].'-'.$pro2Dcharts['chartTempInterval'][2].'.png">
+                                </div>';
+                                PDF::writeHTML($html, true, false, true, false, '');
+                            } else {
+                                PDF::Bookmark($pro2Dcharts['equipName'] . 'Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
+                                // PDF::Cell(0, 10, '', 0, 1, 'L');
+                                $html .='<h3>'. $pro2Dcharts['equipName'] . 'Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
+                                $html .= '
+                                <div align="center">
                                 <img width="640" height="450" src="'. $public_path.'/heatmap/'.$study['USERNAM'].'/'.$pro2Dcharts['idStudyEquipment'].'/'. $pro2Dcharts['lfDwellingTime'].'-'.$pro2Dcharts['chartTempInterval'][0].'-'. $pro2Dcharts['chartTempInterval'][1].'-'.$pro2Dcharts['chartTempInterval'][2].'.png">
-                            </div>';
-                            PDF::writeHTML($html, true, false, true, false, '');
-                        } else {
+                                </div>';
+                                PDF::writeHTML($html, true, false, true, false, '');
+                            }
+                        } else if ($shapeCode != 1 || $shapeCode != 6) {
                             PDF::Bookmark($pro2Dcharts['equipName'] . 'Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
                             // PDF::Cell(0, 10, '', 0, 1, 'L');
-                            $html .='<h3>'. $pro2Dcharts['equipName'] . 'Slice 23 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
+                            $html .='<h3>'. $pro2Dcharts['equipName'] . 'Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
                             $html .= '
                             <div align="center">
                             <img width="640" height="450" src="'. $public_path.'/heatmap/'.$study['USERNAM'].'/'.$pro2Dcharts['idStudyEquipment'].'/'. $pro2Dcharts['lfDwellingTime'].'-'.$pro2Dcharts['chartTempInterval'][0].'-'. $pro2Dcharts['chartTempInterval'][1].'-'.$pro2Dcharts['chartTempInterval'][2].'.png">
                             </div>';
                             PDF::writeHTML($html, true, false, true, false, '');
                         }
-                    } else if ($shapeCode != 1 || $shapeCode != 6) {
-                        PDF::Bookmark($pro2Dcharts['equipName'] . 'Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
-                        // PDF::Cell(0, 10, '', 0, 1, 'L');
-                        $html .='<h3>'. $pro2Dcharts['equipName'] . 'Slice 23 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
-                        $html .= '
-                        <div align="center">
-                        <img width="640" height="450" src="'. $public_path.'/heatmap/'.$study['USERNAM'].'/'.$pro2Dcharts['idStudyEquipment'].'/'. $pro2Dcharts['lfDwellingTime'].'-'.$pro2Dcharts['chartTempInterval'][0].'-'. $pro2Dcharts['chartTempInterval'][1].'-'.$pro2Dcharts['chartTempInterval'][2].'.png">
-                        </div>';
-                        PDF::writeHTML($html, true, false, true, false, '');
+                    } else {
+                       switch ($shapeCode) {
+                            case CYLINDER_STANDING_3D:
+                            case CYLINDER_LAYING_3D:
+                            case CYLINDER_CONCENTRIC_STANDING_3D:
+                            case OVAL_STANDING_3D:
+                            case OVAL_LAYING_3D:
+                                PDF::Bookmark($pro2Dcharts['equipName'] . 'Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
+                                // PDF::Cell(0, 10, '', 0, 1, 'L');
+                                $html .='<h3>'. $pro2Dcharts['equipName'] . 'Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
+                                $html .= '
+                                <div align="center">
+                                <img width="640" height="450" src="'. $public_path.'/heatmap/'.$study['USERNAM'].'/'.$pro2Dcharts['idStudyEquipment'].'/'. $pro2Dcharts['lfDwellingTime'].'-'.$pro2Dcharts['chartTempInterval'][0].'-'. $pro2Dcharts['chartTempInterval'][1].'-'.$pro2Dcharts['chartTempInterval'][2].'-'. $pro2Dcharts['selectedPlan'] .'.png">
+                                </div>';
+                                PDF::writeHTML($html, true, false, true, false, '');
+                                break;
+                            
+                            default:
+                                PDF::Bookmark($pro2Dcharts['equipName'] . 'Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
+                                // PDF::Cell(0, 10, '', 0, 1, 'L');
+                                $html .='<h3>'. $pro2Dcharts['equipName'] . 'Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
+                                $html .= '
+                                <div align="center">
+                                <img width="640" height="450" src="'. $public_path.'/heatmap/'.$study['USERNAM'].'/'.$pro2Dcharts['idStudyEquipment'].'/'. $pro2Dcharts['lfDwellingTime'].'-'.$pro2Dcharts['chartTempInterval'][0].'-'. $pro2Dcharts['chartTempInterval'][1].'-'.$pro2Dcharts['chartTempInterval'][2].'-'. $pro2Dcharts['selectedPlan'] .'.png">
+                                </div>';
+                                PDF::writeHTML($html, true, false, true, false, '');
+                                PDF::Bookmark($pro2Dcharts['equipName'] . 'Slice 13 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
+                                // PDF::Cell(0, 10, '', 0, 1, 'L');
+                                $html .='<h3>'. $pro2Dcharts['equipName'] . 'Slice 13 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
+                                $html .= '
+                                <div align="center">
+                                <img width="640" height="450" src="'. $public_path.'/heatmap/'.$study['USERNAM'].'/'.$pro2Dcharts['idStudyEquipment'].'/'. $pro2Dcharts['lfDwellingTime'].'-'.$pro2Dcharts['chartTempInterval'][0].'-'. $pro2Dcharts['chartTempInterval'][1].'-'.$pro2Dcharts['chartTempInterval'][2].'-'. $pro2Dcharts['selectedPlan'] .'.png">
+                                </div>';
+                                PDF::writeHTML($html, true, false, true, false, '');
+                                PDF::Bookmark($pro2Dcharts['equipName'] . 'Slice 23 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
+                                // PDF::Cell(0, 10, '', 0, 1, 'L');
+                                $html .='<h3>'. $pro2Dcharts['equipName'] . 'Slice 23 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
+                                $html .= '
+                                <div align="center">
+                                <img width="640" height="450" src="'. $public_path.'/heatmap/'.$study['USERNAM'].'/'.$pro2Dcharts['idStudyEquipment'].'/'. $pro2Dcharts['lfDwellingTime'].'-'.$pro2Dcharts['chartTempInterval'][0].'-'. $pro2Dcharts['chartTempInterval'][1].'-'.$pro2Dcharts['chartTempInterval'][2].'-'. $pro2Dcharts['selectedPlan'] .'.png">
+                                </div>';
+                                PDF::writeHTML($html, true, false, true, false, '');
+                                break;
+                        } 
                     }
                 }
                 PDF::AddPage();
@@ -2783,6 +2829,7 @@ class Reports extends Controller
                                 $this->writeProgressFile($progressFile, $progress);
                             }
                         }
+
                         break;
 
                     case 3: 
@@ -2798,6 +2845,28 @@ class Reports extends Controller
                             $progress .= "\nContour";
                             $this->writeProgressFile($progressFile, $progress);
                         }
+
+                        break;
+
+                    case CYLINDER_STANDING_3D:
+                    case CYLINDER_LAYING_3D:
+                    case CYLINDER_CONCENTRIC_STANDING_3D:
+                    case OVAL_STANDING_3D:
+                    case OVAL_LAYING_3D:
+                        if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
+                            $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                            $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                            $proSections[] = $this->reportserv->productSection($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                            $progress .= "\nProduct Section";
+                            $this->writeProgressFile($progressFile, $progress);
+                        }
+
+                        if ($CONTOUR2D_G == 1) {
+                            $pro2Dchart[] = $this->reportserv->productChart2DStatic($study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3, $CONTOUR2D_TEMP_STEP, $CONTOUR2D_TEMP_MIN, $CONTOUR2D_TEMP_MAX);
+                            $progress .= "\nContour";
+                            $this->writeProgressFile($progressFile, $progress);
+                        }
+
                         break;
 
                     default:
