@@ -114,14 +114,34 @@ class ProductService
         if (count($components) > 0) {
             $i = 0;
             foreach ($components as $cp) {
-                if ($cp->COMP_RELEASE != 9 || $cp->ID_USER == $this->auth->user()->ID_USER || $this->auth->user()->USERPRIO <= 1) {
+                if ($cp->COMP_RELEASE != 9 || ($cp->ID_USER == $this->auth->user()->ID_USER || $this->auth->user()->USERPRIO <= 1)) {
                     $libValue = $this->getLibValue(100, $cp->COMP_RELEASE);
                     $displayName = $cp->LABEL . ' - ' . $cp->COMP_VERSION . ' ('. $libValue .')';
                     if ($cp->USERNAM != 'KERNEL') {
                         $displayName .= ' - ' . $cp->USERNAM; 
                     }
                     $result[$i]['ID_COMP'] = $cp->ID_COMP; 
+                    $result[$i]['COMP_RELEASE'] = $cp->COMP_RELEASE; 
+                    $result[$i]['ID_USER'] = $cp->ID_USER; 
                     $result[$i]['displayName'] = trim($displayName);
+
+                    if ($cp->OPEN_BY_OWNER == 1 && $cp->ID_USER != $this->auth->user()->ID_USER) {
+                        $result[$i]['ID_COMP'] = -1;
+                        $result[$i]['class'] = 'compLocked';
+                    } else if ($cp->COMP_RELEASE == 9) {
+                        $result[$i]['class'] = 'obsoleteElement';
+                    } else if ($cp->COMP_RELEASE == 5) {
+                        $result[$i]['class'] = 'disabledElement';
+                    } else if ($cp->USERNAM != 'KERNEL') {
+                        if ($cp->ID_USER != $this->auth->user()->ID_USER) {
+                            $result[$i]['class'] = 'userElement';
+                        } else {
+                            $result[$i]['class'] = 'mineElement';
+                        }
+                    } else {
+                        $result[$i]['class'] = '';
+                    }
+
                     $i++;
                 }
             }
