@@ -211,3 +211,5 @@ define('DIM_1', 1);
 define('DIM_2', 2);
 define('DIM_3', 3);
 
+define('DISABLED', 5);
+define('OBSOLETE', 9);

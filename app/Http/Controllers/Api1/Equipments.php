@@ -181,7 +181,33 @@ class Equipments extends Controller
 
         $equipments = $querys->get();
 
-        return $equipments;
+        $result = [];
+        if (count($equipments) > 0) {
+            foreach ($equipments as $key => $equipment) {
+                $result[] = $equipment;
+                $result[$key]['displayName'] = $this->equip->getEquipmentDisplayString($equipment);
+
+                if ($equipment->OPEN_BY_OWNER && $equipment->ID_USER != $this->auth->user()->ID_USER) {
+                    $result[$key]['class'] = 'eqpLocked';
+                } else if ($equipment->user->USERNAM != 'KERNEL') {
+                    if ($equipment->ID_USER != $this->auth->user()->ID_USER) {
+                        $result[$key]['class'] = 'userElement';
+                    } else {
+                        $result[$key]['class'] = 'mineElement';
+                    }
+                } else {
+                    $result[$key]['class'] = '';
+                }
+
+                if ($equipment->EQUIP_RELEASE == OBSOLETE) {
+                    $result[$key]['class'] = 'obsoleteElement';
+                } else if ($equipment->EQUIP_RELEASE == OBSOLETE) {
+                    $result[$key]['class'] = 'disabledElement';
+                }
+            }
+        }
+
+        return $result;
     }
 
     public function getSelectionCriteriaFilter()

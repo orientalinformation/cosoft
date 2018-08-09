@@ -10,6 +10,8 @@ use App\Models\Study;
 use App\Models\StudEqpPrm;
 use App\Models\MinMax;
 use App\Models\Equipment;
+use App\Models\Translation;
+use App\Models\User;
 
 
 class EquipmentsService
@@ -17,6 +19,7 @@ class EquipmentsService
     public function __construct(\Laravel\Lumen\Application $app)
     {
         $this->app = $app;
+        $this->auth = $app['Illuminate\\Contracts\\Auth\\Factory'];
         $this->value = $app['App\\Cryosoft\\ValueListService'];
         $this->unit = $app['App\\Cryosoft\\UnitsConverterService'];
     }
@@ -185,5 +188,24 @@ class EquipmentsService
         }
 
         return $this->unit->unitConvertUserSave($snrjUnitLabel, $value);
+    }
+
+    public function getEquipmentDisplayString(Equipment $equipment)
+    {
+        $displayName = $equipment->EQUIP_NAME . ' - ' . $equipment->EQUIP_VERSION . ' (' . $this->getLibValue(100, $equipment->EQUIP_RELEASE) . ')';
+        $user = $equipment->user;
+        if ($user->USERNAM != 'KERNEL') {
+            $displayName .= ' - ' . $user->USERNAM; 
+        }
+
+        return $displayName;
+    }
+
+    public function getLibValue($tid, $id)
+    {
+        $translation = Translation::where('TRANS_TYPE', $tid)
+        ->where('CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+        ->where('ID_TRANSLATION', $id)->first();
+        if ($translation) return $translation->LABEL;
     }
 }
