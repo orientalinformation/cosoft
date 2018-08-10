@@ -70,18 +70,23 @@ class Auth extends Controller
         return response()->json(compact('token','user'));
     }
 
-    public function logout(Request $request)
+    public function logout()
     {
+        $connections = null;
         $current = Carbon::now();
         $current->timezone = 'Asia/Ho_Chi_Minh';
 
-        $connections = Connection::where('ID_USER', $this->auth->user()->ID_USER)
-                        ->where('TYPE_DISCONNECTION', 0)->get();
+        if ($this->auth->user()) {
+            $connections = Connection::where('ID_USER', $this->auth->user()->ID_USER)
+                            ->where('TYPE_DISCONNECTION', 0)->get();
+        }
 
-        foreach ($connections as $connection) {
-            $connection->DATE_DISCONNECTION = $current->toDateTimeString();
-            $connection->TYPE_DISCONNECTION = 2;
-            $connection->update();
+        if (count($connections) > 0) {
+            foreach ($connections as $connection) {
+                $connection->DATE_DISCONNECTION = $current->toDateTimeString();
+                $connection->TYPE_DISCONNECTION = 2;
+                $connection->update();
+            }
         }
     }
 }
