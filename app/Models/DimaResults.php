@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * @property int $ID_DIMA_RESULTS
+ * @property int $ID_DIMA_RESULT
  * @property int $ID_STUDY_EQUIPMENTS
  * @property mixed $SETPOINT
  * @property int $DIMA_STATUS
