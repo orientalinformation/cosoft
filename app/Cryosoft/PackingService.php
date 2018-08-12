@@ -9,8 +9,6 @@ use App\Models\Product;
 
 class PackingService
 {
-    
-
     public function __construct(\Laravel\Lumen\Application $app)
     {
         $this->app = $app;
