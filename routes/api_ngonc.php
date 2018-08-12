@@ -183,6 +183,14 @@ $router->POST('/api/v1/studyEquipment/{id}/computeTrTsConfig', 'Api1\\StudyEquip
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/studyEquipment/{id}/getSpecialLength', 'Api1\\StudyEquipments@getSpecialLength');
+
+/**
+ * POST duplicateEltNewSize
+ * Summary: 
+ * Notes: Duplicate StudyEquipment Width New Size
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/studyEquipment/{id}/duplicateEltNewSize', 'Api1\\StudyEquipments@duplicateEltNewSize');
 /**
  * GET units
  * Summary: 

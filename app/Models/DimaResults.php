@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * @property int $ID_DIMA_RESULTS
+ * @property int $ID_DIMA_RESULT
  * @property int $ID_STUDY_EQUIPMENTS
  * @property mixed $SETPOINT
  * @property int $DIMA_STATUS
@@ -34,12 +34,12 @@ class DimaResults extends Model
     /**
      * @var array
      */
-    protected $fillable = ['ID_DIMA_RESULTS', 'ID_STUDY_EQUIPMENTS', 'SETPOINT', 'DIMA_STATUS', 'DIMA_TS', 'DIMA_TFP', 'DIMA_VEP', 'DIMA_VC', 'DIMA_TYPE', 'DIMA_PRECIS', 'CRYOCONSPROD', 'HOURLYOUTPUTMAX', 'CONSUM', 'USERATE', 'CONSUMMAX', 'USERATEMAX'];
+    protected $fillable = ['ID_DIMA_RESULT', 'ID_STUDY_EQUIPMENTS', 'SETPOINT', 'DIMA_STATUS', 'DIMA_TS', 'DIMA_TFP', 'DIMA_VEP', 'DIMA_VC', 'DIMA_TYPE', 'DIMA_PRECIS', 'CRYOCONSPROD', 'HOURLYOUTPUTMAX', 'CONSUM', 'USERATE', 'CONSUMMAX', 'USERATEMAX'];
 
     /**
      * @var string
      */
-    protected $primaryKey = 'ID_DIMA_RESULTS';
+    protected $primaryKey = 'ID_DIMA_RESULT';
 
     /**
      * Indicates if the model should be timestamped.

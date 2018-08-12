@@ -15,7 +15,9 @@ use App\Cryosoft\BrainCalculateService;
 use App\Cryosoft\StudyEquipmentService;
 use App\Cryosoft\ValueListService;
 use App\Models\Equipment;
-
+use App\Models\StudEqpPrm;
+use App\Models\DimaResults;
+use App\Models\EconomicResults;
 
 class StudyEquipments extends Controller
 {
@@ -405,11 +407,77 @@ class StudyEquipments extends Controller
         $stdeqp = StudyEquipment::findOrFail($id);
         $result = [];
         $length = 0;
-        for ($i=1; $i <= $stdeqp->NB_MAX_MODUL; $i++) { 
+        for ($i = 1; $i <= $stdeqp->NB_MAX_MODUL; $i++) { 
             $length = $stdeqp->EQP_LENGTH + $i * $stdeqp->MODUL_LENGTH;
             $result[] = $this->unit->equipDimension($length) . ' (' . $this->unit->equipDimensionSymbol() . ')' . ' x ' . $this->unit->equipDimension($stdeqp->EQP_WIDTH) . ' (' . $this->unit->equipDimensionSymbol() . ')';
         }
 
         return $result;
+    }
+
+    public function duplicateEltNewSize($id)
+    {
+        $stdeqp = StudyEquipment::findOrFail($id);
+        $input = $this->request->all();
+        $nbModule = $input['nbModule'];
+        $studyEquipmentsNew = new StudyEquipment();
+
+        $stdeqpNew = $stdeqp->replicate();
+        unset($stdeqpNew->ID_STUDY_EQUIPMENTS);
+        $length = $stdeqp->EQP_LENGTH + $nbModule * $stdeqp->MODUL_LENGTH;
+        $stdeqpNew['EQP_LENGTH'] = $this->unit->equipDimension($length, ['save' => true]);
+        $stdeqpNew['ID_CALC_PARAMS'] = 0;
+        $stdeqpNew['ID_EXH_GEN'] = 0;
+        $stdeqpNew['ID_EXH_RES'] = 0;
+        $stdeqpNew['ID_LAYOUT_GENERATION'] = 0;
+        $stdeqpNew['ID_LAYOUT_RESULTS'] = 0;
+        $stdeqpNew['ID_PIPE_GEN'] = 0;
+        $stdeqpNew['ID_PIPE_RES'] = 0;
+        $stdeqpNew['ID_STUD_EQUIPPROFILE'] = 0;
+        $stdeqpNew['ID_ECONOMIC_RESULTS'] = 0;
+        $stdeqpNew['BRAIN_SAVETODB'] = 0;
+        $stdeqpNew['BRAIN_TYPE'] = 0;
+        $stdeqpNew['EQUIP_STATUS'] = 0;
+        $stdeqpNew['AVERAGE_PRODUCT_ENTHALPY'] = 0.0;
+        $stdeqpNew['AVERAGE_PRODUCT_TEMP'] = 0.0;
+        $stdeqpNew['ENTHALPY_VARIATION'] = 0.0;
+        $stdeqpNew['PRECIS'] = 0.0;
+
+        if ($stdeqpNew->save()) {
+            if (count($stdeqp->dimaResults) > 0) {
+                foreach ($stdeqp->dimaResults as $key => $dimaResult) {
+                    $dimaResultNew = new DimaResults();
+                    $dimaResultNew = $dimaResult->replicate();
+                    unset($dimaResultNew->ID_DIMA_RESULT);
+                    $dimaResultNew->ID_STUDY_EQUIPMENTS = $stdeqpNew->ID_STUDY_EQUIPMENTS;
+                    $dimaResultNew->save();
+                }
+            }
+
+            $economicResults = EconomicResults::where('ID_STUDY_EQUIPMENTS', $id)->get();
+            if (count($economicResults) > 0) {
+                foreach ($economicResults as $economicResult) {
+                    $economicResultNew = new EconomicResults();
+                    $economicResultNew = $economicResult->replicate();
+                    unset($economicResultNew->ID_ECONOMIC_RESULTS);
+                    $economicResultNew->ID_STUDY_EQUIPMENTS = $stdeqpNew->ID_STUDY_EQUIPMENTS;
+                    $economicResultNew->save();
+                }
+            }
+
+            if (count($stdeqp->studEqpPrms) > 0) {
+                foreach ($stdeqp->studEqpPrms as $studEqpPrm) {
+                    $studEqpPrmNew = new StudEqpPrm();
+                    $studEqpPrmNew = $studEqpPrm->replicate();
+                    unset($studEqpPrmNew->ID_STUD_EQUIP_PRM);
+                    $studEqpPrmNew->ID_STUDY_EQUIPMENTS = $stdeqpNew->ID_STUDY_EQUIPMENTS;
+                    $studEqpPrmNew->save();
+                }
+            }
+
+            return 1;
+        } else {
+            return 0;
+        }
     }
 }

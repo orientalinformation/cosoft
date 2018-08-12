@@ -275,7 +275,7 @@ class StudyEquipmentService
 
     public function isAnalogicResults(StudyEquipment &$se) 
     {
-        $results = DimaResults::where('ID_STUDY_EQUIPMENTS',$se->ID_STUDY_EQUIPMENTS)->get();
+        $results = DimaResults::where('ID_STUDY_EQUIPMENTS', $se->ID_STUDY_EQUIPMENTS)->get();
 
         return count($results)>0;
     }
@@ -957,6 +957,7 @@ class StudyEquipmentService
                 $i++;
             }
         }
+
         if (!empty($studyEquipment->vc)) {
             if ($studyEquipment->ID_EQUIPSERIES != 16 || $studyEquipment->ID_EQUIPSERIES != 17) {
                 $this->cleanSpecificEqpPrm($studyEquipment->ID_STUDY_EQUIPMENTS, 100);
@@ -984,6 +985,7 @@ class StudyEquipmentService
                 }
             }
         }
+
         if (!empty($studyEquipment->dh)) {
             $this->cleanSpecificEqpPrm($studyEquipment->ID_STUDY_EQUIPMENTS, 400);
             $i = 0;
@@ -1006,7 +1008,6 @@ class StudyEquipmentService
             $studEqpPrm->VALUE = doubleval($this->convert->exhaustTemperature($studyEquipment->tExt, ['save' => true]));
             $studEqpPrm->save();
         }
-
 
         if (!empty($studyEquipment->calculation_parameter)) {
             //data value
@@ -1032,7 +1033,9 @@ class StudyEquipmentService
 
     public function cleanSpecificEqpPrm($idStudyEquipment, $valueType)
     {
-        $studEqpPrm = StudEqpPrm::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->where('VALUE_TYPE', '>=', $valueType)->where('VALUE_TYPE', '<', $valueType + 100)->delete();
+        $studEqpPrm = StudEqpPrm::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)
+                                 ->where('VALUE_TYPE', '>=', $valueType)
+                                 ->where('VALUE_TYPE', '<', $valueType + 100)->delete();
     }
 
     public function runStudyCleaner($idStudy, $idStudyEquipment, $number)
