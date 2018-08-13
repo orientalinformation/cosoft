@@ -29,7 +29,6 @@ class OutputService
         $this->cal = $app['App\\Cryosoft\\CalculateService'];
     }
 
-
     public function calculateEchantillon($ldNbSample, $ldNbRecord, $lfDwellingTime, $lfTimeStep) 
     {
         $tdSamplePos = array();

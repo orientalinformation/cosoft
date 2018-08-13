@@ -14,7 +14,6 @@ class EconomicResultsService
         $this->unit = $app['App\\Cryosoft\\UnitsConverterService'];
     }
 
-
     public function isConsoToDisplay($dimaStatus, $equipStatus)
     {
         $dimaStatus = $dimaStatus & 0xFFFF;
