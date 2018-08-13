@@ -1278,7 +1278,7 @@ class Equipments extends Controller
             'imageMargeHeight' => PROFILE_CHARTS_MARGIN_HEIGHT,
             'X' => $X,
             'Y' =>  $Y,
-            'ListOfPoints' => $listOfPoints,
+            'ListOfPoints' => array_reverse($listOfPoints),
             'path' => $path,
             'axisline' => $axisline,
             'originY' => (PROFILE_CHARTS_HEIGHT - PROFILE_CHARTS_MARGIN_HEIGHT),
