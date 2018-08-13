@@ -10,6 +10,7 @@
  **All rights reserved.
  ****************************************************************************/
 namespace App\Http\Controllers\Api1;
+
 use Illuminate\Contracts\Auth\Factory as Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -19,7 +20,6 @@ use App\Models\Equipment;
 use App\Models\Product;
 use App\Models\EquipGeneration;
 use App\Models\Study;
-
 
 class EquipmentReference extends Controller
 {
