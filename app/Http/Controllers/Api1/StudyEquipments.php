@@ -424,8 +424,7 @@ class StudyEquipments extends Controller
 
         $stdeqpNew = $stdeqp->replicate();
         unset($stdeqpNew->ID_STUDY_EQUIPMENTS);
-        $length = $stdeqp->EQP_LENGTH + $nbModule * $stdeqp->MODUL_LENGTH;
-        $stdeqpNew['EQP_LENGTH'] = $this->unit->equipDimension($length, ['save' => true]);
+        $stdeqpNew['NB_MODUL'] = $nbModule;
         $stdeqpNew['ID_CALC_PARAMS'] = 0;
         $stdeqpNew['ID_EXH_GEN'] = 0;
         $stdeqpNew['ID_EXH_RES'] = 0;
