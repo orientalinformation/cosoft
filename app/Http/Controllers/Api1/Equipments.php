@@ -1190,7 +1190,7 @@ class Equipments extends Controller
             }
         }
 
-        $valuesTabX = array_reverse($valuesTabX);
+        // $valuesTabX = array_reverse($valuesTabX);
 
         $lfOffset = abs($maxValueY - $minValueY) * 0.15;
 
