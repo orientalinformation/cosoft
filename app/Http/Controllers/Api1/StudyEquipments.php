@@ -18,6 +18,9 @@ use App\Models\Equipment;
 use App\Models\StudEqpPrm;
 use App\Models\DimaResults;
 use App\Models\EconomicResults;
+use App\Models\CalculationParameter;
+use App\Models\LayoutResults;
+use App\Models\PipeGen;
 
 class StudyEquipments extends Controller
 {
@@ -436,7 +439,6 @@ class StudyEquipments extends Controller
         $stdeqpNew['ID_ECONOMIC_RESULTS'] = 0;
         $stdeqpNew['BRAIN_SAVETODB'] = 0;
         $stdeqpNew['BRAIN_TYPE'] = 0;
-        $stdeqpNew['EQUIP_STATUS'] = 0;
         $stdeqpNew['AVERAGE_PRODUCT_ENTHALPY'] = 0.0;
         $stdeqpNew['AVERAGE_PRODUCT_TEMP'] = 0.0;
         $stdeqpNew['ENTHALPY_VARIATION'] = 0.0;
@@ -452,16 +454,55 @@ class StudyEquipments extends Controller
                     $dimaResultNew->save();
                 }
             }
+        
+            $economicResult = $stdeqp->economicResults->first();
+            if ($economicResult) {
+                $economicResultNew = new EconomicResults();
+                $economicResultNew = $economicResult->replicate();
+                unset($economicResultNew->ID_ECONOMIC_RESULTS);
+                $economicResultNew->ID_STUDY_EQUIPMENTS = $stdeqpNew->ID_STUDY_EQUIPMENTS;
+                $economicResultNew->save();
+                $stdeqpNew['ID_ECONOMIC_RESULTS'] = $economicResultNew->ID_ECONOMIC_RESULTS;
+            }
 
-            $economicResults = EconomicResults::where('ID_STUDY_EQUIPMENTS', $id)->get();
-            if (count($economicResults) > 0) {
-                foreach ($economicResults as $economicResult) {
-                    $economicResultNew = new EconomicResults();
-                    $economicResultNew = $economicResult->replicate();
-                    unset($economicResultNew->ID_ECONOMIC_RESULTS);
-                    $economicResultNew->ID_STUDY_EQUIPMENTS = $stdeqpNew->ID_STUDY_EQUIPMENTS;
-                    $economicResultNew->save();
-                }
+            $calculationParameter = $stdeqp->calculationParameters->first();
+            if ($calculationParameter) {
+                $calculationParameterNew = new CalculationParameter();
+                $calculationParameterNew = $calculationParameter->replicate();
+                unset($calculationParameterNew->ID_CALC_PARAMS);
+                $calculationParameterNew->ID_STUDY_EQUIPMENTS = $stdeqpNew->ID_STUDY_EQUIPMENTS;
+                $calculationParameterNew->save();
+                $stdeqpNew['ID_CALC_PARAMS'] = $calculationParameterNew->ID_CALC_PARAMS;
+            }
+
+            $layoutGeneration = $stdeqp->layoutGenerations->first();
+            if ($layoutGeneration) {
+                $layoutGenerationNew = new LayoutGeneration();
+                $layoutGenerationNew = $layoutGeneration->replicate();
+                unset($layoutGenerationNew->ID_LAYOUT_GENERATION);
+                $layoutGenerationNew->ID_STUDY_EQUIPMENTS = $stdeqpNew->ID_STUDY_EQUIPMENTS;
+                $layoutGenerationNew->save();
+                $stdeqpNew['ID_LAYOUT_GENERATION'] = $layoutGenerationNew->ID_LAYOUT_GENERATION;
+            }
+
+            $layoutResult = $stdeqp->layoutResults->first();
+            if ($layoutResult) {
+                $layoutResultNew = new LayoutResults();
+                $layoutResultNew = $layoutResult->replicate();
+                unset($layoutResultNew->ID_LAYOUT_RESULTS);
+                $layoutResultNew->ID_STUDY_EQUIPMENTS = $stdeqpNew->ID_STUDY_EQUIPMENTS;
+                $layoutResultNew->save();
+                $stdeqpNew['ID_LAYOUT_RESULTS'] = $layoutResultNew->ID_LAYOUT_RESULTS;
+            }
+
+            $pipeGen = $stdeqp->pipeGens->first();
+            if ($pipeGen) {
+                $pipeGenNew = new pipeGen();
+                $pipeGenNew = $pipeGen->replicate();
+                unset($pipeGenNew->ID_PIPE_GEN);
+                $pipeGenNew->ID_STUDY_EQUIPMENTS = $stdeqpNew->ID_STUDY_EQUIPMENTS;
+                $pipeGenNew->save();
+                $stdeqpNew['ID_PIPE_GEN'] = $pipeGenNew->ID_PIPE_GEN;
             }
 
             if (count($stdeqp->studEqpPrms) > 0) {
@@ -473,6 +514,8 @@ class StudyEquipments extends Controller
                     $studEqpPrmNew->save();
                 }
             }
+
+            $stdeqpNew->save();
 
             return 1;
         } else {
