@@ -856,6 +856,7 @@ class Output extends Controller
         $studyEquipment->vc = $vcResult;
         $studyEquipment->dhp = $this->brain->getListDh($idStudyEquipment);
         $studyEquipment->TExt = $this->unit->exhaustTemperature($this->brain->getTExt($idStudyEquipment));
+        $this->output->executeSequence($studyEquipment);
 
         return $studyEquipment;
     }
