@@ -482,7 +482,11 @@ class BrainCalculateService
             case 12:
             case 16:
                 if ($brandType == 4 || $brandType == 3) {
-                    $sOptimErrorH =  $this->units->convertCalculator($calcParameter->ERROR_H, intval($uPercent["coeffA"]), intval($uPercent["coeffB"]), 2, 1);
+                    if ($calcParameter->ERROR_H == 0) {
+                        $sOptimErrorH =  $this->units->convertCalculator(0.01, intval($uPercent["coeffA"]), intval($uPercent["coeffB"]), 2, 1);
+                    } else {
+                        $sOptimErrorH =  $this->units->convertCalculator($calcParameter->ERROR_H, intval($uPercent["coeffA"]), intval($uPercent["coeffB"]), 2, 1);
+                    }
                 } else {
                     $minMax = $this->getMinMax(1135);
                     $sOptimErrorH =  $this->units->convertCalculator($minMax->DEFAULT_VALUE, intval($uPercent["coeffA"]), intval($uPercent["coeffB"]), 2, 1);
