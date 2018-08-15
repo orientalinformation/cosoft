@@ -287,7 +287,7 @@ class StudyEquipmentService
         $dimaResults = null;
         $lfTemp = 0.0;
 
-        try {		
+        try {       
             $dimaResults = DimaResults::where('ID_STUDY_EQUIPMENTS', $sequip->ID_STUDY_EQUIPMENTS)->orderBy('SETPOINT','desc')->get();
             
             $nIndex = 0;
@@ -1199,36 +1199,36 @@ class StudyEquipmentService
 
     public function startPhamCastCalculator(StudyEquipment &$studyEquipment, $doTr)
     {
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\'.$studyEquipment->study->STUDY_NAME.'\\PhamCast_'.$studyEquipment->ID_STUDY.'_'.$studyEquipment->ID_STUDY_EQUIPMENTS.'_'.$doTr.'.txt');
         $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, !$doTr);
     }
 
     public function startExhaustGasTemp(StudyEquipment &$studyEquipment)
     {
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\'.$studyEquipment->study->STUDY_NAME.'\\KernelTool_'.$studyEquipment->ID_STUDY.'_'.$studyEquipment->ID_STUDY_EQUIPMENTS.'.txt');
         $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 1);
     }
 
     public function startDimMat(StudyEquipment &$studyEquipment)
     {
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\'.$studyEquipment->study->STUDY_NAME.'\\DimMat_'.$studyEquipment->ID_STUDY.'_'.$studyEquipment->ID_STUDY_EQUIPMENTS.'.txt');
         return $this->kernel->getKernelObject('DimMatCalculator')->DMCCalculation($conf, 1);
     }
 
     public function startPipe(StudyEquipment &$studyEquipment)
     {
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->study, $studyEquipment->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\'.$studyEquipment->study->STUDY_NAME.'\\Pipeline_'.$studyEquipment->study->STUDY_NAME.'_'.$studyEquipment->ID_STUDY_EQUIPMENTS.'.txt');
         return $this->kernel->getKernelObject('PipelineCalculator')->PCCCalculation($conf);
     }
 
     public function startEconomic(StudyEquipment &$studyEquipment) {
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\'.$studyEquipment->study->STUDY_NAME.'\\Economic_'.$studyEquipment->ID_STUDY.'_'.$studyEquipment->ID_STUDY_EQUIPMENTS.'.txt');
         return $this->kernel->getKernelObject('EconomicCalculator')->ECEconomicCalculation($conf);
     }
 
     public function startConsumptionEconomic(StudyEquipment &$studyEquipment)
     {
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\'.$studyEquipment->study->STUDY_NAME.'\\Consumption_'.$studyEquipment->ID_STUDY.'_'.$studyEquipment->ID_STUDY_EQUIPMENTS.'.txt');
         return $this->kernel->getKernelObject('ConsumptionCalculator')->COCConsumptionCalculation($conf);
     }
 }
