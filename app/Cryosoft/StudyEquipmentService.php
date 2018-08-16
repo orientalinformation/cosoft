@@ -1197,6 +1197,14 @@ class StudyEquipmentService
         }
     }
 
+    public function runPhamCastCalculator(StudyEquipment $studyEquipment)
+    {
+        if ($this->equip->getCapability($studyEquipment->CAPABILITIES, 8)) {
+            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS);
+            $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, true);
+        }
+    }
+
     public function startPhamCastCalculator(StudyEquipment &$studyEquipment, $doTr)
     {
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\'.$studyEquipment->study->STUDY_NAME.'\\PhamCast_'.$studyEquipment->ID_STUDY.'_'.$studyEquipment->ID_STUDY_EQUIPMENTS.'_'.$doTr.'.txt');
@@ -1230,5 +1238,16 @@ class StudyEquipmentService
     {
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $studyEquipment->ID_STUDY, $studyEquipment->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\'.$studyEquipment->study->STUDY_NAME.'\\Consumption_'.$studyEquipment->ID_STUDY.'_'.$studyEquipment->ID_STUDY_EQUIPMENTS.'.txt');
         return $this->kernel->getKernelObject('ConsumptionCalculator')->COCConsumptionCalculation($conf);
+    }
+
+    public function performNewCalculation(StudyEquipment &$studyEquipment)
+    {
+        $idStudy = $studyEquipment->ID_STUDY;
+        $idStudyEquipment = $studyEquipment->ID_STUDY_EQUIPMENTS;
+        $this->runLayoutCalculator($idStudy, $idStudyEquipment);
+        $this->runTSCalculator($idStudy, $idStudyEquipment);
+        $this->runPhamCastCalculator($studyEquipment);
+        $this->startExhaustGasTemp($studyEquipment);
+        $this->startDimMat($studyEquipment);
     }
 }

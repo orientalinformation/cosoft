@@ -445,26 +445,6 @@ class StudyEquipments extends Controller
         $stdeqpNew['PRECIS'] = 0.0;
 
         if ($stdeqpNew->save()) {
-            if (count($stdeqp->dimaResults) > 0) {
-                foreach ($stdeqp->dimaResults as $key => $dimaResult) {
-                    $dimaResultNew = new DimaResults();
-                    $dimaResultNew = $dimaResult->replicate();
-                    unset($dimaResultNew->ID_DIMA_RESULT);
-                    $dimaResultNew->ID_STUDY_EQUIPMENTS = $stdeqpNew->ID_STUDY_EQUIPMENTS;
-                    $dimaResultNew->save();
-                }
-            }
-        
-            $economicResult = $stdeqp->economicResults->first();
-            if ($economicResult) {
-                $economicResultNew = new EconomicResults();
-                $economicResultNew = $economicResult->replicate();
-                unset($economicResultNew->ID_ECONOMIC_RESULTS);
-                $economicResultNew->ID_STUDY_EQUIPMENTS = $stdeqpNew->ID_STUDY_EQUIPMENTS;
-                $economicResultNew->save();
-                $stdeqpNew['ID_ECONOMIC_RESULTS'] = $economicResultNew->ID_ECONOMIC_RESULTS;
-            }
-
             $calculationParameter = $stdeqp->calculationParameters->first();
             if ($calculationParameter) {
                 $calculationParameterNew = new CalculationParameter();
@@ -516,6 +496,7 @@ class StudyEquipments extends Controller
             }
 
             $stdeqpNew->save();
+            $this->stdeqp->performNewCalculation($stdeqpNew);
 
             return 1;
         } else {
