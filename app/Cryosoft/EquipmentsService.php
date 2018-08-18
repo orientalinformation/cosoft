@@ -209,6 +209,33 @@ class EquipmentsService
         return $displayName;
     }
 
+    public function getEquipmentDisplayStringUnit($idStudyEquipment) 
+    {
+        $sEquipName = "";
+        $studyEquipment = StudyEquipment::findOrFail($idStudyEquipment);
+        $capabilitie = $studyEquipment->CAPABILITIES;
+
+        if (($studyEquipment->STD == 1) && (!($this->getCapability($capabilitie , 32768)))
+            && (!($this->getCapability($capabilitie , 1048576)))) {
+            $seriesName = $studyEquipment->SERIES_NAME;
+            $equipParameter = $studyEquipment->EQP_LENGTH + $studyEquipment->NB_MODUL * $studyEquipment->MODUL_LENGTH;
+            $equipParameterUnit = $this->unit->equipDimension($equipParameter);
+            $eqpWidthUnit = $this->unit->equipDimension($studyEquipment->EQP_WIDTH);
+            $equipVestion = $studyEquipment->EQUIP_VERSION;
+
+            $sEquipName = $seriesName . " - " . $equipParameterUnit ." x " . $eqpWidthUnit . " (v". $equipVestion. ") / " . $this->getLibValue(100, $studyEquipment->EQUIP_RELEASE);
+
+        } else {
+            if (($this->getCapability($capabilitie , 1048576)) && ($studyEquipment->STDEQP_LENGTH != -1.0) && ($studyEquipment->STDEQP_WIDTH != -1.0)) {
+                $sEquipName = $studyEquipment->EQUIP_NAME . " - " . $this->getSpecificEquipSize($idStudyEquipment) . " / " . $this->getLibValue(100, $studyEquipment->EQUIP_RELEASE);
+            } else {
+                $sEquipName = $studyEquipment->EQUIP_NAME . " / " . $this->getLibValue(100, $studyEquipment->EQUIP_RELEASE);
+            }
+        }
+
+        return $sEquipName;
+    }
+
     public function getLibValue($tid, $id)
     {
         $translation = Translation::where('TRANS_TYPE', $tid)

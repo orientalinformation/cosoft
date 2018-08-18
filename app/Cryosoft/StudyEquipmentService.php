@@ -152,25 +152,7 @@ class StudyEquipmentService
         }
         
         $equip['layoutResults'] = $layoutResults;
-
-            // determine study equipment name
-        if ($studyEquipment->equipment->STD
-            && !($studyEquipment->equipment->CAPABILITIES & CAP_DISPLAY_DB_NAME != 0)
-            && !($studyEquipment->equipment->CAPABILITIES & CAP_EQUIP_SPECIFIC_SIZE != 0)) {
-            $equip['displayName'] = $equip['EQUIP_NAME'] . " - "
-                . number_format($studyEquipment->equipment->EQP_LENGTH + ($studyEquipment->NB_MODUL * $studyEquipment->equipment->MODUL_LENGTH), 2)
-                . "x" . number_format($studyEquipment->equipment->EQP_WIDTH, 2) . " (v" . ($studyEquipment->EQUIP_VERSION) . ")"
-                . ($studyEquipment->EQUIP_RELEASE == 3 ? ' / Active' : ''); // @TODO: translate
-        } else if (($studyEquipment->equipment->CAPABILITIES & CAP_EQUIP_SPECIFIC_SIZE != 0)
-            && ($studyEquipment->equipment->STDEQP_LENGTH != NO_SPECIFIC_SIZE)
-            && ($studyEquipment->equipment->STDEQP_WIDTH != NO_SPECIFIC_SIZE)) {
-            $equip['displayName'] = $equip['EQUIP_NAME']
-                . " (v" . ($studyEquipment->EQUIP_VERSION) . ")"
-                . ($studyEquipment->EQUIP_RELEASE == 3 ? ' / Active' : ''); // @TODO: translate
-        } else {
-            $equip['displayName'] = $equip['EQUIP_NAME']
-                . ($studyEquipment->EQUIP_RELEASE == 3 ? ' / Active' : ''); // @TODO: translate
-        }
+        $equip['displayName'] = $this->equip->getEquipmentDisplayStringUnit($studyEquipment->ID_STUDY_EQUIPMENTS);
 
         $equip['tr'] = $this->loadEquipmentData($studyEquipment, REGULATION_TEMP);
         $equip['ts'] = $this->loadEquipmentData($studyEquipment, DWELLING_TIME);
