@@ -1327,7 +1327,7 @@ class ReportService
             fputs($f, '"Average temperature"'. "\n");
 
             foreach ($curve['top'] as $key => $row) {
-                fputs($f, (double) $row['x'] . ' ' . (double) $row['y'] . ' ' . (double) $curve['bot'][$key]['y'] . ' ' . (double) $curve['int'][$key]['y'] . ' ' . (double) $curve['average'][$key]['y'] . "\n");
+                fputs($f, (double) $row['x'] . ' ' . (double) $row['y'] . ' ' . (double) $curve['int'][$key]['y'] . ' ' . (double) $curve['bot'][$key]['y'] . ' ' . (double) $curve['average'][$key]['y'] . "\n");
             } 
             fclose($f);
             
