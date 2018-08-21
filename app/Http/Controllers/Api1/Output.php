@@ -452,7 +452,7 @@ class Output extends Controller
                                 } else {
                                     $vep = $this->unit->enthalpy($dimaR->DIMA_VEP);
                                     $tfp = $this->unit->prodTemperature($dimaR->DIMA_TFP);
-                                    $precision = "&nbsp;";
+                                    $precision = "";
                                 }
 
                                 if ($this->equip->getCapability($capabilitie, 256)) {
