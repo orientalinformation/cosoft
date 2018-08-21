@@ -466,7 +466,8 @@ class Output extends Controller
                                     } else {
                                         $conso = $consoMax = "****";
                                     }
-
+                                } else {
+                                    $conso = $consoMax = "---";
                                 }
 
                                 if ($this->equip->getCapability($capabilitie, 32)) {
