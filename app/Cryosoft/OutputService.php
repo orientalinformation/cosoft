@@ -431,7 +431,7 @@ class OutputService
             $length = 9;
         }
         
-        $rMeshPosition = DB::table('MESH_POSITION')->join('PRODUCT_ELMT', 'MESH_POSITION.ID_PRODUCT_ELMT', '=', 'PRODUCT_ELMT.ID_PRODUCT_ELMT')->join('PRODUCT', 'PRODUCT_ELMT.ID_PROD', '=', 'PRODUCT.ID_PROD')->whereRaw('PRODUCT.ID_STUDY = '. $idStudy .' AND MESH_AXIS = '. $meshAxis .' AND CAST(MESH_AXIS_POS AS DECIMAL(10,'. $length .')) = CAST('. $axis .' AS DECIMAL(10,9))')->first();
+        $rMeshPosition = DB::table('MESH_POSITION')->join('PRODUCT_ELMT', 'MESH_POSITION.ID_PRODUCT_ELMT', '=', 'PRODUCT_ELMT.ID_PRODUCT_ELMT')->join('PRODUCT', 'PRODUCT_ELMT.ID_PROD', '=', 'PRODUCT.ID_PROD')->whereRaw('PRODUCT.ID_STUDY = '. $idStudy .' AND MESH_AXIS = '. $meshAxis .' AND CAST(MESH_AXIS_POS AS DECIMAL(10,'. $length .')) = '. $axis .'')->first();
 
         return $rMeshPosition;
     }
@@ -910,6 +910,7 @@ class OutputService
         $meshPosInt = $this->getPositionForAxis2($idStudy, $tempRecordPts->AXIS2_PT_INT_PT, 2);
         $meshPosBot = $this->getPositionForAxis2($idStudy, $tempRecordPts->AXIS2_PT_BOT_SURF, 2);
 
+
         $axisValue = [];
 
         switch ($shape) {
@@ -1030,7 +1031,14 @@ class OutputService
     public function getPositionForSelectedPoint($selectedPoint, $idProdElt, $axis)
     {
         // $meshPosition = MeshPosition::where('ID_PRODUCT_ELMT', $idProdElt)->where('MESH_AXIS', $axis)->where('MESH_AXIS_POS', $selectedPoint)->first();
-        $meshPosition = DB::table('MESH_POSITION')->whereRaw('MESH_AXIS = '. $axis .' AND CAST(MESH_AXIS_POS AS DECIMAL(10,9)) = CAST('. $selectedPoint .' AS DECIMAL(10,9))')->first();
+        if ($this->is_decimal($selectedPoint)) {
+            $decimal = explode('.', $selectedPoint);
+            $length = (strlen($decimal[1]) > 9) ? 9 : strlen($decimal[1]);
+        } else {
+            $length = 9;
+        }
+
+        $meshPosition = DB::table('MESH_POSITION')->whereRaw('ID_PRODUCT_ELMT = '. $idProdElt .' AND MESH_AXIS = '. $axis .' AND CAST(MESH_AXIS_POS AS DECIMAL(10,'. $length .')) = '. $selectedPoint .'')->first();
         return ($meshPosition) ? $meshPosition->MESH_ORDER : 0;
     }
 
@@ -1222,4 +1230,3 @@ class OutputService
             str_pad(dechex($b+($gb*$range)),2,'0',STR_PAD_LEFT);
     }
 }
-
