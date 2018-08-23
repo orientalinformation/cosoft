@@ -1447,6 +1447,11 @@ class Studies extends Controller
         $this->stdeqp->calculateEquipmentParams($sEquip);
         if ($input['studyClean'] == true) {
             $this->stdeqp->applyStudyCleaner($sEquip->ID_STUDY, $id, SC_CLEAN_OUPTUT_LAYOUT_CHANGED);
+        } else {
+            $ret = $this->stdeqp->runStudyCleaner($sEquip->ID_STUDY, $id, SC_CLEAN_OUTPUT_SIZINGCONSO);//mode: 51
+            if ($ret == 0) {
+                $this->stdeqp->runSizingCalculator($sEquip->ID_STUDY, $id);
+            }
         }
     }
 
