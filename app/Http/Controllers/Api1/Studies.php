@@ -128,19 +128,44 @@ class Studies extends Controller
     {
         $input = $this->request->all();
         $idUser = (isset($input['idUser'])) ? $input['idUser'] : 0;
-        $compfamily = (isset($input['compfamily'])) ? $input['compfamily'] : 0;
-        $subfamily = (isset($input['subfamily'])) ? $input['subfamily'] : 0;
-        $component = (isset($input['component'])) ? $input['component'] : 0;
+        $idCompFamily = (isset($input['compfamily'])) ? $input['compfamily'] : 0;
+        $idCompSubFamily = (isset($input['subfamily'])) ? $input['subfamily'] : 0;
+        $idComponent = (isset($input['component'])) ? $input['component'] : 0;
 
         $mine = '';
         if ($idUser == 0 || $idUser == $this->auth->user()->ID_USER) {
-            $mine = Study::distinct()
-            ->where('ID_USER', $this->auth->user()->ID_USER)
-            ->where('PARENT_ID', 0)
-            ->orderBy('STUDY_NAME')->get();
+
+            $querys = Study::distinct();
+
+            if ($idCompFamily + $idCompSubFamily + $idComponent > 0) {
+                $querys->join('PRODUCT_ELMT', 'STUDIES.ID_PROD', '=', 'PRODUCT_ELMT.ID_PROD');
+
+                if ($idComponent > 0) {
+                    $querys->where('PRODUCT_ELMT.ID_COMP', $idComponent);
+                } else {
+                    $querys->join('COMPONENT', 'PRODUCT_ELMT.ID_COMP', '=', 'COMPONENT.ID_COMP');
+                    if ($idCompFamily > 0) {
+                        $querys->where('COMPONENT.CLASS_TYPE', $idCompFamily);
+                    }
+                    
+                    if ($idCompSubFamily > 0) {
+                        $querys->where('COMPONENT.SUB_FAMILY', $idCompSubFamily);
+                    }
+                }
+            }
+
+            if ($idUser > 0) {
+                $querys->where('STUDIES.ID_USER', $idUser);
+            }
+        
+
+            $querys->where('PARENT_ID', 0);
+            $querys->orderBy('STUDIES.STUDY_NAME');
+
+            $mine = $querys->get();
         }
         
-        $others = $this->study->getFilteredStudiesList($idUser, $compfamily, $subfamily, $component);
+        $others = $this->study->getFilteredStudiesList($idUser, $idCompFamily, $idCompSubFamily, $idComponent);
 
         return compact('mine', 'others');
     }
