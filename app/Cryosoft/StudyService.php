@@ -138,7 +138,7 @@ class StudyService
             $querys->join('PRODUCT_ELMT', 'STUDIES.ID_PROD', '=', 'PRODUCT_ELMT.ID_PROD');
 
             if ($idComponent > 0) {
-                $querys->where('PRODUCT_ELMT.ID_PROD', $idComponent);
+                $querys->where('PRODUCT_ELMT.ID_COMP', $idComponent);
             } else {
                 $querys->join('COMPONENT', 'PRODUCT_ELMT.ID_COMP', '=', 'COMPONENT.ID_COMP');
                 if ($idCompFamily > 0) {
