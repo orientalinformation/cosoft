@@ -86,6 +86,7 @@ class Admin extends Controller
         if (isset($input['username'])) $user->USERNAM = $username;
         if (isset($input['password'])) $user->USERPASS = $hashPassword;
         if (isset($input['email'])) $user->USERMAIL = $email;
+        
         $user->USERPRIO = 2;
         $user->USER_ENERGY = -1;
         $user->USER_CONSTRUCTOR = "";
