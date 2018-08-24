@@ -409,7 +409,7 @@ class Output extends Controller
                 $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $toc = $tocMax = $consoMax = $precision = "";
 
                 $studEqpPrm = StudEqpPrm::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->where("VALUE_TYPE", 300)->first();
-                if (!empty($studEqpPrm)) {
+                if ($studEqpPrm) {
                     $lfTr = $studEqpPrm->VALUE;
 
                     if ($trSelect == 2) {
@@ -420,7 +420,7 @@ class Output extends Controller
 
                     $itemTr = $row->ITEM_TR;
                     $minMax = MinMax::where("LIMIT_ITEM", $itemTr)->first();
-                    if (!($this->equip->getCapability($capabilitie, 16)) || !($this->equip->getCapability($capabilitie, 1)) && (($trSelect == 0) || ($trSelect == 2))) {
+                    if ((!$this->equip->getCapability($capabilitie, 16) || !$this->equip->getCapability($capabilitie, 1)) && ($trSelect == 0 || $trSelect == 2)) {
                         $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $toc = $tocMax = $consoMax = $precision = "---";
                     } else if ($lfTr < $minMax->LIMIT_MIN || $lfTr > $minMax->LIMIT_MAX) {
                         $tr = $ts = $vc = $vep = $tfp = $dhp = $conso = $toc = $tocMax = $consoMax = $precision = "****";
