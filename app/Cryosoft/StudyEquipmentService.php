@@ -242,13 +242,13 @@ class StudyEquipmentService
         $lr = $se->layoutResults->first();
         $returnStr = "";
         if ($se->equipment->BATCH_PROCESS == 1) {
-            $returnStr = ((!$lr) || !($se->equipment->CAPABILITIES & CAP_LAYOUT_ENABLE != 0)) ?
+            $returnStr = ((!$lr) || !($this->equip->getCapability($se->equipment->CAPABILITIES, CAP_LAYOUT_ENABLE))) ?
                 "" :
                 $this->convert->mass($lr->QUANTITY_PER_BATCH) .
                 " " . $this->convert->massSymbol() .
                 "/batch"; // @TODO: translate
         } else {
-            $returnStr = ((!$lr) || !($se->equipment->CAPABILITIES & CAP_LAYOUT_ENABLE != 0)) ?
+            $returnStr = ((!$lr) || !($this->equip->getCapability($se->equipment->CAPABILITIES, CAP_LAYOUT_ENABLE))) ?
                 "" : $this->convert->toc($lr->LOADING_RATE) . " %";
         }
 
