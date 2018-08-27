@@ -979,9 +979,13 @@ class Equipments extends Controller
 
     public function deleteEquipCharacts($idEquip)
     {
-        $equipCharact = EquipCharact::where('ID_EQUIP', $idEquip)->get();
-        if (count($equipCharact) > 0) { 
-            EquipCharact::where('ID_EQUIP', $idEquip)->delete();
+        $equipCharacts = EquipCharact::where('ID_EQUIP', $idEquip)->get();
+        if (count($equipCharacts) > 0) {
+            foreach ($equipCharacts as $equipCharact) {
+                if ($equipCharact->X_POSITION != 0 || $equipCharact->X_POSITION != 100) {
+                    EquipCharact::where('ID_EQUIP', $equipCharact->ID_EQUIP)->delete();
+                }
+            }
         }
         return 1;
     }

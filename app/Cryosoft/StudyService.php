@@ -132,35 +132,38 @@ class StudyService
 
     public function getFilteredStudiesList($idUser, $idCompFamily, $idCompSubFamily, $idComponent)
     {
-        $querys = Study::distinct();
+        if ($idUser != $this->auth->user()->ID_USER) {
+            $querys = Study::distinct();
 
-        if ($idCompFamily + $idCompSubFamily + $idComponent > 0) {
-            $querys->join('PRODUCT_ELMT', 'STUDIES.ID_PROD', '=', 'PRODUCT_ELMT.ID_PROD');
+            if ($idCompFamily + $idCompSubFamily + $idComponent > 0) {
+                $querys->join('PRODUCT_ELMT', 'STUDIES.ID_PROD', '=', 'PRODUCT_ELMT.ID_PROD');
 
-            if ($idComponent > 0) {
-                $querys->where('PRODUCT_ELMT.ID_PROD', $idComponent);
-            } else {
-                $querys->join('COMPONENT', 'PRODUCT_ELMT.ID_COMP', '=', 'COMPONENT.ID_COMP');
-                if ($idCompFamily > 0) {
-                    $querys->where('COMPONENT.CLASS_TYPE', $idCompFamily);
-                }
-                
-                if ($idCompSubFamily > 0) {
-                    $querys->where('COMPONENT.SUB_FAMILY', $idCompSubFamily);
+                if ($idComponent > 0) {
+                    $querys->where('PRODUCT_ELMT.ID_COMP', $idComponent);
+                } else {
+                    $querys->join('COMPONENT', 'PRODUCT_ELMT.ID_COMP', '=', 'COMPONENT.ID_COMP');
+                    if ($idCompFamily > 0) {
+                        $querys->where('COMPONENT.CLASS_TYPE', $idCompFamily);
+                    }
+                    
+                    if ($idCompSubFamily > 0) {
+                        $querys->where('COMPONENT.SUB_FAMILY', $idCompSubFamily);
+                    }
                 }
             }
+
+            if ($idUser > 0) {
+                $querys->where('STUDIES.ID_USER', $idUser);
+            } else {
+                $querys->where('STUDIES.ID_USER', '!=', $this->auth->user()->ID_USER);  
+            }
+        
+
+            $querys->where('PARENT_ID', 0);
+            $querys->orderBy('STUDIES.STUDY_NAME');
+
+            return $querys->get();
         }
-
-        if ($idUser > 0) {
-            $querys->where('STUDIES.ID_USER', $idUser);
-        } else {
-            $querys->where('STUDIES.ID_USER', '!=', $this->auth->user()->ID_USER);  
-        }
-
-        $querys->where('PARENT_ID', 0);
-        $querys->orderBy('STUDIES.STUDY_NAME');
-
-        return $querys->get();
     }  
 
     public function convertAxisForDB($ldShape, $bIsParallel, $appAxe)
