@@ -982,8 +982,8 @@ class Equipments extends Controller
         $equipCharacts = EquipCharact::where('ID_EQUIP', $idEquip)->get();
         if (count($equipCharacts) > 0) {
             foreach ($equipCharacts as $equipCharact) {
-                if ($equipCharact->X_POSITION != 0 || $equipCharact->X_POSITION != 100) {
-                    EquipCharact::where('ID_EQUIP', $equipCharact->ID_EQUIP)->delete();
+                if (floatval($equipCharact->X_POSITION) != floatval(0) || floatval($equipCharact->X_POSITION) != floatval(100)) {
+                    EquipCharact::where('ID_EQUIPCHARAC', $equipCharact->ID_EQUIPCHARAC)->delete();
                 }
             }
         }
