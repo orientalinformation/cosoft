@@ -156,8 +156,9 @@ class Studies extends Controller
 
             if ($idUser > 0) {
                 $querys->where('STUDIES.ID_USER', $idUser);
+            } else {
+                $querys->where('STUDIES.ID_USER', $this->auth->user()->ID_USER);
             }
-        
 
             $querys->where('PARENT_ID', 0);
             $querys->orderBy('STUDIES.STUDY_NAME');
