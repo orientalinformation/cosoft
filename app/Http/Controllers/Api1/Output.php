@@ -2346,6 +2346,7 @@ class Output extends Controller
 
     public function productchart2D()
     {
+        set_time_limit(1000);
         $idStudy = $this->request->input('idStudy');
         $idStudyEquipment = $this->request->input('idStudyEquipment');
         $selectedPlan = $this->request->input('selectedPlan');
@@ -2708,6 +2709,7 @@ class Output extends Controller
 
     public function productchart2DAnim()
     {
+        set_time_limit(1000);
         $input = $this->request->all();
         $idStudy = $input['idStudy'];
         $idStudyEquipment = $input['idStudyEquipment'];
