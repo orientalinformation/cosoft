@@ -427,7 +427,7 @@ class OutputService
         
         if ($this->is_decimal($axis)) {
             $decimal = explode('.', $axis);
-            $length = (strlen($decimal[1]) > 9) ? 9 : strlen($decimal[1]);
+            $length = (strlen($decimal[1]) > 9) ? 9 : strlen($decimal[1]) + 1;
             $axisValue = (strlen($decimal[1]) > 9) ? 'CAST('. $axis .' AS DECIMAL(10,9))' : $axis;
         } else {
             $length = 9;
@@ -912,7 +912,6 @@ class OutputService
         $meshPosTop = $this->getPositionForAxis2($idStudy, $tempRecordPts->AXIS2_PT_TOP_SURF, 2);
         $meshPosInt = $this->getPositionForAxis2($idStudy, $tempRecordPts->AXIS2_PT_INT_PT, 2);
         $meshPosBot = $this->getPositionForAxis2($idStudy, $tempRecordPts->AXIS2_PT_BOT_SURF, 2);
-
 
         $axisValue = [];
 
