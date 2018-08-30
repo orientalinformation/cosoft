@@ -909,7 +909,7 @@ class Output extends Controller
             $tr = $ts = $vc = $dhp = $conso = $conso_warning = $toc = $trMax = $tsMax = $vcMax = $dhpMax = $consoMax = $consomax_warning = $tocMax = "";
 
             if (!($this->equip->getCapability($capabilitie , 128))){
-                $tr = $ts = $vc = $dhp = $conso = $conso_warning = $toc = $trMax = $tsMax = $vcMax = $dhpMax = $consoMax = $consomax_warning = $tocMax = "";
+                $tr = $ts = $vc = $dhp = $conso = $conso_warning = $toc = $trMax = $tsMax = $vcMax = $dhpMax = $consoMax = $consomax_warning = $tocMax = "****";
             } else if ($equipStatus == 100000) {
                 $tr = $ts = $vc = $dhp = $conso = $conso_warning = $toc = $trMax = $tsMax = $vcMax = $dhpMax = $consoMax = $consomax_warning = $tocMax = "";
             } else {
@@ -924,7 +924,7 @@ class Output extends Controller
                         $ts = $this->unit->timeUnit($dimaResult->DIMA_TS);
                         $vc = $this->unit->convectionSpeed($dimaResult->DIMA_VC);
 
-                        if ($this->equip->getCapability($capabilitie, 128)) {
+                        if ($this->equip->getCapability($capabilitie, 256)) {
                             $consumption = $dimaResult->CONSUM / $lfcoef;
                             $valueStr = $this->unit->consumption($consumption, $idCoolingFamily, 1);
                             $calculationStatus = $this->dima->getCalculationStatus($dimaResult->DIMA_STATUS);
@@ -968,7 +968,7 @@ class Output extends Controller
                             $tsMax = $this->unit->timeUnit($dimaResultMax->DIMA_TS);
                             $vcMax = $this->unit->convectionSpeed($dimaResultMax->DIMA_VC);
 
-                            if ($this->equip->getCapability($capabilitie, 128)) {
+                            if ($this->equip->getCapability($capabilitie, 256)) {
                                 $consumption = $dimaResultMax->CONSUM / $lfcoef;
                                 $valueStr = $this->unit->consumption($consumption, $idCoolingFamily, 1);
                                 $calculationStatus = $this->dima->getCalculationStatus($dimaResultMax->DIMA_STATUS);
