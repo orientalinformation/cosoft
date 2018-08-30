@@ -154,8 +154,14 @@ class MinMaxs extends Controller
             'LIMIT_MIN' => $this->unit->prodDimension($mm->LIMIT_MIN, ['format' => false]),
             'LIMIT_MAX' => $this->unit->prodDimension($mm->LIMIT_MAX, ['format' => false]),
         ];
+
+        $mm = MinMax::where("LIMIT_ITEM", 1129)->first();
+        $mmVolume = [
+            'LIMIT_MIN' => $this->unit->prodDimension($mm->LIMIT_MIN, ['format' => false]),
+            'LIMIT_MAX' => $this->unit->prodDimension($mm->LIMIT_MAX, ['format' => false]),
+        ];
         
-        return compact('mmPrice', 'mmLInterval', 'mmWInterval');
+        return compact('mmPrice', 'mmLInterval', 'mmWInterval', 'mmVolume');
     }
 
 }
