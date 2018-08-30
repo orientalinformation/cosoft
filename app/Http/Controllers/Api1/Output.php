@@ -909,7 +909,7 @@ class Output extends Controller
             $tr = $ts = $vc = $dhp = $conso = $conso_warning = $toc = $trMax = $tsMax = $vcMax = $dhpMax = $consoMax = $consomax_warning = $tocMax = "";
 
             if (!($this->equip->getCapability($capabilitie , 128))){
-                $tr = $ts = $vc = $dhp = $conso = $conso_warning = $toc = $trMax = $tsMax = $vcMax = $dhpMax = $consoMax = $consomax_warning = $tocMax = "";
+                $tr = $ts = $vc = $dhp = $conso = $conso_warning = $toc = $trMax = $tsMax = $vcMax = $dhpMax = $consoMax = $consomax_warning = $tocMax = "****";
             } else if ($equipStatus == 100000) {
                 $tr = $ts = $vc = $dhp = $conso = $conso_warning = $toc = $trMax = $tsMax = $vcMax = $dhpMax = $consoMax = $consomax_warning = $tocMax = "";
             } else {
@@ -924,7 +924,7 @@ class Output extends Controller
                         $ts = $this->unit->timeUnit($dimaResult->DIMA_TS);
                         $vc = $this->unit->convectionSpeed($dimaResult->DIMA_VC);
 
-                        if ($this->equip->getCapability($capabilitie, 128)) {
+                        if ($this->equip->getCapability($capabilitie, 256)) {
                             $consumption = $dimaResult->CONSUM / $lfcoef;
                             $valueStr = $this->unit->consumption($consumption, $idCoolingFamily, 1);
                             $calculationStatus = $this->dima->getCalculationStatus($dimaResult->DIMA_STATUS);
@@ -968,7 +968,7 @@ class Output extends Controller
                             $tsMax = $this->unit->timeUnit($dimaResultMax->DIMA_TS);
                             $vcMax = $this->unit->convectionSpeed($dimaResultMax->DIMA_VC);
 
-                            if ($this->equip->getCapability($capabilitie, 128)) {
+                            if ($this->equip->getCapability($capabilitie, 256)) {
                                 $consumption = $dimaResultMax->CONSUM / $lfcoef;
                                 $valueStr = $this->unit->consumption($consumption, $idCoolingFamily, 1);
                                 $calculationStatus = $this->dima->getCalculationStatus($dimaResultMax->DIMA_STATUS);
@@ -2457,6 +2457,7 @@ class Output extends Controller
             }
             fclose($f);
             $contourFileName = $lfDwellingTime . '-' . $chartTempInterval[0] . '-' . $chartTempInterval[1] . '-' . $chartTempInterval[2];
+            file_put_contents($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment . '/data.json', json_encode($dataContour));
         } else {
             $prodFolder = 'Prod_' . $study->ID_PROD;
             $stdeqpFolder = 'Equipment' . $idStudyEquipment;
@@ -2480,22 +2481,6 @@ class Output extends Controller
             }
 
             $inpFile = $this->plotFolder3D . '/MeshBuilder3D/' . $prodFolder . '/' . $stdeqpFolder . '/' . $inpFileName;
-               
-            $data = file_get_contents($this->plotFolder3D . '/MeshBuilder3D/' . $prodFolder . '/' . $stdeqpFolder . '/' . $inpFileName);
-            $dataFiles = explode("\n", $data);
-            $dataFiles = array_filter($dataFiles);
-            $dataContour = [];
-            foreach ($dataFiles as $key => $dataFile) {
-                $dataFileElm = trim($dataFile);
-                $dataFileElm = preg_replace("/\s+/u", " ", $dataFileElm);
-                $dataFileElm = explode(' ', $dataFileElm);
-                $dataFileElm = array_filter($dataFileElm);
-                $item['X'] = $this->unit->prodchartDimension($dataFileElm[0]);
-                $item['Y'] = $this->unit->prodchartDimension($dataFileElm[1]);
-                $item['Z'] = $this->unit->prodTemperature($dataFileElm[2]);
-                $dataContour[] = $item;
-            }
-
             $dataTimeStep = file_get_contents($this->plotFolder3D . '/MeshBuilder3D/' . $prodFolder . '/' . $stdeqpFolder . '/' . $timeStepFileName);
 
             $dataTimeStepArr = explode("\n", $dataTimeStep);
@@ -2529,7 +2514,7 @@ class Output extends Controller
             $contourFileName = $lfDwellingTime . '-' . $chartTempInterval[0] . '-' . $chartTempInterval[1] . '-' . $chartTempInterval[2] . '-' . $selectedPlan;
         }
 
-        file_put_contents($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment . '/data.json', json_encode($dataContour));
+        
         
         system('gnuplot -c '. $this->plotFolder . '/' . $plotFile . ' "'. $dimension .' '. $axisName[0] .'" "'. $dimension .' '. $axisName[1] .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment .'" "'. $contourFileName .'" '. $inpFile .'');
     
@@ -2620,6 +2605,7 @@ class Output extends Controller
             fclose($f);
 
             $contourFileName = $lfDwellingTime . '-' . $chartTempInterval[0] . '-' . $chartTempInterval[1] . '-' . $chartTempInterval[2];
+            file_put_contents($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment . '/data.json', json_encode($dataContour));
         } else {
             $prodFolder = 'Prod_' . $study->ID_PROD;
             $stdeqpFolder = 'Equipment' . $idStudyEquipment;
@@ -2647,17 +2633,6 @@ class Output extends Controller
             $data = file_get_contents($this->plotFolder3D . '/MeshBuilder3D/' . $prodFolder . '/' . $stdeqpFolder . '/' . $inpFileName);
             $dataFiles = explode("\n", $data);
             $dataFiles = array_filter($dataFiles);
-            $dataContour = [];
-            foreach ($dataFiles as $key => $dataFile) {
-                $dataFileElm = trim($dataFile);
-                $dataFileElm = preg_replace("/\s+/u", " ", $dataFileElm);
-                $dataFileElm = explode(' ', $dataFileElm);
-                $dataFileElm = array_filter($dataFileElm);
-                $item['X'] = $this->unit->prodchartDimension($dataFileElm[0]);
-                $item['Y'] = $this->unit->prodchartDimension($dataFileElm[1]);
-                $item['Z'] = $this->unit->prodTemperature($dataFileElm[2]);
-                $dataContour[] = $item;
-            }
 
             $dataTimeStep = file_get_contents($this->plotFolder3D . '/MeshBuilder3D/' . $prodFolder . '/' . $stdeqpFolder . '/' . $timeStepFileName);
 
@@ -2697,7 +2672,6 @@ class Output extends Controller
         }
 
         system('gnuplot -c '. $this->plotFolder .'/' . $plotFile . ' "'. $dimension .' '. $axisX .'" "'. $dimension .' '. $axisY .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment .'" "'. $contourFileName .'" '. $inpFile .'');
-        file_put_contents($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment . '/data.json', json_encode($dataContour));
         
         
         $dataFile = getenv('APP_URL') . 'heatmap/' . $userName . '/' . $idStudyEquipment . '/data.json';
@@ -2896,13 +2870,58 @@ class Output extends Controller
 
     public function readDataContour($idStudyEquipment)
     {
+        $input = $this->request->all();;
+        $selectedPlan = $input['selectedPlan'];
+        $lfDwellingTime = $input['timeSelected'];
         $studyEquipment = StudyEquipment::find($idStudyEquipment);
         $userName = $studyEquipment->USERNAM;
-        $heatmapFolder = $this->output->public_path('heatmap');
-        $file = $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment . '/data.json';
-        if (file_exists($file)) {
-            $data = file_get_contents($file);
-            return ['valueContour' => $data];
+        $productElmt = ProductElmt::where('ID_STUDY', $studyEquipment->ID_STUDY)->first();
+        $shape = $productElmt->SHAPECODE;
+        if ($shape < 10) {
+            $heatmapFolder = $this->output->public_path('heatmap');
+            $file = $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment . '/data.json';
+            if (file_exists($file)) {
+                $data = file_get_contents($file);
+                return ['valueContour' => $data];
+            }
+        } else {
+            $prodFolder = 'Prod_' . $studyEquipment->study->ID_PROD;
+            $stdeqpFolder = 'Equipment' . $idStudyEquipment;
+            
+            $lastRecordTime = (int) $lfDwellingTime;
+            switch ($selectedPlan) {
+                case 1:
+                    $inpFileName  = 'contour_X_' . $lastRecordTime . '.inp';
+                    $timeStepFileName = 'contourParam_X.inp';
+                    break;
+                
+                case 2:
+                    $inpFileName  = 'contour_Y_' . $lastRecordTime . '.inp';
+                    $timeStepFileName = 'contourParam_Y.inp';
+                    break;
+
+                case 3:
+                    $inpFileName  = 'contour_Z_' . $lastRecordTime . '.inp';
+                    $timeStepFileName = 'contourParam_Z.inp';
+                    break;
+            }
+
+            $data = file_get_contents($this->plotFolder3D . '/MeshBuilder3D/' . $prodFolder . '/' . $stdeqpFolder . '/' . $inpFileName);
+            $dataFiles = explode("\n", $data);
+            $dataFiles = array_filter($dataFiles);
+            $dataContour = [];
+            foreach ($dataFiles as $key => $dataFile) {
+                $dataFileElm = trim($dataFile);
+                $dataFileElm = preg_replace("/\s+/u", " ", $dataFileElm);
+                $dataFileElm = explode(' ', $dataFileElm);
+                $dataFileElm = array_filter($dataFileElm);
+                $item['X'] = $this->unit->prodchartDimension($dataFileElm[0]);
+                $item['Y'] = $this->unit->prodchartDimension($dataFileElm[1]);
+                $item['Z'] = $this->unit->prodTemperature($dataFileElm[2]);
+                $dataContour[] = $item;
+            }
+
+            return ['valueContour' => json_encode($dataContour)];
         }
     }
 }
