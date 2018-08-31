@@ -472,7 +472,14 @@ class BrainCalculateService
             case 11:
             case 15:
                 if ($brandType == 2) {
-                    $sOptimErrorH = $this->units->convertCalculator($calcParameter->ERROR_H, intval($uPercent["coeffA"]), intval($uPercent["coeffB"]), 2, 1);
+                    if ($calcParameter->ERROR_H == 0) {
+                        $sOptimErrorH =  $this->units->convertCalculator(0.01, intval($uPercent["coeffA"]), intval($uPercent["coeffB"]), 2, 1);
+                    } else {
+                        $sOptimErrorH = $this->units->convertCalculator(
+                            $calcParameter->ERROR_H, 
+                            intval($uPercent["coeffA"]), 
+                            intval($uPercent["coeffB"]), 2, 1);
+                    }
                 } else {
                     $minMax = $this->getMinMax(1133);
                     $sOptimErrorH =  $this->units->convertCalculator($minMax->DEFAULT_VALUE, intval($uPercent["coeffA"]), intval($uPercent["coeffB"]), 2, 1);
@@ -485,7 +492,10 @@ class BrainCalculateService
                     if ($calcParameter->ERROR_H == 0) {
                         $sOptimErrorH =  $this->units->convertCalculator(0.01, intval($uPercent["coeffA"]), intval($uPercent["coeffB"]), 2, 1);
                     } else {
-                        $sOptimErrorH =  $this->units->convertCalculator($calcParameter->ERROR_H, intval($uPercent["coeffA"]), intval($uPercent["coeffB"]), 2, 1);
+                        $sOptimErrorH =  $this->units->convertCalculator(
+                            $calcParameter->ERROR_H, 
+                            intval($uPercent["coeffA"]), 
+                            intval($uPercent["coeffB"]), 2, 1);
                     }
                 } else {
                     $minMax = $this->getMinMax(1135);
@@ -496,7 +506,15 @@ class BrainCalculateService
             case 13:
             case 17:
                 if ($brandType != 0 && $brandType != 1) {
-                    $sOptimErrorH =  $this->units->convertCalculator($calcParameter->ERROR_H, intval($uPercent["coeffA"]), intval($uPercent["coeffB"]), 2, 1);
+                    if ($calcParameter->ERROR_H == 0) {
+                        $sOptimErrorH =  $this->units->convertCalculator(0.01, intval($uPercent["coeffA"]), intval($uPercent["coeffB"]), 2, 1);
+                    } else {
+                        $sOptimErrorH =  $this->units->convertCalculator(
+                            $calcParameter->ERROR_H, 
+                            intval($uPercent["coeffA"]),
+                            intval($uPercent["coeffB"]), 2, 1);
+                        
+                    }
                 } else {
                     $minMax = $this->getMinMax(1137);
                     $sOptimErrorH =  $this->units->convertCalculator($minMax->DEFAULT_VALUE, intval($uPercent["coeffA"]), intval($uPercent["coeffB"]), 2, 1);
