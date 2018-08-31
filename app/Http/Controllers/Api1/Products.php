@@ -293,7 +293,7 @@ class Products extends Controller
         foreach ($products as $key => $pr) {
             $elements[] = $pr;
 
-            if ($pr->ID_SHAPE == $this->values->SPHERE || $pr->ID_SHAPE == $this->values->CYLINDER_CONCENTRIC_STANDING || $pr->ID_SHAPE == $this->values->CYLINDER_CONCENTRIC_LAYING || $pr->ID_SHAPE == $this->values->PARALLELEPIPED_BREADED) {
+            if ($pr->ID_SHAPE == SPHERE || $pr->ID_SHAPE == CYLINDER_CONCENTRIC_STANDING || $pr->ID_SHAPE == CYLINDER_CONCENTRIC_LAYING || $pr->ID_SHAPE == PARALLELEPIPED_BREADED || $pr->ID_SHAPE == CYLINDER_STANDING_3D || $pr->ID_SHAPE == CYLINDER_LAYING_3D || $pr->ID_SHAPE == SPHERE_3D || $pr->ID_SHAPE == OVAL_STANDING_3D || $pr->ID_SHAPE == OVAL_LAYING_3D) {
                 if ($key < $count - 1) {
                     $specificDimension += $pr->SHAPE_PARAM2 * 2;
                 } else {
