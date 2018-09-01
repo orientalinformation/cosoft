@@ -313,11 +313,14 @@ class Admin extends Controller
     public function resetStudiesStatusLockedByUser($idUser)
     {
         $studys = Study::where('ID_USER', $idUser)->get();
-        foreach ($studys as $study) {
-            StudyEquipment::with('study')
-            ->where('ID_STUDY', $study->ID_STUDY)
-            ->where('EQUIP_STATUS', '=', 100000)
-            ->update(['EQUIP_STATUS' => 0]);
+
+        if (count($studys) > 0) {
+            foreach ($studys as $study) {
+                StudyEquipment::with('study')
+                ->where('ID_STUDY', $study->ID_STUDY)
+                ->where('EQUIP_STATUS', '=', 100000)
+                ->update(['EQUIP_STATUS' => 0]);
+            }
         }
     }
 
@@ -345,30 +348,37 @@ class Admin extends Controller
     public function units()
     {
         $monetary = MonetaryCurrency::get();
-        $kernelMonetary = MonetaryCurrency::select('monetary_currency.*')->join('LN2USER', 'monetary_currency.ID_MONETARY_CURRENCY', '=', 'LN2USER.ID_MONETARY_CURRENCY')->where('LN2USER.USERNAM', 'KERNEL')->first();
+        $kernelMonetary = MonetaryCurrency::select('monetary_currency.*')
+                        ->join('LN2USER', 'monetary_currency.ID_MONETARY_CURRENCY', '=', 'LN2USER.ID_MONETARY_CURRENCY')
+                        ->where('LN2USER.USERNAM', 'KERNEL')->first();
         $units = $this->unit->tmUnitTypeMapping();
-
         $listUnit = [];
-        foreach ($units as $key => $value) {
-            $kernelUnit = DB::table('UNIT')
-                        ->where('ID_UNIT', '=', DB::raw('TYPE_UNIT'))
-                        ->where('TYPE_UNIT', $value['value'])
-                        ->where('TYPE_UNIT', '<>', 27)
-                        ->first();
-            $symbolSelect = Unit::where("TYPE_UNIT", $value['value'])->get();
-            $arrSymbol = [];
-            foreach ($symbolSelect as $row) {
-                $item['ID_UNIT'] = $row->ID_UNIT;
-                $item['SYMBOL'] = $row->SYMBOL;
-                $item['COEFF_A'] = (strlen(substr(strrchr($row->COEFF_A, "."), 1) > 1)) ? $row->COEFF_A : $this->unit->time($row->COEFF_A);
-                $item['COEFF_B'] = (strlen(substr(strrchr($row->COEFF_B, "."), 1) > 1)) ? $row->COEFF_B : $this->unit->time($row->COEFF_B);
-                $arrSymbol[] = $item;
+
+        if (count($units) > 0) {
+            foreach ($units as $key => $value) {
+                $kernelUnit = DB::table('UNIT')
+                            ->where('ID_UNIT', '=', DB::raw('TYPE_UNIT'))
+                            ->where('TYPE_UNIT', $value['value'])
+                            ->where('TYPE_UNIT', '<>', 27)
+                            ->first();
+                $symbolSelect = Unit::where("TYPE_UNIT", $value['value'])->get();
+                $arrSymbol = [];
+                if (count($symbolSelect) > 0) {
+                    foreach ($symbolSelect as $row) {
+                        $item['ID_UNIT'] = $row->ID_UNIT;
+                        $item['SYMBOL'] = $row->SYMBOL;
+                        $item['COEFF_A'] = (strlen(substr(strrchr($row->COEFF_A, "."), 1) > 1)) ? $row->COEFF_A : $this->unit->time($row->COEFF_A);
+                        $item['COEFF_B'] = (strlen(substr(strrchr($row->COEFF_B, "."), 1) > 1)) ? $row->COEFF_B : $this->unit->time($row->COEFF_B);
+                        $arrSymbol[] = $item;
+                    }
+                }
+
+                $listUnit[] = $value;
+                $listUnit[$key]['SYMBOL'] = $kernelUnit->SYMBOL;
+                $listUnit[$key]['symbolSelect'] = $arrSymbol;
+                $listUnit[$key]['COEFF_A'] = $this->unit->none($kernelUnit->COEFF_A);
+                $listUnit[$key]['COEFF_B'] = $this->unit->none($kernelUnit->COEFF_B);
             }
-            $listUnit[] = $value;
-            $listUnit[$key]['SYMBOL'] = $kernelUnit->SYMBOL;
-            $listUnit[$key]['symbolSelect'] = $arrSymbol;
-            $listUnit[$key]['COEFF_A'] = $this->unit->none($kernelUnit->COEFF_A);
-            $listUnit[$key]['COEFF_B'] = $this->unit->none($kernelUnit->COEFF_B);
         }
 
         return compact('monetary', 'kernelMonetary', 'listUnit');
