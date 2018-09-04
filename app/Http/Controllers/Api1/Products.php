@@ -180,7 +180,7 @@ class Products extends Controller
             $layerColor->LAYER_ORDER = $nElements+1;
         }
 
-        $layerColor->ID_COLOR = $defaultColor->ID_COLOR;
+        if ($defaultColor) $layerColor->ID_COLOR = $defaultColor->ID_COLOR;
         $layerColor->save();
 
         return compact('ok1', 'ok2', 'elmtId');
@@ -287,40 +287,49 @@ class Products extends Controller
 
         $products = ProductElmt::where('ID_PROD', $id)->orderBy('SHAPE_POS2', 'DESC')->get();
         $specificDimension = 0.0;
+
         $count = count($products);
+        $isAddComponentAllowed = true;
 
         $elements = [];
-        foreach ($products as $key => $pr) {
-            $elements[] = $pr;
+        if ($count > 0) {
+            $shape = $products[0]->ID_SHAPE;
+            if (!$this->studies->isAddComponentAllowed($product->ID_STUDY) || !$this->product->updateScreen($shape, count($products))) {
+                $isAddComponentAllowed = false;
+            }
+            foreach ($products as $key => $pr) {
+                $elements[] = $pr;
 
-            if ($pr->ID_SHAPE == SPHERE || $pr->ID_SHAPE == CYLINDER_CONCENTRIC_STANDING || $pr->ID_SHAPE == CYLINDER_CONCENTRIC_LAYING || $pr->ID_SHAPE == PARALLELEPIPED_BREADED || $pr->ID_SHAPE == CYLINDER_STANDING_3D || $pr->ID_SHAPE == CYLINDER_LAYING_3D || $pr->ID_SHAPE == SPHERE_3D || $pr->ID_SHAPE == OVAL_STANDING_3D || $pr->ID_SHAPE == OVAL_LAYING_3D) {
-                if ($key < $count - 1) {
-                    $specificDimension += $pr->SHAPE_PARAM2 * 2;
+                if ($pr->ID_SHAPE == SPHERE || $pr->ID_SHAPE == CYLINDER_CONCENTRIC_STANDING || $pr->ID_SHAPE == CYLINDER_CONCENTRIC_LAYING || $pr->ID_SHAPE == PARALLELEPIPED_BREADED || $pr->ID_SHAPE == CYLINDER_STANDING_3D || $pr->ID_SHAPE == CYLINDER_LAYING_3D || $pr->ID_SHAPE == SPHERE_3D || $pr->ID_SHAPE == OVAL_STANDING_3D || $pr->ID_SHAPE == OVAL_LAYING_3D) {
+                    if ($key < $count - 1) {
+                        $specificDimension += $pr->SHAPE_PARAM2 * 2;
+                    } else {
+                        $specificDimension += $pr->SHAPE_PARAM2;
+                    }
                 } else {
                     $specificDimension += $pr->SHAPE_PARAM2;
                 }
-            } else {
-                $specificDimension += $pr->SHAPE_PARAM2;
+
+                $elements[$key]['SHAPE_PARAM1'] = $this->unit->prodDimension($pr->SHAPE_PARAM1);
+                $elements[$key]['SHAPE_PARAM2'] = $this->unit->prodDimension($pr->SHAPE_PARAM2);
+                $elements[$key]['SHAPE_PARAM3'] = $this->unit->prodDimension($pr->SHAPE_PARAM3);
+                $elements[$key]['SHAPE_PARAM4'] = $this->unit->prodDimension($pr->SHAPE_PARAM4);
+                $elements[$key]['SHAPE_PARAM5'] = $this->unit->prodDimension($pr->SHAPE_PARAM5);
+                $elements[$key]['PROD_ELMT_WEIGHT'] = $this->unit->mass($pr->PROD_ELMT_WEIGHT);
+                $elements[$key]['PROD_ELMT_REALWEIGHT'] = $this->unit->mass($pr->PROD_ELMT_REALWEIGHT);
+                $elements[$key]['componentName'] = $this->product->getComponentDisplayName($pr->ID_COMP);
+                $prodcharColor = ProdcharColor::where('ID_PROD', $id)->where('LAYER_ORDER', $count - $key)->first();
+                $elements[$key]['prodcharColor'] = $prodcharColor;
             }
 
-            $elements[$key]['SHAPE_PARAM1'] = $this->unit->prodDimension($pr->SHAPE_PARAM1);
-            $elements[$key]['SHAPE_PARAM2'] = $this->unit->prodDimension($pr->SHAPE_PARAM2);
-            $elements[$key]['SHAPE_PARAM3'] = $this->unit->prodDimension($pr->SHAPE_PARAM3);
-            $elements[$key]['SHAPE_PARAM4'] = $this->unit->prodDimension($pr->SHAPE_PARAM4);
-            $elements[$key]['SHAPE_PARAM5'] = $this->unit->prodDimension($pr->SHAPE_PARAM5);
-            $elements[$key]['PROD_ELMT_WEIGHT'] = $this->unit->mass($pr->PROD_ELMT_WEIGHT);
-            $elements[$key]['PROD_ELMT_REALWEIGHT'] = $this->unit->mass($pr->PROD_ELMT_REALWEIGHT);
-            $elements[$key]['componentName'] = $this->product->getComponentDisplayName($pr->ID_COMP);
-            $prodcharColor = ProdcharColor::where('ID_PROD', $id)->where('LAYER_ORDER', $count - $key)->first();
-            $elements[$key]['prodcharColor'] = $prodcharColor;
         }
-
+        
         $specificDimension = $this->unit->prodDimension($specificDimension);
         $compFamily = $this->product->getAllCompFamily();
         $subFamily = $this->product->getAllSubFamily();
         $waterPercentList = $this->product->getWaterPercentList();
-
-        return compact('product', 'elements', 'specificDimension', 'compFamily', 'subFamily', 'waterPercentList');
+        
+        return compact('product', 'elements', 'specificDimension', 'compFamily', 'subFamily', 'waterPercentList', 'isAddComponentAllowed');
     }
 
     public function getSubfamily($compFamily)
