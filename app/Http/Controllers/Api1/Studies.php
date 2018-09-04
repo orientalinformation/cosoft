@@ -366,7 +366,6 @@ class Studies extends Controller
                     $packingCurr = Packing::where('ID_STUDY', $studyCurrent->ID_STUDY)->first(); 
                     $studyemtlCurr = StudyEquipment::where('ID_STUDY', $studyCurrent->ID_STUDY)->get();
 
-
                     //duplicate study already exsits
                     $study = $studyCurrent->replicate();
                     unset($study->STUDY_NAME);
@@ -388,7 +387,6 @@ class Studies extends Controller
                         $temprecordpst->ID_STUDY = $study->ID_STUDY;
                         unset($temprecordpst->ID_TEMP_RECORD_PTS);
                         $temprecordpst->save();
-
                     }
 
                     //duplicate Production already exsits
@@ -1038,6 +1036,7 @@ class Studies extends Controller
             #3D case precision.
             1151, 1161, 1171, 1181, 1191, 1201, 1211, 1221, 1231, 1171, 1181, 1201, 1211, 1171
         ];
+
         $FirstItemMultiComp = [
             0, 1156, 1166, 1176, 1186, 1196, 1206, 1216, 1226, 1236,
             #3D case precision.
@@ -1759,22 +1758,27 @@ class Studies extends Controller
                 $tempRecordPts->AXIS2_AX_1 = $axisResult[0]['y'];
                 if ($report) $report->AXE1_X = $axisResult[0]['y'];
             }
+
             if (isset($axisResult[0]['z'])) {
                 $tempRecordPts->AXIS3_AX_1 = $axisResult[0]['z'];
                 if ($report) $report->AXE1_Y = $axisResult[0]['z'];
             }
+
             if (isset($axisResult[1]['x'])) {
                 $tempRecordPts->AXIS1_AX_2 = $axisResult[1]['x'];
                 if ($report) $report->AXE2_X = $axisResult[1]['x'];
             }
+
             if (isset($axisResult[1]['z'])) {
                 $tempRecordPts->AXIS3_AX_2 = $axisResult[1]['z'];
                 if ($report) $report->AXE2_Z = $axisResult[1]['z'];
             }
+
             if (isset($axisResult[2]['x'])) {
                 $tempRecordPts->AXIS1_AX_3 = $axisResult[2]['x'];
                 if ($report) $report->AXE3_Y = $axisResult[2]['x'];
             }
+            
             if (isset($axisResult[2]['y'])) {
                 $tempRecordPts->AXIS2_AX_3 = $axisResult[2]['y'];
                 if ($report) $report->AXE3_Z = $axisResult[2]['y'];

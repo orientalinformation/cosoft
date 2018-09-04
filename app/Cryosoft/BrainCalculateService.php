@@ -51,7 +51,6 @@ class BrainCalculateService
         $this->value = $app['App\\Cryosoft\\ValueListService'];
         $this->convert = $app['App\\Cryosoft\\UnitsConverterService'];
         $this->units = $app['App\\Cryosoft\\UnitsService'];
-
     }
 
     public function getCalcParams($idStudyEquipments)

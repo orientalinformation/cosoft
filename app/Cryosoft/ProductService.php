@@ -11,6 +11,7 @@ use App\Models\MeshPosition;
 use App\Models\InitialTemperature;
 use App\Models\MeshGeneration;
 use App\Models\InitTemp3D;
+use App\Models\MinMax;
 
 class ProductService
 {
@@ -577,5 +578,20 @@ class ProductService
         }
 
         return $initTemp;
+    }
+
+    public function updateScreen($shape, $productSize)
+    {
+        $maxBreadedShapes = 3;
+        $minMax = MinMax::where('LIMIT_ITEM', 1119)->first();
+        if ($minMax) $maxBreadedShapes = $minMax->LIMIT_MAX;
+        $checkComboComponent = false;
+        if (($shape != 9) || ($productSize < $maxBreadedShapes)) {
+            $checkComboComponent = true;
+        } else {
+            $checkComboComponent = false;
+        }
+
+        return $checkComboComponent;
     }
 }

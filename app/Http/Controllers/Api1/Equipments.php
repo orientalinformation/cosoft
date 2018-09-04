@@ -1135,6 +1135,7 @@ class Equipments extends Controller
         $maxValueY = doubleval($minMax->LIMIT_MIN);
 
         $listOfPoints = $this->svg->getSelectedProfile($ID_EQUIP, $profileType, $profileFace);
+        $listOfPoints = array_reverse($listOfPoints);
         $listofPointsOld = $listOfPoints;
         $nbpoints = count($listOfPoints);
 
@@ -1282,7 +1283,7 @@ class Equipments extends Controller
             'imageMargeHeight' => PROFILE_CHARTS_MARGIN_HEIGHT,
             'X' => $X,
             'Y' =>  $Y,
-            'ListOfPoints' => array_reverse($listOfPoints),
+            'ListOfPoints' => $listOfPoints,
             'path' => $path,
             'axisline' => $axisline,
             'originY' => (PROFILE_CHARTS_HEIGHT - PROFILE_CHARTS_MARGIN_HEIGHT),
