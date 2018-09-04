@@ -488,14 +488,14 @@ class SVGService
         
         $size = count($listOfSelectedPoints);
         
-        for($i = 0; $i < $size; ++$i ) {
+        for ($i = 0; $i < $size; ++$i) {
             $lagrange = 1;
             $posi = $listOfSelectedPoints[$i]['X_POSITION'];
             $vali = $listOfSelectedPoints[$i]['Y_POINT'];
             
             // Compute the numerator and d�nominator
-            for($j = 0; $j < $size; ++$j ) {
-                if($i!= $j) {
+            for ($j = 0; $j < $size; ++$j) {
+                if ($i != $j) {
                     $posj = $listOfSelectedPoints[$j]['X_POSITION'];
                     $lagrange *= ($X_POSITION - $posj) / ($posi - $posj);
                 }
@@ -504,9 +504,9 @@ class SVGService
             $value += $vali * $lagrange;
         }
 
-        if($value < $minValue ){
+        if ($value < $minValue ) {
             $value = $minValue;
-        } else if($value > $maxValue ) {
+        } else if ($value > $maxValue ) {
             $value = $maxValue;
         }
             
