@@ -14,6 +14,7 @@ use App\Models\MinMax;
 use App\Models\StudyEquipment;
 use App\Models\Equipment;
 use App\Models\StudEqpPrm;
+use App\Models\ProductElmt;
 
 class StudyService
 {
@@ -52,6 +53,7 @@ class StudyService
         $this->calculator = $app['App\\Cryosoft\\CalculateService'];
         $this->brain = $app['App\\Cryosoft\\BrainCalculateService'];
         $this->sequip = $app['App\\Cryosoft\\StudyEquipmentService'];
+        $this->pack = $app['App\\Cryosoft\\PackingService'];
     }
 
     public function isMyStudy($idStudy) 
@@ -441,4 +443,51 @@ class StudyService
 
         return $arrStudyId;
     }
+
+    public function isAddComponentAllowed($id) {
+        $study = Study::findOrFail($id);
+        $bret = true;
+        $productElmt = ProductElmt::where('ID_STUDY', $id)->first();
+        $shape = $productElmt->SHAPECODE;
+        if ($study->CHAINING_CONTROLS == 1) {
+            if ($this->calculator->isStudyHasChilds($idStudy) || $study->CHAINING_ADD_COMP_ENABLE != 1) {
+                $bret = false;
+            } else {
+                if ($this->pack->isTopPackInParent(Study &$study)) {
+                    $bret = false;
+                }
+
+                if ($this->pack->isSidePackInParent(Study &$study)) {
+                    switch ($shape) {
+                        case 1:
+                        case 3:
+                        case 5:
+                        case 6:
+                        case 7:
+                        case 8:
+                        case 9:
+                            $bret = false;
+                            break;
+                    }
+
+                }
+
+                if ($this->pack->isBottomPackInParent(Study &$study)) {
+                    switch ($shape) {
+                        case 3:
+                        case 5:
+                        case 6:
+                        case 8:
+                        case 9:
+                            $bret = false;
+                            break;
+                    }
+
+                }
+            }
+        }
+
+        return $bret;
+    }
+
 }
