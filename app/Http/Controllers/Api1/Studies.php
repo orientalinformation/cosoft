@@ -311,7 +311,7 @@ class Studies extends Controller
             $equip->delete();
         }
 
-        if ($study->CHAINING_CONTROLS!=0 && $study->PARENT_ID != 0) {
+        if (($study->CHAINING_CONTROLS != 0) && ($study->PARENT_ID != 0)) {
             $parent = Study::find($study->PARENT_ID);
             if ($parent) {
                 $parent->HAS_CHILD = count(Study::where('PARENT_ID', $parent->ID_STUDY)->get()) - 1 > 0 ? 1 : 0;
@@ -865,8 +865,7 @@ class Studies extends Controller
             $packing->ID_STUDY = $id;
         }
 
-        if (!isset($input['packing']['NOMEMBMAT']))
-            $input['packing']['NOMEMBMAT'] = "";
+        if (!isset($input['packing']['NOMEMBMAT'])) $input['packing']['NOMEMBMAT'] = "";
 
         $packing->NOMEMBMAT = $input['packing']['NOMEMBMAT'];
         $packing->save();
@@ -1118,7 +1117,7 @@ class Studies extends Controller
         $sEquip->ENABLE_CONS_PIE = DISABLE_CONS_PIE;
         $sEquip->RUN_CALCULATE = EQUIP_SELECTED;
         
-        $sEquip->BRAIN_SAVETODB = $study->CALCULATION_MODE == 1? SAVE_NUM_TO_DB_YES: SAVE_NUM_TO_DB_NO;
+        $sEquip->BRAIN_SAVETODB = ($study->CALCULATION_MODE == 1) ? SAVE_NUM_TO_DB_YES : SAVE_NUM_TO_DB_NO;
 
         $sEquip->STDEQP_WIDTH = -1;
         $sEquip->STDEQP_LENGTH = -1;
@@ -1865,7 +1864,7 @@ class Studies extends Controller
                 $tempRecordPts->AXIS1_AX_3 = $axisResult[2]['x'];
                 if ($report) $report->AXE3_Y = $axisResult[2]['x'];
             }
-            
+
             if (isset($axisResult[2]['y'])) {
                 $tempRecordPts->AXIS2_AX_3 = $axisResult[2]['y'];
                 if ($report) $report->AXE3_Z = $axisResult[2]['y'];

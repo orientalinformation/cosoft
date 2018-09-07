@@ -50,9 +50,27 @@ class PackingElements extends Controller
     }
 
     public function findPackingElements() 
-    {        
-        $packingElmts = PackingElmt::where('PACKING_RELEASE', 3)->get();
-        return $packingElmts;
+    {    
+        $item = $elmts = array();
+        $packingElmts = PackingElmt::where('PACKING_RELEASE', 3)
+                                   ->orWhere('PACKING_RELEASE', 4)->get();
+        if (count($packingElmts) > 0) {
+            foreach ($packingElmts as $elmt) {
+                $item['ID_PACKING_ELMT'] = $elmt->ID_PACKING_ELMT;
+                $item['PACKING_VERSION'] = $elmt->PACKING_VERSION;
+                $item['PACKING_RELEASE'] = $elmt->PACKING_RELEASE;
+
+                if ($elmt->PACKING_RELEASE == 3) {
+                    $item['PACKING_TYPE'] = 'Active';
+                } else if ($elmt->PACKING_RELEASE == 4){
+                    $item['PACKING_TYPE'] = 'Certified';
+                }
+                
+                array_push($elmts, $item);
+            }
+        }
+        
+        return $elmts;
     }
 
     public function findRefPackingElmt() 
