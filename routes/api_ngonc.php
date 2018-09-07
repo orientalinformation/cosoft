@@ -342,3 +342,11 @@ $router->POST('/api/v1/output/{id}/computeTrTs', 'Api1\\Output@computeTrTs');
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/output/{id}/runSequenceCalculation', 'Api1\\Output@runSequenceCalculation');
+
+/**
+ * GET getSelectedMeshPoint3d
+ * Summary: 
+ * Notes: get Selected MeshPoint 3d
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/study/{id}/getSelectedMeshPoints', 'Api1\\Studies@getSelectedMeshPoints');
