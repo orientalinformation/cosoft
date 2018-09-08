@@ -489,6 +489,7 @@ class Equipments extends Controller
         $idUserLogon = $this->auth->user()->ID_USER;
         $input = $this->request->all();
 
+        var_dump($input); die;
         $nameE = $typeCalculate = $versionE = $equipId1 = $equipId2 = $tempSetPoint = $dwellingTime = $newPos = $typeEquipment = null;
         
         if (isset($input['typeEquipment'])) $typeEquipment = intval($input['typeEquipment']);
