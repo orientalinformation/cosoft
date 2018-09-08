@@ -489,7 +489,6 @@ class Equipments extends Controller
         $idUserLogon = $this->auth->user()->ID_USER;
         $input = $this->request->all();
 
-        var_dump($input); die;
         $nameE = $typeCalculate = $versionE = $equipId1 = $equipId2 = $tempSetPoint = $dwellingTime = $newPos = $typeEquipment = null;
         
         if (isset($input['typeEquipment'])) $typeEquipment = intval($input['typeEquipment']);
@@ -595,7 +594,7 @@ class Equipments extends Controller
                 $dwellingTime = floatval($minMaxDwell->DEFAULT_VALUE);
 
                 if ($this->equip->getCapability($equipment1->CAPABILITIES, 65536)) {
-                    $dwellingTime = $this->units->time(floatval($input['tempSetPoint']), 2, 0);
+                    $dwellingTime = $this->units->time(floatval($input['dwellingTime']), 2, 0);
                 } else {
                     $tempSetPoint = $this->units->controlTemperature(floatval($input['tempSetPoint']), 2, 0);
                 }
