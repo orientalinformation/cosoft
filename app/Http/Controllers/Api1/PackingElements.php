@@ -64,6 +64,8 @@ class PackingElements extends Controller
                     $item['PACKING_TYPE'] = 'Active';
                 } else if ($elmt->PACKING_RELEASE == 4){
                     $item['PACKING_TYPE'] = 'Certified';
+                } else {
+                    $item['PACKING_TYPE'] = '';
                 }
                 
                 array_push($elmts, $item);
