@@ -48,6 +48,7 @@ use App\Models\Mesh3DInfo;
 use App\Models\InitTemp3D;
 use App\Cryosoft\MeshService;
 use App\Cryosoft\UnitsService;
+use App\Cryosoft\OutputService;
 
 
 class Studies extends Controller
@@ -108,7 +109,7 @@ class Studies extends Controller
     public function __construct(Request $request, Auth $auth, KernelService $kernel, 
         UnitsConverterService $convert, ValueListService $value, LineService $lineE, 
         StudyEquipmentService $stdeqp, PackingService $packing, StudyService $study, 
-        UnitsService $units, MeshService $mesh, EquipmentsService $equip)
+        UnitsService $units, MeshService $mesh, EquipmentsService $equip, OutputService $output)
     {
         $this->request = $request;
         $this->auth = $auth;
@@ -122,6 +123,7 @@ class Studies extends Controller
         $this->mesh = $mesh;
         $this->equip = $equip;
         $this->units = $units;
+        $this->output = $output;
     }
 
     public function findStudies()
@@ -1423,6 +1425,91 @@ class Studies extends Controller
         }
 
         return $tfMesh;
+    }
+
+    public function getSelectedMeshPoints($id)
+    {
+        $selPoints = $this->output->getSelectedMeshPoints($id);
+        if (empty($selPoints)) {
+            $selPoints = $this->output->getMeshSelectionDef();
+        }
+
+        if (!empty($selPoints) && count($selPoints) == 18) {
+            $meshPoints['POINT1_X'] = [
+                'unit' => $this->convert->meshesUnit($selPoints[0]),
+                'value' => $selPoints[0],
+            ];
+            $meshPoints['POINT1_Y'] = [
+                'unit' => $this->convert->meshesUnit($selPoints[1]),
+                'value' => $selPoints[1],
+            ];
+            $meshPoints['POINT1_Z'] = [
+                'unit' => $this->convert->meshesUnit($selPoints[2]),
+                'value' => $selPoints[2],
+            ];
+            $meshPoints['POINT2_X'] = [
+                'unit' => $this->convert->meshesUnit($selPoints[3]),
+                'value' => $selPoints[3],
+            ];
+            $meshPoints['POINT2_Y'] = [
+                'unit' => $this->convert->meshesUnit($selPoints[4]),
+                'value' => $selPoints[4],
+            ];
+            $meshPoints['POINT2_Z'] = [
+                'unit' => $this->convert->meshesUnit($selPoints[5]),
+                'value' => $selPoints[5],
+            ];
+            $meshPoints['POINT3_X'] = [
+                'unit' => $this->convert->meshesUnit($selPoints[6]),
+                'value' => $selPoints[6],
+            ];
+            $meshPoints['POINT3_Y'] = [
+                'unit' => $this->convert->meshesUnit($selPoints[7]),
+                'value' => $selPoints[7],
+            ];
+            $meshPoints['POINT3_Z'] = [
+                'unit' => $this->convert->meshesUnit($selPoints[8]),
+                'value' => $selPoints[8],
+            ];
+            $meshPoints['AXE3_Y'] = [
+                'unit' => $this->convert->meshesUnit($selPoints[9]),
+                'value' => $selPoints[9],
+            ];
+            $meshPoints['AXE3_Z'] = [
+                'unit' => $this->convert->meshesUnit($selPoints[10]),
+                'value' => $selPoints[10],
+            ];
+            $meshPoints['AXE2_X'] = [
+                'unit' => $this->convert->meshesUnit($selPoints[11]),
+                'value' => $selPoints[11],
+            ];
+            $meshPoints['AXE2_Z'] = [
+                'unit' => $this->convert->meshesUnit($selPoints[12]),
+                'value' => $selPoints[12],
+            ];
+            $meshPoints['AXE1_X'] = [
+                'unit' => $this->convert->meshesUnit($selPoints[13]),
+                'value' => $selPoints[13],
+            ];
+            $meshPoints['AXE1_Y'] = [
+                'unit' => $this->convert->meshesUnit($selPoints[14]),
+                'value' => $selPoints[14],
+            ];
+            $meshPoints['PLAN_X'] = [
+                'unit' => $this->convert->meshesUnit($selPoints[15]),
+                'value' => $selPoints[15],
+            ];
+            $meshPoints['PLAN_Y'] = [
+                'unit' => $this->convert->meshesUnit($selPoints[16]),
+                'value' => $selPoints[16],
+            ];
+            $meshPoints['PLAN_Z'] = [
+                'unit' => $this->convert->meshesUnit($selPoints[17]),
+                'value' => $selPoints[17],
+            ];
+        }
+
+        return $meshPoints;
     }
 
     public function getStudyComment($id) 
