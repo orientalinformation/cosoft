@@ -1360,6 +1360,9 @@ class Equipments extends Controller
             }
         }
 
+        // array_revert
+        var_dump($listOfPoints); die;
+
         // get old profile
         $equipCharacts = EquipCharact::where('ID_EQUIP', $ID_EQUIP)->get();
         if ($equipCharacts) {
