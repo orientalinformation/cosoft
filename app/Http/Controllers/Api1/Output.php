@@ -654,6 +654,7 @@ class Output extends Controller
         $percentLineLabel = $input['percentLineLabel'];
 
         $f = fopen("/tmp/consumptionPie.inp", "w");
+        fputs($f, 'name percent' . "\n");
         fputs($f, '"'. $percentProductLabel .'" '. $percentProduct .'' . "\n");
         fputs($f, '"'. $percentEquipmentPermLabel .'" '. $percentEquipmentPerm .'' . "\n");
         fputs($f, '"'. $percentEquipmentDownLabel .'" '. $percentEquipmentDown .'' . "\n");
