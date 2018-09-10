@@ -1471,11 +1471,11 @@ class Studies extends Controller
                 'unit' => $this->convert->meshesUnit($selPoints[8]),
                 'value' => $selPoints[8],
             ];
-            $meshPoints['AXE3_Y'] = [
+            $meshPoints['AXE1_X'] = [
                 'unit' => $this->convert->meshesUnit($selPoints[9]),
                 'value' => $selPoints[9],
             ];
-            $meshPoints['AXE3_Z'] = [
+            $meshPoints['AXE1_Y'] = [
                 'unit' => $this->convert->meshesUnit($selPoints[10]),
                 'value' => $selPoints[10],
             ];
@@ -1487,11 +1487,11 @@ class Studies extends Controller
                 'unit' => $this->convert->meshesUnit($selPoints[12]),
                 'value' => $selPoints[12],
             ];
-            $meshPoints['AXE1_X'] = [
+            $meshPoints['AXE3_Y'] = [
                 'unit' => $this->convert->meshesUnit($selPoints[13]),
                 'value' => $selPoints[13],
             ];
-            $meshPoints['AXE1_Y'] = [
+            $meshPoints['AXE3_Z'] = [
                 'unit' => $this->convert->meshesUnit($selPoints[14]),
                 'value' => $selPoints[14],
             ];

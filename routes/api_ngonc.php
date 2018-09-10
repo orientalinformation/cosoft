@@ -350,3 +350,11 @@ $router->POST('/api/v1/output/{id}/runSequenceCalculation', 'Api1\\Output@runSeq
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/study/{id}/getSelectedMeshPoints', 'Api1\\Studies@getSelectedMeshPoints');
+
+/**
+ * POST drawConsumptionPie
+ * Summary: 
+ * Notes: draw Consumption Pie Chart
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/output/{id}/drawConsumptionPie', 'Api1\\Output@drawConsumptionPie');

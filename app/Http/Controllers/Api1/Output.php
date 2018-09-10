@@ -641,6 +641,26 @@ class Output extends Controller
         return $result;
     }
 
+    public function drawConsumptionPie($idStudyEquipment)
+    {
+        $input = $this->request->all();
+        $percentProduct = $input['percentProduct'];
+        $percentEquipmentPerm = $input['percentEquipmentPerm'];
+        $percentEquipmentDown = $input['percentEquipmentDown'];
+        $percentLine = $input['percentLine'];
+        $percentProductLabel = $input['percentProductLabel'];
+        $percentEquipmentPermLabel = $input['percentEquipmentPermLabel'];
+        $percentEquipmentDownLabel = $input['percentEquipmentDownLabel'];
+        $percentLineLabel = $input['percentLineLabel'];
+
+        $f = fopen("/tmp/consumptionPie.inp", "w");
+        fputs($f, '"'. $percentProductLabel .'" '. $percentProduct .'' . "\n");
+        fputs($f, '"'. $percentEquipmentPermLabel .'" '. $percentEquipmentPerm .'' . "\n");
+        fputs($f, '"'. $percentEquipmentDownLabel .'" '. $percentEquipmentDown .'' . "\n");
+        fputs($f, '"'. $percentLineLabel .'" '. $percentLine .'' . "\n");
+        fclose($f);
+    }
+
     public function getAnalyticalEconomic($idStudy)
     {
         $study = Study::find($idStudy);
@@ -1638,7 +1658,7 @@ class Output extends Controller
             $result[] = $itemResult;
         }
 
-        if ($shape < 10) {
+        if ($shape <= 9) {
             $inpFile = '/tmp/heatExchange.inp';
             $f = fopen("/tmp/heatExchange.inp", "w");
             fputs($f, '"X" "Y"' . "\n");
@@ -1701,25 +1721,43 @@ class Output extends Controller
         $axeTemp = [];
         switch ($selectedAxe) {
             case 1:
-                array_push($axeTemp, $this->unit->prodchartDimension($selPoints[9]));
-                array_push($axeTemp, $this->unit->prodchartDimension($selPoints[10]));
+                if ($shape <= 9) {
+                    array_push($axeTemp, $this->unit->prodchartDimension($selPoints[9]));
+                    array_push($axeTemp, $this->unit->prodchartDimension($selPoints[10]));
+                } else {
+                    array_push($axeTemp, $selPoints[9]);
+                    array_push($axeTemp, $selPoints[10]);
+                }
+                
                 break;
 
             case 2:
-                array_push($axeTemp, $this->unit->prodchartDimension($selPoints[11]));
-                array_push($axeTemp, $this->unit->prodchartDimension($selPoints[12]));
+                if ($shape <= 9) {
+                    array_push($axeTemp, $this->unit->prodchartDimension($selPoints[11]));
+                    array_push($axeTemp, $this->unit->prodchartDimension($selPoints[12]));
+                } else {
+                    array_push($axeTemp, $selPoints[11]);
+                    array_push($axeTemp, $selPoints[12]);
+                }
+
                 break;
 
             case 3:
-                array_push($axeTemp, $this->unit->prodchartDimension($selPoints[13]));
-                array_push($axeTemp, $this->unit->prodchartDimension($selPoints[14]));
+                if ($shape <= 9) {
+                    array_push($axeTemp, $this->unit->prodchartDimension($selPoints[13]));
+                    array_push($axeTemp, $this->unit->prodchartDimension($selPoints[14]));
+                } else {
+                    array_push($axeTemp, $selPoints[13]);
+                    array_push($axeTemp, $selPoints[14]);
+                }
+
                 break;
         }
 
         $resultLabel = [];
         $resultTemperature = [];
 
-        if ($shape < 10) {
+        if ($shape <= 9) {
             $listRecordPos = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("RECORD_TIME", "ASC")->get();
             $nbSteps = TempRecordPts::where("ID_STUDY", $idStudy)->first();
             $nbSample = $nbSteps->NB_STEPS;
@@ -1891,7 +1929,7 @@ class Output extends Controller
                     break;
             }
 
-            $inpFile = $this->plotFolder3D . '/MeshBuilder3D/' . $prodFolder . '/' . $stdeqpFolder . '/' . $inpFileName;
+            // $inpFile = $this->plotFolder3D . '/MeshBuilder3D/' . $prodFolder . '/' . $stdeqpFolder . '/' . $inpFileName;
             
             $data = file_get_contents($this->plotFolder3D . '/MeshBuilder3D/' . $prodFolder . '/' . $stdeqpFolder . '/' . $inpFileName);
 
@@ -1918,12 +1956,10 @@ class Output extends Controller
             $lfTS = $labelArr[$nbRecord - 1];
             $lfStep = $labelArr[1] - $labelArr[0];
             $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
-            /*foreach ($lEchantillon as $row) {
+            foreach ($lEchantillon as $row) {
                 $resultLabel[] = $labelArr[$row];
-            }*/
-            $resultLabel = $labelArr;
-
-            
+            }
+            // $resultLabel = $labelArr;
 
             unset($dataArr[0]);
             $listRecordPos = $dataArr;
@@ -1943,11 +1979,36 @@ class Output extends Controller
                 unset($recordPos[0]);
                 $recordPosValue = $recordPos;
                 $recordPosValue = array_values($recordPosValue);
-                /*foreach ($lEchantillon as $row) {
+                foreach ($lEchantillon as $row) {
                     $resultValue[$key][] = $recordPosValue[$row];
-                }*/
-                $resultValue[$key] = $recordPosValue;
+                }
+                // $resultValue[$key] = $recordPosValue;
             }
+
+            $f = fopen("/tmp/productSection.inp", "w");
+
+            $dataLabel = '';
+            fputs($f, '"X" ');
+            foreach ($resultLabel as $row) {
+                $dataLabel .= '"Temperature T' . $row . '(' . $this->unit->timeSymbol() . ')' . '"' . ' ';
+            } 
+
+            fputs($f, $dataLabel);
+            fputs($f, "\n");
+
+            $i = 0;
+            foreach ($resultValue as $key => $row) {
+                $dataValue = '';
+                $dataValue = $mesAxis[$key] . ' ';
+                foreach ($row as $value) {
+                    $dataValue .= $value . ' ';
+                }
+                fputs($f, $dataValue);
+                fputs($f, "\n");
+                $i++;
+            }
+            fclose($f);
+            $inpFile = "/tmp/productSection.inp";
         }
 
         system('gnuplot -c '. $this->plotFolder .'/productSection.plot "('. $this->unit->temperatureSymbol() .')" "('. $this->unit->prodchartDimensionSymbol() .')" "'. $productSectionFolder . '/' . $userName .'" "'. $fileName .'" '. $inpFile .'');
@@ -1982,7 +2043,7 @@ class Output extends Controller
         $tempRecordPts = TempRecordPts::where("ID_STUDY", $idStudy)->first();
         $nbSample = $tempRecordPts->NB_STEPS;
 
-        if ($shape < 10) {
+        if ($shape <= 9) {
             $listRecordPos = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy('RECORD_TIME')->get();
             $result = array();
             $label = array();
@@ -2107,7 +2168,6 @@ class Output extends Controller
             $lfStep = $recordPosSecond[0] - $recordPosFirst[0];
             $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
 
-            
             $dataRecord = [];
             foreach ($lEchantillon as $row) {
                 $recordPos = trim($listRecordPos[$row]);
@@ -2437,14 +2497,22 @@ class Output extends Controller
 
         $valueRecAxis = [];
         if (!empty($planTempRecordData)) {
-            $valueRecAxis = [
-                "x" => $this->unit->prodchartDimension($planTempRecordData[0][0]),
-                "y" => $this->unit->prodchartDimension($planTempRecordData[1][1]),
-                "z" => $this->unit->prodchartDimension($planTempRecordData[2][2])
-            ];
+            if ($shape <= 9) {
+                $valueRecAxis = [
+                    "x" => $this->unit->prodchartDimension($planTempRecordData[0][0]),
+                    "y" => $this->unit->prodchartDimension($planTempRecordData[1][1]),
+                    "z" => $this->unit->prodchartDimension($planTempRecordData[2][2])
+                ];
+            } else {
+                $valueRecAxis = [
+                    "x" => $planTempRecordData[0][0],
+                    "y" => $planTempRecordData[1][1],
+                    "z" => $planTempRecordData[2][2]
+                ];
+            }
         }
 
-        if ($shape < 10) {
+        if ($shape <= 9) {
             $chartTempInterval = $this->output->init2DContourTempInterval($idStudyEquipment, $lfDwellingTime, $tempInterval, $pasTemp);
 
             $dataContour = $this->output->getGrideByPlan($idStudy, $idStudyEquipment, $lfDwellingTime, $chartTempInterval[0], $chartTempInterval[1], $planTempRecordData, $selectedPlan - 1, $shape, $orientation);
@@ -2578,7 +2646,7 @@ class Output extends Controller
             mkdir($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment, 0777);
         }
 
-        if ($shape < 10) {
+        if ($shape <= 9) {
             if ($refreshTemp == 1) {
                 $pasTemp = $input['temperatureStep'];
                 $temperatureMin = $this->unit->prodTemperature($input['temperatureMin']);
@@ -2745,7 +2813,7 @@ class Output extends Controller
         $nbContour2d = ($lfTS / $timeInterval) + 1;
         $lfTheoricStep = $lfTS / ($nbContour2d - 1);
 
-        if ($shape < 10) {
+        if ($shape <= 9) {
             $chartTempInterval = $this->output->init2DContourTempInterval($idStudyEquipment, -1.0, $tempInterval, $pasTemp);
         
             for ($i = 0; $i < $nbContour2d - 1; $i++) { 
@@ -2870,14 +2938,14 @@ class Output extends Controller
 
     public function readDataContour($idStudyEquipment)
     {
-        $input = $this->request->all();;
+        $input = $this->request->all();
         $selectedPlan = $input['selectedPlan'];
         $lfDwellingTime = $input['timeSelected'];
         $studyEquipment = StudyEquipment::find($idStudyEquipment);
         $userName = $studyEquipment->USERNAM;
         $productElmt = ProductElmt::where('ID_STUDY', $studyEquipment->ID_STUDY)->first();
         $shape = $productElmt->SHAPECODE;
-        if ($shape < 10) {
+        if ($shape <= 9) {
             $heatmapFolder = $this->output->public_path('heatmap');
             $file = $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment . '/data.json';
             if (file_exists($file)) {
