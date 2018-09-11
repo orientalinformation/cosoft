@@ -14,5 +14,6 @@ Homestead.yaml
 /public/heatExchange/*
 /public/productSection/*
 /public/3d/*
+/public/consumption/*
 /storage/app/*
 

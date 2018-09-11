@@ -644,6 +644,10 @@ class Output extends Controller
     public function drawConsumptionPie($idStudyEquipment)
     {
         $input = $this->request->all();
+        $studyEquipment = StudyEquipment::findOrFail($idStudyEquipment);
+        $study = $studyEquipment->study;
+        $idStudy = $study->ID_STUDY;
+
         $percentProduct = $input['percentProduct'];
         $percentEquipmentPerm = $input['percentEquipmentPerm'];
         $percentEquipmentDown = $input['percentEquipmentDown'];
@@ -658,8 +662,35 @@ class Output extends Controller
         fputs($f, '"'. $percentProductLabel .'" '. $percentProduct .'' . "\n");
         fputs($f, '"'. $percentEquipmentPermLabel .'" '. $percentEquipmentPerm .'' . "\n");
         fputs($f, '"'. $percentEquipmentDownLabel .'" '. $percentEquipmentDown .'' . "\n");
-        fputs($f, '"'. $percentLineLabel .'" '. $percentLine .'' . "\n");
+        if ($percentLine > 0) {
+            fputs($f, '"'. $percentLineLabel .'" '. $percentLine .'' . "\n");
+        }
+        
         fclose($f);
+
+        $folder = $this->output->public_path('consumption');
+
+        $userName = $study->USERNAM;
+        if (!is_dir($folder)) {
+            mkdir($folder, 0777);
+        }
+
+        if (!is_dir($folder . '/' . $userName)) {
+            mkdir($folder . '/' . $userName, 0777);
+        }
+
+        if (!is_dir($folder . '/' . $userName . '/' . $idStudy)) {
+            mkdir($folder . '/' . $userName . '/' . $idStudy, 0777);
+        }
+
+        $outPutFolder = $folder . '/' . $userName . '/' . $idStudy;
+        $outPutFileName = $idStudyEquipment;
+        
+        system('gnuplot -c '. $this->plotFolder .'/consumptions.plot "/tmp/consumptionPie.inp" "'. $outPutFolder . '" "'. $outPutFileName .'" ');
+
+        $image = getenv('APP_URL') . 'consumption/' . $userName . '/' . $idStudy . '/' . $idStudyEquipment . '.png?time=' . time();
+
+        return $image;
     }
 
     public function getAnalyticalEconomic($idStudy)
