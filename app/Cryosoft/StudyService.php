@@ -444,13 +444,14 @@ class StudyService
         return $arrStudyId;
     }
 
-    public function isAddComponentAllowed($id) {
+    public function isAddComponentAllowed($id)
+    {
         $study = Study::findOrFail($id);
         $bret = true;
         $productElmt = ProductElmt::where('ID_STUDY', $id)->first();
         $shape = $productElmt->SHAPECODE;
         if ($study->CHAINING_CONTROLS == 1) {
-            if ($this->calculator->isStudyHasChilds($idStudy) || $study->CHAINING_ADD_COMP_ENABLE != 1) {
+            if ($this->calculator->isStudyHasChilds($id) || $study->CHAINING_ADD_COMP_ENABLE != 1) {
                 $bret = false;
             } else {
                 if ($this->pack->isTopPackInParent(Study &$study)) {
