@@ -188,12 +188,12 @@ class Reports extends Controller
                     if ($report->POINT3_X == 0) $report->POINT3_X = $selPoints[6];
                     if ($report->POINT3_Y == 0) $report->POINT3_Y = $selPoints[7];
                     if ($report->POINT3_Z == 0) $report->POINT3_Z = $selPoints[8];
-                    if ($report->AXE1_X == 0) $report->AXE1_X = $selPoints[9];
-                    if ($report->AXE1_Y == 0) $report->AXE1_Y = $selPoints[10];
+                    if ($report->AXE3_Y == 0) $report->AXE3_Y = $selPoints[9];
+                    if ($report->AXE3_Z == 0) $report->AXE3_Z = $selPoints[10];
                     if ($report->AXE2_X == 0) $report->AXE2_X = $selPoints[11];
                     if ($report->AXE2_Z == 0) $report->AXE2_Z = $selPoints[12];
-                    if ($report->AXE3_Y == 0) $report->AXE3_Y = $selPoints[13];
-                    if ($report->AXE3_Z == 0) $report->AXE3_Z = $selPoints[14];
+                    if ($report->AXE1_X == 0) $report->AXE1_X = $selPoints[13];
+                    if ($report->AXE1_Y == 0) $report->AXE1_Y = $selPoints[14];
                     if ($report->PLAN_X == 0) $report->PLAN_X = $selPoints[15];
                     if ($report->PLAN_Y == 0) $report->PLAN_Y = $selPoints[16];
                     if ($report->PLAN_Z == 0) $report->PLAN_Z = $selPoints[17];
@@ -2220,7 +2220,7 @@ class Reports extends Controller
                                         <th align="center">Position Axis 1  ( '. $resproSections['prodchartDimensionSymbol'] .' ) </th>';
                                         $i = 0;
                                         foreach ($resproSections['resultLabel'] as $labelTemp) { 
-                                            if ($i < 20) $html .='<th align="center">T° at '. $labelTemp .' '. $resproSections['timeSymbol'] .' ( '. $resproSections['temperatureSymbol'] .' ) </th>';
+                                            $html .='<th align="center">T° at '. $labelTemp .' '. $resproSections['timeSymbol'] .' ( '. $resproSections['temperatureSymbol'] .' ) </th>';
                                             $i++;
                                         }
                                         $html .='</tr>';
