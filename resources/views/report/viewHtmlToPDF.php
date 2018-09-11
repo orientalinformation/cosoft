@@ -592,180 +592,189 @@
         <?php } ?>
 
         <?php if (!empty($consumptions)) { ?>
-        <?php if ($arrayParam['params']['CONS_OVERALL'] == 1 || $arrayParam['params']['CONS_TOTAL'] ==1 || $arrayParam['params']['CONS_SPECIFIC']  == 1 || $arrayParam['params']['CONS_HOUR'] ==1 || $arrayParam['params']['CONS_DAY'] == 1||
-        $arrayParam['params']['CONS_WEEK'] == 1 || $arrayParam['params']['CONS_MONTH'] == 1 || $arrayParam['params']['CONS_YEAR'] ==1 || $arrayParam['params']['CONS_EQUIP'] ==1 || $arrayParam['params']['CONS_PIPE'] == 1 || $arrayParam['params']['CONS_TANK'] ==1)  { ?>
-        <div class="block-title">Consumptions / Economics assessments</div>
-        <h5 class="bold">Values</h5>
-        <div class="consum-esti">
-            <div class="table-responsive">
-            <table class ="table table-bordered table-hover" border="1">
-                <tr>
-                <th colspan="2" class="text-center" rowspan="2">Equipment</th>
-                <?php if ($arrayParam['params']['CONS_OVERALL'] == 1) { ?>
-                <th rowspan="2" class="text-center">Overall Cryogen Consumption Ratio (product + equipment and pipeline losses) Unit of Cryogen, per piece of product.  <?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></th>
-                <?php } ?>
-                <?php if ($arrayParam['params']['CONS_TOTAL'] == 1) { ?>
-                <th rowspan="2" class="text-center">Total Cryogen Consumption (product + equipment and pipeline losses). <?php echo "(" . $arrayParam['symbol']['consumMaintienSymbol'] . " )" . "/" . $arrayParam['symbol']['perUnitOfMassSymbol']  ?></th>
-                <?php } ?>
-                <?php if ($arrayParam['params']['CONS_SPECIFIC'] == 1) { ?>
-                <th rowspan="2" class="text-center">Specific Cryogen Consumption Ratio (product only) Unit of Cryogen, per unit weight of product. <?php echo "(" . $arrayParam['symbol']['consumMaintienSymbol'] . " )" . "/" . $arrayParam['symbol']['perUnitOfMassSymbol']  ?></th>
-                <?php } ?>
-                <?php if ($arrayParam['params']['CONS_HOUR'] == 1) { ?>
-                <th rowspan="2" class="text-center">Total Cryogen Consumption per hour <?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></th>
-                <?php } ?>
-                <?php if ($arrayParam['params']['CONS_DAY'] == 1) { ?>
-                <th rowspan="2" class="text-center">Total Cryogen Consumption per day <?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></th>
-                <?php } ?>
-                <?php if ($arrayParam['params']['CONS_WEEK'] == 1) { ?>
-                <th rowspan="2" class="text-center">Total Cryogen Consumption per week <?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></th>
-                <?php } ?>
-                <?php if ($arrayParam['params']['CONS_MONTH'] == 1) { ?>
-                <th rowspan="2" class="text-center">Total Cryogen Consumption per month <?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></th>
-                <?php } ?>
-                <?php if ($arrayParam['params']['CONS_YEAR'] == 1) { ?>
-                <th rowspan="2" class="text-center">Total Cryogen Consumption per year <?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></th>
-                <?php } ?>
-                <?php if ($arrayParam['params']['CONS_EQUIP'] == 1) { ?>
-                <th colspan="2" class="text-center">Equipment Cryogen Consumption</th>
-                <?php } ?>
-                <?php if ($arrayParam['params']['CONS_PIPE'] == 1) { ?>
-                <th colspan="2" class="text-center">Pipeline consumption</th>
-                <?php } ?>
-                <?php if ($arrayParam['params']['CONS_TANK'] == 1) { ?>
-                <th rowspan="2">Tank losses <?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></th>
-                <?php } ?>
-                </tr>
-                <tr>
+            <?php if ($arrayParam['params']['CONS_OVERALL'] == 1 || $arrayParam['params']['CONS_TOTAL'] ==1 || $arrayParam['params']['CONS_SPECIFIC']  == 1 || $arrayParam['params']['CONS_HOUR'] ==1 || $arrayParam['params']['CONS_DAY'] == 1||
+            $arrayParam['params']['CONS_WEEK'] == 1 || $arrayParam['params']['CONS_MONTH'] == 1 || $arrayParam['params']['CONS_YEAR'] ==1 || $arrayParam['params']['CONS_EQUIP'] ==1 || $arrayParam['params']['CONS_PIPE'] == 1 || $arrayParam['params']['CONS_TANK'] ==1)  { ?>
+            <div class="block-title">Consumptions / Economics assessments</div>
+            <h5 class="bold">Values</h5>
+            <div class="consum-esti">
+                <div class="table-responsive">
+                <table class ="table table-bordered table-hover" border="1">
+                    <tr>
+                    <th colspan="2" class="text-center" rowspan="2">Equipment</th>
+                    <?php if ($arrayParam['params']['CONS_OVERALL'] == 1) { ?>
+                    <th rowspan="2" class="text-center">Overall Cryogen Consumption Ratio (product + equipment and pipeline losses) Unit of Cryogen, per piece of product.  <?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></th>
+                    <?php } ?>
+                    <?php if ($arrayParam['params']['CONS_TOTAL'] == 1) { ?>
+                    <th rowspan="2" class="text-center">Total Cryogen Consumption (product + equipment and pipeline losses). <?php echo "(" . $arrayParam['symbol']['consumMaintienSymbol'] . " )" . "/" . $arrayParam['symbol']['perUnitOfMassSymbol']  ?></th>
+                    <?php } ?>
+                    <?php if ($arrayParam['params']['CONS_SPECIFIC'] == 1) { ?>
+                    <th rowspan="2" class="text-center">Specific Cryogen Consumption Ratio (product only) Unit of Cryogen, per unit weight of product. <?php echo "(" . $arrayParam['symbol']['consumMaintienSymbol'] . " )" . "/" . $arrayParam['symbol']['perUnitOfMassSymbol']  ?></th>
+                    <?php } ?>
+                    <?php if ($arrayParam['params']['CONS_HOUR'] == 1) { ?>
+                    <th rowspan="2" class="text-center">Total Cryogen Consumption per hour <?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></th>
+                    <?php } ?>
+                    <?php if ($arrayParam['params']['CONS_DAY'] == 1) { ?>
+                    <th rowspan="2" class="text-center">Total Cryogen Consumption per day <?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></th>
+                    <?php } ?>
+                    <?php if ($arrayParam['params']['CONS_WEEK'] == 1) { ?>
+                    <th rowspan="2" class="text-center">Total Cryogen Consumption per week <?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></th>
+                    <?php } ?>
+                    <?php if ($arrayParam['params']['CONS_MONTH'] == 1) { ?>
+                    <th rowspan="2" class="text-center">Total Cryogen Consumption per month <?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></th>
+                    <?php } ?>
+                    <?php if ($arrayParam['params']['CONS_YEAR'] == 1) { ?>
+                    <th rowspan="2" class="text-center">Total Cryogen Consumption per year <?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></th>
+                    <?php } ?>
                     <?php if ($arrayParam['params']['CONS_EQUIP'] == 1) { ?>
-                    <th class="text-center">Heat losses per hour <?php echo "(" . $arrayParam['symbol']['consumMaintienSymbol'] . " )" ?></th>
-                    <th class="text-center">Cooldown <?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></th>
+                    <th colspan="2" class="text-center">Equipment Cryogen Consumption</th>
                     <?php } ?>
                     <?php if ($arrayParam['params']['CONS_PIPE'] == 1) { ?>
-                    <th class="text-center">Heat losses per hour <?php echo "(" . $arrayParam['symbol']['consumMaintienSymbol'] . " )" ?></th>
-                    <th class="text-center">Cooldown <?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></th>
+                    <th colspan="2" class="text-center">Pipeline consumption</th>
                     <?php } ?>
-                </tr>
-                <?php foreach($consumptions as $key => $resconsumptions) { ?>
+                    <?php if ($arrayParam['params']['CONS_TANK'] == 1) { ?>
+                    <th rowspan="2">Tank losses <?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></th>
+                    <?php } ?>
+                    </tr>
                     <tr>
-                        <td class="text-center" rowspan="2"><?php echo $resconsumptions['equipName'] ?></td>
-                        <td class="text-center" ><?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></td>
-                        <?php if ($arrayParam['params']['CONS_OVERALL'] == 1) { ?>
-                        <td class="text-center"><?php echo $resconsumptions['tc'] ?></td>
-                        <?php } ?>
-                        <?php if ($arrayParam['params']['CONS_TOTAL'] == 1) { ?>
-                        <td class="text-center"><?php echo $resconsumptions['kgProduct'] ?></td>
-                        <?php } ?>
-                        <?php if ($arrayParam['params']['CONS_SPECIFIC'] == 1) { ?>
-                        <td class="text-center"><?php echo $resconsumptions['product'] ?></td>
-                        <?php } ?>
-                        <?php if ($arrayParam['params']['CONS_HOUR'] == 1) { ?>
-                        <td class="text-center"><?php echo $resconsumptions['hour'] ?></td>
-                        <?php } ?>
-                        <?php if ($arrayParam['params']['CONS_DAY'] == 1) { ?>
-                        <td class="text-center"><?php echo $resconsumptions['day'] ?></td>
-                        <?php } ?>
-                        <?php if ($arrayParam['params']['CONS_WEEK'] == 1) { ?>
-                        <td class="text-center"><?php echo $resconsumptions['week'] ?></td>
-                        <?php } ?>
-                        <?php if ($arrayParam['params']['CONS_MONTH'] == 1) { ?>
-                        <td class="text-center"><?php echo $resconsumptions['month'] ?></td>
-                        <?php } ?>
-                        <?php if ($arrayParam['params']['CONS_YEAR'] == 1) { ?>
-                        <td class="text-center"><?php echo $resconsumptions['year'] ?></td>
-                        <?php } ?>
                         <?php if ($arrayParam['params']['CONS_EQUIP'] == 1) { ?>
-                        <td class="text-center"><?php echo $resconsumptions['eqptPerm'] ?></td>
-                        <td class="text-center"><?php echo $resconsumptions['eqptCold'] ?></td>
+                        <th class="text-center">Heat losses per hour <?php echo "(" . $arrayParam['symbol']['consumMaintienSymbol'] . " )" ?></th>
+                        <th class="text-center">Cooldown <?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></th>
                         <?php } ?>
                         <?php if ($arrayParam['params']['CONS_PIPE'] == 1) { ?>
-                        <td class="text-center"><?php echo $resconsumptions['linePerm'] ?></td>
-                        <td class="text-center"><?php echo $resconsumptions['lineCold'] ?></td>
-                        <?php } ?>
-                        <?php if ($arrayParam['params']['CONS_TANK'] == 1) { ?>
-                        <td class="text-center"><?php echo $resconsumptions['tank'] ?></td>
+                        <th class="text-center">Heat losses per hour <?php echo "(" . $arrayParam['symbol']['consumMaintienSymbol'] . " )" ?></th>
+                        <th class="text-center">Cooldown <?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></th>
                         <?php } ?>
                     </tr>
-                    <tr>
-                        <td class="text-center"><?php echo "(" . $arrayParam['symbol']['monetarySymbol'] . " )" ?></td>
-                        <?php if ($arrayParam['study']['OPTION_ECO'] != 1) { ?>
+                    <?php foreach($consumptions as $key => $resconsumptions) { ?>
+                        <tr>
+                            <td class="text-center" rowspan="2"><?php echo $resconsumptions['equipName'] ?></td>
+                            <td class="text-center" ><?php echo "(" . $arrayParam['symbol']['consumSymbol'] . " )" ?></td>
                             <?php if ($arrayParam['params']['CONS_OVERALL'] == 1) { ?>
-                            <td class="text-center"><?php echo "--" ?></td>
+                            <td class="text-center"><?php echo $resconsumptions['tc'] ?></td>
                             <?php } ?>
                             <?php if ($arrayParam['params']['CONS_TOTAL'] == 1) { ?>
-                            <td class="text-center"><?php echo "--" ?></td>
+                            <td class="text-center"><?php echo $resconsumptions['kgProduct'] ?></td>
                             <?php } ?>
                             <?php if ($arrayParam['params']['CONS_SPECIFIC'] == 1) { ?>
-                            <td class="text-center"><?php echo "--" ?></td>
+                            <td class="text-center"><?php echo $resconsumptions['product'] ?></td>
                             <?php } ?>
                             <?php if ($arrayParam['params']['CONS_HOUR'] == 1) { ?>
-                            <td class="text-center"><?php echo "--" ?></td>
+                            <td class="text-center"><?php echo $resconsumptions['hour'] ?></td>
                             <?php } ?>
                             <?php if ($arrayParam['params']['CONS_DAY'] == 1) { ?>
-                            <td class="text-center"><?php echo "--" ?></td>
+                            <td class="text-center"><?php echo $resconsumptions['day'] ?></td>
                             <?php } ?>
                             <?php if ($arrayParam['params']['CONS_WEEK'] == 1) { ?>
-                            <td class="text-center"><?php echo "--" ?></td>
+                            <td class="text-center"><?php echo $resconsumptions['week'] ?></td>
                             <?php } ?>
                             <?php if ($arrayParam['params']['CONS_MONTH'] == 1) { ?>
-                            <td class="text-center"><?php echo "--" ?></td>
+                            <td class="text-center"><?php echo $resconsumptions['month'] ?></td>
                             <?php } ?>
                             <?php if ($arrayParam['params']['CONS_YEAR'] == 1) { ?>
-                            <td class="text-center"><?php echo "--" ?></td>
+                            <td class="text-center"><?php echo $resconsumptions['year'] ?></td>
                             <?php } ?>
                             <?php if ($arrayParam['params']['CONS_EQUIP'] == 1) { ?>
-                            <td class="text-center"><?php echo "--" ?></td>
-                            <td class="text-center"><?php echo "--" ?></td>
+                            <td class="text-center"><?php echo $resconsumptions['eqptPerm'] ?></td>
+                            <td class="text-center"><?php echo $resconsumptions['eqptCold'] ?></td>
                             <?php } ?>
                             <?php if ($arrayParam['params']['CONS_PIPE'] == 1) { ?>
-                            <td class="text-center"><?php echo "--" ?></td>
-                            <td class="text-center"><?php echo "--" ?></td>
+                            <td class="text-center"><?php echo $resconsumptions['linePerm'] ?></td>
+                            <td class="text-center"><?php echo $resconsumptions['lineCold'] ?></td>
                             <?php } ?>
                             <?php if ($arrayParam['params']['CONS_TANK'] == 1) { ?>
-                            <td class="text-center"><?php echo "--" ?></td>
+                            <td class="text-center"><?php echo $resconsumptions['tank'] ?></td>
                             <?php } ?>
-                        <?php } else { ?>
-                            <?php if ($arrayParam['params']['CONS_OVERALL'] == 1) { ?>
-                            <td class="text-center"><?php echo $economic[$key]['tc'] ?></td>
+                        </tr>
+                        <tr>
+                            <td class="text-center"><?php echo "(" . $arrayParam['symbol']['monetarySymbol'] . " )" ?></td>
+                            <?php if ($arrayParam['study']['OPTION_ECO'] != 1) { ?>
+                                <?php if ($arrayParam['params']['CONS_OVERALL'] == 1) { ?>
+                                <td class="text-center"><?php echo "--" ?></td>
+                                <?php } ?>
+                                <?php if ($arrayParam['params']['CONS_TOTAL'] == 1) { ?>
+                                <td class="text-center"><?php echo "--" ?></td>
+                                <?php } ?>
+                                <?php if ($arrayParam['params']['CONS_SPECIFIC'] == 1) { ?>
+                                <td class="text-center"><?php echo "--" ?></td>
+                                <?php } ?>
+                                <?php if ($arrayParam['params']['CONS_HOUR'] == 1) { ?>
+                                <td class="text-center"><?php echo "--" ?></td>
+                                <?php } ?>
+                                <?php if ($arrayParam['params']['CONS_DAY'] == 1) { ?>
+                                <td class="text-center"><?php echo "--" ?></td>
+                                <?php } ?>
+                                <?php if ($arrayParam['params']['CONS_WEEK'] == 1) { ?>
+                                <td class="text-center"><?php echo "--" ?></td>
+                                <?php } ?>
+                                <?php if ($arrayParam['params']['CONS_MONTH'] == 1) { ?>
+                                <td class="text-center"><?php echo "--" ?></td>
+                                <?php } ?>
+                                <?php if ($arrayParam['params']['CONS_YEAR'] == 1) { ?>
+                                <td class="text-center"><?php echo "--" ?></td>
+                                <?php } ?>
+                                <?php if ($arrayParam['params']['CONS_EQUIP'] == 1) { ?>
+                                <td class="text-center"><?php echo "--" ?></td>
+                                <td class="text-center"><?php echo "--" ?></td>
+                                <?php } ?>
+                                <?php if ($arrayParam['params']['CONS_PIPE'] == 1) { ?>
+                                <td class="text-center"><?php echo "--" ?></td>
+                                <td class="text-center"><?php echo "--" ?></td>
+                                <?php } ?>
+                                <?php if ($arrayParam['params']['CONS_TANK'] == 1) { ?>
+                                <td class="text-center"><?php echo "--" ?></td>
+                                <?php } ?>
+                            <?php } else { ?>
+                                <?php if ($arrayParam['params']['CONS_OVERALL'] == 1) { ?>
+                                <td class="text-center"><?php echo $economic[$key]['tc'] ?></td>
+                                <?php } ?>
+                                <?php if ($arrayParam['params']['CONS_TOTAL'] == 1) { ?>
+                                <td class="text-center"><?php echo $economic[$key]['kgProduct'] ?></td>
+                                <?php } ?>
+                                <?php if ($arrayParam['params']['CONS_SPECIFIC'] == 1) { ?>
+                                <td class="text-center"><?php echo $economic[$key]['product'] ?></td>
+                                <?php } ?>
+                                <?php if ($arrayParam['params']['CONS_HOUR'] == 1) { ?>
+                                <td class="text-center"><?php echo $economic[$key]['hour'] ?></td>
+                                <?php } ?>
+                                <?php if ($arrayParam['params']['CONS_DAY'] == 1) { ?>
+                                <td class="text-center"><?php echo $economic[$key]['day'] ?></td>
+                                <?php } ?>
+                                <?php if ($arrayParam['params']['CONS_WEEK'] == 1) { ?>
+                                <td class="text-center"><?php echo $economic[$key]['week'] ?></td>
+                                <?php } ?>
+                                <?php if ($arrayParam['params']['CONS_MONTH'] == 1) { ?>
+                                <td class="text-center"><?php echo $economic[$key]['month'] ?></td>
+                                <?php } ?>
+                                <?php if ($arrayParam['params']['CONS_YEAR'] == 1) { ?>
+                                <td class="text-center"><?php echo $economic[$key]['year'] ?></td>
+                                <?php } ?>
+                                <?php if ($arrayParam['params']['CONS_EQUIP'] == 1) { ?>
+                                <td class="text-center"><?php echo $economic[$key]['eqptPerm'] ?></td>
+                                <td class="text-center"><?php echo $economic[$key]['eqptCold'] ?></td>
+                                <?php } ?>
+                                <?php if ($arrayParam['params']['CONS_PIPE'] == 1) { ?>
+                                <td class="text-center"><?php echo $economic[$key]['linePerm'] ?></td>
+                                <td class="text-center"><?php echo $economic[$key]['lineCold'] ?></td>
+                                <?php } ?>
+                                <?php if ($arrayParam['params']['CONS_TANK'] == 1) { ?>
+                                <td class="text-center"><?php echo $economic[$key]['tank'] ?></td>
+                                <?php } ?>
                             <?php } ?>
-                            <?php if ($arrayParam['params']['CONS_TOTAL'] == 1) { ?>
-                            <td class="text-center"><?php echo $economic[$key]['kgProduct'] ?></td>
-                            <?php } ?>
-                            <?php if ($arrayParam['params']['CONS_SPECIFIC'] == 1) { ?>
-                            <td class="text-center"><?php echo $economic[$key]['product'] ?></td>
-                            <?php } ?>
-                            <?php if ($arrayParam['params']['CONS_HOUR'] == 1) { ?>
-                            <td class="text-center"><?php echo $economic[$key]['hour'] ?></td>
-                            <?php } ?>
-                            <?php if ($arrayParam['params']['CONS_DAY'] == 1) { ?>
-                            <td class="text-center"><?php echo $economic[$key]['day'] ?></td>
-                            <?php } ?>
-                            <?php if ($arrayParam['params']['CONS_WEEK'] == 1) { ?>
-                            <td class="text-center"><?php echo $economic[$key]['week'] ?></td>
-                            <?php } ?>
-                            <?php if ($arrayParam['params']['CONS_MONTH'] == 1) { ?>
-                            <td class="text-center"><?php echo $economic[$key]['month'] ?></td>
-                            <?php } ?>
-                            <?php if ($arrayParam['params']['CONS_YEAR'] == 1) { ?>
-                            <td class="text-center"><?php echo $economic[$key]['year'] ?></td>
-                            <?php } ?>
-                            <?php if ($arrayParam['params']['CONS_EQUIP'] == 1) { ?>
-                            <td class="text-center"><?php echo $economic[$key]['eqptPerm'] ?></td>
-                            <td class="text-center"><?php echo $economic[$key]['eqptCold'] ?></td>
-                            <?php } ?>
-                            <?php if ($arrayParam['params']['CONS_PIPE'] == 1) { ?>
-                            <td class="text-center"><?php echo $economic[$key]['linePerm'] ?></td>
-                            <td class="text-center"><?php echo $economic[$key]['lineCold'] ?></td>
-                            <?php } ?>
-                            <?php if ($arrayParam['params']['CONS_TANK'] == 1) { ?>
-                            <td class="text-center"><?php echo $economic[$key]['tank'] ?></td>
-                            <?php } ?>
-                        <?php } ?>
-                    </tr>
-                <?php } ?>
-            </table>
+                        </tr>
+                    <?php } ?>
+                </table>
+                </div>
             </div>
-        </div>
-        <?php } ?>
+            <?php } ?>
+            <?php if ($arrayParam['params']['REP_CONS_PIE'] == 1) {?>
+            <div class="block-title">Consumptions Pies</div>
+            <?php foreach ($consumptions as $key => $consumption) { ?>
+                <h5 class="bold"><?php echo $consumption['equipName'] ?></h5>
+                <div class="form-group text-center">
+                    <img src="<?php echo $arrayParam['host'] . "consumption/" . $arrayParam['study']['USERNAM'] . "/" . $arrayParam['study']['ID_STUDY'] . "/" . $consumption['id'] . ".png" ?>" style="max-width: 640px" />
+                </div>
+            <?php }?>
+            <?php } ?>
         <?php } ?>
 
         <?php if (($arrayParam['params']['isSizingValuesChosen'] == 1) || ($arrayParam['params']['isSizingValuesMax'] == 16) || ($arrayParam['params']['SIZING_GRAPHE'] == 1))  { ?>
