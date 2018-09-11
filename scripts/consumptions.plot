@@ -23,7 +23,7 @@ yposmax = 0.8
 xpos = 1.2
 ypos(i) = yposmax - 0.5*i
 
-set terminal png size 1366,768 font ",12" background rgb "white"
+set terminal png size 1000,670 font ",14" background rgb "white"
 set output OUTPUT
 
 #-------------------------------------------------------------------
@@ -34,7 +34,7 @@ unset tics                 # remove tics
 unset border               # remove borders; if some label is missing, comment to see what is happening
 
 set size ratio -1              # equal scale length
-set xrange [-xpos:xpos + 1.0]  
+set xrange [-1.05:xpos + 0.8]  
 set yrange [-radius:radius] 
 
 
@@ -48,7 +48,7 @@ set multiplot
 # 2nd line: draw colored boxes at (xpos):(ypos)
 # 3rd line: place labels at (xpos+offset):(ypos)
 plot DATAFILE u (centerX):(centerY):(radius):(pos):(pos=pos+angle($2)):(colour=colour+1) every ::rowi::rowf w circle lc var,\
-     for [i=0:rowf-rowi] '+' u (xpos):(ypos(i)) w p pt 5 ps 4 lc i+3,\
+     for [i=0:rowf-rowi] '+' u (xpos):(ypos(i)) w p pt 5 ps 4 lc i+4,\
      for [i=0:rowf-rowi] DATAFILE u (xpos):(ypos(i)):(sprintf('%s %.1f%%', stringcolumn(1), $2)) every ::i+rowi::i+rowi w labels left offset 3,0
      
 plot DATAFILE u (mid=Bi+angle($2)*pi/360.0, Bi=2.0*mid-Bi, 0.5*cos(mid)):(0.5*sin(mid)):2 every ::1 w labels     
