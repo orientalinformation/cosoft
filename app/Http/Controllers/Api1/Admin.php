@@ -348,8 +348,8 @@ class Admin extends Controller
     public function units()
     {
         $monetary = MonetaryCurrency::get();
-        $kernelMonetary = MonetaryCurrency::select('monetary_currency.*')
-                        ->join('LN2USER', 'monetary_currency.ID_MONETARY_CURRENCY', '=', 'LN2USER.ID_MONETARY_CURRENCY')
+        $kernelMonetary = MonetaryCurrency::select('MONETARY_CURRENCY.*')
+                        ->join('LN2USER', 'MONETARY_CURRENCY.ID_MONETARY_CURRENCY', '=', 'LN2USER.ID_MONETARY_CURRENCY')
                         ->where('LN2USER.USERNAM', 'KERNEL')->first();
         $units = $this->unit->tmUnitTypeMapping();
         $listUnit = [];
