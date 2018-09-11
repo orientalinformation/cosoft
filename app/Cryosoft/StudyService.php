@@ -454,11 +454,11 @@ class StudyService
             if ($this->calculator->isStudyHasChilds($id) || $study->CHAINING_ADD_COMP_ENABLE != 1) {
                 $bret = false;
             } else {
-                if ($this->pack->isTopPackInParent(Study &$study)) {
+                if ($this->pack->isTopPackInParent($study)) {
                     $bret = false;
                 }
 
-                if ($this->pack->isSidePackInParent(Study &$study)) {
+                if ($this->pack->isSidePackInParent($study)) {
                     switch ($shape) {
                         case 1:
                         case 3:
@@ -473,7 +473,7 @@ class StudyService
 
                 }
 
-                if ($this->pack->isBottomPackInParent(Study &$study)) {
+                if ($this->pack->isBottomPackInParent($study)) {
                     switch ($shape) {
                         case 3:
                         case 5:
