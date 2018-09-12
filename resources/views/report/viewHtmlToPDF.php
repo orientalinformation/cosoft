@@ -972,17 +972,17 @@
                 <?php if ($resproSections['selectedAxe'] == 1) {?> 
                 Graphic - Dimension <?php echo $resproSections['selectedAxe'] . "(" . "*," . $resproSections['axeTemp'][0] . "," . $resproSections['axeTemp'][1] . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?> 
                 <p> 
-                    <img src="<?php echo $arrayParam['host'] . "/productSection/" . $arrayParam['study']['USERNAM'] . "/" .  $resproSections['idStudyEquipment'] . "-" . $resproSections['selectedAxe'] . ".png" ?>" style="max-width: 640px">
+                    <img src="<?php echo $arrayParam['host'] . "productSection/" . $arrayParam['study']['USERNAM'] . "/" .  $resproSections['idStudyEquipment'] . "-" . $resproSections['selectedAxe'] . ".png" ?>" style="max-width: 640px">
                     <?php } else if ($resproSections['selectedAxe'] == 2) { ?>
                 </p>
                 Graphic - Dimension <?php echo $resproSections['selectedAxe'] . "(" . $resproSections['axeTemp'][0] . ",*," . $resproSections['axeTemp'][1] . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?>  
                 <p>
-                    <img src="<?php echo $arrayParam['host'] . "/productSection/" . $arrayParam['study']['USERNAM'] . "/" .  $resproSections['idStudyEquipment'] . "-" . $resproSections['selectedAxe'] . ".png" ?>" style="max-width: 640px">
+                    <img src="<?php echo $arrayParam['host'] . "productSection/" . $arrayParam['study']['USERNAM'] . "/" .  $resproSections['idStudyEquipment'] . "-" . $resproSections['selectedAxe'] . ".png" ?>" style="max-width: 640px">
                     <?php } else if ($resproSections['selectedAxe'] == 3) {?>
                 </p>
                 Graphic - Dimension <?php echo $resproSections['selectedAxe'] . "(" . $resproSections['axeTemp'][0] . "," . $resproSections['axeTemp'][1] . ",*" . ")" . "(" . $resproSections['prodchartDimensionSymbol'] . ")" ?>  
                 <p>
-                    <img src="<?php echo $arrayParam['host'] . "/productSection/" . $arrayParam['study']['USERNAM'] . "/" .  $resproSections['idStudyEquipment'] . "-" . $resproSections['selectedAxe'] . ".png" ?>" style="max-width: 640px">
+                    <img src="<?php echo $arrayParam['host'] . "productSection/" . $arrayParam['study']['USERNAM'] . "/" .  $resproSections['idStudyEquipment'] . "-" . $resproSections['selectedAxe'] . ".png" ?>" style="max-width: 640px">
                     <?php } ?>
                 </p>
                 </div>
