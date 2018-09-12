@@ -1161,7 +1161,7 @@ class ReportService
                     break;
             }
 
-            $inpFile = $this->plotFolder3D . '/MeshBuilder3D/' . $prodFolder . '/' . $stdeqpFolder . '/' . $inpFileName;
+            // $inpFile = $this->plotFolder3D . '/MeshBuilder3D/' . $prodFolder . '/' . $stdeqpFolder . '/' . $inpFileName;
             
             $data = file_get_contents($this->plotFolder3D . '/MeshBuilder3D/' . $prodFolder . '/' . $stdeqpFolder . '/' . $inpFileName);
 
@@ -1188,10 +1188,10 @@ class ReportService
             $lfTS = $labelArr[$nbRecord - 1];
             $lfStep = $labelArr[1] - $labelArr[0];
             $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
-            /*foreach ($lEchantillon as $row) {
+            foreach ($lEchantillon as $row) {
                 $resultLabel[] = $labelArr[$row];
-            }*/
-            $resultLabel = $labelArr;
+            }
+            // $resultLabel = $labelArr;
 
             
             unset($dataArr[0]);
@@ -1212,11 +1212,36 @@ class ReportService
                 unset($recordPos[0]);
                 $recordPosValue = $recordPos;
                 $recordPosValue = array_values($recordPosValue);
-                /*foreach ($lEchantillon as $row) {
+                foreach ($lEchantillon as $row) {
                     $resultValue[$key][] = $recordPosValue[$row];
-                }*/
-                $resultValue[$key] = $recordPosValue;
+                }
+                // $resultValue[$key] = $recordPosValue;
             }
+
+            $f = fopen("/tmp/productSection.inp", "w");
+
+            $dataLabel = '';
+            fputs($f, '"X" ');
+            foreach ($resultLabel as $row) {
+                $dataLabel .= '"Temperature T' . $row . '(' . $this->unit->timeSymbol() . ')' . '"' . ' ';
+            } 
+
+            fputs($f, $dataLabel);
+            fputs($f, "\n");
+
+            $i = 0;
+            foreach ($resultValue as $key => $row) {
+                $dataValue = '';
+                $dataValue = $mesAxis[$key] . ' ';
+                foreach ($row as $value) {
+                    $dataValue .= $value . ' ';
+                }
+                fputs($f, $dataValue);
+                fputs($f, "\n");
+                $i++;
+            }
+            fclose($f);
+            $inpFile = "/tmp/productSection.inp";
         }
         
         system('gnuplot -c '. $this->plotFolder .'/productSection.plot "('. $this->unit->temperatureSymbol() .')" "('. $this->unit->prodchartDimensionSymbol() .')" "'. $productSectionFolder . '/' . $userName .'" "'. $fileName .'" '. $inpFile .'');

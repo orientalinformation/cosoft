@@ -54,7 +54,6 @@ class Productions extends Controller
     public function saveProduction($id) 
     {
         $update = (object) $this->request->json()->all();
-        // @var \App\Models\Production
         $production = \App\Models\Production::findOrFail($id);
 
         $production->DAILY_PROD             = $update->DAILY_PROD;
