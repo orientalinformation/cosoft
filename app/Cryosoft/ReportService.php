@@ -755,6 +755,58 @@ class ReportService
         return $result;
     }
 
+    public function drawConsumptionPie($idStudyEquipment)
+    {
+        $input = $this->request->all();
+        $studyEquipment = StudyEquipment::findOrFail($idStudyEquipment);
+        $study = $studyEquipment->study;
+        $idStudy = $study->ID_STUDY;
+
+        $percentProduct = $input['percentProduct'];
+        $percentEquipmentPerm = $input['percentEquipmentPerm'];
+        $percentEquipmentDown = $input['percentEquipmentDown'];
+        $percentLine = $input['percentLine'];
+        $percentProductLabel = $input['percentProductLabel'];
+        $percentEquipmentPermLabel = $input['percentEquipmentPermLabel'];
+        $percentEquipmentDownLabel = $input['percentEquipmentDownLabel'];
+        $percentLineLabel = $input['percentLineLabel'];
+
+        $f = fopen("/tmp/consumptionPie.inp", "w");
+        fputs($f, 'name percent' . "\n");
+        fputs($f, '"'. $percentProductLabel .'" '. $percentProduct .'' . "\n");
+        fputs($f, '"'. $percentEquipmentPermLabel .'" '. $percentEquipmentPerm .'' . "\n");
+        fputs($f, '"'. $percentEquipmentDownLabel .'" '. $percentEquipmentDown .'' . "\n");
+        if ($percentLine > 0) {
+            fputs($f, '"'. $percentLineLabel .'" '. $percentLine .'' . "\n");
+        }
+        
+        fclose($f);
+
+        $folder = $this->output->public_path('consumption');
+
+        $userName = $study->USERNAM;
+        if (!is_dir($folder)) {
+            mkdir($folder, 0777);
+        }
+
+        if (!is_dir($folder . '/' . $userName)) {
+            mkdir($folder . '/' . $userName, 0777);
+        }
+
+        if (!is_dir($folder . '/' . $userName . '/' . $idStudy)) {
+            mkdir($folder . '/' . $userName . '/' . $idStudy, 0777);
+        }
+
+        $outPutFolder = $folder . '/' . $userName . '/' . $idStudy;
+        $outPutFileName = $idStudyEquipment;
+        
+        system('gnuplot -c '. $this->plotFolder .'/consumptions.plot "/tmp/consumptionPie.inp" "'. $outPutFolder . '" "'. $outPutFileName .'" ');
+
+        $image = getenv('APP_URL') . 'consumption/' . $userName . '/' . $idStudy . '/' . $idStudyEquipment . '.png?time=' . time();
+
+        return $image;
+    }
+
     public function getAnalyticalEconomic($idStudy)
     {
         $study = Study::find($idStudy);
@@ -868,7 +920,7 @@ class ReportService
         return compact("prodFlowRate", "prodElmtRealweight", "avgTInitial");
     }
 
-    public function heatExchange($idStudy, $idStudyEquipment) 
+    public function heatExchange($nbSample, $idStudy, $idStudyEquipment) 
     {
         // $idStudyEquipment = StudyEquipment::where('ID_STUDY', $idStudy)->get();
         $listRecordPos = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("RECORD_TIME", "ASC")->get();
@@ -881,9 +933,6 @@ class ReportService
 
             $curve[] = $item;
         }
-
-        $nbSteps = TempRecordPts::where("ID_STUDY", $idStudy)->first();
-        $nbSample = $nbSteps->NB_STEPS;
 
         $nbRecord = count($listRecordPos);
         $equipName = $this->equip->getResultsEquipName($idStudyEquipment);
@@ -924,7 +973,7 @@ class ReportService
         return compact("result", "equipName", "idStudyEquipment");
     }
 
-    public function productSection($idStudy, $idStudyEquipment, $selectedAxe)
+    public function productSection($nbSample, $axeTempRecordData, $idStudy, $idStudyEquipment, $selectedAxe)
     {
         $productElmt = ProductElmt::where('ID_STUDY', $idStudy)->first();
         $shape = $productElmt->SHAPECODE;
@@ -952,41 +1001,41 @@ class ReportService
         $resultLabel = [];
         $resultTemperature = [];
 
-        $selPoints = $this->output->getSelectedMeshPoints($idStudy);
-        if (empty($selPoints)) {
-            $selPoints = $this->output->getMeshSelectionDef();
-        }
-
-        $axeTempRecordData = [];
-        if (!empty($selPoints)) {
-            $axeTempRecordData = [
-                [-1.0, $selPoints[9], $selPoints[10]],
-                [$selPoints[11], -1.0, $selPoints[12]],
-                [$selPoints[13], $selPoints[14], -1.0]
-            ];
-        }
         $axeTemp = [];
         switch ($selectedAxe) {
             case 1:
-                array_push($axeTemp, $this->unit->prodchartDimension($selPoints[9]));
-                array_push($axeTemp, $this->unit->prodchartDimension($selPoints[10]));
+                if ($shape <= 9) {
+                    array_push($axeTemp, $this->unit->prodchartDimension($axeTempRecordData[0][1]));
+                    array_push($axeTemp, $this->unit->prodchartDimension($axeTempRecordData[0][2]));
+                } else {
+                    array_push($axeTemp, $axeTempRecordData[0][1]);
+                    array_push($axeTemp, $axeTempRecordData[0][2]);
+                }
                 break;
 
             case 2:
-                array_push($axeTemp, $this->unit->prodchartDimension($selPoints[11]));
-                array_push($axeTemp, $this->unit->prodchartDimension($selPoints[12]));
+                if ($shape <= 9) {
+                    array_push($axeTemp, $this->unit->prodchartDimension($axeTempRecordData[1][0]));
+                    array_push($axeTemp, $this->unit->prodchartDimension($axeTempRecordData[1][2]));
+                } else {
+                    array_push($axeTemp, $axeTempRecordData[1][0]);
+                    array_push($axeTemp, $axeTempRecordData[1][2]);
+                }
                 break;
 
             case 3:
-                array_push($axeTemp, $this->unit->prodchartDimension($selPoints[13]));
-                array_push($axeTemp, $this->unit->prodchartDimension($selPoints[14]));
+                if ($shape <= 9) {
+                    array_push($axeTemp, $this->unit->prodchartDimension($axeTempRecordData[2][0]));
+                    array_push($axeTemp, $this->unit->prodchartDimension($axeTempRecordData[2][1]));
+                } else {
+                    array_push($axeTemp, $axeTempRecordData[2][0]);
+                    array_push($axeTemp, $axeTempRecordData[2][1]);
+                }
                 break;
         }
 
         if ($shape < 10) {
             $listRecordPos = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("RECORD_TIME", "ASC")->get();
-            $nbSteps = TempRecordPts::where("ID_STUDY", $idStudy)->first();
-            $nbSample = $nbSteps->NB_STEPS;
 
             $nbRecord = count($listRecordPos);
 
@@ -1182,8 +1231,6 @@ class ReportService
                 $labelArr
             );
 
-            $nbSteps = TempRecordPts::where("ID_STUDY", $idStudy)->first();
-            $nbSample = $nbSteps->NB_STEPS;
             $nbRecord = count($labelArr);
             $lfTS = $labelArr[$nbRecord - 1];
             $lfStep = $labelArr[1] - $labelArr[0];
@@ -1192,7 +1239,6 @@ class ReportService
                 $resultLabel[] = $labelArr[$row];
             }
             // $resultLabel = $labelArr;
-
             
             unset($dataArr[0]);
             $listRecordPos = $dataArr;
@@ -1255,7 +1301,7 @@ class ReportService
          "idStudyEquipment");
     }
 
-    public function timeBased($idStudy, $idStudyEquipment)
+    public function timeBased($nbSample, $axisTemp, $idStudy, $idStudyEquipment)
     {
         $study = Study::find($idStudy);
         $userName = $study->USERNAM;
@@ -1272,11 +1318,8 @@ class ReportService
             mkdir($timeBasedFolder . '/' . $userName, 0777);
         }
 
-        $tempRecordPts = TempRecordPts::where("ID_STUDY", $idStudy)->first();
-        $nbSample = $tempRecordPts->NB_STEPS;
-
         if ($shape < 10) {
-            $listRecordPos = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->get();
+            $listRecordPos = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy('RECORD_TIME')->get();
             $result = array();
             $label = array();
             $curve = array();
@@ -1306,14 +1349,13 @@ class ReportService
                     $curve["average"][] = $itemCurveAverage;
                 }
                 
-                
-
                 $nbRecord = count($listRecordPos);
 
                 $lfTS = $listRecordPos[$nbRecord - 1]->RECORD_TIME;
                 $lfStep = $listRecordPos[1]->RECORD_TIME - $listRecordPos[0]->RECORD_TIME;
 
                 $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
+                $item = [];
                 foreach ($lEchantillon as $row) {
                     $recordPos = $listRecordPos[$row];
                     $item["points"] = $this->unit->time($recordPos->RECORD_TIME);
@@ -1334,11 +1376,11 @@ class ReportService
                     $result[] = $item; 
                 }
                 
-                $label["top"] = $this->unit->meshesUnit($tempRecordPts->AXIS1_PT_TOP_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_TOP_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_TOP_SURF);
+                $label["top"] = $this->unit->meshesUnit($axisTemp['POINT1_X']) . "," . $this->unit->meshesUnit($axisTemp['POINT1_Y']) . "," . $this->unit->meshesUnit($axisTemp['POINT1_Z']);
 
-                $label["int"] = $this->unit->meshesUnit($tempRecordPts->AXIS1_PT_INT_PT) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_INT_PT) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_INT_PT);
+                $label["int"] = $this->unit->meshesUnit($axisTemp['POINT2_X']) . "," . $this->unit->meshesUnit($axisTemp['POINT2_Y']) . "," . $this->unit->meshesUnit($axisTemp['POINT2_Z']);
 
-                $label["bot"] = $this->unit->meshesUnit($tempRecordPts->AXIS1_PT_BOT_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS2_PT_BOT_SURF) . "," . $this->unit->meshesUnit($tempRecordPts->AXIS3_PT_BOT_SURF);
+                $label["bot"] = $this->unit->meshesUnit($axisTemp['POINT3_X']) . "," . $this->unit->meshesUnit($axisTemp['POINT3_Y']) . "," . $this->unit->meshesUnit($axisTemp['POINT3_Z']);
             }
             
             $inpFile = '/tmp/timeBased.inp';
@@ -1407,12 +1449,13 @@ class ReportService
                 $recordPos = array_filter($recordPos);
                 
                 $i = 0;
+                $item = [];
                 foreach ($recordPos as $record) {
-                    $item["points"] = $this->unit->time($recordPos[0]);
-                    $item["top"] =  $this->unit->prodTemperature($recordPos[1]);
-                    $item["int"] =  $this->unit->prodTemperature($recordPos[2]);
-                    $item["bot"] =  $this->unit->prodTemperature($recordPos[3]);
-                    $item["average"] =  $this->unit->prodTemperature($recordPos[4]);
+                    $item["points"] = $recordPos[0];
+                    $item["top"] =  $recordPos[1];
+                    $item["int"] =  $recordPos[2];
+                    $item["bot"] =  $recordPos[3];
+                    $item["average"] =  $recordPos[4];
                     $i++;
                 }
 
