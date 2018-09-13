@@ -1160,7 +1160,6 @@ class ReportService
                 $resultTemperature[] = $item;
             }
 
-            $result = [];
             $resultValue = [];
 
             foreach ($resultTemperature as $row) {
@@ -1170,6 +1169,7 @@ class ReportService
             }
             
             $f = fopen("/tmp/productSection.inp", "w");
+
             $dataLabel = '';
             fputs($f, '"X" ');
             foreach ($resultLabel as $row) {
@@ -1182,7 +1182,7 @@ class ReportService
             $i = 0;
             foreach ($resultValue as $key => $row) {
                 $dataValue = '';
-                $dataValue = $i . ' ';
+                $dataValue = $mesAxis[$key] . ' ';
                 foreach ($row as $value) {
                     $dataValue .= $value . ' ';
                 }
@@ -1190,7 +1190,6 @@ class ReportService
                 fputs($f, "\n");
                 $i++;
             }
-
             fclose($f);
             $inpFile = "/tmp/productSection.inp";
         } else {

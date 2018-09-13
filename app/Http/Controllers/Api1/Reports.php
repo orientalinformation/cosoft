@@ -927,7 +927,7 @@ class Reports extends Controller
                 switch ($shapeCode) {
                     case 1:
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
-                            $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                            $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                             $progress .= "\nProduct Section";
                             $this->writeProgressFile($progressFile, $progress);
                         }
@@ -942,8 +942,8 @@ class Reports extends Controller
                             } 
 
                             if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
-                                $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
-                                $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                                $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                                $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
                                 $progress .= "\nProduct Section";
                                 $this->writeProgressFile($progressFile, $progress);
                             }
@@ -955,8 +955,8 @@ class Reports extends Controller
                             }
 
                             if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
-                                $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
-                                $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                                $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                                $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                                 $progress .= "\nProduct Section";
                                 $this->writeProgressFile($progressFile, $progress);
                             }
@@ -968,8 +968,8 @@ class Reports extends Controller
                     case 7:
                     case 8:
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
-                            $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
-                            $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                            $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                            $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                             $progress .= "\nProduct Section";
                             $this->writeProgressFile($progressFile, $progress);
                         }
@@ -983,7 +983,7 @@ class Reports extends Controller
 
                     case 6:
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
-                            $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                            $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                             $progress .= "\nProduct Section";
                             $this->writeProgressFile($progressFile, $progress);
                         }
@@ -991,8 +991,8 @@ class Reports extends Controller
 
                     case 9:
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
-                            $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
-                            $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                            $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                            $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                             $progress .= "\nProduct Section";
                             $this->writeProgressFile($progressFile, $progress);
                         }
@@ -1014,8 +1014,8 @@ class Reports extends Controller
 
                     case 3: 
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
-                            $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
-                            $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                            $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                            $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                             $progress .= "\nProduct Section";
                             $this->writeProgressFile($progressFile, $progress);
                         }
@@ -1034,9 +1034,9 @@ class Reports extends Controller
                     case OVAL_STANDING_3D:
                     case OVAL_LAYING_3D:
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
-                            $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
-                            $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
-                            $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                            $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                            $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                            $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
                             $progress .= "\nProduct Section";
                             $this->writeProgressFile($progressFile, $progress);
                         }
@@ -1051,9 +1051,9 @@ class Reports extends Controller
 
                     default:
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
-                            $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
-                            $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
-                            $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                            $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                            $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                            $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
                             $progress .= "\nProduct Section";
                             $this->writeProgressFile($progressFile, $progress);
                         }
@@ -2894,7 +2894,7 @@ class Reports extends Controller
                 switch ($shapeCode) {
                     case 1:
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
-                            $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                            $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                             $progress .= "\nProduct Section";
                             $this->writeProgressFile($progressFile, $progress);
                         }
@@ -2910,8 +2910,8 @@ class Reports extends Controller
                             } 
 
                             if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
-                                $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
-                                $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                                $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                                $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
                                 $progress .= "\nProduct Section";
                                 $this->writeProgressFile($progressFile, $progress);
                             }
@@ -2923,8 +2923,8 @@ class Reports extends Controller
                             }
 
                             if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
-                                $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
-                                $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                                $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                                $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                                 $progress .= "\nProduct Section";
                                 $this->writeProgressFile($progressFile, $progress);
                             }
@@ -2936,8 +2936,8 @@ class Reports extends Controller
                     case 7:
                     case 8:
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
-                            $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
-                            $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                            $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                            $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                             $progress .= "\nProduct Section";
                             $this->writeProgressFile($progressFile, $progress);
                         }
@@ -2951,7 +2951,7 @@ class Reports extends Controller
 
                     case 6:
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
-                            $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                            $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                             $progress .= "\nProduct Section";
                             $this->writeProgressFile($progressFile, $progress);
                         }
@@ -2959,8 +2959,8 @@ class Reports extends Controller
 
                     case 9:
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
-                            $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
-                            $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                            $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                            $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                             $progress .= "\nProduct Section";
                             $this->writeProgressFile($progressFile, $progress);
                         }
@@ -2983,8 +2983,8 @@ class Reports extends Controller
 
                     case 3: 
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
-                            $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
-                            $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                            $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                            $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
                             $progress .= "\nProduct Section";
                             $this->writeProgressFile($progressFile, $progress);
                         }
@@ -3003,9 +3003,9 @@ class Reports extends Controller
                     case OVAL_STANDING_3D:
                     case OVAL_LAYING_3D:
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
-                            $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
-                            $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
-                            $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                            $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                            $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                            $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
                             $progress .= "\nProduct Section";
                             $this->writeProgressFile($progressFile, $progress);
                         }
@@ -3020,9 +3020,9 @@ class Reports extends Controller
 
                     default:
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
-                            $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
-                            $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
-                            $proSections[] = $this->reportserv->productSection($ISOVALUE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
+                            $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 1);
+                            $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 2);
+                            $proSections[] = $this->reportserv->productSection($ISOCHRONE_SAMPLE, $axeTempRecordData, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS, 3);
                             $progress .= "\nProduct Section";
                             $this->writeProgressFile($progressFile, $progress);
                         }
