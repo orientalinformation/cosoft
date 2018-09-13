@@ -2209,11 +2209,11 @@ class Output extends Controller
                 
                 $i = 0;
                 foreach ($recordPos as $record) {
-                    $item["points"] = $this->unit->time($recordPos[0]);
-                    $item["top"] =  $this->unit->prodTemperature($recordPos[1]);
-                    $item["int"] =  $this->unit->prodTemperature($recordPos[2]);
-                    $item["bot"] =  $this->unit->prodTemperature($recordPos[3]);
-                    $item["average"] =  $this->unit->prodTemperature($recordPos[4]);
+                    $item["points"] = $recordPos[0];
+                    $item["top"] =  $recordPos[1];
+                    $item["int"] =  $recordPos[2];
+                    $item["bot"] =  $recordPos[3];
+                    $item["average"] =  $recordPos[4];
                     $i++;
                 }
 
