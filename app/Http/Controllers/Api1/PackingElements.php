@@ -54,7 +54,8 @@ class PackingElements extends Controller
         $item = $elmts = array();
         $packingElmts = PackingElmt::join('TRANSLATION', 'PACKING_ELMT.ID_PACKING_ELMT', '=', 'TRANSLATION.ID_TRANSLATION')
                         ->where('TRANSLATION.TRANS_TYPE', 3)->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
-                        ->groupBy('PACKING_ELMT.ID_PACKING_ELMT')->get();
+                        ->groupBy('PACKING_ELMT.ID_PACKING_ELMT')
+                        ->orderBy('LABEL', 'ASC')->get();
 
         if (count($packingElmts) > 0) {
             foreach ($packingElmts as $elmt) {
