@@ -1681,12 +1681,9 @@ class Output extends Controller
         $lEchantillon = $this->output->calculateEchantillon($nbSample, $nbRecord, $lfTS, $lfStep);
 
         foreach ($lEchantillon as $row) {
-
             $recordPos = $listRecordPos[$row];
-
             $itemResult["x"] = $this->unit->time($recordPos->RECORD_TIME);
             $itemResult["y"] = $this->unit->enthalpy($recordPos->AVERAGE_ENTH_VAR);
-
             $result[] = $itemResult;
         }
 
@@ -1706,7 +1703,6 @@ class Output extends Controller
         }
 
         system('gnuplot -c '. $this->plotFolder . '/heatExchange.plot "('. $this->unit->timeSymbol() .')" "('. $this->unit->enthalpySymbol() .')" "'. $heatExchangeFolder . '/' . $userName .'" '. $idStudyEquipment .' "Enthapy" '. $inpFile .'');
-
         $imageHeatExchange = getenv('APP_URL') . 'heatExchange/' . $userName . '/' . $idStudyEquipment . '.png?time=' . time();
 
         return compact("result", "curve", "imageHeatExchange");
@@ -2002,19 +1998,21 @@ class Output extends Controller
             $mesAxis = [];           
             $resultValue = [];
             foreach ($listRecordPos as $key => $value) {
-                $recordPos = trim($listRecordPos[$key]);
-                $recordPos = preg_replace("/\s+/u", " ", $recordPos);
-                $recordPos = explode(' ', $recordPos);
-                $recordPos = array_filter($recordPos);
+                if (isset($listRecordPos[$key])) {
+                    $recordPos = trim($listRecordPos[$key]);
+                    $recordPos = preg_replace("/\s+/u", " ", $recordPos);
+                    $recordPos = explode(' ', $recordPos);
+                    $recordPos = array_filter($recordPos);
 
-                $mesAxis[] = $recordPos[0];
-                unset($recordPos[0]);
-                $recordPosValue = $recordPos;
-                $recordPosValue = array_values($recordPosValue);
-                foreach ($lEchantillon as $row) {
-                    $resultValue[$key][] = $recordPosValue[$row];
+                    $mesAxis[] = $recordPos[0];
+                    unset($recordPos[0]);
+                    $recordPosValue = $recordPos;
+                    $recordPosValue = array_values($recordPosValue);
+                    foreach ($lEchantillon as $row) {
+                        $resultValue[$key][] = $recordPosValue[$row];
+                    }
+                    // $resultValue[$key] = $recordPosValue;
                 }
-                // $resultValue[$key] = $recordPosValue;
             }
 
             $f = fopen("/tmp/productSection.inp", "w");

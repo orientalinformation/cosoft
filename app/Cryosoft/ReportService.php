@@ -1249,19 +1249,21 @@ class ReportService
             $mesAxis = [];           
             $resultValue = [];
             foreach ($listRecordPos as $key => $value) {
-                $recordPos = trim($listRecordPos[$key]);
-                $recordPos = preg_replace("/\s+/u", " ", $recordPos);
-                $recordPos = explode(' ', $recordPos);
-                $recordPos = array_filter($recordPos);
+                if (isset($listRecordPos[$key])) {
+                    $recordPos = trim($listRecordPos[$key]);
+                    $recordPos = preg_replace("/\s+/u", " ", $recordPos);
+                    $recordPos = explode(' ', $recordPos);
+                    $recordPos = array_filter($recordPos);
 
-                $mesAxis[] = $recordPos[0];
-                unset($recordPos[0]);
-                $recordPosValue = $recordPos;
-                $recordPosValue = array_values($recordPosValue);
-                foreach ($lEchantillon as $row) {
-                    $resultValue[$key][] = $recordPosValue[$row];
+                    $mesAxis[] = $recordPos[0];
+                    unset($recordPos[0]);
+                    $recordPosValue = $recordPos;
+                    $recordPosValue = array_values($recordPosValue);
+                    foreach ($lEchantillon as $row) {
+                        $resultValue[$key][] = $recordPosValue[$row];
+                    }
+                    // $resultValue[$key] = $recordPosValue;
                 }
-                // $resultValue[$key] = $recordPosValue;
             }
 
             $f = fopen("/tmp/productSection.inp", "w");
