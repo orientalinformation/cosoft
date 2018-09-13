@@ -52,13 +52,15 @@ class PackingElements extends Controller
     public function findPackingElements() 
     {    
         $item = $elmts = array();
-        $packingElmts = PackingElmt::where('PACKING_RELEASE', 3)
-                                   ->orWhere('PACKING_RELEASE', 4)->get();
+        $packingElmts = PackingElmt::where('PACKING_RELEASE', 3)->orWhere('PACKING_RELEASE', 4)
+                        ->join('TRANSLATION', 'ID_PACKING_ELMT', '=', 'TRANSLATION.ID_TRANSLATION')
+                        ->where('TRANSLATION.TRANS_TYPE', 3)->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)->get();
         if (count($packingElmts) > 0) {
             foreach ($packingElmts as $elmt) {
                 $item['ID_PACKING_ELMT'] = $elmt->ID_PACKING_ELMT;
                 $item['PACKING_VERSION'] = $elmt->PACKING_VERSION;
                 $item['PACKING_RELEASE'] = $elmt->PACKING_RELEASE;
+                $item['PACKING_NAME'] = $elmt->LABEL;
 
                 if ($elmt->PACKING_RELEASE == 3) {
                     $item['PACKING_TYPE'] = 'Active';
