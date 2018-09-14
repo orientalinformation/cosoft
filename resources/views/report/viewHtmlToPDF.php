@@ -235,7 +235,17 @@
                         <?php } ?>
                         <td class="text-center"><?php echo $arrayParam['productRealW'] ?></td>
                         <td class="text-center"><?php echo $arrayParam['product']->PROD_ISO == 1 ? "YES" : "NO" ?></td>
-                        <td class="text-center"><?php echo $arrayParam['productionINTL'] ?></td>
+                        <td class="text-center">
+                            <?php 
+                                if ($arrayParam['product']->PROD_ISO == 0) {
+                                    echo 'Non-isothermal';
+                                } elseif ($arrayParam['product']->PROD_ISO == 1 && $meshView['productIsoTemp'] == NULL) {
+                                    echo 'Undefined';
+                                } elseif ($arrayParam['product']->PROD_ISO == 1 && $meshView['productIsoTemp'] != NULL) {
+                                    echo $meshView['productIsoTemp'];
+                                }
+                            ?>
+                        </td>
                     </tr>
                 </table>
             </div>
@@ -255,8 +265,12 @@
                     <?php foreach($productComps as $key => $resproductComps) { 
                         $prodElmIso = '';
                         if (!($arrayParam['study']['CHAINING_CONTROLS'] && $arrayParam['study']['PARENT_ID'] != 0 && $resproductComps['INSERT_LINE_ORDER'] != $arrayParam['study']['ID_STUDY'])) {
-                            if ($resproductComps['PROD_ELMT_ISO'] != 1) {
-                                $prodElmIso = 'Non-isothermal';
+                            if ($resproductComps['PROD_ELMT_ISO'] != 1 && $meshView['productElmtInitTemp'][$key] == NULL) {
+                                $prodElmIso = 'Undefined';
+                            }
+
+                            if ($resproductComps['PROD_ELMT_ISO'] != 1 && $meshView['productElmtInitTemp'][$key] != NULL) {
+                                $prodElmIso = $meshView['productElmtInitTemp'][$key];
                             }
                         } else {
                             $prodElmIso = 'Non-isothermal';
@@ -268,8 +282,8 @@
                         <td class="text-center"><?php echo $resproductComps['dim'] ?></td>
                         <td class="text-center"><?php echo $resproductComps['mass'] ?></td>
                         <td class="text-center"><?php echo ($resproductComps['PROD_ELMT_ISO'] == 0) ? "YES" : "NO" ?></td>
-                        <td class="text-center"><?php if ($arrayParam['study']['HAS_CHILD'] != 0) echo $resproductComps['studyNumber'] ?></td>
-                        <td class="text-center"><?php if ($arrayParam['study']['HAS_CHILD'] != 0) echo $prodElmIso ?></td>
+                        <td class="text-center"><?php echo $resproductComps['studyNumber'] ?></td>
+                        <td class="text-center"><?php echo $prodElmIso ?></td>
                     </tr>
                     <?php } ?>
                 </table>

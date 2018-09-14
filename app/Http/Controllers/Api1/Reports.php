@@ -716,6 +716,7 @@ class Reports extends Controller
         }
         
         $product = Product::Where('ID_STUDY', $id)->first();
+        $meshView = $this->reportserv->getMeshView($product);
         $products = ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2', 'DESC')->get();
 
         $specificDimension = 0.0;
@@ -1370,11 +1371,18 @@ class Reports extends Controller
                             <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM1) .'</td>
                             <td align="center">'. $specificDimension .' </td>
                             ';
-                        } 
+                        }
+                        if ($product->PROD_ISO == 0) {
+                            $initial = 'Non-isothermal';
+                        } elseif ($product->PROD_ISO == 1 && $meshView['productIsoTemp'] == NULL) {
+                            $initial = 'Undefined';
+                        } elseif ($product->PROD_ISO == 1 && $meshView['productIsoTemp'] != NULL) {
+                            $initial = $meshView['productIsoTemp'];
+                        }
                         $html .='
                         <td align="center">'. $this->convert->mass($product->PROD_REALWEIGHT) .' </td>
                         <td align="center">'. ($product->PROD_ISO == 1 ? 'YES' : 'NO') .' </td>
-                        <td align="center">'. $this->convert->prodTemperature($production->AVG_T_INITIAL) .' </td>
+                        <td align="center">'. $initial .' </td>
                     </tr>
                 </table>
             </div>
@@ -1393,21 +1401,24 @@ class Reports extends Controller
                         foreach($productComps as $resproductComps) { 
                             $prodElmIso = '';
                             $studyNumber = '';
-                            if ($study['HAS_CHILD'] != 0) {
-                                if (!($study['CHAINING_CONTROLS'] && $study['PARENT_ID'] != 0 && $resproductComps['INSERT_LINE_ORDER'] != $study['ID_STUDY'])) {
-                                    if ($resproductComps['PROD_ELMT_ISO'] != 1) {
-                                        $prodElmIso = 'Non-isothermal';
-                                    }
-                                } else {
-                                    $prodElmIso = 'Non-isothermal';
+
+                            if (!($study['CHAINING_CONTROLS'] && $study['PARENT_ID'] != 0 && $resproductComps['INSERT_LINE_ORDER'] != $study['ID_STUDY'])) {
+                                if ($resproductComps['PROD_ELMT_ISO'] != 1 && $meshView['productElmtInitTemp'][$key] == NULL) {
+                                    $prodElmIso = 'Undefined';
                                 }
 
-                                if ($resproductComps['PROD_ISO'] == 0 && $resproductComps['PROD_ELMT_ISO'] == 1) {
-                                    $studyNumber = '';
-                                } else {
-                                    $studyNumber = $resproductComps['studyNumber'];
+                                if ($resproductComps['PROD_ELMT_ISO'] != 1 && $meshView['productElmtInitTemp'][$key] != NULL) {
+                                    $prodElmIso = $meshView['productElmtInitTemp'][$key];
                                 }
+                            } else {
+                                $prodElmIso = 'Non-isothermal';
                             }
+
+                            /*if ($resproductComps['PROD_ISO'] == 0 && $resproductComps['PROD_ELMT_ISO'] == 1) {
+                                $studyNumber = '';
+                            } else {
+                                $studyNumber = $resproductComps['studyNumber'];
+                            }*/
                             
                         $html .= '
                         <tr>
@@ -1416,7 +1427,7 @@ class Reports extends Controller
                             <td align="center">'. $this->convert->prodDimension($resproductComps['SHAPE_PARAM2']) .'</td>
                             <td align="center">'. $this->convert->mass($resproductComps['PROD_ELMT_REALWEIGHT']) .'</td>
                             <td align="center">'. ($resproductComps['PROD_ISO'] == 0 && $resproductComps['PROD_ELMT_ISO'] == 1 ? 'YES' : 'NO') .'</td>
-                            <td align="center">'. $studyNumber .'</td>
+                            <td align="center">'. $resproductComps['studyNumber'] .'</td>
                             <td align="center">'. $prodElmIso .'</td>
                         </tr>';
                         }
@@ -2682,6 +2693,7 @@ class Reports extends Controller
         }
         
         $product = Product::Where('ID_STUDY', $id)->first();
+        $meshView = $this->reportserv->getMeshView($product);
         $products = ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2', 'DESC')->get();
 
 
@@ -3045,12 +3057,11 @@ class Reports extends Controller
 
         $chainingStudies = $this->reportserv->getChainingStudy($id);
 
-        
         $myfile = fopen( $public_path. "/reports/" . "/" . $study->USERNAM."/" . $name_report, "w") or die("Unable to open file!");
         $html = $this->viewHtml($study ,$production, $product, $proElmt, $shapeName, 
         $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
         $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase, 
-        $symbol, $host, $pro2Dchart, $params, $shapeCode, $economic, $stuNameLayout, $specificDimension, $chainingStudies);
+        $symbol, $host, $pro2Dchart, $params, $shapeCode, $economic, $stuNameLayout, $specificDimension, $chainingStudies, $meshView);
         fwrite($myfile, $html);
         fclose($myfile);
         $url = ["url" => $host . "reports/$study->USERNAM/$name_report"];
@@ -3125,7 +3136,7 @@ class Reports extends Controller
     public function viewHtml($study ,$production, $product, $proElmt, $shapeName, 
     $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
     $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase , 
-    $symbol, $host, $pro2Dchart, $params, $shapeCode, $economic, $stuNameLayout, $specificDimension, $chainingStudies)
+    $symbol, $host, $pro2Dchart, $params, $shapeCode, $economic, $stuNameLayout, $specificDimension, $chainingStudies, $meshView)
     {
         $arrayParam = [
             'study' => $study,
@@ -3158,7 +3169,8 @@ class Reports extends Controller
             'pro2Dchart' => $pro2Dchart,
             'economic' => $economic,
             'stuNameLayout' => $stuNameLayout,
-            'chainingStudies' => $chainingStudies
+            'chainingStudies' => $chainingStudies,
+            'meshView' => $meshView
         ];
         return view('report.viewHtmlToPDF', $param);
     }

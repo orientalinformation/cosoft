@@ -28,6 +28,8 @@ use App\Models\MeshPosition;
 use App\Models\ProductElmt;
 use App\Models\CalculationParameter;
 use App\Models\Translation;
+use App\Models\InitTemp3D;
+use App\Models\InitialTemperature;
 
 use App\Cryosoft\ValueListService;
 use App\Cryosoft\UnitsConverterService;
@@ -92,6 +94,8 @@ class ReportService
 		$this->eco = $app['App\\Cryosoft\\EconomicResultsService'];
 		$this->stu = $app['App\\Cryosoft\\StudyService'];
         $this->output = $app['App\\Cryosoft\\OutputService'];
+        $this->product = $app['App\\Cryosoft\\ProductService'];
+        $this->productElmts = $app['App\\Cryosoft\\ProductElementsService'];
         $this->plotFolder = $this->output->base_path('scripts');
         $this->pasTemp = -1.0;
         $this->plotFolder3D = $this->output->public_path('3d');
@@ -2513,4 +2517,92 @@ class ReportService
         return $tab;
     }
 
+    public function getMeshView(Product &$product)
+    {
+        $elements = ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2', 'DESC')->get();
+
+        $meshGeneration = $product->meshGenerations->first();
+        if ($meshGeneration) {
+            if ($elements[0]->ID_SHAPE == 1 || $elements[0]->ID_SHAPE == 6 ) {
+                $meshGeneration->MESH_1_SIZE = doubleval(0);
+                $meshGeneration->MESH_1_INT = doubleval(0);
+            } else {
+                $meshGeneration->MESH_1_SIZE = $this->unit->meshesUnit($meshGeneration->MESH_1_SIZE);
+                $meshGeneration->MESH_1_INT = $this->unit->meshesUnit($meshGeneration->MESH_1_INT);
+            }
+
+            if ($meshGeneration->MESH_3_INT != 0 || $meshGeneration->MESH_3_SIZE !=  0) {
+                $meshGeneration->MESH_3_INT = $this->unit->meshesUnit($meshGeneration->MESH_3_INT);
+                $meshGeneration->MESH_3_SIZE = $this->unit->meshesUnit($meshGeneration->MESH_3_SIZE);
+            } else {
+                $meshGeneration->MESH_3_SIZE = doubleval(0);
+                $meshGeneration->MESH_3_INT = doubleval(0);
+            }
+
+            if ($meshGeneration->MESH_2_INT != 0 || $meshGeneration->MESH_2_SIZE != 0) {
+                $meshGeneration->MESH_2_INT = $this->unit->meshesUnit($meshGeneration->MESH_2_INT);
+                $meshGeneration->MESH_2_SIZE = $this->unit->meshesUnit($meshGeneration->MESH_2_SIZE);
+            } else {
+                $meshGeneration->MESH_2_INT = doubleval(0);
+                $meshGeneration->MESH_2_SIZE = doubleval(0);
+            }
+        }
+
+        $elmtMeshPositions = [];
+        $productElmtInitTemp = [];
+        $initTempPositions = [];
+        $nbMeshPointElmt = [];
+        $heights = [];
+
+        foreach ($elements as $elmt) {
+            // shape < 10
+            if ($elmt->ID_SHAPE < 10) {
+                $meshPositions = MeshPosition::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->orderBy('MESH_ORDER')->get();
+                array_push($elmtMeshPositions, $meshPositions);
+
+                $pointMeshOrder2 = $this->product->searchNbPtforElmt($elmt, 2);
+                array_push($initTempPositions, $pointMeshOrder2['positions']);
+                array_push($nbMeshPointElmt, count($pointMeshOrder2['points']));
+
+                $elmtInitTemp = $this->productElmts->searchTempMeshPoint($elmt, $pointMeshOrder2['points']);
+                array_push($productElmtInitTemp, $elmtInitTemp);
+            } else {
+                if ($meshGeneration) {
+                    $pointMeshOrder2 = $this->product->calculateNumberPoint3D($meshGeneration, $elmt);
+                    array_push($initTempPositions, $pointMeshOrder2['positions']);
+                    array_push($nbMeshPointElmt, count($pointMeshOrder2['positions']));
+
+                    array_push($productElmtInitTemp, $pointMeshOrder2['points']);
+                }
+            }
+
+            $shapeParam2 = $this->productElmts->getProdElmtthickness($elmt->ID_PRODUCT_ELMT);
+            array_push($heights, $shapeParam2);
+
+            $elmt->componentName = $this->product->getComponentDisplayName($elmt->ID_COMP);
+        }
+
+        $productIsoTemp = null;
+        
+        if ($product->PROD_ISO) {
+            // 3D initial temperature
+            if (count($elements) > 0 && $elements[0]->ID_SHAPE >= 10) {
+                if (InitTemp3D::where('ID_PRODUCT_ELMT', $elements[0]->ID_PRODUCT_ELMT)->count() > 0) {
+                    $productIsoTemp = InitTemp3D::where('ID_PRODUCT_ELMT', $elements[0]->ID_PRODUCT_ELMT)->first();
+                    if ($productIsoTemp) {
+                        $productIsoTemp = $this->unit->temperature($productIsoTemp->INIT_TEMP);
+                    }
+                }
+            } else {
+                if (InitialTemperature::where('ID_PRODUCTION', $product->study->ID_PRODUCTION)->count() > 0) {
+                    $productIsoTemp = InitialTemperature::where('ID_PRODUCTION', $product->study->ID_PRODUCTION)->first();
+                    if ($productIsoTemp) {
+                        $productIsoTemp = $this->unit->temperature($productIsoTemp->INITIAL_T);
+                    }
+                }
+            }
+        }
+
+        return compact('meshGeneration', 'elements', 'elmtMeshPositions', 'productIsoTemp', 'nbMeshPointElmt', 'productElmtInitTemp', 'initTempPositions', 'heights');
+    }
 }
