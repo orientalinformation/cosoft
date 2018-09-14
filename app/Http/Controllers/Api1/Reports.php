@@ -697,7 +697,7 @@ class Reports extends Controller
 
         $public_path = rtrim(app()->basePath("public"), '/');
         $progressFile = $public_path. "/reports/" . $study->USERNAM. "/" . "$study->ID_STUDY-" . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname) . "-Report.progess";
-        $name_report = "$study->ID_STUDY-" . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname) . "-Report.pdf";
+        $name_report = "$study->ID_STUDY-" . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname) . "-Report.pdf?time=". time() ."";
 
         if (!is_dir($public_path . "/reports/" . $study->USERNAM)) {
             mkdir($public_path . "/reports/" . $study->USERNAM, 0777, true);
@@ -2673,7 +2673,7 @@ class Reports extends Controller
 
         $public_path = rtrim(app()->basePath("public/"), '/');
 
-        $name_report = "$study->ID_STUDY-".preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname)."-Report.html";
+        $name_report = "$study->ID_STUDY-".preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname)."-Report.html?time=". time() ."";
         $progressFile = $public_path. "/reports/" . $study->USERNAM. "/" ."$study->ID_STUDY-".preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname)."-Report.progess";
 
         if (!is_dir( $public_path. "/reports/"  . $study->USERNAM)) {
