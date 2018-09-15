@@ -65,7 +65,9 @@ class PackingElements extends Controller
                 $item['PACKING_VERSION'] = $elmt->PACKING_VERSION;
                 $item['PACKING_RELEASE'] = $elmt->PACKING_RELEASE;
                 $item['PACKING_NAME'] = $elmt->LABEL;
-                $item['USER_NAME'] = $elmt->USERNAM;
+                if ($elmt->ID_USER != 1) {
+                    $item['USER_NAME'] = $elmt->USERNAM;
+                }
 
                 if ($elmt->PACKING_RELEASE == 3) {
                     $item['PACKING_TYPE'] = 'Active';
