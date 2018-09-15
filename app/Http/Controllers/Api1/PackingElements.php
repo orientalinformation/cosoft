@@ -55,6 +55,7 @@ class PackingElements extends Controller
         $packingElmts = PackingElmt::where('PACKING_ELMT.PACKING_RELEASE', '!=', 1)
                         ->join('TRANSLATION', 'PACKING_ELMT.ID_PACKING_ELMT', '=', 'TRANSLATION.ID_TRANSLATION')
                         ->where('TRANSLATION.TRANS_TYPE', 3)->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
+                        ->join('LN2USER', 'PACKING_ELMT.ID_USER', '=', 'LN2USER.ID_USER')
                         ->groupBy('PACKING_ELMT.ID_PACKING_ELMT')
                         ->orderBy('LABEL', 'ASC')->get();
 
