@@ -75,6 +75,10 @@ class PackingElements extends Controller
                 } else if ($elmt->PACKING_RELEASE == 4){
                     $item['PACKING_TYPE'] = 'Certified';
                     $item['PACKING_COLOR'] = 'userElement';
+                } else if ($elmt->PACKING_RELEASE == 2) {
+                    $item['PACKING_TYPE'] = 'Test';
+                } else if ($elmt->PACKING_RELEASE == 9) {
+                    $item['PACKING_TYPE'] = 'Obsolete';
                 } else {
                     $item['PACKING_TYPE'] = '';
                 }
