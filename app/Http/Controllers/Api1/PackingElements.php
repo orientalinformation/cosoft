@@ -52,7 +52,8 @@ class PackingElements extends Controller
     public function findPackingElements() 
     {    
         $item = $elmts = array();
-        $packingElmts = PackingElmt::join('TRANSLATION', 'PACKING_ELMT.ID_PACKING_ELMT', '=', 'TRANSLATION.ID_TRANSLATION')
+        $packingElmts = PackingElmt::where('PACKING_ELMT.PACKING_RELEASE', '!=', 1)
+                        ->join('TRANSLATION', 'PACKING_ELMT.ID_PACKING_ELMT', '=', 'TRANSLATION.ID_TRANSLATION')
                         ->where('TRANSLATION.TRANS_TYPE', 3)->where('TRANSLATION.CODE_LANGUE', $this->auth->user()->CODE_LANGUE)
                         ->groupBy('PACKING_ELMT.ID_PACKING_ELMT')
                         ->orderBy('LABEL', 'ASC')->get();
