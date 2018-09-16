@@ -5,7 +5,7 @@
     position: relative
 }
 #showLoader {
-    background: url(assets/img/output/loading.gif) no-repeat center center rgba(255,255,255,0.4);
+    background: url(/assets/img/output/loading.gif) no-repeat center center rgba(255,255,255,0.4);
     position: absolute;
     z-index: 100000;
     left: 0;
@@ -14,7 +14,7 @@
     height: 100%;
 }
 #showLoaderLocation {
-    background: url(assets/img/output/loading.gif) no-repeat center center rgba(255,255,255,0.4);
+    background: url(/assets/img/output/loading.gif) no-repeat center center rgba(255,255,255,0.4);
     position: absolute;
     z-index: 100000;
     left: 0;
@@ -23,7 +23,7 @@
     height: 100%;
 }
 #showLoaderProductSection {
-    background: url(assets/img/output/loading.gif) no-repeat center center rgba(255,255,255,0.4);
+    background: url(/assets/img/output/loading.gif) no-repeat center center rgba(255,255,255,0.4);
     position: absolute;
     z-index: 100000;
     left: 0;
@@ -32,7 +32,7 @@
     height: 100%;
 }
 #showLoaderTimeBased {
-    background: url(assets/img/output/loading.gif) no-repeat center center rgba(255,255,255,0.4);
+    background: url(/assets/img/output/loading.gif) no-repeat center center rgba(255,255,255,0.4);
     position: absolute;
     z-index: 100000;
     left: 0;
@@ -41,7 +41,7 @@
     height: 100%;
 }
 #showLoaderOutline {
-    background: url(assets/img/output/loading.gif) no-repeat center center rgba(255,255,255,0.4);
+    background: url(/assets/img/output/loading.gif) no-repeat center center rgba(255,255,255,0.4);
     position: absolute;
     z-index: 100000;
     left: 0;

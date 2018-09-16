@@ -17,7 +17,7 @@ canvas {
     min-height: 500px
 }
 #showLoader {
-    background: url(assets/img/output/loading.gif) no-repeat center center rgba(255,255,255,0.4);
+    background: url(/assets/img/output/loading.gif) no-repeat center center rgba(255,255,255,0.4);
     position: absolute;
     z-index: 100;
     left: 0;
@@ -26,7 +26,7 @@ canvas {
     height: 100%;
 }
 #showLoaderOptimum {
-    background: url(assets/img/output/loading.gif) no-repeat center center rgba(255,255,255,0.4);
+    background: url(/assets/img/output/loading.gif) no-repeat center center rgba(255,255,255,0.4);
     position: absolute;
     z-index: 100;
     left: 0;
@@ -35,7 +35,7 @@ canvas {
     height: 100%;
 }
 #showLoaderTerm{
-    background: url(assets/img/output/loading.gif) no-repeat center center rgba(255,255,255,0.4);
+    background: url(/assets/img/output/loading.gif) no-repeat center center rgba(255,255,255,0.4);
     position: absolute;
     z-index: 100;
     left: 0;
@@ -44,7 +44,7 @@ canvas {
     height: 100%;
 }
 #showLoaderChange, #showLoaderTermChange {
-    background: url(assets/img/output/loading.gif) no-repeat center center rgba(255,255,255,0.4);
+    background: url(/assets/img/output/loading.gif) no-repeat center center rgba(255,255,255,0.4);
     position: absolute;
     z-index: 100;
     left: 0;
