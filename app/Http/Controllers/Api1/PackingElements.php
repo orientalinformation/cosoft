@@ -76,7 +76,11 @@ class PackingElements extends Controller
                     if ($elmt->ID_USER == $this->auth->user()->ID_USER) {
                         $item['PACKING_COLOR'] = 'mineElement';
                     } else {
-                        $item['PACKING_COLOR'] = '';
+                        if ($elmt->ID_USER != 1) {
+                            $item['PACKING_COLOR'] = 'userElement';
+                        } else {
+                            $item['PACKING_COLOR'] = '';    
+                        } 
                     }
                 } else if ($elmt->PACKING_RELEASE == 4){
                     $item['PACKING_TYPE'] = 'Certified';
