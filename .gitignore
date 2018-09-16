@@ -16,4 +16,6 @@ Homestead.yaml
 /public/3d/*
 /public/consumption/*
 /storage/app/*
+/WepApp/node_modules/*
+/node_modules/*
 

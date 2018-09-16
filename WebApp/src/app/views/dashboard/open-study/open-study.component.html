@@ -1,0 +1,152 @@
+<div class="container" *ngIf="!isLoading">
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card" id="study-list-card">
+        <div class="card-header">
+          <strong>{{'STUDIES'|translate}}</strong>
+          <div id="study-search-box-container">
+            <div class="input-group input-group-sm" id="study-search-box">
+              <input type="text" class="form-control" [(ngModel)]="filterString" placeholder="{{'Search'|translate}}" />
+              <span>
+                <i class="fa fa-search" aria-hidden="true"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+        <perfect-scrollbar style="max-height: 650px;">
+          <div class="list-group" *ngIf="studies">
+            <!-- mine -->
+            <h6 class="dropdown-header" *ngIf="studies.mine">{{'MINE'|translate}}</h6>
+            <a *ngFor="let study of (studies.mine | filter: filterString)" class="list-group-item list-group-item-action mineElement" [ngClass]="study == selectedStudy? 'active' : ''" (click)="onSelect(study)">
+              <div class="d-flex w-100 justify-content-between">
+                {{study.STUDY_NAME}}
+                <span>
+                  <i *ngIf="study.CHAINING_CONTROLS == 1" class="fa fa-chain text-muted"></i>
+                </span>
+              </div>
+            </a>
+            <!-- others -->
+            <h6 class="dropdown-header" *ngIf="studies.mine && studies.others">{{'OTHER'|translate}}</h6>
+            <a *ngFor="let study of (studies.others | filter: filterString)" class="list-group-item list-group-item-action userElement" [ngClass]="study == selectedStudy? 'active' : ''"
+              (click)="onSelect(study)">
+              <div class="d-flex w-100 justify-content-between">
+                {{study.STUDY_NAME}}
+                <span>
+                  <small>{{study.USERNAM}}</small>
+                  <i *ngIf="study.CHAINING_CONTROLS == 1" class="fa fa-chain text-muted"></i>
+                </span>
+              </div>
+            </a>
+          </div>
+        </perfect-scrollbar>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <strong>FILTERS</strong>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-12 form-group">
+              {{'Who'|translate}}
+              <select class="form-control" [(ngModel)]="userSelected" (change)="selectUser()">
+                <option [value]="0">{{ 'Select a user'|translate }}</option>
+                <option *ngFor="let user of users" [value]="user.ID_USER">
+                  {{ user.USERNAM }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-6 form-group">
+              {{'Component family'|translate}}
+              <select class="form-control" [(ngModel)]="compFamilySelected" (change)="selectFamily()">
+                <option [value]="0">{{ 'Select a family'|translate }}</option>
+                <option *ngFor="let family of compFamily" [value]="family.ID_TRANSLATION">
+                  {{ family.LABEL }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-6 form-group">
+              {{'Sub family'|translate}}
+              <select class="form-control" [(ngModel)]="subFamilySelected" (change)="selectSubFamily()">
+                <option [value]="0">{{ 'Select a sub family'|translate }}</option>
+                <option *ngFor="let family of subFamily" [value]="family.ID_TRANSLATION">
+                  {{ family.LABEL }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-12">
+              {{'Component list'|translate}}
+              <select class="form-control" *ngIf="components" [(ngModel)]="componentSelected" (change)="selectComponent()">
+                <option [value]="0">{{ 'Select a component'|translate }}</option>
+                <option *ngFor="let component of components.active" [value]="component.ID_COMP" class="{{component.class}}">
+                  {{ component.displayName }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <strong>SELECTED STUDY</strong>
+        </div>
+        <div class="card-body">
+          <ng-template #noSelectedStudy>
+            <div class="text-muted text-center" style="min-height: 200px;padding-top:90px;">
+              {{'Please select a study from the list before process to calculation.'|translate}}
+            </div>
+          </ng-template>
+          <div *ngIf="selectedStudy; else noSelectedStudy">
+            <table class="table table-hover table-striped">
+              <tr>
+                <th>{{'Study Name'|translate}}</th>
+                <td>{{ selectedStudy.STUDY_NAME }}</td>
+              </tr>
+              <tr>
+                <th>Owner</th>
+                <td>{{ selectedStudy.USERNAM }}</td>
+              </tr>
+              <tr>
+                <th colspan="2">Comment</th>
+              </tr>
+              <tr>
+                <td colspan="2" [innerHTML]="selectedStudy.COMMENT_TXT | nl2br"></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="card-footer text-center" *ngIf="selectedStudy">
+          <button type="button" class="btn btn-danger" (click)="deleteStudy()" [ladda]="laddaDeletingStudy" [disabled]="disabledField()"><i class="fa fa-trash-o"></i> {{'Delete'|translate}}</button>
+          <button type="button" class="btn btn-secondary" (click)="modalSaveAs.show()"><i class="fa fa-copy"></i> {{'Save As'|translate}}</button>
+          <button type="button" class="btn btn-primary" (click)="openStudy()" [ladda]="laddaOpeningStudy"><i class="fa fa-folder-open-o"></i> {{'Open'|translate}}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Start model save as -->
+<div bsModal class="modal fade" #modalSaveAs="bs-modal" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-primary modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <strong>{{'SAVE AS'|translate}}</strong>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="modalSaveAs.hide()">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div align="left" class="labelSaveAs">{{'Enter a new name'|translate}}</div>
+        <input class="form-control" type="text" [(ngModel)]="name" placeholder="Study Name">
+      </div><!-- modal-body -->
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-dismiss="modal" (click)="modalSaveAs.hide()">{{'Cancel'|translate}}</button>
+        <button class="btn btn-primary" (click)="saveStudyAs()" [ladda]="laddaSaveStudyAs">{{'Confirm'|translate}}</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End model save as -->
+<app-spinner *ngIf="isLoading"></app-spinner>

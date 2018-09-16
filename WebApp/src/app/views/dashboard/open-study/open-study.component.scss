@@ -1,0 +1,41 @@
+#study-list-card {
+    .list-group {
+        .list-group-item {
+            border-left: none;
+            border-right: none;
+            cursor: pointer;
+        }
+        .list-group-item:first-child{
+            border-top: none !important;
+        }
+        .list-group-item:last-child{
+            border-bottom: none !important;
+        }
+
+    }
+}
+
+#study-search-box {
+    span {
+        position: absolute;
+        top: 3px;
+        right: 6px;
+        z-index: 999;
+        color: #a9a9a9;
+    }
+}
+
+#study-search-box-container {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+}
+
+.compLocked { color: #C0C0C0!important;}
+.packLocked { color: #C0C0C0!important;}
+.eqpLocked { color: #C0C0C0!important;}
+.lineLocked { color: #C0C0C0!important;}
+.mineElement { color: #4682B4!important; }
+.userElement { color: #808080!important;}
+.obsoleteElement { color: #FF0000!important;}
+.disabledElement { color: #FF8C00!important;}

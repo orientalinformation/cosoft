@@ -1,0 +1,8 @@
+<ul class="nav" *ngIf="!isRefDbActivated">
+  <li class="nav-item px-3 hidden-cn">
+    <a [routerLink]="'/references'">
+      <i class="fa fa-database"></i>
+      {{ 'Reference Data'|translate }}
+    </a>
+  </li>
+</ul>

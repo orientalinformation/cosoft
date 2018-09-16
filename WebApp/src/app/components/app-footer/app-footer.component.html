@@ -1,0 +1,5 @@
+<footer class="app-footer fixed-bottom pt-3 pb-3 navbar-fixed-bottom">
+  <span style="color:red;font-weight:bold" *ngIf="msgError">{{ msgError }}</span>
+  <span style="color:green;font-weight:bold" *ngIf="msgSuccess">{{ msgSuccess }}</span>
+  <span class="ml-auto"><strong>Cryosoft</strong> &copy; {{date| date:'yyyy'}} AirLiquide.</span>
+</footer>

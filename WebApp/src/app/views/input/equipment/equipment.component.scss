@@ -1,0 +1,21 @@
+#equipment-search-box {
+    position: absolute;
+    top: 8px;
+    left: 5px;
+    width: 97%;
+    span {
+        position: absolute;
+        top: 3px;
+        right: 6px;
+        z-index: 999;
+        color: #a9a9a9;
+    }
+}
+.compLocked { color: #C0C0C0!important;}
+.packLocked { color: #C0C0C0!important;}
+.eqpLocked { color: #C0C0C0!important;}
+.lineLocked { color: #C0C0C0!important;}
+.mineElement { color: #4682B4!important; }
+.userElement { color: #808080!important;}
+.obsoleteElement { color: #FF0000!important;}
+.disabledElement { color: #FF8C00!important;}
