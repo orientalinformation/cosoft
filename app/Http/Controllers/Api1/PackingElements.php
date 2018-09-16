@@ -66,7 +66,7 @@ class PackingElements extends Controller
                 $item['PACKING_RELEASE'] = $elmt->PACKING_RELEASE;
                 $item['PACKING_NAME'] = $elmt->LABEL;
                 if ($elmt->ID_USER != 1) {
-                    $item['USER_NAME'] = $elmt->USERNAM;
+                    $item['USER_NAME'] = ' - '. $elmt->USERNAM;
                 } else {
                     $item['USER_NAME'] = '';
                 }
