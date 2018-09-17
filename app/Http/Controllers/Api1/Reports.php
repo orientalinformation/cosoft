@@ -2673,7 +2673,7 @@ class Reports extends Controller
 
         $public_path = rtrim(app()->basePath("public/"), '/');
 
-        $name_report = "$study->ID_STUDY-".preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname)."-Report.html?time=". time() ."";
+        $name_report = "$study->ID_STUDY-".preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname)."-Report.html";
         $progressFile = $public_path. "/reports/" . $study->USERNAM. "/" ."$study->ID_STUDY-".preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname)."-Report.progess";
 
         if (!is_dir( $public_path. "/reports/"  . $study->USERNAM)) {
@@ -3064,7 +3064,7 @@ class Reports extends Controller
         $symbol, $host, $pro2Dchart, $params, $shapeCode, $economic, $stuNameLayout, $specificDimension, $chainingStudies, $meshView);
         fwrite($myfile, $html);
         fclose($myfile);
-        $url = ["url" => $host . "reports/$study->USERNAM/$name_report"];
+        $url = ["url" => $host . "reports/$study->USERNAM/$name_report?time=". time() .""];
         return $url;
     }
 
