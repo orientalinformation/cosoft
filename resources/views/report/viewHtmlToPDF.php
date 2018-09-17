@@ -265,12 +265,16 @@
                     <?php foreach($productComps as $key => $resproductComps) { 
                         $prodElmIso = '';
                         if (!($arrayParam['study']['CHAINING_CONTROLS'] && $arrayParam['study']['PARENT_ID'] != 0 && $resproductComps['INSERT_LINE_ORDER'] != $arrayParam['study']['ID_STUDY'])) {
-                            if ($resproductComps['PROD_ELMT_ISO'] != 1 && $meshView['productElmtInitTemp'][$key] == NULL) {
+                            if ($resproductComps['PROD_ELMT_ISO'] == 1 && empty($meshView['productElmtInitTemp'][$key])) {
                                 $prodElmIso = 'Undefined';
                             }
 
-                            if ($resproductComps['PROD_ELMT_ISO'] != 1 && $meshView['productElmtInitTemp'][$key] != NULL) {
+                            if ($resproductComps['PROD_ELMT_ISO'] == 1 && !empty($meshView['productElmtInitTemp'][$key])) {
                                 $prodElmIso = $meshView['productElmtInitTemp'][$key];
+                            }
+
+                            if ($resproductComps['PROD_ELMT_ISO'] != 1) {
+                                $prodElmIso = 'Non-isothermal';
                             }
                         } else {
                             $prodElmIso = 'Non-isothermal';
