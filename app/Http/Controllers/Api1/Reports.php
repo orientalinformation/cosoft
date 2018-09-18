@@ -1398,17 +1398,17 @@ class Reports extends Controller
                             <th align="center">Added to product in study number</th>
                             <th align="center">Initial temperature<br>('. $symbol['temperatureSymbol'] .')</th>
                         </tr>';
-                        foreach($productComps as $resproductComps) { 
+                        foreach($productComps as $key => $resproductComps) { 
                             $prodElmIso = '';
                             $studyNumber = '';
 
                             if (!($study['CHAINING_CONTROLS'] && $study['PARENT_ID'] != 0 && $resproductComps['INSERT_LINE_ORDER'] != $study['ID_STUDY'])) {
-                                if ($resproductComps['PROD_ELMT_ISO'] != 1 && $meshView['productElmtInitTemp'][$key] == NULL) {
+                                if ($resproductComps['PROD_ELMT_ISO'] != 1 && empty($meshView['productElmtInitTemp'][$key])) {
                                     $prodElmIso = 'Undefined';
                                 }
 
-                                if ($resproductComps['PROD_ELMT_ISO'] != 1 && $meshView['productElmtInitTemp'][$key] != NULL) {
-                                    $prodElmIso = $meshView['productElmtInitTemp'][$key];
+                                if ($resproductComps['PROD_ELMT_ISO'] != 1 && !empty($meshView['productElmtInitTemp'][$key])) {
+                                    $prodElmIso = 'Non-isothermal';
                                 }
                             } else {
                                 $prodElmIso = 'Non-isothermal';
