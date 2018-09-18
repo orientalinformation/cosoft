@@ -270,7 +270,7 @@
                             }
 
                             if ($resproductComps['PROD_ELMT_ISO'] == 1 && !empty($meshView['productElmtInitTemp'][$key])) {
-                                $prodElmIso = $meshView['productElmtInitTemp'][$key];
+                                $prodElmIso = $meshView['productElmtInitTemp'][$key][0];
                             }
 
                             if ($resproductComps['PROD_ELMT_ISO'] != 1) {
