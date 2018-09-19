@@ -624,16 +624,26 @@ class ReferenceData extends Controller
     public function getCompenthsByIdComp($idComp)
     {
         $compenths = Compenth::where('ID_COMP', $idComp)->get();
+        $results = $item = array();
 
         foreach ($compenths as $key) {
-            // var_dump($key->COMPTEMP);die;
             $key->COMPTEMP = $this->units->temperature($key->COMPTEMP, 2, 1);
             $key->COMPENTH = $this->units->enthalpy($key->COMPENTH, 3, 1);
             $key->COMPCOND = $this->units->conductivity($key->COMPCOND, 4, 1);
             $key->COMPDENS = $this->units->density($key->COMPDENS, 1, 1);
+
+            $item['ID_COMPENTH'] = $key->ID_COMPENTH;
+            $item['COMPTEMP'] = $key->COMPTEMP;
+            $item['COMPENTH'] = $key->COMPENTH;
+            $item['COMPCOND'] = $key->COMPCOND;
+            $item['COMPDENS'] = $key->COMPDENS;
+
+            array_push($results, $item);
         }
 
-        return $compenths;
+        array_multisort(array_column($results, 'COMPTEMP'), SORT_ASC, $results); //SORT_DESC SORT_ASC
+
+        return $results;
     }
 
     public function getCompenthById($id)
