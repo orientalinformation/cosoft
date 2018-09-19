@@ -264,7 +264,7 @@
                     </tr>
                     <?php foreach($productComps as $key => $resproductComps) { 
                         $prodElmIso = '';
-                        if (!($arrayParam['study']['CHAINING_CONTROLS'] && $arrayParam['study']['PARENT_ID'] != 0 && $resproductComps['INSERT_LINE_ORDER'] != $arrayParam['study']['ID_STUDY'])) {
+                        if (!($arrayParam['study']['CHAINING_CONTROLS'] != 1 && $arrayParam['study']['PARENT_ID'] == 0 && $resproductComps['INSERT_LINE_ORDER'] == $arrayParam['study']['ID_STUDY'])) {
                             if ($resproductComps['PROD_ELMT_ISO'] == 1 && empty($meshView['productElmtInitTemp'][$key])) {
                                 $prodElmIso = 'Undefined';
                             }
@@ -285,7 +285,7 @@
                         <td class="text-center"><?php echo $resproductComps['PROD_ELMT_NAME'] ?></td>
                         <td class="text-center"><?php echo $resproductComps['dim'] ?></td>
                         <td class="text-center"><?php echo $resproductComps['mass'] ?></td>
-                        <td class="text-center"><?php echo ($resproductComps['PROD_ELMT_ISO'] == 0) ? "YES" : "NO" ?></td>
+                        <td class="text-center"><?php echo ($resproductComps['PROD_ISO'] == 0 && $resproductComps['PROD_ELMT_ISO'] == 1 ? 'YES' : 'NO') ?></td>
                         <td class="text-center"><?php echo $resproductComps['studyNumber'] ?></td>
                         <td class="text-center"><?php echo $prodElmIso ?></td>
                     </tr>

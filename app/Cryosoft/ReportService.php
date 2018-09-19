@@ -2558,7 +2558,7 @@ class ReportService
             // shape < 10
             if ($elmt->ID_SHAPE < 10) {
                 $meshPositions = MeshPosition::where('ID_PRODUCT_ELMT', $elmt->ID_PRODUCT_ELMT)->orderBy('MESH_ORDER')->get();
-                array_push($elmtMeshPositions, $meshPositions);
+                array_push($elmtMeshPositions, $meshPositions[0]);
 
                 $pointMeshOrder2 = $this->product->searchNbPtforElmt($elmt, 2);
                 array_push($initTempPositions, $pointMeshOrder2['positions']);

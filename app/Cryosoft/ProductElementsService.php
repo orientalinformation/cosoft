@@ -7,6 +7,7 @@ use App\Models\ProductElmt;
 use App\Models\InitialTemperature;
 use App\Models\MeshPosition;
 use App\Models\Product;
+use App\Models\Study;
 
 class ProductElementsService
 {
@@ -52,11 +53,14 @@ class ProductElementsService
                 return null;
             }
 
-            $idProduction = $productElmt->product->study->ID_PRODUCTION;
+            $study = Study::find($productElmt->ID_STUDY);
+            $idProduction =  $study->ID_PRODUCTION;
             $it = InitialTemperature::where('ID_PRODUCTION', $idProduction)
                 ->whereIn('MESH_2_ORDER', $pointMeshOrder2)
                 ->where('MESH_1_ORDER', 0)
                 ->where('MESH_3_ORDER', 0)->orderBy('MESH_2_ORDER')->get();
+
+
 
             foreach ($it as $temp) {
                 $data = $this->units->prodTemperature($temp->INITIAL_T);

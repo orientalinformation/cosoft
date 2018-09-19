@@ -69,11 +69,11 @@ class ProductElmt extends Model
     public $timestamps = false;
 
     protected $maps = [
-      'product' => ['ID_STUDY'],
+      'product' => ['ID_STUDY', 'ID_PRODUCTION'],
       'shape' => ['SHAPECODE']
     ];
 
-    protected $appends = ['ID_STUDY', 'SHAPECODE'];
+    protected $appends = ['ID_STUDY', 'ID_PRODUCTION', 'SHAPECODE'];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
