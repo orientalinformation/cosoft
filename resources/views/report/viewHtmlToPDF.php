@@ -264,7 +264,7 @@
                     </tr>
                     <?php foreach($productComps as $key => $resproductComps) { 
                         $prodElmIso = '';
-                        if (!($arrayParam['study']['CHAINING_CONTROLS'] != 1 && $arrayParam['study']['PARENT_ID'] == 0 && $resproductComps['INSERT_LINE_ORDER'] == $arrayParam['study']['ID_STUDY'])) {
+                        if (!($arrayParam['study']['CHAINING_CONTROLS'] && $arrayParam['study']['PARENT_ID'] != 0 && $resproductComps['INSERT_LINE_ORDER'] != $arrayParam['study']['ID_STUDY'])) {
                             if ($resproductComps['PROD_ELMT_ISO'] == 1 && empty($meshView['productElmtInitTemp'][$key])) {
                                 $prodElmIso = 'Undefined';
                             }
