@@ -5,6 +5,7 @@ namespace App\Cryosoft;
 use App\Models\MeshGeneration;
 use App\Models\InitialTemperature;
 use App\Models\Study;
+use App\Models\InitTemp3D;
 
 class MeshService
 {
@@ -100,10 +101,16 @@ class MeshService
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_STUDY);
         $this->kernel->getKernelObject('MeshBuilder')->MBMeshBuild($conf);
 
+        $prodElmt = $product->productElmts->first();
+
         // clear initial temperature
         $product->PROD_ISO = 1;
         $product->save();
 
         InitialTemperature::where('ID_PRODUCTION', $product->study->ID_PRODUCTION)->delete();
+        // clear 3D
+        if ($prodElmt) {
+            InitTemp3D::where('ID_PRODUCT_ELMT', $prodElmt->ID_PRODUCT_ELMT)->delete();
+        }
     }
 }
