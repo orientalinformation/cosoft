@@ -124,6 +124,7 @@ class Studies extends Controller
         $this->equip = $equip;
         $this->units = $units;
         $this->output = $output;
+        $this->plotFolder3D = $this->output->public_path('3d');
     }
 
     public function findStudies()
@@ -429,16 +430,16 @@ class Studies extends Controller
                             $mesh3D_new = new Mesh3DInfo();
                             $mesh3D_new = $mesh3D_info->replicate();
                             $mesh3D_new->id_prod = $product->ID_PROD;
+                            $mesh3D_new->file_path = str_replace('Prod_' . $mesh3D_info->id_prod, 'Prod_' . $mesh3D_new->id_prod, $mesh3D_info->file_path);
+
+                            //copy mesh folder
+                            $oldProd3dFolder = $this->plotFolder3D . '/MeshBuilder3D/Prod_' . $mesh3D_info->id_prod;
+                            $newProd3dFolder = $this->plotFolder3D . '/MeshBuilder3D/Prod_' . $mesh3D_new->id_prod;
+
+                            if (is_dir($oldProd3dFolder)) {
+                                $this->output->recurse_copy($oldProd3dFolder, $newProd3dFolder);
+                            }
                             unset($mesh3D_new->id_mesh3d_info);
-                            // if (file_exists($mesh3D_info->file_path)) {
-                            //     $src = $mesh3D_info->file_path."/*";
-                            //     if (!is_dir($mesh3D_info->file_path."-saveAs-".$mesh3D_new->id_prod)) {
-                            //         mkdir($mesh3D_info->file_path."-saveAs-".$mesh3D_new->id_prod, 0777, true);
-                            //     }
-                            //     $dest = $mesh3D_info->file_path."-saveAs-".$mesh3D_new->id_prod;
-                            //     shell_exec("cp -r $src $dest");
-                            //     $mesh3D_new->file_path =$dest;
-                            // }
                             $mesh3D_new->save();
                         }
 
