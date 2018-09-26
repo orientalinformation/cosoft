@@ -1372,17 +1372,11 @@ class Reports extends Controller
                             <td align="center">'. $specificDimension .' </td>
                             ';
                         }
-                        if ($product->PROD_ISO == 0) {
-                            $initial = 'Non-isothermal';
-                        } elseif ($product->PROD_ISO == 1 && $meshView['productIsoTemp'] == NULL) {
-                            $initial = 'Undefined';
-                        } elseif ($product->PROD_ISO == 1 && $meshView['productIsoTemp'] != NULL) {
-                            $initial = $meshView['productIsoTemp'];
-                        }
+
                         $html .='
                         <td align="center">'. $this->convert->mass($product->PROD_REALWEIGHT) .' </td>
                         <td align="center">'. ($product->PROD_ISO == 1 ? 'YES' : 'NO') .' </td>
-                        <td align="center">'. $initial .' </td>
+                        <td align="center">'. $proInfoStudy['avgTInitial'] .' </td>
                     </tr>
                 </table>
             </div>
@@ -1411,23 +1405,23 @@ class Reports extends Controller
 
                                 if ($resproductComps['PROD_ELMT_ISO'] == 1 && !empty($meshView['productElmtInitTemp'][$key])) {
                                     $prodElmIso = $meshView['productElmtInitTemp'][$key][0];
-                                    $sameTemperature = 'NO';
+                                    $sameTemperature = 'YES';
                                 }
 
                                 if ($resproductComps['PROD_ELMT_ISO'] != 1) {
                                     $prodElmIso = 'Non-isothermal';
-                                    $sameTemperature = 'YES';
+                                    $sameTemperature = 'NO';
                                 }
                             } else {
                                 $prodElmIso = 'Non-isothermal';
                                 $sameTemperature = 'NO';
                             }
 
-                            /*if ($resproductComps['PROD_ISO'] == 0 && $resproductComps['PROD_ELMT_ISO'] == 1) {
+                            if ($study['CHAINING_CONTROLS']) {
                                 $studyNumber = '';
                             } else {
                                 $studyNumber = $resproductComps['studyNumber'];
-                            }*/
+                            }
                             
                         $html .= '
                         <tr>
@@ -1436,7 +1430,7 @@ class Reports extends Controller
                             <td align="center">'. $this->convert->prodDimension($resproductComps['SHAPE_PARAM2']) .'</td>
                             <td align="center">'. $this->convert->mass($resproductComps['PROD_ELMT_REALWEIGHT']) .'</td>
                             <td align="center">'. $sameTemperature .'</td>
-                            <td align="center">'. $resproductComps['studyNumber'] .'</td>
+                            <td align="center">'. $studyNumber .'</td>
                             <td align="center">'. $prodElmIso .'</td>
                         </tr>';
                         }

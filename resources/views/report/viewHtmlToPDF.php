@@ -236,15 +236,7 @@
                         <td class="text-center"><?php echo $arrayParam['productRealW'] ?></td>
                         <td class="text-center"><?php echo $arrayParam['product']->PROD_ISO == 1 ? "YES" : "NO" ?></td>
                         <td class="text-center">
-                            <?php 
-                                if ($arrayParam['product']->PROD_ISO == 0) {
-                                    echo 'Non-isothermal';
-                                } elseif ($arrayParam['product']->PROD_ISO == 1 && $meshView['productIsoTemp'] == NULL) {
-                                    echo 'Undefined';
-                                } elseif ($arrayParam['product']->PROD_ISO == 1 && $meshView['productIsoTemp'] != NULL) {
-                                    echo $meshView['productIsoTemp'];
-                                }
-                            ?>
+                           <?php echo $arrayParam['proInfoStudy']['avgTInitial'] ?>
                         </td>
                     </tr>
                 </table>
@@ -291,7 +283,7 @@
                         <td class="text-center"><?php echo $resproductComps['dim'] ?></td>
                         <td class="text-center"><?php echo $resproductComps['mass'] ?></td>
                         <td class="text-center"><?php echo $sameTemperature ?></td>
-                        <td class="text-center"><?php echo $resproductComps['studyNumber'] ?></td>
+                        <td class="text-center"><?php if ($arrayParam['study']['CHAINING_CONTROLS']) echo $resproductComps['studyNumber'] ?></td>
                         <td class="text-center"><?php echo $prodElmIso ?></td>
                     </tr>
                     <?php } ?>
