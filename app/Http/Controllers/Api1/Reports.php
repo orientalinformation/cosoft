@@ -1400,22 +1400,27 @@ class Reports extends Controller
                         </tr>';
                         foreach($productComps as $key => $resproductComps) { 
                             $prodElmIso = '';
+                            $sameTemperature = 'NO';
                             $studyNumber = '';
 
                             if (!($study['CHAINING_CONTROLS'] && $study['PARENT_ID'] != 0 && $resproductComps['INSERT_LINE_ORDER'] != $study['ID_STUDY'])) {
                                 if ($resproductComps['PROD_ELMT_ISO'] == 1 && empty($meshView['productElmtInitTemp'][$key])) {
                                     $prodElmIso = 'Undefined';
+                                    $sameTemperature = 'NO';
                                 }
 
                                 if ($resproductComps['PROD_ELMT_ISO'] == 1 && !empty($meshView['productElmtInitTemp'][$key])) {
                                     $prodElmIso = $meshView['productElmtInitTemp'][$key][0];
+                                    $sameTemperature = 'NO';
                                 }
 
                                 if ($resproductComps['PROD_ELMT_ISO'] != 1) {
                                     $prodElmIso = 'Non-isothermal';
+                                    $sameTemperature = 'YES';
                                 }
                             } else {
                                 $prodElmIso = 'Non-isothermal';
+                                $sameTemperature = 'NO';
                             }
 
                             /*if ($resproductComps['PROD_ISO'] == 0 && $resproductComps['PROD_ELMT_ISO'] == 1) {
@@ -1430,7 +1435,7 @@ class Reports extends Controller
                             <td align="center">'. $resproductComps['PROD_ELMT_NAME'] .'</td>
                             <td align="center">'. $this->convert->prodDimension($resproductComps['SHAPE_PARAM2']) .'</td>
                             <td align="center">'. $this->convert->mass($resproductComps['PROD_ELMT_REALWEIGHT']) .'</td>
-                            <td align="center">'. ($resproductComps['PROD_ISO'] == 0 && $resproductComps['PROD_ELMT_ISO'] == 1 ? 'YES' : 'NO') .'</td>
+                            <td align="center">'. $sameTemperature .'</td>
                             <td align="center">'. $resproductComps['studyNumber'] .'</td>
                             <td align="center">'. $prodElmIso .'</td>
                         </tr>';
