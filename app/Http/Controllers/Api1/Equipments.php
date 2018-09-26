@@ -1136,7 +1136,7 @@ class Equipments extends Controller
 
         $listOfPoints = $this->svg->getSelectedProfile($ID_EQUIP, $profileType, $profileFace);
         // add fix error mysql
-        // $listOfPoints = array_reverse($listOfPoints);
+        $listOfPoints = array_reverse($listOfPoints);
         $listofPointsOld = $listOfPoints;
         $nbpoints = count($listOfPoints);
 
@@ -1196,7 +1196,6 @@ class Equipments extends Controller
             }
         }
 
-        // old not update
         // $valuesTabX = array_reverse($valuesTabX);
 
         $lfOffset = abs($maxValueY - $minValueY) * 0.15;
@@ -1363,7 +1362,7 @@ class Equipments extends Controller
         }
 
         // array_reverse add fix error mysql
-        // $listOfPoints = array_reverse($listOfPoints);
+        $listOfPoints = array_reverse($listOfPoints);
 
         // get old profile
         $equipCharacts = EquipCharact::where('ID_EQUIP', $ID_EQUIP)->get();
