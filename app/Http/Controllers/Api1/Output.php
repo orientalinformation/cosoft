@@ -1465,6 +1465,16 @@ class Output extends Controller
     {
         //get study equip profile
         $tempProfile = StudEquipprofile::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("EP_X_POSITION", "ASC")->get();
+        $studyEquipment = StudyEquipment::find($idStudyEquipment);
+        $userName = $studyEquipment->study->USERNAM;
+        $folder = $this->output->public_path('temperatureProfile');
+        if (!is_dir($folder)) {
+            mkdir($folder, 0777);
+        }
+
+        if (!is_dir($folder . '/' . $userName)) {
+            mkdir($folder . '/' . $userName, 0777);
+        }
     
         if (count($tempProfile) > 0) {
             $lfminTemp = INF;
@@ -1634,8 +1644,33 @@ class Output extends Controller
             $tempChartData = array("top" => $point2DSeriesTempCurveTop, "bottom" => $point2DSeriesTempCurveBottom, "left" => $point2DSeriesTempCurveLeft, "right" => $point2DSeriesTempCurveRight, "front" => $point2DSeriesTempCurveFront, "rear" => $point2DSeriesTempCurveRear);
 
             $convChartData = array("top" => $point2DSeriesConvCurveTop, "bottom" => $point2DSeriesConvCurveBottom, "left" => $point2DSeriesConvCurveLeft, "right" => $point2DSeriesConvCurveRight, "front" => $point2DSeriesConvCurveFront, "rear" => $point2DSeriesConvCurveRear);
+            $inpFile = '/tmp/temperatureProfile.inp';
+            // draw temp chart
+            $f = fopen("/tmp/temperatureProfile.inp", "w");
+            fputs($f, '"X" "Top" "Bottom" "Left" "Right" "Front" "Rear"' . "\n");
+            foreach ($tempChartData['top'] as $key => $row) {
+                fputs($f, (double) $row['x'] . ' ' . (double) $row['y'] . ' ' . (double) $tempChartData['bottom'][$key]['y'] . ' ' . (double) $tempChartData['left'][$key]['y'] . ' ' . (double) $tempChartData['right'][$key]['y'] . ' ' . $tempChartData['front'][$key]['y'] . ' ' . $tempChartData['rear'][$key]['y'] . "\n");
+            } 
 
-            return compact("minScaleTemp", "maxScaleTemp", "minScaleConv", "maxScaleConv", "tempChartData", "convChartData");
+            fclose($f);
+
+            system('gnuplot -c '. $this->plotFolder .'/temperatureProfile.plot "('. $this->unit->timePositionSymbol() .')" "('. $this->unit->temperatureSymbol() .')" "'. $folder . '/' . $userName .'" "'. $idStudyEquipment .'-temp" '. $inpFile .'');
+
+            // draw conv chart
+            $f = fopen("/tmp/temperatureProfile.inp", "w");
+            fputs($f, '"X" "Top" "Bottom" "Left" "Right" "Front" "Rear"' . "\n");
+            foreach ($convChartData['top'] as $key => $row) {
+                fputs($f, (double) $row['x'] . ' ' . (double) $row['y'] . ' ' . (double) $convChartData['bottom'][$key]['y'] . ' ' . (double) $convChartData['left'][$key]['y'] . ' ' . (double) $convChartData['right'][$key]['y'] . ' ' . $convChartData['front'][$key]['y'] . ' ' . $convChartData['rear'][$key]['y'] . "\n");
+            } 
+
+            fclose($f);
+
+            system('gnuplot -c '. $this->plotFolder .'/temperatureProfile.plot "('. $this->unit->timePositionSymbol() .')" "('. $this->unit->convectionCoeffSymbol() .')" "'. $folder . '/' . $userName .'" "'. $idStudyEquipment .'-conv" '. $inpFile .'');
+
+            $imageTemp = getenv('APP_URL') . 'temperatureProfile/' . $userName . '/' . $idStudyEquipment . '-temp.png?time=' . time();
+            $imageConv = getenv('APP_URL') . 'temperatureProfile/' . $userName . '/' . $idStudyEquipment . '-conv.png?time=' . time();
+
+            return compact("minScaleTemp", "maxScaleTemp", "minScaleConv", "maxScaleConv", "tempChartData", "convChartData", "imageTemp", "imageConv");
 
         }
     }
