@@ -1263,7 +1263,9 @@ class ReportService
                     $recordPosValue = $recordPos;
                     $recordPosValue = array_values($recordPosValue);
                     foreach ($lEchantillon as $row) {
-                        $resultValue[$key][] = $recordPosValue[$row];
+                        if (isset($recordPosValue[$row])) {
+                            $resultValue[$key][] = $recordPosValue[$row];
+                        }
                     }
                     // $resultValue[$key] = $recordPosValue;
                 }
