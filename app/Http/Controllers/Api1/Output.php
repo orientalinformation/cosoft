@@ -1540,7 +1540,7 @@ class Output extends Controller
                     $lfminConv = $lfConvBottom;
                 }
 
-                $lfTempLeft = $this->unit->temperature($rowTemp->EP_ALPHA_LEFT);
+                $lfTempLeft = $this->unit->temperature($rowTemp->EP_TEMP_LEFT);
                 $lfConvLeft = $this->unit->convectionCoeff($rowTemp->EP_ALPHA_LEFT);
 
                 if ($lfTempLeft > $lfmaxTemp) {
@@ -1554,7 +1554,7 @@ class Output extends Controller
                     $lfminConv = $lfConvLeft;
                 }
 
-                $lfTempRight = $this->unit->temperature($rowTemp->EP_ALPHA_RIGHT);
+                $lfTempRight = $this->unit->temperature($rowTemp->EP_TEMP_RIGHT);
                 $lfConvRight = $this->unit->convectionCoeff($rowTemp->EP_ALPHA_RIGHT);
 
                 if ($lfTempRight > $lfmaxTemp) {
