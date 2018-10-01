@@ -1418,9 +1418,9 @@ class Reports extends Controller
                             }
 
                             if ($study['CHAINING_CONTROLS']) {
-                                $studyNumber = '';
-                            } else {
                                 $studyNumber = $resproductComps['studyNumber'];
+                            } else {
+                                $studyNumber = '';
                             }
                             
                         $html .= '
