@@ -119,7 +119,7 @@ class TempProfiles extends Controller
     {
         $input = $this->request->all();
 
-        $data = $item = [];
+        $points = $item = $temp = $parents = $childs = [];
         if (isset($input['xPositions'])) $xPositions = $input['xPositions'];    
         if (isset($input['tempPoints'])) $tempPoints = $input['tempPoints'];
 
@@ -129,18 +129,18 @@ class TempProfiles extends Controller
 
         for ($i = 0; $i < count($tempPoints); $i++) {
             if (!is_null($tempPoints[$i]['value'])) {
-                $item['x'] = $xPositions[$i];
-                $item['y'] = $tempPoints[$i]['value'];
-                array_push($data, $item);
+                $item[0] = $xPositions[$i];
+                $item[1] = $tempPoints[$i]['value'];
+                array_push($points, $item);
             }
         }
-        var_dump($data); die;
-        $points = null;
 
         $plotPoints = [];
-        for ($i = 0; $i < count($points); $i++) {
+        for ($i = 0; $i < count($tempPoints); $i++) {
             $value = $this->lagrangePolynomial($points, $i);
-            $plotPoints[] = [$i,  $value];
+            // $plotPoints[] = [$i,  $value];
+            $temp['temperature'] = $value;
+            array_push($plotPoints, $temp);
         }
 
         return $plotPoints;
