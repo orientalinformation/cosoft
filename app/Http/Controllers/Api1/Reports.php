@@ -22,6 +22,7 @@ use App\Models\Production;
 use App\Models\Product;
 use App\Models\Translation;
 use App\Models\InitialTemperature;
+use App\Models\DimaResults;
 use App\Cryosoft\EquipmentsService;
 use App\Cryosoft\StudyEquipmentService;
 use App\Cryosoft\MinMaxService;
@@ -125,16 +126,19 @@ class Reports extends Controller
     public function getReport($id)
     {
         $study = Study::where('ID_STUDY', $id)->first();
-        $stuequips = $study->studyEquipments;
-        if ($stuequips != null) {
-            foreach ($stuequips as $stuequip) {
-                if ($stuequip->tr != "" || $stuequip->tr != "***") {
-                    if ($study->CALCULATION_MODE == 1 && (!$stuequip->BRAIN_TYPE == 4)) {
-                        return response("Report is available only when equipments are calculated numerically", 406);
-                    } else if ($study->CALCULATION_MODE != 1 && (!$stuequip->BRAIN_TYPE != 0)) {
-                        return response("Report is available only when equipments are calculated numerically", 406);
-                    }
+        $studyEquipments = $study->studyEquipments;
+        if ($studyEquipments != null) {
+
+            $countSteqp = 0;
+            foreach ($studyEquipments as $studyEquipment) {
+                $dimaResult = DimaResults::where("ID_STUDY_EQUIPMENTS", $studyEquipment->ID_STUDY_EQUIPMENTS)->where("DIMA_TYPE", 1)->first();
+                if ($studyEquipment->BRAIN_TYPE == 4 && $dimaResult) {
+                    $countSteqp++;
                 }
+            }
+
+            if ($study->CALCULATION_MODE == 1 || $countSteqp == 0) {
+                return response("Report is available only when equipments are calculated numerically", 406);
             }
 
             $report = Report::where('ID_STUDY', $id)->first();
