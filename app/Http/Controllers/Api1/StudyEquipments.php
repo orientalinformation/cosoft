@@ -248,6 +248,20 @@ class StudyEquipments extends Controller
             'LIMIT_MAX' => 0,
         ];
 
+        $layoutGen = $this->stdeqp->getStudyEquipmentLayoutGen($studyEquipment);
+
+        $studyEquipment->layoutGen = $layoutGen;
+        $layoutResults = LayoutResults::where('ID_STUDY_EQUIPMENTS', $studyEquipment->ID_STUDY_EQUIPMENTS)->first();
+        if ($layoutResults) {
+            $layoutResults->QUANTITY_PER_BATCH = $this->unit->mass($layoutResults->QUANTITY_PER_BATCH);
+            $layoutResults->LOADING_RATE = $this->unit->toc($layoutResults->LOADING_RATE);
+            $layoutResults->LEFT_RIGHT_INTERVAL = $this->unit->prodDimension($layoutResults->LEFT_RIGHT_INTERVAL);
+            $layoutResults->NUMBER_PER_M = $this->unit->none($layoutResults->NUMBER_PER_M);
+            $layoutResults->NUMBER_IN_WIDTH = $this->unit->none($layoutResults->NUMBER_IN_WIDTH);
+        }
+        
+        $studyEquipment->layoutResults = $layoutResults;
+
         $tempExts = $this->stdeqp->loadExhaustGasTemperature($studyEquipment);
         $resultTempExts = [];
         if (count($tempExts) > 0) {

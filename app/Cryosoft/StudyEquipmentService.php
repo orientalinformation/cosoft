@@ -51,25 +51,25 @@ class StudyEquipmentService
 
         $lcTSRunResult = -1;
 
-        if (($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TS != 0) && ($sEquip->equipment->CAPABILITIES & CAP_TS_FROM_TOC != 0)) {
+        if ($this->equip->getCapability($sEquip->equipment->CAPABILITIES, 2) && $this->equip->getCapability($sEquip->equipment->CAPABILITIES, 131072)) {
             $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $sEquip->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS, 1, 1, 'c:\\temp\\layout-ts-trace.txt');
             $lcTSRunResult = $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, 2);
         }
 
         $doTR = false;
 
-        if (($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TR != 0)
-            && ($sEquip->equipment->CAPABILITIES & CAP_TR_FROM_TS != 0)
-            && ($sEquip->equipment->CAPABILITIES & CAP_PHAMCAST_ENABLE != 0)) {
+        if ($this->equip->getCapability($sEquip->equipment->CAPABILITIES, 1)
+            && $this->equip->getCapability($sEquip->equipment->CAPABILITIES, 524288)
+            && $this->equip->getCapability($sEquip->equipment->CAPABILITIES, 8)) {
             $doTR = true;
             $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $sEquip->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
             $lcRunResult = $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, !$doTR);
         }
 
         if (!$doTR
-            && ($sEquip->equipment->CAPABILITIES & CAP_VARIABLE_TS != 0)
-            && ($sEquip->equipment->CAPABILITIES & CAP_TS_FROM_TR != 0)
-            && ($sEquip->equipment->CAPABILITIES & CAP_PHAMCAST_ENABLE != 0)) {
+            && $this->equip->getCapability($sEquip->equipment->CAPABILITIES, 2)
+            && $this->equip->getCapability($sEquip->equipment->CAPABILITIES, 262144)
+            && $this->equip->getCapability($sEquip->equipment->CAPABILITIES, 8)) {
             $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $sEquip->ID_STUDY, $sEquip->ID_STUDY_EQUIPMENTS);
             $lcRunResult = $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, !$doTR);
         }
@@ -97,8 +97,8 @@ class StudyEquipmentService
 
             if ($equipWithSpecificSize) {
                 $layoutGen->SHELVES_TYPE = SHELVES_USERDEFINED;
-                $layoutGen->SHELVES_LENGTH = $sEquip->STDEQP_LENGTH;
-                $layoutGen->SHELVES_WIDTH = $sEquip->STDEQP_WIDTH;
+                $layoutGen->SHELVES_LENGTH = $this->convert->shelvesWidthUser($sEquip->STDEQP_LENGTH);
+                $layoutGen->SHELVES_WIDTH = $this->convert->shelvesWidthUser($sEquip->STDEQP_WIDTH);
             } else if ($sEquip->equipment->BATCH_PROCESS) {
             // default is now euronorme
                 $layoutGen->SHELVES_TYPE = SHELVES_EURONORME;
@@ -106,8 +106,8 @@ class StudyEquipmentService
                 $layoutGen->SHELVES_WIDTH = SHELVES_EURO_WIDTH;
             } else {
                 $layoutGen->SHELVES_TYPE = SHELVES_USERDEFINED;
-                $layoutGen->SHELVES_LENGTH = $sEquip->equipment->EQP_LENGTH;
-                $layoutGen->SHELVES_WIDTH = $sEquip->equipment->EQP_WIDTH;
+                $layoutGen->SHELVES_LENGTH = $this->convert->shelvesWidthUser($sEquip->equipment->EQP_LENGTH);
+                $layoutGen->SHELVES_WIDTH = $this->convert->shelvesWidthUser($sEquip->equipment->EQP_WIDTH);
             }
             $layoutGen->LENGTH_INTERVAL = INTERVAL_UNDEFINED;
             $layoutGen->WIDTH_INTERVAL = INTERVAL_UNDEFINED;
@@ -134,7 +134,8 @@ class StudyEquipmentService
             'layoutGen' => null,
             'BRAIN_TYPE' => intval($studyEquipment->BRAIN_TYPE),
             'EQUIP_STATUS' => intval($studyEquipment->EQUIP_STATUS),
-            'RUN_CALCULATE' => intval($studyEquipment->RUN_CALCULATE)
+            'RUN_CALCULATE' => intval($studyEquipment->RUN_CALCULATE),
+            'BATCH_PROCESS' => intval($studyEquipment->BATCH_PROCESS),
         ];
 
         $layoutGen = $this->getStudyEquipmentLayoutGen($studyEquipment);
