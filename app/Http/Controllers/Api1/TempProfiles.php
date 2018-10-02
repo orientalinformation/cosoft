@@ -137,9 +137,9 @@ class TempProfiles extends Controller
 
         $plotPoints = [];
         for ($i = 0; $i < count($tempPoints); $i++) {
-            $value = $this->lagrangePolynomial($points, $i);
+            $value = $this->lagrangePolynomial($points, $xPositions[$i]);
             // $plotPoints[] = [$i,  $value];
-            $temp['temperature'] = $value;
+            $temp['temperature'] = $this->units->temperature($value, 2, 1);
             array_push($plotPoints, $temp);
         }
 
