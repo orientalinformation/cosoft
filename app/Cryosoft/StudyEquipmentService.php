@@ -109,6 +109,7 @@ class StudyEquipmentService
                 $layoutGen->SHELVES_LENGTH = $this->convert->shelvesWidthUser($sEquip->equipment->EQP_LENGTH);
                 $layoutGen->SHELVES_WIDTH = $this->convert->shelvesWidthUser($sEquip->equipment->EQP_WIDTH);
             }
+            
             $layoutGen->LENGTH_INTERVAL = INTERVAL_UNDEFINED;
             $layoutGen->WIDTH_INTERVAL = INTERVAL_UNDEFINED;
 
@@ -117,6 +118,12 @@ class StudyEquipmentService
             $layoutGen->LENGTH_INTERVAL = ($layoutGen->LENGTH_INTERVAL != -1.0) ? $this->convert->prodDimension(doubleval($layoutGen->LENGTH_INTERVAL)) : $layoutGen->LENGTH_INTERVAL;
             $layoutGen->WIDTH_INTERVAL = ($layoutGen->WIDTH_INTERVAL != -1.0) ? $this->convert->prodDimension(doubleval($layoutGen->WIDTH_INTERVAL)) : $layoutGen->WIDTH_INTERVAL;
         }
+
+        $layoutGen->SHELVES_EURO_LENGTH = $this->convert->shelvesWidthUser(SHELVES_EURO_LENGTH);
+        $layoutGen->SHELVES_EURO_WIDTH = $this->convert->shelvesWidthUser(SHELVES_EURO_WIDTH);
+        $layoutGen->SHELVES_GASTRO_LENGTH = $this->convert->shelvesWidthUser(SHELVES_GASTRO_LENGTH);
+        $layoutGen->SHELVES_GASTRO_WIDTH = $this->convert->shelvesWidthUser(SHELVES_GASTRO_WIDTH);
+
         return $layoutGen;
     }
 
