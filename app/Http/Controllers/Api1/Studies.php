@@ -837,6 +837,7 @@ class Studies extends Controller
                 $ok = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($id, $conf, 4);
             }
         }
+
         return $ok;
     }
 
@@ -1538,6 +1539,32 @@ class Studies extends Controller
         $loadingRate = $input['toc'];
 
         $layoutGen = $this->stdeqp->getStudyEquipmentLayoutGen($sEquip);
+        if ($sEquip->BATCH_PROCESS == 1) {
+            $shelvesType = $input['crate'];
+            switch ($shelvesType) {
+                case 2:
+                    $shelvesLength = $layoutGen->SHELVES_LENGTH;
+                    $shelvesWidth = $layoutGen->SHELVES_WIDTH;
+                    break;
+                case 0:
+                    $shelvesLength = $layoutGen->SHELVES_EURO_LENGTH;
+                    $shelvesWidth = $layoutGen->SHELVES_EURO_WIDTH;
+                    break;
+                case 1:
+                    $shelvesLength = $layoutGen->SHELVES_GASTRO_LENGTH;
+                    $shelvesWidth = $layoutGen->SHELVES_GASTRO_WIDTH;
+                    break;
+                default:
+                    $shelvesLength = $layoutGen->SHELVES_EURO_LENGTH;
+                    $shelvesWidth = $layoutGen->SHELVES_EURO_WIDTH;
+            }
+
+            $layoutGen->NB_SHELVES_PERSO = $input['nbShelves'];
+            $layoutGen->SHELVES_TYPE = $shelvesType;
+            $layoutGen->SHELVES_LENGTH = $this->convert->shelvesWidth($shelvesLength, ['save' => true]);
+            $layoutGen->SHELVES_WIDTH = $this->convert->shelvesWidth($shelvesWidth, ['save' => true]);
+        }
+        
         // $layoutGen->ORI
         $layoutGen->PROD_POSITION = $input['orientation'];
        
@@ -1557,6 +1584,11 @@ class Studies extends Controller
             $layoutGen->WIDTH_INTERVAL = $this->convert->prodDimensionSave($input['widthInterval']);
             $layoutGen->LENGTH_INTERVAL = $this->convert->prodDimensionSave($input['lengthInterval']);
         }
+
+        unset($layoutGen->SHELVES_EURO_LENGTH);
+        unset($layoutGen->SHELVES_EURO_WIDTH);
+        unset($layoutGen->SHELVES_GASTRO_LENGTH);
+        unset($layoutGen->SHELVES_GASTRO_WIDTH);
         $layoutGen->save();
 
         $this->stdeqp->calculateEquipmentParams($sEquip);

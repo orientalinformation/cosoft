@@ -739,8 +739,8 @@ class StudyEquipmentService
             
             $cb = Crate::constructor__I_D_D_S(
                 ConveyerTemplate::$M,
-                $this->convert->convertToDouble($this->convert->shelvesWidthSVG($lfEquipLength)),
-                $this->convert->convertToDouble($this->convert->shelvesWidthSVG($lfEquipWidth)),
+                $this->convert->convertToDouble($this->convert->shelvesWidthSVG($lfEquipLength, ['save' => true])),
+                $this->convert->convertToDouble($this->convert->shelvesWidthSVG($lfEquipWidth, ['save' => true])),
                 $prodShape
             );
             $cb->setCoordinateLegend($this->convert->carpetWidthSymbol());
@@ -756,8 +756,8 @@ class StudyEquipmentService
             }
             
             $cb = ConveyerBelt::constructor__D_D_S_String(
-                $this->convert->convertToDouble($this->convert->carpetWidth($lfEquipLength)),
-                $this->convert->convertToDouble($this->convert->carpetWidth($lfEquipWidth)),
+                $this->convert->convertToDouble($this->convert->carpetWidth($lfEquipLength, ['save' => true])),
+                $this->convert->convertToDouble($this->convert->carpetWidth($lfEquipWidth, ['save' => true])),
                 $prodShape,
                 $this->convert->carpetWidthSymbol()
             );
@@ -778,12 +778,12 @@ class StudyEquipmentService
 
         if ($sequip->BATCH_PROCESS) {
             //convert
-            $pwidth = $this->convert->convertToDouble($this->convert->shelvesWidthSVG($pwidth));
-            $plength = $this->convert->convertToDouble($this->convert->shelvesWidthSVG($plength));
+            $pwidth = $this->convert->convertToDouble($this->convert->shelvesWidthSVG($pwidth, ['save' => true]));
+            $plength = $this->convert->convertToDouble($this->convert->shelvesWidthSVG($plength, ['save' => true]));
         } else {
             // convert
-            $pwidth = $this->convert->convertToDouble($this->convert->carpetWidthSVG($pwidth));
-            $plength = $this->convert->convertToDouble($this->convert->carpetWidthSVG($plength));
+            $pwidth = $this->convert->convertToDouble($this->convert->carpetWidthSVG($pwidth, ['save' => true]));
+            $plength = $this->convert->convertToDouble($this->convert->carpetWidthSVG($plength, ['save' => true]));
         }
         
         // Since we have computed the width and length back from the values
@@ -796,20 +796,20 @@ class StudyEquipmentService
         $widthInter = 0;
         $borderInter = 0;
         if ($sequip->BATCH_PROCESS) {
-            $hmargin = ($this->convert->convertToDouble($this->convert->shelvesWidthSVG($lfEquipLength))
-                - $numM * ($plength + $this->convert->convertToDouble($this->convert->shelvesWidthSVG($lengthInterVal)))) / 2;
+            $hmargin = ($this->convert->convertToDouble($this->convert->shelvesWidthSVG($lfEquipLength, ['save' => true]))
+                - $numM * ($plength + $this->convert->convertToDouble($this->convert->shelvesWidthSVG($lengthInterVal, ['save' => true])))) / 2;
             
             // convert
-            $lengthInter = $this->convert->convertToDouble($this->convert->shelvesWidthSVG($lengthInterVal));
-            $widthInter = $this->convert->convertToDouble($this->convert->shelvesWidthSVG($widthInterVal));
-            $borderInter = $this->convert->convertToDouble($this->convert->shelvesWidthSVG($layoutRes->LEFT_RIGHT_INTERVAL));
+            $lengthInter = $this->convert->convertToDouble($this->convert->shelvesWidthSVG($lengthInterVal, ['save' => true]));
+            $widthInter = $this->convert->convertToDouble($this->convert->shelvesWidthSVG($widthInterVal, ['save' => true]));
+            $borderInter = $this->convert->convertToDouble($this->convert->shelvesWidthSVG($layoutRes->LEFT_RIGHT_INTERVAL, ['save' => true]));
         } else {
-            $hmargin = ($this->convert->convertToDouble($this->convert->carpetWidthSVG($lfEquipLength))
-                - $numM * ($plength + $this->convert->convertToDouble($this->convert->carpetWidthSVG($lengthInterVal)))) / 2;
+            $hmargin = ($this->convert->convertToDouble($this->convert->carpetWidthSVG($lfEquipLength, ['save' => true]))
+                - $numM * ($plength + $this->convert->convertToDouble($this->convert->carpetWidthSVG($lengthInterVal, ['save' => true])))) / 2;
             // convert
-            $lengthInter = $this->convert->convertToDouble($this->convert->carpetWidthSVG($lengthInterVal));
-            $widthInter = $this->convert->convertToDouble($this->convert->carpetWidthSVG($widthInterVal));
-            $borderInter = $this->convert->convertToDouble($this->convert->carpetWidthSVG($layoutRes->LEFT_RIGHT_INTERVAL));
+            $lengthInter = $this->convert->convertToDouble($this->convert->carpetWidthSVG($lengthInterVal, ['save' => true]));
+            $widthInter = $this->convert->convertToDouble($this->convert->carpetWidthSVG($widthInterVal, ['save' => true]));
+            $borderInter = $this->convert->convertToDouble($this->convert->carpetWidthSVG($layoutRes->LEFT_RIGHT_INTERVAL, ['save' => true]));
         }
 
         $cb->setNbElements( intval ($layoutRes->NUMBER_PER_M), intval ($layoutRes->NUMBER_IN_WIDTH));

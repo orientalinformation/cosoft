@@ -649,6 +649,14 @@ class UnitsConverterService
         return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 4, $options);
     }
 
+    public function carpetWidth ($value, $options = null) {
+        $unit = Unit::where('TYPE_UNIT', W_CARPET_SHELVES)
+        ->join('USER_UNIT', 'UNIT.ID_UNIT', '=', 'USER_UNIT.ID_UNIT')
+        ->where('USER_UNIT.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 2, $options);
+    }
+
     public function meshesUnit($value) 
     {
         $unit = Unit::where('TYPE_UNIT', $this->value->MESH_CUT)
@@ -736,6 +744,16 @@ class UnitsConverterService
         ->join('USER_UNIT', 'UNIT.ID_UNIT', '=', 'USER_UNIT.ID_UNIT')
         ->where('USER_UNIT.ID_USER', $this->auth->user()->ID_USER)
         ->first();
+        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 2, $options);
+    }
+
+    public function shelvesWidth($value, $options = null)
+    {
+        $unit = Unit::where('TYPE_UNIT', $this->value->W_CARPET_SHELVES)
+        ->join('USER_UNIT', 'UNIT.ID_UNIT', '=', 'USER_UNIT.ID_UNIT')
+        ->where('USER_UNIT.ID_USER', $this->auth->user()->ID_USER)
+        ->first();
+
         return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B, 2, $options);
     }
 
@@ -1151,13 +1169,5 @@ class UnitsConverterService
     public function convertToDouble($value)
     {
         return floatval($value);
-    }
-
-    public function carpetWidth ($value) {
-        $unit = Unit::where('TYPE_UNIT', W_CARPET_SHELVES)
-        ->join('USER_UNIT', 'UNIT.ID_UNIT', '=', 'USER_UNIT.ID_UNIT')
-        ->where('USER_UNIT.ID_USER', $this->auth->user()->ID_USER)
-        ->first();
-        return $this->convertCalculator($value, $unit->COEFF_A, $unit->COEFF_B);
     }
 }
