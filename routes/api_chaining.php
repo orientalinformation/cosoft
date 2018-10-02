@@ -23,3 +23,11 @@ $router->GET('/api/v1/chaining/overview/{id}', 'Api1\\Chaining@getOverViewChaini
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/referencedata/equipment/{id}', 'Api1\\EquipmentReference@getEquipment');
+
+/**
+ * GET list 
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->POST('/api/v1/input/profile/generate', 'Api1\\TempProfiles@getPlotPoints');
