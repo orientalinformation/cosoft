@@ -140,6 +140,14 @@ class TempProfiles extends Controller
             $value = $this->lagrangePolynomial($points, $xPositions[$i]);
             // $plotPoints[] = [$i,  $value];
             $temp['temperature'] = $this->units->temperature($value, 2, 1);
+            if (floatval($temp['temperature']) > 100) {
+                $temp['temperature'] = 100;
+            }
+
+            if (floatval($temp['temperature']) < -100) {
+                $temp['temperature'] = -100;
+            }
+            
             array_push($plotPoints, $temp);
         }
 
