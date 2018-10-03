@@ -407,7 +407,7 @@ class Products extends Controller
 
         $meshGeneration = $product->meshGenerations->first();
         if ($meshGeneration) {
-            if ($elements[0]->ID_SHAPE == 1 || $elements[0]->ID_SHAPE == 6 ) {
+            if ($elements[0]->ID_SHAPE == 1 || $elements[0]->ID_SHAPE == 6 || $elements[0]->ID_SHAPE == 14) {
                 $meshGeneration->MESH_1_SIZE = doubleval(0);
                 $meshGeneration->MESH_1_INT = doubleval(0);
             } else {

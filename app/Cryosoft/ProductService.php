@@ -241,7 +241,7 @@ class ProductService
                                     ->where('INSERT_LINE_ORDER', '!=', $study->ID_STUDY)
                                     ->pluck('ID_PRODUCT_ELMT')->toArray();
         
-        if (!count($listOfElmtId)>0) {
+        if (!count($listOfElmtId) > 0) {
             return null;
         }
 
