@@ -450,7 +450,11 @@ class Products extends Controller
 
                 // Fix error reverse
                 $elmtInitTemp = $this->productElmts->searchTempMeshPoint($elmt, $pointMeshOrder2['points']);
-                $elmtInitTemp = array_reverse($elmtInitTemp);
+                
+                if (!is_null($elmtInitTemp)) {
+                    $elmtInitTemp = array_reverse($elmtInitTemp);
+                }
+
                 array_push($productElmtInitTemp, $elmtInitTemp);
             } else {
                 if ($meshGeneration) {
@@ -459,7 +463,11 @@ class Products extends Controller
                     array_push($nbMeshPointElmt, count($pointMeshOrder2['positions']));
 
                     // Fix error reverse
-                    $elmtInitTemp = array_reverse($pointMeshOrder2['points']);
+                    $elmtInitTemp = $pointMeshOrder2['points'];
+                    if (!is_null($elmtInitTemp)) {
+                        $elmtInitTemp = array_reverse($pointMeshOrder2['points']);
+                    }
+                    
                     array_push($productElmtInitTemp, $elmtInitTemp);
                 }
             }
