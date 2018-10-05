@@ -1875,12 +1875,12 @@ class Studies extends Controller
 
             if (isset($axisResult[0]['y'])) {
                 $tempRecordPts->AXIS2_AX_1 = $axisResult[0]['y'];
-                if ($report) $report->AXE1_X = $axisResult[0]['y'];
+                if ($report) $report->AXE3_Y = $axisResult[0]['y'];
             }
 
             if (isset($axisResult[0]['z'])) {
                 $tempRecordPts->AXIS3_AX_1 = $axisResult[0]['z'];
-                if ($report) $report->AXE1_Y = $axisResult[0]['z'];
+                if ($report) $report->AXE3_Z = $axisResult[0]['z'];
             }
 
             if (isset($axisResult[1]['x'])) {
@@ -1895,12 +1895,12 @@ class Studies extends Controller
 
             if (isset($axisResult[2]['x'])) {
                 $tempRecordPts->AXIS1_AX_3 = $axisResult[2]['x'];
-                if ($report) $report->AXE3_Y = $axisResult[2]['x'];
+                if ($report) $report->AXE1_X = $axisResult[2]['x'];
             }
 
             if (isset($axisResult[2]['y'])) {
                 $tempRecordPts->AXIS2_AX_3 = $axisResult[2]['y'];
-                if ($report) $report->AXE3_Z = $axisResult[2]['y'];
+                if ($report) $report->AXE1_Y = $axisResult[2]['y'];
             }
 
             $tempRecordPts->AXIS1_PL_2_3 = $planResult[0];
