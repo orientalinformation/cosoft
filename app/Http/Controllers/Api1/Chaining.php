@@ -169,6 +169,16 @@ class Chaining extends Controller
 
       array_multisort(array_column($chaining, 'ID_STUDY'), SORT_ASC, $chaining); 
 
+      foreach ($chaining as $chain) {
+        if (intval($chain['ID_STUDY']) > $id) {
+
+          $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, intval($chain['ID_STUDY']), -1);
+          $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, SC_CLEAN_OUTPUT_CALCUL); // SC_CLEAN_OUTPUT_CALCUL SC_CLEAN_OUTPUT_ALL
+
+          return $chain;
+        }
+      }
+
       return $chaining;
     }
 
