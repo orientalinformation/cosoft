@@ -98,9 +98,9 @@ class TempProfiles extends Controller
         $xj = $points[$j][0]; 
         $partialProduct = 1;
 
-        for ($m = 0; $m < count($points); $m++) { 
+        for ($m = 0; $m < count($points); $m++) {
             if ($m === $j) { continue; }                 
-            $partialProduct *= ($x - $points[$m][0]) / ($xj-$points[$m][0]);
+            $partialProduct *= ($x - $points[$m][0]) / ($xj - $points[$m][0]);
         }
         return $partialProduct;
     }
@@ -147,7 +147,7 @@ class TempProfiles extends Controller
             if (floatval($temp['temperature']) < -100) {
                 $temp['temperature'] = -100;
             }
-            
+
             array_push($plotPoints, $temp);
         }
 

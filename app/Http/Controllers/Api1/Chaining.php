@@ -149,6 +149,29 @@ class Chaining extends Controller
       return $chainings;
     }
 
+    public function clearParentChaining($id)
+    {
+      $chaining = [];
+
+      $parents  = $this->getParentChaining($id);
+      if (count($parents) > 0) {
+        foreach ($parents as $parent) {
+          array_push($chaining, $parent);
+        }
+      }
+
+      $childrens = $this->getChildChaining($id);
+      if (count($childrens) > 0) {
+        foreach ($childrens as $child) {
+          array_push($chaining, $child);
+        }
+      }
+
+      array_multisort(array_column($chaining, 'ID_STUDY'), SORT_ASC, $chaining); 
+
+      return $chaining;
+    }
+
     private function getParentChaining($idStudy, $chaining = [])
     {
       $study = Study::findOrFail($idStudy);

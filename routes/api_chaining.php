@@ -31,3 +31,11 @@ $router->GET('/api/v1/referencedata/equipment/{id}', 'Api1\\EquipmentReference@g
  * Output-Formats: [application/json]
  */
 $router->POST('/api/v1/input/profile/generate', 'Api1\\TempProfiles@getPlotPoints');
+
+/**
+ * GET all chaining clear
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/chaining/clear/{id}', 'Api1\\Chaining@clearParentChaining');
