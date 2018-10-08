@@ -109,7 +109,7 @@ class ReportService
             $arrStudyId = $this->getParentIdChaining($study->PARENT_ID, $arrStudyId);
         }
 
-        return $arrStudyId;
+        return array_reverse($arrStudyId);
     }
 
     public function getChainingStudy($idStudy)
