@@ -54,7 +54,7 @@ class Product
         self::$D_RECTANGULAR_BLOCK_V = 10;
         self::$D_RECTANGULAR_BLOCK_H = 11;
         self::$D_STANDING_CYLINDER = 12;
-        self::$D_LYLING_OVAL = 13;
+        self::$D_LYLING_CYLINDER = 13;
         self::$D_SPHERE = 14;
         self::$D_STANDING_CONCENTRIC_CYLINDER = 15;
         self::$D_LYLING_CONCENTRIC_CYLINDER = 16;
@@ -109,10 +109,15 @@ class Product
         switch ($this->_shape) {
             case self::$SLAB:
             case self::$PARALLELEPIPED_STANDING:
+            case self::$D_RECTANGULAR_BLOCK_V:
             case self::$PARALLELEPIPED_LAYING:
+            case self::$D_RECTANGULAR_BLOCK_H:
             case self::$PARALLELEPIPED_BREADED:
+            case self::$D_RECTANGULAR_BLOCK_B:
             case self::$CYLINDER_LAYING:
+            case self::$D_LYLING_CYLINDER:
             case self::$CYLINDER_CONCENTRIC_LAYING:
+            case self::$D_LYLING_CONCENTRIC_CYLINDER:
                 $tmp->append((((((((("\t<rect x=\"" . $x) . "\" y=\"") . $y) . "\" width=\"") . $this->_svgWidth) . "\" height=\"") . $this->_svgHeight) . "\" fill=\"gray\" stroke=\"black\" stroke-width=\"1\"/>\n"));
                 break;
 
@@ -121,9 +126,9 @@ class Product
                 break;
 
             case self::$CYLINDER_STANDING:
+            case self::$D_STANDING_CYLINDER:
             case self::$CYLINDER_CONCENTRIC_STANDING:
             case self::$D_STANDING_CONCENTRIC_CYLINDER:
-            case self::$D_LYLING_CONCENTRIC_CYLINDER:
             case self::$SPHERE:
             case self::$D_SPHERE:
                 $x += ($this->_svgWidth / 2);
