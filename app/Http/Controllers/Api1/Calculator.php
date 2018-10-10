@@ -370,7 +370,7 @@ class Calculator extends Controller
     {
         $study = Study::find($idStudy);
 
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\Consumption_'.$idStudy.'_'.$idStudyEquipment.'.txt');
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->ID_STUDY.'\\Consumption_'.$idStudy.'_'.$idStudyEquipment.'.txt');
         return $this->kernel->getKernelObject('ConsumptionCalculator')->COCConsumptionCalculation($conf);
     }
 
@@ -378,7 +378,7 @@ class Calculator extends Controller
     {
         $study = Study::find($idStudy);
 
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\DimMat_'.$idStudy.'_'.$idStudyEquipment.'.txt');
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->ID_STUDY.'\\DimMat_'.$idStudy.'_'.$idStudyEquipment.'.txt');
         return $this->kernel->getKernelObject('DimMatCalculator')->DMCCalculation($conf, 1);
     }
 
@@ -386,7 +386,7 @@ class Calculator extends Controller
     {   
         $study = Study::find($idStudy);
 
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\Economic_'.$idStudy.'_'.$idStudyEquipment.'.txt');
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->ID_STUDY.'\\Economic_'.$idStudy.'_'.$idStudyEquipment.'.txt');
         return $this->kernel->getKernelObject('EconomicCalculator')->ECEconomicCalculation($conf);
     }
 
@@ -394,7 +394,7 @@ class Calculator extends Controller
     {
         $study = Study::find($idStudy);
 
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\Pipeline_'.$idStudy.'_'.$idStudyEquipment.'.txt');
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->ID_STUDY.'\\Pipeline_'.$idStudy.'_'.$idStudyEquipment.'.txt');
         return $this->kernel->getKernelObject('PipelineCalculator')->PCPipelineCalculation($conf);
     }
 
@@ -418,7 +418,7 @@ class Calculator extends Controller
                     // run study clear
                     $this->runStudyCleaner($idStudy, $idStudyEquipment, SC_CLEAN_OUTPUT_CALCUL);
 
-                    $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\brain_log_'.$idStudy.'_'. $idStudyEquipment.'.txt');
+                    $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->ID_STUDY.'\\brain_log_'.$idStudy.'_'. $idStudyEquipment.'.txt');
                     $param = new \Cryosoft\stSKBRParam();
                     array_push($results, $this->kernel->getKernelObject('BrainCalculator')->BRTeachCalculation($conf, $param, 10));
                     //add run economic and consumption
@@ -1127,7 +1127,7 @@ class Calculator extends Controller
         $study = Study::find($idStudy);
 
         $ret = 0;
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\studyClear_'. $idStudy.'_'.$idStudyEquipment. '_'.$number.'.txt');
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->ID_STUDY.'\\studyClear_'. $idStudy.'_'.$idStudyEquipment. '_'.$number.'.txt');
         $ret = $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, $number);
 
         if ($ret == 0 && $this->cal->isStudyHasChilds($idStudy)) {
@@ -1172,7 +1172,7 @@ class Calculator extends Controller
         $results = null;
 
         if (count($studyEquipment) > 0) {
-            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\brain_log_'.$idStudy.'_'.$idStudyEquipment.'_'.$ldMode.'.txt');
+            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->ID_STUDY.'\\brain_log_'.$idStudy.'_'.$idStudyEquipment.'_'.$ldMode.'.txt');
             $param = new \Cryosoft\stSKBRParam();
 
             $results = $this->kernel->getKernelObject('BrainCalculator')->BRTeachCalculation($conf, $param, $ldMode);
@@ -1229,7 +1229,7 @@ class Calculator extends Controller
                 $brainMode = 0;
             }
 
-            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\brain_log_'.$idStudy.'_'.$idStudyEquipment.'_'.$brainMode.'.txt');
+            $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->ID_STUDY.'\\brain_log_'.$idStudy.'_'.$idStudyEquipment.'_'.$brainMode.'.txt');
             $param = new \Cryosoft\stSKBRParam();
             return $this->kernel->getKernelObject('BrainCalculator')->BRTeachCalculation($conf, $param, $brainMode);
 
@@ -1271,7 +1271,7 @@ class Calculator extends Controller
     {
         $study = Study::find($idStudy);
 
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\PhamCast_'.$idStudy.'_'.$idStudyEquipment.'_'.$doTr.'.txt');
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->ID_STUDY.'\\PhamCast_'.$idStudy.'_'.$idStudyEquipment.'_'.$doTr.'.txt');
         return $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf);
     }
 
@@ -1279,7 +1279,7 @@ class Calculator extends Controller
     {
         $study = Study::find($idStudy);
 
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\KernelTool_'.$idStudy.'_'.$idStudyEquipment.'.txt');
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->ID_STUDY.'\\KernelTool_'.$idStudy.'_'.$idStudyEquipment.'.txt');
         return $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 1);
     }
 
@@ -1314,7 +1314,7 @@ class Calculator extends Controller
 
         $this->runStudyCleaner($idStudy, $idStudyEquipment, SC_CLEAN_OUTPUT_OPTIMAX_BRRUN);
 
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\brain_mode_13_'.$idStudy.'_'.$idStudyEquipment.'.txt');
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->ID_STUDY.'\\brain_mode_13_'.$idStudy.'_'.$idStudyEquipment.'.txt');
         $param = new \Cryosoft\stSKBRParam($lfControlTemp, $lfLoadingRateMax);
         $ldMode = 13;
 
