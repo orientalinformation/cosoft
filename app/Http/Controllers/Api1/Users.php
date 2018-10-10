@@ -17,6 +17,7 @@ use App\Models\Equipfamily;
 use App\Models\Unit;
 use App\Models\UserUnit;
 use App\Models\MonetaryCurrency;
+use App\Models\Connection;
 
 
 class Users extends Controller
@@ -44,6 +45,9 @@ class Users extends Controller
     public function changePassword($id)
     {
         $input = $this->request->all();
+        $connections = null;
+        $current = Carbon::now();
+        $current->timezone = 'Asia/Ho_Chi_Minh';
 
         if (!isset($input['oldPass']) || !isset($input['newPass']))
             throw new \Exception("Error Processing Request", 1);
@@ -53,11 +57,22 @@ class Users extends Controller
         $hashNewPass = Hash::make($newPass);
 
         $user = User::find($id);
-        if (!Hash::check($oldPass, $user->USERPASS)) {
-            return -1;
+        if ($user) {
+            $connections = Connection::where('ID_USER', $id)->where('TYPE_DISCONNECTION', 0)->get();
+            if (count($connections) > 0) {
+                foreach ($connections as $connection) {
+                    $connection->DATE_DISCONNECTION = $current->toDateTimeString();
+                    $connection->TYPE_DISCONNECTION = 2;
+                    $connection->update();
+                }
+            }
+
+            if (!Hash::check($oldPass, $user->USERPASS)) {
+                return -1;
+            }
         }
-        User::where('ID_USER', $id)
-        ->update(['USERPASS' => $hashNewPass]);
+
+        User::where('ID_USER', $id)->update(['USERPASS' => $hashNewPass]);
 
         return 1;
     }
