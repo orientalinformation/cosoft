@@ -152,7 +152,7 @@ class Products extends Controller
         $study = Study::find($product->ID_STUDY);
 
         //run studyCleaner 41
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_STUDY, -1, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\StudyCleaner_'.$study->ID_STUDY.'_41_.txt');
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_STUDY, -1);
         $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, SC_CLEAN_OUTPUT_PRODUCT);
 
         $studyEquipments = StudyEquipment::where('ID_STUDY', $product->ID_STUDY)->get();
@@ -163,10 +163,10 @@ class Products extends Controller
             }
         }
 
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $id, $elmtId, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\WeightCalculator_'.$study->ID_STUDY.'_2_.txt');
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $id, $elmtId);
         $ok1 = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($product->ID_STUDY,  $conf, 2);
 
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $id, -1,  1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\WeightCalculator_'.$study->ID_STUDY.'_3_.txt');
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $id);
         $ok2 = $this->kernel->getKernelObject('WeightCalculator')->WCWeightCalculation($product->ID_STUDY,  $conf, 3);
         
         $this->mesh->refreshMesh($product->study);
