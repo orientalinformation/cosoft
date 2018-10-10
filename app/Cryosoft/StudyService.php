@@ -294,7 +294,7 @@ class StudyService
         $study = Study::find($idStudy);
 
         $ret = 0;
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $ld_StudEqpId, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\StudyClear_'.$idStudy.'_'.$ld_StudEqpId.'_'.$ld_Mode.'.txt');
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $ld_StudEqpId, 1, 1, 'c:\\temp\\'.$study->ID_STUDY.'\\StudyClear_'.$idStudy.'_'.$ld_StudEqpId.'_'.$ld_Mode.'.txt');
         $ret = $this->kernel->getKernelObject('StudyCleaner')->SCStudyClean($conf, $ld_Mode);
         // Chaining management to mark childs to recalculate
         if (($ret = 0) && $this->calculator->isStudyHasChilds($idStudy)) {
@@ -382,7 +382,7 @@ class StudyService
     {
         $study = Study::find($idStudy);
 
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\ToolCalculator_'.$idStudy.'_'.$idStudyEquipment.'.txt');
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->ID_STUDY.'\\ToolCalculator_'.$idStudy.'_'.$idStudyEquipment.'.txt');
         return $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 1);
     }
 

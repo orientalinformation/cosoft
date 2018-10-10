@@ -187,7 +187,7 @@ class CheckWarnings extends Controller
     {
         $study = Study::find($idStudy);
 
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\Phamcast_'.$idStudy.'_'.$idStudyEquipment.'_'.$doTR.'.txt');
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->ID_STUDY.'\\Phamcast_'.$idStudy.'_'.$idStudyEquipment.'_'.$doTR.'.txt');
         return $this->kernel->getKernelObject('PhamCastCalculator')->PCCCalculation($conf, !$doTR);
     }
 
@@ -195,7 +195,7 @@ class CheckWarnings extends Controller
     {
         $study = Study::find($idStudy);
 
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\ToolCalculator_'.$idStudy.'_'.$idStudyEquipment.'.txt');
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->ID_STUDY.'\\ToolCalculator_'.$idStudy.'_'.$idStudyEquipment.'.txt');
         return $this->kernel->getKernelObject('KernelToolCalculator')->KTCalculator($conf, 1);
     }
 
@@ -203,7 +203,7 @@ class CheckWarnings extends Controller
     {
         $study = Study::find($idStudy);
 
-        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->STUDY_NAME.'\\layout-trace_'.$idStudy.'_'.$idStudyEquipment.'_'.$number.'.txt');
+        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->ID_STUDY.'\\layout-trace_'.$idStudy.'_'.$idStudyEquipment.'_'.$number.'.txt');
         return $this->kernel->getKernelObject('LayoutCalculator')->LCCalculation($conf, $number);
     }
 }
