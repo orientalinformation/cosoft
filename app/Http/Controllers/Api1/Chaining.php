@@ -262,4 +262,34 @@ class Chaining extends Controller
       }
       return 0;
     }
+
+    public function getValueProgressStudyEquipment()
+    {
+      $input = $this->request->all();
+      $idStudy = null;
+      $progress = array();
+      // $item = array();
+
+      // if (isset($input['idStudy'])) $idStudy = intval($input['idStudy']);
+
+      // $studyEquipments = StudyEquipment::where('ID_STUDY', $idStudy)->get();
+
+      // if (count($studyEquipments) > 0) {
+      //     for ($i = 0; $i < count($studyEquipments); $i++) { 
+      //         $item['BRAIN_PROCESS'] = $studyEquipments[$i]->BRAIN_PROCESS;
+      //         array_push($progress, $item);
+      //     }
+      // }
+
+      // return $progress;
+      $public_path = rtrim(app()->basePath("public"), '/');
+      foreach (scandir($public_path . '/3d/') as $item) {
+          if ($item == '.' || $item == '..') {
+              continue;
+          }
+          array_push($progress, $item);
+      }
+
+      return $progress;
+    }
 }

@@ -39,3 +39,11 @@ $router->POST('/api/v1/input/profile/generate', 'Api1\\TempProfiles@getPlotPoint
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/chaining/clear/{id}', 'Api1\\Chaining@clearParentChaining');
+
+/**
+ * GET all progress bar
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->GET('/api/v1/calculator/study/progressbar', 'Api1\\Chaining@getValueProgressStudyEquipment');
