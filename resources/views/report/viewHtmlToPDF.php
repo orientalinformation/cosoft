@@ -792,12 +792,18 @@
             <?php } ?>
             <?php if ($arrayParam['params']['REP_CONS_PIE'] == 1) {?>
             <div class="block-title">Consumptions Pies</div>
-            <?php foreach ($consumptions as $key => $consumption) { ?>
+            <?php foreach ($consumptions as $key => $consumption) { 
+                $percentProduct = $consumption['percentProduct'];
+                $percentEquipmentPerm = $consumption['percentEquipmentPerm'];
+                $percentEquipmentDown = $consumption['percentEquipmentDown'];
+                $percentLine = $consumption['percentLine'];
+                if ($percentProduct != 0 && $percentEquipmentPerm != 0  && $percentEquipmentDown != 0) {
+            ?>
                 <h5 class="bold"><?php echo $consumption['equipName'] ?></h5>
                 <div class="form-group text-center">
                     <img src="<?php echo $arrayParam['host'] . "consumption/" . $arrayParam['study']['USERNAM'] . "/" . $arrayParam['study']['ID_STUDY'] . "/" . $consumption['id'] . ".png" ?>" style="max-width: 640px" />
                 </div>
-            <?php }?>
+            <?php }}?>
             <?php } ?>
         <?php } ?>
 

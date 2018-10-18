@@ -868,43 +868,46 @@ class Reports extends Controller
                     $percentEquipmentPerm = $consumption['percentEquipmentPerm'];
                     $percentEquipmentDown = $consumption['percentEquipmentDown'];
                     $percentLine = $consumption['percentLine'];
-                    $percentProductLabel = 'Product';
-                    $percentEquipmentPermLabel = 'Equipment(permanent)';
-                    $percentEquipmentDownLabel = 'Equipment(cool down)';
-                    $percentLineLabel = 'Line';
-                    $f = fopen("/tmp/consumptionPie.inp", "w");
-                    fputs($f, 'name percent' . "\n");
-                    fputs($f, '"'. $percentProductLabel .'" '. $percentProduct .'' . "\n");
-                    fputs($f, '"'. $percentEquipmentPermLabel .'" '. $percentEquipmentPerm .'' . "\n");
-                    fputs($f, '"'. $percentEquipmentDownLabel .'" '. $percentEquipmentDown .'' . "\n");
-                    if ($percentLine > 0) {
-                        fputs($f, '"'. $percentLineLabel .'" '. $percentLine .'' . "\n");
+                    if ($percentProduct != 0 && $percentEquipmentPerm != 0  && $percentEquipmentDown != 0) {
+                        $percentProductLabel = 'Product';
+                        $percentEquipmentPermLabel = 'Equipment(permanent)';
+                        $percentEquipmentDownLabel = 'Equipment(cool down)';
+                        $percentLineLabel = 'Line';
+                        $f = fopen("/tmp/consumptionPie.inp", "w");
+                        fputs($f, 'name percent' . "\n");
+                        fputs($f, '"'. $percentProductLabel .'" '. $percentProduct .'' . "\n");
+                        fputs($f, '"'. $percentEquipmentPermLabel .'" '. $percentEquipmentPerm .'' . "\n");
+                        fputs($f, '"'. $percentEquipmentDownLabel .'" '. $percentEquipmentDown .'' . "\n");
+                        if ($percentLine > 0) {
+                            fputs($f, '"'. $percentLineLabel .'" '. $percentLine .'' . "\n");
+                        }
+                        
+                        fclose($f);
+
+                        $folder = $this->output->public_path('consumption');
+
+                        $userName = $study->USERNAM;
+                        $idStudy = $study->ID_STUDY;
+                        if (!is_dir($folder)) {
+                            mkdir($folder, 0777);
+                        }
+
+                        if (!is_dir($folder . '/' . $userName)) {
+                            mkdir($folder . '/' . $userName, 0777);
+                        }
+
+                        if (!is_dir($folder . '/' . $userName . '/' . $idStudy)) {
+                            mkdir($folder . '/' . $userName . '/' . $idStudy, 0777);
+                        }
+
+                        $outPutFolder = $folder . '/' . $userName . '/' . $idStudy;
+                        $outPutFileName = $idStudyEquipment;
+                        
+                        system('gnuplot -c '. $this->plotFolder .'/consumptions.plot "/tmp/consumptionPie.inp" "'. $outPutFolder . '" "'. $outPutFileName .'" ');
                     }
-                    
-                    fclose($f);
-
-                    $folder = $this->output->public_path('consumption');
-
-                    $userName = $study->USERNAM;
-                    $idStudy = $study->ID_STUDY;
-                    if (!is_dir($folder)) {
-                        mkdir($folder, 0777);
-                    }
-
-                    if (!is_dir($folder . '/' . $userName)) {
-                        mkdir($folder . '/' . $userName, 0777);
-                    }
-
-                    if (!is_dir($folder . '/' . $userName . '/' . $idStudy)) {
-                        mkdir($folder . '/' . $userName . '/' . $idStudy, 0777);
-                    }
-
-                    $outPutFolder = $folder . '/' . $userName . '/' . $idStudy;
-                    $outPutFileName = $idStudyEquipment;
-                    
-                    system('gnuplot -c '. $this->plotFolder .'/consumptions.plot "/tmp/consumptionPie.inp" "'. $outPutFolder . '" "'. $outPutFileName .'" ');
                 }
             }
+
             $progress .= "\nConsumption pies";
             $this->writeProgressFile($progressFile, $progress);
         }
@@ -2080,10 +2083,16 @@ class Reports extends Controller
                 PDF::SetFont('helvetica', '', 9);
                 $html='';
                 foreach ($consumptions as $key => $consumption) {
-                    $height = $key > 0 ? 550 : 530;
-                    PDF::Bookmark($consumption['equipName'] , 1, 0, '', '', array(128,0,0));
-                    $html .='<br><h3>'. $consumption['equipName'] .'</h3>';
-                    $html .= '<div style="text-align:center"><img height="'. $height .'" src="'. $public_path .'/consumption/'. $study['USERNAM'] .'/'. $study['ID_STUDY'] .'/'. $consumption['id'] .'.png"></div>';
+                    $percentProduct = $consumption['percentProduct'];
+                    $percentEquipmentPerm = $consumption['percentEquipmentPerm'];
+                    $percentEquipmentDown = $consumption['percentEquipmentDown'];
+                    $percentLine = $consumption['percentLine'];
+                    if ($percentProduct != 0 && $percentEquipmentPerm != 0  && $percentEquipmentDown != 0) {
+                        $height = $key > 0 ? 550 : 530;
+                        PDF::Bookmark($consumption['equipName'] , 1, 0, '', '', array(128,0,0));
+                        $html .='<br><h3>'. $consumption['equipName'] .'</h3>';
+                        $html .= '<div style="text-align:center"><img height="'. $height .'" src="'. $public_path .'/consumption/'. $study['USERNAM'] .'/'. $study['ID_STUDY'] .'/'. $consumption['id'] .'.png"></div>';
+                    }
                 }
 
                 PDF::writeHTML($html, true, false, true, false, '');
@@ -2852,41 +2861,43 @@ class Reports extends Controller
                     $percentEquipmentPerm = $consumption['percentEquipmentPerm'];
                     $percentEquipmentDown = $consumption['percentEquipmentDown'];
                     $percentLine = $consumption['percentLine'];
-                    $percentProductLabel = 'Product';
-                    $percentEquipmentPermLabel = 'Equipment(permanent)';
-                    $percentEquipmentDownLabel = 'Equipment(cool down)';
-                    $percentLineLabel = 'Line';
-                    $f = fopen("/tmp/consumptionPie.inp", "w");
-                    fputs($f, 'name percent' . "\n");
-                    fputs($f, '"'. $percentProductLabel .'" '. $percentProduct .'' . "\n");
-                    fputs($f, '"'. $percentEquipmentPermLabel .'" '. $percentEquipmentPerm .'' . "\n");
-                    fputs($f, '"'. $percentEquipmentDownLabel .'" '. $percentEquipmentDown .'' . "\n");
-                    if ($percentLine > 0) {
-                        fputs($f, '"'. $percentLineLabel .'" '. $percentLine .'' . "\n");
+                    if ($percentProduct != 0 && $percentEquipmentPerm != 0  && $percentEquipmentDown != 0) {
+                        $percentProductLabel = 'Product';
+                        $percentEquipmentPermLabel = 'Equipment(permanent)';
+                        $percentEquipmentDownLabel = 'Equipment(cool down)';
+                        $percentLineLabel = 'Line';
+                        $f = fopen("/tmp/consumptionPie.inp", "w");
+                        fputs($f, 'name percent' . "\n");
+                        fputs($f, '"'. $percentProductLabel .'" '. $percentProduct .'' . "\n");
+                        fputs($f, '"'. $percentEquipmentPermLabel .'" '. $percentEquipmentPerm .'' . "\n");
+                        fputs($f, '"'. $percentEquipmentDownLabel .'" '. $percentEquipmentDown .'' . "\n");
+                        if ($percentLine > 0) {
+                            fputs($f, '"'. $percentLineLabel .'" '. $percentLine .'' . "\n");
+                        }
+                        
+                        fclose($f);
+
+                        $folder = $this->output->public_path('consumption');
+
+                        $userName = $study->USERNAM;
+                        $idStudy = $study->ID_STUDY;
+                        if (!is_dir($folder)) {
+                            mkdir($folder, 0777);
+                        }
+
+                        if (!is_dir($folder . '/' . $userName)) {
+                            mkdir($folder . '/' . $userName, 0777);
+                        }
+
+                        if (!is_dir($folder . '/' . $userName . '/' . $idStudy)) {
+                            mkdir($folder . '/' . $userName . '/' . $idStudy, 0777);
+                        }
+
+                        $outPutFolder = $folder . '/' . $userName . '/' . $idStudy;
+                        $outPutFileName = $idStudyEquipment;
+                        
+                        system('gnuplot -c '. $this->plotFolder .'/consumptions.plot "/tmp/consumptionPie.inp" "'. $outPutFolder . '" "'. $outPutFileName .'" ');
                     }
-                    
-                    fclose($f);
-
-                    $folder = $this->output->public_path('consumption');
-
-                    $userName = $study->USERNAM;
-                    $idStudy = $study->ID_STUDY;
-                    if (!is_dir($folder)) {
-                        mkdir($folder, 0777);
-                    }
-
-                    if (!is_dir($folder . '/' . $userName)) {
-                        mkdir($folder . '/' . $userName, 0777);
-                    }
-
-                    if (!is_dir($folder . '/' . $userName . '/' . $idStudy)) {
-                        mkdir($folder . '/' . $userName . '/' . $idStudy, 0777);
-                    }
-
-                    $outPutFolder = $folder . '/' . $userName . '/' . $idStudy;
-                    $outPutFileName = $idStudyEquipment;
-                    
-                    system('gnuplot -c '. $this->plotFolder .'/consumptions.plot "/tmp/consumptionPie.inp" "'. $outPutFolder . '" "'. $outPutFileName .'" ');
                 }
             }
             
