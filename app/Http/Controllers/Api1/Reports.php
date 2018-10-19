@@ -815,7 +815,7 @@ class Reports extends Controller
         $equipData = $this->stdeqp->findStudyEquipmentsByStudy($study);
 
         if ($EQUIP_LIST == 1) {
-            $progress .= "\nEquiment";
+            $progress .= "\nEquipment";
             $this->writeProgressFile($progressFile, $progress);
         }
         
@@ -841,7 +841,7 @@ class Reports extends Controller
         $economic = $this->reportserv->getAnalyticalEconomic($study->ID_STUDY);
         if ($CONS_OVERALL == 1 || $CONS_TOTAL ==1 || $CONS_SPECIFIC  == 1 || $CONS_HOUR ==1 || $CONS_DAY == 1||
             $CONS_WEEK == 1 || $CONS_MONTH == 1 || $CONS_YEAR ==1 || $CONS_EQUIP ==1 || $CONS_PIPE == 1 || $CONS_TANK ==1) {
-            $progress .= "\nConsumptions Results";
+            $progress .= "\nConsumption Results";
             $this->writeProgressFile($progressFile, $progress);
         }
         
@@ -868,44 +868,47 @@ class Reports extends Controller
                     $percentEquipmentPerm = $consumption['percentEquipmentPerm'];
                     $percentEquipmentDown = $consumption['percentEquipmentDown'];
                     $percentLine = $consumption['percentLine'];
-                    $percentProductLabel = 'Product';
-                    $percentEquipmentPermLabel = 'Equipment(permanent)';
-                    $percentEquipmentDownLabel = 'Equipment(cool down)';
-                    $percentLineLabel = 'Line';
-                    $f = fopen("/tmp/consumptionPie.inp", "w");
-                    fputs($f, 'name percent' . "\n");
-                    fputs($f, '"'. $percentProductLabel .'" '. $percentProduct .'' . "\n");
-                    fputs($f, '"'. $percentEquipmentPermLabel .'" '. $percentEquipmentPerm .'' . "\n");
-                    fputs($f, '"'. $percentEquipmentDownLabel .'" '. $percentEquipmentDown .'' . "\n");
-                    if ($percentLine > 0) {
-                        fputs($f, '"'. $percentLineLabel .'" '. $percentLine .'' . "\n");
+                    if ($percentProduct != 0 && $percentEquipmentPerm != 0  && $percentEquipmentDown != 0) {
+                        $percentProductLabel = 'Product';
+                        $percentEquipmentPermLabel = 'Equipment(permanent)';
+                        $percentEquipmentDownLabel = 'Equipment(cool down)';
+                        $percentLineLabel = 'Line';
+                        $f = fopen("/tmp/consumptionPie.inp", "w");
+                        fputs($f, 'name percent' . "\n");
+                        fputs($f, '"'. $percentProductLabel .'" '. $percentProduct .'' . "\n");
+                        fputs($f, '"'. $percentEquipmentPermLabel .'" '. $percentEquipmentPerm .'' . "\n");
+                        fputs($f, '"'. $percentEquipmentDownLabel .'" '. $percentEquipmentDown .'' . "\n");
+                        if ($percentLine > 0) {
+                            fputs($f, '"'. $percentLineLabel .'" '. $percentLine .'' . "\n");
+                        }
+                        
+                        fclose($f);
+
+                        $folder = $this->output->public_path('consumption');
+
+                        $userName = $study->USERNAM;
+                        $idStudy = $study->ID_STUDY;
+                        if (!is_dir($folder)) {
+                            mkdir($folder, 0777);
+                        }
+
+                        if (!is_dir($folder . '/' . $userName)) {
+                            mkdir($folder . '/' . $userName, 0777);
+                        }
+
+                        if (!is_dir($folder . '/' . $userName . '/' . $idStudy)) {
+                            mkdir($folder . '/' . $userName . '/' . $idStudy, 0777);
+                        }
+
+                        $outPutFolder = $folder . '/' . $userName . '/' . $idStudy;
+                        $outPutFileName = $idStudyEquipment;
+                        
+                        system('gnuplot -c '. $this->plotFolder .'/consumptions.plot "/tmp/consumptionPie.inp" "'. $outPutFolder . '" "'. $outPutFileName .'" ');
                     }
-                    
-                    fclose($f);
-
-                    $folder = $this->output->public_path('consumption');
-
-                    $userName = $study->USERNAM;
-                    $idStudy = $study->ID_STUDY;
-                    if (!is_dir($folder)) {
-                        mkdir($folder, 0777);
-                    }
-
-                    if (!is_dir($folder . '/' . $userName)) {
-                        mkdir($folder . '/' . $userName, 0777);
-                    }
-
-                    if (!is_dir($folder . '/' . $userName . '/' . $idStudy)) {
-                        mkdir($folder . '/' . $userName . '/' . $idStudy, 0777);
-                    }
-
-                    $outPutFolder = $folder . '/' . $userName . '/' . $idStudy;
-                    $outPutFileName = $idStudyEquipment;
-                    
-                    system('gnuplot -c '. $this->plotFolder .'/consumptions.plot "/tmp/consumptionPie.inp" "'. $outPutFolder . '" "'. $outPutFileName .'" ');
                 }
             }
-            $progress .= "\nConsumptions Pies";
+
+            $progress .= "\nConsumption pies";
             $this->writeProgressFile($progressFile, $progress);
         }
         
@@ -919,7 +922,7 @@ class Reports extends Controller
             if ($idstudyequips->BRAIN_TYPE == 4) {
                 if ($ENTHALPY_V == 1 || $ENTHALPY_G == 1) {
                     $heatexchange[] = $this->reportserv->heatExchange($ENTHALPY_SAMPLE, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
-                    $progress .= "\nEnthpies";
+                    $progress .= "\nEnthalpies";
                     $this->writeProgressFile($progressFile, $progress);
                 } 
 
@@ -2072,18 +2075,24 @@ class Reports extends Controller
         if ($REP_CONS_PIE == 1) {
             if (!empty($consumptions )) {
                 PDF::SetFont('helvetica', 'B', 16);
-                PDF::Bookmark('CONSUMPTIONS PIES', 0, 0, '', 'B', array(0,64,128));
+                PDF::Bookmark('Consumption pies', 0, 0, '', 'B', array(0,64,128));
                 PDF::SetFillColor(38, 142, 226);
                 PDF::SetTextColor(0,0,0);
-                $content ='Consumptions Pies';
+                $content ='Consumption pies';
                 PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
                 PDF::SetFont('helvetica', '', 9);
                 $html='';
                 foreach ($consumptions as $key => $consumption) {
-                    $height = $key > 0 ? 550 : 530;
-                    PDF::Bookmark($consumption['equipName'] , 1, 0, '', '', array(128,0,0));
-                    $html .='<br><h3>'. $consumption['equipName'] .'</h3>';
-                    $html .= '<div style="text-align:center"><img height="'. $height .'" src="'. $public_path .'/consumption/'. $study['USERNAM'] .'/'. $study['ID_STUDY'] .'/'. $consumption['id'] .'.png"></div>';
+                    $percentProduct = $consumption['percentProduct'];
+                    $percentEquipmentPerm = $consumption['percentEquipmentPerm'];
+                    $percentEquipmentDown = $consumption['percentEquipmentDown'];
+                    $percentLine = $consumption['percentLine'];
+                    if ($percentProduct != 0 && $percentEquipmentPerm != 0  && $percentEquipmentDown != 0) {
+                        $height = $key > 0 ? 550 : 530;
+                        PDF::Bookmark($consumption['equipName'] , 1, 0, '', '', array(128,0,0));
+                        $html .='<br><h3>'. $consumption['equipName'] .'</h3>';
+                        $html .= '<div style="text-align:center"><img height="'. $height .'" src="'. $public_path .'/consumption/'. $study['USERNAM'] .'/'. $study['ID_STUDY'] .'/'. $consumption['id'] .'.png"></div>';
+                    }
                 }
 
                 PDF::writeHTML($html, true, false, true, false, '');
@@ -2745,6 +2754,7 @@ class Reports extends Controller
 
         if ($study->packings != null) {
             $packings = $this->reportserv->getStudyPackingLayers($study->ID_STUDY);
+            $progress .= "\nPacking data";
         }
 
         $shapeName = Translation::where('TRANS_TYPE', 4)->where('ID_TRANSLATION', $shapeCode)->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
@@ -2802,7 +2812,7 @@ class Reports extends Controller
         }
 
         if ($EQUIP_LIST == 1) {
-            $progress .= "\nEquiment";
+            $progress .= "\nEquipment";
             $this->writeProgressFile($progressFile, $progress);
         }
         
@@ -2823,7 +2833,7 @@ class Reports extends Controller
 
         if ($CONS_OVERALL == 1 || $CONS_TOTAL ==1 || $CONS_SPECIFIC  == 1 || $CONS_HOUR ==1 || $CONS_DAY == 1||
             $CONS_WEEK == 1 || $CONS_MONTH == 1 || $CONS_YEAR ==1 || $CONS_EQUIP ==1 || $CONS_PIPE == 1 || $CONS_TANK ==1) {
-            $progress .= "\nConsumptions Results";
+            $progress .= "\nConsumption Results";
             $this->writeProgressFile($progressFile, $progress);
         }
         
@@ -2836,12 +2846,13 @@ class Reports extends Controller
                 $calModeHeadBalance = $this->reportserv->getEstimationHeadBalance($study->ID_STUDY, 1);
                 $graphicSizing = $this->reportserv->sizingEstimationResult($study->ID_STUDY);
             }
+            $progress .= "\nHeat balance";
             $progress .= "\nSizing";
             $this->writeProgressFile($progressFile, $progress);
         }
 
         if ($REP_CONS_PIE == 1) {
-            $progress .="\nConsumptions Pies";
+            $progress .="\nConsumption pies";
             if (!empty($consumptions)) {
                 foreach ($consumptions as $consumption) {
                     $idStudyEquipment = $consumption['id'];
@@ -2850,41 +2861,43 @@ class Reports extends Controller
                     $percentEquipmentPerm = $consumption['percentEquipmentPerm'];
                     $percentEquipmentDown = $consumption['percentEquipmentDown'];
                     $percentLine = $consumption['percentLine'];
-                    $percentProductLabel = 'Product';
-                    $percentEquipmentPermLabel = 'Equipment(permanent)';
-                    $percentEquipmentDownLabel = 'Equipment(cool down)';
-                    $percentLineLabel = 'Line';
-                    $f = fopen("/tmp/consumptionPie.inp", "w");
-                    fputs($f, 'name percent' . "\n");
-                    fputs($f, '"'. $percentProductLabel .'" '. $percentProduct .'' . "\n");
-                    fputs($f, '"'. $percentEquipmentPermLabel .'" '. $percentEquipmentPerm .'' . "\n");
-                    fputs($f, '"'. $percentEquipmentDownLabel .'" '. $percentEquipmentDown .'' . "\n");
-                    if ($percentLine > 0) {
-                        fputs($f, '"'. $percentLineLabel .'" '. $percentLine .'' . "\n");
+                    if ($percentProduct != 0 && $percentEquipmentPerm != 0  && $percentEquipmentDown != 0) {
+                        $percentProductLabel = 'Product';
+                        $percentEquipmentPermLabel = 'Equipment(permanent)';
+                        $percentEquipmentDownLabel = 'Equipment(cool down)';
+                        $percentLineLabel = 'Line';
+                        $f = fopen("/tmp/consumptionPie.inp", "w");
+                        fputs($f, 'name percent' . "\n");
+                        fputs($f, '"'. $percentProductLabel .'" '. $percentProduct .'' . "\n");
+                        fputs($f, '"'. $percentEquipmentPermLabel .'" '. $percentEquipmentPerm .'' . "\n");
+                        fputs($f, '"'. $percentEquipmentDownLabel .'" '. $percentEquipmentDown .'' . "\n");
+                        if ($percentLine > 0) {
+                            fputs($f, '"'. $percentLineLabel .'" '. $percentLine .'' . "\n");
+                        }
+                        
+                        fclose($f);
+
+                        $folder = $this->output->public_path('consumption');
+
+                        $userName = $study->USERNAM;
+                        $idStudy = $study->ID_STUDY;
+                        if (!is_dir($folder)) {
+                            mkdir($folder, 0777);
+                        }
+
+                        if (!is_dir($folder . '/' . $userName)) {
+                            mkdir($folder . '/' . $userName, 0777);
+                        }
+
+                        if (!is_dir($folder . '/' . $userName . '/' . $idStudy)) {
+                            mkdir($folder . '/' . $userName . '/' . $idStudy, 0777);
+                        }
+
+                        $outPutFolder = $folder . '/' . $userName . '/' . $idStudy;
+                        $outPutFileName = $idStudyEquipment;
+                        
+                        system('gnuplot -c '. $this->plotFolder .'/consumptions.plot "/tmp/consumptionPie.inp" "'. $outPutFolder . '" "'. $outPutFileName .'" ');
                     }
-                    
-                    fclose($f);
-
-                    $folder = $this->output->public_path('consumption');
-
-                    $userName = $study->USERNAM;
-                    $idStudy = $study->ID_STUDY;
-                    if (!is_dir($folder)) {
-                        mkdir($folder, 0777);
-                    }
-
-                    if (!is_dir($folder . '/' . $userName)) {
-                        mkdir($folder . '/' . $userName, 0777);
-                    }
-
-                    if (!is_dir($folder . '/' . $userName . '/' . $idStudy)) {
-                        mkdir($folder . '/' . $userName . '/' . $idStudy, 0777);
-                    }
-
-                    $outPutFolder = $folder . '/' . $userName . '/' . $idStudy;
-                    $outPutFileName = $idStudyEquipment;
-                    
-                    system('gnuplot -c '. $this->plotFolder .'/consumptions.plot "/tmp/consumptionPie.inp" "'. $outPutFolder . '" "'. $outPutFileName .'" ');
                 }
             }
             
@@ -2901,7 +2914,7 @@ class Reports extends Controller
             if ($idstudyequips->BRAIN_TYPE == 4) {
                 if ($ENTHALPY_V == 1 || $ENTHALPY_G == 1) {
                     $heatexchange[] = $this->reportserv->heatExchange($ENTHALPY_SAMPLE, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
-                    $progress .= "\nEnthpies";
+                    $progress .= "\nEnthalpies";
                     $this->writeProgressFile($progressFile, $progress);
                 } 
 
@@ -3060,6 +3073,7 @@ class Reports extends Controller
             } 
         }
 
+        $progress .= "\nReport translation";
         $progress .= "\nFINISH";
         $this->writeProgressFile($progressFile, $progress);
 
@@ -3112,21 +3126,25 @@ class Reports extends Controller
         $input = $this->request->all();
         $params['studyId'] = $studyId;
         $params['input'] = $input;
-        ignore_user_abort(true);
-        set_time_limit(600);
-        $bgProcess = function($obj, $fn, $id) {
-            // ob_flush();
-            flush();
-            call_user_func_array([$obj, $fn], [$id]);
-        };
-        register_shutdown_function($bgProcess, $this, 'backgroundGenerationHTML', $params);
-        header('Connection: close');
-        header('Content-length: 19');
-        // header('Access-Control-Allow-Origin: *'); 
-        header('Content-type: application/json');
-        
-        exit("{'processing':true}");
-        return ['processing' => true];  
+        if ($input['countRunInterval'] == 0) {
+            ignore_user_abort(true);
+            set_time_limit(600);
+            $bgProcess = function($obj, $fn, $id) {
+                // ob_flush();
+                flush();
+                call_user_func_array([$obj, $fn], [$id]);
+            };
+            register_shutdown_function($bgProcess, $this, 'backgroundGenerationHTML', $params);
+            header('Connection: close');
+            header('Content-length: 19');
+            // header('Access-Control-Allow-Origin: *'); 
+            header('Content-type: application/json');
+            
+            exit("{'processing':true}");
+            return ['processing' => true]; 
+        } else {
+            return 1;
+        }
     }
 
     public function downLoadHtmlToPDF($studyId)
