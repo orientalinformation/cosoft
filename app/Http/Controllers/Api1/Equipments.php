@@ -1547,6 +1547,10 @@ class Equipments extends Controller
                         // $layoutGen->ORI
                         $layoutGen->WIDTH_INTERVAL = $width;
                         $layoutGen->LENGTH_INTERVAL = $lenght;
+                        unset($layoutGen->SHELVES_EURO_LENGTH);
+                        unset($layoutGen->SHELVES_EURO_WIDTH);
+                        unset($layoutGen->SHELVES_GASTRO_LENGTH);
+                        unset($layoutGen->SHELVES_GASTRO_WIDTH);
                         $layoutGen->save();
                         $this->stdeqp->calculateEquipmentParams($sEquip);
                     }
