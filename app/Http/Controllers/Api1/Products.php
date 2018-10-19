@@ -22,6 +22,7 @@ use App\Cryosoft\ProductElementsService;
 use App\Cryosoft\ValueListService;
 use App\Models\MeshPosition;
 use App\Models\InitTemp3D;
+use App\Models\DimaResults;
 use Illuminate\Support\Facades\DB;
 
 class Products extends Controller
@@ -397,6 +398,14 @@ class Products extends Controller
      */
     public function getMeshView($id)
     {
+        $input = $this->request->all();
+
+        if (!isset($input['ID_STUDY'])) {
+            throw new \Exception("Error Processing Request", 500);
+        }
+
+        $ID_STUDY = $input['ID_STUDY'];
+
         /** @var Product $product */
         $product = Product::findOrFail($id);
 
@@ -404,6 +413,7 @@ class Products extends Controller
             throw new \Exception("Error Processing Request. Product ID not found", 1);
 
         $elements = ProductElmt::where('ID_PROD', $product->ID_PROD)->orderBy('SHAPE_POS2', 'DESC')->get();
+        $insertLineOrders = ProductElmt::where('INSERT_LINE_ORDER', $ID_STUDY)->first();
 
         $meshGeneration = $product->meshGenerations->first();
         if ($meshGeneration) {
@@ -437,6 +447,19 @@ class Products extends Controller
         $initTempPositions = [];
         $nbMeshPointElmt = [];
         $heights = [];
+        $averageProductTemp = null;
+
+        // check study chaining insert line order
+        if (is_null($insertLineOrders)) {
+            $study = Study::find($ID_STUDY);
+            $parentStudy = null;
+            if ($study) {
+                $dimaResult = DimaResults::where('ID_STUDY_EQUIPMENTS', $study->PARENT_STUD_EQP_ID)->first();
+                if ($dimaResult) {
+                    $averageProductTemp = $this->unit->temperature($dimaResult->DIMA_TFP);
+                }
+            }
+        }
 
         foreach ($elements as $elmt) {
             // shape < 10
@@ -499,7 +522,7 @@ class Products extends Controller
             }
         }
 
-        return compact('meshGeneration', 'elements', 'elmtMeshPositions', 'productIsoTemp', 'nbMeshPointElmt', 'productElmtInitTemp', 'initTempPositions', 'heights');
+        return compact('meshGeneration', 'elements', 'elmtMeshPositions', 'productIsoTemp', 'nbMeshPointElmt', 'productElmtInitTemp', 'initTempPositions', 'heights', 'averageProductTemp');
     }
 
     public function generateMesh($idProd) 
