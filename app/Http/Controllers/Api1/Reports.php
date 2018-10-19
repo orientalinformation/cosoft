@@ -1079,6 +1079,7 @@ class Reports extends Controller
             } 
         }
         
+        $progress .= "\nReport translation";
         $progress .= "\nFINISH";
 
         $customerPath = $infoReport[0]->CUSTOMER_LOGO;
@@ -1834,44 +1835,48 @@ class Reports extends Controller
                 $content ='Consumptions / Economics assessments';
                 PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
                 PDF::SetFont('helvetica', '', 9);
+                $rowspan = ($CONS_PIPE == 1 || $CONS_EQUIP == 1) ? ' rowspan="2"' : '';
+                $nameWidth = ($CONS_PIPE == 1 || $CONS_EQUIP == 1) ? ' width="10%"' : '';
+                $overallWidth = ($CONS_PIPE == 1 || $CONS_EQUIP == 1) ? ' width="9%"' : '';
+                $totalWidth = ($CONS_PIPE == 1 || $CONS_EQUIP == 1) ? ' width="7%"' : '';
+                $specificWidth = ($CONS_PIPE == 1 || $CONS_EQUIP == 1) ? ' width="8%"' : '';
                 $html ='
-                <h4>Values</h4>
+                <br><h3>Values</h3>
                 <div class="consum-esti">
                     <div class="table table-bordered">
-                    <table border="1" cellpadding="3">
-                        <tr style="font-size:12px">
-                            <td colspan="2" align="center" rowspan="2" width="10%">Equipment</td>';
+                    <table border="1" cellpadding="3" width="100%">
+                        <tr style="font-size:10px"><td'. $rowspan .' colspan="2" align="center"'. $nameWidth .'>Equipment</td>';
                             if ($CONS_OVERALL == 1) { 
                             $html .='
-                                <td rowspan="2" align="center" width="10%">Overall Cryogen Consumption Ratio (product + equipment and pipeline losses) Unit of Cryogen, per piece of product.  ( '. $symbol['consumSymbol'] .' ) </td>';
+                                <td'. $rowspan .' align="center"'. $overallWidth .'>Overall Cryogen Consumption Ratio (product + equipment and pipeline losses) Unit of Cryogen, per piece of product.<br>( '. $symbol['consumSymbol'] .' ) </td>';
                             }
                             if ($CONS_TOTAL == 1) { 
                             $html .=' 
-                                <td rowspan="2" align="center" width="10%">Total Cryogen Consumption (product + equipment and pipeline losses).  ( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .'  </td>';
+                                <td'. $rowspan .' align="center"'. $totalWidth .'>Total Cryogen Consumption (product + equipment and pipeline losses).<br>( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .'  </td>';
                             } 
                             if ($CONS_SPECIFIC == 1) { 
                             $html .=' 
-                                <td rowspan="2" align="center" width="10%">Specific Cryogen Consumption Ratio (product only) Unit of Cryogen, per unit weight of product.  ( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .' </td>';
+                                <td'. $rowspan .' align="center"'. $specificWidth .'>Specific Cryogen Consumption Ratio (product only) Unit of Cryogen, per unit weight of product.<br>( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .' </td>';
                             }
                             if ($CONS_HOUR == 1) {
                             $html .=' 
-                                <td rowspan="2" align="center">Total Cryogen Consumption per hour  ( '.$symbol['consumSymbol'] .' ) </td>';
+                                <td'. $rowspan .' align="center">Total Cryogen Consumption per hour<br>( '.$symbol['consumSymbol'] .' ) </td>';
                             }
                             if ($CONS_DAY == 1) {
                             $html .=' 
-                                <td rowspan="2" align="center">Total Cryogen Consumption per day  ( '. $symbol['consumSymbol'] .' ) </td>';
+                                <td'. $rowspan .' align="center">Total Cryogen Consumption per day<br>( '. $symbol['consumSymbol'] .' ) </td>';
                             }
                             if ($CONS_WEEK == 1) { 
                             $html .=' 
-                                <td rowspan="2" align="center">Total Cryogen Consumption per week  ( '. $symbol['consumSymbol'] .' ) </td>';
+                                <td'. $rowspan .' align="center">Total Cryogen Consumption per week<br>( '. $symbol['consumSymbol'] .' ) </td>';
                             }
                             if ($CONS_MONTH == 1) { 
                             $html .=' 
-                                <td rowspan="2" align="center">Total Cryogen Consumption per month  ( '. $symbol['consumSymbol'] .' ) </td>';
+                                <td'. $rowspan .' align="center">Total Cryogen Consumption per month<br>( '. $symbol['consumSymbol'] .' ) </td>';
                             }
                             if ($CONS_YEAR == 1) { 
                             $html .=' 
-                                <td rowspan="2" align="center">Total Cryogen Consumption per year  ( '. $symbol['consumSymbol'] .' ) </td>';
+                                <td'. $rowspan .' align="center">Total Cryogen Consumption per year<br>( '. $symbol['consumSymbol'] .' ) </td>';
                             }
                             if ($CONS_EQUIP == 1) {
                             $html .=' 
@@ -1883,36 +1888,31 @@ class Reports extends Controller
                             }
                             if ($CONS_TANK == 1) { 
                             $html .=' 
-                                <td rowspan="2">Tank losses  ( '. $symbol['consumSymbol'] .' ) </td>';
+                                <td'. $rowspan .' align="center">Tank losses<br>( '. $symbol['consumSymbol'] .' ) </td>';
                             }
                             $html .=' 
                         </tr>';
 
                         if ($CONS_PIPE == 1 || $CONS_EQUIP == 1){
                         $html .=' 
-                        <tr style="font-size:10px">';
+                        <tr style="font-size:9px">';
                             if ($CONS_EQUIP == 1) { 
                             $html .=' 
-                                <td align="center">Heat losses per hour  ( '. $symbol['consumMaintienSymbol'] .' ) </td>
-                                <td align="center">Cooldown  ( '. $symbol['consumSymbol'] .' ) </td>';
+                                <td align="center">Heat losses per hour<br>( '. $symbol['consumMaintienSymbol'] .' ) </td>
+                                <td align="center">Cooldown<br>( '. $symbol['consumSymbol'] .' ) </td>';
                             }
                             if ($CONS_PIPE == 1) { 
                             $html .=' 
-                                <td align="center">Heat losses per hour  ( '. $symbol['consumMaintienSymbol'] .' ) </td>
-                                <td align="center">Cooldown  ( '. $symbol['consumSymbol'] .' ) </td>';
+                                <td align="center">Heat losses per hour<br>( '. $symbol['consumMaintienSymbol'] .' ) </td>
+                                <td align="center">Cooldown<br>( '. $symbol['consumSymbol'] .' ) </td>';
                             }
                         $html .=' 
                         </tr>';
-                        } else {
-                            $html .=' 
-                            <tr>
-                                <td align="center"></td>
-                                <td align="center"></td>
-                            </tr>';
                         }
+
                         foreach($consumptions as $key => $resconsumptions) { 
                         $html .=' 
-                        <tr>';
+                        <tr style="font-size:10px">';
                         $html .='
                             <td rowspan="2"> '. $resconsumptions['equipName'] .' </td>
                             <td align="center">( '. $symbol['consumSymbol'] .' )</td>';
@@ -1964,7 +1964,7 @@ class Reports extends Controller
                             <td align="center"> '. $resconsumptions['tank'] .' </td>';
                             }
                         $html .='</tr>';
-                        $html .='<tr>
+                        $html .='<tr style="font-size:10px">
                             <td align="center">( '. $symbol['monetarySymbol'] .' )</td>';
                             if ($study->OPTION_ECO != 1) {
                                 if ($CONS_OVERALL == 1) {
