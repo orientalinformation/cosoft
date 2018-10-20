@@ -17,6 +17,7 @@ use App\Models\ProdcharColor;
 use App\Models\ProdcharColorsDef;
 use App\Cryosoft\MeshService;
 use App\Cryosoft\UnitsConverterService;
+use App\Cryosoft\UnitsService;
 use App\Cryosoft\ProductService;
 use App\Cryosoft\ProductElementsService;
 use App\Cryosoft\ValueListService;
@@ -60,6 +61,7 @@ class Products extends Controller
 
     protected $bApplyStudyCleaner = false;
     protected $bCleanerError = false;
+    protected $units;
 
     /**
      * Products constructor.
@@ -69,7 +71,7 @@ class Products extends Controller
      */
     public function __construct(Request $request, Auth $auth, KernelService $kernel,
         MeshService $mesh, UnitsConverterService $unit, ProductService $product,
-        ProductElementsService $productElmts, ValueListService $values)
+        ProductElementsService $productElmts, ValueListService $values, UnitsService $units)
     {
         $this->request = $request;
         $this->auth = $auth;
@@ -81,6 +83,7 @@ class Products extends Controller
         $this->productElmts = $productElmts;
         $this->studies = app('App\\Cryosoft\\StudyService');
         $this->stdeqp = app('App\\Cryosoft\\StudyEquipmentService');
+        $this->units = $units;
     }
 
     /**
@@ -456,7 +459,7 @@ class Products extends Controller
             if ($study) {
                 $dimaResult = DimaResults::where('ID_STUDY_EQUIPMENTS', $study->PARENT_STUD_EQP_ID)->first();
                 if ($dimaResult) {
-                    $averageProductTemp = $this->unit->temperature($dimaResult->DIMA_TFP);
+                    $averageProductTemp = $this->units->temperature($dimaResult->DIMA_TFP, 1, 0);
                 }
             }
         }
