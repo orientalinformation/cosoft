@@ -2063,6 +2063,7 @@ class Equipments extends Controller
                 $newEquipCharact = new EquipCharact();
                 $newEquipCharact->ID_EQUIP = $newIdEquip;
                 $newEquipCharact->X_POSITION = $equipCharact->X_POSITION;
+                
                 $newEquipCharact->TEMP_REGUL = $equipCharact->TEMP_REGUL;
                 $newEquipCharact->ALPHA_TOP = $equipCharact->ALPHA_TOP;
                 $newEquipCharact->ALPHA_BOTTOM = $equipCharact->ALPHA_BOTTOM;
