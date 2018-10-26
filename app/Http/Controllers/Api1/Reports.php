@@ -2469,18 +2469,18 @@ class Reports extends Controller
                     if ($shapeCode < 10) {
                         if ($shapeCode == 2 || $shapeCode == 9) {
                             if ($equipData[$key]['ORIENTATION'] == 1) {
-                                PDF::Bookmark($pro2Dcharts['equipName'] . 'Slice 23 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
+                                PDF::Bookmark($pro2Dcharts['equipName'] . ' Slice 23 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
                                 PDF::Cell(0, 10, '' , 0, 1, 'L');
-                                $html .='<h3>'. $pro2Dcharts['equipName'] . 'Slice 23 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
+                                $html .='<h3>'. $pro2Dcharts['equipName'] . ' Slice 23 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
                                 $html .= '
                                 <div align="center"> 
                                     <img width="640" height="450" src="'. $public_path.'/heatmap/'.$study['USERNAM'].'/'.$pro2Dcharts['idStudyEquipment'].'/'. $pro2Dcharts['lfDwellingTime'].'-'.$pro2Dcharts['chartTempInterval'][0].'-'. $pro2Dcharts['chartTempInterval'][1].'-'.$pro2Dcharts['chartTempInterval'][2].'.png">
                                 </div>';
                                 PDF::writeHTML($html, true, false, true, false, '');
                             } else {
-                                PDF::Bookmark($pro2Dcharts['equipName'] . 'Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
+                                PDF::Bookmark($pro2Dcharts['equipName'] . ' Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
                                 // PDF::Cell(0, 10, '', 0, 1, 'L');
-                                $html .='<h3>'. $pro2Dcharts['equipName'] . 'Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
+                                $html .='<h3>'. $pro2Dcharts['equipName'] . ' Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
                                 $html .= '
                                 <div align="center">
                                 <img width="640" height="450" src="'. $public_path.'/heatmap/'.$study['USERNAM'].'/'.$pro2Dcharts['idStudyEquipment'].'/'. $pro2Dcharts['lfDwellingTime'].'-'.$pro2Dcharts['chartTempInterval'][0].'-'. $pro2Dcharts['chartTempInterval'][1].'-'.$pro2Dcharts['chartTempInterval'][2].'.png">
@@ -2488,9 +2488,9 @@ class Reports extends Controller
                                 PDF::writeHTML($html, true, false, true, false, '');
                             }
                         } else if ($shapeCode != 1 || $shapeCode != 6) {
-                            PDF::Bookmark($pro2Dcharts['equipName'] . 'Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
+                            PDF::Bookmark($pro2Dcharts['equipName'] . ' Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
                             // PDF::Cell(0, 10, '', 0, 1, 'L');
-                            $html .='<h3>'. $pro2Dcharts['equipName'] . 'Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
+                            $html .='<h3>'. $pro2Dcharts['equipName'] . ' Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
                             $html .= '
                             <div align="center">
                             <img width="640" height="450" src="'. $public_path.'/heatmap/'.$study['USERNAM'].'/'.$pro2Dcharts['idStudyEquipment'].'/'. $pro2Dcharts['lfDwellingTime'].'-'.$pro2Dcharts['chartTempInterval'][0].'-'. $pro2Dcharts['chartTempInterval'][1].'-'.$pro2Dcharts['chartTempInterval'][2].'.png">
@@ -2498,49 +2498,28 @@ class Reports extends Controller
                             PDF::writeHTML($html, true, false, true, false, '');
                         }
                     } else {
-                       switch ($shapeCode) {
-                            case CYLINDER_STANDING_3D:
-                            case CYLINDER_LAYING_3D:
-                            case CYLINDER_CONCENTRIC_STANDING_3D:
-                            case OVAL_STANDING_3D:
-                            case OVAL_LAYING_3D:
-                                PDF::Bookmark($pro2Dcharts['equipName'] . 'Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
-                                // PDF::Cell(0, 10, '', 0, 1, 'L');
-                                $html .='<h3>'. $pro2Dcharts['equipName'] . 'Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
-                                $html .= '
-                                <div align="center">
-                                <img width="640" height="450" src="'. $public_path.'/heatmap/'.$study['USERNAM'].'/'.$pro2Dcharts['idStudyEquipment'].'/'. $pro2Dcharts['lfDwellingTime'].'-'.$pro2Dcharts['chartTempInterval'][0].'-'. $pro2Dcharts['chartTempInterval'][1].'-'.$pro2Dcharts['chartTempInterval'][2].'-'. $pro2Dcharts['selectedPlan'] .'.png">
-                                </div>';
-                                PDF::writeHTML($html, true, false, true, false, '');
+                        switch ($pro2Dcharts['selectedPlan']) {
+                            case 1:
+                                $selectedPlanName = 23;
+                                break;
+
+                            case 2:
+                                $selectedPlanName = 13;
+                                break;
+
+                            case 3:
+                                $selectedPlanName = 12;
                                 break;
                             
-                            default:
-                                PDF::Bookmark($pro2Dcharts['equipName'] . 'Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
-                                // PDF::Cell(0, 10, '', 0, 1, 'L');
-                                $html .='<h3>'. $pro2Dcharts['equipName'] . 'Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
-                                $html .= '
-                                <div align="center">
-                                <img width="640" height="450" src="'. $public_path.'/heatmap/'.$study['USERNAM'].'/'.$pro2Dcharts['idStudyEquipment'].'/'. $pro2Dcharts['lfDwellingTime'].'-'.$pro2Dcharts['chartTempInterval'][0].'-'. $pro2Dcharts['chartTempInterval'][1].'-'.$pro2Dcharts['chartTempInterval'][2].'-'. $pro2Dcharts['selectedPlan'] .'.png">
-                                </div>';
-                                PDF::writeHTML($html, true, false, true, false, '');
-                                PDF::Bookmark($pro2Dcharts['equipName'] . 'Slice 13 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
-                                // PDF::Cell(0, 10, '', 0, 1, 'L');
-                                $html .='<h3>'. $pro2Dcharts['equipName'] . 'Slice 13 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
-                                $html .= '
-                                <div align="center">
-                                <img width="640" height="450" src="'. $public_path.'/heatmap/'.$study['USERNAM'].'/'.$pro2Dcharts['idStudyEquipment'].'/'. $pro2Dcharts['lfDwellingTime'].'-'.$pro2Dcharts['chartTempInterval'][0].'-'. $pro2Dcharts['chartTempInterval'][1].'-'.$pro2Dcharts['chartTempInterval'][2].'-'. $pro2Dcharts['selectedPlan'] .'.png">
-                                </div>';
-                                PDF::writeHTML($html, true, false, true, false, '');
-                                PDF::Bookmark($pro2Dcharts['equipName'] . 'Slice 23 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
-                                // PDF::Cell(0, 10, '', 0, 1, 'L');
-                                $html .='<h3>'. $pro2Dcharts['equipName'] . 'Slice 23 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
-                                $html .= '
-                                <div align="center">
-                                <img width="640" height="450" src="'. $public_path.'/heatmap/'.$study['USERNAM'].'/'.$pro2Dcharts['idStudyEquipment'].'/'. $pro2Dcharts['lfDwellingTime'].'-'.$pro2Dcharts['chartTempInterval'][0].'-'. $pro2Dcharts['chartTempInterval'][1].'-'.$pro2Dcharts['chartTempInterval'][2].'-'. $pro2Dcharts['selectedPlan'] .'.png">
-                                </div>';
-                                PDF::writeHTML($html, true, false, true, false, '');
-                                break;
-                        } 
+                        }
+                       PDF::Bookmark($pro2Dcharts['equipName'] . ' Slice '. $selectedPlanName . ' @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
+                        // PDF::Cell(0, 10, '', 0, 1, 'L');
+                        $html .='<h3>'. $pro2Dcharts['equipName'] . ' Slice '. $selectedPlanName . ' @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
+                        $html .= '
+                        <div align="center">
+                        <img width="640" height="450" src="'. $public_path.'/heatmap/'.$study['USERNAM'].'/'.$pro2Dcharts['idStudyEquipment'].'/'. $pro2Dcharts['lfDwellingTime'].'-'.$pro2Dcharts['chartTempInterval'][0].'-'. $pro2Dcharts['chartTempInterval'][1].'-'.$pro2Dcharts['chartTempInterval'][2].'-'. $pro2Dcharts['selectedPlan'] .'.png">
+                        </div>';
+                        PDF::writeHTML($html, true, false, true, false, '');
                     }
                 }
                 PDF::AddPage();
