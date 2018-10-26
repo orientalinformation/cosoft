@@ -1083,13 +1083,28 @@
             <?php if ($arrayParam['params']['CONTOUR2D_G'] == 1) { ?> 
             <div class="block-title">2D Outlines</div>
                 <?php foreach ($pro2Dchart as $pro2Dcharts) {
+                    switch ($pro2Dcharts['selectedPlan']) {
+                        case 1:
+                            $selectedPlanName = 23;
+                            break;
+
+                        case 2:
+                            $selectedPlanName = 13;
+                            break;
+
+                        case 3:
+                            $selectedPlanName = 12;
+                            break;
+                        
+                    }
+
                     if ($arrayParam['shapeCode'] < 10) {
                         $contourFileName = $arrayParam['host'] . 'heatmap/' . $arrayParam['study']['USERNAM'] . '/' . $pro2Dcharts['idStudyEquipment'] . '/' . $pro2Dcharts['lfDwellingTime'] . '-' . $pro2Dcharts['chartTempInterval'][0] . '-' . $pro2Dcharts['chartTempInterval'][1] . '-' . $pro2Dcharts['chartTempInterval'][2] . '.png';
                     } else {
                         $contourFileName = $arrayParam['host'] . 'heatmap/' . $arrayParam['study']['USERNAM'] . '/' . $pro2Dcharts['idStudyEquipment'] . '/' . $pro2Dcharts['lfDwellingTime'] . '-' . $pro2Dcharts['chartTempInterval'][0] . '-' . $pro2Dcharts['chartTempInterval'][1] . '-' . $pro2Dcharts['chartTempInterval'][2] . '-' . $pro2Dcharts['selectedPlan'] . '.png';
                     }
                 ?>
-                <h5 class="bold"><?php echo $pro2Dcharts['equipName'] ?></h5>
+                <h5 class="bold"><?php echo $pro2Dcharts['equipName'] . ' Slice '. $selectedPlanName . ' @' . $pro2Dcharts['lfDwellingTime'] . '(' . $arrayParam['symbol']['timeSymbol'] . ')' ?></h5>
                     <div class="outlines text-center"> 
                     <img src="<?php echo $contourFileName ?>" style="max-width: 640px">
                     </div>
