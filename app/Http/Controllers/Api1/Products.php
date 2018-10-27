@@ -530,6 +530,7 @@ class Products extends Controller
 
     public function generateMesh($idProd) 
     {
+        $result = 0;
         /** @var Product $product */
         $product = Product::findOrFail($idProd);
         
@@ -551,9 +552,9 @@ class Products extends Controller
             $mode = MeshService::MAILLAGE_MODE_IRREGULAR;
         }
         
-        $this->mesh->generate($meshGeneration, $mesh_type, $mode, $size1, $size2, $size3);
+        $result = $this->mesh->generate($meshGeneration, $mesh_type, $mode, $size1, $size2, $size3);
         
-        return 0;
+        return $result;
     }
 
     /**
