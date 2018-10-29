@@ -69,6 +69,7 @@ class MeshService
     {
         // regular mesh
         $calcultype = $type; //estimation
+        $result = 1;
 
         $meshGen->MESH_1_FIXED = $calcultype;
         $meshGen->MESH_2_FIXED = $calcultype;
@@ -99,7 +100,7 @@ class MeshService
         
         $product = $meshGen->product;
         $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $product->ID_STUDY);
-        $this->kernel->getKernelObject('MeshBuilder')->MBMeshBuild($conf);
+        $result = $this->kernel->getKernelObject('MeshBuilder')->MBMeshBuild($conf);
 
         $prodElmt = $product->productElmts->first();
 
@@ -112,5 +113,7 @@ class MeshService
         if ($prodElmt) {
             InitTemp3D::where('ID_PRODUCT_ELMT', $prodElmt->ID_PRODUCT_ELMT)->delete();
         }
+
+        return $result;
     }
 }

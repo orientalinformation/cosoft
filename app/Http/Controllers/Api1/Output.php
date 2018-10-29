@@ -2620,12 +2620,16 @@ class Output extends Controller
 
             $dataTimeStepArr = explode("\n", $dataTimeStep);
             $dataTimeStepArr = array_filter($dataTimeStepArr);
-            $lastTimeStep = $dataTimeStepArr[count($dataTimeStepArr) - 1];
-            $lastTimeStepArr = explode(';', $lastTimeStep);
-            $lastTimeStepArrMin = explode('=', $lastTimeStepArr[1]);
-            $lastTimeStepArrMax = explode('=', $lastTimeStepArr[2]);
-            $lastTimeStepArrStep = explode('=', $lastTimeStepArr[3]);
-            $chartTempInterval = [(int) $lastTimeStepArrMin[1], (int) $lastTimeStepArrMax[1], (int) $lastTimeStepArrStep[1]];
+            foreach ($dataTimeStepArr as $dataTime) {
+                $dataTimeArr = explode(';', $dataTime);
+                $dataTimeArrElmFirst = explode('=', $dataTimeArr[0]);
+                if (trim($dataTimeArrElmFirst[1]) == $lfDwellingTime) {
+                    $dataTimeArrMin = explode('=', $dataTimeArr[1]);
+                    $dataTimeArrMax = explode('=', $dataTimeArr[2]);
+                    $dataTimeArrStep = explode('=', $dataTimeArr[3]);
+                    $chartTempInterval = [(int) $dataTimeArrMin[1], (int) $dataTimeArrMax[1], (int) $dataTimeArrStep[1]];
+                }
+            }
 
             switch ($shape) {
                 case CYLINDER_STANDING_3D:
@@ -2936,47 +2940,93 @@ class Output extends Controller
                     break;
             }
 
+
             $dataTimeStep = file_get_contents($this->plotFolder3D . '/MeshBuilder3D/' . $prodFolder . '/' . $stdeqpFolder . '/' . $timeStepFileName);
 
             $dataTimeStepArr = explode("\n", $dataTimeStep);
             $dataTimeStepArr = array_filter($dataTimeStepArr);
-            $lastTimeStep = $dataTimeStepArr[count($dataTimeStepArr) - 1];
-            $lastTimeStepArr = explode(';', $lastTimeStep);
-            $lastTimeStepArrMin = explode('=', $lastTimeStepArr[1]);
-            $lastTimeStepArrMax = explode('=', $lastTimeStepArr[2]);
-            $lastTimeStepArrStep = explode('=', $lastTimeStepArr[3]);
-            $chartTempInterval = [(int) $lastTimeStepArrMin[1], (int) $lastTimeStepArrMax[1], (int) $lastTimeStepArrStep[1]];
+            foreach ($dataTimeStepArr as $dataTime) {
+                $dataTimeArr = explode(';', $dataTime);
+                $dataTimeArrElmFirst = explode('=', $dataTimeArr[0]);
+                if (trim($dataTimeArrElmFirst[1]) == $lastRecordTime) {
+                    $dataTimeArrMin = explode('=', $dataTimeArr[1]);
+                    $dataTimeArrMax = explode('=', $dataTimeArr[2]);
+                    $dataTimeArrStep = explode('=', $dataTimeArr[3]);
+                    $chartTempInterval = [(int) $dataTimeArrMin[1], (int) $dataTimeArrMax[1], (int) $dataTimeArrStep[1]];
+                }
+            }
+
+            switch ($shape) {
+                case CYLINDER_STANDING_3D:
+                case CYLINDER_LAYING_3D:
+                case CYLINDER_CONCENTRIC_STANDING_3D:
+                case CYLINDER_CONCENTRIC_LAYING_3D:
+                case SPHERE_3D:
+                    $plotFile = 'contourSphere.plot';
+                    break;
+
+                case OVAL_STANDING_3D:
+                case OVAL_LAYING_3D:
+                    $plotFile = 'contourOval.plot';
+                    break;
+
+                default:
+                    $plotFile = 'contour3Dshape.plot';
+                    break;
+            }
 
             for ($i = 0; $i < $nbContour2d - 1; $i++) { 
                 $pos = round($i * $lfTheoricStep / $lfStep, 0);
                 $lfDwellingTime = $recordPosition[$pos]->RECORD_TIME;
                 $contourFileName = $lfDwellingTime;
+
                 switch ($selectedPlan) {
                     case 1:
-                        $inpFileName  = 'contour_X_' . (int) $lfDwellingTime . '.inp';
+                        $inpFileName  = 'contour_X_' . $lfDwellingTime . '.inp';
+                        $timeStepFileName = 'contourParam_X.inp';
                         break;
                     
                     case 2:
-                        $inpFileName  = 'contour_Y_' . (int) $lfDwellingTime . '.inp';
+                        $inpFileName  = 'contour_Y_' . $lfDwellingTime . '.inp';
+                        $timeStepFileName = 'contourParam_Y.inp';
                         break;
 
                     case 3:
-                        $inpFileName  = 'contour_Z_' . (int) $lfDwellingTime . '.inp';
+                        $inpFileName  = 'contour_Z_' . $lfDwellingTime . '.inp';
+                        $timeStepFileName = 'contourParam_Z.inp';
                         break;
                 }
 
                 $inpFile = $this->plotFolder3D . '/MeshBuilder3D/' . $prodFolder . '/' . $stdeqpFolder . '/' . $inpFileName;
+               
+                $data = file_get_contents($this->plotFolder3D . '/MeshBuilder3D/' . $prodFolder . '/' . $stdeqpFolder . '/' . $inpFileName);
+                $dataFiles = explode("\n", $data);
+                $dataFiles = array_filter($dataFiles);
 
+                $dataTimeStep = file_get_contents($this->plotFolder3D . '/MeshBuilder3D/' . $prodFolder . '/' . $stdeqpFolder . '/' . $timeStepFileName);
 
-                if (!file_exists($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment . '/' . $contourFileName . '.png')) {                    
-                    system('gnuplot -c '. $this->plotFolder .'/contour.plot "'. $dimension .' '. $axisX .'" "'. $dimension .' '. $axisY .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment .'" "'. $contourFileName .'" '. $inpFile .'');
+                $dataTimeStepArr = explode("\n", $dataTimeStep);
+                $dataTimeStepArr = array_filter($dataTimeStepArr);
+                foreach ($dataTimeStepArr as $dataTime) {
+                    $dataTimeArr = explode(';', $dataTime);
+                    $dataTimeArrElmFirst = explode('=', $dataTimeArr[0]);
+                    if (trim($dataTimeArrElmFirst[1]) == $lfDwellingTime) {
+                        $dataTimeArrMin = explode('=', $dataTimeArr[1]);
+                        $dataTimeArrMax = explode('=', $dataTimeArr[2]);
+                        $dataTimeArrStep = explode('=', $dataTimeArr[3]);
+                        $chartTempInterval = [(int) $dataTimeArrMin[1], (int) $dataTimeArrMax[1], (int) $dataTimeArrStep[1]];
+                    }
                 }
+
+                // if (!file_exists($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment . '/' . $contourFileName . '.png')) {                    
+                    system('gnuplot -c '. $this->plotFolder .'/' . $plotFile . ' "'. $dimension .' '. $axisX .'" "'. $dimension .' '. $axisY .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment .'" "'. $contourFileName .'" '. $inpFile .'');
+                // }
 
                 $imageContour[] = getenv('APP_URL') . 'heatmap/' . $userName . '/' . $idStudyEquipment . '/' . $contourFileName . '.png';
             }
 
             $contourFileName = $lfTS;
-            if (!file_exists($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment . '/' . $contourFileName . '.png')) {
+            // if (!file_exists($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment . '/' . $contourFileName . '.png')) {
                 $lastRecordTime = (int) $lfTS;
                 switch ($selectedPlan) {
                     case 1:
@@ -2993,10 +3043,11 @@ class Output extends Controller
                 }
 
                 $inpFile = $this->plotFolder3D . '/MeshBuilder3D/' . $prodFolder . '/' . $stdeqpFolder . '/' . $inpFileName;
-                system('gnuplot -c '. $this->plotFolder .'/contour.plot "'. $dimension .' '. $axisX .'" "'. $dimension .' '. $axisY .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment .'" "'. $contourFileName .'" '. $inpFile .'');
-            }
+                system('gnuplot -c '. $this->plotFolder .'/' . $plotFile . ' "'. $dimension .' '. $axisX .'" "'. $dimension .' '. $axisY .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment .'" "'. $contourFileName .'" '. $inpFile .'');
+            // }
 
             $imageContour[] = getenv('APP_URL') . 'heatmap/' . $userName . '/' . $idStudyEquipment . '/' . $contourFileName . '.png';
+
         }
 
 

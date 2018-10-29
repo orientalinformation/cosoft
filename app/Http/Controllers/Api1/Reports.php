@@ -815,7 +815,7 @@ class Reports extends Controller
         $equipData = $this->stdeqp->findStudyEquipmentsByStudy($study);
 
         if ($EQUIP_LIST == 1) {
-            $progress .= "\nEquiment";
+            $progress .= "\nEquipment";
             $this->writeProgressFile($progressFile, $progress);
         }
         
@@ -841,7 +841,7 @@ class Reports extends Controller
         $economic = $this->reportserv->getAnalyticalEconomic($study->ID_STUDY);
         if ($CONS_OVERALL == 1 || $CONS_TOTAL ==1 || $CONS_SPECIFIC  == 1 || $CONS_HOUR ==1 || $CONS_DAY == 1||
             $CONS_WEEK == 1 || $CONS_MONTH == 1 || $CONS_YEAR ==1 || $CONS_EQUIP ==1 || $CONS_PIPE == 1 || $CONS_TANK ==1) {
-            $progress .= "\nConsumptions Results";
+            $progress .= "\nConsumption Results";
             $this->writeProgressFile($progressFile, $progress);
         }
         
@@ -868,44 +868,47 @@ class Reports extends Controller
                     $percentEquipmentPerm = $consumption['percentEquipmentPerm'];
                     $percentEquipmentDown = $consumption['percentEquipmentDown'];
                     $percentLine = $consumption['percentLine'];
-                    $percentProductLabel = 'Product';
-                    $percentEquipmentPermLabel = 'Equipment(permanent)';
-                    $percentEquipmentDownLabel = 'Equipment(cool down)';
-                    $percentLineLabel = 'Line';
-                    $f = fopen("/tmp/consumptionPie.inp", "w");
-                    fputs($f, 'name percent' . "\n");
-                    fputs($f, '"'. $percentProductLabel .'" '. $percentProduct .'' . "\n");
-                    fputs($f, '"'. $percentEquipmentPermLabel .'" '. $percentEquipmentPerm .'' . "\n");
-                    fputs($f, '"'. $percentEquipmentDownLabel .'" '. $percentEquipmentDown .'' . "\n");
-                    if ($percentLine > 0) {
-                        fputs($f, '"'. $percentLineLabel .'" '. $percentLine .'' . "\n");
+                    if ($percentProduct != 0 && $percentEquipmentPerm != 0  && $percentEquipmentDown != 0) {
+                        $percentProductLabel = 'Product';
+                        $percentEquipmentPermLabel = 'Equipment(permanent)';
+                        $percentEquipmentDownLabel = 'Equipment(cool down)';
+                        $percentLineLabel = 'Line';
+                        $f = fopen("/tmp/consumptionPie.inp", "w");
+                        fputs($f, 'name percent' . "\n");
+                        fputs($f, '"'. $percentProductLabel .'" '. $percentProduct .'' . "\n");
+                        fputs($f, '"'. $percentEquipmentPermLabel .'" '. $percentEquipmentPerm .'' . "\n");
+                        fputs($f, '"'. $percentEquipmentDownLabel .'" '. $percentEquipmentDown .'' . "\n");
+                        if ($percentLine > 0) {
+                            fputs($f, '"'. $percentLineLabel .'" '. $percentLine .'' . "\n");
+                        }
+                        
+                        fclose($f);
+
+                        $folder = $this->output->public_path('consumption');
+
+                        $userName = $study->USERNAM;
+                        $idStudy = $study->ID_STUDY;
+                        if (!is_dir($folder)) {
+                            mkdir($folder, 0777);
+                        }
+
+                        if (!is_dir($folder . '/' . $userName)) {
+                            mkdir($folder . '/' . $userName, 0777);
+                        }
+
+                        if (!is_dir($folder . '/' . $userName . '/' . $idStudy)) {
+                            mkdir($folder . '/' . $userName . '/' . $idStudy, 0777);
+                        }
+
+                        $outPutFolder = $folder . '/' . $userName . '/' . $idStudy;
+                        $outPutFileName = $idStudyEquipment;
+                        
+                        system('gnuplot -c '. $this->plotFolder .'/consumptions.plot "/tmp/consumptionPie.inp" "'. $outPutFolder . '" "'. $outPutFileName .'" ');
                     }
-                    
-                    fclose($f);
-
-                    $folder = $this->output->public_path('consumption');
-
-                    $userName = $study->USERNAM;
-                    $idStudy = $study->ID_STUDY;
-                    if (!is_dir($folder)) {
-                        mkdir($folder, 0777);
-                    }
-
-                    if (!is_dir($folder . '/' . $userName)) {
-                        mkdir($folder . '/' . $userName, 0777);
-                    }
-
-                    if (!is_dir($folder . '/' . $userName . '/' . $idStudy)) {
-                        mkdir($folder . '/' . $userName . '/' . $idStudy, 0777);
-                    }
-
-                    $outPutFolder = $folder . '/' . $userName . '/' . $idStudy;
-                    $outPutFileName = $idStudyEquipment;
-                    
-                    system('gnuplot -c '. $this->plotFolder .'/consumptions.plot "/tmp/consumptionPie.inp" "'. $outPutFolder . '" "'. $outPutFileName .'" ');
                 }
             }
-            $progress .= "\nConsumptions Pies";
+
+            $progress .= "\nConsumption pies";
             $this->writeProgressFile($progressFile, $progress);
         }
         
@@ -919,7 +922,7 @@ class Reports extends Controller
             if ($idstudyequips->BRAIN_TYPE == 4) {
                 if ($ENTHALPY_V == 1 || $ENTHALPY_G == 1) {
                     $heatexchange[] = $this->reportserv->heatExchange($ENTHALPY_SAMPLE, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
-                    $progress .= "\nEnthpies";
+                    $progress .= "\nEnthalpies";
                     $this->writeProgressFile($progressFile, $progress);
                 } 
 
@@ -1036,6 +1039,7 @@ class Reports extends Controller
                     case CYLINDER_STANDING_3D:
                     case CYLINDER_LAYING_3D:
                     case CYLINDER_CONCENTRIC_STANDING_3D:
+                    case CYLINDER_CONCENTRIC_LAYING_3D:
                     case OVAL_STANDING_3D:
                     case OVAL_LAYING_3D:
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
@@ -1076,6 +1080,7 @@ class Reports extends Controller
             } 
         }
         
+        $progress .= "\nReport translation";
         $progress .= "\nFINISH";
 
         $customerPath = $infoReport[0]->CUSTOMER_LOGO;
@@ -1831,44 +1836,48 @@ class Reports extends Controller
                 $content ='Consumptions / Economics assessments';
                 PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
                 PDF::SetFont('helvetica', '', 9);
+                $rowspan = ($CONS_PIPE == 1 || $CONS_EQUIP == 1) ? ' rowspan="2"' : '';
+                $nameWidth = ($CONS_PIPE == 1 || $CONS_EQUIP == 1) ? ' width="10%"' : '';
+                $overallWidth = ($CONS_PIPE == 1 || $CONS_EQUIP == 1) ? ' width="9%"' : '';
+                $totalWidth = ($CONS_PIPE == 1 || $CONS_EQUIP == 1) ? ' width="7%"' : '';
+                $specificWidth = ($CONS_PIPE == 1 || $CONS_EQUIP == 1) ? ' width="8%"' : '';
                 $html ='
-                <h4>Values</h4>
+                <br><h3>Values</h3>
                 <div class="consum-esti">
                     <div class="table table-bordered">
-                    <table border="1" cellpadding="3">
-                        <tr style="font-size:12px">
-                            <td colspan="2" align="center" rowspan="2" width="10%">Equipment</td>';
+                    <table border="1" cellpadding="3" width="100%">
+                        <tr style="font-size:10px"><td'. $rowspan .' colspan="2" align="center"'. $nameWidth .'>Equipment</td>';
                             if ($CONS_OVERALL == 1) { 
                             $html .='
-                                <td rowspan="2" align="center" width="10%">Overall Cryogen Consumption Ratio (product + equipment and pipeline losses) Unit of Cryogen, per piece of product.  ( '. $symbol['consumSymbol'] .' ) </td>';
+                                <td'. $rowspan .' align="center"'. $overallWidth .'>Overall Cryogen Consumption Ratio (product + equipment and pipeline losses) Unit of Cryogen, per piece of product.<br>( '. $symbol['consumSymbol'] .' ) </td>';
                             }
                             if ($CONS_TOTAL == 1) { 
                             $html .=' 
-                                <td rowspan="2" align="center" width="10%">Total Cryogen Consumption (product + equipment and pipeline losses).  ( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .'  </td>';
+                                <td'. $rowspan .' align="center"'. $totalWidth .'>Total Cryogen Consumption (product + equipment and pipeline losses).<br>( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .'  </td>';
                             } 
                             if ($CONS_SPECIFIC == 1) { 
                             $html .=' 
-                                <td rowspan="2" align="center" width="10%">Specific Cryogen Consumption Ratio (product only) Unit of Cryogen, per unit weight of product.  ( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .' </td>';
+                                <td'. $rowspan .' align="center"'. $specificWidth .'>Specific Cryogen Consumption Ratio (product only) Unit of Cryogen, per unit weight of product.<br>( '. $symbol['consumMaintienSymbol'] .')  / '. $symbol['perUnitOfMassSymbol'] .' </td>';
                             }
                             if ($CONS_HOUR == 1) {
                             $html .=' 
-                                <td rowspan="2" align="center">Total Cryogen Consumption per hour  ( '.$symbol['consumSymbol'] .' ) </td>';
+                                <td'. $rowspan .' align="center">Total Cryogen Consumption per hour<br>( '.$symbol['consumSymbol'] .' ) </td>';
                             }
                             if ($CONS_DAY == 1) {
                             $html .=' 
-                                <td rowspan="2" align="center">Total Cryogen Consumption per day  ( '. $symbol['consumSymbol'] .' ) </td>';
+                                <td'. $rowspan .' align="center">Total Cryogen Consumption per day<br>( '. $symbol['consumSymbol'] .' ) </td>';
                             }
                             if ($CONS_WEEK == 1) { 
                             $html .=' 
-                                <td rowspan="2" align="center">Total Cryogen Consumption per week  ( '. $symbol['consumSymbol'] .' ) </td>';
+                                <td'. $rowspan .' align="center">Total Cryogen Consumption per week<br>( '. $symbol['consumSymbol'] .' ) </td>';
                             }
                             if ($CONS_MONTH == 1) { 
                             $html .=' 
-                                <td rowspan="2" align="center">Total Cryogen Consumption per month  ( '. $symbol['consumSymbol'] .' ) </td>';
+                                <td'. $rowspan .' align="center">Total Cryogen Consumption per month<br>( '. $symbol['consumSymbol'] .' ) </td>';
                             }
                             if ($CONS_YEAR == 1) { 
                             $html .=' 
-                                <td rowspan="2" align="center">Total Cryogen Consumption per year  ( '. $symbol['consumSymbol'] .' ) </td>';
+                                <td'. $rowspan .' align="center">Total Cryogen Consumption per year<br>( '. $symbol['consumSymbol'] .' ) </td>';
                             }
                             if ($CONS_EQUIP == 1) {
                             $html .=' 
@@ -1880,36 +1889,31 @@ class Reports extends Controller
                             }
                             if ($CONS_TANK == 1) { 
                             $html .=' 
-                                <td rowspan="2">Tank losses  ( '. $symbol['consumSymbol'] .' ) </td>';
+                                <td'. $rowspan .' align="center">Tank losses<br>( '. $symbol['consumSymbol'] .' ) </td>';
                             }
                             $html .=' 
                         </tr>';
 
                         if ($CONS_PIPE == 1 || $CONS_EQUIP == 1){
                         $html .=' 
-                        <tr style="font-size:10px">';
+                        <tr style="font-size:9px">';
                             if ($CONS_EQUIP == 1) { 
                             $html .=' 
-                                <td align="center">Heat losses per hour  ( '. $symbol['consumMaintienSymbol'] .' ) </td>
-                                <td align="center">Cooldown  ( '. $symbol['consumSymbol'] .' ) </td>';
+                                <td align="center">Heat losses per hour<br>( '. $symbol['consumMaintienSymbol'] .' ) </td>
+                                <td align="center">Cooldown<br>( '. $symbol['consumSymbol'] .' ) </td>';
                             }
                             if ($CONS_PIPE == 1) { 
                             $html .=' 
-                                <td align="center">Heat losses per hour  ( '. $symbol['consumMaintienSymbol'] .' ) </td>
-                                <td align="center">Cooldown  ( '. $symbol['consumSymbol'] .' ) </td>';
+                                <td align="center">Heat losses per hour<br>( '. $symbol['consumMaintienSymbol'] .' ) </td>
+                                <td align="center">Cooldown<br>( '. $symbol['consumSymbol'] .' ) </td>';
                             }
                         $html .=' 
                         </tr>';
-                        } else {
-                            $html .=' 
-                            <tr>
-                                <td align="center"></td>
-                                <td align="center"></td>
-                            </tr>';
                         }
+
                         foreach($consumptions as $key => $resconsumptions) { 
                         $html .=' 
-                        <tr>';
+                        <tr style="font-size:10px">';
                         $html .='
                             <td rowspan="2"> '. $resconsumptions['equipName'] .' </td>
                             <td align="center">( '. $symbol['consumSymbol'] .' )</td>';
@@ -1961,7 +1965,7 @@ class Reports extends Controller
                             <td align="center"> '. $resconsumptions['tank'] .' </td>';
                             }
                         $html .='</tr>';
-                        $html .='<tr>
+                        $html .='<tr style="font-size:10px">
                             <td align="center">( '. $symbol['monetarySymbol'] .' )</td>';
                             if ($study->OPTION_ECO != 1) {
                                 if ($CONS_OVERALL == 1) {
@@ -2072,18 +2076,24 @@ class Reports extends Controller
         if ($REP_CONS_PIE == 1) {
             if (!empty($consumptions )) {
                 PDF::SetFont('helvetica', 'B', 16);
-                PDF::Bookmark('CONSUMPTIONS PIES', 0, 0, '', 'B', array(0,64,128));
+                PDF::Bookmark('Consumption pies', 0, 0, '', 'B', array(0,64,128));
                 PDF::SetFillColor(38, 142, 226);
                 PDF::SetTextColor(0,0,0);
-                $content ='Consumptions Pies';
+                $content ='Consumption pies';
                 PDF::Cell(0, 10, $content, 0, 1, 'L', 1, 0);
                 PDF::SetFont('helvetica', '', 9);
                 $html='';
                 foreach ($consumptions as $key => $consumption) {
-                    $height = $key > 0 ? 550 : 530;
-                    PDF::Bookmark($consumption['equipName'] , 1, 0, '', '', array(128,0,0));
-                    $html .='<br><h3>'. $consumption['equipName'] .'</h3>';
-                    $html .= '<div style="text-align:center"><img height="'. $height .'" src="'. $public_path .'/consumption/'. $study['USERNAM'] .'/'. $study['ID_STUDY'] .'/'. $consumption['id'] .'.png"></div>';
+                    $percentProduct = $consumption['percentProduct'];
+                    $percentEquipmentPerm = $consumption['percentEquipmentPerm'];
+                    $percentEquipmentDown = $consumption['percentEquipmentDown'];
+                    $percentLine = $consumption['percentLine'];
+                    if ($percentProduct != 0 && $percentEquipmentPerm != 0  && $percentEquipmentDown != 0) {
+                        $height = $key > 0 ? 550 : 530;
+                        PDF::Bookmark($consumption['equipName'] , 1, 0, '', '', array(128,0,0));
+                        $html .='<br><h3>'. $consumption['equipName'] .'</h3>';
+                        $html .= '<div style="text-align:center"><img height="'. $height .'" src="'. $public_path .'/consumption/'. $study['USERNAM'] .'/'. $study['ID_STUDY'] .'/'. $consumption['id'] .'.png"></div>';
+                    }
                 }
 
                 PDF::writeHTML($html, true, false, true, false, '');
@@ -2460,18 +2470,18 @@ class Reports extends Controller
                     if ($shapeCode < 10) {
                         if ($shapeCode == 2 || $shapeCode == 9) {
                             if ($equipData[$key]['ORIENTATION'] == 1) {
-                                PDF::Bookmark($pro2Dcharts['equipName'] . 'Slice 23 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
+                                PDF::Bookmark($pro2Dcharts['equipName'] . ' Slice 23 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
                                 PDF::Cell(0, 10, '' , 0, 1, 'L');
-                                $html .='<h3>'. $pro2Dcharts['equipName'] . 'Slice 23 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
+                                $html .='<h3>'. $pro2Dcharts['equipName'] . ' Slice 23 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
                                 $html .= '
                                 <div align="center"> 
                                     <img width="640" height="450" src="'. $public_path.'/heatmap/'.$study['USERNAM'].'/'.$pro2Dcharts['idStudyEquipment'].'/'. $pro2Dcharts['lfDwellingTime'].'-'.$pro2Dcharts['chartTempInterval'][0].'-'. $pro2Dcharts['chartTempInterval'][1].'-'.$pro2Dcharts['chartTempInterval'][2].'.png">
                                 </div>';
                                 PDF::writeHTML($html, true, false, true, false, '');
                             } else {
-                                PDF::Bookmark($pro2Dcharts['equipName'] . 'Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
+                                PDF::Bookmark($pro2Dcharts['equipName'] . ' Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
                                 // PDF::Cell(0, 10, '', 0, 1, 'L');
-                                $html .='<h3>'. $pro2Dcharts['equipName'] . 'Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
+                                $html .='<h3>'. $pro2Dcharts['equipName'] . ' Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
                                 $html .= '
                                 <div align="center">
                                 <img width="640" height="450" src="'. $public_path.'/heatmap/'.$study['USERNAM'].'/'.$pro2Dcharts['idStudyEquipment'].'/'. $pro2Dcharts['lfDwellingTime'].'-'.$pro2Dcharts['chartTempInterval'][0].'-'. $pro2Dcharts['chartTempInterval'][1].'-'.$pro2Dcharts['chartTempInterval'][2].'.png">
@@ -2479,9 +2489,9 @@ class Reports extends Controller
                                 PDF::writeHTML($html, true, false, true, false, '');
                             }
                         } else if ($shapeCode != 1 || $shapeCode != 6) {
-                            PDF::Bookmark($pro2Dcharts['equipName'] . 'Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
+                            PDF::Bookmark($pro2Dcharts['equipName'] . ' Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
                             // PDF::Cell(0, 10, '', 0, 1, 'L');
-                            $html .='<h3>'. $pro2Dcharts['equipName'] . 'Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
+                            $html .='<h3>'. $pro2Dcharts['equipName'] . ' Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
                             $html .= '
                             <div align="center">
                             <img width="640" height="450" src="'. $public_path.'/heatmap/'.$study['USERNAM'].'/'.$pro2Dcharts['idStudyEquipment'].'/'. $pro2Dcharts['lfDwellingTime'].'-'.$pro2Dcharts['chartTempInterval'][0].'-'. $pro2Dcharts['chartTempInterval'][1].'-'.$pro2Dcharts['chartTempInterval'][2].'.png">
@@ -2489,49 +2499,28 @@ class Reports extends Controller
                             PDF::writeHTML($html, true, false, true, false, '');
                         }
                     } else {
-                       switch ($shapeCode) {
-                            case CYLINDER_STANDING_3D:
-                            case CYLINDER_LAYING_3D:
-                            case CYLINDER_CONCENTRIC_STANDING_3D:
-                            case OVAL_STANDING_3D:
-                            case OVAL_LAYING_3D:
-                                PDF::Bookmark($pro2Dcharts['equipName'] . 'Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
-                                // PDF::Cell(0, 10, '', 0, 1, 'L');
-                                $html .='<h3>'. $pro2Dcharts['equipName'] . 'Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
-                                $html .= '
-                                <div align="center">
-                                <img width="640" height="450" src="'. $public_path.'/heatmap/'.$study['USERNAM'].'/'.$pro2Dcharts['idStudyEquipment'].'/'. $pro2Dcharts['lfDwellingTime'].'-'.$pro2Dcharts['chartTempInterval'][0].'-'. $pro2Dcharts['chartTempInterval'][1].'-'.$pro2Dcharts['chartTempInterval'][2].'-'. $pro2Dcharts['selectedPlan'] .'.png">
-                                </div>';
-                                PDF::writeHTML($html, true, false, true, false, '');
+                        switch ($pro2Dcharts['selectedPlan']) {
+                            case 1:
+                                $selectedPlanName = 23;
+                                break;
+
+                            case 2:
+                                $selectedPlanName = 13;
+                                break;
+
+                            case 3:
+                                $selectedPlanName = 12;
                                 break;
                             
-                            default:
-                                PDF::Bookmark($pro2Dcharts['equipName'] . 'Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
-                                // PDF::Cell(0, 10, '', 0, 1, 'L');
-                                $html .='<h3>'. $pro2Dcharts['equipName'] . 'Slice 12 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
-                                $html .= '
-                                <div align="center">
-                                <img width="640" height="450" src="'. $public_path.'/heatmap/'.$study['USERNAM'].'/'.$pro2Dcharts['idStudyEquipment'].'/'. $pro2Dcharts['lfDwellingTime'].'-'.$pro2Dcharts['chartTempInterval'][0].'-'. $pro2Dcharts['chartTempInterval'][1].'-'.$pro2Dcharts['chartTempInterval'][2].'-'. $pro2Dcharts['selectedPlan'] .'.png">
-                                </div>';
-                                PDF::writeHTML($html, true, false, true, false, '');
-                                PDF::Bookmark($pro2Dcharts['equipName'] . 'Slice 13 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
-                                // PDF::Cell(0, 10, '', 0, 1, 'L');
-                                $html .='<h3>'. $pro2Dcharts['equipName'] . 'Slice 13 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
-                                $html .= '
-                                <div align="center">
-                                <img width="640" height="450" src="'. $public_path.'/heatmap/'.$study['USERNAM'].'/'.$pro2Dcharts['idStudyEquipment'].'/'. $pro2Dcharts['lfDwellingTime'].'-'.$pro2Dcharts['chartTempInterval'][0].'-'. $pro2Dcharts['chartTempInterval'][1].'-'.$pro2Dcharts['chartTempInterval'][2].'-'. $pro2Dcharts['selectedPlan'] .'.png">
-                                </div>';
-                                PDF::writeHTML($html, true, false, true, false, '');
-                                PDF::Bookmark($pro2Dcharts['equipName'] . 'Slice 23 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
-                                // PDF::Cell(0, 10, '', 0, 1, 'L');
-                                $html .='<h3>'. $pro2Dcharts['equipName'] . 'Slice 23 @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
-                                $html .= '
-                                <div align="center">
-                                <img width="640" height="450" src="'. $public_path.'/heatmap/'.$study['USERNAM'].'/'.$pro2Dcharts['idStudyEquipment'].'/'. $pro2Dcharts['lfDwellingTime'].'-'.$pro2Dcharts['chartTempInterval'][0].'-'. $pro2Dcharts['chartTempInterval'][1].'-'.$pro2Dcharts['chartTempInterval'][2].'-'. $pro2Dcharts['selectedPlan'] .'.png">
-                                </div>';
-                                PDF::writeHTML($html, true, false, true, false, '');
-                                break;
-                        } 
+                        }
+                       PDF::Bookmark($pro2Dcharts['equipName'] . ' Slice '. $selectedPlanName . ' @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'] . ')' , 1, 0, '', '', array(128,0,0));
+                        // PDF::Cell(0, 10, '', 0, 1, 'L');
+                        $html .='<h3>'. $pro2Dcharts['equipName'] . ' Slice '. $selectedPlanName . ' @' . $pro2Dcharts['lfDwellingTime'] . '(' . $symbol['timeSymbol'].')</h3>';
+                        $html .= '
+                        <div align="center">
+                        <img width="640" height="450" src="'. $public_path.'/heatmap/'.$study['USERNAM'].'/'.$pro2Dcharts['idStudyEquipment'].'/'. $pro2Dcharts['lfDwellingTime'].'-'.$pro2Dcharts['chartTempInterval'][0].'-'. $pro2Dcharts['chartTempInterval'][1].'-'.$pro2Dcharts['chartTempInterval'][2].'-'. $pro2Dcharts['selectedPlan'] .'.png">
+                        </div>';
+                        PDF::writeHTML($html, true, false, true, false, '');
                     }
                 }
                 PDF::AddPage();
@@ -2745,6 +2734,7 @@ class Reports extends Controller
 
         if ($study->packings != null) {
             $packings = $this->reportserv->getStudyPackingLayers($study->ID_STUDY);
+            $progress .= "\nPacking data";
         }
 
         $shapeName = Translation::where('TRANS_TYPE', 4)->where('ID_TRANSLATION', $shapeCode)->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
@@ -2802,7 +2792,7 @@ class Reports extends Controller
         }
 
         if ($EQUIP_LIST == 1) {
-            $progress .= "\nEquiment";
+            $progress .= "\nEquipment";
             $this->writeProgressFile($progressFile, $progress);
         }
         
@@ -2823,7 +2813,7 @@ class Reports extends Controller
 
         if ($CONS_OVERALL == 1 || $CONS_TOTAL ==1 || $CONS_SPECIFIC  == 1 || $CONS_HOUR ==1 || $CONS_DAY == 1||
             $CONS_WEEK == 1 || $CONS_MONTH == 1 || $CONS_YEAR ==1 || $CONS_EQUIP ==1 || $CONS_PIPE == 1 || $CONS_TANK ==1) {
-            $progress .= "\nConsumptions Results";
+            $progress .= "\nConsumption Results";
             $this->writeProgressFile($progressFile, $progress);
         }
         
@@ -2836,12 +2826,13 @@ class Reports extends Controller
                 $calModeHeadBalance = $this->reportserv->getEstimationHeadBalance($study->ID_STUDY, 1);
                 $graphicSizing = $this->reportserv->sizingEstimationResult($study->ID_STUDY);
             }
+            $progress .= "\nHeat balance";
             $progress .= "\nSizing";
             $this->writeProgressFile($progressFile, $progress);
         }
 
         if ($REP_CONS_PIE == 1) {
-            $progress .="\nConsumptions Pies";
+            $progress .="\nConsumption pies";
             if (!empty($consumptions)) {
                 foreach ($consumptions as $consumption) {
                     $idStudyEquipment = $consumption['id'];
@@ -2850,41 +2841,43 @@ class Reports extends Controller
                     $percentEquipmentPerm = $consumption['percentEquipmentPerm'];
                     $percentEquipmentDown = $consumption['percentEquipmentDown'];
                     $percentLine = $consumption['percentLine'];
-                    $percentProductLabel = 'Product';
-                    $percentEquipmentPermLabel = 'Equipment(permanent)';
-                    $percentEquipmentDownLabel = 'Equipment(cool down)';
-                    $percentLineLabel = 'Line';
-                    $f = fopen("/tmp/consumptionPie.inp", "w");
-                    fputs($f, 'name percent' . "\n");
-                    fputs($f, '"'. $percentProductLabel .'" '. $percentProduct .'' . "\n");
-                    fputs($f, '"'. $percentEquipmentPermLabel .'" '. $percentEquipmentPerm .'' . "\n");
-                    fputs($f, '"'. $percentEquipmentDownLabel .'" '. $percentEquipmentDown .'' . "\n");
-                    if ($percentLine > 0) {
-                        fputs($f, '"'. $percentLineLabel .'" '. $percentLine .'' . "\n");
+                    if ($percentProduct != 0 && $percentEquipmentPerm != 0  && $percentEquipmentDown != 0) {
+                        $percentProductLabel = 'Product';
+                        $percentEquipmentPermLabel = 'Equipment(permanent)';
+                        $percentEquipmentDownLabel = 'Equipment(cool down)';
+                        $percentLineLabel = 'Line';
+                        $f = fopen("/tmp/consumptionPie.inp", "w");
+                        fputs($f, 'name percent' . "\n");
+                        fputs($f, '"'. $percentProductLabel .'" '. $percentProduct .'' . "\n");
+                        fputs($f, '"'. $percentEquipmentPermLabel .'" '. $percentEquipmentPerm .'' . "\n");
+                        fputs($f, '"'. $percentEquipmentDownLabel .'" '. $percentEquipmentDown .'' . "\n");
+                        if ($percentLine > 0) {
+                            fputs($f, '"'. $percentLineLabel .'" '. $percentLine .'' . "\n");
+                        }
+                        
+                        fclose($f);
+
+                        $folder = $this->output->public_path('consumption');
+
+                        $userName = $study->USERNAM;
+                        $idStudy = $study->ID_STUDY;
+                        if (!is_dir($folder)) {
+                            mkdir($folder, 0777);
+                        }
+
+                        if (!is_dir($folder . '/' . $userName)) {
+                            mkdir($folder . '/' . $userName, 0777);
+                        }
+
+                        if (!is_dir($folder . '/' . $userName . '/' . $idStudy)) {
+                            mkdir($folder . '/' . $userName . '/' . $idStudy, 0777);
+                        }
+
+                        $outPutFolder = $folder . '/' . $userName . '/' . $idStudy;
+                        $outPutFileName = $idStudyEquipment;
+                        
+                        system('gnuplot -c '. $this->plotFolder .'/consumptions.plot "/tmp/consumptionPie.inp" "'. $outPutFolder . '" "'. $outPutFileName .'" ');
                     }
-                    
-                    fclose($f);
-
-                    $folder = $this->output->public_path('consumption');
-
-                    $userName = $study->USERNAM;
-                    $idStudy = $study->ID_STUDY;
-                    if (!is_dir($folder)) {
-                        mkdir($folder, 0777);
-                    }
-
-                    if (!is_dir($folder . '/' . $userName)) {
-                        mkdir($folder . '/' . $userName, 0777);
-                    }
-
-                    if (!is_dir($folder . '/' . $userName . '/' . $idStudy)) {
-                        mkdir($folder . '/' . $userName . '/' . $idStudy, 0777);
-                    }
-
-                    $outPutFolder = $folder . '/' . $userName . '/' . $idStudy;
-                    $outPutFileName = $idStudyEquipment;
-                    
-                    system('gnuplot -c '. $this->plotFolder .'/consumptions.plot "/tmp/consumptionPie.inp" "'. $outPutFolder . '" "'. $outPutFileName .'" ');
                 }
             }
             
@@ -2901,7 +2894,7 @@ class Reports extends Controller
             if ($idstudyequips->BRAIN_TYPE == 4) {
                 if ($ENTHALPY_V == 1 || $ENTHALPY_G == 1) {
                     $heatexchange[] = $this->reportserv->heatExchange($ENTHALPY_SAMPLE, $study->ID_STUDY, $idstudyequips->ID_STUDY_EQUIPMENTS);
-                    $progress .= "\nEnthpies";
+                    $progress .= "\nEnthalpies";
                     $this->writeProgressFile($progressFile, $progress);
                 } 
 
@@ -3020,6 +3013,7 @@ class Reports extends Controller
                     case CYLINDER_STANDING_3D:
                     case CYLINDER_LAYING_3D:
                     case CYLINDER_CONCENTRIC_STANDING_3D:
+                    case CYLINDER_CONCENTRIC_LAYING_3D:
                     case OVAL_STANDING_3D:
                     case OVAL_LAYING_3D:
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
@@ -3060,6 +3054,7 @@ class Reports extends Controller
             } 
         }
 
+        $progress .= "\nReport translation";
         $progress .= "\nFINISH";
         $this->writeProgressFile($progressFile, $progress);
 
@@ -3112,21 +3107,25 @@ class Reports extends Controller
         $input = $this->request->all();
         $params['studyId'] = $studyId;
         $params['input'] = $input;
-        ignore_user_abort(true);
-        set_time_limit(600);
-        $bgProcess = function($obj, $fn, $id) {
-            // ob_flush();
-            flush();
-            call_user_func_array([$obj, $fn], [$id]);
-        };
-        register_shutdown_function($bgProcess, $this, 'backgroundGenerationHTML', $params);
-        header('Connection: close');
-        header('Content-length: 19');
-        // header('Access-Control-Allow-Origin: *'); 
-        header('Content-type: application/json');
-        
-        exit("{'processing':true}");
-        return ['processing' => true];  
+        if ($input['countRunInterval'] == 0) {
+            ignore_user_abort(true);
+            set_time_limit(600);
+            $bgProcess = function($obj, $fn, $id) {
+                // ob_flush();
+                flush();
+                call_user_func_array([$obj, $fn], [$id]);
+            };
+            register_shutdown_function($bgProcess, $this, 'backgroundGenerationHTML', $params);
+            header('Connection: close');
+            header('Content-length: 19');
+            // header('Access-Control-Allow-Origin: *'); 
+            header('Content-type: application/json');
+            
+            exit("{'processing':true}");
+            return ['processing' => true]; 
+        } else {
+            return 1;
+        }
     }
 
     public function downLoadHtmlToPDF($studyId)

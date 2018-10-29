@@ -641,7 +641,7 @@ class Equipments extends Controller
             $equipGeneration->DWELLING_TIME = ($dwellingTime > 0) ? $dwellingTime : $minMaxDwell->DEFAULT_VALUE;
             $equipGeneration->MOVING_CHANGE = 0;
             $equipGeneration->MOVING_POS = 0;
-            $equipGeneration->ROTATE = ($rotate > 0) ? $rotate : 0;;
+            $equipGeneration->ROTATE = ($rotate > 0) ? $rotate : 0;
             $equipGeneration->POS_CHANGE = ($posChange > 0) ? $posChange : 0;
             $equipGeneration->NEW_POS = ($newPos != null) ? $newPos : 0;
             $equipGeneration->EQP_GEN_STATUS = 0;
@@ -659,7 +659,8 @@ class Equipments extends Controller
             $newEquip->save();
 
             if ($typeCalculate == 1) {
-                if (!$this->runEquipmentCalculation($newEquip->ID_EQUIPGENERATION)) {
+                $runEquipment = $this->runEquipmentCalculation($newEquip->ID_EQUIPGENERATION);
+                if (intval($runEquipment) != 0) {
                     $this->deleteEquipment($newEquip->ID_EQUIP);
                     return -5;
                 }
@@ -1547,6 +1548,10 @@ class Equipments extends Controller
                         // $layoutGen->ORI
                         $layoutGen->WIDTH_INTERVAL = $width;
                         $layoutGen->LENGTH_INTERVAL = $lenght;
+                        unset($layoutGen->SHELVES_EURO_LENGTH);
+                        unset($layoutGen->SHELVES_EURO_WIDTH);
+                        unset($layoutGen->SHELVES_GASTRO_LENGTH);
+                        unset($layoutGen->SHELVES_GASTRO_WIDTH);
                         $layoutGen->save();
                         $this->stdeqp->calculateEquipmentParams($sEquip);
                     }
@@ -2058,6 +2063,7 @@ class Equipments extends Controller
                 $newEquipCharact = new EquipCharact();
                 $newEquipCharact->ID_EQUIP = $newIdEquip;
                 $newEquipCharact->X_POSITION = $equipCharact->X_POSITION;
+                
                 $newEquipCharact->TEMP_REGUL = $equipCharact->TEMP_REGUL;
                 $newEquipCharact->ALPHA_TOP = $equipCharact->ALPHA_TOP;
                 $newEquipCharact->ALPHA_BOTTOM = $equipCharact->ALPHA_BOTTOM;
