@@ -1336,7 +1336,7 @@ class Calculator extends Controller
             for ($i = 0; $i < count($studyEquipments); $i++) { 
                 $item['EQUIP_NAME'] = $studyEquipments[$i]->EQUIP_NAME;
                 $item['id'] = $i;
-                $item['BRAIN_PROCESS'] = $studyEquipments[$i]->BRAIN_PROCESS;
+                $item['BRAIN_PROCESS'] = round($studyEquipments[$i]->BRAIN_PROCESS);
                 array_push($progress, $item);
             }
         }
