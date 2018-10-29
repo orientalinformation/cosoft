@@ -1039,6 +1039,7 @@ class Reports extends Controller
                     case CYLINDER_STANDING_3D:
                     case CYLINDER_LAYING_3D:
                     case CYLINDER_CONCENTRIC_STANDING_3D:
+                    case CYLINDER_CONCENTRIC_LAYING_3D:
                     case OVAL_STANDING_3D:
                     case OVAL_LAYING_3D:
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
@@ -3012,6 +3013,7 @@ class Reports extends Controller
                     case CYLINDER_STANDING_3D:
                     case CYLINDER_LAYING_3D:
                     case CYLINDER_CONCENTRIC_STANDING_3D:
+                    case CYLINDER_CONCENTRIC_LAYING_3D:
                     case OVAL_STANDING_3D:
                     case OVAL_LAYING_3D:
                         if ($ISOCHRONE_V == 1 || $ISOCHRONE_G == 1) {
