@@ -1761,6 +1761,7 @@ class Equipments extends Controller
                 $sEquip->ENTHALPY_VARIATION = 0;
                 $sEquip->PRECIS = 0;
                 $sEquip->RUN_CALCULATE = 1;
+                $sEquip->BRAIN_PROCESS = 0;
                 $sEquip->save();
             }
         }
