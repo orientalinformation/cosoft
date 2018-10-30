@@ -1123,6 +1123,7 @@ class Studies extends Controller
 
         $sEquip->STDEQP_WIDTH = -1;
         $sEquip->STDEQP_LENGTH = -1;
+        $sEquip->BRAIN_PROCESS = 0;
 
         $sEquip->save();
 
