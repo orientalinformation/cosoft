@@ -295,7 +295,11 @@ class Calculator extends Controller
         $sequip = StudyEquipment::where('ID_STUDY', $idStudy)->first();
 
         if (count($studyEquipments) > 0) {
-            for ($i = 0; $i < count($studyEquipments); $i++) { 
+            for ($i = 0; $i < count($studyEquipments); $i++) {
+                // save progress bar
+                $studyEquipments[$i]->BRAIN_PROCESS = 0;
+                $studyEquipments[$i]->save();
+                // old code oriental
                 $idStudyEquipment = $studyEquipments[$i]->ID_STUDY_EQUIPMENTS;
                 $calculationParameter = CalculationParameter::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->first();
 
