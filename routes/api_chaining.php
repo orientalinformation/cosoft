@@ -47,3 +47,11 @@ $router->GET('/api/v1/chaining/clear/{id}', 'Api1\\Chaining@clearParentChaining'
  * Output-Formats: [application/json]
  */
 $router->GET('/api/v1/calculator/study/progressbar', 'Api1\\Chaining@getValueProgressStudyEquipment');
+
+/**
+ * PUT all progress bar
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->PUT('/api/v1/input/studyequipment/{id}', 'Api1\\Chaining@selectCalculate');

@@ -292,4 +292,17 @@ class Chaining extends Controller
 
       return $progress;
     }
+
+    public function selectCalculate($id)
+    {
+      $input = $this->request->all();
+
+      if (isset($input['run_calcuate'])) $runCalcuate = intval($input['run_calcuate']);
+
+      $sEquipment = StudyEquipment::find($id);
+      if ($sEquipment) {
+        $sEquipment->RUN_CALCULATE = $runCalcuate;
+        $sEquipment->save();
+      }
+    }
 }
