@@ -2611,4 +2611,71 @@ class ReportService
 
         return compact('meshGeneration', 'elements', 'elmtMeshPositions', 'productIsoTemp', 'nbMeshPointElmt', 'productElmtInitTemp', 'initTempPositions', 'heights');
     }
+
+    public function getShapeName3D($shapeCode)
+    {
+        switch ($shapeCode) {
+            case 10:
+                $shapeName = 'Rectangular Block (Vertical layers)';
+                break;
+
+            case 11:
+                $shapeName = 'Rectangular Block (Horizontal layers)';
+                break;
+
+            case 12:
+                $shapeName = 'Standing cylinder';
+                break;
+
+            case 13:
+                $shapeName = 'Lying cylinder';
+                break;
+
+            case 14:
+                $shapeName = 'Sphere (mono or multi components)';
+                break;
+
+            case 15:
+                $shapeName = 'Standing concentric cylinder';
+                break;
+
+            case 16:
+                $shapeName = 'Lying concentric cylinder';
+                break;
+
+            case 17:
+                $shapeName = 'Rectangular block (breaded)';
+                break;
+
+            case 18:
+                $shapeName = 'Trapezoid 3D';
+                break;
+
+            case 19:
+                $shapeName = 'Standing Oval';
+                break;
+
+            case 20:
+                $shapeName = 'Lying Oval';
+                break;
+
+            case 21:
+                $shapeName = 'Standing concentric oval';
+                break;
+
+            case 22:
+                $shapeName = 'Lying concentric oval';
+                break;
+
+            case 23:
+                $shapeName = 'Semi Cylinder';
+                break;
+
+            default:
+                $shapeName = '';
+                break;
+        }
+
+        return $shapeName;
+    }
 }

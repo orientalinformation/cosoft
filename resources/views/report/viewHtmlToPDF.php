@@ -184,7 +184,7 @@
         </div>
         <?php } ?>
 
-        <?php if ($arrayParam['params']['PROD_LIST'] == 1 && $arrayParam['shapeCode'] < 10) { ?>
+        <?php if ($arrayParam['params']['PROD_LIST'] == 1) { ?>
         <div class="block-title">Product Data</div>
         <h5 class="bold">Composition of the product and its components</h5>
         <div class="pro-data">
@@ -222,7 +222,7 @@
                     </tr>
                     <tr>
                         <td class="text-center"><?php echo $arrayParam['product']->PRODNAME ?></td>
-                        <td class="text-center"><?php echo $arrayParam['shapeName']->LABEL ?></td>
+                        <td class="text-center"><?php echo ($arrayParam['shapeCode'] <= 9) ? $arrayParam['shapeName']->LABEL : $arrayParam['shapeName'] ?></td>
                         <?php if ($arrayParam['shapeCode'] == 1 || $arrayParam['shapeCode'] == 6) {?>
                             <td class="text-center"><?php echo $arrayParam['proElmtParam2'] ?></td>
                         <?php } else if ($arrayParam['shapeCode'] == 2 || $arrayParam['shapeCode'] == 9 || $arrayParam['shapeCode'] == 3) { ?>

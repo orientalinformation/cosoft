@@ -767,7 +767,12 @@ class Reports extends Controller
             $packings = $this->reportserv->getStudyPackingLayers($study->ID_STUDY);
         }
         
-        $shapeName = Translation::where('TRANS_TYPE', 4)->where('ID_TRANSLATION', $shapeCode)->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
+        if ($shapeCode <= 9) {
+            $shapeName = Translation::where('TRANS_TYPE', 4)->where('ID_TRANSLATION', $shapeCode)->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
+        } else {
+            $shapeName = $this->reportserv->getShapeName3D($shapeCode);
+        }
+
         $componentName = ProductElmt::select('LABEL','ID_COMP', 'ID_PRODUCT_ELMT', 'PROD_ELMT_ISO', 'PROD_ELMT_NAME', 'PROD_ELMT_REALWEIGHT', 'SHAPE_PARAM2', 'INSERT_LINE_ORDER')
         ->join('TRANSLATION', 'ID_COMP', '=', 'TRANSLATION.ID_TRANSLATION')->whereIn('ID_PRODUCT_ELMT', $idElmArr)
         ->where('TRANS_TYPE', 1)->whereIn('ID_TRANSLATION', $idComArr)
@@ -1310,7 +1315,8 @@ class Reports extends Controller
             }
         }
         
-        if ($PROD_LIST == 1 && $shapeCode < 10) {
+        if ($PROD_LIST == 1) {
+            $shapeNameDisplay = ($shapeCode <= 9) ? $shapeName->LABEL : $shapeName;
             PDF::SetFont('helvetica', 'B', 16);
             PDF::Bookmark('PRODUCT DATA', 0, 0, '', 'B', array(0,64,128));
             PDF::SetFillColor(38, 142, 226);
@@ -1366,7 +1372,7 @@ class Reports extends Controller
                     </tr>
                     <tr>
                         <td align="center">'. $product->PRODNAME .' </td>
-                        <td align="center">'. $shapeName->LABEL .' </td>';
+                        <td align="center">'. $shapeNameDisplay .' </td>';
                         if ($shapeCode == 1 || $shapeCode == 6) {
                             $html .= '<td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM2) .' </td>';
                         } else if ($shapeCode == 2 || $shapeCode == 9 || $shapeCode == 3) {
@@ -2737,7 +2743,12 @@ class Reports extends Controller
             $progress .= "\nPacking data";
         }
 
-        $shapeName = Translation::where('TRANS_TYPE', 4)->where('ID_TRANSLATION', $shapeCode)->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
+        if ($shapeCode <= 9) {
+            $shapeName = Translation::where('TRANS_TYPE', 4)->where('ID_TRANSLATION', $shapeCode)->where('CODE_LANGUE', $study->user->CODE_LANGUE)->orderBy('LABEL', 'ASC')->first();
+        } else {
+            $shapeName = $this->reportserv->getShapeName3D($shapeCode);
+        }
+        
         $componentName = ProductElmt::select('LABEL','ID_COMP', 'ID_PRODUCT_ELMT', 'PROD_ELMT_ISO', 'PROD_ELMT_NAME', 'PROD_ELMT_REALWEIGHT', 'SHAPE_PARAM2', 'INSERT_LINE_ORDER')
         ->join('TRANSLATION', 'ID_COMP', '=', 'TRANSLATION.ID_TRANSLATION')->whereIn('ID_PRODUCT_ELMT', $idElmArr)
         ->where('TRANS_TYPE', 1)->whereIn('ID_TRANSLATION', $idComArr)
