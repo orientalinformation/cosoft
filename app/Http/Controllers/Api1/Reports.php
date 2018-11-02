@@ -1330,41 +1330,61 @@ class Reports extends Controller
                     <tr style="font-weight:bold">
                         <th align="center">Product name</th>
                         <th align="center">Shape</th>';
-                        if ($shapeCode == 1 || $shapeCode == 6) {
-                            $html .= '<th align="center">Thickness<br>('. $symbol['prodDimensionSymbol'] . ' )</th>';
-                        } else if ($shapeCode == 2 || $shapeCode == 9) {
-                            $html .='
-                            <th align="center">Length<br>('. $symbol['prodDimensionSymbol'] . ')</th>
-                            <th align="center">Height<br>('. $symbol['prodDimensionSymbol'] . ')</th>
-                            <th align="center">Width<br>('. $symbol['prodDimensionSymbol'] . ')</th>
-                            ';
-                        } else if ($shapeCode == 3) {
-                            $html .= '
-                            <th align="center">Height<br>('. $symbol['prodDimensionSymbol'] . ')</th>
-                            <th align="center">Length<br>('. $symbol['prodDimensionSymbol'] . ')</th>
-                            <th align="center">Width<br>('. $symbol['prodDimensionSymbol'] . ')</th>
-                            ';
-                        } else if ($shapeCode == 4) {
-                            $html .= '
-                            <th align="center">Diameter<br>('. $symbol['prodDimensionSymbol'] . ')</th>
-                            <th align="center">Height<br>('. $symbol['prodDimensionSymbol'] . ')</th>
-                            ';
-                        } else if ($shapeCode == 5) {
-                            $html .= '
-                            <th align="center">Diameter<br>('. $symbol['prodDimensionSymbol'] . ')</th>
-                            <th align="center">Length<br>('. $symbol['prodDimensionSymbol'] . ')</th>
-                            ';
-                        } else if ($shapeCode == 7) {
-                            $html .= '
-                            <th align="center">Hieght<br>('. $symbol['prodDimensionSymbol'] . ')</th>
-                            <th align="center">Diameter<br>('. $symbol['prodDimensionSymbol'] . ')</th>
-                            ';
-                        } else if ($shapeCode == 8) {
-                            $html .= '
-                            <th align="center">Length<br>('. $symbol['prodDimensionSymbol'] . ') </th>
-                            <th align="center">Diameter<br>('. $symbol['prodDimensionSymbol'] . ') </th>
-                            ';
+                        if ($shapeCode != SLAB && $shapeCode != SPHERE && $shapeCode != SPHERE_3D && $shapeCode != TRAPEZOID_3D && $shapeCode != TRAPEZOID_3D && $shapeCode != OVAL_STANDING_3D && $shapeCode != OVAL_LAYING_3D) {
+                            if ($shapeCode == PARALLELEPIPED_STANDING || $shapeCode == PARALLELEPIPED_BREADED || $shapeCode == CYLINDER_CONCENTRIC_LAYING || $shapeCode == PARALLELEPIPED_STANDING_3D || $shapeCode == CYLINDER_CONCENTRIC_LAYING_3D || $shapeCode == PARALLELEPIPED_BREADED_3D){
+                                $prodDim1Name = 'Length';
+                            } 
+                            if ($shapeCode == CYLINDER_LAYING || $shapeCode == CYLINDER_STANDING || $shapeCode == CYLINDER_STANDING_3D || $shapeCode == CYLINDER_LAYING_3D){
+                                $prodDim1Name = 'Diameter';
+                            } 
+                            if ($shapeCode == PARALLELEPIPED_LAYING || $shapeCode == CYLINDER_CONCENTRIC_STANDING || $shapeCode == PARALLELEPIPED_LAYING_3D || $shapeCode == CYLINDER_CONCENTRIC_STANDING_3D){
+                                $prodDim1Name = 'Height';
+                            }                                 
                         }
+
+                        if ($shapeCode == TRAPEZOID_3D || $shapeCode == OVAL_STANDING_3D || $shapeCode == OVAL_LAYING_3D) {
+
+                            if ($shapeCode == TRAPEZOID_3D) {
+                                $prodDim1Name = 'Base Length';
+                            } 
+
+                            if ($shapeCode == OVAL_STANDING_3D || $shapeCode == OVAL_LAYING_3D){
+                                $prodDim1Name = 'Major Diameter';
+                            } 
+                                
+                        } 
+
+                        $html .= '<th align="center">'. $prodDim1Name .'<br>('. $symbol['prodDimensionSymbol'] . ' )</th>';
+
+                        if ($shapeCode == PARALLELEPIPED_STANDING || $shapeCode == PARALLELEPIPED_LAYING || $shapeCode == PARALLELEPIPED_BREADED || $shapeCode == PARALLELEPIPED_STANDING_3D || $shapeCode == PARALLELEPIPED_LAYING_3D || $shapeCode == PARALLELEPIPED_BREADED_3D) {
+                                $prodDim3Name = 'Width';
+                        }
+                        
+
+                        if ($shapeCode == TRAPEZOID_3D || $shapeCode == OVAL_STANDING_3D || $shapeCode == OVAL_LAYING_3D) {
+
+                            if ($shapeCode == TRAPEZOID_3D) {
+                                $prodDim3Name = 'Base Width';
+                            } 
+
+                            if ($shapeCode == OVAL_STANDING_3D || $shapeCode == OVAL_LAYING_3D){
+                                $prodDim3Name = 'Minor Diameter';
+                            } 
+                                
+                        }
+
+                        $html .= '<th align="center">'. $prodDim3Name .'<br>('. $symbol['prodDimensionSymbol'] . ' )</th>';
+
+                        if ($shapeCode == PARALLELEPIPED_STANDING || $shapeCode == PARALLELEPIPED_BREADED || $shapeCode == CYLINDER_STANDING || $shapeCode == PARALLELEPIPED_STANDING_3D || $shapeCode == CYLINDER_STANDING_3D || $shapeCode == PARALLELEPIPED_BREADED_3D || $shapeCode == TRAPEZOID_3D || $shapeCode == PARALLELEPIPED_BREADED_3D || $shapeCode == OVAL_STANDING_3D) {
+                            $prodDim2Name = 'Height';
+                        }
+
+                        if ($shapeCode == SLAB) {
+                            $prodDim2Name = 'Thickness';
+                        }
+
+                        $html .= '<th align="center">'. $prodDim2Name .'<br>('. $symbol['prodDimensionSymbol'] . ' )</th>';
+                        
                         $html .= '
                         <th align="center">Real product mass per unit<br>('. $symbol['massSymbol'] .')</th>
                         <th align="center">Same temperature throughout product.</th>
@@ -1373,21 +1393,11 @@ class Reports extends Controller
                     <tr>
                         <td align="center">'. $product->PRODNAME .' </td>
                         <td align="center">'. $shapeNameDisplay .' </td>';
-                        if ($shapeCode == 1 || $shapeCode == 6) {
-                            $html .= '<td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM2) .' </td>';
-                        } else if ($shapeCode == 2 || $shapeCode == 9 || $shapeCode == 3) {
-                            $html .='
-                            <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM1) .'</td>
-                            <td align="center">'. $specificDimension.' </td>
-                            <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM3) .' </td>
-                            ';
-                        } else if ($shapeCode == 4 || $shapeCode == 5 || $shapeCode == 7 || $shapeCode == 8) {
-                            $html .= '
-                            <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM1) .'</td>
-                            <td align="center">'. $specificDimension .' </td>
-                            ';
-                        }
-
+                        $html .='
+                        <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM1) .'</td>
+                        <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM3) .' </td>
+                        <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM2) .' </td>
+                        ';
                         $html .='
                         <td align="center">'. $this->convert->mass($product->PROD_REALWEIGHT) .' </td>
                         <td align="center">'. ($product->PROD_ISO == 1 ? 'YES' : 'NO') .' </td>

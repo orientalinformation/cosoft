@@ -193,29 +193,77 @@
                     <tr>
                         <th class="text-center">Product name</th>
                         <th class="text-center">Shape</th>
-                        <?php if ($arrayParam['shapeCode'] == 1 || $arrayParam['shapeCode'] == 6) {?>
-                            <th class="text-center">Diameter<br><?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . ")" ?></th>
-                        <?php } else if ($arrayParam['shapeCode'] == 2 || $arrayParam['shapeCode'] == 9) { ?>
-                            <th class="text-center">Length<br><?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . ")" ?></th>
-                            <th class="text-center">Height<br><?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . ")" ?></th>
-                            <th class="text-center">Width<br><?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . ")" ?></th>
-                        <?php } else if ($arrayParam['shapeCode'] == 3) { ?>
-                            <th class="text-center">Height<br><?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . ")" ?></th>
-                            <th class="text-center">Length<br><?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . ")" ?></th>
-                            <th class="text-center">Width<br><?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . ")" ?></th>
-                        <?php } else if ($arrayParam['shapeCode'] == 4) { ?>
-                            <th class="text-center">Diameter<br><?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . ")" ?></th>
-                            <th class="text-center">Height<br><?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . ")" ?></th>
-                        <?php } else if ($arrayParam['shapeCode'] == 5) { ?>
-                            <th class="text-center">Diameter<br><?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . ")" ?></th>
-                            <th class="text-center">Length<br><?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . ")" ?></th>
-                        <?php } else if ($arrayParam['shapeCode'] == 7) { ?>
-                            <th class="text-center">Height<br><?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . ")" ?></th>
-                            <th class="text-center">Diameter<br><?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . ")" ?></th>
-                        <?php } else if ($arrayParam['shapeCode'] == 8) { ?>
-                            <th class="text-center">Length<br><?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . ")" ?></th>
-                            <th class="text-center">Diameter<br><?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . ")" ?></th>
+                        <?php if ($arrayParam['shapeCode'] != SLAB && $arrayParam['shapeCode'] != SPHERE && $arrayParam['shapeCode'] != SPHERE_3D && $arrayParam['shapeCode'] != TRAPEZOID_3D && $arrayParam['shapeCode'] != TRAPEZOID_3D && $arrayParam['shapeCode'] != OVAL_STANDING_3D && $arrayParam['shapeCode'] != OVAL_LAYING_3D) {?>
+
+                            <?php if ($arrayParam['shapeCode'] == PARALLELEPIPED_STANDING || $arrayParam['shapeCode'] == PARALLELEPIPED_BREADED || $arrayParam['shapeCode'] == CYLINDER_CONCENTRIC_LAYING || $arrayParam['shapeCode'] == PARALLELEPIPED_STANDING_3D || $arrayParam['shapeCode'] == CYLINDER_CONCENTRIC_LAYING_3D || $arrayParam['shapeCode'] == PARALLELEPIPED_BREADED_3D){
+                                $prodDim1Name = 'Length';
+                            } ?>
+
+                            <?php if ($arrayParam['shapeCode'] == CYLINDER_LAYING || $arrayParam['shapeCode'] == CYLINDER_STANDING || $arrayParam['shapeCode'] == CYLINDER_STANDING_3D || $arrayParam['shapeCode'] == CYLINDER_LAYING_3D){
+                                $prodDim1Name = 'Diameter';
+                            } ?>
+
+                            <?php if ($arrayParam['shapeCode'] == PARALLELEPIPED_LAYING || $arrayParam['shapeCode'] == CYLINDER_CONCENTRIC_STANDING || $arrayParam['shapeCode'] == PARALLELEPIPED_LAYING_3D || $arrayParam['shapeCode'] == CYLINDER_CONCENTRIC_STANDING_3D){
+                                $prodDim1Name = 'Height';
+                            } ?>
+                                
                         <?php } ?>
+
+                        <?php if ($arrayParam['shapeCode'] == TRAPEZOID_3D || $arrayParam['shapeCode'] == OVAL_STANDING_3D || $arrayParam['shapeCode'] == OVAL_LAYING_3D) {?>
+
+                            <?php if ($arrayParam['shapeCode'] == TRAPEZOID_3D) {
+                                $prodDim1Name = 'Base Length';
+                            } ?>
+
+                            <?php if ($arrayParam['shapeCode'] == OVAL_STANDING_3D || $arrayParam['shapeCode'] == OVAL_LAYING_3D){
+                                $prodDim1Name = 'Major Diameter';
+                            } ?>
+                                
+                        <?php } ?>
+
+                        <th class="text-center"><?php echo $prodDim1Name ?><br><?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . ")" ?></th>
+
+                        <?php if ($arrayParam['shapeCode'] == PARALLELEPIPED_STANDING || $arrayParam['shapeCode'] == PARALLELEPIPED_LAYING || $arrayParam['shapeCode'] == PARALLELEPIPED_BREADED || $arrayParam['shapeCode'] == PARALLELEPIPED_STANDING_3D || $arrayParam['shapeCode'] == PARALLELEPIPED_LAYING_3D || $arrayParam['shapeCode'] == PARALLELEPIPED_BREADED_3D) {
+                                $prodDim3Name = 'Width';
+                            }
+                        ?>
+
+                        <?php if ($arrayParam['shapeCode'] == TRAPEZOID_3D || $arrayParam['shapeCode'] == OVAL_STANDING_3D || $arrayParam['shapeCode'] == OVAL_LAYING_3D) {?>
+
+                            <?php if ($arrayParam['shapeCode'] == TRAPEZOID_3D) {
+                                $prodDim3Name = 'Base Width';
+                            } ?>
+
+                            <?php if ($arrayParam['shapeCode'] == OVAL_STANDING_3D || $arrayParam['shapeCode'] == OVAL_LAYING_3D){
+                                $prodDim3Name = 'Minor Diameter';
+                            } ?>
+                                
+                        <?php } ?>
+
+                        <th class="text-center"><?php echo $prodDim3Name ?><br><?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . ")" ?></th>
+
+                        <?php if ($arrayParam['shapeCode'] == PARALLELEPIPED_STANDING || $arrayParam['shapeCode'] == PARALLELEPIPED_BREADED || $arrayParam['shapeCode'] == CYLINDER_STANDING || $arrayParam['shapeCode'] == PARALLELEPIPED_STANDING_3D || $arrayParam['shapeCode'] == CYLINDER_STANDING_3D || $arrayParam['shapeCode'] == PARALLELEPIPED_BREADED_3D || $arrayParam['shapeCode'] == TRAPEZOID_3D || $arrayParam['shapeCode'] == PARALLELEPIPED_BREADED_3D || $arrayParam['shapeCode'] == OVAL_STANDING_3D) {
+                                $prodDim2Name = 'Height';
+                            }
+                        ?>
+
+                        <?php if ($arrayParam['shapeCode'] == SLAB) {
+                                $prodDim2Name = 'Thickness';
+                            }
+                        ?>
+
+                        <?php if ($arrayParam['shapeCode'] == PARALLELEPIPED_LAYING || $arrayParam['shapeCode'] == CYLINDER_LAYING || $arrayParam['shapeCode'] == PARALLELEPIPED_LAYING_3D || $arrayParam['shapeCode'] == CYLINDER_LAYING_3D || $arrayParam['shapeCode'] == OVAL_LAYING_3D) {
+                                $prodDim2Name = 'Length';
+                            }
+                        ?>
+
+                        <?php if ($arrayParam['shapeCode'] == SPHERE || $arrayParam['shapeCode'] == CYLINDER_CONCENTRIC_STANDING || $arrayParam['shapeCode'] == CYLINDER_CONCENTRIC_LAYING || $arrayParam['shapeCode'] == SPHERE_3D || $arrayParam['shapeCode'] == CYLINDER_CONCENTRIC_STANDING_3D || $arrayParam['shapeCode'] == CYLINDER_CONCENTRIC_LAYING_3D) {
+                                $prodDim2Name = 'Diameter';
+                            }
+                        ?>
+
+                        <th class="text-center"><?php echo $prodDim2Name ?><br><?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . ")" ?></th>
+
                         <th class="text-center">Real product mass per unit<br><?php echo "(" . $arrayParam['symbol']['massSymbol'] . ")" ?></th>
                         <th class="text-center">Same temperature throughout product.</th>
                         <th class="text-center">Initial temperature<br><?php echo "(" . $arrayParam['symbol']['temperatureSymbol'] . ")" ?></th>
@@ -223,16 +271,9 @@
                     <tr>
                         <td class="text-center"><?php echo $arrayParam['product']->PRODNAME ?></td>
                         <td class="text-center"><?php echo ($arrayParam['shapeCode'] <= 9) ? $arrayParam['shapeName']->LABEL : $arrayParam['shapeName'] ?></td>
-                        <?php if ($arrayParam['shapeCode'] == 1 || $arrayParam['shapeCode'] == 6) {?>
-                            <td class="text-center"><?php echo $arrayParam['proElmtParam2'] ?></td>
-                        <?php } else if ($arrayParam['shapeCode'] == 2 || $arrayParam['shapeCode'] == 9 || $arrayParam['shapeCode'] == 3) { ?>
-                            <td class="text-center"><?php echo $arrayParam['proElmtParam1'] ?></td>
-                            <td class="text-center"><?php echo $arrayParam['proElmtParam2'] ?></td>
+                        <td class="text-center"><?php echo $arrayParam['proElmtParam1'] ?></td>
                             <td class="text-center"><?php echo $arrayParam['proElmtParam3'] ?></td>
-                        <?php } else if ($arrayParam['shapeCode'] == 4 || $arrayParam['shapeCode'] == 5 || $arrayParam['shapeCode'] == 7|| $arrayParam['shapeCode'] == 8) { ?>
-                            <td class="text-center"><?php echo $arrayParam['proElmtParam1'] ?></td>
                             <td class="text-center"><?php echo $arrayParam['proElmtParam2'] ?></td>
-                        <?php } ?>
                         <td class="text-center"><?php echo $arrayParam['productRealW'] ?></td>
                         <td class="text-center"><?php echo $arrayParam['product']->PROD_ISO == 1 ? "YES" : "NO" ?></td>
                         <td class="text-center">
