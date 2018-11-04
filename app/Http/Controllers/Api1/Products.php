@@ -86,10 +86,6 @@ class Products extends Controller
         $this->units = $units;
     }
 
-    /**
-     * @param $id
-     * @return mixed
-     */
     public function getProductById($id) 
     {
         $product = Product::find($id);
@@ -325,7 +321,6 @@ class Products extends Controller
                 $prodcharColor = ProdcharColor::where('ID_PROD', $id)->where('LAYER_ORDER', $count - $key)->first();
                 $elements[$key]['prodcharColor'] = $prodcharColor;
             }
-
         }
         
         $specificDimension = $this->unit->prodDimension($specificDimension);
