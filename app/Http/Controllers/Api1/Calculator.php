@@ -416,23 +416,26 @@ class Calculator extends Controller
             for ($i = 0; $i < count($studyEquipments); $i++) { 
                 $idStudyEquipment = $studyEquipments[$i]->ID_STUDY_EQUIPMENTS;
                 $capability = $studyEquipments[$i]->CAPABILITIES;
+                $run_calcuate = $studyEquipments[$i]->RUN_CALCULATE;
 
-                if ($this->equipment->getCapability($capability, 128)) {
+                if ($run_calcuate == 1) {
+                    if ($this->equipment->getCapability($capability, 128)) {
 
-                    // run study clear
-                    $this->runStudyCleaner($idStudy, $idStudyEquipment, SC_CLEAN_OUTPUT_CALCUL);
+                        // run study clear
+                        $this->runStudyCleaner($idStudy, $idStudyEquipment, SC_CLEAN_OUTPUT_CALCUL);
 
-                    $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->ID_STUDY.'\\brain_log_'.$idStudy.'_'. $idStudyEquipment.'.txt');
-                    $param = new \Cryosoft\stSKBRParam();
-                    array_push($results, $this->kernel->getKernelObject('BrainCalculator')->BRTeachCalculation($conf, $param, 10));
-                    //add run economic and consumption
-                    if ($study->OPTION_CRYOPIPELINE == 1) {
-                        $this->startPipeLine($idStudy, $idStudyEquipment);
+                        $conf = $this->kernel->getConfig($this->auth->user()->ID_USER, $idStudy, $idStudyEquipment, 1, 1, 'c:\\temp\\'.$study->ID_STUDY.'\\brain_log_'.$idStudy.'_'. $idStudyEquipment.'.txt');
+                        $param = new \Cryosoft\stSKBRParam();
+                        array_push($results, $this->kernel->getKernelObject('BrainCalculator')->BRTeachCalculation($conf, $param, 10));
+                        //add run economic and consumption
+                        if ($study->OPTION_CRYOPIPELINE == 1) {
+                            $this->startPipeLine($idStudy, $idStudyEquipment);
+                        }
+                        
+                        // sleep(30);
+                        $this->startEconomic($idStudy, $idStudyEquipment);
+                        $this->startConsumptionEconomic($idStudy, $idStudyEquipment);
                     }
-                    
-                    // sleep(30);
-                    $this->startEconomic($idStudy, $idStudyEquipment);
-                    $this->startConsumptionEconomic($idStudy, $idStudyEquipment);
                 }
             }
         }
@@ -1338,10 +1341,12 @@ class Calculator extends Controller
 
         if (count($studyEquipments) > 0) {
             for ($i = 0; $i < count($studyEquipments); $i++) { 
-                $item['EQUIP_NAME'] = $studyEquipments[$i]->EQUIP_NAME;
-                $item['id'] = $i;
-                $item['BRAIN_PROCESS'] = round($studyEquipments[$i]->BRAIN_PROCESS);
-                array_push($progress, $item);
+                if ($studyEquipments[$i]->RUN_CALCULATE == 1) {
+                    $item['EQUIP_NAME'] = $studyEquipments[$i]->EQUIP_NAME;
+                    $item['id'] = $i;
+                    $item['BRAIN_PROCESS'] = round($studyEquipments[$i]->BRAIN_PROCESS);
+                    array_push($progress, $item);
+                }
             }
         }
         
