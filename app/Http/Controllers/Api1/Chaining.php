@@ -297,11 +297,11 @@ class Chaining extends Controller
     {
       $input = $this->request->all();
 
-      if (isset($input['run_calcuate'])) $runCalcuate = intval($input['run_calcuate']);
+      if (isset($input['run_calcuate'])) $runCalcuate = $input['run_calcuate'];
 
       $sEquipment = StudyEquipment::find($id);
       if ($sEquipment) {
-        $sEquipment->RUN_CALCULATE = $runCalcuate;
+        $sEquipment->RUN_CALCULATE = ($runCalcuate == "true") ? 1 : 0;
         $sEquipment->save();
       }
     }
