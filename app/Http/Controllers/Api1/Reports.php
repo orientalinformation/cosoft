@@ -1393,11 +1393,18 @@ class Reports extends Controller
                     <tr>
                         <td align="center">'. $product->PRODNAME .' </td>
                         <td align="center">'. $shapeNameDisplay .' </td>';
-                        $html .='
-                        <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM1) .'</td>
-                        <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM3) .' </td>
-                        <td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM2) .' </td>
-                        ';
+                        if (isset($prodDim1Name)) {
+                            $html .='<td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM1) .'</td>';
+                        }
+
+                        if (isset($prodDim3Name)) {
+                            $html .='<td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM3) .' </td>';
+                        }
+
+                        if (isset($prodDim2Name)) {
+                            $html .='<td align="center">'. $this->convert->prodDimension($proElmt->SHAPE_PARAM2) .' </td>';
+                        }
+                        
                         $html .='
                         <td align="center">'. $this->convert->mass($product->PROD_REALWEIGHT) .' </td>
                         <td align="center">'. ($product->PROD_ISO == 1 ? 'YES' : 'NO') .' </td>
