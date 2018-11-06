@@ -271,10 +271,10 @@ class Chaining extends Controller
 
       $public_path = rtrim(app()->basePath("public"), '/');
       foreach (scandir($public_path . '/3d/') as $item) {
-          if ($item == '.' || $item == '..') {
-              continue;
-          }
-          array_push($progress, $item);
+        if ($item == '.' || $item == '..') {
+            continue;
+        }
+        array_push($progress, $item);
       }
 
       return $progress;
