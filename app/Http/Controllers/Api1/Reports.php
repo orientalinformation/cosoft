@@ -1354,7 +1354,9 @@ class Reports extends Controller
                                 
                         } 
 
-                        $html .= '<th align="center">'. $prodDim1Name .'<br>('. $symbol['prodDimensionSymbol'] . ' )</th>';
+                        if (isset($prodDim1Name)) {
+                            $html .= '<th align="center">'. $prodDim1Name .'<br>('. $symbol['prodDimensionSymbol'] . ' )</th>';
+                        }
 
                         if ($shapeCode == PARALLELEPIPED_STANDING || $shapeCode == PARALLELEPIPED_LAYING || $shapeCode == PARALLELEPIPED_BREADED || $shapeCode == PARALLELEPIPED_STANDING_3D || $shapeCode == PARALLELEPIPED_LAYING_3D || $shapeCode == PARALLELEPIPED_BREADED_3D) {
                                 $prodDim3Name = 'Width';
@@ -1373,7 +1375,9 @@ class Reports extends Controller
                                 
                         }
 
-                        $html .= '<th align="center">'. $prodDim3Name .'<br>('. $symbol['prodDimensionSymbol'] . ' )</th>';
+                        if (isset($prodDim3Name)) {
+                            $html .= '<th align="center">'. $prodDim3Name .'<br>('. $symbol['prodDimensionSymbol'] . ' )</th>';
+                        }
 
                         if ($shapeCode == PARALLELEPIPED_STANDING || $shapeCode == PARALLELEPIPED_BREADED || $shapeCode == CYLINDER_STANDING || $shapeCode == PARALLELEPIPED_STANDING_3D || $shapeCode == CYLINDER_STANDING_3D || $shapeCode == PARALLELEPIPED_BREADED_3D || $shapeCode == TRAPEZOID_3D || $shapeCode == PARALLELEPIPED_BREADED_3D || $shapeCode == OVAL_STANDING_3D) {
                             $prodDim2Name = 'Height';
@@ -1383,7 +1387,9 @@ class Reports extends Controller
                             $prodDim2Name = 'Thickness';
                         }
 
-                        $html .= '<th align="center">'. $prodDim2Name .'<br>('. $symbol['prodDimensionSymbol'] . ' )</th>';
+                        if (isset($prodDim2Name)) {
+                            $html .= '<th align="center">'. $prodDim2Name .'<br>('. $symbol['prodDimensionSymbol'] . ' )</th>';
+                        }
                         
                         $html .= '
                         <th align="center">Real product mass per unit<br>('. $symbol['massSymbol'] .')</th>
