@@ -221,9 +221,9 @@
                             } ?>
                                 
                         <?php } ?>
-                
+                        <?php if (isset($prodDim1Name)): ?>
                         <th class="text-center"><?php echo $prodDim1Name ?><br><?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . ")" ?></th>
-
+                        <?php endif ?>
                         <?php if ($arrayParam['shapeCode'] == PARALLELEPIPED_STANDING || $arrayParam['shapeCode'] == PARALLELEPIPED_LAYING || $arrayParam['shapeCode'] == PARALLELEPIPED_BREADED || $arrayParam['shapeCode'] == PARALLELEPIPED_STANDING_3D || $arrayParam['shapeCode'] == PARALLELEPIPED_LAYING_3D || $arrayParam['shapeCode'] == PARALLELEPIPED_BREADED_3D) {
                                 $prodDim3Name = 'Width';
                             }
@@ -240,9 +240,9 @@
                             } ?>
                                 
                         <?php } ?>
-
+                        <?php if (isset($prodDim3Name)): ?>
                         <th class="text-center"><?php echo $prodDim3Name ?><br><?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . ")" ?></th>
-
+                        <?php endif ?>
                         <?php if ($arrayParam['shapeCode'] == PARALLELEPIPED_STANDING || $arrayParam['shapeCode'] == PARALLELEPIPED_BREADED || $arrayParam['shapeCode'] == CYLINDER_STANDING || $arrayParam['shapeCode'] == PARALLELEPIPED_STANDING_3D || $arrayParam['shapeCode'] == CYLINDER_STANDING_3D || $arrayParam['shapeCode'] == PARALLELEPIPED_BREADED_3D || $arrayParam['shapeCode'] == TRAPEZOID_3D || $arrayParam['shapeCode'] == PARALLELEPIPED_BREADED_3D || $arrayParam['shapeCode'] == OVAL_STANDING_3D) {
                                 $prodDim2Name = 'Height';
                             }
@@ -262,9 +262,9 @@
                                 $prodDim2Name = 'Diameter';
                             }
                         ?>
-
+                        <?php if (isset($prodDim2Name)): ?>
                         <th class="text-center"><?php echo $prodDim2Name ?><br><?php echo "(" . $arrayParam['symbol']['prodDimensionSymbol'] . ")" ?></th>
-
+                        <?php endif ?>
                         <th class="text-center">Real product mass per unit<br><?php echo "(" . $arrayParam['symbol']['massSymbol'] . ")" ?></th>
                         <th class="text-center">Same temperature throughout product.</th>
                         <th class="text-center">Initial temperature<br><?php echo "(" . $arrayParam['symbol']['temperatureSymbol'] . ")" ?></th>
