@@ -2440,8 +2440,18 @@ class ReportService
                 $tempRecordDataMax = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->orderBy('TEMP', 'DESC')->first();
                 $tempResult = [$tempRecordDataMin->TEMP, $tempRecordDataMax->TEMP];
             } else {
-                $tempRecordDataMin = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->where('RECORD_TIME', $recordTime)->orderBy('TEMP', 'ASC')->first();
-                $tempRecordDataMax = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->where('RECORD_TIME', $recordTime)->orderBy('TEMP', 'DESC')->first();
+                /*$tempRecordDataMin = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->where('RECORD_TIME', $recordTime)->orderBy('TEMP', 'ASC')->first();
+                $tempRecordDataMax = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->where('RECORD_TIME', $recordTime)->orderBy('TEMP', 'DESC')->first();*/
+                $tempRecordDataMin = DB::table('TEMP_RECORD_DATA')
+                ->join('RECORD_POSITION', 'TEMP_RECORD_DATA.ID_REC_POS', '=', 'RECORD_POSITION.ID_REC_POS')
+                ->whereRaw('RECORD_POSITION.ID_STUDY_EQUIPMENTS = '. $idStudyEquipment .' AND CAST(RECORD_POSITION.RECORD_TIME AS DECIMAL(10,1)) = '. $recordTime .'')
+                ->orderBy('TEMP', 'ASC')
+                ->first();
+                $tempRecordDataMax = DB::table('TEMP_RECORD_DATA')
+                ->join('RECORD_POSITION', 'TEMP_RECORD_DATA.ID_REC_POS', '=', 'RECORD_POSITION.ID_REC_POS')
+                ->whereRaw('RECORD_POSITION.ID_STUDY_EQUIPMENTS = '. $idStudyEquipment .' AND CAST(RECORD_POSITION.RECORD_TIME AS DECIMAL(10,1)) = '. $recordTime .'')
+                ->orderBy('TEMP', 'DESC')
+                ->first();
                 $tempResult = [$tempRecordDataMin->TEMP, $tempRecordDataMax->TEMP];
             }
 
