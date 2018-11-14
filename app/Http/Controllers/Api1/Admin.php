@@ -383,4 +383,59 @@ class Admin extends Controller
 
         return compact('monetary', 'kernelMonetary', 'listUnit');
     }
+
+    public function saveFileTranslate()
+    {
+        $admintrans = [];
+        $dataJson = array();
+        $input = $this->request->all();
+
+        if (isset($input['admintrans'])) $admintrans = $input['admintrans'];
+
+        getcwd();
+        chdir('../../cryosoft-ui/src/assets/i18n/');
+
+        $jsonFile = getcwd(). "/en.json";
+        $string = file_get_contents($jsonFile);
+        $json_a =json_decode($string , true);
+
+        foreach ($json_a as $key => $value){
+          echo  $key . ':' . $value;
+        }
+        // var_dump($json_a); die;
+
+        // var_dump(getcwd()); die;
+        for ($i = 0; $i < count($admintrans); $i++) {
+            $key = $admintrans[$i]['key'];
+            $value = $admintrans[$i]['value'];
+            array_push($dataJson, $admintrans[$i]);
+        }
+
+
+        // array
+        $array = Array (
+            "0" => Array (
+                "id" => "USR1",
+                "name" => "Steve Jobs",
+                "company" => "Apple"
+            ),
+            "1" => Array (
+                "id" => "USR2",
+                "name" => "Bill Gates",
+                "company" => "Microsoft"
+            ),
+            "2" => Array (
+                "id" => "USR3",
+                "name" => "Mark Zuckerberg",
+                "company" => "Facebook"
+            )
+        );
+        // encode array to json
+        $json = json_encode(array('data' => $dataJson));
+        // write json to file
+        if (file_put_contents(getcwd(). "/data.json", $json))
+            echo "File JSON sukses dibuat...";
+        else 
+            echo "Oops! Terjadi error saat membuat file JSON...";
+    }
 }

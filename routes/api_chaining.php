@@ -55,3 +55,11 @@ $router->GET('/api/v1/calculator/study/progressbar', 'Api1\\Chaining@getValuePro
  * Output-Formats: [application/json]
  */
 $router->PUT('/api/v1/input/studyequipment/{id}', 'Api1\\Chaining@selectCalculate');
+
+/**
+ * PUT all translate
+ * Summary: 
+ * Notes: get head balance result
+ * Output-Formats: [application/json]
+ */
+$router->PUT('/api/v1/admin/stranslate', 'Api1\\Admin@saveFileTranslate');
