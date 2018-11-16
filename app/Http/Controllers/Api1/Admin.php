@@ -395,33 +395,13 @@ class Admin extends Controller
         getcwd();
         chdir('../../cryosoft-ui/src/assets/i18n/');
 
-        // $jsonFile = getcwd(). "/en.json";
-        // $string = file_get_contents($jsonFile);
-        // $json_a =json_decode($string , true);
-
-        // foreach ($json_a as $key => $value){
-        //   echo  $key . ':' . $value;
-        // }
-        // var_dump($admintrans[0]); die;
-
-        // var_dump(getcwd()); die;
-        // for ($i = 0; $i < count($admintrans); $i++) {
-        //     $key = $admintrans[$i]['key'];
-        //     $value = $admintrans[$i]['value'];
-        //     // $dataJson[$key] = new Item($key, $value);
-        //     array_push($dataJson, $admintrans[$i]);
-        // }
-
         foreach ($admintrans as $key => $admintran) {
             $dataJson[$admintran['key']] = $admintran['value'];
         }
 
-        // var_dump($dataJson);
-        // var_dump(json_encode($dataJson, JSON_UNESCAPED_UNICODE));die;
-
         // encode array to json
         $json = json_encode($dataJson, JSON_UNESCAPED_UNICODE);
-        // echo $json;die;
+
         // write json to file
         if (file_put_contents(getcwd(). "/data.json", $json))
             echo "File JSON sukses dibuat...";
