@@ -388,12 +388,24 @@ class Admin extends Controller
     {
         $admintrans = [];
         $dataJson = array();
+        $language = 'en';
         $input = $this->request->all();
 
         if (isset($input['admintrans'])) $admintrans = $input['admintrans'];
+        if (isset($input['idlang'])) $idlang = intval($input['idlang']);
 
         getcwd();
         chdir('../../cryosoft-ui/src/assets/i18n/');
+
+        if ($idlang == 2) {
+            $language = 'fr';
+        } else if ($idlang == 3) {
+            $language = 'it';
+        } else if ($idlang == 4) {
+            $language = 'de';
+        } else if ($idlang == 5) {
+            $language = 'es';
+        }
 
         foreach ($admintrans as $key => $admintran) {
             $dataJson[$admintran['key']] = $admintran['value'];
@@ -403,7 +415,7 @@ class Admin extends Controller
         $json = json_encode($dataJson, JSON_UNESCAPED_UNICODE);
 
         // write json to file
-        if (file_put_contents(getcwd(). "/data.json", $json))
+        if (file_put_contents(getcwd(). "/". $language . ".json", $json))
             echo "File JSON sukses dibuat...";
         else 
             echo "Oops! Terjadi error saat membuat file JSON...";
