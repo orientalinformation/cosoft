@@ -436,8 +436,14 @@ class Equipments extends Controller
             $key->MAX_FLOW_RATE = doubleval($this->units->consumption($key->MAX_FLOW_RATE, $key->ID_COOLING_FAMILY, 1, 2, 1));
             $key->TMP_REGUL_MIN = $this->units->controlTemperature($key->TMP_REGUL_MIN, 0, 1);
 
+            if (($key->ID_EQUIPSERIES == 24) || ($key->ID_EQUIPSERIES == 25) || ($key->ID_EQUIPSERIES == 26) || ($key->ID_EQUIPSERIES == 27) 
+                || ($key->ID_EQUIPSERIES == 28) || ($key->ID_EQUIPSERIES == 29) || ($key->ID_EQUIPSERIES == 30) || ($key->ID_EQUIPSERIES == 31)) {
+                $key->checkFanFrenquency = false;
+            } else {
+                $key->checkFanFrenquency = true;
+            }
+
             $equipGener = EquipGeneration::find($key->ID_EQUIPGENERATION);
-        
             if ($equipGener) { 
                 $equipGener->TEMP_SETPOINT = doubleval($this->units->controlTemperature($equipGener->TEMP_SETPOINT, 2, 1));
                 $equipGener->DWELLING_TIME = $this->units->time($equipGener->DWELLING_TIME, 2, 1);
@@ -464,8 +470,14 @@ class Equipments extends Controller
             $key->MAX_FLOW_RATE = $this->units->consumption($key->MAX_FLOW_RATE, $key->ID_COOLING_FAMILY, 1, 2, 1);
             $key->TMP_REGUL_MIN = $this->units->controlTemperature($key->TMP_REGUL_MIN, 0, 1);
 
+            if (($key->ID_EQUIPSERIES == 24) || ($key->ID_EQUIPSERIES == 25) || ($key->ID_EQUIPSERIES == 26) || ($key->ID_EQUIPSERIES == 27) 
+                || ($key->ID_EQUIPSERIES == 28) || ($key->ID_EQUIPSERIES == 29) || ($key->ID_EQUIPSERIES == 30) || ($key->ID_EQUIPSERIES == 31)) {
+                $key->checkFanFrenquency = false;
+            } else {
+                $key->checkFanFrenquency = true;
+            }
+
             $equipGener = EquipGeneration::find($key->ID_EQUIPGENERATION);
-        
             if ($equipGener) { 
                 $equipGener->TEMP_SETPOINT = doubleval($this->units->controlTemperature($equipGener->TEMP_SETPOINT, 2, 1));
                 $equipGener->DWELLING_TIME = $this->units->time($equipGener->DWELLING_TIME, 2, 1);
