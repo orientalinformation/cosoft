@@ -502,6 +502,7 @@ class Equipments extends Controller
         $input = $this->request->all();
 
         $nameE = $typeCalculate = $versionE = $equipId1 = $equipId2 = $tempSetPoint = $dwellingTime = $newPos = $typeEquipment = null;
+        $fanFrenquency = 0;
         
         if (isset($input['typeEquipment'])) $typeEquipment = intval($input['typeEquipment']);
         if (isset($input['nameEquipment'])) $nameE = $input['nameEquipment'];
@@ -512,6 +513,7 @@ class Equipments extends Controller
             if (isset($input['equipmentId1'])) $equipId1 = intval($input['equipmentId1']);
             if (isset($input['tempSetPoint'])) $tempSetPoint = $this->units->controlTemperature(floatval($input['tempSetPoint']), 2, 0);
             if (isset($input['dwellingTime'])) $dwellingTime = $this->units->time(floatval($input['dwellingTime']), 2, 0);
+            if (isset($input['fanFrenquency'])) $fanFrenquency = intval($input['fanFrenquency']);
         } else if ($typeEquipment == 1) {
             if (isset($input['equipmentId1'])) $equipId1 = intval($input['equipmentId1']);
             if (isset($input['dwellingTime'])) $dwellingTime = $this->units->time(floatval($input['dwellingTime']), 2, 0);
@@ -586,6 +588,7 @@ class Equipments extends Controller
             $newEquip->ITEM_TIMESTEP = $equipment1->ITEM_TIMESTEP;
             $newEquip->FATHER_DLL_IDX = $equipment1->FATHER_DLL_IDX;
             $newEquip->EQP_IMP_ID_STUDY = $equipment1->EQP_IMP_ID_STUDY;
+            $newEquip->FAN_FRENQUENCY = ($fanFrenquency > 0) ? $fanFrenquency : 0;
             $newEquip->save();
 
             if ($newEquip->ID_EQUIP) {
@@ -812,6 +815,7 @@ class Equipments extends Controller
             $newEquip->ITEM_TIMESTEP = $equipmentId->ITEM_TIMESTEP;
             $newEquip->EQP_IMP_ID_STUDY = $equipmentId->EQP_IMP_ID_STUDY;
             $newEquip->FATHER_DLL_IDX = $equipmentId->FATHER_DLL_IDX;
+            $newEquip->FAN_FRENQUENCY = $equipmentId->FAN_FRENQUENCY;
             $newEquip->save();
 
             if ($newEquip->ID_EQUIP) {
@@ -2465,7 +2469,7 @@ class Equipments extends Controller
     {
         $input = $this->request->all();
 
-        $nameE = $typeCalculate = $versionE = $equipId1 = $equipId2 = $tempSetPoint0 = $tempSetPoint3 = $dwellingTime0 = $dwellingTime1 = $dwellingTime3 = $newPos = $typeEquipment = null;
+        $nameE = $typeCalculate = $versionE = $equipId1 = $equipId2 = $tempSetPoint0 = $tempSetPoint3 = $dwellingTime0 = $dwellingTime1 = $dwellingTime3 = $newPos = $typeEquipment = $fanFrenquency = null;
         
         if (isset($input['typeEquipment'])) $typeEquipment = intval($input['typeEquipment']);
         if (isset($input['nameEquipment'])) $nameE = $input['nameEquipment'];
@@ -2476,6 +2480,7 @@ class Equipments extends Controller
             if (isset($input['equipmentId1'])) $equipId1 = intval($input['equipmentId1']);
             if (isset($input['tempSetPoint'])) $tempSetPoint0 = floatval($input['tempSetPoint']);
             if (isset($input['dwellingTime'])) $dwellingTime0 = floatval($input['dwellingTime']);
+            if (isset($input['fanFrenquency'])) $fanFrenquency = intval($input['fanFrenquency']);
         } else if ($typeEquipment == 1) {
             if (isset($input['equipmentId1'])) $equipId1 = intval($input['equipmentId1']);
             if (isset($input['dwellingTime'])) $dwellingTime1 = floatval($input['dwellingTime']);
@@ -2597,6 +2602,15 @@ class Equipments extends Controller
                         $mm = $this->minmax->getMinMaxTimes($limitItem0, 2);
                         return  [
                             "Message" => "Value out of range in Dwelling Time (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
+                        ];
+                    }
+                }
+
+                // Check fan frenquency
+                if (($eq->ID_EQUIPSERIES == 16) || $eq->ID_EQUIPSERIES == 17) {
+                    if ($fanFrenquency != 40) {
+                        return  [
+                            "Message" => "Value of Fan Frequency is 40!"
                         ];
                     }
                 }
