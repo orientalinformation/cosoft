@@ -665,6 +665,7 @@ class Studies extends Controller
                     $pipeGen = $studyEquip->pipeGens->first();
                     if ($pipeGen != null) {
                         $studyEquip->ID_PIPE_GEN = 0;
+                        $studyEquip->BRAIN_PROCESS = 0;
                         $studyEquip->save();
                         $pipeDefition = $pipeGen->lineDefinitions;
                         foreach ($pipeDefition as $pipeDefitions) {
