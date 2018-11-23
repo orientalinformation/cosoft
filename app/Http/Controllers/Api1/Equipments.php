@@ -438,9 +438,9 @@ class Equipments extends Controller
 
             if (($key->ID_EQUIPSERIES == 24) || ($key->ID_EQUIPSERIES == 25) || ($key->ID_EQUIPSERIES == 26) || ($key->ID_EQUIPSERIES == 27) 
                 || ($key->ID_EQUIPSERIES == 28) || ($key->ID_EQUIPSERIES == 29) || ($key->ID_EQUIPSERIES == 30) || ($key->ID_EQUIPSERIES == 31)) {
-                $key->checkFanFrenquency = false;
+                $key->checkFanFrequency = false;
             } else {
-                $key->checkFanFrenquency = true;
+                $key->checkFanFrequency = true;
             }
 
             $equipGener = EquipGeneration::find($key->ID_EQUIPGENERATION);
@@ -472,9 +472,9 @@ class Equipments extends Controller
 
             if (($key->ID_EQUIPSERIES == 24) || ($key->ID_EQUIPSERIES == 25) || ($key->ID_EQUIPSERIES == 26) || ($key->ID_EQUIPSERIES == 27) 
                 || ($key->ID_EQUIPSERIES == 28) || ($key->ID_EQUIPSERIES == 29) || ($key->ID_EQUIPSERIES == 30) || ($key->ID_EQUIPSERIES == 31)) {
-                $key->checkFanFrenquency = false;
+                $key->checkFanFrequency = false;
             } else {
-                $key->checkFanFrenquency = true;
+                $key->checkFanFrequency = true;
             }
 
             $equipGener = EquipGeneration::find($key->ID_EQUIPGENERATION);
@@ -502,7 +502,7 @@ class Equipments extends Controller
         $input = $this->request->all();
 
         $nameE = $typeCalculate = $versionE = $equipId1 = $equipId2 = $tempSetPoint = $dwellingTime = $newPos = $typeEquipment = null;
-        $fanFrenquency = 0;
+        $fanFrequency = 0;
         
         if (isset($input['typeEquipment'])) $typeEquipment = intval($input['typeEquipment']);
         if (isset($input['nameEquipment'])) $nameE = $input['nameEquipment'];
@@ -513,7 +513,7 @@ class Equipments extends Controller
             if (isset($input['equipmentId1'])) $equipId1 = intval($input['equipmentId1']);
             if (isset($input['tempSetPoint'])) $tempSetPoint = $this->units->controlTemperature(floatval($input['tempSetPoint']), 2, 0);
             if (isset($input['dwellingTime'])) $dwellingTime = $this->units->time(floatval($input['dwellingTime']), 2, 0);
-            if (isset($input['fanFrenquency'])) $fanFrenquency = intval($input['fanFrenquency']);
+            if (isset($input['fanFrequency'])) $fanFrequency = intval($input['fanFrequency']);
         } else if ($typeEquipment == 1) {
             if (isset($input['equipmentId1'])) $equipId1 = intval($input['equipmentId1']);
             if (isset($input['dwellingTime'])) $dwellingTime = $this->units->time(floatval($input['dwellingTime']), 2, 0);
@@ -588,7 +588,6 @@ class Equipments extends Controller
             $newEquip->ITEM_TIMESTEP = $equipment1->ITEM_TIMESTEP;
             $newEquip->FATHER_DLL_IDX = $equipment1->FATHER_DLL_IDX;
             $newEquip->EQP_IMP_ID_STUDY = $equipment1->EQP_IMP_ID_STUDY;
-            $newEquip->FAN_FRENQUENCY = ($fanFrenquency > 0) ? $fanFrenquency : 0;
             $newEquip->save();
 
             if ($newEquip->ID_EQUIP) {
@@ -661,6 +660,7 @@ class Equipments extends Controller
             $equipGeneration->NEW_POS = ($newPos != null) ? $newPos : 0;
             $equipGeneration->EQP_GEN_STATUS = 0;
             $equipGeneration->EQP_GEN_LOADRATE = ($eqpGenLoadRate > 0) ? $eqpGenLoadRate : 0;
+            $equipGeneration->FAN_FREQUENCY = ($fanFrequency > 0) ? $fanFrequency : 0;
             $equipGeneration->save();
             Equipment::where('ID_EQUIP', $newEquip->ID_EQUIP)->update(['ID_EQUIPGENERATION' => $equipGeneration->ID_EQUIPGENERATION]);
 
@@ -815,7 +815,6 @@ class Equipments extends Controller
             $newEquip->ITEM_TIMESTEP = $equipmentId->ITEM_TIMESTEP;
             $newEquip->EQP_IMP_ID_STUDY = $equipmentId->EQP_IMP_ID_STUDY;
             $newEquip->FATHER_DLL_IDX = $equipmentId->FATHER_DLL_IDX;
-            $newEquip->FAN_FRENQUENCY = $equipmentId->FAN_FRENQUENCY;
             $newEquip->save();
 
             if ($newEquip->ID_EQUIP) {
@@ -845,6 +844,7 @@ class Equipments extends Controller
                 $equipGeneration->NEW_POS = $oldGeneration->NEW_POS;
                 $equipGeneration->EQP_GEN_STATUS = $oldGeneration->EQP_GEN_STATUS;
                 $equipGeneration->EQP_GEN_LOADRATE = $oldGeneration->EQP_GEN_LOADRATE;
+                $equipGeneration->FAN_FREQUENCY = $oldGeneration->FAN_FREQUENCY;
                 $equipGeneration->save();
                 
                 $equipGenZone = $this->getEquipmentFilter($idEquip);
@@ -2469,7 +2469,7 @@ class Equipments extends Controller
     {
         $input = $this->request->all();
 
-        $nameE = $typeCalculate = $versionE = $equipId1 = $equipId2 = $tempSetPoint0 = $tempSetPoint3 = $dwellingTime0 = $dwellingTime1 = $dwellingTime3 = $newPos = $typeEquipment = $fanFrenquency = null;
+        $nameE = $typeCalculate = $versionE = $equipId1 = $equipId2 = $tempSetPoint0 = $tempSetPoint3 = $dwellingTime0 = $dwellingTime1 = $dwellingTime3 = $newPos = $typeEquipment = $fanFrequency = null;
         
         if (isset($input['typeEquipment'])) $typeEquipment = intval($input['typeEquipment']);
         if (isset($input['nameEquipment'])) $nameE = $input['nameEquipment'];
@@ -2480,7 +2480,7 @@ class Equipments extends Controller
             if (isset($input['equipmentId1'])) $equipId1 = intval($input['equipmentId1']);
             if (isset($input['tempSetPoint'])) $tempSetPoint0 = floatval($input['tempSetPoint']);
             if (isset($input['dwellingTime'])) $dwellingTime0 = floatval($input['dwellingTime']);
-            if (isset($input['fanFrenquency'])) $fanFrenquency = intval($input['fanFrenquency']);
+            if (isset($input['fanFrequency'])) $fanFrequency = intval($input['fanFrequency']);
         } else if ($typeEquipment == 1) {
             if (isset($input['equipmentId1'])) $equipId1 = intval($input['equipmentId1']);
             if (isset($input['dwellingTime'])) $dwellingTime1 = floatval($input['dwellingTime']);
@@ -2608,7 +2608,7 @@ class Equipments extends Controller
 
                 // Check fan frenquency
                 if (($eq->ID_EQUIPSERIES == 16) || $eq->ID_EQUIPSERIES == 17) {
-                    if ($fanFrenquency != 40) {
+                    if ($fanFrequency != 40) {
                         return  [
                             "Message" => "Value of Fan Frequency is 40!"
                         ];
