@@ -417,7 +417,7 @@ class Calculator extends Controller
                 $idStudyEquipment = $studyEquipments[$i]->ID_STUDY_EQUIPMENTS;
                 $capability = $studyEquipments[$i]->CAPABILITIES;
                 $run_calcuate = $studyEquipments[$i]->RUN_CALCULATE;
-
+                
                 if ($run_calcuate == 1) {
                     if ($this->equipment->getCapability($capability, 128)) {
 
@@ -436,6 +436,10 @@ class Calculator extends Controller
                         $this->startEconomic($idStudy, $idStudyEquipment);
                         $this->startConsumptionEconomic($idStudy, $idStudyEquipment);
                     }
+
+                    // Run save flag
+                    $studyEquipments[$i]->RUN_CALCULATE = 0;
+                    $studyEquipments[$i]->save();
                 }
             }
         }
@@ -993,10 +997,11 @@ class Calculator extends Controller
         $calculationParameter->TIME_STEP = $this->units->timeStep($timeStep, 3, 0);
         $calculationParameter->PRECISION_REQUEST = $this->units->convert($precision, 3);
         $studyEquipment = StudyEquipment::find($idStudyEquipment);
-        if ($studyEquipment->RUN_CALCULATE != 1) {
-            $studyEquipment->RUN_CALCULATE = 1;
-            $studyEquipment->save();
-        }
+        // Fix error run calculate
+        // if ($studyEquipment->RUN_CALCULATE != 1) {
+        //     $studyEquipment->RUN_CALCULATE = 1;
+        //     $studyEquipment->save();
+        // }
 
         switch ($brainMode) {
             case 1:
