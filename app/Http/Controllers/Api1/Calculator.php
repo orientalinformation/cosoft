@@ -417,7 +417,7 @@ class Calculator extends Controller
                 $idStudyEquipment = $studyEquipments[$i]->ID_STUDY_EQUIPMENTS;
                 $capability = $studyEquipments[$i]->CAPABILITIES;
                 $run_calcuate = $studyEquipments[$i]->RUN_CALCULATE;
-                
+
                 if ($run_calcuate == 1) {
                     if ($this->equipment->getCapability($capability, 128)) {
 
@@ -489,8 +489,7 @@ class Calculator extends Controller
         }
 
         if ($sdisableFields == 0) {
-            switch($brainMode)
-            {
+            switch($brainMode) {
                 case $this->value->BRAIN_MODE_ESTIMATION        : 
                 case $this->value->BRAIN_MODE_ESTIMATION_OPTIM : 
                     $sdisableTS = $sdisableTR = $sdisableTOC = $sdisableNbOptim = $sdisableStorage = 1;
