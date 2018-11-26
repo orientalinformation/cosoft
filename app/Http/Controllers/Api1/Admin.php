@@ -415,9 +415,10 @@ class Admin extends Controller
         $json = json_encode($dataJson, JSON_UNESCAPED_UNICODE);
 
         // write json to file
-        if (file_put_contents(getcwd(). "/". $language . ".json", $json))
+        if (file_put_contents(getcwd(). "/". $language . ".json", $json)) {
             echo "File JSON sukses dibuat...";
-        else 
+        } else {
             echo "Oops! Terjadi error saat membuat file JSON...";
+        }
     }
 }
