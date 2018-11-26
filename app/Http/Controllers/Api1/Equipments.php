@@ -98,8 +98,9 @@ class Equipments extends Controller
      *
      * @return void
      */
-    public function __construct(Request $request, Auth $auth, UnitsConverterService $convert, EquipmentsService $equip
-    , KernelService $kernel, StudyService $studies, StudyEquipmentService $stdeqp, SVGService $svg, UnitsService $units, MinMaxService $minmax, CalculateService  $cal)
+    public function __construct(Request $request, Auth $auth, UnitsConverterService $convert,
+    EquipmentsService $equip, KernelService $kernel, StudyService $studies, StudyEquipmentService $stdeqp,
+    SVGService $svg, UnitsService $units, MinMaxService $minmax, CalculateService  $cal)
     {
         $this->request = $request;
         $this->auth = $auth;
@@ -556,7 +557,7 @@ class Equipments extends Controller
             } else if (count($newEquip->EQUIP_COMMENT) < 2100) {
                 $comment = $newEquip->EQUIP_COMMENT . '. Create on ' . $current->toDateTimeString() . ' by ' . $this->auth->user()->USERNAM;
             } else {
-                $comment = substr($newEquip->EQUIP_COMMENT, 0, 1999) . '. Create on ' . $current->toDateTimeString() . ' by ' . $this->auth->user()->USERNAM;;
+                $comment = substr($newEquip->EQUIP_COMMENT, 0, 1999) . '. Create on ' . $current->toDateTimeString() . ' by ' . $this->auth->user()->USERNAM;
             }
 
             $newEquip->EQUIP_COMMENT = $comment;
