@@ -1789,19 +1789,21 @@ class Equipments extends Controller
 
     public function getTempSetPoint($idEquip)
     {
-        $tr_current = $tr_new = $arr = null;
+        $tr_current = $tr_new = $arr = $FAN_FREQUENCY = null;
         $equipment = Equipment::find($idEquip);
         if ($equipment) {
             $equipGeneration = EquipGeneration::where('ID_EQUIP', $equipment->ID_EQUIP)->first();
             if ($equipGeneration) {
                 $tr_current = $this->units->controlTemperature($equipGeneration->TEMP_SETPOINT, 0, 1);
                 $tr_new = $this->units->controlTemperature($equipGeneration->TEMP_SETPOINT, 0, 1);
+                $FAN_FREQUENCY = $equipGeneration->FAN_FREQUENCY;
             }
         }
 
         $arr = [
             'tr_current' => $tr_current,
-            'tr_new' => $tr_new
+            'tr_new' => $tr_new,
+            'FAN_FREQUENCY' => $FAN_FREQUENCY
         ];
 
         return $arr;
