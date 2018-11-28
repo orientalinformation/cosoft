@@ -1856,13 +1856,14 @@ class Equipments extends Controller
     {
         $input = $this->request->all();
 
-        $lfOldTR = $lfNewTR = $ID_STUDY = $ID_EQUIP = $equipment = $equipGeneration = $result = null;
+        $lfOldTR = $lfNewTR = $ID_STUDY = $ID_EQUIP = $equipment = $equipGeneration = $result = $FAN_FREQUENCY = null;
         $nbStudies = $lastIdStudy = $id_equip_ = 0;
 
         if (isset($input['ID_EQUIP'])) $ID_EQUIP = intval($input['ID_EQUIP']);
         if (isset($input['ID_STUDY'])) $ID_STUDY = intval($input['ID_STUDY']);
         if (isset($input['tr_current'])) $lfOldTR = floatval($input['tr_current']);
         if (isset($input['tr_new'])) $lfNewTR = floatval($input['tr_new']);
+        if (isset($input['FAN_FREQUENCY'])) $FAN_FREQUENCY = floatval($input['FAN_FREQUENCY']);
         if (isset($input['isComefromStudy'])) $isComefromStudy = intval($input['isComefromStudy']);
 
         $equipment = Equipment::find($ID_EQUIP);
@@ -1911,6 +1912,7 @@ class Equipments extends Controller
                     $equipGeneration->MOVING_POS = $this->units->controlTemperature($lfOldTR, 0, 0);
                     $equipGeneration->TEMP_SETPOINT = $this->units->controlTemperature($lfNewTR, 0, 0);
                     $equipGeneration->MOVING_CHANGE = 2;
+                    $equipGeneration->FAN_FREQUENCY = $FAN_FREQUENCY;
                     $equipGeneration->save();
 
                     $result = $this->runEquipmentCalculation($equipGeneration->ID_EQUIPGENERATION);
@@ -1939,6 +1941,10 @@ class Equipments extends Controller
                     }
                 }
             } else {
+                if ($equipGeneration) {
+                    $equipGeneration->FAN_FREQUENCY = $FAN_FREQUENCY;
+                    $equipGeneration->save();
+                }
                 echo 'No change in temperature : nothing to do';
             }
         }
