@@ -619,7 +619,6 @@ class Studies extends Controller
                             }
                         }
                         $studyelmt->ID_PIPE_RES = $piperes->ID_PIPE_RES;
-                        
                         $studyelmt->ID_ECONOMIC_RESULTS = $economicRes->ID_ECONOMIC_RESULTS;
                         $studyelmt->ID_CALC_PARAMS = $calparameter->ID_CALC_PARAMS;
                         $studyelmt->ID_LAYOUT_GENERATION = $layoutGen->ID_LAYOUT_GENERATION;
