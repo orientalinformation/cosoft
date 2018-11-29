@@ -519,8 +519,17 @@ class Studies extends Controller
                         foreach ($studyemtlCurr as $stuElmt) {
                             $studyelmt = new StudyEquipment();
                             $studyelmt = $stuElmt->replicate();
+                            // Fix error redirect oriental Tran
                             $studyelmt->ID_STUDY = $study->ID_STUDY;
                             $studyelmt->BRAIN_TYPE = 0;
+                            $studyelmt->BRAIN_PROCESS = 0;
+                            $studyelmt->BRAIN_SAVETODB = 0;
+                            $studyelmt->EQUIP_STATUS = 0;
+                            $studyelmt->AVERAGE_PRODUCT_ENTHALPY = 0;
+                            $studyelmt->AVERAGE_PRODUCT_TEMP = 0;
+                            $studyelmt->ENTHALPY_VARIATION = 0;
+                            $studyelmt->PRECIS = 0;
+                            $studyelmt->RUN_CALCULATE = 1;
                             unset($studyelmt->ID_STUDY_EQUIPMENTS);
 
                             if ($studyelmt->save()) {
