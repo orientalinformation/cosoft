@@ -519,7 +519,7 @@ class Studies extends Controller
                         foreach ($studyemtlCurr as $stuElmt) {
                             $studyelmt = new StudyEquipment();
                             $studyelmt = $stuElmt->replicate();
-                            // Fix error redirect oriental Tran
+                            // Fix error redirect process bar oriental Tran
                             $studyelmt->ID_STUDY = $study->ID_STUDY;
                             $studyelmt->BRAIN_TYPE = 0;
                             $studyelmt->BRAIN_PROCESS = 0;
