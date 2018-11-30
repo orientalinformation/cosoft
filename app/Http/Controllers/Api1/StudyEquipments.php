@@ -21,6 +21,7 @@ use App\Models\EconomicResults;
 use App\Models\CalculationParameter;
 use App\Models\LayoutResults;
 use App\Models\PipeGen;
+use App\Models\EquipGeneration;
 
 class StudyEquipments extends Controller
 {
@@ -276,15 +277,18 @@ class StudyEquipments extends Controller
 
         // add by oriental
         $equipment = Equipment::find($studyEquipment->ID_EQUIP);
+        $equipGeneration = [];
         if ($equipment) {
             if (($equipment->STD == $this->value->EQUIP_NOT_STANDARD) &&
             (!$this->equip->getCapability($equipment->CAPABILITIES, $this->value->CAP_VARIABLE_TR)) &&
             (!$this->equip->getCapability($equipment->CAPABILITIES, $this->value->CAP_EQP_DEPEND_ON_TS))) {
                 $changeTr = true;
             }
+
+            $equipGeneration = EquipGeneration::find($equipment->ID_EQUIPGENERATION);
         }
 
-        return compact('resultTempExts', 'studyEquipment', 'changeTr');
+        return compact('resultTempExts', 'studyEquipment', 'changeTr', 'equipGeneration');
     }
 
     public function computeTrTsConfig($id)
