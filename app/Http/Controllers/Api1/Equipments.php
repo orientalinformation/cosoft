@@ -2616,6 +2616,12 @@ class Equipments extends Controller
                 }
 
                 // Check fan frenquency
+                if (($fanFrequency < 10) || ($fanFrequency > 100)) {
+                    return  [
+                        "Message" => "Value of range in Fan Frequency (10 : 100)!"
+                    ];
+                }
+                
                 if (($eq->ID_EQUIPSERIES == 16) || $eq->ID_EQUIPSERIES == 17) {
                     if ($fanFrequency != 40) {
                         return  [
@@ -2650,7 +2656,6 @@ class Equipments extends Controller
                     }
                 }
             }
-            
         }
 
         return 1;
@@ -2739,7 +2744,7 @@ class Equipments extends Controller
 
             $checkLfNewTR = $this->minmax->checkMinMaxValue($lfNewTR, $equipment->ITEM_TR);
 
-            if ( !$checkLfNewTR) {
+            if (!$checkLfNewTR) {
                 $mm = $this->minmax->getMinMaxLimitItem($equipment->ITEM_TR, 0);
                 return  [
                     "Message" => "Value out of range in New temperature (" . doubleval($mm->LIMIT_MIN) . " : " . doubleval($mm->LIMIT_MAX) . ")"
