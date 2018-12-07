@@ -48,9 +48,9 @@ class Auth extends Controller
 
         $connection = Connection::where('ID_USER', $this->auth->user()->ID_USER)
                         ->where('TYPE_DISCONNECTION', 0)->first();
-        if ($connection) {
-            return response()->json(['User already connected'], 404);
-        }
+        // if ($connection) {
+        //     return response()->json(['User already connected'], 404);
+        // }
 
         $current = Carbon::now();
         $current->timezone = 'Asia/Ho_Chi_Minh';
