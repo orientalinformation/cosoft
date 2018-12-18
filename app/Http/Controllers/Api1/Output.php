@@ -49,6 +49,8 @@ class Output extends Controller
      */
     protected $auth;
 
+    protected $publicPath;
+
 
     /**
      * Create a new controller instance.
@@ -70,6 +72,7 @@ class Output extends Controller
         $this->brain = $brain;
         $this->plotFolder = $this->output->base_path('scripts');
         $this->plotFolder3D = $this->output->public_path('3d');
+        $this->publicPath = rtrim(app()->basePath("public"), '/');
     }
 
     public function getSymbol($idStudy)
@@ -679,14 +682,18 @@ class Output extends Controller
             mkdir($folder . '/' . $userName, 0777);
         }
 
-        if (!is_dir($folder . '/' . $userName . '/' . $idStudy)) {
-            mkdir($folder . '/' . $userName . '/' . $idStudy, 0777);
+        $comsumptionPieFolder = $folder . '/' . $userName . '/' . $idStudy;
+        if (!is_dir($comsumptionPieFolder)) {
+            mkdir($comsumptionPieFolder, 0777);
         }
 
-        $outPutFolder = $folder . '/' . $userName . '/' . $idStudy;
-        $outPutFileName = $idStudyEquipment;
-        
-        system('gnuplot -c '. $this->plotFolder .'/consumptions.plot "/tmp/consumptionPie.inp" "'. $outPutFolder . '" "'. $outPutFileName .'" ');
+        @unlink($this->publicPath . '/consumption/' . $userName . '/' . $idStudy . '/' . $idStudyEquipment . '.png');
+        $outPutFolder = escapeshellarg($comsumptionPieFolder);
+        $outPutFileName = escapeshellarg($idStudyEquipment);
+        $plotFile = escapeshellarg($this->plotFolder . '/consumptions.plot'); 
+        $outputFileInp = escapeshellarg('/tmp/consumptionPie.inp');
+        $commandContent = $plotFile . ' '. $outputFileInp .' '. $outPutFolder . ' '. $outPutFileName;
+        system('gnuplot -c ' . $commandContent);
 
         $image = getenv('APP_URL') . 'consumption/' . $userName . '/' . $idStudy . '/' . $idStudyEquipment . '.png?time=' . time();
 
@@ -2258,7 +2265,16 @@ class Output extends Controller
             $curve = [];
         }
 
-        system('gnuplot -c '. $this->plotFolder .'/timeBased.plot "('. $this->unit->timeSymbol() .')" "('. $this->unit->temperatureSymbol() .')" "'. $timeBasedFolder . '/' . $userName .'" "'. $idStudyEquipment .'" '. $inpFile .'');
+        @unlink($this->publicPath . '/timeBased/' . $userName . '/' . $idStudyEquipment . '.png');
+        $outPutFolder = escapeshellarg($timeBasedFolder . '/' . $userName);
+        $outPutFileName = escapeshellarg($idStudyEquipment);
+        $plotFile = escapeshellarg($this->plotFolder . '/timeBased.plot');
+        $outputFileInp = escapeshellarg($inpFile);
+        $timeSymbol = escapeshellarg('('. $this->unit->timeSymbol() .')');
+        $temperatureSymbol = escapeshellarg('('. $this->unit->temperatureSymbol() .')');
+        $commandContent = $plotFile .' '. $timeSymbol .' '. $temperatureSymbol .' '. $outPutFolder .' '. $outPutFileName .' '. $outputFileInp;
+        system('gnuplot -c ' . $commandContent);
+
         $imageTimebased = getenv('APP_URL') . 'timeBased/' . $userName . '/' . $idStudyEquipment . '.png?time=' . time();
 
         return compact("label", "curve", "result", "imageTimebased");
