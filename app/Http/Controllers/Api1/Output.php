@@ -1197,11 +1197,21 @@ class Output extends Controller
                 mkdir($sizingFolder . '/' . $userName, 0777);
             }
 
-            if (!is_dir($sizingFolder . '/' . $userName . '/' . $idStudy)) {
-                mkdir($sizingFolder . '/' . $userName . '/' . $idStudy, 0777);
+            $sizingResultFolder = $sizingFolder . '/' . $userName . '/' . $idStudy;
+            if (!is_dir($sizingResultFolder)) {
+                mkdir($sizingResultFolder, 0777);
             }
             
-            system('gnuplot -c '. $this->plotFolder .'/sizing.plot "Flowrate '. $this->unit->productFlowSymbol() .'" "Conso '. $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1) .'/'. $this->unit->perUnitOfMassSymbol() .'" "'. $sizingFolder . '/' . $userName . '/' . $idStudy . '" '. $idStudy .' '. $productFlowRate .' "Custom Flowrate" "/tmp/sizing.inp"');
+            @unlink($this->publicPath . '/sizing/' . $userName . '/' . $idStudy . '/' . $idStudy . '.png');
+            $outPutFolder = escapeshellarg($sizingResultFolder);
+            $outPutFileName = escapeshellarg($idStudy);
+            $plotFile = escapeshellarg($this->plotFolder . '/sizing.plot'); 
+            $outputFileInp = escapeshellarg('/tmp/sizing.inp');
+            $xAxisName = escapeshellarg('Flowrate ' . $this->unit->productFlowSymbol());
+            $yAxisName = escapeshellarg('Conso ' . $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1) .'/'. $this->unit->perUnitOfMassSymbol());
+            $lineName = escapeshellarg('Custom Flowrate');
+            $commandContent = $plotFile . ' ' . $xAxisName . ' ' . $yAxisName . ' ' . $outPutFolder . ' ' . $outPutFileName . ' ' . $productFlowRate . ' ' . $lineName . ' '. $outputFileInp;
+            system('gnuplot -c ' . $commandContent);
 
             $imageSizing = getenv('APP_URL') . 'sizing/' . $userName . '/' . $idStudy . '/' . $idStudy . '.png?time=' . time();
         }
@@ -1240,11 +1250,21 @@ class Output extends Controller
                 mkdir($sizingFolder . '/' . $userName, 0777);
             }
 
-            if (!is_dir($sizingFolder . '/' . $userName . '/' . $idStudy)) {
-                mkdir($sizingFolder . '/' . $userName . '/' . $idStudy, 0777);
+            $sizingResultFolder = $sizingFolder . '/' . $userName . '/' . $idStudy;
+            if (!is_dir($sizingResultFolder)) {
+                mkdir($sizingResultFolder, 0777);
             }
-
-            system('gnuplot -c '. $this->plotFolder .'/sizing.plot "Flowrate '. $this->unit->productFlowSymbol() .'" "Conso '. $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1) .'/'. $this->unit->perUnitOfMassSymbol() .'" "'. $sizingFolder . '/' . $userName . '/' . $idStudy . '" '. $chartName .' '. $productFlowRate .' "Custom Flowrate" "/tmp/sizing.inp"');
+            
+            @unlink($this->publicPath . '/sizing/' . $userName . '/' . $idStudy . '/' . $chartName . '.png');
+            $outPutFolder = escapeshellarg($sizingResultFolder);
+            $outPutFileName = escapeshellarg($chartName);
+            $plotFile = escapeshellarg($this->plotFolder . '/sizing.plot'); 
+            $outputFileInp = escapeshellarg('/tmp/sizing.inp');
+            $xAxisName = escapeshellarg('Flowrate ' . $this->unit->productFlowSymbol());
+            $yAxisName = escapeshellarg('Conso ' . $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1) .'/'. $this->unit->perUnitOfMassSymbol());
+            $lineName = escapeshellarg('Custom Flowrate');
+            $commandContent = $plotFile . ' ' . $xAxisName . ' ' . $yAxisName . ' ' . $outPutFolder . ' ' . $outPutFileName . ' ' . $productFlowRate . ' ' . $lineName . ' '. $outputFileInp;
+            system('gnuplot -c ' . $commandContent);
 
             $imageSizing = getenv('APP_URL') . 'sizing/' . $userName . '/' . $idStudy . '/' . $chartName . '.png?time=' . time();
             return $imageSizing;
@@ -1386,8 +1406,9 @@ class Output extends Controller
             mkdir($sizingFolder . '/' . $userName, 0777);
         }
 
-        if (!is_dir($sizingFolder . '/' . $userName . '/' . $idStudy)) {
-            mkdir($sizingFolder . '/' . $userName . '/' . $idStudy, 0777);
+        $sizingResultFolder = $sizingFolder . '/' . $userName . '/' . $idStudy;
+        if (!is_dir($sizingResultFolder)) {
+            mkdir($sizingResultFolder, 0777);
         }
         
         foreach ($studyEquipments as $row) {
@@ -1458,7 +1479,17 @@ class Output extends Controller
 
                 $chartName =  $idStudy . '-' . $row->ID_STUDY_EQUIPMENTS;
 
-                system('gnuplot -c '. $this->plotFolder .'/sizing.plot "Flowrate '. $this->unit->productFlowSymbol() .'" "Conso '. $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1) .'/'. $this->unit->perUnitOfMassSymbol() .'" "'. $sizingFolder . '/' . $userName . '/' . $idStudy . '" '. $chartName .' '. $productFlowRate .' "Custom Flowrate" "/tmp/sizing.inp"');
+                @unlink($this->publicPath . '/sizing/' . $userName . '/' . $idStudy . '/' . $chartName . '.png');
+                $outPutFolder = escapeshellarg($sizingResultFolder);
+                $outPutFileName = escapeshellarg($chartName);
+                $plotFile = escapeshellarg($this->plotFolder . '/sizing.plot'); 
+                $outputFileInp = escapeshellarg('/tmp/sizing.inp');
+                $xAxisName = escapeshellarg('Flowrate ' . $this->unit->productFlowSymbol());
+                $yAxisName = escapeshellarg('Conso ' . $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1) .'/'. $this->unit->perUnitOfMassSymbol());
+                $lineName = escapeshellarg('Custom Flowrate');
+                $commandContent = $plotFile . ' ' . $xAxisName . ' ' . $yAxisName . ' ' . $outPutFolder . ' ' . $outPutFileName . ' ' . $productFlowRate . ' ' . $lineName . ' '. $outputFileInp;
+                system('gnuplot -c ' . $commandContent);
+
                 $itemGrap['image'] = $imageSizing = getenv('APP_URL') . 'sizing/' . $userName . '/' . $idStudy . '/' . $chartName . '.png?time=' . time();                
             } 
             
@@ -1479,8 +1510,9 @@ class Output extends Controller
             mkdir($folder, 0777);
         }
 
-        if (!is_dir($folder . '/' . $userName)) {
-            mkdir($folder . '/' . $userName, 0777);
+        $temperatureFolder = $folder . '/' . $userName;
+        if (!is_dir($temperatureFolder)) {
+            mkdir($temperatureFolder, 0777);
         }
     
         if (count($tempProfile) > 0) {
@@ -1652,6 +1684,7 @@ class Output extends Controller
 
             $convChartData = array("top" => $point2DSeriesConvCurveTop, "bottom" => $point2DSeriesConvCurveBottom, "left" => $point2DSeriesConvCurveLeft, "right" => $point2DSeriesConvCurveRight, "front" => $point2DSeriesConvCurveFront, "rear" => $point2DSeriesConvCurveRear);
             $inpFile = '/tmp/temperatureProfile.inp';
+            
             // draw temp chart
             $f = fopen("/tmp/temperatureProfile.inp", "w");
             fputs($f, '"X" "Top" "Bottom" "Left" "Right" "Front" "Rear"' . "\n");
@@ -1661,7 +1694,16 @@ class Output extends Controller
 
             fclose($f);
 
-            system('gnuplot -c '. $this->plotFolder .'/temperatureProfile.plot "('. $this->unit->timePositionSymbol() .')" "('. $this->unit->temperatureSymbol() .')" "'. $folder . '/' . $userName .'" "'. $idStudyEquipment .'-temp" '. $inpFile .'');
+            $tempChartName = $idStudyEquipment . '-temp';
+            @unlink($this->publicPath . '/temperatureProfile/' . $userName . '/' . $tempChartName . '.png');
+            $outPutFolder = escapeshellarg($temperatureFolder);
+            $outPutFileName = escapeshellarg($tempChartName);
+            $plotFile = escapeshellarg($this->plotFolder . '/temperatureProfile.plot'); 
+            $outputFileInp = escapeshellarg($inpFile);
+            $timePositionSymbol = escapeshellarg('('. $this->unit->timePositionSymbol() .')');
+            $temperatureSymbol = escapeshellarg('('. $this->unit->temperatureSymbol() .')');
+            $commandContent = $plotFile . ' ' . $timePositionSymbol . ' ' . $temperatureSymbol . ' ' . $outPutFolder . ' ' . $outPutFileName . ' ' . $outputFileInp;
+            system('gnuplot -c ' . $commandContent);
 
             // draw conv chart
             $f = fopen("/tmp/temperatureProfile.inp", "w");
@@ -1672,13 +1714,21 @@ class Output extends Controller
 
             fclose($f);
 
-            system('gnuplot -c '. $this->plotFolder .'/temperatureProfile.plot "('. $this->unit->timePositionSymbol() .')" "('. $this->unit->convectionCoeffSymbol() .')" "'. $folder . '/' . $userName .'" "'. $idStudyEquipment .'-conv" '. $inpFile .'');
+            $convChartName = $idStudyEquipment . '-conv';
+            @unlink($this->publicPath . '/temperatureProfile/' . $userName . '/' . $convChartName . '.png');
+            $outPutFolder = escapeshellarg($temperatureFolder);
+            $outPutFileName = escapeshellarg($convChartName);
+            $plotFile = escapeshellarg($this->plotFolder . '/temperatureProfile.plot'); 
+            $outputFileInp = escapeshellarg($inpFile);
+            $timePositionSymbol = escapeshellarg('('. $this->unit->timePositionSymbol() .')');
+            $convectionCoeffSymbol = escapeshellarg('('. $this->unit->convectionCoeffSymbol() .')');
+            $commandContent = $plotFile . ' ' . $timePositionSymbol . ' ' . $convectionCoeffSymbol . ' ' . $outPutFolder . ' ' . $outPutFileName . ' ' . $outputFileInp;
+            system('gnuplot -c ' . $commandContent);
 
             $imageTemp = getenv('APP_URL') . 'temperatureProfile/' . $userName . '/' . $idStudyEquipment . '-temp.png?time=' . time();
             $imageConv = getenv('APP_URL') . 'temperatureProfile/' . $userName . '/' . $idStudyEquipment . '-conv.png?time=' . time();
 
             return compact("minScaleTemp", "maxScaleTemp", "minScaleConv", "maxScaleConv", "tempChartData", "convChartData", "imageTemp", "imageConv");
-
         }
     }
 
@@ -1699,8 +1749,9 @@ class Output extends Controller
             mkdir($heatExchangeFolder, 0777);
         }
 
-        if (!is_dir($heatExchangeFolder . '/' . $userName)) {
-            mkdir($heatExchangeFolder . '/' . $userName, 0777);
+        $heatExchangeFolder = $heatExchangeFolder . '/' . $userName;
+        if (!is_dir($heatExchangeFolder)) {
+            mkdir($heatExchangeFolder, 0777);
         }
 
         $curve = array();
@@ -1744,7 +1795,19 @@ class Output extends Controller
             $inpFile = $this->plotFolder3D . '/MeshBuilder3D/' . $prodFolder . '/' . $stdeqpFolder . '/heatExchange.inp';
         }
 
-        system('gnuplot -c '. $this->plotFolder . '/heatExchange.plot "('. $this->unit->timeSymbol() .')" "('. $this->unit->enthalpySymbol() .')" "'. $heatExchangeFolder . '/' . $userName .'" '. $idStudyEquipment .' "Enthapy" '. $inpFile .'');
+        $chartName = $idStudyEquipment;
+        @unlink($this->publicPath . '/heatExchange/' . $userName . '/' . $chartName . '.png');
+        $outPutFolder = escapeshellarg($heatExchangeFolder);
+        $outPutFileName = escapeshellarg($chartName);
+        $plotFile = escapeshellarg($this->plotFolder . '/heatExchange.plot'); 
+        $outputFileInp = escapeshellarg($inpFile);
+        $timeSymbol = escapeshellarg('('. $this->unit->timeSymbol() .')');
+        $enthalpySymbol = escapeshellarg('('. $this->unit->enthalpySymbol() .')');
+        $lineName = escapeshellarg('Enthapy');
+        $commandContent = $plotFile . ' ' . $timeSymbol . ' ' . $enthalpySymbol . ' ' . $outPutFolder . ' ' . $outPutFileName . ' ' . $lineName . ' ' . $outputFileInp;
+
+        system('gnuplot -c ' . $commandContent);
+
         $imageHeatExchange = getenv('APP_URL') . 'heatExchange/' . $userName . '/' . $idStudyEquipment . '.png?time=' . time();
 
         return compact("result", "curve", "imageHeatExchange");
@@ -1770,8 +1833,9 @@ class Output extends Controller
             mkdir($productSectionFolder, 0777);
         }
 
-        if (!is_dir($productSectionFolder . '/' . $userName)) {
-            mkdir($productSectionFolder . '/' . $userName, 0777);
+        $productSectionFolder = $productSectionFolder . '/' . $userName;
+        if (!is_dir($productSectionFolder)) {
+            mkdir($productSectionFolder, 0777);
         }
 
         $selPoints = $this->output->getSelectedMeshPoints($idStudy);
@@ -2085,7 +2149,16 @@ class Output extends Controller
             $inpFile = "/tmp/productSection.inp";
         }
 
-        system('gnuplot -c '. $this->plotFolder .'/productSection.plot "('. $this->unit->temperatureSymbol() .')" "('. $this->unit->prodchartDimensionSymbol() .')" "'. $productSectionFolder . '/' . $userName .'" "'. $fileName .'" '. $inpFile .'');
+       @unlink($this->publicPath . '/productSection/' . $userName . '/' . $fileName . '.png');
+        $outPutFolder = escapeshellarg($productSectionFolder);
+        $outPutFileName = escapeshellarg($fileName);
+        $plotFile = escapeshellarg($this->plotFolder . '/productSection.plot'); 
+        $outputFileInp = escapeshellarg($inpFile);
+        $temperatureSymbol = escapeshellarg('('. $this->unit->temperatureSymbol() .')');
+        $prodchartDimensionSymbol = escapeshellarg('('. $this->unit->prodchartDimensionSymbol() .')');
+        $commandContent = $plotFile . ' ' . $temperatureSymbol . ' ' . $prodchartDimensionSymbol . ' ' . $outPutFolder . ' ' . $outPutFileName . ' ' . $outputFileInp;
+        system('gnuplot -c ' . $commandContent);
+
         $imageProductSection = getenv('APP_URL') . 'productSection/' . $userName . '/' . $fileName . '.png?time=' . time();
         
         $result = [];
