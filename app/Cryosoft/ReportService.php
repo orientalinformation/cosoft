@@ -1,14 +1,5 @@
 <?php
-/****************************************************************************
- **
- ** Copyright (C) 2017 Oriental Tran.
- ** Contact: dongtp@dfm-engineering.com
- ** Company: DFM-Engineering Vietnam
- **
- ** This file is part of the cryosoft project.
- **
- **All rights reserved.
- ****************************************************************************/
+
 namespace App\Cryosoft;
 
 use Illuminate\Support\Facades\DB;
@@ -786,9 +777,8 @@ class ReportService
         
         fclose($f);
 
-        $folder = $this->output->public_path('consumption');
-
         $userName = $study->USERNAM;
+        $folder = $this->output->public_path('consumption');
         if (!is_dir($folder)) {
             mkdir($folder, 0777);
         }
@@ -797,15 +787,19 @@ class ReportService
             mkdir($folder . '/' . $userName, 0777);
         }
 
-        if (!is_dir($folder . '/' . $userName . '/' . $idStudy)) {
-            mkdir($folder . '/' . $userName . '/' . $idStudy, 0777);
+        $comsumptionPieFolder = $folder . '/' . $userName . '/' . $idStudy;
+        if (!is_dir($comsumptionPieFolder)) {
+            mkdir($comsumptionPieFolder, 0777);
         }
 
-        $outPutFolder = $folder . '/' . $userName . '/' . $idStudy;
-        $outPutFileName = $idStudyEquipment;
+        @unlink($this->publicPath . '/consumption/' . $userName . '/' . $idStudy . '/' . $idStudyEquipment . '.png');
+        $outPutFolder = escapeshellarg($comsumptionPieFolder);
+        $outPutFileName = escapeshellarg($idStudyEquipment);
+        $plotFile = escapeshellarg($this->plotFolder . '/consumptions.plot'); 
+        $outputFileInp = escapeshellarg('/tmp/consumptionPie.inp');
+        $commandContent = $plotFile . ' '. $outputFileInp .' '. $outPutFolder . ' '. $outPutFileName;
+        system('gnuplot -c ' . $commandContent);
         
-        system('gnuplot -c '. $this->plotFolder .'/consumptions.plot "/tmp/consumptionPie.inp" "'. $outPutFolder . '" "'. $outPutFileName .'" ');
-
         $image = getenv('APP_URL') . 'consumption/' . $userName . '/' . $idStudy . '/' . $idStudyEquipment . '.png?time=' . time();
 
         return $image;
@@ -814,11 +808,8 @@ class ReportService
     public function getAnalyticalEconomic($idStudy)
     {
         $study = Study::find($idStudy);
-
         $lfcoef = $this->unit->unitConvert($this->value->MASS_PER_UNIT, 1.0);
-
         $calculationMode = $study->CALCULATION_MODE;
-
         $studyEquipments = StudyEquipment::where("ID_STUDY", $idStudy)->orderBy("ID_STUDY_EQUIPMENTS", "ASC")->get();
 
         $result = array();
@@ -926,7 +917,10 @@ class ReportService
 
     public function heatExchange($nbSample, $idStudy, $idStudyEquipment) 
     {
-        // $idStudyEquipment = StudyEquipment::where('ID_STUDY', $idStudy)->get();
+        $productElmt = ProductElmt::where('ID_STUDY', $idStudy)->first();
+        $shape = $productElmt->SHAPECODE;
+        $study = Study::find($idStudy);
+        $userName = $study->USERNAM;
         $listRecordPos = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("RECORD_TIME", "ASC")->get();
         $curve = array();
         $result = array();
@@ -954,25 +948,44 @@ class ReportService
             $result[] = $itemResult;
         }
 
-        $f = fopen("/tmp/heatExchange.inp", "w");
-        fputs($f, '"X" "Y"' . "\n");
-        foreach ($curve as $row) {
-            fputs($f, (double) $row['x'] . ' ' . (double) $row['y'] . "\n");
-        }
-        fclose($f);
+        if ($shape <= 9) {
+            $inpFile = '/tmp/heatExchange.inp';
+            $f = fopen("/tmp/heatExchange.inp", "w");
+            fputs($f, '"X" "Y"' . "\n");
+            foreach ($curve as $row) {
+                fputs($f, (double) $row['x'] . ' ' . (double) $row['y'] . "\n");
+            }
+            fclose($f);
+        } else {
+            $prodFolder = 'Prod_' . $study->ID_PROD;
+            $stdeqpFolder = 'Equipment' . $idStudyEquipment;
 
-        $study = Study::find($idStudy);
-        $userName = $study->USERNAM;
+            $inpFile = $this->plotFolder3D . '/MeshBuilder3D/' . $prodFolder . '/' . $stdeqpFolder . '/heatExchange.inp';
+        }
+        
         $heatExchangeFolder = $this->output->public_path('heatExchange');
 
         if (!is_dir($heatExchangeFolder)) {
             mkdir($heatExchangeFolder, 0777);
         }
-        if (!is_dir($heatExchangeFolder . '/' . $userName)) {
-            mkdir($heatExchangeFolder . '/' . $userName, 0777);
+        
+        $heatExchangeFolder = $heatExchangeFolder . '/' . $userName;
+        if (!is_dir($heatExchangeFolder)) {
+            mkdir($heatExchangeFolder, 0777);
         }
 
-        system('gnuplot -c '. $this->plotFolder . '/heatExchange.plot "('. $this->unit->timeSymbol() .')" "('. $this->unit->enthalpySymbol() .')" "'. $heatExchangeFolder . '/' . $userName .'" '. $idStudyEquipment .' "Enthapy" "/tmp/heatExchange.inp"');
+        $chartName = $idStudyEquipment;
+        @unlink($this->publicPath . '/heatExchange/' . $userName . '/' . $chartName . '.png');
+        $outPutFolder = escapeshellarg($heatExchangeFolder);
+        $outPutFileName = escapeshellarg($chartName);
+        $plotFile = escapeshellarg($this->plotFolder . '/heatExchange.plot'); 
+        $outputFileInp = escapeshellarg($inpFile);
+        $timeSymbol = escapeshellarg('('. $this->unit->timeSymbol() .')');
+        $enthalpySymbol = escapeshellarg('('. $this->unit->enthalpySymbol() .')');
+        $lineName = escapeshellarg('Enthapy');
+        $commandContent = $plotFile . ' ' . $timeSymbol . ' ' . $enthalpySymbol . ' ' . $outPutFolder . ' ' . $outPutFileName . ' ' . $lineName . ' ' . $outputFileInp;
+
+        system('gnuplot -c ' . $commandContent);
 
         return compact("result", "equipName", "idStudyEquipment");
     }
@@ -993,8 +1006,9 @@ class ReportService
             mkdir($productSectionFolder, 0777);
         }
 
-        if (!is_dir($productSectionFolder . '/' . $userName)) {
-            mkdir($productSectionFolder . '/' . $userName, 0777);
+        $productSectionFolder = $productSectionFolder . '/' . $userName;
+        if (!is_dir($productSectionFolder)) {
+            mkdir($productSectionFolder, 0777);
         }
 
         $equipName = $this->equip->getResultsEquipName($idStudyEquipment);
@@ -1038,7 +1052,7 @@ class ReportService
                 break;
         }
 
-        if ($shape < 10) {
+        if ($shape <= 9) {
             $listRecordPos = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy("RECORD_TIME", "ASC")->get();
 
             $nbRecord = count($listRecordPos);
@@ -1297,7 +1311,15 @@ class ReportService
             $inpFile = "/tmp/productSection.inp";
         }
         
-        system('gnuplot -c '. $this->plotFolder .'/productSection.plot "('. $this->unit->temperatureSymbol() .')" "('. $this->unit->prodchartDimensionSymbol() .')" "'. $productSectionFolder . '/' . $userName .'" "'. $fileName .'" '. $inpFile .'');
+        @unlink($this->publicPath . '/productSection/' . $userName . '/' . $fileName . '.png');
+        $outPutFolder = escapeshellarg($productSectionFolder);
+        $outPutFileName = escapeshellarg($fileName);
+        $plotFile = escapeshellarg($this->plotFolder . '/productSection.plot'); 
+        $outputFileInp = escapeshellarg($inpFile);
+        $temperatureSymbol = escapeshellarg('('. $this->unit->temperatureSymbol() .')');
+        $prodchartDimensionSymbol = escapeshellarg('('. $this->unit->prodchartDimensionSymbol() .')');
+        $commandContent = $plotFile . ' ' . $temperatureSymbol . ' ' . $prodchartDimensionSymbol . ' ' . $outPutFolder . ' ' . $outPutFileName . ' ' . $outputFileInp;
+        system('gnuplot -c ' . $commandContent);
 
         $result["recAxis"] = $recAxis;
         $result["mesAxis"] = $mesAxis;
@@ -1325,7 +1347,7 @@ class ReportService
             mkdir($timeBasedFolder . '/' . $userName, 0777);
         }
 
-        if ($shape < 10) {
+        if ($shape <= 9) {
             $listRecordPos = RecordPosition::where("ID_STUDY_EQUIPMENTS", $idStudyEquipment)->orderBy('RECORD_TIME')->get();
             $result = array();
             $label = array();
@@ -1472,7 +1494,15 @@ class ReportService
             $curve = [];
         }
         
-        system('gnuplot -c '. $this->plotFolder .'/timeBased.plot "('. $this->unit->timeSymbol() .')" "('. $this->unit->temperatureSymbol() .')" "'. $timeBasedFolder . '/' . $userName .'" "'. $idStudyEquipment .'" '. $inpFile .'');
+        @unlink($this->publicPath . '/timeBased/' . $userName . '/' . $idStudyEquipment . '.png');
+        $outPutFolder = escapeshellarg($timeBasedFolder . '/' . $userName);
+        $outPutFileName = escapeshellarg($idStudyEquipment);
+        $plotFile = escapeshellarg($this->plotFolder . '/timeBased.plot');
+        $outputFileInp = escapeshellarg($inpFile);
+        $timeSymbol = escapeshellarg('('. $this->unit->timeSymbol() .')');
+        $temperatureSymbol = escapeshellarg('('. $this->unit->temperatureSymbol() .')');
+        $commandContent = $plotFile .' '. $timeSymbol .' '. $temperatureSymbol .' '. $outPutFolder .' '. $outPutFileName .' '. $outputFileInp;
+        system('gnuplot -c ' . $commandContent);
 
         return compact("label", "result", "timeSymbol", "temperatureSymbol", "equipName", "idStudyEquipment");
     }
@@ -1536,8 +1566,9 @@ class ReportService
             mkdir($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment, 0777);
         }
 
-        if (!is_dir($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment)) {
-            mkdir($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment, 0777);
+        $productChartFolder = $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment;
+        if (!is_dir($productChartFolder)) {
+            mkdir($productChartFolder, 0777);
         }
         //get minMax
         $minMax = [
@@ -1606,7 +1637,7 @@ class ReportService
         //contour data
         $pasTemp = -1.0;
         $tempInterval = [0.0, 0.0];
-        if ($shape < 10) {
+        if ($shape <= 9) {
             $chartTempInterval = $this->output->init2DContourTempInterval($idStudyEquipment, $lfDwellingTime, $tempInterval, $pasTemp);
             
             if (!file_exists($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment . '/' . $contourFileName . '.png')) { 
@@ -1677,7 +1708,17 @@ class ReportService
             $contourFileName = $lfDwellingTime . '-' . $chartTempInterval[0] . '-' . $chartTempInterval[1] . '-' . $chartTempInterval[2] . '-' . $selectedPlan;
         }
         
-        system('gnuplot -c '. $this->plotFolder .'/' . $plotFile . ' "'. $dimension .' '. $axisName[0] .'" "'. $dimension .' '. $axisName[1] .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment .'" "'. $contourFileName .'" '. $inpFile .'');
+        @unlink($this->publicPath . '/heatmap/' . $userName . '/' . $idStudyEquipment . '/' . $contourFileName . '.png');
+        $outPutFolder = escapeshellarg($productChartFolder);
+        $outPutFileName = escapeshellarg($contourFileName);
+        $plotFile = escapeshellarg($this->plotFolder . '/' . $plotFile);
+        $outputFileInp = escapeshellarg($inpFile);
+        $prodchartDimensionSymbol = escapeshellarg($this->unit->prodchartDimensionSymbol());
+        $xAxisName = escapeshellarg($dimension .' '. $axisName[0]);
+        $yAxisName = escapeshellarg($dimension .' '. $axisName[1]);
+        $commandContent = $plotFile . ' ' . $xAxisName . ' ' . $yAxisName . ' '. $prodchartDimensionSymbol . ' ' . $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' '. $outPutFolder .' '. $outPutFileName .' '. $outputFileInp;
+        system('gnuplot -c ' . $commandContent);
+
         $imageContour[] = 'http://'.$_SERVER['HTTP_HOST'] . '/heatmap/' . $userName . '/' . $idStudyEquipment . '/' . $contourFileName . '.png';
 
         return compact("chartTempInterval", "lfDwellingTime", "lftimeInterval", "equipName", "idStudyEquipment");
@@ -1705,8 +1746,9 @@ class ReportService
             mkdir($heatmapFolder . '/' . $userName, 0777);
         }
 
-        if (!is_dir($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment)) {
-            mkdir($heatmapFolder . '/' . $userName . '/' . $idStudyEquipment, 0777);
+        $productChartFolder = $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment;
+        if (!is_dir($productChartFolder)) {
+            mkdir($productChartFolder, 0777);
         }
 
         $productElmt = ProductElmt::where('ID_STUDY', $idStudy)->first();
@@ -1749,7 +1791,7 @@ class ReportService
 
         $axisName = $this->output->getAxisName($shape, $orientation, $selectedPlan);
 
-        if ($shape < 10) {
+        if ($shape <= 9) {
             //contour data
             $tempInterval = [$temperatureMin, $temperatureMax];
 
@@ -1830,7 +1872,16 @@ class ReportService
             $contourFileName = $lfDwellingTime . '-' . $chartTempInterval[0] . '-' . $chartTempInterval[1] . '-' . $chartTempInterval[2] . '-' . $selectedPlan;
         }
 
-        system('gnuplot -c '. $this->plotFolder .'/' . $plotFile . ' "'. $dimension .' '. $axisName[0] .'" "'. $dimension .' '. $axisName[1] .'" "'. $this->unit->prodchartDimensionSymbol() .'" '. $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' "'. $heatmapFolder . '/' . $userName . '/' . $idStudyEquipment .'" "'. $contourFileName .'" '. $inpFile .'');
+        @unlink($this->publicPath . '/heatmap/' . $userName . '/' . $idStudyEquipment . '/' . $contourFileName . '.png');
+        $outPutFolder = escapeshellarg($productChartFolder);
+        $outPutFileName = escapeshellarg($contourFileName);
+        $plotFile = escapeshellarg($this->plotFolder . '/' . $plotFile);
+        $outputFileInp = escapeshellarg($inpFile);
+        $prodchartDimensionSymbol = escapeshellarg($this->unit->prodchartDimensionSymbol());
+        $xAxisName = escapeshellarg($dimension .' '. $axisName[0]);
+        $yAxisName = escapeshellarg($dimension .' '. $axisName[1]);
+        $commandContent = $plotFile . ' ' . $xAxisName . ' ' . $yAxisName . ' '. $prodchartDimensionSymbol . ' ' . $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' '. $outPutFolder .' '. $outPutFileName .' '. $outputFileInp;
+        system('gnuplot -c ' . $commandContent);
         
         $dataFile = getenv('APP_URL') . '/heatmap/' . $userName . '/' . $idStudyEquipment . '/data.json';
         $imageContour[] = getenv('APP_URL') . '/heatmap/' . $userName . '/' . $idStudyEquipment . '/' . $contourFileName . '.png';
@@ -2434,7 +2485,7 @@ class ReportService
         $productElmt = ProductElmt::where('ID_STUDY', $studyEquipment->ID_STUDY)->first();
         $shape = $productElmt->SHAPECODE;
 
-        if ($shape < 10) {
+        if ($shape <= 9) {
             if ($recordTime < 0) {
                 $tempRecordDataMin = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->orderBy('TEMP', 'ASC')->first();
                 $tempRecordDataMax = TempRecordData::where('ID_STUDY_EQUIPMENTS', $idStudyEquipment)->orderBy('TEMP', 'DESC')->first();
