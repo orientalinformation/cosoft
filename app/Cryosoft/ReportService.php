@@ -73,6 +73,8 @@ class ReportService
 	 * @var App\Cryosoft\OutputService;
 	 */
     protected $output;
+
+     protected $publicPath;
     
 	public function __construct(\Laravel\Lumen\Application $app) 
     {
@@ -87,6 +89,7 @@ class ReportService
         $this->output = $app['App\\Cryosoft\\OutputService'];
         $this->product = $app['App\\Cryosoft\\ProductService'];
         $this->productElmts = $app['App\\Cryosoft\\ProductElementsService'];
+        $this->publicPath = rtrim(app()->basePath("public"), '/');
         $this->plotFolder = $this->output->base_path('scripts');
         $this->pasTemp = -1.0;
         $this->plotFolder3D = $this->output->public_path('3d');
@@ -2171,6 +2174,7 @@ class ReportService
 
                 fputs($f, '"'. trim($itemChart["equipName"]) .'"' . ' '. (double) $itemChart["dhp"] .' '. (double) $itemChart["dhpMax"] .' '. (double) $itemChart["conso"] .' '. (double) $itemChart["consoMax"] . "\n"); 
             }
+            
             fclose($f);
 
             $sizingFolder = $this->output->public_path('sizing');
@@ -2184,11 +2188,21 @@ class ReportService
                 mkdir($sizingFolder . '/' . $userName, 0777);
             }
 
-            if (!is_dir($sizingFolder . '/' . $userName . '/' . $idStudy)) {
-                mkdir($sizingFolder . '/' . $userName . '/' . $idStudy, 0777);
+            $sizingResultFolder = $sizingFolder . '/' . $userName . '/' . $idStudy;
+            if (!is_dir($sizingResultFolder)) {
+                mkdir($sizingResultFolder, 0777);
             }
             
-            system('gnuplot -c '. $this->plotFolder .'/sizing.plot "Flowrate '. $this->unit->productFlowSymbol() .'" "Conso '. $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1) .'/'. $this->unit->perUnitOfMassSymbol() .'" "'. $sizingFolder . '/' . $userName . '/' . $idStudy . '" '. $idStudy .' '. $productFlowRate .' "Custom Flowrate" "/tmp/sizing.inp"');
+            @unlink($this->publicPath . '/sizing/' . $userName . '/' . $idStudy . '/' . $idStudy . '.png');
+            $outPutFolder = escapeshellarg($sizingResultFolder);
+            $outPutFileName = escapeshellarg($idStudy);
+            $plotFile = escapeshellarg($this->plotFolder . '/sizing.plot'); 
+            $outputFileInp = escapeshellarg('/tmp/sizing.inp');
+            $xAxisName = escapeshellarg('Flowrate ' . $this->unit->productFlowSymbol());
+            $yAxisName = escapeshellarg('Conso ' . $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1) .'/'. $this->unit->perUnitOfMassSymbol());
+            $lineName = escapeshellarg('Custom Flowrate');
+            $commandContent = $plotFile . ' ' . $xAxisName . ' ' . $yAxisName . ' ' . $outPutFolder . ' ' . $outPutFileName . ' ' . $productFlowRate . ' ' . $lineName . ' '. $outputFileInp;
+            system('gnuplot -c ' . $commandContent);
 
             $imageSizing = getenv('APP_URL') . '/sizing/' . $userName . '/' . $idStudy . '/' . $idStudy . '.png?time=' . time();
         }
@@ -2325,8 +2339,9 @@ class ReportService
             mkdir($sizingFolder . '/' . $userName, 0777);
         }
 
-        if (!is_dir($sizingFolder . '/' . $userName . '/' . $idStudy)) {
-            mkdir($sizingFolder . '/' . $userName . '/' . $idStudy, 0777);
+        $sizingResultFolder = $sizingFolder . '/' . $userName . '/' . $idStudy;
+        if (!is_dir($sizingResultFolder)) {
+            mkdir($sizingResultFolder, 0777);
         }
         
         foreach ($studyEquipments as $row) {
@@ -2397,8 +2412,17 @@ class ReportService
 
                 $chartName =  $idStudy . '-' . $row->ID_STUDY_EQUIPMENTS;
 
-                system('gnuplot -c '. $this->plotFolder .'/sizing.plot "Flowrate '. $this->unit->productFlowSymbol() .'" "Conso '. $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1) .'/'. $this->unit->perUnitOfMassSymbol() .'" "'. $sizingFolder . '/' . $userName . '/' . $idStudy . '" '. $chartName .' '. $productFlowRate .' "Custom Flowrate" "/tmp/sizing.inp"');
-                $itemGrap['image'] = $imageSizing = getenv('APP_URL') . '/sizing/' . $userName . '/' . $idStudy . '/' . $chartName . '.png?time=' . time();                
+                $chartName =  $idStudy . '-' . $row->ID_STUDY_EQUIPMENTS;
+                @unlink($this->publicPath . '/sizing/' . $userName . '/' . $idStudy . '/' . $chartName . '.png');
+                $outPutFolder = escapeshellarg($sizingResultFolder);
+                $outPutFileName = escapeshellarg($chartName);
+                $plotFile = escapeshellarg($this->plotFolder . '/sizing.plot'); 
+                $outputFileInp = escapeshellarg('/tmp/sizing.inp');
+                $xAxisName = escapeshellarg('Flowrate ' . $this->unit->productFlowSymbol());
+                $yAxisName = escapeshellarg('Conso ' . $this->unit->consumptionSymbol($this->equip->initEnergyDef($idStudy), 1) .'/'. $this->unit->perUnitOfMassSymbol());
+                $lineName = escapeshellarg('Custom Flowrate');
+                $commandContent = $plotFile . ' ' . $xAxisName . ' ' . $yAxisName . ' ' . $outPutFolder . ' ' . $outPutFileName . ' ' . $productFlowRate . ' ' . $lineName . ' '. $outputFileInp;
+                system('gnuplot -c ' . $commandContent);            
             } 
             
             $dataGraphChart[] =  $itemGrap;

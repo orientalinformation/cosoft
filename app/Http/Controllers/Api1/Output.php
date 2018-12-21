@@ -1478,7 +1478,6 @@ class Output extends Controller
                 file_put_contents($f, '"'. $trName .'" '. (double) $dhp .' '. (double) $dhpMax .' '. (double) $conso .' '. (double) $consoMax .'' . "\n", FILE_APPEND);  
 
                 $chartName =  $idStudy . '-' . $row->ID_STUDY_EQUIPMENTS;
-
                 @unlink($this->publicPath . '/sizing/' . $userName . '/' . $idStudy . '/' . $chartName . '.png');
                 $outPutFolder = escapeshellarg($sizingResultFolder);
                 $outPutFileName = escapeshellarg($chartName);
