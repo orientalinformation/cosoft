@@ -2623,9 +2623,11 @@ class Reports extends Controller
         return ["url" => $host . "reports/$study->USERNAM/$name_report?time=". time() .""];
     }
     
-    function backgroundGenerationHTML($params)
+    function backgroundGenerationHTML()
     {
+        $session = app('session')->all();
         set_time_limit(600);
+        $params = $session['params'];
         $id = $params['studyId'];
         $input = $params['input'];
         $DEST_SURNAME = $input['DEST_SURNAME'];
@@ -3095,6 +3097,8 @@ class Reports extends Controller
         $chainingStudies = $this->reportserv->getChainingStudy($id);
 
         $myfile = fopen( $public_path. "/reports/" . "/" . $study->USERNAM."/" . $name_report, "w") or die("Unable to open file!");
+        $reportData = compact('study' ,'production', 'product', 'proElmt', 'shapeName', 'productComps', 'equipData', 'cryogenPipeline', 'consumptions', "proInfoStudy", 'calModeHbMax', 'calModeHeadBalance', 'heatexchange', 'proSections', 'timeBase', 'symbol', 'host', 'pro2Dchart', 'params', 'shapeCode', 'economic', 'stuNameLayout', 'specificDimension', 'chainingStudies', 'meshView');
+        app('session')->put('report-data-' . $id, $reportData);
         $html = $this->viewHtml($study ,$production, $product, $proElmt, $shapeName, 
         $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
         $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase, 
@@ -3137,12 +3141,12 @@ class Reports extends Controller
         return $data;
     }
     
-    public function downLoadHtmlToPDF($studyId)
+    public function _downLoadHtmlToPDF($studyId)
     {
         $input = $this->request->all();
         $params['studyId'] = $studyId;
         $params['input'] = $input;
-        if ($input['countRunInterval'] == 0) {
+                if ($input['countRunInterval'] == 0) {
             ignore_user_abort(true);
             set_time_limit(600);
             $bgProcess = function($obj, $fn, $id) {
@@ -3163,14 +3167,14 @@ class Reports extends Controller
         }
     }
 
-    public function _downLoadHtmlToPDF($studyId)
+    public function downLoadHtmlToPDF($studyId)
     {
         $input = $this->request->all();
         $params['studyId'] = $studyId;
         $params['input'] = $input;
-        
+        app('session')->put('params', $params);
         set_time_limit(600);
-        $data = $this->backgroundGenerationHTML($params);
+        $data = $this->backgroundGenerationHTML();
 
         return $data;
     }
