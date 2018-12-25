@@ -2623,11 +2623,8 @@ class Reports extends Controller
         return ["url" => $host . "reports/$study->USERNAM/$name_report?time=". time() .""];
     }
     
-    function backgroundGenerationHTML()
+    function backgroundGenerationHTML($params)
     {
-        $session = app('session')->all();
-        set_time_limit(600);
-        $params = $session['params'];
         $id = $params['studyId'];
         $input = $params['input'];
         $DEST_SURNAME = $input['DEST_SURNAME'];
@@ -3097,8 +3094,6 @@ class Reports extends Controller
         $chainingStudies = $this->reportserv->getChainingStudy($id);
 
         $myfile = fopen( $public_path. "/reports/" . "/" . $study->USERNAM."/" . $name_report, "w") or die("Unable to open file!");
-        $reportData = compact('study' ,'production', 'product', 'proElmt', 'shapeName', 'productComps', 'equipData', 'cryogenPipeline', 'consumptions', "proInfoStudy", 'calModeHbMax', 'calModeHeadBalance', 'heatexchange', 'proSections', 'timeBase', 'symbol', 'host', 'pro2Dchart', 'params', 'shapeCode', 'economic', 'stuNameLayout', 'specificDimension', 'chainingStudies', 'meshView');
-        app('session')->put('report-data-' . $id, $reportData);
         $html = $this->viewHtml($study ,$production, $product, $proElmt, $shapeName, 
         $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
         $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase, 
@@ -3172,9 +3167,8 @@ class Reports extends Controller
         $input = $this->request->all();
         $params['studyId'] = $studyId;
         $params['input'] = $input;
-        app('session')->put('params', $params);
         set_time_limit(600);
-        $data = $this->backgroundGenerationHTML();
+        $data = $this->backgroundGenerationHTML($params);
 
         return $data;
     }

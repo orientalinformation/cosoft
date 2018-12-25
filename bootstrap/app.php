@@ -77,19 +77,9 @@ $app->configure('filesystems');
 | route or middleware that'll be assigned to some specific routes.
 |
 */
-$app->configure('session');
-
 $app->middleware([
     'Nord\Lumen\Cors\CorsMiddleware',
 ]);
-
-$app->middleware([
-    \Illuminate\Session\Middleware\StartSession::class,
-]);
-
-$app->bind(\Illuminate\Session\SessionManager::class, function () use ($app) {
-    return new \Illuminate\Session\SessionManager($app);
-});
 
 $app->routeMiddleware([
     'auth' => App\Http\Middleware\Authenticate::class,
@@ -125,8 +115,6 @@ class_alias('\Elibyy\TCPDF\Facades\TCPDF', 'PDF');
 $app->register(Plank\Mediable\MediableServiceProvider::class);
 class_alias(Plank\Mediable\MediaUploaderFacade::class, 'MediaUploader');
 
-$app->register(\Illuminate\Session\SessionServiceProvider::class);
-
 if ($app->environment('local')) {
     $app->register(Krlove\EloquentModelGenerator\Provider\GeneratorServiceProvider::class);
     $app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
@@ -152,6 +140,10 @@ $app->router->group([
 ], function ($router) {
     require dirname(__DIR__).'/routes/auth.php';
     require dirname(__DIR__).'/routes/translations.php';
+});
+
+$app->router->get('/api/v1/reports/html', function () {
+    return view('report.viewHtmlToPDF');
 });
 
 $app->router->group([

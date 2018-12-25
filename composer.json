@@ -19,8 +19,7 @@
         "elibyy/tcpdf-laravel": "5.5.3",
         "plank/laravel-mediable": "^2.6",
         "szymach/c-pchart": "^3.0",
-        "songphi/javaobjs": "dev-master",
-        "illuminate/session": "^5.5"
+        "songphi/javaobjs": "dev-master"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
