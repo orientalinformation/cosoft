@@ -32,10 +32,9 @@ class Translations extends Controller
         $this->auth = $auth;
     }
 
-    //
-
     public function getComponentTranslations($lang)
     {
+        $en = 'en';
         $langIds = [
             'en' => 1,
             'fr' => 2,
@@ -43,12 +42,17 @@ class Translations extends Controller
             'de' => 4,
             'it' => 5
         ];
-        $translations = Translation::where('TRANS_TYPE',1)
-            ->where('CODE_LANGUE',$langIds[$lang])
+
+        if (empty($lang)) {
+            $en = $lang;
+        }
+
+        $translations = Translation::where('TRANS_TYPE', 1)
+            ->where('CODE_LANGUE', $langIds[$en])
             ->get();
         
         // @TODO: Use mutator or other more efficient way to decode the languages
-        for ($i=0; $i < $translations->count(); $i++) {
+        for ($i = 0; $i < $translations->count(); $i++) {
             $translations[$i]->LABEL = \mb_convert_encoding($translations[$i]->LABEL, "UTF-8", "ISO-8859-1");
         }
 
@@ -57,6 +61,7 @@ class Translations extends Controller
 
     public function getPackingTranslations($lang)
     {
+        $en = 'en';
         $langIds = [
             'en' => 1,
             'fr' => 2,
@@ -64,15 +69,15 @@ class Translations extends Controller
             'de' => 4,
             'it' => 5
         ];
-        $translations = Translation::where('TRANS_TYPE',3)
-            ->where('CODE_LANGUE',$langIds[$lang])
+
+        if (empty($lang)) {
+            $en = $lang;
+        }
+
+        $translations = Translation::where('TRANS_TYPE', 3)
+            ->where('CODE_LANGUE', $langIds[$en])
             ->get();
         
-        // @TODO: Use mutator or other more efficient way to decode the languages
-        // for ($i=0; $i < $translations->count(); $i++) {
-        //     $translations[$i]->LABEL = \mb_convert_encoding($translations[$i]->LABEL, "UTF-8");
-        // }
-
         return $translations;
     }
 
