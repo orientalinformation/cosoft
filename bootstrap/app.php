@@ -77,7 +77,6 @@ $app->configure('filesystems');
 | route or middleware that'll be assigned to some specific routes.
 |
 */
-
 $app->middleware([
     'Nord\Lumen\Cors\CorsMiddleware',
 ]);
@@ -102,7 +101,6 @@ class_alias('Illuminate\Support\Facades\Config', 'Config');
 $app->register(App\Providers\AppServiceProvider::class);
 $app->register(App\Providers\EventServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
-
 
 $app->register(Sofa\Eloquence\BaseServiceProvider::class);
 $app->register(Nord\Lumen\Cors\CorsServiceProvider::class);
@@ -140,11 +138,12 @@ if ($app->environment('local')) {
 $app->router->group([
     'namespace' => 'App\Http\Controllers',
 ], function ($router) {
-    $router->POST('/api/v1/reports/{id}/downLoadPDF', 'Api1\\Reports@downLoadPDF');
-    $router->POST('/api/v1/reports/{id}/downLoadHtmlToPDF', 'Api1\\Reports@downLoadHtmlToPDF');
-    $router->GET('/api/v1/reports/{id}/processingReport', 'Api1\\Reports@processingReport');
     require dirname(__DIR__).'/routes/auth.php';
     require dirname(__DIR__).'/routes/translations.php';
+});
+
+$app->router->get('/api/v1/reports/html', function () {
+    return view('report.viewHtmlToPDF');
 });
 
 $app->router->group([

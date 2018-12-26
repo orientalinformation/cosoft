@@ -2625,7 +2625,6 @@ class Reports extends Controller
     
     function backgroundGenerationHTML($params)
     {
-        set_time_limit(600);
         $id = $params['studyId'];
         $input = $params['input'];
         $DEST_SURNAME = $input['DEST_SURNAME'];
@@ -3105,7 +3104,7 @@ class Reports extends Controller
         return $url;
     }
 
-    function _downLoadPDF($studyId)
+    function downLoadPDF($studyId)
     {
         $input = $this->request->all();
         $params['studyId'] = $studyId;
@@ -3119,13 +3118,14 @@ class Reports extends Controller
         register_shutdown_function($bgProcess, $this, 'backgroundGenerationPDF', $params);
         header('Connection: close');
         header('Content-length: 19');
+        header('Access-Control-Allow-Origin: *'); 
         header('Content-type: application/json');
         
         exit("{'processing':true}");
         return ['processing' => true];        
     }
 
-    function downLoadPDF($studyId)
+    function _downLoadPDF($studyId)
     {
         $input = $this->request->all();
         $params['studyId'] = $studyId;
@@ -3141,7 +3141,7 @@ class Reports extends Controller
         $input = $this->request->all();
         $params['studyId'] = $studyId;
         $params['input'] = $input;
-        if ($input['countRunInterval'] == 0) {
+                if ($input['countRunInterval'] == 0) {
             ignore_user_abort(true);
             set_time_limit(600);
             $bgProcess = function($obj, $fn, $id) {
@@ -3152,7 +3152,7 @@ class Reports extends Controller
             register_shutdown_function($bgProcess, $this, 'backgroundGenerationHTML', $params);
             header('Connection: close');
             header('Content-length: 19');
-            // header('Access-Control-Allow-Origin: *'); 
+            header('Access-Control-Allow-Origin: *'); 
             header('Content-type: application/json');
             
             exit("{'processing':true}");
@@ -3167,11 +3167,55 @@ class Reports extends Controller
         $input = $this->request->all();
         $params['studyId'] = $studyId;
         $params['input'] = $input;
-        
         set_time_limit(600);
         $data = $this->backgroundGenerationHTML($params);
 
         return $data;
+    }
+
+    public function html($study ,$production, $product, $proElmt, $shapeName, 
+    $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
+    $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase , 
+    $symbol, $host, $pro2Dchart, $params, $shapeCode, $economic, $stuNameLayout, $specificDimension, $chainingStudies, $meshView)
+    {
+        $input = $this->request->all();
+        $study = $input['input'];
+
+        $arrayParam = [
+            'study' => $study,
+            'production' => $production,
+            'productionINTL' => $this->convert->prodTemperature($production->AVG_T_INITIAL),
+            'product' => $product,
+            'productRealW' =>  $this->convert->mass($product->PROD_REALWEIGHT),
+            'proElmt' => $proElmt,
+            'proElmtParam1' => $this->convert->prodDimension($proElmt->SHAPE_PARAM1),
+            'proElmtParam2' => $specificDimension,
+            'proElmtParam3' => $this->convert->prodDimension($proElmt->SHAPE_PARAM3),
+            'shapeName' => $shapeName,
+            'proInfoStudy' => $proInfoStudy,
+            'symbol' => $symbol,
+            'host' => $host,
+            'params' => $params['input'],
+            'shapeCode' => $shapeCode,
+        ];
+        $param = [
+            'arrayParam' => $arrayParam,
+            'productComps' => $productComps,
+            'equipData' => $equipData,
+            'cryogenPipeline' => $cryogenPipeline,
+            'consumptions' => $consumptions,
+            'calModeHeadBalance' => $calModeHeadBalance,
+            'calModeHbMax' => $calModeHbMax,
+            'heatexchange' => $heatexchange,
+            'proSections' => $proSections,
+            'timeBase' => $timeBase,
+            'pro2Dchart' => $pro2Dchart,
+            'economic' => $economic,
+            'stuNameLayout' => $stuNameLayout,
+            'chainingStudies' => $chainingStudies,
+            'meshView' => $meshView
+        ];
+        return view('report.viewHtmlToPDF', $param);
     }
 
     public function viewHtml($study ,$production, $product, $proElmt, $shapeName, 

@@ -17,4 +17,7 @@ Homestead.yaml
 /public/consumption/*
 /public/temperatureProfile/*
 /storage/app/*
+/storage//cache/sessions/*
+/storage/logs/*
+composer.lock
 
