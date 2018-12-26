@@ -421,4 +421,21 @@ class Admin extends Controller
             echo "Oops! Terjadi error saat membuat file JSON...";
         }
     }
+
+    public function checkIsAdmin()
+    {
+        $isAdmin = -1;
+        $user = User::find($this->auth->user()->ID_USER);
+        if ($user) {
+            if (($user->USERPRIO == 0) || ($user->USERPRIO == 1)) {
+                $isAdmin =  0;
+            }
+        }
+
+        $checkadmin = [
+            'isAdmin' => $isAdmin,
+        ];
+
+        return $checkadmin;
+    }
 }

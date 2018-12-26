@@ -58,6 +58,7 @@ class Auth extends Controller
         $user = $this->auth->user();
         if ($user) {
             $user->USERMAIL = null;
+            
 
             $connection = new Connection();
             $connection->ID_USER = $user->ID_USER;

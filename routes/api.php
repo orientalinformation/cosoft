@@ -456,3 +456,4 @@ include_once("api_huytd.php");
 include_once("api_haidt.php");
 include_once("api_chaining.php");
 include_once("report.php");
+include_once("api_admin.php");
