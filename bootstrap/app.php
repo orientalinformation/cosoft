@@ -146,6 +146,23 @@ $app->router->get('/api/v1/reports/html', function () {
     return view('report.viewHtmlToPDF');
 });
 
+$app->router->get('/401', function () {
+    return view('errors.401');
+});
+
+$app->router->get('/404', function () {
+    return view('errors.404');
+});
+
+
+$app->router->get('/403', function () {
+    return view('errors.403');
+});
+
+$app->router->get('/500', function () {
+    return view('errors.500');
+});
+
 $app->router->group([
     'middleware' => 'auth',
     'namespace' => 'App\Http\Controllers',
