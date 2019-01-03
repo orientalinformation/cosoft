@@ -30,6 +30,7 @@ use App\Cryosoft\StudyService;
 use App\Cryosoft\OutputService;
 use PDF;
 use View;
+use Validator;
 
 // HAIDT
 use MediaUploader;
@@ -361,6 +362,22 @@ class Reports extends Controller
 
     public function saveReport($id)
     {
+        // validator input
+        $validator = Validator::make($this->request->all(), [
+            'DEST_NAME' => 'regex:/^[a-z-A-Z-0-9]*$/',
+            'DEST_SURNAME' => 'regex:/^[a-z-A-Z-0-9]*$/',
+            'DEST_FUNCTION' => 'regex:/^[a-z-A-Z-0-9]*$/',
+            'DEST_COORD' => 'regex:/^[a-z-A-Z-0-9]*$/',
+            'WRITER_SURNAME' => 'regex:/^[a-z-A-Z-0-9]*$/',
+            'WRITER_NAME' => 'regex:/^[a-z-A-Z-0-9]*$/',
+            'WRITER_FUNCTION' => 'regex:/^[a-z-A-Z-0-9]*$/',
+            'WRITER_COORD' => 'regex:/^[a-z-A-Z-0-9]*$/',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json('Invalid field format', 422);
+        }
+
         $input = $this->request->all();
 
         $DEST_NAME = $input['DEST_NAME'];
@@ -494,6 +511,8 @@ class Reports extends Controller
         $ID_STUDY = $input['ID_STUDY'];
 
         $ASSES_ECO = $input['ASSES_ECO'];
+
+        
 
         $isSizingValuesChosen = $input['isSizingValuesChosen'];
         $isSizingValuesMax = $input['isSizingValuesMax'];
