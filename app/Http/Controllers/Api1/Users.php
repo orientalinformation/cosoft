@@ -310,4 +310,15 @@ class Users extends Controller
 
         return $ret;
     }
+
+    public function getCurrentUser()
+    {
+        $user = User::find($this->auth->user()->ID_USER);
+        if ($user) {
+            $user->USERMAIL = null;
+            $user->USERNAM = null;
+        }
+
+        return $user;
+    }
 }
