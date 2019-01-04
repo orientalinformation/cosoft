@@ -39,6 +39,8 @@ class Authenticate
             return response('Unauthorized.', 401);
         }
 
-        return $next($request);
+        $response = $next($request);
+        $response->headers->set('X-Frame-Options', 'SAMEORIGIN', false);
+        return $response;
     }
 }
