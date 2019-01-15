@@ -35,12 +35,13 @@ class Authenticate
      */
     public function handle($request, Closure $next, $guard = null)
     {
-        if ($this->auth->guard($guard)->guest()) {
+        $xsrfToken = $request->header('X-XSRF-TOKEN');
+        if ($this->auth->guard($guard)->guest() || empty($xsrfToken)) {
             return response('Unauthorized.', 401);
         }
 
         $response = $next($request);
-        $response->headers->set('X-Frame-Options', 'SAMEORIGIN', false);
+        // $response->headers->set('X-Frame-Options', 'SAMEORIGIN', false);
         return $response;
     }
 }
