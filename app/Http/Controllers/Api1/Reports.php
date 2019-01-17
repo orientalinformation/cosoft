@@ -2716,15 +2716,15 @@ class Reports extends Controller
 
         $public_path = rtrim(app()->basePath("public/"), '/');
 
-        $name_report = "$study->ID_STUDY-".preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname)."-Report.html";
-        $progressFile = $public_path. "/reports/" . $study->USERNAM. "/" ."$study->ID_STUDY-".preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname)."-Report.progess";
+        $name_report = $study->ID_STUDY . '.html';
+        $progressFile = $public_path. "/reports/" . $study->ID_USER. "/" ."$study->ID_STUDY-".preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname)."-Report.progess";
 
-        if (!is_dir( $public_path. "/reports/"  . $study->USERNAM)) {
-            mkdir( $public_path. "/reports/" . $study->USERNAM, 0777, true);
+        if (!is_dir( $public_path. "/reports/"  . $study->ID_USER)) {
+            mkdir( $public_path. "/reports/" . $study->ID_USER, 0777, true);
         }
 
-        if (file_exists($public_path . "/reports/" . $study->USERNAM."/" . $name_report)) {
-            @unlink($public_path . "/reports/" . $study->USERNAM."/" . $name_report);
+        if (file_exists($public_path . "/reports/" . $study->ID_USER."/" . $name_report)) {
+            @unlink($public_path . "/reports/" . $study->ID_USER."/" . $name_report);
         }
         
         $progress = "";
@@ -3112,14 +3112,14 @@ class Reports extends Controller
 
         $chainingStudies = $this->reportserv->getChainingStudy($id);
 
-        $myfile = fopen( $public_path. "/reports/" . "/" . $study->USERNAM."/" . $name_report, "w") or die("Unable to open file!");
+        $myfile = fopen( $public_path. "/reports/" . "/" . $study->ID_USER."/" . $name_report, "w") or die("Unable to open file!");
         $html = $this->viewHtml($study ,$production, $product, $proElmt, $shapeName, 
         $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
         $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase, 
         $symbol, $host, $pro2Dchart, $params, $shapeCode, $economic, $stuNameLayout, $specificDimension, $chainingStudies, $meshView);
         fwrite($myfile, $html);
         fclose($myfile);
-        $url = ["url" => $host . "reports/$study->USERNAM/$name_report?time=". time() .""];
+        $url = ["url" => $host . "reports/$study->ID_USER/$name_report?time=". time() .""];
         return $url;
     }
 
@@ -3192,51 +3192,6 @@ class Reports extends Controller
         return $data;
     }
 
-    public function html($study ,$production, $product, $proElmt, $shapeName, 
-    $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
-    $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase , 
-    $symbol, $host, $pro2Dchart, $params, $shapeCode, $economic, $stuNameLayout, $specificDimension, $chainingStudies, $meshView)
-    {
-        $input = $this->request->all();
-        $study = $input['input'];
-
-        $arrayParam = [
-            'study' => $study,
-            'production' => $production,
-            'productionINTL' => $this->convert->prodTemperature($production->AVG_T_INITIAL),
-            'product' => $product,
-            'productRealW' =>  $this->convert->mass($product->PROD_REALWEIGHT),
-            'proElmt' => $proElmt,
-            'proElmtParam1' => $this->convert->prodDimension($proElmt->SHAPE_PARAM1),
-            'proElmtParam2' => $specificDimension,
-            'proElmtParam3' => $this->convert->prodDimension($proElmt->SHAPE_PARAM3),
-            'shapeName' => $shapeName,
-            'proInfoStudy' => $proInfoStudy,
-            'symbol' => $symbol,
-            'host' => $host,
-            'params' => $params['input'],
-            'shapeCode' => $shapeCode,
-        ];
-        $param = [
-            'arrayParam' => $arrayParam,
-            'productComps' => $productComps,
-            'equipData' => $equipData,
-            'cryogenPipeline' => $cryogenPipeline,
-            'consumptions' => $consumptions,
-            'calModeHeadBalance' => $calModeHeadBalance,
-            'calModeHbMax' => $calModeHbMax,
-            'heatexchange' => $heatexchange,
-            'proSections' => $proSections,
-            'timeBase' => $timeBase,
-            'pro2Dchart' => $pro2Dchart,
-            'economic' => $economic,
-            'stuNameLayout' => $stuNameLayout,
-            'chainingStudies' => $chainingStudies,
-            'meshView' => $meshView
-        ];
-        return view('report.viewHtmlToPDF', $param);
-    }
-
     public function viewHtml($study ,$production, $product, $proElmt, $shapeName, 
     $productComps, $equipData, $cryogenPipeline, $consumptions, $proInfoStudy,
     $calModeHbMax, $calModeHeadBalance, $heatexchange, $proSections, $timeBase , 
@@ -3289,11 +3244,7 @@ class Reports extends Controller
         $fileName = preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname);
         $progressFile = "$study->ID_STUDY-" . $fileName . "-Report.progess";
 
-        $progressFileHtmlPath = $public_path . '/report/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . $fileName . '-Report.html';
-
-        $progressFilePdfPath = $public_path . '/report/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . $fileName . '-Report.pdf';
-
-        $progressFileHtml = getenv('APP_URL') . '/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . $fileName . '-Report.html?time=' . time();
+        $progressFileHtml = getenv('APP_URL') . 'report/html?user=' . $study->ID_USER . '&study=' . $study->ID_STUDY;
         $progressFilePdf = getenv('APP_URL') . '/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . $fileName . '-Report.pdf?time=' . time();
 
         $progressfilePath = $public_path . "/reports/" . $study->USERNAM . "/" . $progressFile;
@@ -3324,5 +3275,20 @@ class Reports extends Controller
         $url = getenv('APP_URL') . '/uploads/'.$media->filename.'.'.$media->extension;
         
         return $url;
+    }
+
+    public function html()
+    {
+        $input = $this->request->all();
+        $userId = $input['idUser'];
+        $studyId = $input['idStudy'];
+
+        if (file_exists('reports/'. $userId . '/' . $studyId . '.html')) {
+            $content = file_get_contents('reports/' . $userId . '/' . $studyId . '.html');
+            return response($content, 200);
+        } else {
+            $content = 'Not found';
+            return response($content, 401);
+        }
     }
 }

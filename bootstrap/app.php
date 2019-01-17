@@ -142,10 +142,6 @@ $app->router->group([
     require dirname(__DIR__).'/routes/translations.php';
 });
 
-$app->router->get('/api/v1/reports/html', function () {
-    return view('report.viewHtmlToPDF');
-});
-
 $app->router->get('/401', function () {
     return view('errors.401');
 });
@@ -163,11 +159,18 @@ $app->router->get('/500', function () {
     return view('errors.500');
 });
 
+$app->router->get('/report/html', function () {
+        return view('report.html');
+    });
+
 $app->router->group([
     'middleware' => 'auth',
     'namespace' => 'App\Http\Controllers',
 ], function ($router) {
     require dirname(__DIR__).'/routes/api.php';
+    /*$router->get('/report/html', function () {
+        return view('report.html');
+    });*/
 });
 
 return $app;

@@ -36,7 +36,7 @@ class Authenticate
     public function handle($request, Closure $next, $guard = null)
     {
         $xsrfToken = $request->header('X-XSRF-TOKEN');
-        if ($this->auth->guard($guard)->guest() || empty($xsrfToken)) {
+        if ($this->auth->guard($guard)->guest()) {
             return response('Unauthorized.', 401);
         }
 
