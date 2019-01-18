@@ -3123,7 +3123,7 @@ class Reports extends Controller
         return $url;
     }
 
-    function downLoadPDF($studyId)
+    function _downLoadPDF($studyId)
     {
         $input = $this->request->all();
         $params['studyId'] = $studyId;
@@ -3144,7 +3144,7 @@ class Reports extends Controller
         return ['processing' => true];        
     }
 
-    function _downLoadPDF($studyId)
+    function downLoadPDF($studyId)
     {
         $input = $this->request->all();
         $params['studyId'] = $studyId;
@@ -3284,8 +3284,10 @@ class Reports extends Controller
         $studyId = $input['idStudy'];
 
         if (file_exists('reports/'. $userId . '/' . $studyId . '.html')) {
-            $content = file_get_contents('reports/' . $userId . '/' . $studyId . '.html');
-            return response($content, 200);
+            $html = file_get_contents('reports/' . $userId . '/' . $studyId . '.html');
+            preg_match('/<body>(.*)<\/body>/s', $html, $matches);
+            $content = trim($matches[1]);
+            return compact('content');
         } else {
             $content = 'Not found';
             return response($content, 401);

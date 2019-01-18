@@ -9,18 +9,18 @@
 
     <!-- Bootstrap -->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
-    <style type="text/css">
-        body{font-size: 0.95rem}
-        .block-title {
-            background: #268EE2;line-height: 45px;color: #fff;padding: 0 15px;font-size: 20px;text-transform: uppercase;font-weight: 600;margin-bottom: 15px
-        }
-        .bold {font-weight: bold}
-        .layout{padding-bottom: 15px}
-        img {max-width: 100%}
-        .table td, .table th{padding: .55rem;font-size: 13px;vertical-align: middle;}
-    </style>
     <body>
-    <div class ="box-report-frame container-fluid">
+        <style type="text/css">
+            .box-report-frame{font-size: 0.95rem}
+            .block-title {
+                background: #268EE2;line-height: 45px;color: #fff;padding: 0 15px;font-size: 20px;text-transform: uppercase;font-weight: 600;margin-bottom: 15px
+            }
+            .bold {font-weight: bold}
+            .layout{padding-bottom: 15px}
+            img {max-width: 100%}
+            .table td, .table th{padding: .55rem;font-size: 13px;vertical-align: middle;}
+        </style>
+    <div class ="box-report-frame">
         <div class="logo">
             <div class="row">
                 <div class="col-md-6">
