@@ -3244,7 +3244,7 @@ class Reports extends Controller
         $fileName = preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname);
         $progressFile = "$study->ID_STUDY-" . $fileName . "-Report.progess";
 
-        $progressFileHtml = getenv('APP_URL') . 'report/html?user=' . $study->ID_USER . '&study=' . $study->ID_STUDY;
+        $progressFileHtml = null;
         $progressFilePdf = getenv('APP_URL') . '/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . $fileName . '-Report.pdf?time=' . time();
 
         $progressfilePath = $public_path . "/reports/" . $study->USERNAM . "/" . $progressFile;
