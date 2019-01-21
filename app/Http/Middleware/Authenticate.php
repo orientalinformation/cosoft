@@ -40,6 +40,10 @@ class Authenticate
             return response('Unauthorized.', 401);
         }
 
+        if (getenv('APP_ENV') != 'local' && empty($xsrfToken)) {
+            return response('Unauthorized.', 401);
+        }
+
         $response = $next($request);
         // $response->headers->set('X-Frame-Options', 'SAMEORIGIN', false);
         return $response;
