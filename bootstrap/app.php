@@ -160,17 +160,18 @@ $app->router->get('/500', function () {
 });
 
 $app->router->get('/report/html', function () {
-        return view('report.html');
-    });
+    return view('report.html');
+});
+
+$app->router->get('/report/pdf', function () {
+    return view('report.pdf');
+});
 
 $app->router->group([
     'middleware' => 'auth',
     'namespace' => 'App\Http\Controllers',
 ], function ($router) {
     require dirname(__DIR__).'/routes/api.php';
-    /*$router->get('/report/html', function () {
-        return view('report.html');
-    });*/
 });
 
 return $app;

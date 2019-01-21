@@ -3289,8 +3289,21 @@ class Reports extends Controller
             $content = trim($matches[1]);
             return compact('content');
         } else {
-            $content = 'Not found';
-            return response($content, 401);
+            return response()->json(['Not found'], 404);
+        }
+    }
+
+    public function pdf()
+    {
+        $input = $this->request->all();
+        $userId = $input['idUser'];
+        $studyId = $input['idStudy'];
+
+        if (file_exists('reports/'. $userId . '/' . $studyId . '.pdf')) {
+            $pdfFile = file_get_contents('reports/' . $userId . '/' . $studyId . '.pdf');
+            $content = base64_encode($pdfFile);
+        } else {
+            return response()->json(['Not found'], 404);
         }
     }
 }
