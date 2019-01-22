@@ -159,14 +159,6 @@ $app->router->get('/500', function () {
     return view('errors.500');
 });
 
-$app->router->get('/report/html', function () {
-    return view('report.html');
-});
-
-$app->router->get('/report/pdf', function () {
-    return view('report.pdf');
-});
-
 $app->router->group([
     'middleware' => 'auth',
     'namespace' => 'App\Http\Controllers',

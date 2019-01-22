@@ -719,15 +719,15 @@ class Reports extends Controller
         $host = getenv('APP_URL');
 
         $public_path = rtrim(app()->basePath("public"), '/');
-        $progressFile = $public_path. "/reports/" . $study->USERNAM. "/" . "$study->ID_STUDY-" . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname) . "-Report.progess";
-        $name_report = "$study->ID_STUDY-" . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname) . "-Report.pdf";
+        $progressFile = $public_path. "/reports/" . $study->ID_USER. "/" . "$study->ID_STUDY-" . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname) . "-Report.progess";
+        $name_report = $study->ID_STUDY . '.pdf';
 
-        if (!is_dir($public_path . "/reports/" . $study->USERNAM)) {
-            mkdir($public_path . "/reports/" . $study->USERNAM, 0777, true);
+        if (!is_dir($public_path . "/reports/" . $study->ID_USER)) {
+            mkdir($public_path . "/reports/" . $study->ID_USER, 0777, true);
         } 
 
-        if (file_exists($public_path . "/reports/" . $study->USERNAM."/" . $name_report)) {
-            @unlink($public_path . "/reports/" . $study->USERNAM."/" . $name_report);
+        if (file_exists($public_path . "/reports/" . $study->ID_USER."/" . $name_report)) {
+            @unlink($public_path . "/reports/" . $study->ID_USER."/" . $name_report);
         }
 
         $progress = "";
@@ -1669,7 +1669,7 @@ class Reports extends Controller
                             <tr>
                                 <td>Space (length) ( '. $symbol['prodDimensionSymbol'] .' )</td>
                                 <td align="center"> User not define </td>
-                                <td rowspan="8" align="center"><img style="width: 340px; height: 460px"  src="'. $public_path . "/reports/" . $study->USERNAM ."/". $nameLayout.$resequipDatas['ID_STUDY_EQUIPMENTS'].".jpg".'"></td>
+                                <td rowspan="8" align="center"><img style="width: 340px; height: 460px"  src="'. $public_path . "/reports/" . $study->ID_USER ."/". $nameLayout.$resequipDatas['ID_STUDY_EQUIPMENTS'].".jpg".'"></td>
                             </tr>
                             <tr>
                                 <td>Space (width) ( '. $symbol['prodDimensionSymbol'] .' )</td>
@@ -2638,8 +2638,8 @@ class Reports extends Controller
         
         // end of TOC page
         PDF::endTOCPage();
-        PDF::Output($public_path . "/reports/" . $study->USERNAM."/" . $name_report, 'F');
-        return ["url" => $host . "reports/$study->USERNAM/$name_report?time=". time() .""];
+        PDF::Output($public_path . "/reports/" . $study->ID_USER."/" . $name_report, 'F');
+        return ["url" => $host . "reports/$study->ID_STUDY/$name_report?time=". time() .""];
     }
     
     function backgroundGenerationHTML($params)
@@ -3244,10 +3244,7 @@ class Reports extends Controller
         $fileName = preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname);
         $progressFile = "$study->ID_STUDY-" . $fileName . "-Report.progess";
 
-        $progressFileHtml = null;
-        $progressFilePdf = getenv('APP_URL') . '/reports/' . $study->USERNAM . '/' . $study->ID_STUDY . '-' . $fileName . '-Report.pdf?time=' . time();
-
-        $progressfilePath = $public_path . "/reports/" . $study->USERNAM . "/" . $progressFile;
+        $progressfilePath = $public_path . "/reports/" . $study->ID_USER . "/" . $progressFile;
         
         $progress = [];
         if (file_exists($progressfilePath)) {
@@ -3255,7 +3252,7 @@ class Reports extends Controller
             $progress = explode("\n", $file);
         }
         
-        return compact('progressFileHtml', 'progressFilePdf', 'progress');
+        return compact('progress');
     }
 
     public function postFile() 
@@ -3302,6 +3299,7 @@ class Reports extends Controller
         if (file_exists('reports/'. $userId . '/' . $studyId . '.pdf')) {
             $pdfFile = file_get_contents('reports/' . $userId . '/' . $studyId . '.pdf');
             $content = base64_encode($pdfFile);
+            return compact('content');
         } else {
             return response()->json(['Not found'], 404);
         }

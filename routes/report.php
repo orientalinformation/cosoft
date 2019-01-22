@@ -30,3 +30,12 @@ $router->GET('/api/v1/reports/{id}/processingReport', 'Api1\\Reports@processingR
  * Output-Formats: 
  */
 $router->GET('/api/v1/reports/html', 'Api1\\Reports@html');
+
+/**
+ * GET pdf
+ * Summary: 
+ * Notes: 
+ * Output-Formats: 
+ */
+$router->GET('/api/v1/reports/pdf', 'Api1\\Reports@pdf');
+
