@@ -118,7 +118,7 @@ class Reports extends Controller
 
     public function writeProgressFile($fileName, $content)
     {
-        $f = fopen($fileName, "w");
+        $f =  fopen($fileName, "w") or die("Unable to open file!");
         fwrite($f, $content);
         fflush($f);
         fclose($f);
@@ -719,7 +719,7 @@ class Reports extends Controller
         $host = getenv('APP_URL');
 
         $public_path = rtrim(app()->basePath("public"), '/');
-        $progressFile = $public_path. "/reports/" . $study->ID_USER. "/" . "$study->ID_STUDY-" . preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname) . "-Report.progess";
+        $progressFile = $public_path. "/reports/" . $study->ID_USER. "/" . $study->ID_STUDY . ".progess";
         $name_report = $study->ID_STUDY . '.pdf';
 
         if (!is_dir($public_path . "/reports/" . $study->ID_USER)) {
@@ -2717,7 +2717,7 @@ class Reports extends Controller
         $public_path = rtrim(app()->basePath("public/"), '/');
 
         $name_report = $study->ID_STUDY . '.html';
-        $progressFile = $public_path. "/reports/" . $study->ID_USER. "/" ."$study->ID_STUDY-".preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname)."-Report.progess";
+        $progressFile = $public_path. "/reports/" . $study->ID_USER. "/" . $study->ID_STUDY . ".progess";
 
         if (!is_dir( $public_path. "/reports/"  . $study->ID_USER)) {
             mkdir( $public_path. "/reports/" . $study->ID_USER, 0777, true);
@@ -3241,9 +3241,7 @@ class Reports extends Controller
         $public_path = rtrim(app()->basePath("public"), '/');
         $checkStuname = str_replace(' ', '', $study->STUDY_NAME);
 
-        $fileName = preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname);
-        $progressFile = "$study->ID_STUDY-" . $fileName . "-Report.progess";
-
+        $progressFile = $study->ID_STUDY . ".progess";
         $progressfilePath = $public_path . "/reports/" . $study->ID_USER . "/" . $progressFile;
         
         $progress = [];
