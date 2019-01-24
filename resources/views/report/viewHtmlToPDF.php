@@ -498,7 +498,7 @@
                 </div>
                 <div class="col-md-4">
                     <div class="text-center">
-                        <img src="<?php echo  $arrayParam['host'] . "reports/".$arrayParam['study']['USERNAM']."/".$arrayParam['study']['ID_STUDY']."-".$stuNameLayout."-StdeqpLayout-".$resequipDatas['ID_STUDY_EQUIPMENTS'].".jpg"?>">
+                        <img src="<?php echo  $arrayParam['host'] . "reports/".$arrayParam['study']['ID_USER']."/".$arrayParam['study']['ID_STUDY']."-".$stuNameLayout."-StdeqpLayout-".$resequipDatas['ID_STUDY_EQUIPMENTS'].".jpg"?>">
                     </div>
                 </div>
                 <?php } else {?>

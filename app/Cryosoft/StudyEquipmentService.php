@@ -833,10 +833,10 @@ class StudyEquipmentService
         $public_path = rtrim(app()->basePath("public/"), '/');
         $checkStuname = $sequip->study->STUDY_NAME;
         $nameImgLayout = $sequip->study->ID_STUDY.'-'.preg_replace('/[^A-Za-z0-9\-]/', '', $checkStuname).'-StdeqpLayout-'.$sequip->ID_STUDY_EQUIPMENTS.'.jpg';
-        if (!is_dir($public_path . "/reports/" . $sequip->study->USERNAM)) {
-            mkdir($public_path . "/reports/" . $sequip->study->USERNAM, 0777, true);
+        if (!is_dir($public_path . "/reports/" . $sequip->study->ID_USER)) {
+            mkdir($public_path . "/reports/" . $sequip->study->ID_USER, 0777, true);
         } 
-        $image->writeImage($public_path . "/reports/" . $sequip->study->USERNAM ."/". $nameImgLayout);
+        $image->writeImage($public_path . "/reports/" . $sequip->study->ID_USER ."/". $nameImgLayout);
         $base64img = base64_encode($image);
 
         $image->destroy();
