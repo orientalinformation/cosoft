@@ -2981,7 +2981,7 @@ class Output extends Controller
 
         $imageContour = [];
         $plotFile = 'contour.plot';
-        $inpFile = "/tmp/contour.inp";
+        $inpFile = '/tmp/contour.inp';
 
         $lfTS = $recordPosition[count($recordPosition) - 1]->RECORD_TIME;
         $lfStep = $recordPosition[1]->RECORD_TIME - $recordPosition[0]->RECORD_TIME; 
@@ -2991,7 +2991,12 @@ class Output extends Controller
 
         if ($shape <= 9) {
             $chartTempInterval = $this->output->init2DContourTempInterval($idStudyEquipment, -1.0, $tempInterval, $pasTemp);
-        
+            $outPutFolder = escapeshellarg($productChartFolder);
+            $plotFile = escapeshellarg($this->plotFolder . '/' . $plotFile);
+            $outputFileInp = escapeshellarg($inpFile);
+            $prodchartDimensionSymbol = escapeshellarg($this->unit->prodchartDimensionSymbol());
+            $xAxisName = escapeshellarg($dimension .' '. $axisX);
+            $yAxisName = escapeshellarg($dimension .' '. $axisY);
             for ($i = 0; $i < $nbContour2d - 1; $i++) { 
                 $pos = round($i * $lfTheoricStep / $lfStep, 0);
                 $lfDwellingTime = $recordPosition[$pos]->RECORD_TIME;
@@ -3004,15 +3009,10 @@ class Output extends Controller
                     foreach ($dataContour as $datum) {
                         fputs($f, (double) $datum['X'] . ' ' . (double) $datum['Y'] . ' ' .  (double) $datum['Z'] . "\n" );
                     }
+
                     fclose($f);
-                    
-                    $outPutFolder = escapeshellarg($productChartFolder);
+
                     $outPutFileName = escapeshellarg($contourFileName);
-                    $plotFile = escapeshellarg($this->plotFolder . '/' . $plotFile);
-                    $outputFileInp = escapeshellarg($inpFile);
-                    $prodchartDimensionSymbol = escapeshellarg($this->unit->prodchartDimensionSymbol());
-                    $xAxisName = escapeshellarg($dimension .' '. $axisX);
-                    $yAxisName = escapeshellarg($dimension .' '. $axisY);
                     $commandContent = $plotFile . ' ' . $xAxisName . ' ' . $yAxisName . ' '. $prodchartDimensionSymbol . ' ' . $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' '. $outPutFolder .' '. $outPutFileName .' '. $outputFileInp;
                     system('gnuplot -c ' . $commandContent);
                 // }
@@ -3021,6 +3021,8 @@ class Output extends Controller
             }
 
             $contourFileName = $lfTS;
+            $outPutFileName = escapeshellarg($contourFileName);
+            $commandContent = $plotFile . ' ' . $xAxisName . ' ' . $yAxisName . ' ' . $prodchartDimensionSymbol . ' ' . $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' '. $outPutFolder .' '. $outPutFileName .' ' . $outputFileInp;
             // if (!file_exists($productChartFolder . '/' . $contourFileName . '.png')) {
                 $dataContour = $this->output->getGrideByPlan($idStudy, $idStudyEquipment, $lfTS, $chartTempInterval[0], $chartTempInterval[1], $planTempRecordData, $selectedPlan - 1, $shape, $orientation);
 
@@ -3030,16 +3032,7 @@ class Output extends Controller
                 }
                 fclose($f);
 
-                $outPutFolder = escapeshellarg($productChartFolder);
-                $outPutFileName = escapeshellarg($contourFileName);
-                $plotFile = escapeshellarg($this->plotFolder . '/' . $plotFile);
-                $outputFileInp = escapeshellarg($inpFile);
-                $prodchartDimensionSymbol = escapeshellarg($this->unit->prodchartDimensionSymbol());
-                $xAxisName = escapeshellarg($dimension .' '. $axisX);
-                $yAxisName = escapeshellarg($dimension .' '. $axisY);
-                $commandContent = $plotFile . ' ' . $xAxisName .' '. $dimension .' '. $yAxisName . ' ' . $prodchartDimensionSymbol . ' ' . $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' '. $outPutFolder .' '. $outPutFileName .' ' . $outputFileInp;
                 system('gnuplot -c ' . $commandContent);
-                // system('gnuplot -c '. $plotFile . ' ' . $xAxisName .' '. $dimension .' '. $yAxisName . ' ' . $prodchartDimensionSymbol . ' ' . $chartTempInterval[0] .' '. $chartTempInterval[1] .' '. $chartTempInterval[2] .' '. $outPutFolder .' '. $outPutFileName .' ' . $outputFileInp);
             // }
 
             $imageContour[] = getenv('APP_URL') . 'heatmap/' . $userName . '/' . $idStudyEquipment . '/' . $contourFileName . '.png';
