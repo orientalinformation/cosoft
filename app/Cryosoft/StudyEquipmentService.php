@@ -169,6 +169,7 @@ class StudyEquipmentService
         $equip['TExt'] = (count($this->loadEquipmentData($studyEquipment, EXHAUST_TEMP)) > 0) ? $this->loadEquipmentData($studyEquipment, EXHAUST_TEMP)[0] : '';
 
         $equip['top_or_QperBatch'] = $this->topOrQperBatch($studyEquipment);
+        $equip['equipGeneration'] = EquipGeneration::find($studyEquipment->equipment->ID_EQUIPGENERATION);
         return $equip;
     }
 
