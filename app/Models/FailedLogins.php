@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $ID_USER
  * @property string $IP_ADDRESS
  * @property int $ATTEMPTED
+ * @property int $FAILDED_COUNT
  */
 class FailedLogins extends Model
 {
@@ -22,7 +23,7 @@ class FailedLogins extends Model
     /**
      * @var array
      */
-    protected $fillable = ['ID_FAILED_LOGINS', 'ID_USER', 'IP_ADDRESS', 'ATTEMPTED'];
+    protected $fillable = ['ID_FAILED_LOGINS', 'ID_USER', 'IP_ADDRESS', 'ATTEMPTED', 'FAILDED_COUNT'];
 
     /**
      * @var string

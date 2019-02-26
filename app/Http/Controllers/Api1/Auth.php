@@ -38,12 +38,12 @@ class Auth extends Controller
         ]);
 
         $username = $request['username'];
-
+        $countFailLogin = 0;
         $user = User::where('USERNAM', $username)->first();
         if ($user) {
             $userFailedLogin = FailedLogins::where('ID_USER', $user->ID_USER)->where('IP_ADDRESS', $request->ip())->orderBy('ID_FAILED_LOGINS', 'DESC')->first();
             if ($userFailedLogin) {
-                $timeAttemp = $userFailedLogin->ATTEMPTED + 3 - time();
+                $timeAttemp = $userFailedLogin->ATTEMPTED + $userFailedLogin->FAILDED_COUNT * 3 - time();
                 if ($timeAttemp > 0) {
                     return response()->json(['Too much connection attempt. Please try again in '. $timeAttemp .' seconds.'], 429);
                 }
@@ -53,10 +53,14 @@ class Auth extends Controller
         try {
             if (! $token = $this->jwt->attempt($request->only('username', 'password'))) {
                 if ($user) {
+                    $failedCount = 1;
+                    $failedLoginLast = FailedLogins::where('ID_USER', $user->ID_USER)->where('IP_ADDRESS', $request->ip())->orderBy('ID_FAILED_LOGINS', 'DESC')->first();
+                    if ($failedLoginLast) $failedCount = $failedLoginLast->FAILDED_COUNT + 1;
                     $failedLogin = new FailedLogins();
                     $failedLogin->IP_ADDRESS = $request->ip();
                     $failedLogin->ID_USER = $user->ID_USER;
                     $failedLogin->ATTEMPTED = time();
+                    $failedLogin->FAILDED_COUNT = $failedCount;
                     $failedLogin->save();
                 }
 
@@ -81,6 +85,13 @@ class Auth extends Controller
 
         $user = $this->auth->user();
         if ($user) {
+            // reset count faild login
+            $failedLoginLast = FailedLogins::where('ID_USER', $user->ID_USER)->where('IP_ADDRESS', $request->ip())->orderBy('ID_FAILED_LOGINS', 'DESC')->first();
+            if ($failedLoginLast) {
+                $failedLoginLast->FAILDED_COUNT = 0;
+                $failedLoginLast->save();
+            }
+
             $user->USERMAIL = null;
             $user->USERPRIO = null;
 
