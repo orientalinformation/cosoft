@@ -314,7 +314,7 @@ class Reports extends Controller
                 }
                 $dnbpas = abs($dTMax - $dTmin) / $dpas;    
             }
-        } while ($dnbpas > 17);
+        } while ($dnbpas > 18);
 
         return [
             'dTmin' => $dTmin,
