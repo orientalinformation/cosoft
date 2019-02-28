@@ -41,7 +41,8 @@ class Auth extends Controller
         $countFailLogin = 0;
         $user = User::where('USERNAM', $username)->first();
         if ($user) {
-            $userFailedLogin = FailedLogins::where('ID_USER', $user->ID_USER)->where('IP_ADDRESS', $request->ip())->orderBy('ID_FAILED_LOGINS', 'DESC')->first();
+            // $userFailedLogin = FailedLogins::where('ID_USER', $user->ID_USER)->where('IP_ADDRESS', $request->ip())->orderBy('ID_FAILED_LOGINS', 'DESC')->first();
+            $userFailedLogin = FailedLogins::where('ID_USER', $user->ID_USER)->orderBy('ID_FAILED_LOGINS', 'DESC')->first();
             if ($userFailedLogin) {
                 if ($userFailedLogin->FAILDED_COUNT < 5) {
                     $timeAttemp = $userFailedLogin->ATTEMPTED + pow(3, $userFailedLogin->FAILDED_COUNT) - time();
@@ -59,7 +60,8 @@ class Auth extends Controller
             if (! $token = $this->jwt->attempt($request->only('username', 'password'))) {
                 if ($user) {
                     $failedCount = 1;
-                    $failedLoginLast = FailedLogins::where('ID_USER', $user->ID_USER)->where('IP_ADDRESS', $request->ip())->orderBy('ID_FAILED_LOGINS', 'DESC')->first();
+                    // $failedLoginLast = FailedLogins::where('ID_USER', $user->ID_USER)->where('IP_ADDRESS', $request->ip())->orderBy('ID_FAILED_LOGINS', 'DESC')->first();
+                    $failedLoginLast = FailedLogins::where('ID_USER', $user->ID_USER)->orderBy('ID_FAILED_LOGINS', 'DESC')->first();
                     if ($failedLoginLast) $failedCount = $failedLoginLast->FAILDED_COUNT + 1;
                     $failedLogin = new FailedLogins();
                     $failedLogin->IP_ADDRESS = $request->ip();
