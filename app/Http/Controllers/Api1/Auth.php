@@ -43,7 +43,7 @@ class Auth extends Controller
         if ($user) {
             $userFailedLogin = FailedLogins::where('ID_USER', $user->ID_USER)->where('IP_ADDRESS', $request->ip())->orderBy('ID_FAILED_LOGINS', 'DESC')->first();
             if ($userFailedLogin) {
-                $timeAttemp = $userFailedLogin->ATTEMPTED + $userFailedLogin->FAILDED_COUNT * 3 - time();
+                $timeAttemp = $userFailedLogin->ATTEMPTED + pow(3, $userFailedLogin->FAILDED_COUNT) - time();
                 if ($timeAttemp > 0) {
                     return response()->json(['Too much connection attempt. Please try again in '. $timeAttemp .' seconds.'], 429);
                 }
