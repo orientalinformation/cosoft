@@ -10,7 +10,7 @@ use App\Models\User;
 use App\Models\FailedLogins;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-
+use App\Models\Tokens;
 
 class Auth extends Controller
 {
@@ -84,6 +84,19 @@ class Auth extends Controller
         // if ($connection) {
         //     return response()->json(['User already connected'], 404);
         // }
+        // add new table tokens
+        $tokens = Tokens::where('ID_USER', $this->auth->user()->ID_USER)->first();
+        if ($tokens) {
+            $tokens->ID_USER = $this->auth->user()->ID_USER;
+            $tokens->TOKEN = $token;
+            $tokens->save();
+        } else {
+            $tokens = new Tokens();
+            $tokens->ID_USER = $this->auth->user()->ID_USER;
+            $tokens->TOKEN = $token;
+            $tokens->save();
+        }
+        
 
         $current = Carbon::now();
         $current->timezone = 'Asia/Ho_Chi_Minh';
