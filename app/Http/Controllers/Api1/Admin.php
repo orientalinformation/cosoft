@@ -34,6 +34,7 @@ use App\Models\StudyEquipment;
 use App\Models\MonetaryCurrency;
 use App\Models\Unit;
 use App\Cryosoft\UnitsConverterService;
+use App\Models\Tokens;
 
 class Admin extends Controller
 {   
@@ -437,5 +438,14 @@ class Admin extends Controller
         ];
 
         return $checkadmin;
+    }
+
+    public function getcurrentToken()
+    {
+        $token = Tokens::where('ID_USER', $this->auth->user()->ID_USER)->first();
+        if ($token) {
+            $token->ID_USER = null;
+        }
+        return $token;
     }
 }

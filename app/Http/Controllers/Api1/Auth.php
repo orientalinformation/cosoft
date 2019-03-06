@@ -142,5 +142,11 @@ class Auth extends Controller
                 $connection->update();
             }
         }
+
+        $token = Tokens::where('ID_USER', $this->auth->user()->ID_USER)->first();
+        if ($token) {
+            $token->TOKEN = '';
+            $token->save();
+        }
     }
 }
