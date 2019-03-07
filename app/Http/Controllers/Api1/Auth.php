@@ -84,20 +84,7 @@ class Auth extends Controller
         // if ($connection) {
         //     return response()->json(['User already connected'], 404);
         // }
-        // add new table tokens
-        $tokens = Tokens::where('ID_USER', $this->auth->user()->ID_USER)->first();
-        if ($tokens) {
-            $tokens->ID_USER = $this->auth->user()->ID_USER;
-            $tokens->TOKEN = $token;
-            $tokens->save();
-        } else {
-            $tokens = new Tokens();
-            $tokens->ID_USER = $this->auth->user()->ID_USER;
-            $tokens->TOKEN = $token;
-            $tokens->save();
-        }
         
-
         $current = Carbon::now();
         $current->timezone = 'Asia/Ho_Chi_Minh';
 
@@ -119,6 +106,19 @@ class Auth extends Controller
             $connection->DATE_DISCONNECTION = null;
             $connection->TYPE_DISCONNECTION = 0;
             $connection->save();
+        }
+
+        // add new table tokens
+        $tokens = Tokens::where('ID_USER', $this->auth->user()->ID_USER)->first();
+        if ($tokens) {
+            $tokens->ID_USER = $this->auth->user()->ID_USER;
+            $tokens->TOKEN = $token;
+            $tokens->save();
+        } else {
+            $tokens = new Tokens();
+            $tokens->ID_USER = $this->auth->user()->ID_USER;
+            $tokens->TOKEN = $token;
+            $tokens->save();
         }
 
         return response()->json(compact('token','user'));
@@ -143,10 +143,11 @@ class Auth extends Controller
             }
         }
 
-        $token = Tokens::where('ID_USER', $this->auth->user()->ID_USER)->first();
-        if ($token) {
-            $token->TOKEN = '';
-            $token->save();
+        if ($this->auth->user()) {
+            $token = Tokens::where('ID_USER', $this->auth->user()->ID_USER)->get();
+            if ($token) {
+                Tokens::where('ID_USER', $this->auth->user()->ID_USER)->delete();
+            }
         }
     }
 }
