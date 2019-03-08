@@ -442,6 +442,7 @@ class Admin extends Controller
 
     public function getcurrentToken()
     {
+        $token = array();
         $token = Tokens::where('ID_USER', $this->auth->user()->ID_USER)->first();
         if ($token) {
             $token->ID_USER = null;

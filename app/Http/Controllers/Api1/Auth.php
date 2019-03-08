@@ -115,11 +115,13 @@ class Auth extends Controller
         if ($tokens) {
             $tokens->ID_USER = $this->auth->user()->ID_USER;
             $tokens->TOKEN = $token;
+            $tokens->TYPE = 1;
             $tokens->save();
         } else {
             $tokens = new Tokens();
             $tokens->ID_USER = $this->auth->user()->ID_USER;
             $tokens->TOKEN = $token;
+            $tokens->TYPE = 1;
             $tokens->save();
         }
 
@@ -146,9 +148,11 @@ class Auth extends Controller
         }
 
         if ($this->auth->user()) {
-            $token = Tokens::where('ID_USER', $this->auth->user()->ID_USER)->get();
+            $token = Tokens::where('ID_USER', $this->auth->user()->ID_USER)->first();
             if ($token) {
-                Tokens::where('ID_USER', $this->auth->user()->ID_USER)->delete();
+                $token->TOKEN = '';
+                $token->TYPE = 0;
+                $token->save();
             }
         }
     }

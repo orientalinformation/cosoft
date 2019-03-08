@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $ID_TOKENS
  * @property int $ID_USER
  * @property string $TOKEN
+ * @property int $TYPE
  */
 class Tokens extends Model
 {
@@ -20,7 +21,7 @@ class Tokens extends Model
     /**
      * @var array
      */
-    protected $fillable = ['ID_TOKENS', 'ID_USER', 'TOKEN'];
+    protected $fillable = ['ID_TOKENS', 'ID_USER', 'TOKEN', 'TYPE'];
 
     /**
      * @var string
