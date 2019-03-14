@@ -6,7 +6,7 @@
  * Notes: get head balance result
  * Output-Formats: [application/json]
  */
-$router->GET('/api/v1/admin/check', 'Api1\\Admin@checkIsAdmin');
+$router->GET('/api/v1/info/o', 'Api1\\Admin@checkIsAdmin');
 
 /**
  * GET current user

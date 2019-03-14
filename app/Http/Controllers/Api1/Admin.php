@@ -425,16 +425,16 @@ class Admin extends Controller
 
     public function checkIsAdmin()
     {
-        $isAdmin = -1;
+        $isAdmin = 'idontknowyou';
         $user = User::find($this->auth->user()->ID_USER);
         if ($user) {
             if (($user->USERPRIO == 0) || ($user->USERPRIO == 1)) {
-                $isAdmin =  0;
+                $isAdmin =  'iknowyouyouyou3105@@@';
             }
         }
 
         $checkadmin = [
-            'isAdmin' => $isAdmin,
+            'idontknow' => base64_encode($isAdmin),
         ];
 
         return $checkadmin;
