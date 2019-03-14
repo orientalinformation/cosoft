@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "8d01b9506ceaa969555ee785608f3771",
+    "content-hash": "26defcdf7f7f03707106a42315968dc2",
     "packages": [
         {
             "name": "doctrine/inflector",
@@ -1314,6 +1314,7 @@
                 "publish",
                 "vendor"
             ],
+            "abandoned": true,
             "time": "2017-09-26T12:43:31+00:00"
         },
         {
@@ -1839,6 +1840,40 @@
                 "random"
             ],
             "time": "2018-04-04T21:24:14+00:00"
+        },
+        {
+            "name": "phpaes/phpaes",
+            "version": "3.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/phillipsdata/phpaes.git",
+                "reference": "ac8bee16e70fb4dc937e9367e26aafb98a675ac1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/phillipsdata/phpaes/zipball/ac8bee16e70fb4dc937e9367e26aafb98a675ac1",
+                "reference": "ac8bee16e70fb4dc937e9367e26aafb98a675ac1",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.0",
+                "squizlabs/php_codesniffer": "^2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PhpAes\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "AES cipher - FIPS 192 compliant",
+            "time": "2018-01-16T01:21:58+00:00"
         },
         {
             "name": "phpsysinfo/phpsysinfo",
