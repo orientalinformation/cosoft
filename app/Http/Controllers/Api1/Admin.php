@@ -434,7 +434,7 @@ class Admin extends Controller
         }
 
         $checkadmin = [
-            'idontknow' => base64_encode($isAdmin),
+            'checkit' => base64_encode($isAdmin),
         ];
 
         return $checkadmin;
