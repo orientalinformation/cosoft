@@ -176,7 +176,7 @@ class Admin extends Controller
     public function getUsers()
     {
         $idUserLogon = $this->auth->user()->ID_USER;
-        $offline = User::where('USERPRIO', '<>', 0)
+        $offline = User::distinct()->where('USERPRIO', '<>', 0)
         ->where('ID_USER', '<>', $idUserLogon)->orderBy('USERNAM', 'ASC')->get();
         
         $online = Connection::where('DATE_CONNECTION', '<>', null)
@@ -184,6 +184,7 @@ class Admin extends Controller
             ->where('ID_USER', '<>', $idUserLogon)->get();
         
         return compact('online', 'offline');
+
     }
 
     public function getMinMax($limitItem) 
