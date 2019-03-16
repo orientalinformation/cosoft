@@ -176,9 +176,9 @@ class Admin extends Controller
     public function getUsers()
     {
         $idUserLogon = $this->auth->user()->ID_USER;
-        $offline = User::distinct()->where('USERPRIO', '<>', 0)
-        ->where('ID_USER', '<>', $idUserLogon)->orderBy('USERNAM', 'ASC')->get();
-        
+        $offline = User::where('USERPRIO', '<>', 0)
+        ->where('ID_USER', '<>', $idUserLogon)->orderBy('USERNAM', 'ASC')->distinct('ID_USER')->get();
+
         $online = Connection::where('DATE_CONNECTION', '<>', null)
             ->where('DATE_DISCONNECTION', null)
             ->where('ID_USER', '<>', $idUserLogon)->get();
