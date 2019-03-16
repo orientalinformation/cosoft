@@ -181,7 +181,7 @@ class Admin extends Controller
 
         $online = Connection::where('DATE_CONNECTION', '<>', null)
             ->where('DATE_DISCONNECTION', null)
-            ->where('ID_USER', '<>', $idUserLogon)->get();
+            ->where('ID_USER', '<>', $idUserLogon)->distinct('ID_USER')->get();
         
         return compact('online', 'offline');
 
