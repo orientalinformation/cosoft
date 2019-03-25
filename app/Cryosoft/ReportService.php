@@ -2602,13 +2602,13 @@ class ReportService
             }
 
             $dnbpas = abs($dTMax - $dTMin) / $dpas;
-            
+
             if ($dnsPasAbs == $dnbpas) {
                 break;
             } else {
                 $dnsPasAbs = $dnbpas;
             }
-        } while ($dnbpas > 18);
+        } while ($dnbpas > 16);
 
         $tab = [$this->unit->prodTemperature($dTMin), $this->unit->prodTemperature($dTMax), $dpas];
 
