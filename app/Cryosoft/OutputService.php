@@ -514,7 +514,7 @@ class OutputService
             $dpas = 0;
         }
 
-
+        $dnsPasAbs = 16;
         do {
             $dpas++;
 
@@ -527,7 +527,19 @@ class OutputService
             }
 
             $dnbpas = abs($dTMax - $dTMin) / $dpas;
-        } while ($dnbpas > 18);
+
+            /*if ($dpas < 200) {
+                var_dump($dnsPasAbs);
+            } else {
+                var_dump($dnsPasAbs);die;
+            }*/
+
+            if ($dnsPasAbs == $dnbpas) {
+                break;
+            } else {
+                $dnsPasAbs = $dnbpas;
+            }
+        } while ($dnbpas > 16);
 
         $tab = [$this->unit->prodTemperature($dTMin), $this->unit->prodTemperature($dTMax), $dpas];
 
