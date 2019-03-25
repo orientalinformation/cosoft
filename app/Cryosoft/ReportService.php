@@ -2601,7 +2601,7 @@ class ReportService
             }
 
             $dnbpas = abs($dTMax - $dTMin) / $dpas;
-        } while ($dnbpas > 16);
+        } while ($dnbpas > 18);
 
         $tab = [$this->unit->prodTemperature($dTMin), $this->unit->prodTemperature($dTMax), $dpas];
 
