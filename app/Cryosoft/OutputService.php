@@ -514,32 +514,29 @@ class OutputService
             $dpas = 0;
         }
 
-        $dnsPasAbs = 16;
+        $dTMinAbs = 0;
+        $dTMaxAbs = 0;
+
         do {
             $dpas++;
-
-            while ($dTMin % $dpas != 0) {
-                $dTMin--;
+            $dTMinAbs = $dTMin;
+            $dTMaxAbs = $dTMax;
+            while ($dTMinAbs % $dpas != 0) {
+                $dTMinAbs--;
             }
 
-            while ($dTMax % $dpas != 0) {
-                $dTMax++;
+            while ($dTMaxAbs % $dpas != 0) {
+                $dTMaxAbs++;
             }
 
-            $dnbpas = abs($dTMax - $dTMin) / $dpas;
-
-            /*if ($dpas < 200) {
-                var_dump($dnsPasAbs);
-            } else {
-                var_dump($dnsPasAbs);die;
-            }*/
-
-            if ($dnsPasAbs == $dnbpas) {
-                break;
-            } else {
-                $dnsPasAbs = $dnbpas;
-            }
+            $dnbpas = abs($dTMaxAbs - $dTMinAbs) / $dpas;
+    
         } while ($dnbpas > 16);
+
+        $dTMin = $dTMinAbs;
+        $dTMax = $dTMaxAbs;
+
+
 
         $tab = [$this->unit->prodTemperature($dTMin), $this->unit->prodTemperature($dTMax), $dpas];
 
