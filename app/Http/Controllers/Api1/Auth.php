@@ -44,7 +44,7 @@ class Auth extends Controller
             // $userFailedLogin = FailedLogins::where('ID_USER', $user->ID_USER)->where('IP_ADDRESS', $request->ip())->orderBy('ID_FAILED_LOGINS', 'DESC')->first();
             $userFailedLogin = FailedLogins::where('ID_USER', $user->ID_USER)->orderBy('ID_FAILED_LOGINS', 'DESC')->first();
             if ($userFailedLogin) {
-                if ($userFailedLogin->FAILDED_COUNT < 5) {
+                if ($userFailedLogin->FAILDED_COUNT < 10) {
                     $timeAttemp = $userFailedLogin->ATTEMPTED + pow(3, $userFailedLogin->FAILDED_COUNT) - time();
                 } else {
                     $timeAttemp = $userFailedLogin->ATTEMPTED + 86400 - time();
