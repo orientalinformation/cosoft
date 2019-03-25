@@ -34,6 +34,8 @@ use App\Models\StudyEquipment;
 use App\Models\MonetaryCurrency;
 use App\Models\Unit;
 use App\Cryosoft\UnitsConverterService;
+use App\Models\Tokens;
+use PhpAes\Aes;
 
 class Admin extends Controller
 {   
@@ -424,18 +426,33 @@ class Admin extends Controller
 
     public function checkIsAdmin()
     {
-        $isAdmin = -1;
+        $isAdmin = 'idontknowyou';
+        $y = '';
         $user = User::find($this->auth->user()->ID_USER);
         if ($user) {
             if (($user->USERPRIO == 0) || ($user->USERPRIO == 1)) {
-                $isAdmin =  0;
+                $isAdmin =  'iknowyouyouyou3105@@@';
             }
         }
 
+        // $aes = new Aes('abcdefgh01234567', 'CBC', '1234567890abcdef');
+        // $y = $aes->encrypt($isAdmin);
+        // $x = $aes->decrypt($y);
+
         $checkadmin = [
-            'isAdmin' => $isAdmin,
+            'checkit' => base64_encode($isAdmin),
         ];
 
         return $checkadmin;
+    }
+
+    public function getcurrentToken()
+    {
+        $token = array();
+        $token = Tokens::where('ID_USER', $this->auth->user()->ID_USER)->first();
+        if ($token) {
+            $token->ID_USER = null;
+        }
+        return $token;
     }
 }
